@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BtDeviceApp.iml" filepath="$PROJECT_DIR$/BtDeviceApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../AndroidBLE/cmtechble/cmtechble.iml" filepath="$PROJECT_DIR$/../AndroidBLE/cmtechble/cmtechble.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../AndroidBLE/ble/ble.iml" filepath="$PROJECT_DIR$/../AndroidBLE/ble/ble.iml" />
     </modules>
   </component>
 </project>
