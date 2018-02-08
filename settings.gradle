@@ -1,0 +1,3 @@
+include ':app'
+include ':cmtechble'
+project(':cmtechble').projectDir = new File(settingsDir, '../AndroidBLE/cmtechble')
