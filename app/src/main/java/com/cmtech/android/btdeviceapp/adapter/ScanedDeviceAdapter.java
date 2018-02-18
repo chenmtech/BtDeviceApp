@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
+import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.btdeviceapp.R;
 
 import java.util.Arrays;
@@ -23,6 +24,7 @@ public class ScanedDeviceAdapter extends RecyclerView.Adapter<ScanedDeviceAdapte
     static class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView;
         TextView deviceName;
+        TextView deviceAddress;
         TextView deviceSupportedUUID;
 
 
@@ -30,6 +32,7 @@ public class ScanedDeviceAdapter extends RecyclerView.Adapter<ScanedDeviceAdapte
             super(itemView);
             deviceView = itemView;
             deviceName = deviceView.findViewById(R.id.scaned_device_name);
+            deviceAddress = deviceView.findViewById(R.id.scaned_device_address);
             deviceSupportedUUID = deviceView.findViewById(R.id.scaned_device_supporteduuid);
         }
     }
@@ -52,9 +55,10 @@ public class ScanedDeviceAdapter extends RecyclerView.Adapter<ScanedDeviceAdapte
     public void onBindViewHolder(ScanedDeviceAdapter.ViewHolder holder, int position) {
         BluetoothLeDevice device = (BluetoothLeDevice)mDeviceList.get(position);
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
-        String supportedUUID = Arrays.toString(recordUUID.getData());
-        holder.deviceName.setText(device.getName());
-        holder.deviceSupportedUUID.setText(supportedUUID);
+        String supportedUUID = HexUtil.encodeHexStr(recordUUID.getData());
+        holder.deviceName.setText("设备名："+device.getName());
+        holder.deviceAddress.setText("蓝牙地址："+device.getAddress());
+        holder.deviceSupportedUUID.setText("支持的UUID："+supportedUUID);
     }
 
     @Override

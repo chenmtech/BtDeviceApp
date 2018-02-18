@@ -4,15 +4,15 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.ViseBle;
-import com.cmtech.android.ble.callback.scan.ScanCallback;
+import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
 import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.BleUtil;
@@ -26,9 +26,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final String SCAN_DEVICE_NAME = "CM1.0";
 
-    private ViseBle viseBle;
+    private ViseBle viseBle = ViseBle.getInstance();;
     private ScanedDeviceAdapter scanedDeviceAdapter;
     private RecyclerView rvScanedDevices;
+
     private List<BluetoothLeDevice> scanedDeviceList = new ArrayList<>();
 
     @Override
@@ -41,23 +42,18 @@ public class MainActivity extends AppCompatActivity {
         rvScanedDevices.setLayoutManager(layoutManager);
         scanedDeviceAdapter = new ScanedDeviceAdapter(scanedDeviceList);
         rvScanedDevices.setAdapter(scanedDeviceAdapter);
-
-        viseBle = ViseBle.getInstance();
         viseBle.init(this);
-
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // 检测权限
+        // 检测权限，使能蓝牙
         checkBluetoothPermission();
-        // 使能蓝牙
-        enableBluetooth();
 
-        Log.d(TAG, "start to scan now");
-        viseBle.startScan(new SingleFilterScanCallback(new ScanDeviceCallback(this)).setDeviceName(SCAN_DEVICE_NAME));
+        Log.d(TAG, "start to scan now.");
+        viseBle.startScan(new DevNameFilterScanCallback(new ScanDeviceCallback(this)).setDeviceName(SCAN_DEVICE_NAME));
     }
 
     public boolean addScanedDevice(BluetoothLeDevice device) {
@@ -87,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
             if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
             }
+            else{
+                enableBluetooth();
+            }
+        } else {
+            enableBluetooth();
         }
     }
 
@@ -99,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     enableBluetooth();
                 } else {
                     // 不同意获得权限
+                    Toast.makeText(this, "没有蓝牙权限，程序无法运行", Toast.LENGTH_SHORT);
                     finish();
                 }
                 return;
@@ -120,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 enableBluetooth();
             }
         } else if (resultCode == RESULT_CANCELED) { // 不同意
+            Toast.makeText(this, "蓝牙未打开，程序无法运行", Toast.LENGTH_SHORT);
             finish();
         }
         super.onActivityResult(requestCode, resultCode, data);
