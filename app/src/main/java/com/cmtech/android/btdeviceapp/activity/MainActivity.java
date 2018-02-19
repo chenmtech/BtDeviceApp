@@ -1,4 +1,4 @@
-package com.cmtech.android.btdeviceapp;
+package com.cmtech.android.btdeviceapp.activity;
 
 import android.Manifest;
 import android.content.Intent;
@@ -16,6 +16,7 @@ import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
 import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.BleUtil;
+import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ScanedDeviceAdapter;
 import com.cmtech.android.btdeviceapp.scan.ScanDeviceCallback;
 

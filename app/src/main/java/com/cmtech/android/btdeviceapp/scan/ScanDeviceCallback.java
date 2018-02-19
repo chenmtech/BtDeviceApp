@@ -1,11 +1,9 @@
 package com.cmtech.android.btdeviceapp.scan;
 
-import android.app.Activity;
-
 import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
-import com.cmtech.android.btdeviceapp.MainActivity;
+import com.cmtech.android.btdeviceapp.activity.MainActivity;
 
 /**
  * Created by bme on 2018/2/8.
