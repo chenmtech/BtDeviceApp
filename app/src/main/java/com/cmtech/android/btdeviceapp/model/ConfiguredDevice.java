@@ -2,11 +2,13 @@ package com.cmtech.android.btdeviceapp.model;
 
 import org.litepal.crud.DataSupport;
 
+import java.io.Serializable;
+
 /**
  * Created by bme on 2018/2/19.
  */
 
-public class ConfiguredDevice extends DataSupport{
+public class ConfiguredDevice extends DataSupport implements Serializable {
     private int id;
 
     private String macAddress;

@@ -20,7 +20,7 @@ import java.util.List;
 public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDeviceAdapter.ViewHolder> {
     private List<ConfiguredDevice> mDeviceList;
 
-    private int selectItem = 0;
+    private int selectItem = -1;
 
     Drawable defaultBackground;
 
@@ -85,8 +85,6 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
         return mDeviceList.size();
     }
 
-    public void setSelectItem(int item) {
-        selectItem = item;
-        notifyDataSetChanged();
-    }
+
+    public int getCurrentPosition() {return selectItem;}
 }

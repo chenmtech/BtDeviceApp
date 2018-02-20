@@ -1,5 +1,7 @@
 package com.cmtech.android.btdeviceapp.adapter;
 
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,15 +13,18 @@ import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.btdeviceapp.R;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by bme on 2018/2/8.
  */
 
-public class ScanedDeviceAdapter extends RecyclerView.Adapter<ScanedDeviceAdapter.ViewHolder> {
+public class AddDeviceAdapter extends RecyclerView.Adapter<AddDeviceAdapter.ViewHolder> {
     private List<BluetoothLeDevice> mDeviceList;
+
+    private int selectItem = -1;
+
+    Drawable defaultBackground;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView;
@@ -37,28 +42,44 @@ public class ScanedDeviceAdapter extends RecyclerView.Adapter<ScanedDeviceAdapte
         }
     }
 
-    public ScanedDeviceAdapter(List<BluetoothLeDevice> deviceList) {
+    public AddDeviceAdapter(List<BluetoothLeDevice> deviceList) {
         mDeviceList = deviceList;
     }
 
 
 
     @Override
-    public ScanedDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public AddDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.scaned_device_item, parent, false);
+                .inflate(R.layout.add_device_item, parent, false);
         final ViewHolder holder = new ViewHolder(view);
+        defaultBackground = holder.deviceView.getBackground();
+
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(ScanedDeviceAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(AddDeviceAdapter.ViewHolder holder, final int position) {
         BluetoothLeDevice device = (BluetoothLeDevice)mDeviceList.get(position);
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         String supportedUUID = HexUtil.encodeHexStr(recordUUID.getData());
         holder.deviceName.setText("设备名："+device.getName());
         holder.deviceAddress.setText("蓝牙地址："+device.getAddress());
         holder.deviceSupportedUUID.setText("支持的UUID："+supportedUUID);
+
+        if(selectItem == position) {
+            holder.deviceView.setBackgroundColor(Color.BLUE);
+        } else {
+            holder.deviceView.setBackground(defaultBackground);
+        }
+
+        holder.deviceView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectItem = position;
+                notifyDataSetChanged();
+            }
+        });
     }
 
     @Override

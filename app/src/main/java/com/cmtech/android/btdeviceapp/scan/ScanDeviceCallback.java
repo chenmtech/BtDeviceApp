@@ -3,16 +3,16 @@ package com.cmtech.android.btdeviceapp.scan;
 import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
-import com.cmtech.android.btdeviceapp.activity.MainActivity;
+import com.cmtech.android.btdeviceapp.activity.AddDeviceActivity;
 
 /**
  * Created by bme on 2018/2/8.
  */
 
 public class ScanDeviceCallback implements IScanCallback {
-    private MainActivity activity;
+    private AddDeviceActivity activity;
 
-    public ScanDeviceCallback(MainActivity activity) {
+    public ScanDeviceCallback(AddDeviceActivity activity) {
         this.activity = activity;
     }
 

@@ -9,41 +9,62 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
-import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.adapter.ScanedDeviceAdapter;
+import com.cmtech.android.btdeviceapp.adapter.AddDeviceAdapter;
 import com.cmtech.android.btdeviceapp.scan.ScanDeviceCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";
+public class AddDeviceActivity extends AppCompatActivity {
+    private static final String TAG = "AddDeviceActivity";
     private static final String SCAN_DEVICE_NAME = "CM1.0";
 
     private ViseBle viseBle = ViseBle.getInstance();;
-    private ScanedDeviceAdapter scanedDeviceAdapter;
+    private AddDeviceAdapter addDeviceAdapter;
     private RecyclerView rvScanedDevices;
 
     private List<BluetoothLeDevice> scanedDeviceList = new ArrayList<>();
 
+    private Button btnCancel;
+    private Button btnOk;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_add_device);
 
         rvScanedDevices = (RecyclerView)findViewById(R.id.rvScanedDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvScanedDevices.setLayoutManager(layoutManager);
-        scanedDeviceAdapter = new ScanedDeviceAdapter(scanedDeviceList);
-        rvScanedDevices.setAdapter(scanedDeviceAdapter);
+        addDeviceAdapter = new AddDeviceAdapter(scanedDeviceList);
+        rvScanedDevices.setAdapter(addDeviceAdapter);
         viseBle.init(this);
+
+        btnCancel = (Button)findViewById(R.id.device_add_cancel_btn);
+        btnOk = (Button)findViewById(R.id.device_add_ok_btn);
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
     }
 
@@ -69,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if(canAdd) {
             scanedDeviceList.add(device);
-            scanedDeviceAdapter.notifyItemInserted(scanedDeviceList.size()-1);
+            addDeviceAdapter.notifyItemInserted(scanedDeviceList.size()-1);
             rvScanedDevices.scrollToPosition(scanedDeviceList.size()-1);
         }
         return canAdd;
