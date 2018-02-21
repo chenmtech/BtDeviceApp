@@ -1,9 +1,11 @@
 package com.cmtech.android.btdeviceapp.activity;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +13,8 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.ViseBle;
@@ -19,6 +23,7 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.AddDeviceAdapter;
+import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 import com.cmtech.android.btdeviceapp.scan.ScanDeviceCallback;
 
 import java.util.ArrayList;
@@ -34,6 +39,8 @@ public class AddDeviceActivity extends AppCompatActivity {
 
     private List<BluetoothLeDevice> scanedDeviceList = new ArrayList<>();
 
+    private List<ConfiguredDevice> configuredDevices = new ArrayList<>();
+
     private Button btnCancel;
     private Button btnOk;
 
@@ -41,6 +48,8 @@ public class AddDeviceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_device);
+
+        configuredDevices =  (ArrayList<ConfiguredDevice>) getIntent().getSerializableExtra("configured_device_list");
 
         rvScanedDevices = (RecyclerView)findViewById(R.id.rvScanedDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -62,10 +71,56 @@ public class AddDeviceActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                int which = addDeviceAdapter.getSelectItem();
+                if(which != -1) {
+                    if(isConfiguredDevice(scanedDeviceList.get(which))) {
+                        Toast.makeText(AddDeviceActivity.this, "此设备已添加", Toast.LENGTH_LONG).show();
+                    } else {
+                        addConfiguredDevice(addDeviceAdapter.getSelectItem());
+                    }
+                }
             }
         });
 
+    }
+
+    private boolean isConfiguredDevice(BluetoothLeDevice device) {
+        for(ConfiguredDevice ele : configuredDevices) {
+            if(ele.getMacAddress().equalsIgnoreCase(device.getAddress())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void addConfiguredDevice(final int which) {
+        LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.activity_set_cfg_device_info, null);
+        String deviceName = scanedDeviceList.get(which).getName();
+        final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
+        editText.setText(deviceName);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(AddDeviceActivity.this);
+        builder.setTitle("设置设备别名");
+        builder.setView(layout);
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                ConfiguredDevice device = new ConfiguredDevice();
+                device.setNickName(editText.getText().toString());
+                device.setMacAddress(scanedDeviceList.get(which).getAddress());
+                device.setAutoConnected(false);
+                Intent intent = new Intent();
+                intent.putExtra("return_device", device);
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.show();
     }
 
     @Override

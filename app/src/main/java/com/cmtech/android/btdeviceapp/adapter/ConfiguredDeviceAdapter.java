@@ -54,6 +54,14 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
         final ViewHolder holder = new ViewHolder(view);
         defaultBackground = holder.deviceView.getBackground();
 
+        holder.deviceView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectItem = holder.getAdapterPosition();
+                notifyDataSetChanged();
+            }
+        });
+
 
         return holder;
     }
@@ -71,13 +79,6 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
             holder.deviceView.setBackground(defaultBackground);
         }
 
-        holder.deviceView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                selectItem = position;
-                notifyDataSetChanged();
-            }
-        });
     }
 
     @Override
@@ -86,5 +87,13 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
     }
 
 
-    public int getCurrentPosition() {return selectItem;}
+    public int getSelectItem() {return selectItem;}
+
+
+    public void setSelectItem(int selectItem) {
+        if(selectItem >= 0 && selectItem < mDeviceList.size())
+            this.selectItem = selectItem;
+        else
+            this.selectItem = -1;
+    }
 }
