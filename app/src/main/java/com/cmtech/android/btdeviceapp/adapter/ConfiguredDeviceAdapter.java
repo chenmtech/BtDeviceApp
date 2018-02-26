@@ -71,7 +71,22 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
         ConfiguredDevice device = (ConfiguredDevice)mDeviceList.get(position);
         holder.deviceName.setText(device.getNickName());
         holder.deviceAddress.setText(device.getMacAddress());
-        holder.deviceStatus.setText("未连接");
+        String connectState = "未连接";
+        switch (device.getConnectState()) {
+            case CONNECT_DISCONNECT:
+                connectState = "未连接";
+                break;
+            case CONNECT_FAILURE:
+                connectState = "连接失败";
+                break;
+            case CONNECT_SUCCESS:
+                connectState = "已连接";
+                break;
+            default:
+                break;
+        }
+        holder.deviceStatus.setText(connectState);
+
 
         if(selectItem == position) {
             holder.deviceView.setBackgroundColor(Color.BLUE);

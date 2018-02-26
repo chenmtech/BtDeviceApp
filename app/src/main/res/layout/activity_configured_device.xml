@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:background="#fff"
     android:orientation="vertical"
-    tools:context="com.cmtech.android.btdeviceapp.activity.ConfiguredDeviceActivity">
+    tools:context="com.cmtech.android.btdeviceapp.activity.MainActivity">
 
     <TextView
         android:layout_width="match_parent"

@@ -21,24 +21,27 @@ import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.BleUtil;
+import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.adapter.AddDeviceAdapter;
+import com.cmtech.android.btdeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
-import com.cmtech.android.btdeviceapp.scan.ScanDeviceCallback;
+import com.cmtech.android.btdeviceapp.callback.ScanDeviceCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddDeviceActivity extends AppCompatActivity {
-    private static final String TAG = "AddDeviceActivity";
+public class ScanDeviceActivity extends AppCompatActivity {
+    private static final String TAG = "ScanDeviceActivity";
     private static final String SCAN_DEVICE_NAME = "CM1.0";
 
-    private ViseBle viseBle = ViseBle.getInstance();;
-    private AddDeviceAdapter addDeviceAdapter;
-    private RecyclerView rvScanedDevices;
+    private ViseBle viseBle = MyApplication.getViseBle();
 
+    // 用于实现扫描设备的显示
+    private ScanDeviceAdapter scanDeviceAdapter;
+    private RecyclerView rvScanedDevices;
     private List<BluetoothLeDevice> scanedDeviceList = new ArrayList<>();
 
+    // 当前已经在配置设备列表中的设备
     private List<ConfiguredDevice> configuredDevices = new ArrayList<>();
 
     private Button btnCancel;
@@ -49,14 +52,17 @@ public class AddDeviceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_device);
 
-        configuredDevices =  (ArrayList<ConfiguredDevice>) getIntent().getSerializableExtra("configured_device_list");
+        // 获取已配置设备列表
+        configuredDevices =  (ArrayList<ConfiguredDevice>) getIntent()
+                .getSerializableExtra("configured_device_list");
+
 
         rvScanedDevices = (RecyclerView)findViewById(R.id.rvScanedDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvScanedDevices.setLayoutManager(layoutManager);
-        addDeviceAdapter = new AddDeviceAdapter(scanedDeviceList);
-        rvScanedDevices.setAdapter(addDeviceAdapter);
-        viseBle.init(this);
+        scanDeviceAdapter = new ScanDeviceAdapter(scanedDeviceList);
+        rvScanedDevices.setAdapter(scanDeviceAdapter);
+
 
         btnCancel = (Button)findViewById(R.id.device_add_cancel_btn);
         btnOk = (Button)findViewById(R.id.device_add_ok_btn);
@@ -71,12 +77,12 @@ public class AddDeviceActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int which = addDeviceAdapter.getSelectItem();
+                int which = scanDeviceAdapter.getSelectItem();
                 if(which != -1) {
-                    if(isConfiguredDevice(scanedDeviceList.get(which))) {
-                        Toast.makeText(AddDeviceActivity.this, "此设备已添加", Toast.LENGTH_LONG).show();
+                    if(hasConfigured(scanedDeviceList.get(which))) {
+                        Toast.makeText(ScanDeviceActivity.this, "此设备已添加", Toast.LENGTH_LONG).show();
                     } else {
-                        addConfiguredDevice(addDeviceAdapter.getSelectItem());
+                        addToConfiguredDevice(scanDeviceAdapter.getSelectItem());
                     }
                 }
             }
@@ -84,7 +90,7 @@ public class AddDeviceActivity extends AppCompatActivity {
 
     }
 
-    private boolean isConfiguredDevice(BluetoothLeDevice device) {
+    private boolean hasConfigured(BluetoothLeDevice device) {
         for(ConfiguredDevice ele : configuredDevices) {
             if(ele.getMacAddress().equalsIgnoreCase(device.getAddress())) {
                 return true;
@@ -93,12 +99,12 @@ public class AddDeviceActivity extends AppCompatActivity {
         return false;
     }
 
-    private void addConfiguredDevice(final int which) {
+    private void addToConfiguredDevice(final int which) {
         LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.activity_set_cfg_device_info, null);
         String deviceName = scanedDeviceList.get(which).getName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(AddDeviceActivity.this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(ScanDeviceActivity.this);
         builder.setTitle("设置设备别名");
         builder.setView(layout);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -126,14 +132,15 @@ public class AddDeviceActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // 检测权限，使能蓝牙
+        // 检测权限，并使能蓝牙
         checkBluetoothPermission();
 
         Log.d(TAG, "start to scan now.");
         viseBle.startScan(new DevNameFilterScanCallback(new ScanDeviceCallback(this)).setDeviceName(SCAN_DEVICE_NAME));
     }
 
-    public boolean addScanedDevice(BluetoothLeDevice device) {
+    // 将扫描到的设备添加到扫描设备列表中
+    public boolean addToScanedDevice(BluetoothLeDevice device) {
         if(device == null) return false;
 
         boolean canAdd = true;
@@ -145,7 +152,7 @@ public class AddDeviceActivity extends AppCompatActivity {
         }
         if(canAdd) {
             scanedDeviceList.add(device);
-            addDeviceAdapter.notifyItemInserted(scanedDeviceList.size()-1);
+            scanDeviceAdapter.notifyItemInserted(scanedDeviceList.size()-1);
             rvScanedDevices.scrollToPosition(scanedDeviceList.size()-1);
         }
         return canAdd;

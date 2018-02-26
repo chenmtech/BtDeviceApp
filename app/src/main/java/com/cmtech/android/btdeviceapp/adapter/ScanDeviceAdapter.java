@@ -19,7 +19,7 @@ import java.util.List;
  * Created by bme on 2018/2/8.
  */
 
-public class AddDeviceAdapter extends RecyclerView.Adapter<AddDeviceAdapter.ViewHolder> {
+public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.ViewHolder> {
     private List<BluetoothLeDevice> mDeviceList;
 
     private int selectItem = -1;
@@ -42,14 +42,14 @@ public class AddDeviceAdapter extends RecyclerView.Adapter<AddDeviceAdapter.View
         }
     }
 
-    public AddDeviceAdapter(List<BluetoothLeDevice> deviceList) {
+    public ScanDeviceAdapter(List<BluetoothLeDevice> deviceList) {
         mDeviceList = deviceList;
     }
 
 
 
     @Override
-    public AddDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ScanDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.add_device_item, parent, false);
         final ViewHolder holder = new ViewHolder(view);
@@ -67,7 +67,7 @@ public class AddDeviceAdapter extends RecyclerView.Adapter<AddDeviceAdapter.View
     }
 
     @Override
-    public void onBindViewHolder(AddDeviceAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(ScanDeviceAdapter.ViewHolder holder, final int position) {
         BluetoothLeDevice device = (BluetoothLeDevice)mDeviceList.get(position);
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         String supportedUUID = HexUtil.encodeHexStr(recordUUID.getData());

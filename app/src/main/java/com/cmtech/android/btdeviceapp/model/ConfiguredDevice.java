@@ -1,5 +1,7 @@
 package com.cmtech.android.btdeviceapp.model;
 
+import com.cmtech.android.ble.common.ConnectState;
+
 import org.litepal.crud.DataSupport;
 
 import java.io.Serializable;
@@ -16,6 +18,8 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
     private String nickName;
 
     private boolean isAutoConnected;
+
+    ConnectState connectState = ConnectState.CONNECT_DISCONNECT;
 
     public int getId() {
         return id;
@@ -48,4 +52,8 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
     public void setAutoConnected(boolean autoConnected) {
         isAutoConnected = autoConnected;
     }
+
+    public ConnectState getConnectState() {return connectState;}
+
+    public void setConnectState(ConnectState state) {this.connectState = state;}
 }

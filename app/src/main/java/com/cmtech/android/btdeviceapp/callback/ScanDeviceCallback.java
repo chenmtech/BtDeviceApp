@@ -1,25 +1,25 @@
-package com.cmtech.android.btdeviceapp.scan;
+package com.cmtech.android.btdeviceapp.callback;
 
 import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
-import com.cmtech.android.btdeviceapp.activity.AddDeviceActivity;
+import com.cmtech.android.btdeviceapp.activity.ScanDeviceActivity;
 
 /**
  * Created by bme on 2018/2/8.
  */
 
 public class ScanDeviceCallback implements IScanCallback {
-    private AddDeviceActivity activity;
+    private ScanDeviceActivity activity;
 
-    public ScanDeviceCallback(AddDeviceActivity activity) {
+    public ScanDeviceCallback(ScanDeviceActivity activity) {
         this.activity = activity;
     }
 
     @Override
     public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
         if(activity != null && bluetoothLeDevice != null) {
-            activity.addScanedDevice(bluetoothLeDevice);
+            activity.addToScanedDevice(bluetoothLeDevice);
         }
     }
 

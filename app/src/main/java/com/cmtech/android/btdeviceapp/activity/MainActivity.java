@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.ViseBle;
+import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
@@ -30,9 +31,10 @@ import org.litepal.crud.DataSupport;
 import java.io.Serializable;
 import java.util.List;
 
-public class ConfiguredDeviceActivity extends AppCompatActivity {
-    private ViseBle viseBle = ViseBle.getInstance();
+public class MainActivity extends AppCompatActivity {
+    private ViseBle viseBle = MyApplication.getViseBle();
 
+    // 用于完成已配置设备的功能
     private ConfiguredDeviceAdapter configuredDeviceAdapter;
     private RecyclerView rvConfiguredDevices;
     List<ConfiguredDevice> deviceList;
@@ -58,8 +60,8 @@ public class ConfiguredDeviceActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
 
+        // 设置已配置设备信息
         deviceList = DataSupport.findAll(ConfiguredDevice.class);
-
         rvConfiguredDevices = (RecyclerView)findViewById(R.id.rvConfiguredDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvConfiguredDevices.setLayoutManager(layoutManager);
@@ -77,7 +79,7 @@ public class ConfiguredDeviceActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(configuredDeviceAdapter.getSelectItem() != -1)
-                    modifyDeviceNickName(configuredDeviceAdapter.getSelectItem());
+                    modifyConfiguredDeviceInfo(configuredDeviceAdapter.getSelectItem());
             }
         });
 
@@ -85,20 +87,28 @@ public class ConfiguredDeviceActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(configuredDeviceAdapter.getSelectItem() != -1)
-                    deleteDevice(configuredDeviceAdapter.getSelectItem());
+                    deleteConfiguredDevice(configuredDeviceAdapter.getSelectItem());
             }
         });
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ConfiguredDeviceActivity.this, AddDeviceActivity.class);
+                Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
                 intent.putExtra("configured_device_list", (Serializable)deviceList);
                 startActivityForResult(intent, 1);
             }
         });
 
-        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        btnConnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(configuredDeviceAdapter.getSelectItem() != -1)
+                    connectConfiguredDevice(configuredDeviceAdapter.getSelectItem());
+            }
+        });
+
+        // 导航菜单设置
         NavigationView navView = (NavigationView)findViewById(R.id.nav_view);
         navView.setCheckedItem(R.id.nav_userinfo);
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -106,24 +116,32 @@ public class ConfiguredDeviceActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_userinfo:
-                        Toast.makeText(ConfiguredDeviceActivity.this, "you click userinfo", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "you click userinfo", Toast.LENGTH_SHORT).show();
                         return true;
                     case R.id.nav_aboutus:
-                        Toast.makeText(ConfiguredDeviceActivity.this, "you click aboutus", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "you click aboutus", Toast.LENGTH_SHORT).show();
                         return true;
                 }
                 return false;
             }
         });
 
+        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+
     }
 
-    private void modifyDeviceNickName(final int which) {
+    // 连接已配置设备
+    private void connectConfiguredDevice(final int which) {
+
+    }
+
+    // 修改已配置设备信息
+    private void modifyConfiguredDeviceInfo(final int which) {
         LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.activity_set_cfg_device_info, null);
         String deviceName = deviceList.get(which).getNickName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(ConfiguredDeviceActivity.this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("设置设备别名");
         builder.setView(layout);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -143,13 +161,14 @@ public class ConfiguredDeviceActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void deleteDevice(final int which) {
+    // 删除已配置设备
+    private void deleteConfiguredDevice(final int which) {
         LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.activity_set_cfg_device_info, null);
         String deviceName = deviceList.get(which).getNickName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);
         editText.setEnabled(false);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(ConfiguredDeviceActivity.this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("确定删除该设备吗？");
         builder.setView(layout);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -175,6 +194,7 @@ public class ConfiguredDeviceActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case 1:
+                // 添加配置设备
                 if(resultCode == RESULT_OK) {
                     ConfiguredDevice device = (ConfiguredDevice)data.getSerializableExtra("return_device");
                     device.save();
