@@ -1,5 +1,6 @@
 package com.cmtech.android.btdeviceapp.adapter;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 
@@ -17,7 +19,10 @@ import java.util.List;
  * Created by bme on 2018/2/8.
  */
 
-public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDeviceAdapter.ViewHolder> {
+public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDeviceAdapter.ViewHolder>
+                                    implements ConfiguredDevice.IConnectStateObersver{
+    private Activity activity;
+
     private List<ConfiguredDevice> mDeviceList;
 
     private int selectItem = -1;
@@ -41,10 +46,14 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
         }
     }
 
-    public ConfiguredDeviceAdapter(List<ConfiguredDevice> deviceList) {
-        mDeviceList = deviceList;
-    }
+    public ConfiguredDeviceAdapter(Activity activity, List<ConfiguredDevice> deviceList) {
+        this.activity = activity;
 
+        mDeviceList = deviceList;
+        for(ConfiguredDevice device : mDeviceList) {
+            device.registerConnectStateObserver(this);
+        }
+    }
 
 
     @Override
@@ -71,13 +80,19 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
         ConfiguredDevice device = (ConfiguredDevice)mDeviceList.get(position);
         holder.deviceName.setText(device.getNickName());
         holder.deviceAddress.setText(device.getMacAddress());
-        String connectState = "未连接";
+        String connectState = "等待连接";
         switch (device.getConnectState()) {
+            case CONNECT_INIT:
+                connectState = "等待连接";
+                break;
+            case CONNECT_PROCESS:
+                connectState = "连接中...";
+                break;
             case CONNECT_DISCONNECT:
-                connectState = "未连接";
+                connectState = "连接断开";
                 break;
             case CONNECT_FAILURE:
-                connectState = "连接失败";
+                connectState = "连接错误";
                 break;
             case CONNECT_SUCCESS:
                 connectState = "已连接";
@@ -110,5 +125,15 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
             this.selectItem = selectItem;
         else
             this.selectItem = -1;
+    }
+
+    @Override
+    public void updateConnectState(ConfiguredDevice device, ConnectState state) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
     }
 }

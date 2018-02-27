@@ -13,14 +13,17 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.ViseBle;
+import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
@@ -31,7 +34,7 @@ import org.litepal.crud.DataSupport;
 import java.io.Serializable;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ConfiguredDevice.IConnectStateObersver{
     private ViseBle viseBle = MyApplication.getViseBle();
 
     // 用于完成已配置设备的功能
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnDelete;
     private Button btnAdd;
     private Button btnConnect;
+
 
     private DrawerLayout mDrawerLayout;
 
@@ -60,12 +64,17 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
 
-        // 设置已配置设备信息
+        // 获取已配置设备信息
         deviceList = DataSupport.findAll(ConfiguredDevice.class);
+        for(ConfiguredDevice device : deviceList) {
+            device.registerConnectStateObserver(this);
+        }
+
+        // 设置已配置设备信息
         rvConfiguredDevices = (RecyclerView)findViewById(R.id.rvConfiguredDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvConfiguredDevices.setLayoutManager(layoutManager);
-        configuredDeviceAdapter = new ConfiguredDeviceAdapter(deviceList);
+        configuredDeviceAdapter = new ConfiguredDeviceAdapter(this, deviceList);
         if(deviceList != null && deviceList.size() != 0)
             configuredDeviceAdapter.setSelectItem(0);
         rvConfiguredDevices.setAdapter(configuredDeviceAdapter);
@@ -103,8 +112,11 @@ public class MainActivity extends AppCompatActivity {
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(configuredDeviceAdapter.getSelectItem() != -1)
+                if(configuredDeviceAdapter.getSelectItem() != -1) {
+                    mDrawerLayout.closeDrawer(GravityCompat.START);
                     connectConfiguredDevice(configuredDeviceAdapter.getSelectItem());
+                }
+
             }
         });
 
@@ -128,11 +140,12 @@ public class MainActivity extends AppCompatActivity {
 
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 
+
     }
 
     // 连接已配置设备
     private void connectConfiguredDevice(final int which) {
-
+        deviceList.get(which).connect();
     }
 
     // 修改已配置设备信息
@@ -214,5 +227,17 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+
+    @Override
+    public void updateConnectState(ConfiguredDevice device, ConnectState state) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("MainActivity", "OK");
+
+            }
+        });
+
     }
 }
