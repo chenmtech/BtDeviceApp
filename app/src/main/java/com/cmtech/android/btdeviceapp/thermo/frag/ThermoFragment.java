@@ -31,7 +31,7 @@ public class ThermoFragment extends DeviceFragment {
     }
 
     @Override
-    public void updateDeviceInfo(final ConfiguredDevice device) {
+    public void updateDeviceInfo(final ConfiguredDevice device, int type) {
         if(tvConnectState != null && ThermoFragment.this.device == device) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override

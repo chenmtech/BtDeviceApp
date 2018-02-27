@@ -18,6 +18,10 @@ import java.util.List;
  */
 
 public class ConfiguredDevice extends DataSupport implements Serializable {
+    public static final int TYPE_MODIFY = 0;
+    public static final int TYPE_ADD = 1;
+    public static final int TYPE_DELETE = 2;
+
     // 数据库会保存的字段
     private int id;
 
@@ -49,7 +53,7 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
-        notifyDeviceObservers();
+        notifyDeviceObservers(TYPE_MODIFY);
     }
 
     public boolean isAutoConnected() {
@@ -96,7 +100,7 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         return rtn;
     }
 
-    public void setConnectState(ConnectState state) {this.connectState = state; notifyDeviceObservers();}
+    public void setConnectState(ConnectState state) {this.connectState = state; notifyDeviceObservers(TYPE_MODIFY);}
 
 
 
@@ -125,7 +129,7 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
     }
 
     public interface IConfiguredDeviceObersver {
-        void updateDeviceInfo(ConfiguredDevice device);
+        void updateDeviceInfo(ConfiguredDevice device, int type);
     }
 
     public void registerDeviceObserver(IConfiguredDeviceObersver obersver) {
@@ -142,9 +146,9 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         }
     }
 
-    public void notifyDeviceObservers() {
+    public void notifyDeviceObservers(int type) {
         for(IConfiguredDeviceObersver obersver : obersvers) {
-            obersver.updateDeviceInfo(this);
+            obersver.updateDeviceInfo(this, type);
         }
     }
 

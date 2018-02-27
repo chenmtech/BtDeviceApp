@@ -110,7 +110,7 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
     }
 
     @Override
-    public void updateDeviceInfo(ConfiguredDevice device) {
+    public void updateDeviceInfo(ConfiguredDevice device, int type) {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

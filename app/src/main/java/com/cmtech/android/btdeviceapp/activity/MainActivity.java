@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
@@ -34,11 +35,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ConfiguredDevice.IConfiguredDeviceObersver {
-    //private ViseBle viseBle = MyApplication.getViseBle();
+/**
+ *  MainActivity: 主界面，主要数据存放区
+ */
+public class MainActivity extends AppCompatActivity {
 
     // 已配置设备列表
     List<ConfiguredDevice> configuredDeviceList = new ArrayList<>();
+
+    // 已连接设备列表
     List<ConfiguredDevice> connectDeviceList = new ArrayList<>();
 
 
@@ -50,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
     private Button btnDelete;
     private Button btnAdd;
     private Button btnConnect;
-
 
     private DrawerLayout mDrawerLayout;
 
@@ -91,8 +95,9 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
         btnModify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(configuredDeviceAdapter.getSelectItem() != -1)
-                    modifyConfiguredDeviceInfo(configuredDeviceAdapter.getSelectItem());
+                int which = configuredDeviceAdapter.getSelectItem();
+                if(which != -1)
+                    modifyConfiguredDeviceInfo(configuredDeviceList.get(which));
             }
         });
 
@@ -100,8 +105,9 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(configuredDeviceAdapter.getSelectItem() != -1)
-                    deleteConfiguredDevice(configuredDeviceAdapter.getSelectItem());
+                int which = configuredDeviceAdapter.getSelectItem();
+                if(which != -1)
+                    deleteConfiguredDevice(configuredDeviceList.get(which));
             }
         });
 
@@ -119,14 +125,10 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(configuredDeviceAdapter.getSelectItem() != -1) {
+                int which = configuredDeviceAdapter.getSelectItem();
+                if(which != -1) {
                     mDrawerLayout.closeDrawer(GravityCompat.START);
-                    ConfiguredDevice device = configuredDeviceList.get(configuredDeviceAdapter.getSelectItem());
-                    connectDeviceList.add(device);
-                    fragAdapter.notifyDataSetChanged();
-                    viewPager.setCurrentItem(fragAdapter.getCount()-1);
-                    tabLayout.getTabAt(fragAdapter.getCount()-1).select();
-                    connectConfiguredDevice(device);
+                    connectConfiguredDevice(configuredDeviceList.get(which));
                 }
 
             }
@@ -164,13 +166,17 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
 
     // 连接已配置设备
     private void connectConfiguredDevice(ConfiguredDevice device) {
+        connectDeviceList.add(device);
+        fragAdapter.notifyDataSetChanged();
+        viewPager.setCurrentItem(fragAdapter.getCount()-1);
+        tabLayout.getTabAt(fragAdapter.getCount()-1).select();
         device.connect();
     }
 
     // 修改已配置设备信息
-    private void modifyConfiguredDeviceInfo(final int which) {
+    private void modifyConfiguredDeviceInfo(final ConfiguredDevice device) {
         LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.activity_set_cfg_device_info, null);
-        String deviceName = configuredDeviceList.get(which).getNickName();
+        String deviceName = device.getNickName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -179,8 +185,8 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                configuredDeviceList.get(which).save();
-                configuredDeviceList.get(which).setNickName(editText.getText().toString());
+                device.save();
+                device.setNickName(editText.getText().toString());
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -193,9 +199,9 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
     }
 
     // 删除已配置设备
-    private void deleteConfiguredDevice(final int which) {
+    private void deleteConfiguredDevice(final ConfiguredDevice device) {
         LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.activity_set_cfg_device_info, null);
-        String deviceName = configuredDeviceList.get(which).getNickName();
+        String deviceName = device.getNickName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);
         editText.setEnabled(false);
@@ -205,8 +211,9 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                configuredDeviceList.get(which).delete();
-                configuredDeviceList.remove(which);
+                device.delete();
+                int index = configuredDeviceList.indexOf(device);
+                configuredDeviceList.remove(index);
                 configuredDeviceAdapter.setSelectItem(-1);
                 configuredDeviceAdapter.notifyDataSetChanged();
             }
@@ -233,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
                         configuredDeviceList.add(device);
                         device.registerDeviceObserver(configuredDeviceAdapter);
                         configuredDeviceAdapter.setSelectItem(configuredDeviceList.size() - 1);
-                        device.notifyDeviceObservers();
+                        device.notifyDeviceObservers(ConfiguredDevice.TYPE_ADD);
                     }
                 }
         }
@@ -250,6 +257,12 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MyApplication.getViseBle().disconnect();
+    }
+
+    /*@Override
     public void updateDeviceInfo(ConfiguredDevice device) {
         runOnUiThread(new Runnable() {
             @Override
@@ -258,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
 
             }
         });
-    }
+    }*/
 
 
 }
