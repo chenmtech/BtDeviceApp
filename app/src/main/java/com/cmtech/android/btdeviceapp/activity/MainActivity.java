@@ -36,15 +36,19 @@ import com.cmtech.android.btdeviceapp.thermo.frag.ThermoFragment;
 import org.litepal.crud.DataSupport;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ConfiguredDevice.IConfiguredDeviceObersver {
-    private ViseBle viseBle = MyApplication.getViseBle();
+    //private ViseBle viseBle = MyApplication.getViseBle();
 
-    // 用于完成已配置设备的功能
+    // 已配置设备列表
+    List<ConfiguredDevice> deviceList = new ArrayList<>();
+
+
     private ConfiguredDeviceAdapter configuredDeviceAdapter;
     private RecyclerView rvConfiguredDevices;
-    List<ConfiguredDevice> deviceList;
+
 
     private Button btnModify;
     private Button btnDelete;
@@ -62,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
@@ -73,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
 
         // 获取已配置设备信息
         deviceList = DataSupport.findAll(ConfiguredDevice.class);
+
+        // 将MainActivity注册为每个已配置设备的观察者
         for(ConfiguredDevice device : deviceList) {
             device.registerDeviceObserver(this);
         }
@@ -82,15 +88,15 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvConfiguredDevices.setLayoutManager(layoutManager);
         configuredDeviceAdapter = new ConfiguredDeviceAdapter(this, deviceList);
-        if(deviceList != null && deviceList.size() != 0)
-            configuredDeviceAdapter.setSelectItem(0);
         rvConfiguredDevices.setAdapter(configuredDeviceAdapter);
+
 
         btnModify = (Button)findViewById(R.id.device_modify_btn);
         btnDelete = (Button)findViewById(R.id.device_delete_btn);
         btnAdd = (Button)findViewById(R.id.device_add_btn);
         btnConnect = (Button)findViewById(R.id.device_connect_btn);
 
+        // 修改设备信息
         btnModify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
             }
         });
 
+        // 删除设备
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -168,14 +175,13 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("设置设备别名");
+        builder.setTitle("修改设备信息");
         builder.setView(layout);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 deviceList.get(which).save();
                 deviceList.get(which).setNickName(editText.getText().toString());
-                //configuredDeviceAdapter.notifyDataSetChanged();
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -223,11 +229,15 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
                 // 添加配置设备
                 if(resultCode == RESULT_OK) {
                     ConfiguredDevice device = (ConfiguredDevice)data.getSerializableExtra("return_device");
-                    device.save();
-                    deviceList.add(device);
-                    configuredDeviceAdapter.setSelectItem(deviceList.size()-1);
-                    configuredDeviceAdapter.notifyDataSetChanged();
-
+                    if(device != null) {
+                        device.save();
+                        deviceList.add(device);
+                        device.registerDeviceObserver(this);
+                        device.registerDeviceObserver(configuredDeviceAdapter);
+                        configuredDeviceAdapter.setSelectItem(deviceList.size() - 1);
+                        //configuredDeviceAdapter.notifyDataSetChanged();
+                        device.notifyDeviceObservers();
+                    }
                 }
         }
     }

@@ -124,7 +124,10 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
     }
 
     public void registerDeviceObserver(IConfiguredDeviceObersver obersver) {
-        obersvers.add(obersver);
+        int index = obersvers.indexOf(obersver);
+        if(index < 0) {
+            obersvers.add(obersver);
+        }
     }
 
     public void removerDeviceObserver(IConfiguredDeviceObersver obersver) {
@@ -134,7 +137,7 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         }
     }
 
-    private void notifyDeviceObservers() {
+    public void notifyDeviceObservers() {
         for(IConfiguredDeviceObersver obersver : obersvers) {
             obersver.updateDeviceInfo(this);
         }

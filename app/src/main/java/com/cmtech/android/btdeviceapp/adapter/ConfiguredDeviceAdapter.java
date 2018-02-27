@@ -52,6 +52,10 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
         for(ConfiguredDevice device : mDeviceList) {
             device.registerDeviceObserver(this);
         }
+
+        if(mDeviceList.size() > 0) {
+            setSelectItem(0);
+        }
     }
 
 
@@ -79,31 +83,10 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
         ConfiguredDevice device = (ConfiguredDevice)mDeviceList.get(position);
         holder.deviceName.setText(device.getNickName());
         holder.deviceAddress.setText(device.getMacAddress());
-        String connectState = "等待连接";
-        switch (device.getConnectState()) {
-            case CONNECT_INIT:
-                connectState = "等待连接";
-                break;
-            case CONNECT_PROCESS:
-                connectState = "连接中...";
-                break;
-            case CONNECT_DISCONNECT:
-                connectState = "连接断开";
-                break;
-            case CONNECT_FAILURE:
-                connectState = "连接错误";
-                break;
-            case CONNECT_SUCCESS:
-                connectState = "已连接";
-                break;
-            default:
-                break;
-        }
-        holder.deviceStatus.setText(connectState);
-
+        holder.deviceStatus.setText(device.getConnectStateString());
 
         if(selectItem == position) {
-            holder.deviceView.setBackgroundColor(Color.BLUE);
+            holder.deviceView.setBackgroundColor(Color.argb(0, 10,10,10));
         } else {
             holder.deviceView.setBackground(defaultBackground);
         }
