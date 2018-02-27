@@ -86,7 +86,7 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
         holder.deviceStatus.setText(device.getConnectStateString());
 
         if(selectItem == position) {
-            holder.deviceView.setBackgroundColor(Color.argb(0, 10,10,10));
+            holder.deviceView.setBackgroundColor(Color.parseColor("#808080"));
         } else {
             holder.deviceView.setBackground(defaultBackground);
         }

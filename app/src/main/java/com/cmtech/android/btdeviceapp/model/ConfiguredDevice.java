@@ -98,6 +98,11 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
 
     public void setConnectState(ConnectState state) {this.connectState = state; notifyDeviceObservers();}
 
+
+
+
+
+
     public class ConfiguredDeviceConnectCallback implements IConnectCallback {
         @Override
         public void onConnectSuccess(DeviceMirror deviceMirror) {
@@ -146,5 +151,21 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
     public void connect() {
         setConnectState(ConnectState.CONNECT_PROCESS);
         MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ConfiguredDevice that = (ConfiguredDevice) o;
+
+        return macAddress != null ? macAddress.equals(that.macAddress) : that.macAddress == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return macAddress != null ? macAddress.hashCode() : 0;
     }
 }
