@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 
@@ -20,7 +19,7 @@ import java.util.List;
  */
 
 public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDeviceAdapter.ViewHolder>
-                                    implements ConfiguredDevice.IConnectStateObersver{
+                                    implements ConfiguredDevice.IConfiguredDeviceObersver {
     private Activity activity;
 
     private List<ConfiguredDevice> mDeviceList;
@@ -51,7 +50,7 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
 
         mDeviceList = deviceList;
         for(ConfiguredDevice device : mDeviceList) {
-            device.registerConnectStateObserver(this);
+            device.registerDeviceObserver(this);
         }
     }
 
@@ -128,7 +127,7 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
     }
 
     @Override
-    public void updateConnectState(ConfiguredDevice device, ConnectState state) {
+    public void updateDeviceInfo(ConfiguredDevice device) {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

@@ -49,6 +49,7 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
+        notifyDeviceObservers();
     }
 
     public boolean isAutoConnected() {
@@ -67,11 +68,35 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
 
     DeviceMirror deviceMirror = null;
 
-    List<IConnectStateObersver> obersvers = new ArrayList<>();
+    List<IConfiguredDeviceObersver> obersvers = new ArrayList<>();
 
     public ConnectState getConnectState() {return connectState;}
 
-    public void setConnectState(ConnectState state) {this.connectState = state; notifyConnectStateObservers();}
+    public String getConnectStateString() {
+        String rtn = "等待连接";
+        switch (connectState) {
+            case CONNECT_INIT:
+                rtn = "等待连接";
+                break;
+            case CONNECT_PROCESS:
+                rtn = "连接中...";
+                break;
+            case CONNECT_DISCONNECT:
+                rtn = "连接断开";
+                break;
+            case CONNECT_FAILURE:
+                rtn = "连接错误";
+                break;
+            case CONNECT_SUCCESS:
+                rtn = "已连接";
+                break;
+            default:
+                break;
+        }
+        return rtn;
+    }
+
+    public void setConnectState(ConnectState state) {this.connectState = state; notifyDeviceObservers();}
 
     public class ConfiguredDeviceConnectCallback implements IConnectCallback {
         @Override
@@ -94,24 +119,24 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         }
     }
 
-    public interface IConnectStateObersver {
-        void updateConnectState(ConfiguredDevice device, ConnectState state);
+    public interface IConfiguredDeviceObersver {
+        void updateDeviceInfo(ConfiguredDevice device);
     }
 
-    public void registerConnectStateObserver(IConnectStateObersver obersver) {
+    public void registerDeviceObserver(IConfiguredDeviceObersver obersver) {
         obersvers.add(obersver);
     }
 
-    public void removerConnectStateObserver(IConnectStateObersver obersver) {
+    public void removerDeviceObserver(IConfiguredDeviceObersver obersver) {
         int index = obersvers.indexOf(obersver);
         if(index >= 0) {
             obersvers.remove(index);
         }
     }
 
-    private void notifyConnectStateObservers() {
-        for(IConnectStateObersver obersver : obersvers) {
-            obersver.updateConnectState(this, connectState);
+    private void notifyDeviceObservers() {
+        for(IConfiguredDeviceObersver obersver : obersvers) {
+            obersver.updateDeviceInfo(this);
         }
     }
 

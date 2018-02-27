@@ -4,7 +4,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -19,22 +24,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.ViseBle;
-import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+import com.cmtech.android.btdeviceapp.thermo.frag.ThermoFragment;
 
 import org.litepal.crud.DataSupport;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ConfiguredDevice.IConnectStateObersver{
+public class MainActivity extends AppCompatActivity implements ConfiguredDevice.IConfiguredDeviceObersver {
     private ViseBle viseBle = MyApplication.getViseBle();
 
     // 用于完成已配置设备的功能
@@ -49,6 +53,9 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
 
 
     private DrawerLayout mDrawerLayout;
+
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
         // 获取已配置设备信息
         deviceList = DataSupport.findAll(ConfiguredDevice.class);
         for(ConfiguredDevice device : deviceList) {
-            device.registerConnectStateObserver(this);
+            device.registerDeviceObserver(this);
         }
 
         // 设置已配置设备信息
@@ -140,6 +147,12 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
 
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 
+        // TabLayout相关设置
+        viewPager = (ViewPager) findViewById(R.id.main_vp);
+        tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
+        viewPager.setAdapter(new MyAdapter(getSupportFragmentManager(),deviceList));
+        tabLayout.setupWithViewPager(viewPager);
+
 
     }
 
@@ -160,9 +173,9 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                deviceList.get(which).setNickName(editText.getText().toString());
                 deviceList.get(which).save();
-                configuredDeviceAdapter.notifyDataSetChanged();
+                deviceList.get(which).setNickName(editText.getText().toString());
+                //configuredDeviceAdapter.notifyDataSetChanged();
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -230,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
     }
 
     @Override
-    public void updateConnectState(ConfiguredDevice device, ConnectState state) {
+    public void updateDeviceInfo(ConfiguredDevice device) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -238,6 +251,33 @@ public class MainActivity extends AppCompatActivity implements ConfiguredDevice.
 
             }
         });
-
     }
+
+
+
+    class MyAdapter extends FragmentPagerAdapter {
+        private List<ConfiguredDevice> list;
+
+        public MyAdapter(FragmentManager fm, List<ConfiguredDevice> list) {
+            super(fm);
+            this.list = list;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return ThermoFragment.newInstance(list.get(position));
+        }
+
+        @Override
+        public int getCount() {
+            return list.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return list.get(position).getNickName();
+        }
+    }
+
+
 }
