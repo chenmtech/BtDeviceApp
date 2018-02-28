@@ -6,6 +6,7 @@ import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.btdeviceapp.MyApplication;
+import com.cmtech.android.btdeviceapp.activity.MainActivity;
 
 import org.litepal.crud.DataSupport;
 
@@ -103,7 +104,7 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
     public void setConnectState(ConnectState state) {this.connectState = state; notifyDeviceObservers(TYPE_MODIFY);}
 
 
-
+    public DeviceMirror getDeviceMirror() {return deviceMirror;}
 
 
 
@@ -112,8 +113,15 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         public void onConnectSuccess(DeviceMirror deviceMirror) {
             DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
             if(deviceMirrorPool.isContainDevice(deviceMirror)) {
-                setConnectState(ConnectState.CONNECT_SUCCESS);
                 ConfiguredDevice.this.deviceMirror = deviceMirror;
+                setConnectState(ConnectState.CONNECT_SUCCESS);
+                final MainActivity activity = MainActivity.getActivity();
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        activity.openConnectedDevice(ConfiguredDevice.this);
+                    }
+                });
             }
         }
 
@@ -146,9 +154,16 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         }
     }
 
-    public void notifyDeviceObservers(int type) {
-        for(IConfiguredDeviceObersver obersver : obersvers) {
-            obersver.updateDeviceInfo(this, type);
+    public void notifyDeviceObservers(final int type) {
+        for(final IConfiguredDeviceObersver obersver : obersvers) {
+            if(obersver != null) {
+                MainActivity.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        obersver.updateDeviceInfo(ConfiguredDevice.this, type);
+                    }
+                });
+            }
         }
     }
 

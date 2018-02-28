@@ -29,9 +29,8 @@
             android:layout_height="wrap_content"
             app:tabMode="scrollable"
             app:tabGravity="center"
-            app:tabBackground = "@android:color/holo_blue_dark"
-            app:tabTextColor="#ffffff"
-            app:tabSelectedTextColor="#ff0000"
+            app:tabTextColor="@color/colorPrimary"
+            app:tabSelectedTextColor="@android:color/holo_orange_light"
             android:id="@+id/main_tab_layout"/>
 
     </LinearLayout>

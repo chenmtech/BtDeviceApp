@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -27,7 +26,7 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
-import com.cmtech.android.btdeviceapp.thermo.adapter.DeviceFragmentPagerAdapter;
+import com.cmtech.android.btdeviceapp.btdevice.common.OpenedDeviceFragmentPagerAdapter;
 
 import org.litepal.crud.DataSupport;
 
@@ -39,12 +38,13 @@ import java.util.List;
  *  MainActivity: 主界面，主要数据存放区
  */
 public class MainActivity extends AppCompatActivity {
+    private static MainActivity activity;
 
-    // 已配置设备列表
+    // 已配置的设备列表
     List<ConfiguredDevice> configuredDeviceList = new ArrayList<>();
 
-    // 已连接设备列表
-    List<ConfiguredDevice> connectDeviceList = new ArrayList<>();
+    // 已打开的设备列表
+    List<ConfiguredDevice> openedDeviceList = new ArrayList<>();
 
 
     private ConfiguredDeviceAdapter configuredDeviceAdapter;
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
     private TabLayout tabLayout;
-    private DeviceFragmentPagerAdapter fragAdapter;
+    private OpenedDeviceFragmentPagerAdapter fragAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,8 +127,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 int which = configuredDeviceAdapter.getSelectItem();
                 if(which != -1) {
-                    mDrawerLayout.closeDrawer(GravityCompat.START);
-                    connectConfiguredDevice(configuredDeviceList.get(which));
+                    //mDrawerLayout.closeDrawer(GravityCompat.START);
+                    configuredDeviceList.get(which).connect();
+                    //connectConfiguredDevice(configuredDeviceList.get(which));
                 }
 
             }
@@ -157,20 +158,23 @@ public class MainActivity extends AppCompatActivity {
         // TabLayout相关设置
         viewPager = (ViewPager) findViewById(R.id.main_vp);
         tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
-        fragAdapter = new DeviceFragmentPagerAdapter(getSupportFragmentManager(), connectDeviceList);
+        fragAdapter = new OpenedDeviceFragmentPagerAdapter(getSupportFragmentManager(), openedDeviceList);
         viewPager.setAdapter(fragAdapter);
         tabLayout.setupWithViewPager(viewPager);
 
-
+        activity = this;
     }
 
-    // 连接已配置设备
-    private void connectConfiguredDevice(ConfiguredDevice device) {
-        connectDeviceList.add(device);
+    public static MainActivity getActivity() {return activity;}
+
+    // 打开已连接设备
+    public void openConnectedDevice(ConfiguredDevice device) {
+        if(device == null) return;
+        mDrawerLayout.closeDrawer(GravityCompat.START);
+        openedDeviceList.add(device);
         fragAdapter.notifyDataSetChanged();
         viewPager.setCurrentItem(fragAdapter.getCount()-1);
         tabLayout.getTabAt(fragAdapter.getCount()-1).select();
-        device.connect();
     }
 
     // 修改已配置设备信息
@@ -187,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.save();
                 device.setNickName(editText.getText().toString());
+                fragAdapter.notifyDataSetChanged();
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -214,8 +219,7 @@ public class MainActivity extends AppCompatActivity {
                 device.delete();
                 int index = configuredDeviceList.indexOf(device);
                 configuredDeviceList.remove(index);
-                configuredDeviceAdapter.setSelectItem(-1);
-                configuredDeviceAdapter.notifyDataSetChanged();
+                device.notifyDeviceObservers(ConfiguredDevice.TYPE_DELETE);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -239,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
                         device.save();
                         configuredDeviceList.add(device);
                         device.registerDeviceObserver(configuredDeviceAdapter);
-                        configuredDeviceAdapter.setSelectItem(configuredDeviceList.size() - 1);
                         device.notifyDeviceObservers(ConfiguredDevice.TYPE_ADD);
                     }
                 }
@@ -264,13 +267,7 @@ public class MainActivity extends AppCompatActivity {
 
     /*@Override
     public void updateDeviceInfo(ConfiguredDevice device) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d("MainActivity", "OK");
-
-            }
-        });
+        Log.d("MainActivity", "OK");
     }*/
 
 

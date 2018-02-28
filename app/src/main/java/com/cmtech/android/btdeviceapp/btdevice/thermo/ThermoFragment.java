@@ -1,20 +1,22 @@
-package com.cmtech.android.btdeviceapp.thermo.frag;
+package com.cmtech.android.btdeviceapp.btdevice.thermo;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
+import com.cmtech.android.btdeviceapp.btdevice.common.OpenedDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 
 /**
  * Created by bme on 2018/2/27.
  */
 
-public class ThermoFragment extends DeviceFragment {
+public class ThermoFragment extends OpenedDeviceFragment {
 
     TextView tvConnectState;
 
@@ -33,14 +35,10 @@ public class ThermoFragment extends DeviceFragment {
     @Override
     public void updateDeviceInfo(final ConfiguredDevice device, int type) {
         if(tvConnectState != null && ThermoFragment.this.device == device) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    String connectState = device.getConnectStateString();
-                    tvConnectState.setText(connectState);
-                }
-            });
+            String connectState = device.getConnectStateString();
+            tvConnectState.setText(connectState);
         }
+
     }
 
     @Nullable
@@ -61,5 +59,9 @@ public class ThermoFragment extends DeviceFragment {
 
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("ThermoFragment", "onDestroy");
+    }
 }

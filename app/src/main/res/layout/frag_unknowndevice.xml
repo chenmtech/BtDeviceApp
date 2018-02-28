@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="这是体温计的Fragment界面"/>
+        android:text="这是未知设备的Fragment界面"/>
 
     <TextView
         android:id="@+id/device_connect_state_tv"

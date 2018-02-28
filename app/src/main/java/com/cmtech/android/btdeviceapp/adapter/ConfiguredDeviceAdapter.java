@@ -14,6 +14,9 @@ import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 
 import java.util.List;
 
+import static com.cmtech.android.btdeviceapp.model.ConfiguredDevice.TYPE_ADD;
+import static com.cmtech.android.btdeviceapp.model.ConfiguredDevice.TYPE_DELETE;
+
 /**
  * Created by bme on 2018/2/8.
  */
@@ -111,11 +114,11 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
 
     @Override
     public void updateDeviceInfo(ConfiguredDevice device, int type) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                notifyDataSetChanged();
-            }
-        });
+        if(type == TYPE_ADD) {
+            setSelectItem(mDeviceList.size()-1);
+        } else if(type == TYPE_DELETE) {
+            setSelectItem(-1);
+        }
+        notifyDataSetChanged();
     }
 }
