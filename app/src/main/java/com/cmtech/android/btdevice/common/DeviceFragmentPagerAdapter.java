@@ -1,11 +1,10 @@
-package com.cmtech.android.btdeviceapp.btdevice.common;
+package com.cmtech.android.btdevice.common;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
-import com.cmtech.android.btdeviceapp.btdevice.common.OpenedDeviceFragmentFactory;
 
 import java.util.List;
 
@@ -13,17 +12,17 @@ import java.util.List;
  * Created by bme on 2018/2/27.
  */
 
-public class OpenedDeviceFragmentPagerAdapter extends FragmentPagerAdapter {
+public class DeviceFragmentPagerAdapter extends FragmentPagerAdapter {
     private List<ConfiguredDevice> list;
 
-    public OpenedDeviceFragmentPagerAdapter(FragmentManager fm, List<ConfiguredDevice> list) {
+    public DeviceFragmentPagerAdapter(FragmentManager fm, List<ConfiguredDevice> list) {
         super(fm);
         this.list = list;
     }
 
     @Override
     public Fragment getItem(int position) {
-        return OpenedDeviceFragmentFactory.build(list.get(position));
+        return DeviceFragmentFactory.build(list.get(position));
     }
 
     @Override

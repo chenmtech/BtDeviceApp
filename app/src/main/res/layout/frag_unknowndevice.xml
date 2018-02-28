@@ -4,7 +4,12 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context = ".btdevice.thermo.ThermoFragment">
+    tools:context = "com.cmtech.android.btdevice.thermo.ThermoFragment">
+
+    <com.cmtech.android.btdevice.common.DeviceFragTitleLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </com.cmtech.android.btdevice.common.DeviceFragTitleLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -12,9 +17,15 @@
         android:text="这是未知设备的Fragment界面"/>
 
     <TextView
-        android:id="@+id/device_connect_state_tv"
-        android:layout_width="wrap_content"
+        android:id="@+id/device_services"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="未知"/>
+        android:text="nothing"/>
+
+    <TextView
+        android:id="@+id/device_characteristic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="nothing"/>
 
 </LinearLayout>

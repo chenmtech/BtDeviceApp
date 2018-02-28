@@ -1,4 +1,4 @@
-package com.cmtech.android.btdeviceapp.btdevice.thermo;
+package com.cmtech.android.btdevice.temphumid;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,35 +8,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.btdevice.thermo.ThermoFragment;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.btdevice.common.OpenedDeviceFragment;
+import com.cmtech.android.btdevice.common.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 
 /**
  * Created by bme on 2018/2/27.
  */
 
-public class ThermoFragment extends OpenedDeviceFragment {
+public class TempHumidFragment extends DeviceFragment {
 
-    TextView tvConnectState;
 
-    public ThermoFragment() {
+    public TempHumidFragment() {
 
     }
 
-    public static ThermoFragment newInstance(ConfiguredDevice device) {
+    public static TempHumidFragment newInstance(ConfiguredDevice device) {
         Bundle args = new Bundle();
         args.putSerializable("device", device);
-        ThermoFragment fragment = new ThermoFragment();
+        TempHumidFragment fragment = new TempHumidFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void updateDeviceInfo(final ConfiguredDevice device, int type) {
-        if(tvConnectState != null && ThermoFragment.this.device == device) {
-            String connectState = device.getConnectStateString();
-            tvConnectState.setText(connectState);
+        if(TempHumidFragment.this.device == device) {
+            updateConnectState();
         }
 
     }
@@ -44,18 +43,17 @@ public class ThermoFragment extends OpenedDeviceFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.frag_thermometer, container, false);
+        View view = inflater.inflate(R.layout.frag_thermometer, container, false);
+        super.onCreateView(inflater, container, savedInstanceState);
+
+        tvConnectState = view.findViewById(R.id.device_connect_state_tv);
+        btnDisconnect = view.findViewById(R.id.device_disconnect_btn);
+        return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ConfiguredDevice device = (ConfiguredDevice) getArguments().getSerializable("device");
-        if(device != null)
-            setDevice(device);
-        String connectState = device.getConnectStateString();
-        tvConnectState = view.findViewById(R.id.device_connect_state_tv);
-        tvConnectState.setText(connectState);
 
     }
 

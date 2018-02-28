@@ -26,7 +26,7 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
-import com.cmtech.android.btdeviceapp.btdevice.common.OpenedDeviceFragmentPagerAdapter;
+import com.cmtech.android.btdevice.common.DeviceFragmentPagerAdapter;
 
 import org.litepal.crud.DataSupport;
 
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager viewPager;
     private TabLayout tabLayout;
-    private OpenedDeviceFragmentPagerAdapter fragAdapter;
+    private DeviceFragmentPagerAdapter fragAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         // TabLayout相关设置
         viewPager = (ViewPager) findViewById(R.id.main_vp);
         tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
-        fragAdapter = new OpenedDeviceFragmentPagerAdapter(getSupportFragmentManager(), openedDeviceList);
+        fragAdapter = new DeviceFragmentPagerAdapter(getSupportFragmentManager(), openedDeviceList);
         viewPager.setAdapter(fragAdapter);
         tabLayout.setupWithViewPager(viewPager);
 
@@ -175,6 +175,17 @@ public class MainActivity extends AppCompatActivity {
         fragAdapter.notifyDataSetChanged();
         viewPager.setCurrentItem(fragAdapter.getCount()-1);
         tabLayout.getTabAt(fragAdapter.getCount()-1).select();
+    }
+
+    // 关闭已连接设备
+    public void closeConnectedDevice(ConfiguredDevice device) {
+        if(device == null) return;
+        openedDeviceList.remove(device);
+        fragAdapter.notifyDataSetChanged();
+        if(fragAdapter.getCount() >= 1) {
+            viewPager.setCurrentItem(fragAdapter.getCount() - 1);
+            tabLayout.getTabAt(fragAdapter.getCount() - 1).select();
+        }
     }
 
     // 修改已配置设备信息
@@ -263,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         MyApplication.getViseBle().disconnect();
+        MyApplication.getViseBle().clear();
     }
 
     /*@Override
