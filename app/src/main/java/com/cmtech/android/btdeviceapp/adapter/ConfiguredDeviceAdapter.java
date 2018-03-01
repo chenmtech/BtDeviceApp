@@ -65,7 +65,7 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
     @Override
     public ConfiguredDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.configured_device_item, parent, false);
+                .inflate(R.layout.recycle_item_configured_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
         defaultBackground = holder.deviceView.getBackground();
 

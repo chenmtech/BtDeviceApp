@@ -17,13 +17,19 @@
         android:text="这是体温计的Fragment界面"/>
 
     <TextView
-        android:id="@+id/device_services"
+        android:id="@+id/tv_device_services"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="nothing"/>
 
     <TextView
-        android:id="@+id/device_characteristic"
+        android:id="@+id/tv_device_characteristics"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="nothing"/>
+
+    <TextView
+        android:id="@+id/tv_device_descriptors"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="nothing"/>

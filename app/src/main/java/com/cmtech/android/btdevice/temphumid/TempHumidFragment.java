@@ -6,9 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import com.cmtech.android.btdevice.thermo.ThermoFragment;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdevice.common.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
@@ -43,7 +41,7 @@ public class TempHumidFragment extends DeviceFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.frag_thermometer, container, false);
+        View view = inflater.inflate(R.layout.fragment_thermometer, container, false);
         super.onCreateView(inflater, container, savedInstanceState);
 
         tvConnectState = view.findViewById(R.id.device_connect_state_tv);

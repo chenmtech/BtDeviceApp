@@ -53,7 +53,7 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
         }
     }
 
-    protected void initComponentInView(View view) {
+    protected void initComponentInParentView(View view) {
         tvConnectState = view.findViewById(R.id.device_connect_state_tv);
         btnDisconnect = view.findViewById(R.id.device_disconnect_btn);
 

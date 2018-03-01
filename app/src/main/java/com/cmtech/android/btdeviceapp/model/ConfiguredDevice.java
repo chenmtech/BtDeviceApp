@@ -6,16 +6,15 @@ import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
+import com.cmtech.android.btdevice.common.Uuid;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 
 import org.litepal.crud.DataSupport;
 
 import java.io.Serializable;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
 
@@ -117,18 +116,10 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         AdRecord record = deviceMirror.getBluetoothLeDevice()
                 .getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(record == null) return null;
-        return getUuidFromByteArray(record.getData()).toString();
+        return Uuid.getUuidFromByteArray(record.getData()).toString();
     }
 
-    public static String getUuidFromByteArray(byte[] bytes) {
-        byte[] tmp = new byte[bytes.length];
-        for(int i = 0; i < tmp.length; i++) {
-            tmp[i] = bytes[tmp.length-i-1];
-        }
-        ByteBuffer bb = ByteBuffer.wrap(tmp);
-        UUID uuid = new UUID(bb.getLong(), bb.getLong());
-        return uuid.toString();
-    }
+
 
 
     public class ConfiguredDeviceConnectCallback implements IConnectCallback {

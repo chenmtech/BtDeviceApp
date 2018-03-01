@@ -51,7 +51,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
     @Override
     public ScanDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.add_device_item, parent, false);
+                .inflate(R.layout.recycle_item_scan_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
         defaultBackground = holder.deviceView.getBackground();
 

@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 修改已配置设备信息
     private void modifyConfiguredDeviceInfo(final ConfiguredDevice device) {
-        LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.activity_set_cfg_device_info, null);
+        LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_configured_device_info, null);
         String deviceName = device.getNickName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 删除已配置设备
     private void deleteConfiguredDevice(final ConfiguredDevice device) {
-        LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.activity_set_cfg_device_info, null);
+        LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_configured_device_info, null);
         String deviceName = device.getNickName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);

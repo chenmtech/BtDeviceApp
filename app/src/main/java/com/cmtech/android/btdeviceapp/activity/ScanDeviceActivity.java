@@ -50,7 +50,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_device);
+        setContentView(R.layout.activity_scan_device);
 
         // 获取已配置设备列表
         configuredDevices =  (ArrayList<ConfiguredDevice>) getIntent()
@@ -100,7 +100,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     private void addToConfiguredDevice(final int which) {
-        LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.activity_set_cfg_device_info, null);
+        LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_configured_device_info, null);
         String deviceName = scanedDeviceList.get(which).getName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);
