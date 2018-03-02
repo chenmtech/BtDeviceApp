@@ -1,8 +1,6 @@
 package com.cmtech.android.btdevice.thermo;
 
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -12,12 +10,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.ble.callback.IBleCallback;
+import com.cmtech.android.ble.common.PropertyType;
+import com.cmtech.android.ble.core.BluetoothGattChannel;
+import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.ble.utils.HexUtil;
+import com.cmtech.android.btdevice.common.BluetoothGattCommand;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdevice.common.DeviceFragment;
+import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 import static com.cmtech.android.btdevice.thermo.ThermoManager.*;
-
-import java.util.List;
 
 /**
  * Created by bme on 2018/2/27.
@@ -28,7 +32,7 @@ public class ThermoFragment extends DeviceFragment {
     private TextView tvCharacteristics;
     private TextView tvDescriptors;
 
-    private ThermoManager manager = new ThermoManager();
+    private ThermoManager manager;
 
     public ThermoFragment() {
 
@@ -68,34 +72,65 @@ public class ThermoFragment extends DeviceFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        manager = new ThermoManager(device.getDeviceMirror());
 
-        BluetoothGattCharacteristic thermoData = (BluetoothGattCharacteristic)manager.find(device, THERMODATA);
-        if(thermoData == null) {
-            Toast.makeText(getContext(), "wrong", Toast.LENGTH_SHORT);
+        Object thermoData = manager.findElement(THERMODATA);
+        Object thermoPeriod = manager.findElement(THERMOPERIOD);
+        if(thermoData == null || thermoPeriod == null) {
+            Log.d("ThermoFragment", "can't find element");
+            return;
         }
 
-        List<BluetoothGattService> services = device.getDeviceMirror().getBluetoothGatt().getServices();
-        StringBuilder serviceStr = new StringBuilder();
-        StringBuilder charaStr = new StringBuilder();
-        StringBuilder descStr = new StringBuilder();
-        for(BluetoothGattService service : services) {
-            serviceStr.append(service.getUuid().toString() + '\n');
-            List<BluetoothGattCharacteristic> charas = service.getCharacteristics();
-            for(BluetoothGattCharacteristic chara : charas) {
-                charaStr.append(chara.getUuid().toString() + '\n');
-                List<BluetoothGattDescriptor> descriptors = chara.getDescriptors();
-                for(BluetoothGattDescriptor descriptor : descriptors) {
-                    descStr.append(chara.getUuid().toString() + descriptor.getUuid().toString() + '\n');
-                }
 
+        manager.readElement(THERMODATA, new IBleCallback() {
+            @Override
+            public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvServices.setText(HexUtil.encodeHexStr(data));
+                    }
+                });
             }
-        }
 
-        tvServices.setText(serviceStr.toString());
+            @Override
+            public void onFailure(BleException exception) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvServices.setText("数据操作错误");
+                    }
+                });
+            }
+        });
 
-        tvCharacteristics.setText(charaStr.toString());
+        manager.readElement(THERMOPERIOD, new IBleCallback() {
+            @Override
+            public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                MainActivity.getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvCharacteristics.setText(HexUtil.encodeHexStr(data));
+                    }
+                });
+            }
 
-        tvDescriptors.setText(descStr.toString());
+            @Override
+            public void onFailure(BleException exception) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvCharacteristics.setText("数据操作错误");
+                    }
+                });
+            }
+        });
+
+        //tvServices.setText(serviceStr.toString());
+
+        //tvCharacteristics.setText(charaStr.toString());
+
+        //tvDescriptors.setText(descStr.toString());
     }
 
     @Override

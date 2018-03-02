@@ -17,7 +17,7 @@ public class BluetoothGattCommand {
     private DeviceMirror deviceMirror;
     private BluetoothGattChannel channel;       // 通道
     private IBleCallback dataOpCallback;        // 数据操作回调
-    private byte[] writtenData;                 // 如果是写命令，存放要写的数据；如果是notify或indicate，存放enable数据
+    private byte[] writtenData;                 // 如果是写操作，存放要写的数据；如果是notify或indicate操作，存放enable数据
     private IBleCallback notifyOpCallback;      // 如果是notify或indicate操作，存放notify或indicate的回调
 
     private BluetoothGattCommand(DeviceMirror deviceMirror, BluetoothGattChannel channel,
@@ -89,13 +89,13 @@ public class BluetoothGattCommand {
             return this;
         }
 
-        public Builder setData(byte[] data) {
-            this.data = data;
+        public Builder setDataOpCallback(IBleCallback dataOpCallback) {
+            this.dataOpCallback = dataOpCallback;
             return this;
         }
 
-        public Builder setDataOpCallback(IBleCallback dataOpCallback) {
-            this.dataOpCallback = dataOpCallback;
+        public Builder setData(byte[] data) {
+            this.data = data;
             return this;
         }
 
@@ -114,9 +114,8 @@ public class BluetoothGattCommand {
             }
 
             if(propertyType == PropertyType.PROPERTY_NOTIFY
-                    || propertyType == PropertyType.PROPERTY_INDICATE
-                    || notifyOpCallback == null) {
-                return null;
+                    || propertyType == PropertyType.PROPERTY_INDICATE) {
+                if(notifyOpCallback == null) return null;
             }
 
             BluetoothGattChannel.Builder builder = new BluetoothGattChannel.Builder();

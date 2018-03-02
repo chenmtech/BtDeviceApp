@@ -14,7 +14,7 @@ import java.util.UUID;
  */
 
 public class BluetoothGattElement {
-    private final int TYPE_NONE = 0;
+    private final int TYPE_NOTHING = 0;
     private final int TYPE_SERVICE = 1;
     private final int TYPE_CHARACTERISTIC = 2;
     private final int TYPE_DESCRIPTOR = 3;
@@ -45,7 +45,7 @@ public class BluetoothGattElement {
         return descriptorUuid;
     }
 
-    public Object find(DeviceMirror deviceMirror) {
+    public Object retrieve(DeviceMirror deviceMirror) {
         if(deviceMirror == null || deviceMirror.getBluetoothGatt() == null) return null;
         BluetoothGatt gatt = deviceMirror.getBluetoothGatt();
         BluetoothGattService service;
@@ -69,7 +69,7 @@ public class BluetoothGattElement {
         if(descriptorUuid != null) return TYPE_DESCRIPTOR;
         if(characteristicUuid != null) return TYPE_CHARACTERISTIC;
         if(serviceUuid != null) return TYPE_SERVICE;
-        return TYPE_NONE;
+        return TYPE_NOTHING;
     }
 
     @Override
