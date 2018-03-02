@@ -1,5 +1,7 @@
 package com.cmtech.android.btdevice.common;
 
+import android.util.Log;
+
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.common.PropertyType;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
@@ -25,6 +27,8 @@ import static com.cmtech.android.btdevice.thermo.ThermoManager.THERMOPERIOD;
 public class DeviceManager {
     private final DeviceMirror deviceMirror;
     private Queue<BluetoothGattCommand> commandList = new LinkedList<>();
+    private volatile boolean done = true;
+    private Thread executeThread;
 
     public DeviceManager(DeviceMirror deviceMirror) {
         this.deviceMirror = deviceMirror;
@@ -37,7 +41,7 @@ public class DeviceManager {
         return element.retrieve(deviceMirror);
     }
 
-    public boolean readElement(BluetoothGattElement element, IBleCallback dataOpCallback) {
+    public synchronized boolean readElement(BluetoothGattElement element, IBleCallback dataOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -60,8 +64,71 @@ public class DeviceManager {
 
     private synchronized boolean addCommandToList(BluetoothGattCommand command) {
         boolean flag = commandList.offer(command);
-        if(!flag) notifyAll();
+        if(!flag) DeviceManager.this.notifyAll();
         return flag;
+    }
+
+    public synchronized void startExecuteCommand() {
+        Log.d("DeviceManager", commandList.size()+"");
+
+        if(executeThread != null) return;
+
+        executeThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        executeNextCommand();
+                    } catch (InterruptedException e) {
+                        //e.printStackTrace();
+                    }
+                }
+            }
+        });
+        executeThread.start();
+    }
+
+    public synchronized void stopExecuteCommand() {
+        if(executeThread == null) return;
+        executeThread.interrupt();
+        executeThread = null;
+        commandList.clear();
+    }
+
+    private synchronized void executeNextCommand() throws InterruptedException{
+        while(!done || commandList.isEmpty()) {
+            wait();
+        }
+
+        commandList.poll().execute(this);
+        done = false;
+
+        Log.d("DeviceManager", "execute one command");
+    }
+
+    public class BleSerialCommandCallback implements IBleCallback {
+        IBleCallback bleCallback;
+
+        public BleSerialCommandCallback(IBleCallback bleCallback) {
+            this.bleCallback = bleCallback;
+        }
+
+        @Override
+        public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            synchronized(DeviceManager.this) {
+                bleCallback.onSuccess(data, bluetoothGattChannel, bluetoothLeDevice);
+                done = true;
+                DeviceManager.this.notifyAll();
+            }
+        }
+
+        @Override
+        public synchronized void onFailure(BleException exception) {
+            synchronized(DeviceManager.this) {
+                bleCallback.onFailure(exception);
+                executeThread.interrupt();
+            }
+        }
     }
 
 }

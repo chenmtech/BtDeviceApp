@@ -1,5 +1,6 @@
 package com.cmtech.android.btdevice.common;
 
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothGatt;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -30,18 +31,18 @@ public class BluetoothGattCommand {
         this.notifyOpCallback = notifyOpCallback;
     }
 
-    public void execute() {
+    public void execute(DeviceManager manager) {
         switch (channel.getPropertyType()) {
             case PROPERTY_READ:
-                deviceMirror.bindChannel(dataOpCallback, channel);
+                deviceMirror.bindChannel( manager.new BleSerialCommandCallback(dataOpCallback), channel);
                 deviceMirror.readData();
                 break;
             case PROPERTY_WRITE:
-                deviceMirror.bindChannel(dataOpCallback, channel);
+                deviceMirror.bindChannel( manager.new BleSerialCommandCallback(dataOpCallback), channel);
                 deviceMirror.writeData(writtenData);
                 break;
             case PROPERTY_NOTIFY:
-                deviceMirror.bindChannel(dataOpCallback, channel);
+                deviceMirror.bindChannel( manager.new BleSerialCommandCallback(dataOpCallback), channel);
                 if(writtenData[0] == 1) {
                     deviceMirror.registerNotify(false);
                     deviceMirror.setNotifyListener(channel.getGattInfoKey(), notifyOpCallback);
@@ -50,7 +51,7 @@ public class BluetoothGattCommand {
                 }
                 break;
             case PROPERTY_INDICATE:
-                deviceMirror.bindChannel(dataOpCallback, channel);
+                deviceMirror.bindChannel( manager.new BleSerialCommandCallback(dataOpCallback), channel);
                 if(writtenData[0] == 1) {
                     deviceMirror.registerNotify(true);
                     deviceMirror.setNotifyListener(channel.getGattInfoKey(), notifyOpCallback);

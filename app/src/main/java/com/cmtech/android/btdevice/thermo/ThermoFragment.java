@@ -21,6 +21,9 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdevice.common.DeviceFragment;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+
+import java.util.Arrays;
+
 import static com.cmtech.android.btdevice.thermo.ThermoManager.*;
 
 /**
@@ -89,6 +92,7 @@ public class ThermoFragment extends DeviceFragment {
                     @Override
                     public void run() {
                         tvServices.setText(HexUtil.encodeHexStr(data));
+                        Log.d("THERMODATA", Arrays.toString(data));
                     }
                 });
             }
@@ -99,6 +103,31 @@ public class ThermoFragment extends DeviceFragment {
                     @Override
                     public void run() {
                         tvServices.setText("数据操作错误");
+                        Log.d("THERMODATA", "wrong");
+                    }
+                });
+            }
+        });
+
+        manager.readElement(THERMOCONTROL, new IBleCallback() {
+            @Override
+            public void onSuccess(final byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvCharacteristics.setText(HexUtil.encodeHexStr(data));
+                        Log.d("THERMOCONTROL", Arrays.toString(data));
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvCharacteristics.setText("数据操作错误");
+                        Log.d("THERMOCONTROL", "wrong");
                     }
                 });
             }
@@ -110,7 +139,8 @@ public class ThermoFragment extends DeviceFragment {
                 MainActivity.getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        tvCharacteristics.setText(HexUtil.encodeHexStr(data));
+                        tvDescriptors.setText(HexUtil.encodeHexStr(data));
+                        Log.d("THERMOPERIOD", Arrays.toString(data));
                     }
                 });
             }
@@ -120,11 +150,14 @@ public class ThermoFragment extends DeviceFragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        tvCharacteristics.setText("数据操作错误");
+                        tvDescriptors.setText("数据操作错误");
+                        Log.d("THERMOPERIOD", "wrong");
                     }
                 });
             }
         });
+
+        manager.startExecuteCommand();
 
         //tvServices.setText(serviceStr.toString());
 
@@ -136,6 +169,6 @@ public class ThermoFragment extends DeviceFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("ThermoFragment", "onDestroy");
+        if(manager != null) manager.stopExecuteCommand();
     }
 }
