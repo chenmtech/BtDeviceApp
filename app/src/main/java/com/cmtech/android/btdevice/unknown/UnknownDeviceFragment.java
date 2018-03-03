@@ -49,8 +49,6 @@ public class UnknownDeviceFragment extends DeviceFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_unknowndevice, container, false);
 
-        initComponentInParentView(view);
-
         tvServices = (TextView)view.findViewById(R.id.tv_device_services);
         tvCharacteristic = (TextView)view.findViewById(R.id.tv_device_characteristics);
 

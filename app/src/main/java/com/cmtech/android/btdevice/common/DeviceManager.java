@@ -100,10 +100,10 @@ public class DeviceManager {
             wait();
         }
 
+        Log.d("DeviceManager", "execute one command");
+
         commandList.poll().execute(this);
         done = false;
-
-        Log.d("DeviceManager", "execute one command");
     }
 
     public class BleSerialCommandCallback implements IBleCallback {
@@ -123,7 +123,7 @@ public class DeviceManager {
         }
 
         @Override
-        public synchronized void onFailure(BleException exception) {
+        public void onFailure(BleException exception) {
             synchronized(DeviceManager.this) {
                 bleCallback.onFailure(exception);
                 executeThread.interrupt();

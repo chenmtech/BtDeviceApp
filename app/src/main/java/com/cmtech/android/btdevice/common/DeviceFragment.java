@@ -31,6 +31,9 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        createComponent(view);
+
         device = (ConfiguredDevice) getArguments().getSerializable("device");
         if(device != null) setDevice(device);
 
@@ -53,7 +56,7 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
         }
     }
 
-    protected void initComponentInParentView(View view) {
+    private void createComponent(View view) {
         tvConnectState = view.findViewById(R.id.device_connect_state_tv);
         btnDisconnect = view.findViewById(R.id.device_disconnect_btn);
 
