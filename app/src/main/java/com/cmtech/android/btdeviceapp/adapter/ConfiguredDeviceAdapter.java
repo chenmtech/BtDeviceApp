@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
+import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 
 import java.util.List;
@@ -113,12 +114,18 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
     }
 
     @Override
-    public void updateDeviceInfo(ConfiguredDevice device, int type) {
-        if(type == TYPE_ADD) {
-            setSelectItem(mDeviceList.size()-1);
-        } else if(type == TYPE_DELETE) {
-            setSelectItem(-1);
-        }
-        notifyDataSetChanged();
+    public void updateDeviceInfo(ConfiguredDevice device, final int type) {
+        MainActivity.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            if(type == TYPE_ADD) {
+                setSelectItem(mDeviceList.size()-1);
+            } else if(type == TYPE_DELETE) {
+                setSelectItem(-1);
+            }
+            notifyDataSetChanged();
+            }
+        });
+
     }
 }

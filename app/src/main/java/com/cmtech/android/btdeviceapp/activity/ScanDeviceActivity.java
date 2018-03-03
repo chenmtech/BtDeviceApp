@@ -42,7 +42,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     private List<BluetoothLeDevice> scanedDeviceList = new ArrayList<>();
 
     // 当前已经在配置设备列表中的设备
-    private List<ConfiguredDevice> configuredDevices = new ArrayList<>();
+    private List<String> configuredDeviceMacList = new ArrayList<>();
 
     private Button btnCancel;
     private Button btnOk;
@@ -52,8 +52,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_device);
 
-        // 获取已配置设备列表
-        configuredDevices =  (ArrayList<ConfiguredDevice>) getIntent()
+        // 获取已配置设备Mac列表
+        configuredDeviceMacList =  (ArrayList<String>) getIntent()
                 .getSerializableExtra("configured_device_list");
 
 
@@ -91,8 +91,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     private boolean hasConfigured(BluetoothLeDevice device) {
-        for(ConfiguredDevice ele : configuredDevices) {
-            if(ele.getMacAddress().equalsIgnoreCase(device.getAddress())) {
+        for(String ele : configuredDeviceMacList) {
+            if(ele.equalsIgnoreCase(device.getAddress())) {
                 return true;
             }
         }
@@ -110,12 +110,17 @@ public class ScanDeviceActivity extends AppCompatActivity {
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                ConfiguredDevice device = new ConfiguredDevice();
+                String nickName = editText.getText().toString();
+                String macAddress = scanedDeviceList.get(which).getAddress();
+                boolean isAutoConnected = false;
+                /*ConfiguredDevice device = new ConfiguredDevice();
                 device.setNickName(editText.getText().toString());
                 device.setMacAddress(scanedDeviceList.get(which).getAddress());
-                device.setAutoConnected(false);
+                device.setAutoConnected(false);*/
                 Intent intent = new Intent();
-                intent.putExtra("return_device", device);
+                intent.putExtra("device_nickname", nickName);
+                intent.putExtra("device_macaddress", macAddress);
+                intent.putExtra("device_isautoconnect", isAutoConnected);
                 setResult(RESULT_OK, intent);
                 finish();
             }

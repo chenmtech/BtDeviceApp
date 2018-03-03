@@ -28,11 +28,11 @@ public class DeviceFragmentFactory {
         String uuid = device.getDeviceUuidInAd();
         if(uuid != null) {
             if(uuid.equalsIgnoreCase(Uuid.from16To128(UUID_THERMOMETER))) {
-                return ThermoFragment.newInstance(device);
+                return ThermoFragment.newInstance();
             } else if(uuid.equalsIgnoreCase(Uuid.from16To128(UUID_SIMPLE128GATTPROFILE))) {
 
             } else {
-                return UnknownDeviceFragment.newInstance(device);
+                return UnknownDeviceFragment.newInstance();
             }
         }
         return null;

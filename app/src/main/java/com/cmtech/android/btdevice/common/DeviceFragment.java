@@ -1,5 +1,6 @@
 package com.cmtech.android.btdevice.common;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,10 +20,15 @@ import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 
 public abstract class DeviceFragment extends Fragment implements ConfiguredDevice.IConfiguredDeviceObersver {
     protected ConfiguredDevice device;
+    protected IDeviceFragmentListener fragmentListener;
 
     protected TextView tvConnectState;
     protected Button btnDisconnect;
     protected Button btnClose;
+
+    public interface IDeviceFragmentListener {
+        ConfiguredDevice findDeviceFromFragment(DeviceFragment fragment);
+    }
 
     public DeviceFragment() {
 
@@ -32,31 +38,6 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        createComponent(view);
-
-        device = (ConfiguredDevice) getArguments().getSerializable("device");
-        if(device != null) setDevice(device);
-
-        updateConnectState();
-    }
-
-    protected void setDevice(ConfiguredDevice device) {
-        this.device = device;
-        device.registerDeviceObserver(this);
-    }
-
-    protected void updateConnectState() {
-        if(device != null) {
-            tvConnectState.setText(device.getConnectStateString());
-            if(device.getConnectState() == ConnectState.CONNECT_SUCCESS) {
-                btnDisconnect.setEnabled(true);
-            } else {
-                btnDisconnect.setEnabled(false);
-            }
-        }
-    }
-
-    private void createComponent(View view) {
         tvConnectState = view.findViewById(R.id.device_connect_state_tv);
         btnDisconnect = view.findViewById(R.id.device_disconnect_btn);
 
@@ -71,6 +52,47 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
                 MainActivity.getActivity().closeConnectedDevice(device);
             }
         });
+
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if(!(context instanceof IDeviceFragmentListener)) {
+            throw new IllegalStateException("IDeviceFragmentListener接口没有实现");
+        }
+
+        // 获取listener
+        fragmentListener = (IDeviceFragmentListener) context;
+        // 获取device
+        device = fragmentListener.findDeviceFromFragment(this);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        updateConnectState();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        fragmentListener = null;
+        device = null;
+    }
+
+    protected void updateConnectState() {
+        if(device != null) {
+            tvConnectState.setText(device.getConnectStateString());
+            if(device.getConnectState() == ConnectState.CONNECT_SUCCESS) {
+                btnDisconnect.setEnabled(true);
+            } else {
+                btnDisconnect.setEnabled(false);
+            }
+        }
+    }
+
 
 }

@@ -28,11 +28,11 @@ public class UnknownDeviceFragment extends DeviceFragment {
 
     }
 
-    public static UnknownDeviceFragment newInstance(ConfiguredDevice device) {
-        Bundle args = new Bundle();
-        args.putSerializable("device", device);
+    public static UnknownDeviceFragment newInstance() {
+        //Bundle args = new Bundle();
+        //args.putSerializable("device", device);
         UnknownDeviceFragment fragment = new UnknownDeviceFragment();
-        fragment.setArguments(args);
+        //fragment.setArguments(args);
         return fragment;
     }
 

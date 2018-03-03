@@ -22,6 +22,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.cmtech.android.ble.callback.IConnectCallback;
+import com.cmtech.android.ble.common.ConnectState;
+import com.cmtech.android.ble.core.DeviceMirror;
+import com.cmtech.android.ble.core.DeviceMirrorPool;
+import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.btdevice.common.DeviceFragment;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
@@ -32,12 +38,14 @@ import org.litepal.crud.DataSupport;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *  MainActivity: 主界面，主要数据存放区
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DeviceFragment.IDeviceFragmentListener{
     private static MainActivity activity;
 
     // 已配置的设备列表
@@ -115,8 +123,12 @@ public class MainActivity extends AppCompatActivity {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                List<String> configuredDeviceMacList = new ArrayList<>();
+                for(ConfiguredDevice device : configuredDeviceList) {
+                    configuredDeviceMacList.add(device.getMacAddress());
+                }
                 Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
-                intent.putExtra("configured_device_list", (Serializable) configuredDeviceList);
+                intent.putExtra("configured_device_list", (Serializable) configuredDeviceMacList);
                 startActivityForResult(intent, 1);
             }
         });
@@ -127,9 +139,33 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 int which = configuredDeviceAdapter.getSelectItem();
                 if(which != -1) {
-                    //mDrawerLayout.closeDrawer(GravityCompat.START);
-                    configuredDeviceList.get(which).connect();
-                    //connectConfiguredDevice(configuredDeviceList.get(which));
+                    final ConfiguredDevice device = configuredDeviceList.get(which);
+                    device.connect(new IConnectCallback() {
+                        @Override
+                        public void onConnectSuccess(DeviceMirror deviceMirror) {
+                            DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+                            if(deviceMirrorPool.isContainDevice(deviceMirror)) {
+                                device.setDeviceMirror(deviceMirror);
+                                device.setConnectState(ConnectState.CONNECT_SUCCESS);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        openConnectedDevice(device);
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onConnectFailure(BleException exception) {
+                            device.setConnectState(ConnectState.CONNECT_FAILURE);
+                        }
+
+                        @Override
+                        public void onDisconnect(boolean isActive) {
+                            device.setConnectState(ConnectState.CONNECT_DISCONNECT);
+                        }
+                    });
                 }
 
             }
@@ -171,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
     public void openConnectedDevice(ConfiguredDevice device) {
         if(device == null) return;
         mDrawerLayout.closeDrawer(GravityCompat.START);
+
         openedDeviceList.add(device);
         fragAdapter.notifyDataSetChanged();
         viewPager.setCurrentItem(fragAdapter.getCount()-1);
@@ -249,13 +286,19 @@ public class MainActivity extends AppCompatActivity {
             case 1:
                 // 添加配置设备
                 if(resultCode == RESULT_OK) {
-                    ConfiguredDevice device = (ConfiguredDevice)data.getSerializableExtra("return_device");
-                    if(device != null) {
-                        device.save();
-                        configuredDeviceList.add(device);
-                        device.registerDeviceObserver(configuredDeviceAdapter);
-                        device.notifyDeviceObservers(ConfiguredDevice.TYPE_ADD);
-                    }
+                    String nickName = data.getStringExtra("device_nickname");
+                    String macAddress = data.getStringExtra("device_macaddress");
+                    boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
+
+                    ConfiguredDevice device = new ConfiguredDevice();
+                    device.setNickName(nickName);
+                    device.setMacAddress(macAddress);
+                    device.setAutoConnected(isAutoConnect);
+
+                    device.save();
+                    configuredDeviceList.add(device);
+                    device.registerDeviceObserver(configuredDeviceAdapter);
+                    device.notifyDeviceObservers(ConfiguredDevice.TYPE_ADD);
                 }
         }
     }
@@ -275,12 +318,16 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         MyApplication.getViseBle().disconnect();
         MyApplication.getViseBle().clear();
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
-    /*@Override
-    public void updateDeviceInfo(ConfiguredDevice device) {
-        Log.d("MainActivity", "OK");
-    }*/
-
-
+    @Override
+    public ConfiguredDevice findDeviceFromFragment(DeviceFragment fragment) {
+        for(ConfiguredDevice device : openedDeviceList) {
+            if(device.getFragment() == fragment) {
+                return device;
+            }
+        }
+        return null;
+    }
 }

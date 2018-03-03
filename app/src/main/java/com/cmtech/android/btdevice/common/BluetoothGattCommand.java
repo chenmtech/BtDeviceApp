@@ -31,32 +31,34 @@ public class BluetoothGattCommand {
         this.notifyOpCallback = notifyOpCallback;
     }
 
-    public void execute(DeviceManager manager) {
+    public void execute() {
         switch (channel.getPropertyType()) {
             case PROPERTY_READ:
-                deviceMirror.bindChannel( manager.new BleSerialCommandCallback(dataOpCallback), channel);
+                deviceMirror.bindChannel( dataOpCallback, channel);
                 deviceMirror.readData();
                 break;
             case PROPERTY_WRITE:
-                deviceMirror.bindChannel( manager.new BleSerialCommandCallback(dataOpCallback), channel);
+                deviceMirror.bindChannel( dataOpCallback, channel);
                 deviceMirror.writeData(writtenData);
                 break;
             case PROPERTY_NOTIFY:
-                deviceMirror.bindChannel( manager.new BleSerialCommandCallback(dataOpCallback), channel);
+                deviceMirror.bindChannel( dataOpCallback, channel);
                 if(writtenData[0] == 1) {
                     deviceMirror.registerNotify(false);
                     deviceMirror.setNotifyListener(channel.getGattInfoKey(), notifyOpCallback);
                 } else {
                     deviceMirror.unregisterNotify(false);
+                    deviceMirror.removeReceiveCallback(channel.getGattInfoKey());
                 }
                 break;
             case PROPERTY_INDICATE:
-                deviceMirror.bindChannel( manager.new BleSerialCommandCallback(dataOpCallback), channel);
+                deviceMirror.bindChannel( dataOpCallback, channel);
                 if(writtenData[0] == 1) {
                     deviceMirror.registerNotify(true);
                     deviceMirror.setNotifyListener(channel.getGattInfoKey(), notifyOpCallback);
                 } else {
                     deviceMirror.unregisterNotify(true);
+                    deviceMirror.removeReceiveCallback(channel.getGattInfoKey());
                 }
                 break;
             default:

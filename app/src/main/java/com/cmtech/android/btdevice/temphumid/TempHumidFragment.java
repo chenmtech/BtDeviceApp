@@ -22,11 +22,11 @@ public class TempHumidFragment extends DeviceFragment {
 
     }
 
-    public static TempHumidFragment newInstance(ConfiguredDevice device) {
-        Bundle args = new Bundle();
-        args.putSerializable("device", device);
+    public static TempHumidFragment newInstance() {
+        //Bundle args = new Bundle();
+        //args.putSerializable("device", device);
         TempHumidFragment fragment = new TempHumidFragment();
-        fragment.setArguments(args);
+        //fragment.setArguments(args);
         return fragment;
     }
 

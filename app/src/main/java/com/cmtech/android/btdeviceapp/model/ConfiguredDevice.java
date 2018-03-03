@@ -1,11 +1,13 @@
 package com.cmtech.android.btdeviceapp.model;
 
+import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
+import com.cmtech.android.btdevice.common.DeviceFragment;
 import com.cmtech.android.btdevice.common.Uuid;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
@@ -22,18 +24,22 @@ import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128
  * Created by bme on 2018/2/19.
  */
 
-public class ConfiguredDevice extends DataSupport implements Serializable {
+public class ConfiguredDevice extends DataSupport {
     public static final int TYPE_MODIFY = 0;
     public static final int TYPE_ADD = 1;
     public static final int TYPE_DELETE = 2;
 
     // 数据库会保存的字段
+    // id
     private int id;
 
+    // mac地址
     private String macAddress;
 
+    // 设备别名
     private String nickName;
 
+    // 是否自动连接
     private boolean isAutoConnected;
 
     public int getId() {
@@ -69,15 +75,27 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         isAutoConnected = autoConnected;
     }
 
-
     // 数据库不会保存的变量
+    // 连接状态
     ConnectState connectState = ConnectState.CONNECT_INIT;
 
-    IConnectCallback connectCallback = new ConfiguredDeviceConnectCallback();
-
+    // 设备镜像，连接成功后才会赋值
     DeviceMirror deviceMirror = null;
 
+    // 设备的Fragment，打开fragment后会设置
+    DeviceFragment fragment;
+
+    // 设备信息观察者接口
+    public interface IConfiguredDeviceObersver {
+        void updateDeviceInfo(ConfiguredDevice device, int type);
+    }
+
+    // 观察者
     List<IConfiguredDeviceObersver> obersvers = new ArrayList<>();
+
+    public DeviceFragment getFragment() {return fragment;}
+
+    public void setFragment(DeviceFragment fragment) {this.fragment = fragment;}
 
     public ConnectState getConnectState() {return connectState;}
 
@@ -107,9 +125,11 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
 
     public void setConnectState(ConnectState state) {this.connectState = state; notifyDeviceObservers(TYPE_MODIFY);}
 
-
     public DeviceMirror getDeviceMirror() {return deviceMirror;}
 
+    public void setDeviceMirror(DeviceMirror deviceMirror) {this.deviceMirror = deviceMirror;}
+
+    // 获取设备广播中包含的UUID
     public String getDeviceUuidInAd() {
         if(deviceMirror == null) return null;
 
@@ -119,41 +139,7 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         return Uuid.getUuidFromByteArray(record.getData()).toString();
     }
 
-
-
-
-    public class ConfiguredDeviceConnectCallback implements IConnectCallback {
-        @Override
-        public void onConnectSuccess(DeviceMirror deviceMirror) {
-            DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
-            if(deviceMirrorPool.isContainDevice(deviceMirror)) {
-                ConfiguredDevice.this.deviceMirror = deviceMirror;
-                setConnectState(ConnectState.CONNECT_SUCCESS);
-                final MainActivity activity = MainActivity.getActivity();
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        activity.openConnectedDevice(ConfiguredDevice.this);
-                    }
-                });
-            }
-        }
-
-        @Override
-        public void onConnectFailure(BleException exception) {
-            setConnectState(ConnectState.CONNECT_FAILURE);
-        }
-
-        @Override
-        public void onDisconnect(boolean isActive) {
-            setConnectState(ConnectState.CONNECT_DISCONNECT);
-        }
-    }
-
-    public interface IConfiguredDeviceObersver {
-        void updateDeviceInfo(ConfiguredDevice device, int type);
-    }
-
+    // 登记观察者
     public void registerDeviceObserver(IConfiguredDeviceObersver obersver) {
         int index = obersvers.indexOf(obersver);
         if(index < 0) {
@@ -161,6 +147,7 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         }
     }
 
+    // 删除观察者
     public void removerDeviceObserver(IConfiguredDeviceObersver obersver) {
         int index = obersvers.indexOf(obersver);
         if(index >= 0) {
@@ -168,24 +155,22 @@ public class ConfiguredDevice extends DataSupport implements Serializable {
         }
     }
 
+    // 通知观察者
+    // @param type：状态改变的类型
     public void notifyDeviceObservers(final int type) {
         for(final IConfiguredDeviceObersver obersver : obersvers) {
             if(obersver != null) {
-                MainActivity.getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        obersver.updateDeviceInfo(ConfiguredDevice.this, type);
-                    }
-                });
+                obersver.updateDeviceInfo(ConfiguredDevice.this, type);
             }
         }
     }
 
-    public void connect() {
+    // 发起连接
+    // @param: connectCallback 连接回调
+    public void connect(IConnectCallback connectCallback) {
         setConnectState(ConnectState.CONNECT_PROCESS);
         MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
     }
-
 
     @Override
     public boolean equals(Object o) {
