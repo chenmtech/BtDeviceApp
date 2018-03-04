@@ -94,7 +94,7 @@ public class ThermoFragment extends DeviceFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Log.d("Fragment Thread", ""+Thread.currentThread().getId());
+        Log.d("Main Thread", ""+Thread.currentThread().getId());
 
         serialExecutor = new ThermoGattSerialExecutor(device.getDeviceMirror());
 
