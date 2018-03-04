@@ -94,6 +94,8 @@ public class ThermoFragment extends DeviceFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        Log.d("Fragment Thread", ""+Thread.currentThread().getId());
+
         serialExecutor = new ThermoGattSerialExecutor(device.getDeviceMirror());
 
         Object thermoData = serialExecutor.findElement(THERMODATA);
@@ -104,11 +106,14 @@ public class ThermoFragment extends DeviceFragment {
             return;
         }
 
+
+
         serialExecutor.readElement(THERMODATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "first write period: " + HexUtil.encodeHexStr(data));
                 handler.sendEmptyMessage(MSG_THERMODATA);
+                Log.d("Thread", "Read Callback Thread: "+Thread.currentThread().getId());
             }
 
             @Override
@@ -135,7 +140,7 @@ public class ThermoFragment extends DeviceFragment {
         serialExecutor.notifyElement(THERMODATACCC, true, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-
+                Log.d("Thread", "Notify Callback Thread: "+Thread.currentThread().getId());
             }
 
             @Override
@@ -144,11 +149,14 @@ public class ThermoFragment extends DeviceFragment {
             }
         }, notifyCallback);
 
+        serialExecutor.startExecuteCommand();
+
         serialExecutor.writeElement(THERMOCONTROL, new byte[]{0x03}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
                 handler.sendEmptyMessage(MSG_THERMOCONTROL);
+                Log.d("Thread", "Control Write Callback Thread: "+Thread.currentThread().getId());
             }
 
             @Override
@@ -162,6 +170,7 @@ public class ThermoFragment extends DeviceFragment {
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
                 handler.sendEmptyMessage(MSG_THERMOPERIOD);
+                Log.d("Thread", "Period Write Callback Thread: "+Thread.currentThread().getId());
             }
 
             @Override
@@ -171,15 +180,14 @@ public class ThermoFragment extends DeviceFragment {
         });
 
 
-        serialExecutor.startExecuteCommand();
-
-
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+
+        // 停止命令执行
+        serialExecutor.stopExecuteCommand();
     }
 
     //高位在前，低位在后

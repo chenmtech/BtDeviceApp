@@ -19,20 +19,28 @@ public class BluetoothGattElement {
     private final int TYPE_CHARACTERISTIC = 2;
     private final int TYPE_DESCRIPTOR = 3;
 
-    private UUID serviceUuid;
-    private UUID characteristicUuid;
-    private UUID descriptorUuid;
+    private final UUID serviceUuid;
+    private final UUID characteristicUuid;
+    private final UUID descriptorUuid;
+
+    private final String description;
 
     public BluetoothGattElement(String serviceUuid, String characteristicUuid, String descriptorUuid) {
-        this(Uuid.from16(serviceUuid), Uuid.from16(characteristicUuid), Uuid.from16(descriptorUuid));
+        this.serviceUuid = Uuid.from16(serviceUuid);
+        this.characteristicUuid = Uuid.from16(characteristicUuid);
+        this.descriptorUuid = Uuid.from16(descriptorUuid);
+        description = "[service= " + serviceUuid
+                + ",characteristic= " + characteristicUuid
+                + ",descriptor= " + descriptorUuid + "]";
+        //this(Uuid.from16(serviceUuid), Uuid.from16(characteristicUuid), Uuid.from16(descriptorUuid));
     }
 
-    public BluetoothGattElement(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid) {
+    /*public BluetoothGattElement(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid) {
         this.serviceUuid = serviceUuid;
         this.characteristicUuid = characteristicUuid;
         this.descriptorUuid = descriptorUuid;
     }
-
+*/
     public UUID getServiceUuid() {
         return serviceUuid;
     }
@@ -74,10 +82,6 @@ public class BluetoothGattElement {
 
     @Override
     public String toString() {
-        return "BluetoothGattElement{" +
-                "serviceUuid=" + serviceUuid +
-                ", characteristicUuid=" + characteristicUuid +
-                ", descriptorUuid=" + descriptorUuid +
-                '}';
+        return description;
     }
 }

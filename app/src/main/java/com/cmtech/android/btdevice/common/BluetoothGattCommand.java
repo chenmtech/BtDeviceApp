@@ -21,6 +21,8 @@ public class BluetoothGattCommand {
     private byte[] writtenData;                 // 如果是写操作，存放要写的数据；如果是notify或indicate操作，存放enable数据
     private IBleCallback notifyOpCallback;      // 如果是notify或indicate操作，存放notify或indicate的回调
 
+    private BluetoothGattElement element;       // 命令操作的元素，用来实现toString
+
     private BluetoothGattCommand(DeviceMirror deviceMirror, BluetoothGattChannel channel,
                                  IBleCallback dataOpCallback,
                                  byte[] writtenData, IBleCallback notifyOpCallback) {
@@ -64,6 +66,13 @@ public class BluetoothGattCommand {
             default:
                 break;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "BluetoothGattCommand{" +
+                "element=" + element.toString() +
+                '}';
     }
 
     public static class Builder {
@@ -128,7 +137,9 @@ public class BluetoothGattCommand {
                     .setCharacteristicUUID(element.getCharacteristicUuid())
                     .setDescriptorUUID(element.getDescriptorUuid()).builder();
 
-            return new BluetoothGattCommand(deviceMirror, channel, dataOpCallback, data, notifyOpCallback);
+            BluetoothGattCommand command = new BluetoothGattCommand(deviceMirror, channel, dataOpCallback, data, notifyOpCallback);
+            command.element = this.element;
+            return command;
         }
     }
 }

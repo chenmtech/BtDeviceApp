@@ -84,7 +84,7 @@ public class DeviceGattSerialExecutor {
      * @param dataOpCallback 读回调
      * @return 是否添加成功
      */
-    public synchronized boolean readElement(BluetoothGattElement element, IBleCallback dataOpCallback) {
+    public boolean readElement(BluetoothGattElement element, IBleCallback dataOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -101,7 +101,7 @@ public class DeviceGattSerialExecutor {
      * @param dataOpCallback 写回调
      * @return 是否添加成功
      */
-    public synchronized boolean writeElement(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
+    public boolean writeElement(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -120,7 +120,7 @@ public class DeviceGattSerialExecutor {
      * @param notifyOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public synchronized boolean notifyElement(BluetoothGattElement element, boolean enable
+    public boolean notifyElement(BluetoothGattElement element, boolean enable
                             , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -141,7 +141,7 @@ public class DeviceGattSerialExecutor {
      * @param indicateOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public synchronized boolean indicateElement(BluetoothGattElement element, boolean enable
+    public boolean indicateElement(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -156,27 +156,30 @@ public class DeviceGattSerialExecutor {
 
     private synchronized boolean addCommandToList(BluetoothGattCommand command) {
         boolean flag = commandList.offer(command);
-        if(!flag) DeviceGattSerialExecutor.this.notifyAll();
+
+        // 添加成功，通知执行线程
+        if(flag) notifyAll();
+
         return flag;
     }
 
-    public synchronized void startExecuteCommand() {
+    public void startExecuteCommand() {
         Log.d("SerialExecutor", commandList.size()+"");
 
-        // 没有命令，立刻返回
-        if(commandList.isEmpty()) return;
 
         executeThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(!executeThread.isInterrupted()) {
-                    try {
+                Log.d("Thread", "Execution Thread: "+Thread.currentThread().getId());
+                try {
+                    while (!Thread.currentThread().isInterrupted()) {
                         executeNextCommand();
-                    } catch (InterruptedException e) {
-                        Log.d("SerialExecutor", "The execution is interrupted!!!!!!");
-                        commandList.clear();
-                        break;
                     }
+                }catch (InterruptedException e) {
+                        Log.d("SerialExecutor", "The execution is interrupted!!!!!!");
+                } finally {
+                    commandList.clear();
+                    executeThread = null;
                 }
             }
         });
@@ -190,21 +193,19 @@ public class DeviceGattSerialExecutor {
             wait();
         }
 
-        Log.d("SerialExecutor", "execute one command " + commandList.size());
-
         // 取出一条命令执行
         BluetoothGattCommand command = commandList.poll();
         command.execute();
+
+        Log.d("SerialExecutor", "execute command: " + command.toString());
 
         // 设置未完成标记
         done = false;
     }
 
-    public synchronized void stopExecuteCommand() {
+    public void stopExecuteCommand() {
         if(executeThread == null) return;
         executeThread.interrupt();
-        executeThread = null;
-        commandList.clear();
     }
 
 
