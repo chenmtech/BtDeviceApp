@@ -33,6 +33,9 @@ public class DeviceGattSerialExecutor {
     // 执行命令的线程
     private Thread executeThread;
 
+    // 当前在执行的命令
+    private BluetoothGattCommand currentCommand;
+
     // IBleCallback的装饰器类，在一般的回调完成后，执行串行命令所需动作
     private class BleSerialCommandCallback implements IBleCallback {
         IBleCallback bleCallback;
@@ -164,8 +167,6 @@ public class DeviceGattSerialExecutor {
     }
 
     public void startExecuteCommand() {
-        Log.d("SerialExecutor", commandList.size()+"");
-
 
         executeThread = new Thread(new Runnable() {
             @Override
@@ -192,12 +193,17 @@ public class DeviceGattSerialExecutor {
         while(!done || commandList.isEmpty()) {
             wait();
         }
+        // 清除上次执行的命令的数据操作IBleCallback，否则会出现多次异常触发.
+        // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
+        if(currentCommand != null) {
+            deviceMirror.removeBleCallback(currentCommand.getChannel().getGattInfoKey());
+        }
 
         // 取出一条命令执行
-        BluetoothGattCommand command = commandList.poll();
-        command.execute();
+        currentCommand = commandList.poll();
+        currentCommand.execute();
 
-        Log.d("SerialExecutor", "execute command: " + command.toString());
+        Log.d("SerialExecutor", "execute command: " + currentCommand.toString());
 
         // 设置未完成标记
         done = false;

@@ -70,10 +70,12 @@ public class BluetoothGattCommand {
 
     @Override
     public String toString() {
-        return "BluetoothGattCommand{" +
-                "element=" + element.toString() +
+        return "BluetoothGattCommand{" + channel.getPropertyType() +
+                " element=" + element.toString() +
                 '}';
     }
+
+    public BluetoothGattChannel getChannel() {return channel;}
 
     public static class Builder {
         private BluetoothGattElement element;
