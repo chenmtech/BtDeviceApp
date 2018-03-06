@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -28,11 +31,15 @@ import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.btdevice.common.DeviceFragment;
+import com.cmtech.android.btdevice.common.DeviceFragmentFactory;
+import com.cmtech.android.btdevice.common.TabEntity;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 import com.cmtech.android.btdevice.common.DeviceFragmentPagerAdapter;
+import com.flyco.tablayout.CommonTabLayout;
+import com.flyco.tablayout.listener.OnTabSelectListener;
 
 import org.litepal.crud.DataSupport;
 
@@ -67,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
     private DrawerLayout mDrawerLayout;
 
     private ViewPager viewPager;
-    private TabLayout tabLayout;
-    private DeviceFragmentPagerAdapter fragAdapter;
+    private CommonTabLayout tabLayout;
+    //private DeviceFragmentPagerAdapter fragAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,10 +200,36 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
 
         // TabLayout相关设置
         viewPager = (ViewPager) findViewById(R.id.main_vp);
-        tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
-        fragAdapter = new DeviceFragmentPagerAdapter(getSupportFragmentManager(), openedDeviceList);
-        viewPager.setAdapter(fragAdapter);
-        tabLayout.setupWithViewPager(viewPager);
+        viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
+        tabLayout = (CommonTabLayout) findViewById(R.id.main_tab_layout);
+        //tabLayout.setTabData(new TabEntity());
+        tabLayout.setOnTabSelectListener(new OnTabSelectListener() {
+            @Override
+            public void onTabSelect(int position) {
+                viewPager.setCurrentItem(position);
+            }
+
+            @Override
+            public void onTabReselect(int position) {
+
+            }
+        });
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                tabLayout.setCurrentTab(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         activity = this;
     }
@@ -208,10 +241,18 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         if(device == null) return;
         mDrawerLayout.closeDrawer(GravityCompat.START);
 
+        // 创建正确的Fragment
+        DeviceFragment fragment = DeviceFragmentFactory.build(device);
+        // 将fragment设置到device
+        device.setFragment(fragment);
+        // 将fragment注册为device的观察者
+        device.registerDeviceObserver(fragment);
+        // 将device添加到openedDeviceList
         openedDeviceList.add(device);
-        fragAdapter.notifyDataSetChanged();
-        viewPager.setCurrentItem(fragAdapter.getCount()-1);
-        tabLayout.getTabAt(fragAdapter.getCount()-1).select();
+
+        //fragAdapter.notifyDataSetChanged();
+        //viewPager.setCurrentItem(fragAdapter.getCount()-1);
+        //tabLayout.getTabAt(fragAdapter.getCount()-1).select();
     }
 
     // 关闭已连接设备
@@ -239,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.save();
                 device.setNickName(editText.getText().toString());
-                fragAdapter.notifyDataSetChanged();
+                tabLayout.notifyDataSetChanged();
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -329,5 +370,26 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             }
         }
         return null;
+    }
+
+    private class MyPagerAdapter extends FragmentPagerAdapter {
+        public MyPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public int getCount() {
+            return openedDeviceList.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return openedDeviceList.get(position).getNickName();
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return openedDeviceList.get(position).getFragment();
+        }
     }
 }
