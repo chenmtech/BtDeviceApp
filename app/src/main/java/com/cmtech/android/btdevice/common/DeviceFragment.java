@@ -13,13 +13,14 @@ import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+import com.cmtech.android.btdeviceapp.model.OpenedDevice;
 
 /**
  * Created by bme on 2018/2/27.
  */
 
 public abstract class DeviceFragment extends Fragment implements ConfiguredDevice.IConfiguredDeviceObersver {
-    protected ConfiguredDevice device;
+    protected OpenedDevice device;
     protected IDeviceFragmentListener fragmentListener;
 
     protected TextView tvConnectState;
@@ -27,7 +28,7 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
     protected Button btnClose;
 
     public interface IDeviceFragmentListener {
-        ConfiguredDevice findDeviceFromFragment(DeviceFragment fragment);
+        OpenedDevice findDeviceFromFragment(DeviceFragment fragment);
     }
 
     public DeviceFragment() {
@@ -48,8 +49,8 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
             @Override
             public void onClick(View view) {
                 Log.d("DeviceFragment", DeviceFragment.this.getClass().getSimpleName());
-                device.removerDeviceObserver(DeviceFragment.this);
-                MainActivity.getActivity().closeConnectedDevice(device);
+                device.getConfiguredDevice().removerDeviceObserver(DeviceFragment.this);
+                MainActivity.getActivity().closeConnectedDevice(device.getConfiguredDevice());
             }
         });
 
@@ -85,8 +86,8 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
 
     protected void updateConnectState() {
         if(device != null) {
-            tvConnectState.setText(device.getConnectStateString());
-            if(device.getConnectState() == ConnectState.CONNECT_SUCCESS) {
+            tvConnectState.setText(device.getConfiguredDevice().getConnectStateString());
+            if(device.getConfiguredDevice().getConnectState() == ConnectState.CONNECT_SUCCESS) {
                 btnDisconnect.setEnabled(true);
             } else {
                 btnDisconnect.setEnabled(false);

@@ -9,7 +9,7 @@ import com.cmtech.android.btdevice.common.Uuid;
  * Created by bme on 2018/3/1.
  */
 
-public class ThermoGattSerialExecutor extends DeviceGattSerialExecutor {
+public class TempHumidGattSerialExecutor extends DeviceGattSerialExecutor {
     private static final String thermoServiceUuid = "aa30";     // 体温计服务UUID:aa30
     private static final String thermoDataUuid = "aa31";        // 体温数据特征UUID:aa31
     private static final String thermoControlUuid = "aa32";     // 体温测量控制UUID:aa32
@@ -27,7 +27,7 @@ public class ThermoGattSerialExecutor extends DeviceGattSerialExecutor {
     public static final BluetoothGattElement THERMODATACCC =
             new BluetoothGattElement(thermoServiceUuid, thermoDataUuid, Uuid.CCCUUID);
 
-    public ThermoGattSerialExecutor(DeviceMirror deviceMirror) {
+    public TempHumidGattSerialExecutor(DeviceMirror deviceMirror) {
         super(deviceMirror);
     }
 

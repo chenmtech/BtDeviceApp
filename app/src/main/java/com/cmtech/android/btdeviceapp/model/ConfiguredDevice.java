@@ -82,9 +82,6 @@ public class ConfiguredDevice extends DataSupport {
     // 设备镜像，连接成功后才会赋值
     DeviceMirror deviceMirror = null;
 
-    // 设备的Fragment，打开fragment后会设置
-    DeviceFragment fragment;
-
     // 设备信息观察者接口
     public interface IConfiguredDeviceObersver {
         void updateDeviceInfo(ConfiguredDevice device, int type);
@@ -92,10 +89,6 @@ public class ConfiguredDevice extends DataSupport {
 
     // 观察者
     List<IConfiguredDeviceObersver> obersvers = new ArrayList<>();
-
-    public DeviceFragment getFragment() {return fragment;}
-
-    public void setFragment(DeviceFragment fragment) {this.fragment = fragment;}
 
     public ConnectState getConnectState() {return connectState;}
 

@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context = "com.cmtech.android.btdevice.thermo.ThermoFragment">
+    tools:context = "com.cmtech.android.btdevice.temphumid.TempHumidFragment">
 
     <com.cmtech.android.btdevice.common.DeviceFragTitleLayout
         android:layout_width="match_parent"
@@ -24,6 +24,12 @@
 
     <TextView
         android:id="@+id/tv_device_characteristics"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="nothing"/>
+
+    <TextView
+        android:id="@+id/tv_device_descriptors"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="nothing"/>

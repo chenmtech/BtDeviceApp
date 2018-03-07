@@ -32,13 +32,15 @@ import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.btdevice.common.DeviceFragment;
 import com.cmtech.android.btdevice.common.DeviceFragmentFactory;
+import com.cmtech.android.btdevice.common.DeviceFragmentPagerAdapter;
 import com.cmtech.android.btdevice.common.TabEntity;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
-import com.cmtech.android.btdevice.common.DeviceFragmentPagerAdapter;
+import com.cmtech.android.btdeviceapp.model.OpenedDevice;
 import com.flyco.tablayout.CommonTabLayout;
+import com.flyco.tablayout.listener.CustomTabEntity;
 import com.flyco.tablayout.listener.OnTabSelectListener;
 
 import org.litepal.crud.DataSupport;
@@ -59,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
     List<ConfiguredDevice> configuredDeviceList = new ArrayList<>();
 
     // 已打开的设备列表
-    List<ConfiguredDevice> openedDeviceList = new ArrayList<>();
+    List<OpenedDevice> openedDeviceList = new ArrayList<>();
 
 
     private ConfiguredDeviceAdapter configuredDeviceAdapter;
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
 
     private ViewPager viewPager;
     private CommonTabLayout tabLayout;
-    //private DeviceFragmentPagerAdapter fragAdapter;
+    private MyPagerAdapter fragAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,9 +202,9 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
 
         // TabLayout相关设置
         viewPager = (ViewPager) findViewById(R.id.main_vp);
-        viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
+        fragAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(fragAdapter);
         tabLayout = (CommonTabLayout) findViewById(R.id.main_tab_layout);
-        //tabLayout.setTabData(new TabEntity());
         tabLayout.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
             public void onTabSelect(int position) {
@@ -243,27 +245,32 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
 
         // 创建正确的Fragment
         DeviceFragment fragment = DeviceFragmentFactory.build(device);
-        // 将fragment设置到device
-        device.setFragment(fragment);
-        // 将fragment注册为device的观察者
-        device.registerDeviceObserver(fragment);
-        // 将device添加到openedDeviceList
-        openedDeviceList.add(device);
-
-        //fragAdapter.notifyDataSetChanged();
-        //viewPager.setCurrentItem(fragAdapter.getCount()-1);
-        //tabLayout.getTabAt(fragAdapter.getCount()-1).select();
+        // 构造打开的设备OpenedDevice
+        OpenedDevice openedDevice = new OpenedDevice(device, R.mipmap.ic_launcher, fragment);
+        // 将OpenedDevice添加到openedDeviceList
+        openedDeviceList.add(openedDevice);
+        // 获取openedDeviceList中的设备的TabEntity
+        ArrayList<CustomTabEntity> tabEntities = new ArrayList<>();
+        for(OpenedDevice dev : openedDeviceList) {
+            tabEntities.add(dev.getTabEntity());
+        }
+        // 通知Adapter更新
+        fragAdapter.notifyDataSetChanged();
+        // 设置tabLayout的TabEntity
+        tabLayout.setTabData(tabEntities);
+        // 翻到最后一页
+        viewPager.setCurrentItem(tabLayout.getTabCount()-1);
     }
 
     // 关闭已连接设备
     public void closeConnectedDevice(ConfiguredDevice device) {
         if(device == null) return;
         openedDeviceList.remove(device);
-        fragAdapter.notifyDataSetChanged();
+        /*fragAdapter.notifyDataSetChanged();
         if(fragAdapter.getCount() >= 1) {
             viewPager.setCurrentItem(fragAdapter.getCount() - 1);
             tabLayout.getTabAt(fragAdapter.getCount() - 1).select();
-        }
+        }*/
     }
 
     // 修改已配置设备信息
@@ -325,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case 1:
-                // 添加配置设备
+                // 添加ConfiguredDevice
                 if(resultCode == RESULT_OK) {
                     String nickName = data.getStringExtra("device_nickname");
                     String macAddress = data.getStringExtra("device_macaddress");
@@ -363,8 +370,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
     }
 
     @Override
-    public ConfiguredDevice findDeviceFromFragment(DeviceFragment fragment) {
-        for(ConfiguredDevice device : openedDeviceList) {
+    public OpenedDevice findDeviceFromFragment(DeviceFragment fragment) {
+        for(OpenedDevice device : openedDeviceList) {
             if(device.getFragment() == fragment) {
                 return device;
             }
@@ -384,7 +391,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return openedDeviceList.get(position).getNickName();
+            return openedDeviceList.get(position).getConfiguredDevice().getNickName();
         }
 
         @Override

@@ -28,7 +28,7 @@ public class DeviceFragmentPagerAdapter extends FragmentPagerAdapter {
         // 获取对应的device
         ConfiguredDevice device = list.get(position);
         // 将fragment设置到device
-        device.setFragment(fragment);
+        //device.setFragment(fragment);
         // 将fragment注册为device的观察者
         device.registerDeviceObserver(fragment);
         return fragment;

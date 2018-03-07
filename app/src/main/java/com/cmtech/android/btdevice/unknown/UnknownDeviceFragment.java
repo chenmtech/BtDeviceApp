@@ -38,7 +38,7 @@ public class UnknownDeviceFragment extends DeviceFragment {
 
     @Override
     public void updateDeviceInfo(final ConfiguredDevice device, int type) {
-        if(UnknownDeviceFragment.this.device == device) {
+        if(UnknownDeviceFragment.this.device.getConfiguredDevice() == device) {
             updateConnectState();
         }
 
@@ -59,7 +59,7 @@ public class UnknownDeviceFragment extends DeviceFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        List<BluetoothGattService> services = device.getDeviceMirror().getBluetoothGatt().getServices();
+        List<BluetoothGattService> services = device.getConfiguredDevice().getDeviceMirror().getBluetoothGatt().getServices();
         StringBuilder serviceStr = new StringBuilder();
         StringBuilder charaStr = new StringBuilder();
         for(BluetoothGattService service : services) {

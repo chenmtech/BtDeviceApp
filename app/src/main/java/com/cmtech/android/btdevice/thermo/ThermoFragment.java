@@ -15,13 +15,12 @@ import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
-import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdevice.common.DeviceFragment;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 
-import static com.cmtech.android.btdevice.thermo.ThermoGattSerialExecutor.*;
+import static com.cmtech.android.btdevice.thermo.TempHumidGattSerialExecutor.*;
 
 /**
  * Created by bme on 2018/2/27.
@@ -36,7 +35,7 @@ public class ThermoFragment extends DeviceFragment {
     private TextView tvCharacteristics;
     private TextView tvDescriptors;
 
-    private ThermoGattSerialExecutor serialExecutor;
+    private TempHumidGattSerialExecutor serialExecutor;
 
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
@@ -64,7 +63,7 @@ public class ThermoFragment extends DeviceFragment {
 
     @Override
     public void updateDeviceInfo(final ConfiguredDevice device, int type) {
-        if(ThermoFragment.this.device == device) {
+        if(ThermoFragment.this.device.getConfiguredDevice() == device) {
             MainActivity.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -96,13 +95,13 @@ public class ThermoFragment extends DeviceFragment {
 
         Log.d("Main Thread", ""+Thread.currentThread().getId());
 
-        serialExecutor = new ThermoGattSerialExecutor(device.getDeviceMirror());
+        serialExecutor = new TempHumidGattSerialExecutor(device.getConfiguredDevice().getDeviceMirror());
 
         Object thermoData = serialExecutor.findElement(THERMODATA);
         Object thermoControl = serialExecutor.findElement(THERMOCONTROL);
         Object thermoPeriod = serialExecutor.findElement(THERMOPERIOD);
         if(thermoData == null || thermoControl == null || thermoPeriod == null) {
-            Log.d("ThermoFragment", "can't find element");
+            Log.d("TempHumidFragment", "can't find element");
             return;
         }
 
@@ -149,7 +148,7 @@ public class ThermoFragment extends DeviceFragment {
             }
         }, notifyCallback);
 
-        serialExecutor.startExecuteCommand();
+
 
         serialExecutor.writeElement(THERMOCONTROL, new byte[]{0x03}, new IBleCallback() {
             @Override
@@ -178,6 +177,8 @@ public class ThermoFragment extends DeviceFragment {
                 //Log.d("THERMOCONTROL", exception.toString());
             }
         });
+
+        serialExecutor.startExecuteCommand();
 
 
     }
