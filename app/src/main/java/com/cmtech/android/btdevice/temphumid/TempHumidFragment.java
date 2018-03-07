@@ -34,8 +34,8 @@ public class TempHumidFragment extends DeviceFragment {
     private static final int MSG_TEMPHUMIDCTRL = 1;
     private static final int MSG_TEMPHUMIDPERIOD = 2;
 
-    private TextView tvServices;
-    private TextView tvCharacteristics;
+    private TextView tvTempData;
+    private TextView tvHumidData;
     private TextView tvDescriptors;
 
     private TempHumidGattSerialExecutor serialExecutor;
@@ -46,7 +46,11 @@ public class TempHumidFragment extends DeviceFragment {
             if (msg.what == MSG_TEMPHUMIDDATA) {
                 if(msg.obj != null) {
                     byte[] data = (byte[]) msg.obj;
-                    tvServices.setText(Arrays.toString(data));
+                    byte[] humiddata = Arrays.copyOfRange(data, 0, 4);
+                    float humid = lBytesToFloat(humiddata);
+                    byte[] tempdata = Arrays.copyOfRange(data, 4, 8);
+                    float temp = lBytesToFloat(tempdata);
+                    tvServices.setText(""+humid+" "+temp);
                 }
             } else if (msg.what == MSG_TEMPHUMIDCTRL) {
                 tvCharacteristics.setText("characteristic");
@@ -194,26 +198,15 @@ public class TempHumidFragment extends DeviceFragment {
         serialExecutor.stopExecuteCommand();
     }
 
-    //高位在前，低位在后
-    public static byte[] int2bytes(int num){
-        byte[] result = new byte[4];
-        result[0] = (byte)((num >>> 24) & 0xff);//说明一
-        result[1] = (byte)((num >>> 16)& 0xff );
-        result[2] = (byte)((num >>> 8) & 0xff );
-        result[3] = (byte)((num >>> 0) & 0xff );
-        return result;
-    }
-
-    //高位在前，低位在后
-    public static int bytes2int(byte[] bytes){
-        int result = 0;
-        if(bytes.length == 4){
-            int a = (bytes[0] & 0xff) << 24;//说明二
-            int b = (bytes[1] & 0xff) << 16;
-            int c = (bytes[2] & 0xff) << 8;
-            int d = (bytes[3] & 0xff);
-            result = a | b | c | d;
-        }
-        return result;
+    /**
+     * 低字节数组转换为float
+     * @param b byte[]
+     * @return float
+     */
+    public static float lBytesToFloat(byte[] b) {
+        int i = 0;
+        Float F = new Float(0.0);
+        i = ((((b[3]&0xff)<<8 | (b[2]&0xff))<<8) | (b[1]&0xff))<<8 | (b[0]&0xff);
+        return F.intBitsToFloat(i);
     }
 }

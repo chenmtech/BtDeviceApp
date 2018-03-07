@@ -11,27 +11,36 @@
         android:layout_height="wrap_content">
     </com.cmtech.android.btdevice.common.DeviceFragTitleLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="这是体温计的Fragment界面"/>
 
-    <TextView
-        android:id="@+id/tv_device_services"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="nothing"/>
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/tv_device_characteristics"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="nothing"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textSize="30dp"
+            android:text="当前体温："/>
 
-    <TextView
-        android:id="@+id/tv_device_descriptors"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="nothing"/>
+        <TextView
+            android:id="@+id/tv_thermo_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textSize="30dp"
+            android:textColor="#ff0000"
+            android:text="33.90"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textSize="30dp"
+            android:text="摄氏度"/>
+
+    </LinearLayout>
+
 
 </LinearLayout>

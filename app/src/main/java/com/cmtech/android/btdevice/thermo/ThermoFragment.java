@@ -28,12 +28,8 @@ import static com.cmtech.android.btdevice.thermo.TempHumidGattSerialExecutor.*;
 
 public class ThermoFragment extends DeviceFragment {
     private static final int MSG_THERMODATA = 0;
-    private static final int MSG_THERMOCONTROL = 1;
-    private static final int MSG_THERMOPERIOD = 2;
 
-    private TextView tvServices;
-    private TextView tvCharacteristics;
-    private TextView tvDescriptors;
+    private TextView tvThermoData;
 
     private TempHumidGattSerialExecutor serialExecutor;
 
@@ -41,14 +37,12 @@ public class ThermoFragment extends DeviceFragment {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_THERMODATA) {
-                if(msg.obj != null) {
+                if (msg.obj != null) {
                     byte[] data = (byte[]) msg.obj;
-                    tvServices.setText(""+bytes2int(new byte[]{0x00,0x00,data[1],data[0]}));
+                    double temp = bytes2int(new byte[]{0x00, 0x00, data[1], data[0]})/100.0;
+                    String str = String.format("%.2f", temp);
+                    tvThermoData.setText(str);
                 }
-            } else if (msg.what == MSG_THERMOCONTROL) {
-                tvCharacteristics.setText("characteristic");
-            } else if (msg.what == MSG_THERMOPERIOD) {
-                tvDescriptors.setText("descriptor");
             }
         }
     };
@@ -83,9 +77,7 @@ public class ThermoFragment extends DeviceFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvServices = (TextView)view.findViewById(R.id.tv_device_services);
-        tvCharacteristics = (TextView)view.findViewById(R.id.tv_device_characteristics);
-        tvDescriptors = (TextView)view.findViewById(R.id.tv_device_descriptors);
+        tvThermoData = (TextView)view.findViewById(R.id.tv_thermo_data);
     }
 
 
@@ -111,7 +103,10 @@ public class ThermoFragment extends DeviceFragment {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "first write period: " + HexUtil.encodeHexStr(data));
-                handler.sendEmptyMessage(MSG_THERMODATA);
+                Message msg = new Message();
+                msg.what = MSG_THERMODATA;
+                msg.obj = data;
+                handler.sendMessage(msg);
                 Log.d("Thread", "Read Callback Thread: "+Thread.currentThread().getId());
             }
 
@@ -154,7 +149,7 @@ public class ThermoFragment extends DeviceFragment {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
-                handler.sendEmptyMessage(MSG_THERMOCONTROL);
+
                 Log.d("Thread", "Control Write Callback Thread: "+Thread.currentThread().getId());
             }
 
@@ -164,11 +159,11 @@ public class ThermoFragment extends DeviceFragment {
             }
         });
 
-        serialExecutor.writeElement(THERMOPERIOD, new byte[]{0x02}, new IBleCallback() {
+        serialExecutor.writeElement(THERMOPERIOD, new byte[]{0x01}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
-                handler.sendEmptyMessage(MSG_THERMOPERIOD);
+
                 Log.d("Thread", "Period Write Callback Thread: "+Thread.currentThread().getId());
             }
 
