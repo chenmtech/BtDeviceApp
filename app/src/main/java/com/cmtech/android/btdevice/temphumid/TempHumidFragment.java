@@ -19,6 +19,7 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+import com.cmtech.android.btdeviceapp.util.ByteUtil;
 
 import java.util.Arrays;
 
@@ -44,12 +45,12 @@ public class TempHumidFragment extends DeviceFragment {
             if (msg.what == MSG_TEMPHUMIDDATA) {
                 if(msg.obj != null) {
                     byte[] data = (byte[]) msg.obj;
-                    byte[] humiddata = Arrays.copyOfRange(data, 0, 4);
-                    float humid = lBytesToFloat(humiddata);
-                    byte[] tempdata = Arrays.copyOfRange(data, 4, 8);
-                    float temp = lBytesToFloat(tempdata);
-                    tvHumidData.setText(""+humid);
-                    tvTempData.setText(""+temp);
+                    byte[] buf = Arrays.copyOfRange(data, 0, 4);
+                    float humid = ByteUtil.getFloat(buf);
+                    tvHumidData.setText(""+(int)humid);
+                    buf = Arrays.copyOfRange(data, 4, 8);
+                    float temp = ByteUtil.getFloat(buf);
+                    tvTempData.setText(String.format("%.1f", temp));
                 }
             } else if (msg.what == MSG_TEMPHUMIDCTRL) {
                 //tvCharacteristics.setText("characteristic");
@@ -196,15 +197,4 @@ public class TempHumidFragment extends DeviceFragment {
         serialExecutor.stopExecuteCommand();
     }
 
-    /**
-     * 低字节数组转换为float
-     * @param b byte[]
-     * @return float
-     */
-    public static float lBytesToFloat(byte[] b) {
-        int i = 0;
-        Float F = new Float(0.0);
-        i = ((((b[3]&0xff)<<8 | (b[2]&0xff))<<8) | (b[1]&0xff))<<8 | (b[0]&0xff);
-        return F.intBitsToFloat(i);
-    }
 }
