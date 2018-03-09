@@ -1,15 +1,15 @@
 package com.cmtech.android.btdevice.thermo;
 
 import com.cmtech.android.ble.core.DeviceMirror;
-import com.cmtech.android.btdevice.common.DeviceGattSerialExecutor;
-import com.cmtech.android.btdevice.common.BluetoothGattElement;
-import com.cmtech.android.btdevice.common.Uuid;
+import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
+import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
+import com.cmtech.android.btdeviceapp.util.Uuid;
 
 /**
  * Created by bme on 2018/3/1.
  */
 
-public class TempHumidGattSerialExecutor extends DeviceGattSerialExecutor {
+public class ThermoGattSerialExecutor extends GattSerialExecutor {
     private static final String thermoServiceUuid = "aa30";     // 体温计服务UUID:aa30
     private static final String thermoDataUuid = "aa31";        // 体温数据特征UUID:aa31
     private static final String thermoControlUuid = "aa32";     // 体温测量控制UUID:aa32
@@ -27,7 +27,7 @@ public class TempHumidGattSerialExecutor extends DeviceGattSerialExecutor {
     public static final BluetoothGattElement THERMODATACCC =
             new BluetoothGattElement(thermoServiceUuid, thermoDataUuid, Uuid.CCCUUID);
 
-    public TempHumidGattSerialExecutor(DeviceMirror deviceMirror) {
+    public ThermoGattSerialExecutor(DeviceMirror deviceMirror) {
         super(deviceMirror);
     }
 

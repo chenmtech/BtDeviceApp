@@ -1,4 +1,4 @@
-package com.cmtech.android.btdevice.common;
+package com.cmtech.android.btdeviceapp.model;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 
 import com.cmtech.android.ble.core.DeviceMirror;
+import com.cmtech.android.btdeviceapp.util.Uuid;
 
 import java.util.UUID;
 
@@ -14,10 +15,13 @@ import java.util.UUID;
  */
 
 public class BluetoothGattElement {
-    private final int TYPE_NOTHING = 0;
-    private final int TYPE_SERVICE = 1;
-    private final int TYPE_CHARACTERISTIC = 2;
-    private final int TYPE_DESCRIPTOR = 3;
+    private final int TYPE_NULL = 0;                // 空ELement
+    private final int TYPE_SERVICE = 1;             // service element
+    private final int TYPE_CHARACTERISTIC = 2;      // characteristic element
+    private final int TYPE_DESCRIPTOR = 3;          // descriptor element
+
+    // null element
+    private static final BluetoothGattElement NULLELEMENT = new BluetoothGattElement((UUID)null, null, null);
 
     private final UUID serviceUuid;
     private final UUID characteristicUuid;
@@ -25,22 +29,22 @@ public class BluetoothGattElement {
 
     private final String description;
 
-    public BluetoothGattElement(String serviceUuid, String characteristicUuid, String descriptorUuid) {
-        this.serviceUuid = Uuid.from16(serviceUuid);
-        this.characteristicUuid = Uuid.from16(characteristicUuid);
-        this.descriptorUuid = Uuid.from16(descriptorUuid);
-        description = "[service= " + serviceUuid
-                + ",characteristic= " + characteristicUuid
-                + ",descriptor= " + descriptorUuid + "]";
-        //this(Uuid.from16(serviceUuid), Uuid.from16(characteristicUuid), Uuid.from16(descriptorUuid));
-    }
+    public BluetoothGattElement(String serviceShortString, String characteristicShortString, String descriptorShortString) {
+        this(Uuid.shortStringToUuid(serviceShortString), Uuid.shortStringToUuid(characteristicShortString), Uuid.shortStringToUuid(descriptorShortString));
+        }
 
-    /*public BluetoothGattElement(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid) {
+    public BluetoothGattElement(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid) {
         this.serviceUuid = serviceUuid;
         this.characteristicUuid = characteristicUuid;
         this.descriptorUuid = descriptorUuid;
+        String servStr = (serviceUuid == null) ? null : Uuid.longToShortString(serviceUuid.toString());
+        String charaStr = (characteristicUuid == null) ? null : Uuid.longToShortString(characteristicUuid.toString());
+        String descStr = (descriptorUuid == null) ? null : Uuid.longToShortString(descriptorUuid.toString());
+        description = "[service= " + servStr
+                + ",characteristic= " + charaStr
+                + ",descriptor= " + descStr + "]";
     }
-*/
+
     public UUID getServiceUuid() {
         return serviceUuid;
     }
@@ -53,7 +57,8 @@ public class BluetoothGattElement {
         return descriptorUuid;
     }
 
-    public Object retrieve(DeviceMirror deviceMirror) {
+    // 从设备镜像中搜寻此element的Gatt Object
+    public Object retrieveGattObject(DeviceMirror deviceMirror) {
         if(deviceMirror == null || deviceMirror.getBluetoothGatt() == null) return null;
         BluetoothGatt gatt = deviceMirror.getBluetoothGatt();
         BluetoothGattService service;
@@ -73,11 +78,12 @@ public class BluetoothGattElement {
         return element;
     }
 
+    // element的类型
     public int getType() {
         if(descriptorUuid != null) return TYPE_DESCRIPTOR;
         if(characteristicUuid != null) return TYPE_CHARACTERISTIC;
         if(serviceUuid != null) return TYPE_SERVICE;
-        return TYPE_NOTHING;
+        return TYPE_NULL;
     }
 
     @Override

@@ -1,15 +1,15 @@
 package com.cmtech.android.btdevice.temphumid;
 
 import com.cmtech.android.ble.core.DeviceMirror;
-import com.cmtech.android.btdevice.common.BluetoothGattElement;
-import com.cmtech.android.btdevice.common.DeviceGattSerialExecutor;
-import com.cmtech.android.btdevice.common.Uuid;
+import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
+import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
+import com.cmtech.android.btdeviceapp.util.Uuid;
 
 /**
  * Created by bme on 2018/3/1.
  */
 
-public class TempHumidGattSerialExecutor extends DeviceGattSerialExecutor {
+public class TempHumidGattSerialExecutor extends GattSerialExecutor {
     private static final String tempHumidServiceUuid = "aa60";     // 温湿度计服务UUID:aa60
     private static final String tempHumidDataUuid = "aa61";        // 温湿度数据特征UUID:aa61
     private static final String tempHumidCtrlUuid = "aa62";     // 测量控制UUID:aa62

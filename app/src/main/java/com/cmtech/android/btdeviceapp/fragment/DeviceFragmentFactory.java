@@ -1,9 +1,13 @@
-package com.cmtech.android.btdevice.common;
+package com.cmtech.android.btdeviceapp.fragment;
 
 import com.cmtech.android.btdevice.temphumid.TempHumidFragment;
 import com.cmtech.android.btdevice.unknown.UnknownDeviceFragment;
 import com.cmtech.android.btdevice.thermo.ThermoFragment;
+import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+import com.cmtech.android.btdeviceapp.util.Uuid;
+
+import java.util.UUID;
 
 /**
  * Created by bme on 2018/2/28.
@@ -28,11 +32,11 @@ public class DeviceFragmentFactory {
     }
 
     public static DeviceFragment build(ConfiguredDevice device) {
-        String uuid = device.getDeviceUuidInAd();
+        UUID uuid = device.getDeviceUuidInAd();
         if(uuid != null) {
-            if(uuid.equalsIgnoreCase(Uuid.from16To128(UUID_THERMOMETER))) {
+            if(uuid.equals(Uuid.shortStringToUuid(UUID_THERMOMETER))) {
                 return ThermoFragment.newInstance();
-            } else if(uuid.equalsIgnoreCase(Uuid.from16To128(UUID_TEMPHUMID))) {
+            } else if(uuid.equals(Uuid.shortStringToUuid(UUID_TEMPHUMID))) {
                 return TempHumidFragment.newInstance();
             } else {
                 return UnknownDeviceFragment.newInstance();

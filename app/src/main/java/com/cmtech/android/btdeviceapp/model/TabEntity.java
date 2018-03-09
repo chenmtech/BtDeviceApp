@@ -1,4 +1,4 @@
-package com.cmtech.android.btdevice.common;
+package com.cmtech.android.btdeviceapp.model;
 
 import com.flyco.tablayout.listener.CustomTabEntity;
 
@@ -7,9 +7,9 @@ import com.flyco.tablayout.listener.CustomTabEntity;
  */
 
 public class TabEntity implements CustomTabEntity {
-    public String title;
-    public int selectedIcon;
-    public int unSelectedIcon;
+    public String title;            // Tab的标题文字
+    public int selectedIcon;        // Tab的选中图标
+    public int unSelectedIcon;      // Tab的未选中图标
 
     public TabEntity(String title, int selectedIcon, int unSelectedIcon) {
         this.title = title;

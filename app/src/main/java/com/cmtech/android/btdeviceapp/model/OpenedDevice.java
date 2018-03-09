@@ -1,7 +1,6 @@
 package com.cmtech.android.btdeviceapp.model;
 
-import com.cmtech.android.btdevice.common.DeviceFragment;
-import com.cmtech.android.btdevice.common.TabEntity;
+import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 
 /**
  * Created by bme on 2018/3/7.

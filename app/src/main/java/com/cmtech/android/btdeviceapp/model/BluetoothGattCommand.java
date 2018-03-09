@@ -1,27 +1,20 @@
-package com.cmtech.android.btdevice.common;
-
-import android.bluetooth.BluetoothClass;
-import android.bluetooth.BluetoothGatt;
+package com.cmtech.android.btdeviceapp.model;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.common.PropertyType;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.core.DeviceMirror;
 
-import java.util.UUID;
-
 /**
  * Created by bme on 2018/3/1.
  */
 
 public class BluetoothGattCommand {
-    private DeviceMirror deviceMirror;
-    private BluetoothGattChannel channel;       // 通道
-    private IBleCallback dataOpCallback;        // 数据操作回调
-    private byte[] writtenData;                 // 如果是写操作，存放要写的数据；如果是notify或indicate操作，存放enable数据
-    private IBleCallback notifyOpCallback;      // 如果是notify或indicate操作，存放notify或indicate的回调
-
-    private BluetoothGattElement element;       // 命令操作的元素，用来实现toString
+    private final DeviceMirror deviceMirror;          // 执行命令的设备镜像
+    private final BluetoothGattChannel channel;       // 执行命令的通道
+    private final IBleCallback dataOpCallback;        // 数据操作回调
+    private final byte[] writtenData;                 // 如果是写操作，存放要写的数据；如果是notify或indicate操作，存放enable数据
+    private final IBleCallback notifyOpCallback;      // 如果是notify或indicate操作，存放notify或indicate的回调
 
     private BluetoothGattCommand(DeviceMirror deviceMirror, BluetoothGattChannel channel,
                                  IBleCallback dataOpCallback,
@@ -33,6 +26,7 @@ public class BluetoothGattCommand {
         this.notifyOpCallback = notifyOpCallback;
     }
 
+    // 执行命令
     public void execute() {
         switch (channel.getPropertyType()) {
             case PROPERTY_READ:
@@ -70,12 +64,15 @@ public class BluetoothGattCommand {
 
     @Override
     public String toString() {
+        BluetoothGattElement element =
+                new BluetoothGattElement(channel.getServiceUUID(), channel.getCharacteristicUUID(),channel.getDescriptorUUID());
         return "BluetoothGattCommand{" + channel.getPropertyType() +
                 " element=" + element.toString() +
                 '}';
     }
 
-    public BluetoothGattChannel getChannel() {return channel;}
+    // 获取Gatt信息key
+    public String getGattInfoKey() { return channel.getGattInfoKey(); }
 
     public static class Builder {
         private BluetoothGattElement element;
@@ -140,7 +137,7 @@ public class BluetoothGattCommand {
                     .setDescriptorUUID(element.getDescriptorUuid()).builder();
 
             BluetoothGattCommand command = new BluetoothGattCommand(deviceMirror, channel, dataOpCallback, data, notifyOpCallback);
-            command.element = this.element;
+
             return command;
         }
     }

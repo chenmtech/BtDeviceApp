@@ -13,14 +13,15 @@ import android.widget.TextView;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
+import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdevice.common.DeviceFragment;
+import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 
-import static com.cmtech.android.btdevice.thermo.TempHumidGattSerialExecutor.*;
+import static com.cmtech.android.btdevice.thermo.ThermoGattSerialExecutor.*;
 
 /**
  * Created by bme on 2018/2/27.
@@ -31,7 +32,7 @@ public class ThermoFragment extends DeviceFragment {
 
     private TextView tvThermoData;
 
-    private TempHumidGattSerialExecutor serialExecutor;
+    private ThermoGattSerialExecutor serialExecutor;
 
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
@@ -87,19 +88,20 @@ public class ThermoFragment extends DeviceFragment {
 
         Log.d("Main Thread", ""+Thread.currentThread().getId());
 
-        serialExecutor = new TempHumidGattSerialExecutor(device.getConfiguredDevice().getDeviceMirror());
+        DeviceMirror deviceMirror = device.getConfiguredDevice().getDeviceMirror();
+        serialExecutor = new ThermoGattSerialExecutor(deviceMirror);
 
-        Object thermoData = serialExecutor.findElement(THERMODATA);
-        Object thermoControl = serialExecutor.findElement(THERMOCONTROL);
-        Object thermoPeriod = serialExecutor.findElement(THERMOPERIOD);
+        Object thermoData = serialExecutor.getGattObject(THERMODATA);
+        Object thermoControl = serialExecutor.getGattObject(THERMOCONTROL);
+        Object thermoPeriod = serialExecutor.getGattObject(THERMOPERIOD);
         if(thermoData == null || thermoControl == null || thermoPeriod == null) {
-            Log.d("TempHumidFragment", "can't find element");
+            Log.d("ThermoFragment", "can't find Gatt object of this element on the device.");
             return;
         }
 
 
 
-        serialExecutor.readElement(THERMODATA, new IBleCallback() {
+        serialExecutor.addReadCommand(THERMODATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "first write period: " + HexUtil.encodeHexStr(data));
@@ -131,7 +133,7 @@ public class ThermoFragment extends DeviceFragment {
             }
         };
 
-        serialExecutor.notifyElement(THERMODATACCC, true, new IBleCallback() {
+        serialExecutor.addNotifyCommand(THERMODATACCC, true, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 Log.d("Thread", "Notify Callback Thread: "+Thread.currentThread().getId());
@@ -145,7 +147,7 @@ public class ThermoFragment extends DeviceFragment {
 
 
 
-        serialExecutor.writeElement(THERMOCONTROL, new byte[]{0x03}, new IBleCallback() {
+        serialExecutor.addWriteCommand(THERMOCONTROL, new byte[]{0x03}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
@@ -159,7 +161,7 @@ public class ThermoFragment extends DeviceFragment {
             }
         });
 
-        serialExecutor.writeElement(THERMOPERIOD, new byte[]{0x01}, new IBleCallback() {
+        serialExecutor.addWriteCommand(THERMOPERIOD, new byte[]{0x01}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));

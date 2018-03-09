@@ -1,4 +1,4 @@
-package com.cmtech.android.btdevice.common;
+package com.cmtech.android.btdeviceapp.fragment;
 
 import android.content.Context;
 import android.os.Bundle;

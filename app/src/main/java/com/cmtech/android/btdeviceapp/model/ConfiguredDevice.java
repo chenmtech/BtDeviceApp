@@ -1,22 +1,17 @@
 package com.cmtech.android.btdeviceapp.model;
 
-import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.ble.core.DeviceMirror;
-import com.cmtech.android.ble.core.DeviceMirrorPool;
-import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
-import com.cmtech.android.btdevice.common.DeviceFragment;
-import com.cmtech.android.btdevice.common.Uuid;
+import com.cmtech.android.btdeviceapp.util.Uuid;
 import com.cmtech.android.btdeviceapp.MyApplication;
-import com.cmtech.android.btdeviceapp.activity.MainActivity;
 
 import org.litepal.crud.DataSupport;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
 
@@ -29,7 +24,7 @@ public class ConfiguredDevice extends DataSupport {
     public static final int TYPE_ADD = 1;
     public static final int TYPE_DELETE = 2;
 
-    // 数据库会保存的字段
+    // 数据库保存的字段
     // id
     private int id;
 
@@ -75,8 +70,8 @@ public class ConfiguredDevice extends DataSupport {
         isAutoConnected = autoConnected;
     }
 
-    // 数据库不会保存的变量
-    // 连接状态
+    // 数据库不保存的变量
+    // 设备连接状态
     ConnectState connectState = ConnectState.CONNECT_INIT;
 
     // 设备镜像，连接成功后才会赋值
@@ -123,13 +118,13 @@ public class ConfiguredDevice extends DataSupport {
     public void setDeviceMirror(DeviceMirror deviceMirror) {this.deviceMirror = deviceMirror;}
 
     // 获取设备广播中包含的UUID
-    public String getDeviceUuidInAd() {
+    public UUID getDeviceUuidInAd() {
         if(deviceMirror == null) return null;
 
         AdRecord record = deviceMirror.getBluetoothLeDevice()
                 .getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(record == null) return null;
-        return Uuid.getUuidFromByteArray(record.getData()).toString();
+        return Uuid.byteArrayToUuid(record.getData());
     }
 
     // 登记观察者

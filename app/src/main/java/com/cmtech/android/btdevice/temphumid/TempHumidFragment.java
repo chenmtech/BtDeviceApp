@@ -15,9 +15,8 @@ import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
-import com.cmtech.android.btdevice.thermo.TempHumidGattSerialExecutor;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdevice.common.DeviceFragment;
+import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 
@@ -36,7 +35,6 @@ public class TempHumidFragment extends DeviceFragment {
 
     private TextView tvTempData;
     private TextView tvHumidData;
-    private TextView tvDescriptors;
 
     private TempHumidGattSerialExecutor serialExecutor;
 
@@ -50,12 +48,13 @@ public class TempHumidFragment extends DeviceFragment {
                     float humid = lBytesToFloat(humiddata);
                     byte[] tempdata = Arrays.copyOfRange(data, 4, 8);
                     float temp = lBytesToFloat(tempdata);
-                    tvServices.setText(""+humid+" "+temp);
+                    tvHumidData.setText(""+humid);
+                    tvTempData.setText(""+temp);
                 }
             } else if (msg.what == MSG_TEMPHUMIDCTRL) {
-                tvCharacteristics.setText("characteristic");
+                //tvCharacteristics.setText("characteristic");
             } else if (msg.what == MSG_TEMPHUMIDPERIOD) {
-                tvDescriptors.setText("descriptor");
+                //tvDescriptors.setText("descriptor");
             }
         }
     };
@@ -90,9 +89,8 @@ public class TempHumidFragment extends DeviceFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvServices = (TextView)view.findViewById(R.id.tv_device_services);
-        tvCharacteristics = (TextView)view.findViewById(R.id.tv_device_characteristics);
-        tvDescriptors = (TextView)view.findViewById(R.id.tv_device_descriptors);
+        tvTempData = (TextView)view.findViewById(R.id.tv_temp_data);
+        tvHumidData = (TextView)view.findViewById(R.id.tv_humid_data);
     }
 
 
@@ -104,17 +102,17 @@ public class TempHumidFragment extends DeviceFragment {
 
         serialExecutor = new TempHumidGattSerialExecutor(device.getConfiguredDevice().getDeviceMirror());
 
-        Object thermoData = serialExecutor.findElement(TEMPHUMIDDATA);
-        Object thermoControl = serialExecutor.findElement(TEMPHUMIDCTRL);
-        Object thermoPeriod = serialExecutor.findElement(TEMPHUMIDPERIOD);
+        Object thermoData = serialExecutor.getGattObject(TEMPHUMIDDATA);
+        Object thermoControl = serialExecutor.getGattObject(TEMPHUMIDCTRL);
+        Object thermoPeriod = serialExecutor.getGattObject(TEMPHUMIDPERIOD);
         if(thermoData == null || thermoControl == null || thermoPeriod == null) {
-            Log.d("TempHumidFragment", "can't find element");
+            Log.d("TempHumidFragment", "can't find Gatt object of this element on the device.");
             return;
         }
 
 
 
-        serialExecutor.readElement(TEMPHUMIDDATA, new IBleCallback() {
+        serialExecutor.addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "first write period: " + HexUtil.encodeHexStr(data));
@@ -143,7 +141,7 @@ public class TempHumidFragment extends DeviceFragment {
             }
         };
 
-        serialExecutor.notifyElement(TEMPHUMIDDATACCC, true, new IBleCallback() {
+        serialExecutor.addNotifyCommand(TEMPHUMIDDATACCC, true, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 Log.d("Thread", "Notify Callback Thread: "+Thread.currentThread().getId());
@@ -157,7 +155,7 @@ public class TempHumidFragment extends DeviceFragment {
 
 
 
-        serialExecutor.writeElement(TEMPHUMIDCTRL, new byte[]{0x01}, new IBleCallback() {
+        serialExecutor.addWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
@@ -171,7 +169,7 @@ public class TempHumidFragment extends DeviceFragment {
             }
         });
 
-        serialExecutor.writeElement(TEMPHUMIDPERIOD, new byte[]{0x0A}, new IBleCallback() {
+        serialExecutor.addWriteCommand(TEMPHUMIDPERIOD, new byte[]{0x0A}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));

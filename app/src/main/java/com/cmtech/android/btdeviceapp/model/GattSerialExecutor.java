@@ -1,4 +1,4 @@
-package com.cmtech.android.btdevice.common;
+package com.cmtech.android.btdeviceapp.model;
 
 import android.util.Log;
 
@@ -10,17 +10,15 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.HexUtil;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 
 /**
  * Created by bme on 2018/3/2.
- * Gatt数据单元串行执行器
- * 用于实现Gatt设备上的数据单元element的串行执行
+ * Gatt数据操作命令的串行执行器
  */
 
-public class DeviceGattSerialExecutor {
+public class GattSerialExecutor {
     // 指定的设备镜像
     private final DeviceMirror deviceMirror;
 
@@ -36,7 +34,7 @@ public class DeviceGattSerialExecutor {
     // 当前在执行的命令
     private BluetoothGattCommand currentCommand;
 
-    // IBleCallback的装饰器类，在一般的回调完成后，执行串行命令所需动作
+    // IBleCallback的装饰器类，在一般的回调任务完成后，执行串行命令所需动作
     private class BleSerialCommandCallback implements IBleCallback {
         IBleCallback bleCallback;
 
@@ -46,21 +44,21 @@ public class DeviceGattSerialExecutor {
 
         @Override
         public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-            synchronized(DeviceGattSerialExecutor.this) {
+            synchronized(GattSerialExecutor.this) {
                 // 先做一般操作
                 bleCallback.onSuccess(data, bluetoothGattChannel, bluetoothLeDevice);
 
                 // 标记命令执行完毕
                 done = true;
                 // 通知执行线程执行下一条
-                DeviceGattSerialExecutor.this.notifyAll();
+                GattSerialExecutor.this.notifyAll();
                 Log.d("SerialExecutor", "The returned data is " + HexUtil.encodeHexStr(data));
             }
         }
 
         @Override
         public void onFailure(BleException exception) {
-            synchronized(DeviceGattSerialExecutor.this) {
+            synchronized(GattSerialExecutor.this) {
                 bleCallback.onFailure(exception);
 
                 // 有错误，直接终止线程
@@ -71,14 +69,14 @@ public class DeviceGattSerialExecutor {
     }
 
     // 构造器：指定设备镜像
-    public DeviceGattSerialExecutor(DeviceMirror deviceMirror) {
+    public GattSerialExecutor(DeviceMirror deviceMirror) {
         this.deviceMirror = deviceMirror;
     }
 
-    // 在设备上查找一个数据单元
-    public Object findElement(BluetoothGattElement element) {
+    // 在设备上获取element的Gatt Object
+    public Object getGattObject(BluetoothGattElement element) {
         if(deviceMirror == null || element == null) return null;
-        return element.retrieve(deviceMirror);
+        return element.retrieveGattObject(deviceMirror);
     }
 
     /**
@@ -87,7 +85,7 @@ public class DeviceGattSerialExecutor {
      * @param dataOpCallback 读回调
      * @return 是否添加成功
      */
-    public boolean readElement(BluetoothGattElement element, IBleCallback dataOpCallback) {
+    public boolean addReadCommand(BluetoothGattElement element, IBleCallback dataOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -104,7 +102,7 @@ public class DeviceGattSerialExecutor {
      * @param dataOpCallback 写回调
      * @return 是否添加成功
      */
-    public boolean writeElement(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
+    public boolean addWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -123,7 +121,7 @@ public class DeviceGattSerialExecutor {
      * @param notifyOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public boolean notifyElement(BluetoothGattElement element, boolean enable
+    public boolean addNotifyCommand(BluetoothGattElement element, boolean enable
                             , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -137,14 +135,14 @@ public class DeviceGattSerialExecutor {
     }
 
     /**
-     * 将"数据单元Indicate"操作加入串行执行器
+     * 生成"数据单元Indicate"命令，并加入串行执行器
      * @param element 数据单元
      * @param enable 使能或失能
      * @param dataOpCallback 写回调
      * @param indicateOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public boolean indicateElement(BluetoothGattElement element, boolean enable
+    public boolean addIndicateCommand(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -166,7 +164,9 @@ public class DeviceGattSerialExecutor {
         return flag;
     }
 
+    // 开始执行命令
     public void startExecuteCommand() {
+        if(executeThread != null) return;
 
         executeThread = new Thread(new Runnable() {
             @Override
@@ -177,7 +177,7 @@ public class DeviceGattSerialExecutor {
                         executeNextCommand();
                     }
                 }catch (InterruptedException e) {
-                        Log.d("SerialExecutor", "The execution is interrupted!!!!!!");
+                        Log.d("SerialExecutor", "The serial executor is interrupted!!!!!!");
                 } finally {
                     commandList.clear();
                     executeThread = null;
@@ -193,10 +193,10 @@ public class DeviceGattSerialExecutor {
         while(!done || commandList.isEmpty()) {
             wait();
         }
-        // 清除上次执行的命令的数据操作IBleCallback，否则会出现多次异常触发.
+        // 清除上次执行命令的数据操作IBleCallback，否则会出现多次执行该回调.
         // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
         if(currentCommand != null) {
-            deviceMirror.removeBleCallback(currentCommand.getChannel().getGattInfoKey());
+            deviceMirror.removeBleCallback(currentCommand.getGattInfoKey());
         }
 
         // 取出一条命令执行
@@ -209,6 +209,7 @@ public class DeviceGattSerialExecutor {
         done = false;
     }
 
+    // 停止执行命令
     public void stopExecuteCommand() {
         if(executeThread == null) return;
         executeThread.interrupt();
