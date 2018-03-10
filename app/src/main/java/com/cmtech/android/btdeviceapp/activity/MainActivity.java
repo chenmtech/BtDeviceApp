@@ -49,7 +49,6 @@ import java.util.List;
  *  MainActivity: 主界面，主要数据存放区
  */
 public class MainActivity extends AppCompatActivity implements DeviceFragment.IDeviceFragmentListener{
-    private static MainActivity activity;
 
     // 设备列表
     List<MyBluetoothDevice> deviceList = new ArrayList<>();
@@ -229,10 +228,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             }
         });
 
-        activity = this;
     }
-
-    public static MainActivity getActivity() {return activity;}
 
     // 打开已连接设备
     public void openConnectedDevice(MyBluetoothDevice device) {
@@ -248,6 +244,18 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
 
         // 翻到最后一页
         viewPager.setCurrentItem(fragAdapter.getCount()-1);
+    }
+
+    // 关闭Fragment和它相应的Device
+    @Override
+    public void closeFragmentAndDevice(DeviceFragment fragment) {
+        MyBluetoothDevice device = findDeviceFromFragment(fragment);
+        if(device == null) return;
+
+        device.removeDeviceObserver(fragment);
+        device.setFragment(null);
+
+        updateTabandViewPager();
     }
 
     // 更新TabLayout和ViewPager
@@ -272,12 +280,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
     // 关闭已连接设备
     public void closeConnectedDevice(MyBluetoothDevice device) {
         if(device == null) return;
-        deviceList.remove(device);
-        /*fragAdapter.notifyDataSetChanged();
-        if(fragAdapter.getCount() >= 1) {
-            viewPager.setCurrentItem(fragAdapter.getCount() - 1);
-            tabLayout.getTabAt(fragAdapter.getCount() - 1).select();
-        }*/
+
     }
 
     // 修改设备信息

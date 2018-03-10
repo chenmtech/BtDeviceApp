@@ -59,8 +59,8 @@ public class ThermoFragment extends DeviceFragment {
 
     @Override
     public void updateDeviceInfo(final MyBluetoothDevice device, int type) {
-        if(ThermoFragment.this.device == device) {
-            MainActivity.getActivity().runOnUiThread(new Runnable() {
+        if(this.device == device) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     updateConnectState();
@@ -180,6 +180,7 @@ public class ThermoFragment extends DeviceFragment {
 
 
     }
+
 
     @Override
     public void onDestroy() {

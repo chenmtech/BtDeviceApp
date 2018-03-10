@@ -2,6 +2,8 @@ package com.cmtech.android.btdeviceapp.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -11,7 +13,6 @@ import android.widget.TextView;
 
 import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 /**
@@ -27,7 +28,10 @@ public abstract class DeviceFragment extends Fragment implements MyBluetoothDevi
     protected Button btnClose;
 
     public interface IDeviceFragmentListener {
+        // 用Fragment找到相应的Device
         MyBluetoothDevice findDeviceFromFragment(DeviceFragment fragment);
+        // 关闭Fragment及其相应的Device
+        void closeFragmentAndDevice(DeviceFragment fragment);
     }
 
     public DeviceFragment() {
@@ -40,16 +44,22 @@ public abstract class DeviceFragment extends Fragment implements MyBluetoothDevi
 
         tvConnectState = view.findViewById(R.id.device_connect_state_tv);
         btnDisconnect = view.findViewById(R.id.device_disconnect_btn);
-
         btnClose = view.findViewById(R.id.device_close_btn);
-        btnDisconnect = view.findViewById(R.id.device_disconnect_btn);
+
 
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("DeviceFragment", DeviceFragment.this.getClass().getSimpleName());
-                device.removeDeviceObserver(DeviceFragment.this);
-                MainActivity.getActivity().closeConnectedDevice(device);
+                Log.d("DeviceFragment", DeviceFragment.this.getClass().getSimpleName() + "is closed.");
+
+                if(fragmentListener != null) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            fragmentListener.closeFragmentAndDevice(DeviceFragment.this);
+                        }
+                    });
+                }
             }
         });
 
@@ -60,7 +70,7 @@ public abstract class DeviceFragment extends Fragment implements MyBluetoothDevi
         super.onAttach(context);
 
         if(!(context instanceof IDeviceFragmentListener)) {
-            throw new IllegalStateException("IDeviceFragmentListener接口没有实现");
+            throw new IllegalStateException("context没有实现IDeviceFragmentListener接口");
         }
 
         // 获取listener
@@ -76,12 +86,6 @@ public abstract class DeviceFragment extends Fragment implements MyBluetoothDevi
         updateConnectState();
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        fragmentListener = null;
-        device = null;
-    }
 
     protected void updateConnectState() {
         if(device != null) {
@@ -98,9 +102,13 @@ public abstract class DeviceFragment extends Fragment implements MyBluetoothDevi
     public void onDestroy() {
         super.onDestroy();
 
-        if(device != null) device.disconnect();
-        device.removeDeviceObserver(this);
-        device.setFragment(null);
+        fragmentListener = null;
+
+        if(device != null) {
+            device.disconnect();
+        }
+
+        device = null;
     }
 
 }

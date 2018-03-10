@@ -3,6 +3,8 @@ package com.cmtech.android.btdeviceapp.adapter;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -115,7 +117,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
 
     @Override
     public void updateDeviceInfo(MyBluetoothDevice device, final int type) {
-        MainActivity.getActivity().runOnUiThread(new Runnable() {
+        new Handler(Looper.getMainLooper()).post((new Runnable() {
             @Override
             public void run() {
             if(type == TYPE_ADD) {
@@ -125,7 +127,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
             }
             notifyDataSetChanged();
             }
-        });
+        }));
 
     }
 }

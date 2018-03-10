@@ -1,5 +1,6 @@
 package com.cmtech.android.btdevice.temphumid;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -70,8 +71,8 @@ public class TempHumidFragment extends DeviceFragment {
 
     @Override
     public void updateDeviceInfo(final MyBluetoothDevice device, int type) {
-        if(TempHumidFragment.this.device == device) {
-            MainActivity.getActivity().runOnUiThread(new Runnable() {
+        if(this.device == device) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     updateConnectState();
