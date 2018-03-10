@@ -3,10 +3,10 @@
 <litepal>
     <dbname value = "BtDeviceApp"></dbname>
 
-    <version value="1"></version>
+    <version value="3"></version>
 
     <list>
-        <mapping class="com.cmtech.android.btdeviceapp.model.ConfiguredDevice"></mapping>
+        <mapping class="com.cmtech.android.btdeviceapp.model.MyBluetoothDevice"></mapping>
 
     </list>
 </litepal>

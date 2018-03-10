@@ -10,7 +10,6 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 
 import org.litepal.crud.DataSupport;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -21,7 +20,7 @@ import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128
  * Created by bme on 2018/2/19.
  */
 
-public class ConfiguredDevice extends DataSupport {
+public class MyBluetoothDevice extends DataSupport {
     public static final int TYPE_MODIFY = 0;
     public static final int TYPE_ADD = 1;
     public static final int TYPE_DELETE = 2;
@@ -41,6 +40,24 @@ public class ConfiguredDevice extends DataSupport {
 
     // 图标
     private int icon;
+
+    // 数据库不保存的变量
+    // 设备连接状态
+    ConnectState connectState = ConnectState.CONNECT_INIT;
+
+    // 设备镜像，连接成功后才会赋值
+    DeviceMirror deviceMirror = null;
+
+    // 存放连接后打开的Fragment
+    DeviceFragment fragment;
+
+    // 设备信息观察者接口
+    public interface IMyBluetoothDeviceObersver {
+        void updateDeviceInfo(MyBluetoothDevice device, int type);
+    }
+
+    // 观察者
+    List<IMyBluetoothDeviceObersver> obersvers = new LinkedList<>();
 
     public int getId() {
         return id;
@@ -83,23 +100,7 @@ public class ConfiguredDevice extends DataSupport {
         this.icon = icon;
     }
 
-    // 数据库不保存的变量
-    // 设备连接状态
-    ConnectState connectState = ConnectState.CONNECT_INIT;
 
-    // 设备镜像，连接成功后才会赋值
-    DeviceMirror deviceMirror = null;
-
-    // 存放连接后打开的Fragment
-    DeviceFragment fragment;
-
-    // 设备信息观察者接口
-    public interface IConfiguredDeviceObersver {
-        void updateDeviceInfo(ConfiguredDevice device, int type);
-    }
-
-    // 观察者
-    List<IConfiguredDeviceObersver> obersvers = new LinkedList<>();
 
     public ConnectState getConnectState() {return connectState;}
 
@@ -139,7 +140,7 @@ public class ConfiguredDevice extends DataSupport {
 
     public void setFragment(DeviceFragment fragment) {
         this.fragment = fragment;
-        registerDeviceObserver(fragment);
+        if(fragment != null) registerDeviceObserver(fragment);
     }
 
     // 判断设备是否已经打开了Fragment
@@ -158,14 +159,14 @@ public class ConfiguredDevice extends DataSupport {
     }
 
     // 登记观察者
-    public void registerDeviceObserver(IConfiguredDeviceObersver obersver) {
+    public void registerDeviceObserver(IMyBluetoothDeviceObersver obersver) {
         if(!obersvers.contains(obersver)) {
             obersvers.add(obersver);
         }
     }
 
     // 删除观察者
-    public void removerDeviceObserver(IConfiguredDeviceObersver obersver) {
+    public void removeDeviceObserver(IMyBluetoothDeviceObersver obersver) {
         int index = obersvers.indexOf(obersver);
         if(index >= 0) {
             obersvers.remove(index);
@@ -175,7 +176,7 @@ public class ConfiguredDevice extends DataSupport {
     // 通知观察者
     // @param type：状态改变的类型
     public void notifyDeviceObservers(final int type) {
-        for(final IConfiguredDeviceObersver obersver : obersvers) {
+        for(final IMyBluetoothDeviceObersver obersver : obersvers) {
             if(obersver != null) {
                 obersver.updateDeviceInfo(this, type);
             }
@@ -189,12 +190,17 @@ public class ConfiguredDevice extends DataSupport {
         MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
     }
 
+    public void disconnect() {
+        if(deviceMirror == null || deviceMirror.getBluetoothLeDevice() == null) return;
+        MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ConfiguredDevice that = (ConfiguredDevice) o;
+        MyBluetoothDevice that = (MyBluetoothDevice) o;
 
         return macAddress != null ? macAddress.equals(that.macAddress) : that.macAddress == null;
     }

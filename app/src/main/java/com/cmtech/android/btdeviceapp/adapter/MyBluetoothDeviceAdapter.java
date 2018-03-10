@@ -11,22 +11,22 @@ import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 import java.util.List;
 
-import static com.cmtech.android.btdeviceapp.model.ConfiguredDevice.TYPE_ADD;
-import static com.cmtech.android.btdeviceapp.model.ConfiguredDevice.TYPE_DELETE;
+import static com.cmtech.android.btdeviceapp.model.MyBluetoothDevice.TYPE_ADD;
+import static com.cmtech.android.btdeviceapp.model.MyBluetoothDevice.TYPE_DELETE;
 
 /**
  * Created by bme on 2018/2/8.
  */
 
-public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDeviceAdapter.ViewHolder>
-                                    implements ConfiguredDevice.IConfiguredDeviceObersver {
+public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDeviceAdapter.ViewHolder>
+                                    implements MyBluetoothDevice.IMyBluetoothDeviceObersver {
     private Activity activity;
 
-    private List<ConfiguredDevice> mDeviceList;
+    private List<MyBluetoothDevice> mDeviceList;
 
     private int selectItem = -1;
 
@@ -49,11 +49,11 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
         }
     }
 
-    public ConfiguredDeviceAdapter(Activity activity, List<ConfiguredDevice> deviceList) {
+    public MyBluetoothDeviceAdapter(Activity activity, List<MyBluetoothDevice> deviceList) {
         this.activity = activity;
 
         mDeviceList = deviceList;
-        for(ConfiguredDevice device : mDeviceList) {
+        for(MyBluetoothDevice device : mDeviceList) {
             device.registerDeviceObserver(this);
         }
 
@@ -64,7 +64,7 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
 
 
     @Override
-    public ConfiguredDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MyBluetoothDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_configured_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
@@ -83,8 +83,8 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
     }
 
     @Override
-    public void onBindViewHolder(ConfiguredDeviceAdapter.ViewHolder holder, final int position) {
-        ConfiguredDevice device = (ConfiguredDevice)mDeviceList.get(position);
+    public void onBindViewHolder(MyBluetoothDeviceAdapter.ViewHolder holder, final int position) {
+        MyBluetoothDevice device = (MyBluetoothDevice)mDeviceList.get(position);
         holder.deviceName.setText(device.getNickName());
         holder.deviceAddress.setText(device.getMacAddress());
         holder.deviceStatus.setText(device.getConnectStateString());
@@ -114,7 +114,7 @@ public class ConfiguredDeviceAdapter extends RecyclerView.Adapter<ConfiguredDevi
     }
 
     @Override
-    public void updateDeviceInfo(ConfiguredDevice device, final int type) {
+    public void updateDeviceInfo(MyBluetoothDevice device, final int type) {
         MainActivity.getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

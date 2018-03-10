@@ -19,7 +19,7 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.cmtech.android.btdeviceapp.util.ByteUtil;
 
 import static com.cmtech.android.btdevice.thermo.ThermoGattSerialExecutor.*;
@@ -58,7 +58,7 @@ public class ThermoFragment extends DeviceFragment {
     }
 
     @Override
-    public void updateDeviceInfo(final ConfiguredDevice device, int type) {
+    public void updateDeviceInfo(final MyBluetoothDevice device, int type) {
         if(ThermoFragment.this.device == device) {
             MainActivity.getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -183,10 +183,10 @@ public class ThermoFragment extends DeviceFragment {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-
         // 停止命令执行
         serialExecutor.stopExecuteCommand();
+
+        super.onDestroy();
     }
 
 }

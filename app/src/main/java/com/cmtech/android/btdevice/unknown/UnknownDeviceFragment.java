@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
-import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ public class UnknownDeviceFragment extends DeviceFragment {
     }
 
     @Override
-    public void updateDeviceInfo(final ConfiguredDevice device, int type) {
+    public void updateDeviceInfo(final MyBluetoothDevice device, int type) {
         if(UnknownDeviceFragment.this.device == device) {
             updateConnectState();
         }
@@ -77,7 +77,9 @@ public class UnknownDeviceFragment extends DeviceFragment {
 
     @Override
     public void onDestroy() {
+        // 停止命令执行
+        //serialExecutor.stopExecuteCommand();
+
         super.onDestroy();
-        Log.d("UnknownDeviceFragment", "onDestroy");
     }
 }

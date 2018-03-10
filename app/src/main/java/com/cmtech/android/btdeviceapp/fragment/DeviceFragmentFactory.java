@@ -3,8 +3,7 @@ package com.cmtech.android.btdeviceapp.fragment;
 import com.cmtech.android.btdevice.temphumid.TempHumidFragment;
 import com.cmtech.android.btdevice.unknown.UnknownDeviceFragment;
 import com.cmtech.android.btdevice.thermo.ThermoFragment;
-import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
-import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 
 import java.util.UUID;
@@ -31,7 +30,7 @@ public class DeviceFragmentFactory {
 
     }
 
-    public static DeviceFragment build(ConfiguredDevice device) {
+    public static DeviceFragment build(MyBluetoothDevice device) {
         UUID uuid = device.getDeviceUuidInAd();
         if(uuid != null) {
             if(uuid.equals(Uuid.shortStringToUuid(UUID_THERMOMETER))) {

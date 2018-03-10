@@ -33,8 +33,8 @@ import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragmentFactory;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
-import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+import com.cmtech.android.btdeviceapp.adapter.MyBluetoothDeviceAdapter;
+import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.flyco.tablayout.CommonTabLayout;
 import com.flyco.tablayout.listener.CustomTabEntity;
 import com.flyco.tablayout.listener.OnTabSelectListener;
@@ -51,15 +51,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements DeviceFragment.IDeviceFragmentListener{
     private static MainActivity activity;
 
-    // 已配置的设备列表
-    List<ConfiguredDevice> configuredDeviceList = new ArrayList<>();
+    // 设备列表
+    List<MyBluetoothDevice> deviceList = new ArrayList<>();
 
-    // 已打开的设备列表
-    //List<OpenedDevice> openedDeviceList = new ArrayList<>();
-
-
-    private ConfiguredDeviceAdapter configuredDeviceAdapter;
-    private RecyclerView rvConfiguredDevices;
+    // 显示设备列表的Adapter和RecyclerView
+    private MyBluetoothDeviceAdapter deviceAdapter;
+    private RecyclerView deviceRecycView;
 
 
     private Button btnModify;
@@ -84,23 +81,23 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         ActionBar actionBar = getSupportActionBar();
         if(actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+            actionBar.setHomeAsUpIndicator(R.mipmap.ic_menu_white_18dp);
         }
 
         // 获取已配置设备信息
-        configuredDeviceList = DataSupport.findAll(ConfiguredDevice.class);
+        deviceList = DataSupport.findAll(MyBluetoothDevice.class);
 
         // 暂时先任意设置一个图标
-        for(ConfiguredDevice device : configuredDeviceList) {
+        for(MyBluetoothDevice device : deviceList) {
             device.setIcon(R.mipmap.ic_tablet_mac_black_48dp);
         }
 
         // 设置已配置设备信息
-        rvConfiguredDevices = (RecyclerView)findViewById(R.id.rvConfiguredDevices);
+        deviceRecycView = (RecyclerView)findViewById(R.id.rvDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        rvConfiguredDevices.setLayoutManager(layoutManager);
-        configuredDeviceAdapter = new ConfiguredDeviceAdapter(this, configuredDeviceList);
-        rvConfiguredDevices.setAdapter(configuredDeviceAdapter);
+        deviceRecycView.setLayoutManager(layoutManager);
+        deviceAdapter = new MyBluetoothDeviceAdapter(this, deviceList);
+        deviceRecycView.setAdapter(deviceAdapter);
 
         btnModify = (Button)findViewById(R.id.device_modify_btn);
         btnDelete = (Button)findViewById(R.id.device_delete_btn);
@@ -111,9 +108,9 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         btnModify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int which = configuredDeviceAdapter.getSelectItem();
-                if(which != -1)
-                    modifyConfiguredDeviceInfo(configuredDeviceList.get(which));
+                int index = deviceAdapter.getSelectItem();
+                if(index != -1)
+                    modifyDeviceInfo(deviceList.get(index));
             }
         });
 
@@ -121,9 +118,9 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int which = configuredDeviceAdapter.getSelectItem();
-                if(which != -1)
-                    deleteConfiguredDevice(configuredDeviceList.get(which));
+                int index = deviceAdapter.getSelectItem();
+                if(index != -1)
+                    deleteDevice(deviceList.get(index));
             }
         });
 
@@ -131,12 +128,12 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                List<String> configuredDeviceMacList = new ArrayList<>();
-                for(ConfiguredDevice device : configuredDeviceList) {
-                    configuredDeviceMacList.add(device.getMacAddress());
+                List<String> deviceMacList = new ArrayList<>();
+                for(MyBluetoothDevice device : deviceList) {
+                    deviceMacList.add(device.getMacAddress());
                 }
                 Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
-                intent.putExtra("configured_device_list", (Serializable) configuredDeviceMacList);
+                intent.putExtra("device_list", (Serializable) deviceMacList);
                 startActivityForResult(intent, 1);
             }
         });
@@ -145,9 +142,9 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int which = configuredDeviceAdapter.getSelectItem();
-                if(which != -1) {
-                    final ConfiguredDevice device = configuredDeviceList.get(which);
+                int index = deviceAdapter.getSelectItem();
+                if(index != -1) {
+                    final MyBluetoothDevice device = deviceList.get(index);
                     device.connect(new IConnectCallback() {
                         @Override
                         public void onConnectSuccess(DeviceMirror deviceMirror) {
@@ -238,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
     public static MainActivity getActivity() {return activity;}
 
     // 打开已连接设备
-    public void openConnectedDevice(ConfiguredDevice device) {
+    public void openConnectedDevice(MyBluetoothDevice device) {
         if(device == null) return;
         mDrawerLayout.closeDrawer(GravityCompat.START);
 
@@ -259,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         ArrayList<CustomTabEntity> tabEntities = new ArrayList<>();
         ArrayList<String> titles = new ArrayList<>();
         ArrayList<DeviceFragment> fragments = new ArrayList<>();
-        for(ConfiguredDevice dev : configuredDeviceList) {
+        for(MyBluetoothDevice dev : deviceList) {
             if(dev.isOpen()) {
                 tabEntities.add(dev.getTabEntity());
                 titles.add(dev.getNickName());
@@ -270,14 +267,12 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         fragAdapter.updateData(titles, fragments);
         // 设置tabLayout的TabEntity
         tabLayout.setTabData(tabEntities);
-        // 翻到最后一页
-        //viewPager.setCurrentItem(tabLayout.getTabCount()-1);
     }
 
     // 关闭已连接设备
-    public void closeConnectedDevice(ConfiguredDevice device) {
+    public void closeConnectedDevice(MyBluetoothDevice device) {
         if(device == null) return;
-        configuredDeviceList.remove(device);
+        deviceList.remove(device);
         /*fragAdapter.notifyDataSetChanged();
         if(fragAdapter.getCount() >= 1) {
             viewPager.setCurrentItem(fragAdapter.getCount() - 1);
@@ -285,8 +280,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         }*/
     }
 
-    // 修改已配置设备信息
-    private void modifyConfiguredDeviceInfo(final ConfiguredDevice device) {
+    // 修改设备信息
+    private void modifyDeviceInfo(final MyBluetoothDevice device) {
         LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_configured_device_info, null);
         String deviceName = device.getNickName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
@@ -297,9 +292,9 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                device.save();
                 device.setNickName(editText.getText().toString());
-                tabLayout.notifyDataSetChanged();
+                device.save();
+                updateTabandViewPager();
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -311,8 +306,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         builder.show();
     }
 
-    // 删除已配置设备
-    private void deleteConfiguredDevice(final ConfiguredDevice device) {
+    // 删除设备
+    private void deleteDevice(final MyBluetoothDevice device) {
         LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_configured_device_info, null);
         String deviceName = device.getNickName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
@@ -325,9 +320,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.delete();
-                int index = configuredDeviceList.indexOf(device);
-                configuredDeviceList.remove(index);
-                device.notifyDeviceObservers(ConfiguredDevice.TYPE_DELETE);
+                deviceList.remove(device);
+                device.notifyDeviceObservers(MyBluetoothDevice.TYPE_DELETE);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -344,24 +338,26 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case 1:
-                // 添加ConfiguredDevice
+                // 添加设备返回
                 if(resultCode == RESULT_OK) {
                     String nickName = data.getStringExtra("device_nickname");
                     String macAddress = data.getStringExtra("device_macaddress");
                     boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
 
-                    ConfiguredDevice device = new ConfiguredDevice();
+                    MyBluetoothDevice device = new MyBluetoothDevice();
                     device.setNickName(nickName);
                     device.setMacAddress(macAddress);
                     device.setAutoConnected(isAutoConnect);
+                    device.setIcon(R.mipmap.ic_tablet_mac_black_48dp);
 
                     device.save();
-                    configuredDeviceList.add(device);
-                    device.registerDeviceObserver(configuredDeviceAdapter);
-                    device.notifyDeviceObservers(ConfiguredDevice.TYPE_ADD);
+                    deviceList.add(device);
+                    device.registerDeviceObserver(deviceAdapter);
+                    device.notifyDeviceObservers(MyBluetoothDevice.TYPE_ADD);
                 }
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -381,14 +377,24 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
+    // 由Fragment调用，寻找对应的设备
     @Override
-    public ConfiguredDevice findDeviceFromFragment(DeviceFragment fragment) {
-        for(ConfiguredDevice device : configuredDeviceList) {
+    public MyBluetoothDevice findDeviceFromFragment(DeviceFragment fragment) {
+        for(MyBluetoothDevice device : deviceList) {
             if(device.getFragment() == fragment) {
                 return device;
             }
         }
         return null;
+    }
+
+    @Override
+    public void onBackPressed() {
+        // 如果drawerLayout打开，则关闭drawerLayout；否则退出
+        if(mDrawerLayout.isDrawerOpen(GravityCompat.START))
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        else
+            finish();
     }
 
     private class MyPagerAdapter extends FragmentPagerAdapter {

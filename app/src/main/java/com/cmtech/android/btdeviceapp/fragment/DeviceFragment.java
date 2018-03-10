@@ -12,14 +12,14 @@ import android.widget.TextView;
 import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
+import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 /**
  * Created by bme on 2018/2/27.
  */
 
-public abstract class DeviceFragment extends Fragment implements ConfiguredDevice.IConfiguredDeviceObersver {
-    protected ConfiguredDevice device;
+public abstract class DeviceFragment extends Fragment implements MyBluetoothDevice.IMyBluetoothDeviceObersver {
+    protected MyBluetoothDevice device;
     protected IDeviceFragmentListener fragmentListener;
 
     protected TextView tvConnectState;
@@ -27,7 +27,7 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
     protected Button btnClose;
 
     public interface IDeviceFragmentListener {
-        ConfiguredDevice findDeviceFromFragment(DeviceFragment fragment);
+        MyBluetoothDevice findDeviceFromFragment(DeviceFragment fragment);
     }
 
     public DeviceFragment() {
@@ -48,7 +48,7 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
             @Override
             public void onClick(View view) {
                 Log.d("DeviceFragment", DeviceFragment.this.getClass().getSimpleName());
-                device.removerDeviceObserver(DeviceFragment.this);
+                device.removeDeviceObserver(DeviceFragment.this);
                 MainActivity.getActivity().closeConnectedDevice(device);
             }
         });
@@ -94,5 +94,13 @@ public abstract class DeviceFragment extends Fragment implements ConfiguredDevic
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(device != null) device.disconnect();
+        device.removeDeviceObserver(this);
+        device.setFragment(null);
+    }
 
 }

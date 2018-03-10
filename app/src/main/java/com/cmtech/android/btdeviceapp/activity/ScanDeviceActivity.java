@@ -24,7 +24,6 @@ import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ScanDeviceAdapter;
-import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
 import com.cmtech.android.btdeviceapp.callback.ScanDeviceCallback;
 
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     private List<BluetoothLeDevice> scanedDeviceList = new ArrayList<>();
 
     // 当前已经在配置设备列表中的设备
-    private List<String> configuredDeviceMacList = new ArrayList<>();
+    private List<String> deviceMacList = new ArrayList<>();
 
     private Button btnCancel;
     private Button btnOk;
@@ -53,8 +52,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scan_device);
 
         // 获取已配置设备Mac列表
-        configuredDeviceMacList =  (ArrayList<String>) getIntent()
-                .getSerializableExtra("configured_device_list");
+        deviceMacList =  (ArrayList<String>) getIntent()
+                .getSerializableExtra("device_list");
 
 
         rvScanedDevices = (RecyclerView)findViewById(R.id.rvScanedDevices);
@@ -91,7 +90,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     private boolean hasConfigured(BluetoothLeDevice device) {
-        for(String ele : configuredDeviceMacList) {
+        for(String ele : deviceMacList) {
             if(ele.equalsIgnoreCase(device.getAddress())) {
                 return true;
             }
@@ -113,7 +112,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
                 String nickName = editText.getText().toString();
                 String macAddress = scanedDeviceList.get(which).getAddress();
                 boolean isAutoConnected = false;
-                /*ConfiguredDevice device = new ConfiguredDevice();
+                /*MyBluetoothDevice device = new MyBluetoothDevice();
                 device.setNickName(editText.getText().toString());
                 device.setMacAddress(scanedDeviceList.get(which).getAddress());
                 device.setAutoConnected(false);*/
