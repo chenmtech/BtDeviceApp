@@ -35,7 +35,6 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ConfiguredDeviceAdapter;
 import com.cmtech.android.btdeviceapp.model.ConfiguredDevice;
-import com.cmtech.android.btdeviceapp.model.OpenedDevice;
 import com.flyco.tablayout.CommonTabLayout;
 import com.flyco.tablayout.listener.CustomTabEntity;
 import com.flyco.tablayout.listener.OnTabSelectListener;
@@ -56,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
     List<ConfiguredDevice> configuredDeviceList = new ArrayList<>();
 
     // 已打开的设备列表
-    List<OpenedDevice> openedDeviceList = new ArrayList<>();
+    //List<OpenedDevice> openedDeviceList = new ArrayList<>();
 
 
     private ConfiguredDeviceAdapter configuredDeviceAdapter;
@@ -90,6 +89,11 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
 
         // 获取已配置设备信息
         configuredDeviceList = DataSupport.findAll(ConfiguredDevice.class);
+
+        // 暂时先任意设置一个图标
+        for(ConfiguredDevice device : configuredDeviceList) {
+            device.setIcon(R.mipmap.ic_tablet_mac_black_48dp);
+        }
 
         // 设置已配置设备信息
         rvConfiguredDevices = (RecyclerView)findViewById(R.id.rvConfiguredDevices);
@@ -211,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
 
             }
         });
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -240,27 +244,40 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
 
         // 创建正确的Fragment
         DeviceFragment fragment = DeviceFragmentFactory.build(device);
-        // 构造打开的设备OpenedDevice
-        OpenedDevice openedDevice = new OpenedDevice(device, R.mipmap.ic_launcher, fragment);
-        // 将OpenedDevice添加到openedDeviceList
-        openedDeviceList.add(openedDevice);
-        // 获取openedDeviceList中的设备的TabEntity
+        device.setFragment(fragment);
+
+        // 更新TabLayout和ViewPager
+        updateTabandViewPager();
+
+        // 翻到最后一页
+        viewPager.setCurrentItem(fragAdapter.getCount()-1);
+    }
+
+    // 更新TabLayout和ViewPager
+    private void updateTabandViewPager() {
+        // 获取已打开的设备的TabEntity、Title和DeviceFragment
         ArrayList<CustomTabEntity> tabEntities = new ArrayList<>();
-        for(OpenedDevice dev : openedDeviceList) {
-            tabEntities.add(dev.getTabEntity());
+        ArrayList<String> titles = new ArrayList<>();
+        ArrayList<DeviceFragment> fragments = new ArrayList<>();
+        for(ConfiguredDevice dev : configuredDeviceList) {
+            if(dev.isOpen()) {
+                tabEntities.add(dev.getTabEntity());
+                titles.add(dev.getNickName());
+                fragments.add(dev.getFragment());
+            }
         }
         // 通知Adapter更新
-        fragAdapter.notifyDataSetChanged();
+        fragAdapter.updateData(titles, fragments);
         // 设置tabLayout的TabEntity
         tabLayout.setTabData(tabEntities);
         // 翻到最后一页
-        viewPager.setCurrentItem(tabLayout.getTabCount()-1);
+        //viewPager.setCurrentItem(tabLayout.getTabCount()-1);
     }
 
     // 关闭已连接设备
     public void closeConnectedDevice(ConfiguredDevice device) {
         if(device == null) return;
-        openedDeviceList.remove(device);
+        configuredDeviceList.remove(device);
         /*fragAdapter.notifyDataSetChanged();
         if(fragAdapter.getCount() >= 1) {
             viewPager.setCurrentItem(fragAdapter.getCount() - 1);
@@ -365,8 +382,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
     }
 
     @Override
-    public OpenedDevice findDeviceFromFragment(DeviceFragment fragment) {
-        for(OpenedDevice device : openedDeviceList) {
+    public ConfiguredDevice findDeviceFromFragment(DeviceFragment fragment) {
+        for(ConfiguredDevice device : configuredDeviceList) {
             if(device.getFragment() == fragment) {
                 return device;
             }
@@ -375,23 +392,32 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
     }
 
     private class MyPagerAdapter extends FragmentPagerAdapter {
+        private List<String> nickNames;
+        private List<DeviceFragment> fragments;
+
         public MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
+        public void updateData(List<String> nickNames, List<DeviceFragment> fragments) {
+            this.nickNames = nickNames;
+            this.fragments = fragments;
+            notifyDataSetChanged();
+        }
+
         @Override
         public int getCount() {
-            return openedDeviceList.size();
+            return (nickNames == null) ? 0 : nickNames.size();
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return openedDeviceList.get(position).getConfiguredDevice().getNickName();
+            return nickNames.get(position);
         }
 
         @Override
         public Fragment getItem(int position) {
-            return openedDeviceList.get(position).getFragment();
+            return fragments.get(position);
         }
     }
 }

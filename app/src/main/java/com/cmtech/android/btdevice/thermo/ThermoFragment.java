@@ -59,7 +59,7 @@ public class ThermoFragment extends DeviceFragment {
 
     @Override
     public void updateDeviceInfo(final ConfiguredDevice device, int type) {
-        if(ThermoFragment.this.device.getConfiguredDevice() == device) {
+        if(ThermoFragment.this.device == device) {
             MainActivity.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -89,7 +89,7 @@ public class ThermoFragment extends DeviceFragment {
 
         Log.d("Main Thread", ""+Thread.currentThread().getId());
 
-        DeviceMirror deviceMirror = device.getConfiguredDevice().getDeviceMirror();
+        DeviceMirror deviceMirror = device.getDeviceMirror();
         serialExecutor = new ThermoGattSerialExecutor(deviceMirror);
 
         Object thermoData = serialExecutor.getGattObject(THERMODATA);

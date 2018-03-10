@@ -4,12 +4,14 @@ import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
+import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 import com.cmtech.android.btdeviceapp.MyApplication;
 
 import org.litepal.crud.DataSupport;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +38,9 @@ public class ConfiguredDevice extends DataSupport {
 
     // 是否自动连接
     private boolean isAutoConnected;
+
+    // 图标
+    private int icon;
 
     public int getId() {
         return id;
@@ -70,6 +75,14 @@ public class ConfiguredDevice extends DataSupport {
         isAutoConnected = autoConnected;
     }
 
+    public int getIcon() {
+        return icon;
+    }
+
+    public void setIcon(int icon) {
+        this.icon = icon;
+    }
+
     // 数据库不保存的变量
     // 设备连接状态
     ConnectState connectState = ConnectState.CONNECT_INIT;
@@ -77,13 +90,16 @@ public class ConfiguredDevice extends DataSupport {
     // 设备镜像，连接成功后才会赋值
     DeviceMirror deviceMirror = null;
 
+    // 存放连接后打开的Fragment
+    DeviceFragment fragment;
+
     // 设备信息观察者接口
     public interface IConfiguredDeviceObersver {
         void updateDeviceInfo(ConfiguredDevice device, int type);
     }
 
     // 观察者
-    List<IConfiguredDeviceObersver> obersvers = new ArrayList<>();
+    List<IConfiguredDeviceObersver> obersvers = new LinkedList<>();
 
     public ConnectState getConnectState() {return connectState;}
 
@@ -117,6 +133,20 @@ public class ConfiguredDevice extends DataSupport {
 
     public void setDeviceMirror(DeviceMirror deviceMirror) {this.deviceMirror = deviceMirror;}
 
+    public DeviceFragment getFragment() {
+        return fragment;
+    }
+
+    public void setFragment(DeviceFragment fragment) {
+        this.fragment = fragment;
+        registerDeviceObserver(fragment);
+    }
+
+    // 判断设备是否已经打开了Fragment
+    public boolean isOpen() {
+        return fragment != null;
+    }
+
     // 获取设备广播中包含的UUID
     public UUID getDeviceUuidInAd() {
         if(deviceMirror == null) return null;
@@ -129,8 +159,7 @@ public class ConfiguredDevice extends DataSupport {
 
     // 登记观察者
     public void registerDeviceObserver(IConfiguredDeviceObersver obersver) {
-        int index = obersvers.indexOf(obersver);
-        if(index < 0) {
+        if(!obersvers.contains(obersver)) {
             obersvers.add(obersver);
         }
     }
@@ -148,7 +177,7 @@ public class ConfiguredDevice extends DataSupport {
     public void notifyDeviceObservers(final int type) {
         for(final IConfiguredDeviceObersver obersver : obersvers) {
             if(obersver != null) {
-                obersver.updateDeviceInfo(ConfiguredDevice.this, type);
+                obersver.updateDeviceInfo(this, type);
             }
         }
     }
@@ -173,5 +202,10 @@ public class ConfiguredDevice extends DataSupport {
     @Override
     public int hashCode() {
         return macAddress != null ? macAddress.hashCode() : 0;
+    }
+
+    // 获取TabLayout所需的TabEntity
+    public TabEntity getTabEntity() {
+        return new TabEntity(getNickName(), icon, icon);
     }
 }

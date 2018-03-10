@@ -70,7 +70,7 @@ public class TempHumidFragment extends DeviceFragment {
 
     @Override
     public void updateDeviceInfo(final ConfiguredDevice device, int type) {
-        if(TempHumidFragment.this.device.getConfiguredDevice() == device) {
+        if(TempHumidFragment.this.device == device) {
             MainActivity.getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -101,7 +101,7 @@ public class TempHumidFragment extends DeviceFragment {
 
         Log.d("Main Thread", ""+Thread.currentThread().getId());
 
-        serialExecutor = new TempHumidGattSerialExecutor(device.getConfiguredDevice().getDeviceMirror());
+        serialExecutor = new TempHumidGattSerialExecutor(device.getDeviceMirror());
 
         Object thermoData = serialExecutor.getGattObject(TEMPHUMIDDATA);
         Object thermoControl = serialExecutor.getGattObject(TEMPHUMIDCTRL);
