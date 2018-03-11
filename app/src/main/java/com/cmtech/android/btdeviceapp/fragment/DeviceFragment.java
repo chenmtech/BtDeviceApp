@@ -26,18 +26,18 @@ import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 public abstract class DeviceFragment extends Fragment implements IDeviceFragment {
     protected MyBluetoothDevice device;
-    protected IDeviceFragmentListener fragmentListener;
+    protected IDeviceFragmentObserver fragmentListener;
 
     protected TextView tvConnectState;
     protected Button btnDisconnect;
     protected Button btnClose;
 
-    public interface IDeviceFragmentListener {
+    /*public interface IDeviceFragmentObserver {
         // 用Fragment找到相应的Device
         MyBluetoothDevice findDeviceFromFragment(DeviceFragment fragment);
         // 关闭Fragment及其相应的Device
         void closeFragmentAndDevice(DeviceFragment fragment);
-    }
+    }*/
 
     public DeviceFragment() {
 
@@ -89,12 +89,12 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(!(context instanceof IDeviceFragmentListener)) {
+        if(!(context instanceof IDeviceFragmentObserver)) {
             throw new IllegalStateException("context没有实现IDeviceFragmentListener接口");
         }
 
         // 获取listener
-        fragmentListener = (IDeviceFragmentListener) context;
+        fragmentListener = (IDeviceFragmentObserver) context;
         // 获取device
         device = fragmentListener.findDeviceFromFragment(this);
     }
