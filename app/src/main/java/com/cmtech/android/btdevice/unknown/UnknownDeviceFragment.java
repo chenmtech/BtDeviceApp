@@ -36,14 +36,6 @@ public class UnknownDeviceFragment extends DeviceFragment {
         return fragment;
     }
 
-    @Override
-    public void updateDeviceInfo(final MyBluetoothDevice device, int type) {
-        if(UnknownDeviceFragment.this.device == device) {
-            updateConnectState();
-        }
-
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -80,11 +72,4 @@ public class UnknownDeviceFragment extends DeviceFragment {
 
     }
 
-    @Override
-    public void onDestroy() {
-        // 停止命令执行
-        //serialExecutor.stopExecuteCommand();
-
-        super.onDestroy();
-    }
 }

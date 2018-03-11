@@ -18,6 +18,7 @@ import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
+import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 /**
@@ -26,11 +27,14 @@ import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 public abstract class DeviceFragment extends Fragment implements IDeviceFragment {
     protected MyBluetoothDevice device;
-    protected IDeviceFragmentObserver fragmentListener;
+    protected IDeviceFragmentObserver fragmentObserver;
 
     protected TextView tvConnectState;
     protected Button btnDisconnect;
     protected Button btnClose;
+
+    // 串行命令执行器
+    protected GattSerialExecutor serialExecutor;
 
     public DeviceFragment() {
 
@@ -68,11 +72,11 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
             public void onClick(View view) {
                 Log.d("DeviceFragment", DeviceFragment.this.getClass().getSimpleName() + "is closed.");
 
-                if(fragmentListener != null) {
+                if(fragmentObserver != null) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            fragmentListener.closeFragmentAndDevice(DeviceFragment.this);
+                            fragmentObserver.closeFragmentAndDevice(DeviceFragment.this);
                         }
                     });
                 }
@@ -90,9 +94,9 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         }
 
         // 获取listener
-        fragmentListener = (IDeviceFragmentObserver) context;
+        fragmentObserver = (IDeviceFragmentObserver) context;
         // 获取device
-        device = fragmentListener.findDeviceFromFragment(this);
+        device = fragmentObserver.findDeviceFromFragment(this);
     }
 
     @Override
@@ -100,31 +104,54 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         super.onActivityCreated(savedInstanceState);
 
         updateConnectState();
+
+        initProcess();
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        fragmentObserver = null;
+
+        disconnectDevice();
+
+        device = null;
+    }
+
+    @Override
+    public void updateDeviceInfo(final MyBluetoothDevice device, final int type) {
+        if(this.device == device) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    switch (type) {
+                        case TYPE_MODIFY_CONNECTSTATE:
+                            updateConnectState();
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            });
+        }
     }
 
     @Override
     public void updateConnectState() {
         if(device != null) {
             tvConnectState.setText(device.getConnectStateString());
-            if(device.getConnectState() == ConnectState.CONNECT_SUCCESS
-                    || device.getConnectState() == ConnectState.CONNECT_PROCESS)
-                btnDisconnect.setText("断开");
-            else
-                btnDisconnect.setText("连接");
+            switch (device.getConnectState()) {
+                case CONNECT_SUCCESS:
+                case CONNECT_PROCESS:
+                    btnDisconnect.setText("断开");
+                    break;
+                default:
+                    btnDisconnect.setText("连接");
+                    break;
+            }
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        fragmentListener = null;
-
-        if(device != null) {
-            device.disconnect();
-        }
-
-        device = null;
     }
 
     @Override
@@ -157,6 +184,8 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
     @Override
     public void disconnectDevice() {
-        device.disconnect();
+        if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+
+        if(device != null) device.disconnect();
     }
 }

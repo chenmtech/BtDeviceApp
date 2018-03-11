@@ -19,12 +19,15 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
+import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
+import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.cmtech.android.btdeviceapp.util.ByteUtil;
+import com.cmtech.android.btdeviceapp.util.Uuid;
 
 import java.util.Arrays;
 
-import static com.cmtech.android.btdevice.temphumid.TempHumidGattSerialExecutor.*;
+
 
 /**
  * Created by bme on 2018/2/27.
@@ -35,10 +38,26 @@ public class TempHumidFragment extends DeviceFragment {
     private static final int MSG_TEMPHUMIDCTRL = 1;
     private static final int MSG_TEMPHUMIDPERIOD = 2;
 
+    private static final String tempHumidServiceUuid = "aa60";     // 温湿度计服务UUID:aa60
+    private static final String tempHumidDataUuid = "aa61";        // 温湿度数据特征UUID:aa61
+    private static final String tempHumidCtrlUuid = "aa62";     // 测量控制UUID:aa62
+    private static final String tempHumidPeriodUuid = "aa63";      // 采样周期UUID:aa63
+
+    public static final BluetoothGattElement TEMPHUMIDDATA =
+            new BluetoothGattElement(tempHumidServiceUuid, tempHumidDataUuid, null);
+
+    public static final BluetoothGattElement TEMPHUMIDCTRL =
+            new BluetoothGattElement(tempHumidServiceUuid, tempHumidCtrlUuid, null);
+
+    public static final BluetoothGattElement TEMPHUMIDPERIOD =
+            new BluetoothGattElement(tempHumidServiceUuid, tempHumidPeriodUuid, null);
+
+    public static final BluetoothGattElement TEMPHUMIDDATACCC =
+            new BluetoothGattElement(tempHumidServiceUuid, tempHumidDataUuid, Uuid.CCCUUID);
+
+
     private TextView tvTempData;
     private TextView tvHumidData;
-
-    private TempHumidGattSerialExecutor serialExecutor;
 
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
@@ -69,18 +88,6 @@ public class TempHumidFragment extends DeviceFragment {
         return new TempHumidFragment();
     }
 
-    @Override
-    public void updateDeviceInfo(final MyBluetoothDevice device, int type) {
-        if(this.device == device) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    updateConnectState();
-                }
-            });
-        }
-    }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -97,17 +104,10 @@ public class TempHumidFragment extends DeviceFragment {
 
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        initProcess();
-    }
-
-    @Override
     public void initProcess() {
         Log.d("Main Thread", ""+Thread.currentThread().getId());
 
-        serialExecutor = new TempHumidGattSerialExecutor(device.getDeviceMirror());
+        serialExecutor = new GattSerialExecutor(device.getDeviceMirror());
 
         Object thermoData = serialExecutor.getGattObject(TEMPHUMIDDATA);
         Object thermoControl = serialExecutor.getGattObject(TEMPHUMIDCTRL);
@@ -116,8 +116,6 @@ public class TempHumidFragment extends DeviceFragment {
             Log.d("TempHumidFragment", "can't find Gatt object of this element on the device.");
             return;
         }
-
-
 
         serialExecutor.addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
             @Override
@@ -193,12 +191,5 @@ public class TempHumidFragment extends DeviceFragment {
         serialExecutor.startExecuteCommand();
     }
 
-    @Override
-    public void onDestroy() {
-        // 停止命令执行
-        serialExecutor.stopExecuteCommand();
-
-        super.onDestroy();
-    }
 
 }

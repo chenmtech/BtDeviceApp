@@ -19,10 +19,12 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
+import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
+import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.cmtech.android.btdeviceapp.util.ByteUtil;
+import com.cmtech.android.btdeviceapp.util.Uuid;
 
-import static com.cmtech.android.btdevice.thermo.ThermoGattSerialExecutor.*;
 
 /**
  * Created by bme on 2018/2/27.
@@ -31,9 +33,24 @@ import static com.cmtech.android.btdevice.thermo.ThermoGattSerialExecutor.*;
 public class ThermoFragment extends DeviceFragment {
     private static final int MSG_THERMODATA = 0;
 
-    private TextView tvThermoData;
+    private static final String thermoServiceUuid = "aa30";     // 体温计服务UUID:aa30
+    private static final String thermoDataUuid = "aa31";        // 体温数据特征UUID:aa31
+    private static final String thermoControlUuid = "aa32";     // 体温测量控制UUID:aa32
+    private static final String thermoPeriodUuid = "aa33";      // 体温采样周期UUID:aa33
 
-    private ThermoGattSerialExecutor serialExecutor;
+    public static final BluetoothGattElement THERMODATA =
+            new BluetoothGattElement(thermoServiceUuid, thermoDataUuid, null);
+
+    public static final BluetoothGattElement THERMOCONTROL =
+            new BluetoothGattElement(thermoServiceUuid, thermoControlUuid, null);
+
+    public static final BluetoothGattElement THERMOPERIOD =
+            new BluetoothGattElement(thermoServiceUuid, thermoPeriodUuid, null);
+
+    public static final BluetoothGattElement THERMODATACCC =
+            new BluetoothGattElement(thermoServiceUuid, thermoDataUuid, Uuid.CCCUUID);
+
+    private TextView tvThermoData;
 
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
@@ -57,17 +74,6 @@ public class ThermoFragment extends DeviceFragment {
         return new ThermoFragment();
     }
 
-    @Override
-    public void updateDeviceInfo(final MyBluetoothDevice device, int type) {
-        if(this.device == device) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    updateConnectState();
-                }
-            });
-        }
-    }
 
     @Nullable
     @Override
@@ -84,18 +90,12 @@ public class ThermoFragment extends DeviceFragment {
 
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        initProcess();
-    }
-
-    @Override
     public void initProcess() {
         Log.d("Main Thread", ""+Thread.currentThread().getId());
 
         DeviceMirror deviceMirror = device.getDeviceMirror();
-        serialExecutor = new ThermoGattSerialExecutor(deviceMirror);
+
+        serialExecutor = new GattSerialExecutor(deviceMirror);
 
         Object thermoData = serialExecutor.getGattObject(THERMODATA);
         Object thermoControl = serialExecutor.getGattObject(THERMOCONTROL);
@@ -104,8 +104,6 @@ public class ThermoFragment extends DeviceFragment {
             Log.d("ThermoFragment", "can't find Gatt object of this element on the device.");
             return;
         }
-
-
 
         serialExecutor.addReadCommand(THERMODATA, new IBleCallback() {
             @Override
@@ -184,12 +182,6 @@ public class ThermoFragment extends DeviceFragment {
         serialExecutor.startExecuteCommand();
     }
 
-    @Override
-    public void onDestroy() {
-        // 停止命令执行
-        serialExecutor.stopExecuteCommand();
 
-        super.onDestroy();
-    }
 
 }
