@@ -1,6 +1,5 @@
 package com.cmtech.android.btdeviceapp.adapter;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -12,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 import java.util.List;
@@ -25,7 +23,7 @@ import static com.cmtech.android.btdeviceapp.model.MyBluetoothDevice.TYPE_DELETE
  */
 
 public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDeviceAdapter.ViewHolder>
-                                    implements MyBluetoothDevice.IMyBluetoothDeviceObersver {
+                                    implements MyBluetoothDevice.IMyBluetoothDeviceObserver {
 
     private List<MyBluetoothDevice> mDeviceList;
 

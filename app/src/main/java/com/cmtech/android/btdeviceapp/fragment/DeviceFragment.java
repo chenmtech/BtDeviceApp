@@ -24,7 +24,7 @@ import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
  * Created by bme on 2018/2/27.
  */
 
-public abstract class DeviceFragment extends Fragment implements MyBluetoothDevice.IMyBluetoothDeviceObersver {
+public abstract class DeviceFragment extends Fragment implements IDeviceFragment {
     protected MyBluetoothDevice device;
     protected IDeviceFragmentListener fragmentListener;
 

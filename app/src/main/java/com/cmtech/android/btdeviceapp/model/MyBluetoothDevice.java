@@ -52,12 +52,12 @@ public class MyBluetoothDevice extends DataSupport {
     DeviceFragment fragment;
 
     // 设备信息观察者接口
-    public interface IMyBluetoothDeviceObersver {
+    /*public interface IMyBluetoothDeviceObserver {
         void updateDeviceInfo(MyBluetoothDevice device, int type);
-    }
+    }*/
 
     // 观察者
-    List<IMyBluetoothDeviceObersver> obersvers = new LinkedList<>();
+    List<IMyBluetoothDeviceObserver> obersvers = new LinkedList<>();
 
     public int getId() {
         return id;
@@ -159,14 +159,14 @@ public class MyBluetoothDevice extends DataSupport {
     }
 
     // 登记观察者
-    public void registerDeviceObserver(IMyBluetoothDeviceObersver obersver) {
+    public void registerDeviceObserver(IMyBluetoothDeviceObserver obersver) {
         if(!obersvers.contains(obersver)) {
             obersvers.add(obersver);
         }
     }
 
     // 删除观察者
-    public void removeDeviceObserver(IMyBluetoothDeviceObersver obersver) {
+    public void removeDeviceObserver(IMyBluetoothDeviceObserver obersver) {
         int index = obersvers.indexOf(obersver);
         if(index >= 0) {
             obersvers.remove(index);
@@ -176,7 +176,7 @@ public class MyBluetoothDevice extends DataSupport {
     // 通知观察者
     // @param type：状态改变的类型
     public void notifyDeviceObservers(final int type) {
-        for(final IMyBluetoothDeviceObersver obersver : obersvers) {
+        for(final IMyBluetoothDeviceObserver obersver : obersvers) {
             if(obersver != null) {
                 obersver.updateDeviceInfo(this, type);
             }
