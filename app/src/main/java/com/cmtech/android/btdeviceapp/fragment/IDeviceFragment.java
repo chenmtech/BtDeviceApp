@@ -8,10 +8,15 @@ import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
  */
 
 public interface IDeviceFragment extends IMyBluetoothDeviceObserver {
-    public interface IDeviceFragmentListener {
-        // 用Fragment找到相应的Device
-        MyBluetoothDevice findDeviceFromFragment(DeviceFragment fragment);
-        // 关闭Fragment及其相应的Device
-        void closeFragmentAndDevice(DeviceFragment fragment);
-    }
+    // 设备连接状态更新
+    void updateConnectState();
+
+    // 连接设备
+    void connectDevice();
+
+    // 断开设备
+    void disconnectDevice();
+
+    // 连接设备后需要做的初始化处理
+    void initProcess();
 }

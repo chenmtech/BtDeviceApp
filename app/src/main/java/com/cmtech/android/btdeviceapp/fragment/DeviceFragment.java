@@ -32,18 +32,9 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     protected Button btnDisconnect;
     protected Button btnClose;
 
-    /*public interface IDeviceFragmentObserver {
-        // 用Fragment找到相应的Device
-        MyBluetoothDevice findDeviceFromFragment(DeviceFragment fragment);
-        // 关闭Fragment及其相应的Device
-        void closeFragmentAndDevice(DeviceFragment fragment);
-    }*/
-
     public DeviceFragment() {
 
     }
-
-
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -57,12 +48,17 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
             @Override
             public void onClick(View view) {
                 if(device == null) return;
-                ConnectState state = device.getConnectState();
-                if(state == ConnectState.CONNECT_SUCCESS || state == ConnectState.CONNECT_PROCESS)
+                switch (device.getConnectState()) {
+                    case CONNECT_SUCCESS:
+                    case CONNECT_PROCESS:
+                        disconnectDevice();
+                        break;
 
-                    device.disconnect();
-                else
-                    connectDevice();
+                    default:
+                        connectDevice();
+                        break;
+
+                }
             }
         });
 
@@ -106,8 +102,8 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         updateConnectState();
     }
 
-
-    protected void updateConnectState() {
+    @Override
+    public void updateConnectState() {
         if(device != null) {
             tvConnectState.setText(device.getConnectStateString());
             if(device.getConnectState() == ConnectState.CONNECT_SUCCESS
@@ -131,6 +127,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         device = null;
     }
 
+    @Override
     public void connectDevice() {
         if(device == null) return;
         ConnectState state = device.getConnectState();
@@ -158,6 +155,8 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         });
     }
 
-    public abstract void initProcess();
-
+    @Override
+    public void disconnectDevice() {
+        device.disconnect();
+    }
 }

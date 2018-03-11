@@ -35,6 +35,7 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.MyBluetoothDeviceAdapter;
 import com.cmtech.android.btdeviceapp.fragment.IDeviceFragmentObserver;
+import com.cmtech.android.btdeviceapp.model.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.flyco.tablayout.CommonTabLayout;
 import com.flyco.tablayout.listener.CustomTabEntity;
@@ -358,7 +359,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.delete();
                 deviceList.remove(device);
-                device.notifyDeviceObservers(MyBluetoothDevice.TYPE_DELETE);
+                device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_DELETE_DEVICE);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -396,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     // 添加deviceAdapter作为观察者
                     device.registerDeviceObserver(deviceAdapter);
                     // 通知观察者
-                    device.notifyDeviceObservers(MyBluetoothDevice.TYPE_ADD);
+                    device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_ADD_DEVICE);
                 }
         }
     }

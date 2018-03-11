@@ -15,15 +15,14 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
+import static com.cmtech.android.btdeviceapp.model.IMyBluetoothDeviceObserver.*;
 
 /**
  * Created by bme on 2018/2/19.
  */
 
 public class MyBluetoothDevice extends DataSupport {
-    public static final int TYPE_MODIFY = 0;
-    public static final int TYPE_ADD = 1;
-    public static final int TYPE_DELETE = 2;
+
 
     // 数据库保存的字段
     // id
@@ -51,11 +50,6 @@ public class MyBluetoothDevice extends DataSupport {
     // 存放连接后打开的Fragment
     DeviceFragment fragment;
 
-    // 设备信息观察者接口
-    /*public interface IMyBluetoothDeviceObserver {
-        void updateDeviceInfo(MyBluetoothDevice device, int type);
-    }*/
-
     // 观察者
     List<IMyBluetoothDeviceObserver> obersvers = new LinkedList<>();
 
@@ -81,7 +75,7 @@ public class MyBluetoothDevice extends DataSupport {
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
-        notifyDeviceObservers(TYPE_MODIFY);
+        notifyDeviceObservers(TYPE_MODIFY_NICKNAME);
     }
 
     public boolean isAutoConnected() {
@@ -90,6 +84,7 @@ public class MyBluetoothDevice extends DataSupport {
 
     public void setAutoConnected(boolean autoConnected) {
         isAutoConnected = autoConnected;
+        notifyDeviceObservers(TYPE_MODIFY_AUTOCONNECT);
     }
 
     public int getIcon() {
@@ -128,7 +123,10 @@ public class MyBluetoothDevice extends DataSupport {
         return rtn;
     }
 
-    public void setConnectState(ConnectState state) {this.connectState = state; notifyDeviceObservers(TYPE_MODIFY);}
+    public void setConnectState(ConnectState state) {
+        this.connectState = state;
+        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
+    }
 
     public DeviceMirror getDeviceMirror() {return deviceMirror;}
 

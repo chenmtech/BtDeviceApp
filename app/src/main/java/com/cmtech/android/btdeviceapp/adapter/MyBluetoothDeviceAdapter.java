@@ -16,8 +16,7 @@ import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 import java.util.List;
 
-import static com.cmtech.android.btdeviceapp.model.MyBluetoothDevice.TYPE_ADD;
-import static com.cmtech.android.btdeviceapp.model.MyBluetoothDevice.TYPE_DELETE;
+import static com.cmtech.android.btdeviceapp.model.MyBluetoothDevice.*;
 
 /**
  * Created by bme on 2018/2/8.
@@ -117,9 +116,9 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         new Handler(Looper.getMainLooper()).post((new Runnable() {
             @Override
             public void run() {
-            if(type == TYPE_ADD) {
+            if(type == TYPE_ADD_DEVICE) {
                 setSelectItem(mDeviceList.size()-1);
-            } else if(type == TYPE_DELETE) {
+            } else if(type == TYPE_DELETE_DEVICE) {
                 setSelectItem(-1);
             }
             notifyDataSetChanged();
