@@ -7,6 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.cmtech.android.btdeviceapp.activity.MainActivity">
+
+    <!-- 这是主界面 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -19,30 +21,55 @@
             android:background="?attr/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
-        <android.support.v4.view.ViewPager
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:id="@+id/main_vp"/>
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:id="@+id/welecome_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="visible">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:text="hi,welcome to btDeviceApp!"/>
+            </LinearLayout>
 
-        <com.flyco.tablayout.CommonTabLayout
-            android:id="@+id/main_tab_layout"
-            android:layout_width="match_parent"
-            android:layout_height="54dp"
-            android:background="#ffffff"
-            tl:tl_iconHeight="23dp"
-            tl:tl_iconWidth="23dp"
-            tl:tl_indicator_color="#2C97DE"
-            tl:tl_indicator_height="0dp"
-            tl:tl_textSelectColor="#2C97DE"
-            tl:tl_textUnselectColor="#66000000"
-            tl:tl_textsize="12sp"
-            tl:tl_underline_color="#DDDDDD"
-            tl:tl_underline_height="1dp"/>
+            <LinearLayout
+                android:id="@+id/main_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="invisible">
+                <android.support.v4.view.ViewPager
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:id="@+id/main_vp"/>
+
+                <com.flyco.tablayout.CommonTabLayout
+                    android:id="@+id/main_tab_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:background="#ffffff"
+                    tl:tl_iconHeight="23dp"
+                    tl:tl_iconWidth="23dp"
+                    tl:tl_indicator_color="#2C97DE"
+                    tl:tl_indicator_height="0dp"
+                    tl:tl_textSelectColor="#2C97DE"
+                    tl:tl_textUnselectColor="#66000000"
+                    tl:tl_textsize="12sp"
+                    tl:tl_underline_color="#DDDDDD"
+                    tl:tl_underline_height="1dp"/>
+            </LinearLayout>
+        </FrameLayout>
 
     </LinearLayout>
 
 
+    <!--这是NavigationView-->
 
     <LinearLayout
         android:layout_width="match_parent"

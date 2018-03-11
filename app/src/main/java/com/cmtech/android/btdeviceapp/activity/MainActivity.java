@@ -7,6 +7,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -64,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
     private Button btnConnect;
 
     private DrawerLayout mDrawerLayout;
+    private LinearLayout mMainLayout;
+    private LinearLayout mWelcomeLayout;
 
     private ViewPager viewPager;
     private CommonTabLayout tabLayout;
@@ -194,6 +197,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         });
 
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        mWelcomeLayout = (LinearLayout)findViewById(R.id.welecome_layout);
+        mMainLayout = (LinearLayout)findViewById(R.id.main_layout);
 
         // TabLayout相关设置
         viewPager = (ViewPager) findViewById(R.id.main_vp);
@@ -273,8 +278,18 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         }
         // 通知Adapter更新
         fragAdapter.updateData(titles, fragments);
+
         // 设置tabLayout的TabEntity
-        tabLayout.setTabData(tabEntities);
+        // 没有Tab的时候不能设置，这个CommonTabLayout的问题
+        if(tabEntities != null && tabEntities.size() != 0) {
+            tabLayout.setTabData(tabEntities);
+            tabLayout.notifyDataSetChanged();
+            mWelcomeLayout.setVisibility(View.INVISIBLE);
+            mMainLayout.setVisibility(View.VISIBLE);
+        } else {
+            mWelcomeLayout.setVisibility(View.INVISIBLE);
+            mMainLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     // 关闭已连接设备
@@ -400,7 +415,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             finish();
     }
 
-    private class MyPagerAdapter extends FragmentPagerAdapter {
+    // 只有从FragmentStatePagerAdapter继承才能正常关闭Fragment
+    private class MyPagerAdapter extends FragmentStatePagerAdapter {
         private List<String> nickNames;
         private List<DeviceFragment> fragments;
 
@@ -427,6 +443,13 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         @Override
         public Fragment getItem(int position) {
             return fragments.get(position);
+        }
+
+
+        // 一定要重载这个函数
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
         }
     }
 }
