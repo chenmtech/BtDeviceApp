@@ -87,6 +87,11 @@ public class ThermoFragment extends DeviceFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        initProcess();
+    }
+
+    @Override
+    public void initProcess() {
         Log.d("Main Thread", ""+Thread.currentThread().getId());
 
         DeviceMirror deviceMirror = device.getDeviceMirror();
@@ -177,10 +182,7 @@ public class ThermoFragment extends DeviceFragment {
         });
 
         serialExecutor.startExecuteCommand();
-
-
     }
-
 
     @Override
     public void onDestroy() {

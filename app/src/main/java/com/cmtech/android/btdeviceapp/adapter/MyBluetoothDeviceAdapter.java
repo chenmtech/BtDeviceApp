@@ -26,7 +26,6 @@ import static com.cmtech.android.btdeviceapp.model.MyBluetoothDevice.TYPE_DELETE
 
 public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDeviceAdapter.ViewHolder>
                                     implements MyBluetoothDevice.IMyBluetoothDeviceObersver {
-    private Activity activity;
 
     private List<MyBluetoothDevice> mDeviceList;
 
@@ -51,8 +50,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         }
     }
 
-    public MyBluetoothDeviceAdapter(Activity activity, List<MyBluetoothDevice> deviceList) {
-        this.activity = activity;
+    public MyBluetoothDeviceAdapter(List<MyBluetoothDevice> deviceList) {
 
         mDeviceList = deviceList;
         for(MyBluetoothDevice device : mDeviceList) {

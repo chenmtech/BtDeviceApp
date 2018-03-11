@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
     private Button btnConnect;
 
     private DrawerLayout mDrawerLayout;
-    private LinearLayout mMainLayout;
     private LinearLayout mWelcomeLayout;
+    private LinearLayout mMainLayout;
 
     private ViewPager viewPager;
     private CommonTabLayout tabLayout;
@@ -86,19 +86,14 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             actionBar.setHomeAsUpIndicator(R.mipmap.ic_menu_white_18dp);
         }
 
-        // 获取已配置设备信息
+        // 从数据库获取设备信息
         deviceList = DataSupport.findAll(MyBluetoothDevice.class);
 
-        // 暂时先任意设置一个图标
-        for(MyBluetoothDevice device : deviceList) {
-            device.setIcon(R.mipmap.ic_tablet_mac_black_48dp);
-        }
-
-        // 设置已配置设备信息
+        // 设置设备信息列表
         deviceRecycView = (RecyclerView)findViewById(R.id.rvDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         deviceRecycView.setLayoutManager(layoutManager);
-        deviceAdapter = new MyBluetoothDeviceAdapter(this, deviceList);
+        deviceAdapter = new MyBluetoothDeviceAdapter(deviceList);
         deviceRecycView.setAdapter(deviceAdapter);
 
         btnModify = (Button)findViewById(R.id.device_modify_btn);
@@ -111,7 +106,9 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             @Override
             public void onClick(View view) {
                 int index = deviceAdapter.getSelectItem();
-                if(index != -1)
+                if(index == -1)
+                    Toast.makeText(MainActivity.this, "请先选择一个设备", Toast.LENGTH_SHORT).show();
+                else
                     modifyDeviceInfo(deviceList.get(index));
             }
         });
@@ -121,7 +118,9 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             @Override
             public void onClick(View view) {
                 int index = deviceAdapter.getSelectItem();
-                if(index != -1)
+                if(index == -1)
+                    Toast.makeText(MainActivity.this, "请先选择一个设备", Toast.LENGTH_SHORT).show();
+                else
                     deleteDevice(deviceList.get(index));
             }
         });
@@ -130,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // 产生设备Mac地址字符串列表，防止多次添加同一个设备
                 List<String> deviceMacList = new ArrayList<>();
                 for(MyBluetoothDevice device : deviceList) {
                     deviceMacList.add(device.getMacAddress());
@@ -145,36 +145,52 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             @Override
             public void onClick(View view) {
                 int index = deviceAdapter.getSelectItem();
-                if(index != -1) {
+                if(index == -1)
+                    Toast.makeText(MainActivity.this, "请先选择一个设备", Toast.LENGTH_SHORT).show();
+                else {
                     final MyBluetoothDevice device = deviceList.get(index);
-                    device.connect(new IConnectCallback() {
-                        @Override
-                        public void onConnectSuccess(DeviceMirror deviceMirror) {
-                            DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
-                            if(deviceMirrorPool.isContainDevice(deviceMirror)) {
-                                device.setDeviceMirror(deviceMirror);
-                                device.setConnectState(ConnectState.CONNECT_SUCCESS);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        openConnectedDevice(device);
-                                    }
-                                });
+                    ConnectState state = device.getConnectState();
+
+                    // 设备有对应的Fragment，表示曾经连接成功过
+                    if (device.getFragment() != null) {
+                        device.getFragment().connectDevice();
+                        viewPager.setCurrentItem(fragAdapter.getFragmentPosition(device.getFragment()));
+                        return;
+                    }
+
+                    if (state == ConnectState.CONNECT_SUCCESS) {             // 已经连接
+                        Toast.makeText(MainActivity.this, "设备已连接", Toast.LENGTH_SHORT).show();
+                    } else if (state == ConnectState.CONNECT_PROCESS) {      // 连接中...
+                        Toast.makeText(MainActivity.this, "设备连接中...", Toast.LENGTH_SHORT).show();
+                    } else {
+                        device.connect(new IConnectCallback() {
+                            @Override
+                            public void onConnectSuccess(DeviceMirror deviceMirror) {
+                                DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+                                if (deviceMirrorPool.isContainDevice(deviceMirror)) {
+                                    device.setDeviceMirror(deviceMirror);
+                                    device.setConnectState(ConnectState.CONNECT_SUCCESS);
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            openConnectedDevice(device);
+                                        }
+                                    });
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onConnectFailure(BleException exception) {
-                            device.setConnectState(ConnectState.CONNECT_FAILURE);
-                        }
+                            @Override
+                            public void onConnectFailure(BleException exception) {
+                                device.setConnectState(ConnectState.CONNECT_FAILURE);
+                            }
 
-                        @Override
-                        public void onDisconnect(boolean isActive) {
-                            device.setConnectState(ConnectState.CONNECT_DISCONNECT);
-                        }
-                    });
+                            @Override
+                            public void onDisconnect(boolean isActive) {
+                                device.setConnectState(ConnectState.CONNECT_DISCONNECT);
+                            }
+                        });
+                    }
                 }
-
             }
         });
 
@@ -233,6 +249,9 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             }
         });
 
+        mWelcomeLayout.setVisibility(View.VISIBLE);
+        mMainLayout.setVisibility(View.INVISIBLE);
+
     }
 
     // 打开已连接设备
@@ -247,8 +266,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
         // 更新TabLayout和ViewPager
         updateTabandViewPager();
 
-        // 翻到最后一页
-        viewPager.setCurrentItem(fragAdapter.getCount()-1);
+        // 翻到当前Fragment
+        viewPager.setCurrentItem(fragAdapter.getFragmentPosition(fragment));
     }
 
     // 关闭Fragment和它相应的Device
@@ -287,8 +306,8 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             mWelcomeLayout.setVisibility(View.INVISIBLE);
             mMainLayout.setVisibility(View.VISIBLE);
         } else {
-            mWelcomeLayout.setVisibility(View.INVISIBLE);
-            mMainLayout.setVisibility(View.VISIBLE);
+            mWelcomeLayout.setVisibility(View.VISIBLE);
+            mMainLayout.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -361,16 +380,22 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
                     String nickName = data.getStringExtra("device_nickname");
                     String macAddress = data.getStringExtra("device_macaddress");
                     boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
+                    //暂时设置一个图标，以后增加这个功能
+                    int icon = R.mipmap.ic_tablet_mac_black_48dp;
 
                     MyBluetoothDevice device = new MyBluetoothDevice();
                     device.setNickName(nickName);
                     device.setMacAddress(macAddress);
                     device.setAutoConnected(isAutoConnect);
-                    device.setIcon(R.mipmap.ic_tablet_mac_black_48dp);
+                    device.setIcon(icon);
 
+                    // 保存到数据库
                     device.save();
+                    // 添加到设备列表
                     deviceList.add(device);
+                    // 添加deviceAdapter作为观察者
                     device.registerDeviceObserver(deviceAdapter);
+                    // 通知观察者
                     device.notifyDeviceObservers(MyBluetoothDevice.TYPE_ADD);
                 }
         }
@@ -428,6 +453,10 @@ public class MainActivity extends AppCompatActivity implements DeviceFragment.ID
             this.nickNames = nickNames;
             this.fragments = fragments;
             notifyDataSetChanged();
+        }
+
+        public int getFragmentPosition(DeviceFragment fragment) {
+            return fragments.indexOf(fragment);
         }
 
         @Override

@@ -188,7 +188,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
                     enableBluetooth();
                 } else {
                     // 不同意获得权限
-                    Toast.makeText(this, "没有蓝牙权限，程序无法运行", Toast.LENGTH_SHORT);
+                    Toast.makeText(this, "没有蓝牙权限，程序无法运行", Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 return;
@@ -210,7 +210,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
                 enableBluetooth();
             }
         } else if (resultCode == RESULT_CANCELED) { // 不同意
-            Toast.makeText(this, "蓝牙未打开，程序无法运行", Toast.LENGTH_SHORT);
+            Toast.makeText(this, "蓝牙未打开，程序无法运行", Toast.LENGTH_SHORT).show();
             finish();
         }
         super.onActivityResult(requestCode, resultCode, data);

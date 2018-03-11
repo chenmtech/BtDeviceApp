@@ -76,6 +76,11 @@ public class UnknownDeviceFragment extends DeviceFragment {
     }
 
     @Override
+    public void initProcess() {
+
+    }
+
+    @Override
     public void onDestroy() {
         // 停止命令执行
         //serialExecutor.stopExecuteCommand();

@@ -100,6 +100,11 @@ public class TempHumidFragment extends DeviceFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        initProcess();
+    }
+
+    @Override
+    public void initProcess() {
         Log.d("Main Thread", ""+Thread.currentThread().getId());
 
         serialExecutor = new TempHumidGattSerialExecutor(device.getDeviceMirror());
@@ -186,8 +191,6 @@ public class TempHumidFragment extends DeviceFragment {
         });
 
         serialExecutor.startExecuteCommand();
-
-
     }
 
     @Override

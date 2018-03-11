@@ -11,7 +11,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.common.ConnectState;
+import com.cmtech.android.ble.core.DeviceMirror;
+import com.cmtech.android.ble.core.DeviceMirrorPool;
+import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
@@ -38,6 +43,8 @@ public abstract class DeviceFragment extends Fragment implements MyBluetoothDevi
 
     }
 
+
+
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -45,6 +52,19 @@ public abstract class DeviceFragment extends Fragment implements MyBluetoothDevi
         tvConnectState = view.findViewById(R.id.device_connect_state_tv);
         btnDisconnect = view.findViewById(R.id.device_disconnect_btn);
         btnClose = view.findViewById(R.id.device_close_btn);
+
+        btnDisconnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(device == null) return;
+                ConnectState state = device.getConnectState();
+                if(state == ConnectState.CONNECT_SUCCESS || state == ConnectState.CONNECT_PROCESS)
+
+                    device.disconnect();
+                else
+                    connectDevice();
+            }
+        });
 
 
         btnClose.setOnClickListener(new View.OnClickListener() {
@@ -90,11 +110,11 @@ public abstract class DeviceFragment extends Fragment implements MyBluetoothDevi
     protected void updateConnectState() {
         if(device != null) {
             tvConnectState.setText(device.getConnectStateString());
-            if(device.getConnectState() == ConnectState.CONNECT_SUCCESS) {
-                btnDisconnect.setEnabled(true);
-            } else {
-                btnDisconnect.setEnabled(false);
-            }
+            if(device.getConnectState() == ConnectState.CONNECT_SUCCESS
+                    || device.getConnectState() == ConnectState.CONNECT_PROCESS)
+                btnDisconnect.setText("断开");
+            else
+                btnDisconnect.setText("连接");
         }
     }
 
@@ -110,5 +130,34 @@ public abstract class DeviceFragment extends Fragment implements MyBluetoothDevi
 
         device = null;
     }
+
+    public void connectDevice() {
+        if(device == null) return;
+        ConnectState state = device.getConnectState();
+        if(state == ConnectState.CONNECT_SUCCESS || state == ConnectState.CONNECT_PROCESS) return;
+        device.connect(new IConnectCallback() {
+            @Override
+            public void onConnectSuccess(DeviceMirror deviceMirror) {
+                DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+                if(deviceMirrorPool.isContainDevice(deviceMirror)) {
+                    device.setDeviceMirror(deviceMirror);
+                    device.setConnectState(ConnectState.CONNECT_SUCCESS);
+                    initProcess();
+                }
+            }
+
+            @Override
+            public void onConnectFailure(BleException exception) {
+                device.setConnectState(ConnectState.CONNECT_FAILURE);
+            }
+
+            @Override
+            public void onDisconnect(boolean isActive) {
+                device.setConnectState(ConnectState.CONNECT_DISCONNECT);
+            }
+        });
+    }
+
+    public abstract void initProcess();
 
 }
