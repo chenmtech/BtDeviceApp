@@ -271,17 +271,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         viewPager.setCurrentItem(fragAdapter.getFragmentPosition(fragment));
     }
 
-    // 关闭Fragment和它相应的Device
-    @Override
-    public void closeFragmentAndDevice(DeviceFragment fragment) {
-        MyBluetoothDevice device = findDeviceFromFragment(fragment);
-        if(device == null) return;
 
-        device.removeDeviceObserver(fragment);
-        device.setFragment(null);
-
-        updateTabandViewPager();
-    }
 
     // 更新TabLayout和ViewPager
     private void updateTabandViewPager() {
@@ -310,12 +300,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             mWelcomeLayout.setVisibility(View.VISIBLE);
             mMainLayout.setVisibility(View.INVISIBLE);
         }
-    }
-
-    // 关闭已连接设备
-    public void closeConnectedDevice(MyBluetoothDevice device) {
-        if(device == null) return;
-
     }
 
     // 修改设备信息
@@ -421,16 +405,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
-    // 由Fragment调用，寻找对应的设备
-    @Override
-    public MyBluetoothDevice findDeviceFromFragment(DeviceFragment fragment) {
-        for(MyBluetoothDevice device : deviceList) {
-            if(device.getFragment() == fragment) {
-                return device;
-            }
-        }
-        return null;
-    }
+
 
     @Override
     public void onBackPressed() {
@@ -482,4 +457,31 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             return POSITION_NONE;
         }
     }
+
+
+    ///////////// 作为IDeviceFragmentObserver需要实现的函数///////////////////////
+
+    // 由Fragment调用，寻找对应的设备
+    @Override
+    public MyBluetoothDevice findDeviceFromFragment(DeviceFragment fragment) {
+        for(MyBluetoothDevice device : deviceList) {
+            if(device.getFragment() == fragment) {
+                return device;
+            }
+        }
+        return null;
+    }
+
+    // 关闭Fragment和它相应的Device
+    @Override
+    public void closeFragment(DeviceFragment fragment) {
+        MyBluetoothDevice device = findDeviceFromFragment(fragment);
+        if(device == null) return;
+
+        device.removeDeviceObserver(fragment);
+        device.setFragment(null);
+
+        updateTabandViewPager();
+    }
+    ///////////// 作为IDeviceFragmentObserver需要实现的函数结束///////////////////////
 }

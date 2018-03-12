@@ -81,7 +81,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {
-                            fragmentObserver.closeFragmentAndDevice(DeviceFragment.this);
+                            fragmentObserver.closeFragment(DeviceFragment.this);
                         }
                     });
                 }
@@ -131,6 +131,9 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         device = null;
     }
 
+
+
+    /////////////// 下面是作为IMyBluetoothDeviceObserver接口要实现的函数//////////////////////
     @Override
     public void updateDeviceInfo(final MyBluetoothDevice device, final int type) {
         if(device != null && device.getFragment() == this) {
@@ -148,13 +151,12 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
             });
         }
     }
+    /////////////// 下面是作为IMyBluetoothDeviceObserver接口要实现的函数结束//////////////////////
 
 
 
 
-    /*
-     * 下面是作为IDeviceFragment接口要实现的函数
-     */
+    /////////////// 下面是作为IDeviceFragment接口要实现的函数//////////////////////
     @Override
     public void updateConnectState() {
         if(device != null) {
@@ -211,10 +213,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         // 断开设备
         if(device != null) device.disconnect();
     }
-
-    /*
-     * 作为IDeviceFragment接口要实现的函数结束
-     */
+    /////////////// 下面是作为IDeviceFragment接口要实现的函数结束//////////////////////
 
 
 

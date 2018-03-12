@@ -11,5 +11,5 @@ public interface IDeviceFragmentObserver {
     MyBluetoothDevice findDeviceFromFragment(DeviceFragment fragment);
 
     // 关闭Fragment及其对应的Device
-    void closeFragmentAndDevice(DeviceFragment fragment);
+    void closeFragment(DeviceFragment fragment);
 }
