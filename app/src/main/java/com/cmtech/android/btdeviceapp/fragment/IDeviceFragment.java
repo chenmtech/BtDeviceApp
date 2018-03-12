@@ -17,6 +17,6 @@ public interface IDeviceFragment extends IMyBluetoothDeviceObserver {
     // 断开设备
     void disconnectDevice();
 
-    // 连接设备后需要做的初始化处理
-    void initProcess();
+    // 连接设备后需要做的Gatt初始化
+    void initializeGatt();
 }

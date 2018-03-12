@@ -29,11 +29,7 @@ public class UnknownDeviceFragment extends DeviceFragment {
     }
 
     public static UnknownDeviceFragment newInstance() {
-        //Bundle args = new Bundle();
-        //args.putSerializable("device", device);
-        UnknownDeviceFragment fragment = new UnknownDeviceFragment();
-        //fragment.setArguments(args);
-        return fragment;
+        return new UnknownDeviceFragment();
     }
 
     @Nullable
@@ -68,7 +64,7 @@ public class UnknownDeviceFragment extends DeviceFragment {
     }
 
     @Override
-    public void initProcess() {
+    public void initializeGatt() {
 
     }
 

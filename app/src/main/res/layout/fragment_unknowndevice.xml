@@ -14,7 +14,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="这是未知设备的Fragment界面"/>
+        android:layout_gravity="center_horizontal"
+        android:textColor="#ff0000"
+        android:text="未知设备"/>
 
     <TextView
         android:id="@+id/tv_device_services"

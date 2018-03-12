@@ -33,10 +33,11 @@ import com.cmtech.android.btdeviceapp.util.Uuid;
 public class ThermoFragment extends DeviceFragment {
     private static final int MSG_THERMODATA = 0;
 
-    private static final String thermoServiceUuid = "aa30";     // 体温计服务UUID:aa30
-    private static final String thermoDataUuid = "aa31";        // 体温数据特征UUID:aa31
-    private static final String thermoControlUuid = "aa32";     // 体温测量控制UUID:aa32
-    private static final String thermoPeriodUuid = "aa33";      // 体温采样周期UUID:aa33
+    ///////////////// 体温计Service相关的常量////////////////
+    private static final String thermoServiceUuid       = "aa30";           // 体温计服务UUID:aa30
+    private static final String thermoDataUuid          = "aa31";           // 体温数据特征UUID:aa31
+    private static final String thermoControlUuid       = "aa32";           // 体温测量控制UUID:aa32
+    private static final String thermoPeriodUuid        = "aa33";           // 体温采样周期UUID:aa33
 
     public static final BluetoothGattElement THERMODATA =
             new BluetoothGattElement(thermoServiceUuid, thermoDataUuid, null);
@@ -49,6 +50,7 @@ public class ThermoFragment extends DeviceFragment {
 
     public static final BluetoothGattElement THERMODATACCC =
             new BluetoothGattElement(thermoServiceUuid, thermoDataUuid, Uuid.CCCUUID);
+    ///////////////////////////////////////////////////////
 
     private TextView tvThermoData;
 
@@ -58,7 +60,7 @@ public class ThermoFragment extends DeviceFragment {
             if (msg.what == MSG_THERMODATA) {
                 if (msg.obj != null) {
                     byte[] data = (byte[]) msg.obj;
-                    double temp = ByteUtil.getInt(new byte[]{data[0], data[1], 0x00, 0x00})/100.0;
+                    double temp = ByteUtil.getShort(data)/100.0;
                     String str = String.format("%.2f", temp);
                     tvThermoData.setText(str);
                 }
@@ -90,8 +92,10 @@ public class ThermoFragment extends DeviceFragment {
 
 
     @Override
-    public void initProcess() {
-        Log.d("Main Thread", ""+Thread.currentThread().getId());
+    public void initializeGatt() {
+        if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+
+        Log.d("FragmentThread", ""+Thread.currentThread().getId());
 
         DeviceMirror deviceMirror = device.getDeviceMirror();
 
@@ -101,10 +105,11 @@ public class ThermoFragment extends DeviceFragment {
         Object thermoControl = serialExecutor.getGattObject(THERMOCONTROL);
         Object thermoPeriod = serialExecutor.getGattObject(THERMOPERIOD);
         if(thermoData == null || thermoControl == null || thermoPeriod == null) {
-            Log.d("ThermoFragment", "can't find Gatt object of this element on the device.");
+            Log.d("ThermoFragment", "Can't find the Gatt object on the device.");
             return;
         }
 
+        // 读温度数据
         serialExecutor.addReadCommand(THERMODATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -114,6 +119,21 @@ public class ThermoFragment extends DeviceFragment {
                 msg.obj = data;
                 handler.sendMessage(msg);
                 Log.d("Thread", "Read Callback Thread: "+Thread.currentThread().getId());
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+                //Log.d("THERMOCONTROL", exception.toString());
+            }
+        });
+
+        // 设置采样周期为1s
+        serialExecutor.addWriteCommand(THERMOPERIOD, new byte[]{0x01}, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
+
+                Log.d("Thread", "Period Write Callback Thread: "+Thread.currentThread().getId());
             }
 
             @Override
@@ -137,6 +157,7 @@ public class ThermoFragment extends DeviceFragment {
             }
         };
 
+        // enable温度数据notify
         serialExecutor.addNotifyCommand(THERMODATACCC, true, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -150,27 +171,13 @@ public class ThermoFragment extends DeviceFragment {
         }, notifyCallback);
 
 
-
+        // 启动温度采集
         serialExecutor.addWriteCommand(THERMOCONTROL, new byte[]{0x03}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
 
                 Log.d("Thread", "Control Write Callback Thread: "+Thread.currentThread().getId());
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-                //Log.d("THERMOCONTROL", exception.toString());
-            }
-        });
-
-        serialExecutor.addWriteCommand(THERMOPERIOD, new byte[]{0x01}, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
-
-                Log.d("Thread", "Period Write Callback Thread: "+Thread.currentThread().getId());
             }
 
             @Override

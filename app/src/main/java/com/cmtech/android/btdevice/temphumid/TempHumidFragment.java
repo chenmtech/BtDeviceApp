@@ -38,10 +38,11 @@ public class TempHumidFragment extends DeviceFragment {
     private static final int MSG_TEMPHUMIDCTRL = 1;
     private static final int MSG_TEMPHUMIDPERIOD = 2;
 
-    private static final String tempHumidServiceUuid = "aa60";     // 温湿度计服务UUID:aa60
-    private static final String tempHumidDataUuid = "aa61";        // 温湿度数据特征UUID:aa61
-    private static final String tempHumidCtrlUuid = "aa62";     // 测量控制UUID:aa62
-    private static final String tempHumidPeriodUuid = "aa63";      // 采样周期UUID:aa63
+    ///////////////// 温湿度计Service相关的常量////////////////
+    private static final String tempHumidServiceUuid    = "aa60";           // 温湿度计服务UUID:aa60
+    private static final String tempHumidDataUuid       = "aa61";           // 温湿度数据特征UUID:aa61
+    private static final String tempHumidCtrlUuid       = "aa62";           // 测量控制UUID:aa62
+    private static final String tempHumidPeriodUuid     = "aa63";           // 采样周期UUID:aa63
 
     public static final BluetoothGattElement TEMPHUMIDDATA =
             new BluetoothGattElement(tempHumidServiceUuid, tempHumidDataUuid, null);
@@ -54,6 +55,7 @@ public class TempHumidFragment extends DeviceFragment {
 
     public static final BluetoothGattElement TEMPHUMIDDATACCC =
             new BluetoothGattElement(tempHumidServiceUuid, tempHumidDataUuid, Uuid.CCCUUID);
+    ////////////////////////////////////////////////////////
 
 
     private TextView tvTempData;
@@ -66,16 +68,12 @@ public class TempHumidFragment extends DeviceFragment {
                 if(msg.obj != null) {
                     byte[] data = (byte[]) msg.obj;
                     byte[] buf = Arrays.copyOfRange(data, 0, 4);
-                    float humid = ByteUtil.getFloat(buf);
-                    tvHumidData.setText(""+(int)humid);
+                    int humid = (int)ByteUtil.getFloat(buf);
+                    tvHumidData.setText( ""+humid );
                     buf = Arrays.copyOfRange(data, 4, 8);
                     float temp = ByteUtil.getFloat(buf);
                     tvTempData.setText(String.format("%.1f", temp));
                 }
-            } else if (msg.what == MSG_TEMPHUMIDCTRL) {
-                //tvCharacteristics.setText("characteristic");
-            } else if (msg.what == MSG_TEMPHUMIDPERIOD) {
-                //tvDescriptors.setText("descriptor");
             }
         }
     };
@@ -104,8 +102,10 @@ public class TempHumidFragment extends DeviceFragment {
 
 
     @Override
-    public void initProcess() {
-        Log.d("Main Thread", ""+Thread.currentThread().getId());
+    public void initializeGatt() {
+        if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+
+        Log.d("FragmentThread", ""+Thread.currentThread().getId());
 
         serialExecutor = new GattSerialExecutor(device.getDeviceMirror());
 
@@ -117,12 +117,31 @@ public class TempHumidFragment extends DeviceFragment {
             return;
         }
 
+        // 读温湿度
         serialExecutor.addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "first write period: " + HexUtil.encodeHexStr(data));
-                handler.sendEmptyMessage(MSG_TEMPHUMIDDATA);
+                Message msg = new Message();
+                msg.what = MSG_TEMPHUMIDDATA;
+                msg.obj = data;
+                handler.sendMessage(msg);
                 Log.d("Thread", "Read Callback Thread: "+Thread.currentThread().getId());
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+                //Log.d("THERMOCONTROL", exception.toString());
+            }
+        });
+
+        // 设置采样周期为1s
+        serialExecutor.addWriteCommand(TEMPHUMIDPERIOD, new byte[]{0x0A}, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
+                handler.sendEmptyMessage(MSG_TEMPHUMIDPERIOD);
+                Log.d("Thread", "Period Write Callback Thread: "+Thread.currentThread().getId());
             }
 
             @Override
@@ -146,6 +165,7 @@ public class TempHumidFragment extends DeviceFragment {
             }
         };
 
+        // enable温湿度notify
         serialExecutor.addNotifyCommand(TEMPHUMIDDATACCC, true, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -159,27 +179,13 @@ public class TempHumidFragment extends DeviceFragment {
         }, notifyCallback);
 
 
-
+        // 启动温湿度采集
         serialExecutor.addWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
-                handler.sendEmptyMessage(MSG_TEMPHUMIDCTRL);
+                //handler.sendEmptyMessage(MSG_TEMPHUMIDCTRL);
                 Log.d("Thread", "Control Write Callback Thread: "+Thread.currentThread().getId());
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-                //Log.d("THERMOCONTROL", exception.toString());
-            }
-        });
-
-        serialExecutor.addWriteCommand(TEMPHUMIDPERIOD, new byte[]{0x0A}, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
-                handler.sendEmptyMessage(MSG_TEMPHUMIDPERIOD);
-                Log.d("Thread", "Period Write Callback Thread: "+Thread.currentThread().getId());
             }
 
             @Override
