@@ -1,5 +1,6 @@
 package com.cmtech.android.btdeviceapp.fragment;
 
+import com.cmtech.android.btdevice.ecgmonitor.EcgMonitorFragment;
 import com.cmtech.android.btdevice.temphumid.TempHumidFragment;
 import com.cmtech.android.btdevice.unknown.UnknownDeviceFragment;
 import com.cmtech.android.btdevice.thermo.ThermoFragment;
@@ -37,6 +38,8 @@ public class DeviceFragmentFactory {
                 return ThermoFragment.newInstance();
             } else if(uuid.equals(Uuid.shortStringToUuid(UUID_TEMPHUMID))) {
                 return TempHumidFragment.newInstance();
+            } else if(uuid.equals(Uuid.shortStringToUuid(UUID_ECGMONITOR))) {
+                return EcgMonitorFragment.newInstance();
             } else {
                 return UnknownDeviceFragment.newInstance();
             }
