@@ -44,6 +44,8 @@ public class MyBluetoothDevice extends DataSupport {
     // 设备连接状态
     ConnectState connectState = ConnectState.CONNECT_INIT;
 
+    DeviceState state = DeviceState.INIT;
+
     // 设备镜像，连接成功后才会赋值
     DeviceMirror deviceMirror = null;
 
@@ -128,6 +130,14 @@ public class MyBluetoothDevice extends DataSupport {
         notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
     }
 
+    public DeviceState getState() {
+        return state;
+    }
+
+    public void setState(DeviceState state) {
+        this.state = state;
+    }
+
     public DeviceMirror getDeviceMirror() {return deviceMirror;}
 
     public void setDeviceMirror(DeviceMirror deviceMirror) {this.deviceMirror = deviceMirror;}
@@ -185,7 +195,11 @@ public class MyBluetoothDevice extends DataSupport {
     // @param: connectCallback 连接回调
     public void connect(IConnectCallback connectCallback) {
         setConnectState(ConnectState.CONNECT_PROCESS);
-        MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
+        // 如果没有连接过，或者连接没有成功过
+        if(deviceMirror == null || !MyApplication.getViseBle().getDeviceMirrorPool().isContainDevice(deviceMirror))
+            MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
+        else
+            deviceMirror.connect(connectCallback);
     }
 
     public void disconnect() {

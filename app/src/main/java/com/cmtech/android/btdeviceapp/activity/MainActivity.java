@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                                    new Handler(Looper.getMainLooper()).post(new Runnable() {
                                        @Override
                                        public void run() {
-                                           openConnectedDevice(device);
+                                           showConnectedDevice(device);
                                        }
                                    });
                                 }
@@ -257,8 +257,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     }
 
-    // 打开已连接设备
-    public void openConnectedDevice(MyBluetoothDevice device) {
+    // 显示已连接设备
+    public void showConnectedDevice(MyBluetoothDevice device) {
         if(device == null) return;
         mDrawerLayout.closeDrawer(GravityCompat.START);
 
