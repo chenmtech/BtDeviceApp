@@ -191,6 +191,7 @@ public class MyBluetoothDevice extends DataSupport {
     public void disconnect() {
         if(deviceMirror == null || deviceMirror.getBluetoothLeDevice() == null) return;
         MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
+        //setConnectState(ConnectState.CONNECT_DISCONNECT);
     }
 
     @Override

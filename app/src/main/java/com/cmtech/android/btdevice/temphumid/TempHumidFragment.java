@@ -102,7 +102,7 @@ public class TempHumidFragment extends DeviceFragment {
 
 
     @Override
-    public void initializeGatt() {
+    public synchronized void initializeGatt() {
         if(serialExecutor != null) serialExecutor.stopExecuteCommand();
 
         Log.d("FragmentThread", ""+Thread.currentThread().getId());

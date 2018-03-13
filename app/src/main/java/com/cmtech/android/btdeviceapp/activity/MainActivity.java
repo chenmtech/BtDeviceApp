@@ -2,6 +2,8 @@ package com.cmtech.android.btdeviceapp.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -171,12 +173,12 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                                 if (deviceMirrorPool.isContainDevice(deviceMirror)) {
                                     device.setDeviceMirror(deviceMirror);
                                     device.setConnectState(ConnectState.CONNECT_SUCCESS);
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            openConnectedDevice(device);
-                                        }
-                                    });
+                                   new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                       @Override
+                                       public void run() {
+                                           openConnectedDevice(device);
+                                       }
+                                   });
                                 }
                             }
 

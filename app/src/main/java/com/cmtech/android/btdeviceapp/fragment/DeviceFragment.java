@@ -128,7 +128,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
         disconnectDevice();
 
-        device = null;
+        //device = null;
     }
 
 

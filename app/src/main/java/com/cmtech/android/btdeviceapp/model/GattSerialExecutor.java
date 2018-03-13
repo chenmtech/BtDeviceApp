@@ -62,8 +62,8 @@ public class GattSerialExecutor {
                 bleCallback.onFailure(exception);
 
                 // 有错误，直接终止线程
-                executeThread.interrupt();
-                Log.d("SerialExecutor", "Something is wrong! The execution is interrupted!");
+                if(executeThread != null) executeThread.interrupt();
+                Log.d("SerialExecutor", "Something is wrong! "+exception);
             }
         }
     }
@@ -165,7 +165,7 @@ public class GattSerialExecutor {
     }
 
     // 开始执行命令
-    public void startExecuteCommand() {
+    public synchronized void startExecuteCommand() {
         if(executeThread != null) return;
 
         executeThread = new Thread(new Runnable() {
@@ -210,7 +210,7 @@ public class GattSerialExecutor {
     }
 
     // 停止执行命令
-    public void stopExecuteCommand() {
+    public synchronized void stopExecuteCommand() {
         if(executeThread == null) return;
         executeThread.interrupt();
     }

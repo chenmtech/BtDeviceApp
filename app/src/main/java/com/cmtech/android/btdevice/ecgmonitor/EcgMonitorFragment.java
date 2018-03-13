@@ -72,7 +72,7 @@ public class EcgMonitorFragment extends DeviceFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_temphumid, container, false);
+        return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class EcgMonitorFragment extends DeviceFragment {
 
 
     @Override
-    public void initializeGatt() {
+    public synchronized void initializeGatt() {
         if(serialExecutor != null) serialExecutor.stopExecuteCommand();
 
         Log.d("FragmentThread", ""+Thread.currentThread().getId());
