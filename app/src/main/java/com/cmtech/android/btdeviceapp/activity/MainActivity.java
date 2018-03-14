@@ -37,6 +37,7 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.MyBluetoothDeviceAdapter;
 import com.cmtech.android.btdeviceapp.fragment.IDeviceFragmentObserver;
+import com.cmtech.android.btdeviceapp.model.DeviceState;
 import com.cmtech.android.btdeviceapp.model.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.flyco.tablayout.CommonTabLayout;
@@ -152,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     Toast.makeText(MainActivity.this, "请先选择一个设备", Toast.LENGTH_SHORT).show();
                 else {
                     final MyBluetoothDevice device = deviceList.get(index);
-                    ConnectState state = device.getConnectState();
+                    DeviceState state = device.getDeviceState();
 
                     // 设备有对应的Fragment，表示曾经连接成功过
                     if (device.getFragment() != null) {
@@ -161,9 +162,9 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                         return;
                     }
 
-                    if (state == ConnectState.CONNECT_SUCCESS) {             // 已经连接
+                    if (state == DeviceState.CONNECT_SUCCESS) {             // 已经连接
                         Toast.makeText(MainActivity.this, "设备已连接", Toast.LENGTH_SHORT).show();
-                    } else if (state == ConnectState.CONNECT_PROCESS) {      // 连接中...
+                    } else if (state == DeviceState.CONNECT_PROCESS) {      // 连接中...
                         Toast.makeText(MainActivity.this, "设备连接中...", Toast.LENGTH_SHORT).show();
                     } else {
                         device.connect(new IConnectCallback() {
@@ -172,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                                 DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
                                 if (deviceMirrorPool.isContainDevice(deviceMirror)) {
                                     device.setDeviceMirror(deviceMirror);
-                                    device.setConnectState(ConnectState.CONNECT_SUCCESS);
+                                    device.setDeviceState(DeviceState.CONNECT_SUCCESS);
                                    new Handler(Looper.getMainLooper()).post(new Runnable() {
                                        @Override
                                        public void run() {
@@ -184,12 +185,12 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
                             @Override
                             public void onConnectFailure(BleException exception) {
-                                device.setConnectState(ConnectState.CONNECT_FAILURE);
+                                device.setDeviceState(DeviceState.CONNECT_ERROR);
                             }
 
                             @Override
                             public void onDisconnect(boolean isActive) {
-                                device.setConnectState(ConnectState.CONNECT_DISCONNECT);
+                                device.setDeviceState(DeviceState.CONNECT_ERROR);
                             }
                         });
                     }
@@ -282,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         ArrayList<String> titles = new ArrayList<>();
         ArrayList<DeviceFragment> fragments = new ArrayList<>();
         for(MyBluetoothDevice dev : deviceList) {
-            if(dev.isOpen()) {
+            if(dev.isOpenFragment()) {
                 tabEntities.add(dev.getTabEntity());
                 titles.add(dev.getNickName());
                 fragments.add(dev.getFragment());

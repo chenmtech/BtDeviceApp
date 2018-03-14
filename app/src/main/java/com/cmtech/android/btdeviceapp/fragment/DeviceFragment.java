@@ -12,12 +12,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.cmtech.android.ble.callback.IConnectCallback;
-import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
+import com.cmtech.android.btdeviceapp.model.DeviceState;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
@@ -58,7 +58,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
             @Override
             public void onClick(View view) {
                 if(device == null) return;
-                switch (device.getConnectState()) {
+                switch (device.getDeviceState()) {
                     case CONNECT_SUCCESS:
                     case CONNECT_PROCESS:
                         disconnectDevice();
@@ -160,8 +160,8 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     @Override
     public void updateConnectState() {
         if(device != null) {
-            tvConnectState.setText(device.getConnectStateString());
-            switch (device.getConnectState()) {
+            tvConnectState.setText(device.getDeviceState().getDescription());
+            switch (device.getDeviceState()) {
                 case CONNECT_SUCCESS:
                 case CONNECT_PROCESS:
                     btnChangeConnect.setText("断开");
@@ -176,8 +176,8 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     @Override
     public void connectDevice() {
         if(device == null) return;
-        ConnectState state = device.getConnectState();
-        if(state == ConnectState.CONNECT_SUCCESS || state == ConnectState.CONNECT_PROCESS) return;
+        DeviceState state = device.getDeviceState();
+        if(state == DeviceState.CONNECT_SUCCESS || state == DeviceState.CONNECT_PROCESS) return;
 
         device.connect(new IConnectCallback() {
             @Override
@@ -186,7 +186,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
                 if(deviceMirrorPool.isContainDevice(deviceMirror)) {
                     device.setDeviceMirror(deviceMirror);
                     device.setFragment(DeviceFragment.this);
-                    device.setConnectState(ConnectState.CONNECT_SUCCESS);
+                    device.setDeviceState(DeviceState.CONNECT_SUCCESS);
 
                     // 连接成功后Gatt初始化
                     initializeGatt();
@@ -195,12 +195,12 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
             @Override
             public void onConnectFailure(BleException exception) {
-                device.setConnectState(ConnectState.CONNECT_FAILURE);
+                device.setDeviceState(DeviceState.CONNECT_ERROR);
             }
 
             @Override
             public void onDisconnect(boolean isActive) {
-                device.setConnectState(ConnectState.CONNECT_DISCONNECT);
+                device.setDeviceState(DeviceState.CONNECT_ERROR);
             }
         });
     }

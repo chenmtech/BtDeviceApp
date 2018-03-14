@@ -85,7 +85,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         MyBluetoothDevice device = (MyBluetoothDevice)mDeviceList.get(position);
         holder.deviceName.setText(device.getNickName());
         holder.deviceAddress.setText(device.getMacAddress());
-        holder.deviceStatus.setText(device.getConnectStateString());
+        holder.deviceStatus.setText(device.getDeviceState().getDescription());
 
         if(selectItem == position) {
             holder.deviceView.setBackgroundColor(Color.parseColor("#808080"));

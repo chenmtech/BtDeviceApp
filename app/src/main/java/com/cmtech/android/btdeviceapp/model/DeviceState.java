@@ -6,9 +6,9 @@ package com.cmtech.android.btdeviceapp.model;
 
 public enum DeviceState {
 
-    INIT(0, "等待连接"),
+    CONNECT_WAITING(0, "等待连接"),
     SCAN_ERROR(1, "扫描超时"),
-    CONNECTING(2, "连接中"),
+    CONNECT_PROCESS(2, "连接中"),
     CONNECT_ERROR(3, "连接错误"),
     CONNECT_SUCCESS(4, "连接成功");
 

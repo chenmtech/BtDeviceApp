@@ -1,7 +1,6 @@
 package com.cmtech.android.btdeviceapp.model;
 
 import com.cmtech.android.ble.callback.IConnectCallback;
-import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
@@ -41,10 +40,8 @@ public class MyBluetoothDevice extends DataSupport {
     private int icon;
 
     // 数据库不保存的变量
-    // 设备连接状态
-    ConnectState connectState = ConnectState.CONNECT_INIT;
-
-    DeviceState state = DeviceState.INIT;
+    // 设备状态
+    DeviceState state = DeviceState.CONNECT_WAITING;
 
     // 设备镜像，连接成功后才会赋值
     DeviceMirror deviceMirror = null;
@@ -97,44 +94,11 @@ public class MyBluetoothDevice extends DataSupport {
         this.icon = icon;
     }
 
-
-
-    public ConnectState getConnectState() {return connectState;}
-
-    public String getConnectStateString() {
-        String rtn = "等待连接";
-        switch (connectState) {
-            case CONNECT_INIT:
-                rtn = "等待连接";
-                break;
-            case CONNECT_PROCESS:
-                rtn = "连接中...";
-                break;
-            case CONNECT_DISCONNECT:
-                rtn = "连接断开";
-                break;
-            case CONNECT_FAILURE:
-                rtn = "连接错误";
-                break;
-            case CONNECT_SUCCESS:
-                rtn = "已连接";
-                break;
-            default:
-                break;
-        }
-        return rtn;
-    }
-
-    public void setConnectState(ConnectState state) {
-        this.connectState = state;
-        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
-    }
-
-    public DeviceState getState() {
+    public DeviceState getDeviceState() {
         return state;
     }
 
-    public void setState(DeviceState state) {
+    public void setDeviceState(DeviceState state) {
         this.state = state;
     }
 
@@ -152,7 +116,7 @@ public class MyBluetoothDevice extends DataSupport {
     }
 
     // 判断设备是否已经打开了Fragment
-    public boolean isOpen() {
+    public boolean isOpenFragment() {
         return fragment != null;
     }
 
@@ -194,7 +158,7 @@ public class MyBluetoothDevice extends DataSupport {
     // 发起连接
     // @param: connectCallback 连接回调
     public void connect(IConnectCallback connectCallback) {
-        setConnectState(ConnectState.CONNECT_PROCESS);
+        setDeviceState(DeviceState.CONNECT_PROCESS);
         // 如果没有连接过，或者连接没有成功过
         if(deviceMirror == null || !MyApplication.getViseBle().getDeviceMirrorPool().isContainDevice(deviceMirror))
             MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
