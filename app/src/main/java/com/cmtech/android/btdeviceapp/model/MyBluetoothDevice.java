@@ -35,7 +35,7 @@ public class MyBluetoothDevice extends DataSupport {
     // mac地址
     private String macAddress;
 
-    // 设备别名
+    // 设备昵称
     private String nickName;
 
     // 是否自动连接
@@ -48,20 +48,22 @@ public class MyBluetoothDevice extends DataSupport {
     // 设备状态
     DeviceState state = DeviceState.CONNECT_WAITING;
 
-    // 设备镜像，连接成功后才会赋值
+    // 设备镜像，连接成功后才会赋值。连接失败会赋值null
     DeviceMirror deviceMirror = null;
 
     // 存放连接后打开的Fragment
     DeviceFragment fragment;
 
-    // 串行Gatt命令执行器
+    // Gatt命令串行执行器, 连接成功后才会创建。连接失败会赋值null
     GattSerialExecutor serialExecutor;
 
-    // 观察者
-    List<IMyBluetoothDeviceObserver> obersvers = new LinkedList<>();
+    // 观察者列表
+    final List<IMyBluetoothDeviceObserver> obersvers = new LinkedList<>();
 
+    // 连接成功后的回调。发起连接时要赋值
     IConnectSuccessCallback connectSuccessCallback;
 
+    // 连接回调
     final IConnectCallback connectCallback = new IConnectCallback() {
         @Override
         public void onConnectSuccess(DeviceMirror deviceMirror) {
@@ -78,7 +80,10 @@ public class MyBluetoothDevice extends DataSupport {
 
         @Override
         public void onConnectFailure(BleException exception) {
-            if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+            if(serialExecutor != null) {
+                serialExecutor.stopExecuteCommand();
+                serialExecutor = null;
+            }
 
             if(exception instanceof TimeoutException)
                 setDeviceState(DeviceState.SCAN_TIMEOUT);
@@ -96,7 +101,10 @@ public class MyBluetoothDevice extends DataSupport {
 
         @Override
         public void onDisconnect(boolean isActive) {
-            if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+            if(serialExecutor != null) {
+                serialExecutor.stopExecuteCommand();
+                serialExecutor = null;
+            }
 
             setDeviceState(DeviceState.CONNECT_DISCONNECT);
 
@@ -172,10 +180,6 @@ public class MyBluetoothDevice extends DataSupport {
         return null;
     }
 
-    //public DeviceMirror getDeviceMirror() {return deviceMirror;}
-
-    //public void setDeviceMirror(DeviceMirror deviceMirror) {this.deviceMirror = deviceMirror;}
-
     public DeviceFragment getFragment() {
         return fragment;
     }
@@ -192,7 +196,7 @@ public class MyBluetoothDevice extends DataSupport {
 
     // 获取设备广播中包含的UUID
     public UUID getDeviceUuidInAd() {
-        if(deviceMirror == null) return null;
+        if(deviceMirror == null || deviceMirror.getBluetoothLeDevice() == null) return null;
 
         AdRecord record = deviceMirror.getBluetoothLeDevice()
                 .getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
@@ -238,8 +242,10 @@ public class MyBluetoothDevice extends DataSupport {
 
     // 断开连接
     public synchronized void disconnect() {
-        if(deviceMirror == null) return;
-        MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
+        if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+
+        if(deviceMirror != null)
+            MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
     }
 
     @Override

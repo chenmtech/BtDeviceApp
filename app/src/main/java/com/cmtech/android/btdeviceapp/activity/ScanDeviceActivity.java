@@ -104,7 +104,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);
         final AlertDialog.Builder builder = new AlertDialog.Builder(ScanDeviceActivity.this);
-        builder.setTitle("设置设备别名");
+        builder.setTitle("设置昵称");
         builder.setView(layout);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
