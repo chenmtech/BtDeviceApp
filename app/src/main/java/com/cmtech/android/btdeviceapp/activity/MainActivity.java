@@ -26,20 +26,15 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.callback.IConnectCallback;
-import com.cmtech.android.ble.core.DeviceMirror;
-import com.cmtech.android.ble.core.DeviceMirrorPool;
-import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragmentFactory;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.MyBluetoothDeviceAdapter;
-import com.cmtech.android.btdeviceapp.fragment.IDeviceFragmentObserver;
+import com.cmtech.android.btdeviceapp.interfa.IDeviceFragmentObserver;
 import com.cmtech.android.btdeviceapp.model.DeviceState;
-import com.cmtech.android.btdeviceapp.model.IConnectSuccessCallback;
-import com.cmtech.android.btdeviceapp.model.IMyBluetoothDeviceObserver;
+import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
+import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.flyco.tablayout.CommonTabLayout;
 import com.flyco.tablayout.listener.CustomTabEntity;
@@ -332,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.delete();
                 deviceList.remove(device);
-                device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_DELETE_DEVICE);
+                device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_DELETED);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -370,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     // 添加deviceAdapter作为观察者
                     device.registerDeviceObserver(deviceAdapter);
                     // 通知观察者
-                    device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_ADD_DEVICE);
+                    device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_ADDED);
                 }
         }
     }
@@ -452,7 +447,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     // 由Fragment调用，寻找对应的设备
     @Override
-    public MyBluetoothDevice findDeviceFromFragment(DeviceFragment fragment) {
+    public MyBluetoothDevice findDevice(DeviceFragment fragment) {
         for(MyBluetoothDevice device : deviceList) {
             if(device.getFragment() == fragment) {
                 return device;
@@ -463,8 +458,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     // 关闭Fragment和它相应的Device
     @Override
-    public void closeFragment(DeviceFragment fragment) {
-        MyBluetoothDevice device = findDeviceFromFragment(fragment);
+    public void delete(DeviceFragment fragment) {
+        MyBluetoothDevice device = findDevice(fragment);
         if(device == null) return;
 
         device.removeDeviceObserver(fragment);

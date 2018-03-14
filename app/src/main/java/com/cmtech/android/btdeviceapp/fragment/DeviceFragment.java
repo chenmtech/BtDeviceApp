@@ -11,16 +11,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.cmtech.android.ble.callback.IConnectCallback;
-import com.cmtech.android.ble.core.DeviceMirror;
-import com.cmtech.android.ble.core.DeviceMirrorPool;
-import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.exception.TimeoutException;
-import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
+import com.cmtech.android.btdeviceapp.interfa.IDeviceFragment;
+import com.cmtech.android.btdeviceapp.interfa.IDeviceFragmentObserver;
 import com.cmtech.android.btdeviceapp.model.DeviceState;
-import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
-import com.cmtech.android.btdeviceapp.model.IConnectSuccessCallback;
+import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 /**
@@ -31,13 +26,13 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     // 对应的设备
     protected MyBluetoothDevice device;
 
-    // 观察者接口对象
-    protected IDeviceFragmentObserver fragmentObserver;
+    // 观察者，一般为Activity
+    protected IDeviceFragmentObserver observer;
 
     // 连接状态tv
     protected TextView tvConnectState;
 
-    protected Button btnChangeConnect;
+    protected Button btnConnectSwitch;
     protected Button btnClose;
 
 
@@ -50,13 +45,14 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         super.onViewCreated(view, savedInstanceState);
 
         tvConnectState = view.findViewById(R.id.device_connect_state_tv);
-        btnChangeConnect = view.findViewById(R.id.device_changeconnect_btn);
+        btnConnectSwitch = view.findViewById(R.id.device_connectswitch_btn);
         btnClose = view.findViewById(R.id.device_close_btn);
 
-        btnChangeConnect.setOnClickListener(new View.OnClickListener() {
+        btnConnectSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(device == null) return;
+
                 switch (device.getDeviceState()) {
                     case CONNECT_SUCCESS:
                     case CONNECT_PROCESS:
@@ -86,14 +82,18 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         super.onAttach(context);
 
         if(!(context instanceof IDeviceFragmentObserver)) {
-            throw new IllegalStateException("context没有实现IDeviceFragmentListener接口");
+            throw new IllegalStateException("context没有实现IDeviceFragmentObserver接口");
         }
 
-        // 获取listener
-        fragmentObserver = (IDeviceFragmentObserver) context;
+        // 获得Observer
+        observer = (IDeviceFragmentObserver) context;
 
         // 获取device
-        device = fragmentObserver.findDeviceFromFragment(this);
+        device = observer.findDevice(this);
+
+        if(device == null) {
+            throw new IllegalStateException("fragment对应的device为空。");
+        }
     }
 
     @Override
@@ -109,78 +109,83 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         super.onStart();
 
         // 执行初始化
-        initializeGatt();
+        executeGattInitOperation();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        fragmentObserver = null;
+        observer = null;
 
         disconnectDevice();
 
-        //device = null;
     }
 
 
 
-    /////////////// 下面是作为IMyBluetoothDeviceObserver接口要实现的函数//////////////////////
+    /////////////// IMyBluetoothDeviceObserver接口函数//////////////////////
     @Override
     public void updateDeviceInfo(final MyBluetoothDevice device, final int type) {
         if(device != null && device.getFragment() == this) {
+            switch (type) {
+                case TYPE_MODIFY_CONNECTSTATE:
+                    updateConnectState();
+                    break;
+
+                default:
+                    break;
+            }
+
+        }
+    }
+    //////////////////////////////////////////////////////////////////////////
+
+
+
+
+    ////////////////////////IDeviceFragment接口函数/////////////////////////////
+    @Override
+    public void updateConnectState() {
+        if(device != null) {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    switch (type) {
-                        case TYPE_MODIFY_CONNECTSTATE:
-                            updateConnectState();
+                    tvConnectState.setText(device.getDeviceState().getDescription());
+                    switch (device.getDeviceState()) {
+                        case CONNECT_SUCCESS:
+                        case CONNECT_PROCESS:
+                            btnConnectSwitch.setText("断开");
                             break;
+
                         default:
+                            btnConnectSwitch.setText("连接");
                             break;
                     }
                 }
             });
         }
     }
-    /////////////// 下面是作为IMyBluetoothDeviceObserver接口要实现的函数结束//////////////////////
-
-
-
-
-    /////////////// 下面是作为IDeviceFragment接口要实现的函数//////////////////////
-    @Override
-    public void updateConnectState() {
-        if(device != null) {
-            tvConnectState.setText(device.getDeviceState().getDescription());
-            switch (device.getDeviceState()) {
-                case CONNECT_SUCCESS:
-                case CONNECT_PROCESS:
-                    btnChangeConnect.setText("断开");
-                    break;
-                default:
-                    btnChangeConnect.setText("连接");
-                    break;
-            }
-        }
-    }
 
     @Override
     public void connectDevice() {
         if(device == null) return;
+
         DeviceState state = device.getDeviceState();
+
         if(state == DeviceState.CONNECT_SUCCESS || state == DeviceState.CONNECT_PROCESS) return;
 
         device.connect(new IConnectSuccessCallback() {
             @Override
             public void doAfterConnectSuccess(MyBluetoothDevice device) {
-                initializeGatt();
+                executeGattInitOperation();
             }
         });
     }
 
     @Override
     public void disconnectDevice() {
+
         // 断开设备
         if(device != null) device.disconnect();
     }
@@ -188,14 +193,14 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     @Override
     public void close() {
         // 断开设备
-        if(device != null) device.disconnect();
+        disconnectDevice();
 
         // 让观察者删除此Fragment
-        if(fragmentObserver != null) {
+        if(observer != null) {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    fragmentObserver.closeFragment(DeviceFragment.this);
+                    observer.delete(DeviceFragment.this);
                 }
             });
         }

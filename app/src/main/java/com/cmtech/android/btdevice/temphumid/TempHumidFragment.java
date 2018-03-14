@@ -1,6 +1,5 @@
 package com.cmtech.android.btdevice.temphumid;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,10 +17,8 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
-import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
-import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.cmtech.android.btdeviceapp.util.ByteUtil;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 
@@ -102,10 +99,10 @@ public class TempHumidFragment extends DeviceFragment {
 
 
     @Override
-    public synchronized void initializeGatt() {
+    public synchronized void executeGattInitOperation() {
         GattSerialExecutor serialExecutor = device.getSerialExecutor();
 
-        if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+        if(serialExecutor == null) return;
 
         Log.d("FragmentThread", ""+Thread.currentThread().getId());
 
@@ -194,7 +191,7 @@ public class TempHumidFragment extends DeviceFragment {
             }
         });
 
-        serialExecutor.startExecuteCommand();
+        serialExecutor.start();
     }
 
 

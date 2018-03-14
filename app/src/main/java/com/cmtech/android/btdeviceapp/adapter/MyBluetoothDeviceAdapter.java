@@ -11,12 +11,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.model.IMyBluetoothDeviceObserver;
+import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 import java.util.List;
-
-import static com.cmtech.android.btdeviceapp.model.MyBluetoothDevice.*;
 
 /**
  * Created by bme on 2018/2/8.
@@ -117,9 +115,9 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         new Handler(Looper.getMainLooper()).post((new Runnable() {
             @Override
             public void run() {
-            if(type == TYPE_ADD_DEVICE) {
+            if(type == TYPE_ADDED) {
                 setSelectItem(mDeviceList.size()-1);
-            } else if(type == TYPE_DELETE_DEVICE) {
+            } else if(type == TYPE_DELETED) {
                 setSelectItem(-1);
             }
             notifyDataSetChanged();

@@ -19,7 +19,7 @@
         android:layout_alignParentRight="true"
         android:text="关闭"/>
     <Button
-        android:id="@+id/device_changeconnect_btn"
+        android:id="@+id/device_connectswitch_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/device_close_btn"

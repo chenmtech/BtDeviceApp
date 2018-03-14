@@ -9,6 +9,8 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
+import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
+import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 import com.cmtech.android.btdeviceapp.MyApplication;
 
@@ -19,7 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
-import static com.cmtech.android.btdeviceapp.model.IMyBluetoothDeviceObserver.*;
+import static com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver.*;
 
 /**
  * Created by bme on 2018/2/19.
@@ -69,7 +71,9 @@ public class MyBluetoothDevice extends DataSupport {
         public void onConnectSuccess(DeviceMirror deviceMirror) {
             DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
             if (deviceMirrorPool.isContainDevice(deviceMirror)) {
+
                 MyBluetoothDevice.this.deviceMirror = deviceMirror;
+
                 serialExecutor = new GattSerialExecutor(deviceMirror);
 
                 setDeviceState(DeviceState.CONNECT_SUCCESS);
@@ -80,9 +84,9 @@ public class MyBluetoothDevice extends DataSupport {
 
         @Override
         public void onConnectFailure(BleException exception) {
-            if(serialExecutor != null) {
-                serialExecutor.stopExecuteCommand();
-                serialExecutor = null;
+
+            if(serialExecutor != null && !serialExecutor.isInterruped()) {
+                serialExecutor.stop();
             }
 
             if(exception instanceof TimeoutException)
@@ -101,9 +105,8 @@ public class MyBluetoothDevice extends DataSupport {
 
         @Override
         public void onDisconnect(boolean isActive) {
-            if(serialExecutor != null) {
-                serialExecutor.stopExecuteCommand();
-                serialExecutor = null;
+            if(serialExecutor != null && !serialExecutor.isInterruped()) {
+                serialExecutor.stop();
             }
 
             setDeviceState(DeviceState.CONNECT_DISCONNECT);
@@ -158,6 +161,11 @@ public class MyBluetoothDevice extends DataSupport {
 
     public void setIcon(int icon) {
         this.icon = icon;
+    }
+
+    // 获取TabLayout所需的TabEntity
+    public TabEntity getTabEntity() {
+        return new TabEntity(getNickName(), icon, icon);
     }
 
     public DeviceState getDeviceState() {
@@ -231,6 +239,7 @@ public class MyBluetoothDevice extends DataSupport {
     // 发起连接
     public synchronized void connect(IConnectSuccessCallback connectSuccessCallback) {
         setDeviceState(DeviceState.CONNECT_PROCESS);
+
         this.connectSuccessCallback = connectSuccessCallback;
 
         // 如果没有连接过，或者连接没有成功过
@@ -242,7 +251,9 @@ public class MyBluetoothDevice extends DataSupport {
 
     // 断开连接
     public synchronized void disconnect() {
-        if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+        // 停止执行器
+        if(serialExecutor != null && !serialExecutor.isInterruped())
+            serialExecutor.stop();
 
         if(deviceMirror != null)
             MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
@@ -263,8 +274,5 @@ public class MyBluetoothDevice extends DataSupport {
         return macAddress != null ? macAddress.hashCode() : 0;
     }
 
-    // 获取TabLayout所需的TabEntity
-    public TabEntity getTabEntity() {
-        return new TabEntity(getNickName(), icon, icon);
-    }
+
 }

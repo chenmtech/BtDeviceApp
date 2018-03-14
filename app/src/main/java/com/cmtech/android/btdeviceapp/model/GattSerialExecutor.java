@@ -165,8 +165,8 @@ public class GattSerialExecutor {
     }
 
     // 开始执行命令
-    public synchronized void startExecuteCommand() {
-        if(executeThread != null) return;
+    public synchronized void start() {
+        if(executeThread != null && !executeThread.isInterrupted()) return;
 
         executeThread = new Thread(new Runnable() {
             @Override
@@ -210,10 +210,13 @@ public class GattSerialExecutor {
     }
 
     // 停止执行命令
-    public synchronized void stopExecuteCommand() {
+    public synchronized void stop() {
         if(executeThread == null) return;
         executeThread.interrupt();
     }
 
-
+    public boolean isInterruped() {
+        if(executeThread == null) return true;
+        else return executeThread.isInterrupted();
+    }
 }

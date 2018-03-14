@@ -64,7 +64,7 @@ public class UnknownDeviceFragment extends DeviceFragment {
     }
 
     @Override
-    public void initializeGatt() {
+    public void executeGattInitOperation() {
 
     }
 
