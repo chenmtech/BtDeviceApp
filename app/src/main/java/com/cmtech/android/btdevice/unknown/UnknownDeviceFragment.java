@@ -47,7 +47,7 @@ public class UnknownDeviceFragment extends DeviceFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        List<BluetoothGattService> services = device.getDeviceMirror().getBluetoothGatt().getServices();
+        List<BluetoothGattService> services = device.getServices();
         StringBuilder serviceStr = new StringBuilder();
         StringBuilder charaStr = new StringBuilder();
         for(BluetoothGattService service : services) {

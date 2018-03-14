@@ -27,7 +27,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IConnectCallback;
-import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
@@ -39,6 +38,7 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.MyBluetoothDeviceAdapter;
 import com.cmtech.android.btdeviceapp.fragment.IDeviceFragmentObserver;
 import com.cmtech.android.btdeviceapp.model.DeviceState;
+import com.cmtech.android.btdeviceapp.model.IConnectSuccessCallback;
 import com.cmtech.android.btdeviceapp.model.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.flyco.tablayout.CommonTabLayout;
@@ -168,33 +168,15 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     } else if (state == DeviceState.CONNECT_PROCESS) {      // 连接中...
                         Toast.makeText(MainActivity.this, "设备连接中...", Toast.LENGTH_SHORT).show();
                     } else {
-                        device.connect(new IConnectCallback() {
+                        device.connect(new IConnectSuccessCallback() {
                             @Override
-                            public void onConnectSuccess(DeviceMirror deviceMirror) {
-                                DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
-                                if (deviceMirrorPool.isContainDevice(deviceMirror)) {
-                                    device.setDeviceMirror(deviceMirror);
-                                    device.setDeviceState(DeviceState.CONNECT_SUCCESS);
-                                   new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                       @Override
-                                       public void run() {
-                                           showConnectedDevice(device);
-                                       }
-                                   });
-                                }
-                            }
-
-                            @Override
-                            public void onConnectFailure(BleException exception) {
-                                if(exception instanceof TimeoutException)
-                                    device.setDeviceState(DeviceState.SCAN_ERROR);
-                                else
-                                    device.setDeviceState(DeviceState.CONNECT_ERROR);
-                            }
-
-                            @Override
-                            public void onDisconnect(boolean isActive) {
-                                device.setDeviceState(DeviceState.CONNECT_DISCONNECT);
+                            public void doAfterConnectSuccess(final MyBluetoothDevice device) {
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        showConnectedDevice(device);
+                                    }
+                                });
                             }
                         });
                     }
@@ -287,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         ArrayList<String> titles = new ArrayList<>();
         ArrayList<DeviceFragment> fragments = new ArrayList<>();
         for(MyBluetoothDevice dev : deviceList) {
-            if(dev.isOpenFragment()) {
+            if(dev.hasFragment()) {
                 tabEntities.add(dev.getTabEntity());
                 titles.add(dev.getNickName());
                 fragments.add(dev.getFragment());

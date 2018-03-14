@@ -196,7 +196,7 @@ public class GattSerialExecutor {
         // 清除上次执行命令的数据操作IBleCallback，否则会出现多次执行该回调.
         // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
         if(currentCommand != null) {
-            deviceMirror.removeBleCallback(currentCommand.getGattInfoKey());
+            if(deviceMirror != null) deviceMirror.removeBleCallback(currentCommand.getGattInfoKey());
         }
 
         // 取出一条命令执行

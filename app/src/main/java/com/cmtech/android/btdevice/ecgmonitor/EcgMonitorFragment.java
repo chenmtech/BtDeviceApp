@@ -85,11 +85,11 @@ public class EcgMonitorFragment extends DeviceFragment {
 
     @Override
     public synchronized void initializeGatt() {
+        GattSerialExecutor serialExecutor = device.getSerialExecutor();
+
         if(serialExecutor != null) serialExecutor.stopExecuteCommand();
 
         Log.d("FragmentThread", ""+Thread.currentThread().getId());
-
-        serialExecutor = new GattSerialExecutor(device.getDeviceMirror());
 
         Object ecgData = serialExecutor.getGattObject(ECGMONITORDATA);
         Object ecgControl = serialExecutor.getGattObject(ECGMONITORCTRL);

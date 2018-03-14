@@ -93,13 +93,11 @@ public class ThermoFragment extends DeviceFragment {
 
     @Override
     public void initializeGatt() {
+        GattSerialExecutor serialExecutor = device.getSerialExecutor();
+
         if(serialExecutor != null) serialExecutor.stopExecuteCommand();
 
         Log.d("FragmentThread", ""+Thread.currentThread().getId());
-
-        DeviceMirror deviceMirror = device.getDeviceMirror();
-
-        serialExecutor = new GattSerialExecutor(deviceMirror);
 
         Object thermoData = serialExecutor.getGattObject(THERMODATA);
         Object thermoControl = serialExecutor.getGattObject(THERMOCONTROL);

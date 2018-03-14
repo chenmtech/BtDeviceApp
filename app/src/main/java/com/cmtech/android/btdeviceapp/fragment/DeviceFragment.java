@@ -20,6 +20,7 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.DeviceState;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
+import com.cmtech.android.btdeviceapp.model.IConnectSuccessCallback;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 /**
@@ -38,9 +39,6 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
     protected Button btnChangeConnect;
     protected Button btnClose;
-
-    // 串行Gatt命令执行器
-    protected GattSerialExecutor serialExecutor;
 
 
     public DeviceFragment() {
@@ -180,40 +178,16 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         DeviceState state = device.getDeviceState();
         if(state == DeviceState.CONNECT_SUCCESS || state == DeviceState.CONNECT_PROCESS) return;
 
-        device.connect(new IConnectCallback() {
+        device.connect(new IConnectSuccessCallback() {
             @Override
-            public void onConnectSuccess(DeviceMirror deviceMirror) {
-                DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
-                if(deviceMirrorPool.isContainDevice(deviceMirror)) {
-                    device.setDeviceMirror(deviceMirror);
-                    device.setFragment(DeviceFragment.this);
-                    device.setDeviceState(DeviceState.CONNECT_SUCCESS);
-
-                    // 连接成功后Gatt初始化
-                    initializeGatt();
-                }
-            }
-
-            @Override
-            public void onConnectFailure(BleException exception) {
-                if(exception instanceof TimeoutException)
-                    device.setDeviceState(DeviceState.SCAN_ERROR);
-                else
-                    device.setDeviceState(DeviceState.CONNECT_ERROR);
-            }
-
-            @Override
-            public void onDisconnect(boolean isActive) {
-                device.setDeviceState(DeviceState.CONNECT_ERROR);
+            public void doAfterConnectSuccess(MyBluetoothDevice device) {
+                initializeGatt();
             }
         });
     }
 
     @Override
     public void disconnectDevice() {
-        // 停止执行Gatt命令
-        if(serialExecutor != null) serialExecutor.stopExecuteCommand();
-
         // 断开设备
         if(device != null) device.disconnect();
     }

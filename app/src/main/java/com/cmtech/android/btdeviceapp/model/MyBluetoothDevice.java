@@ -1,7 +1,12 @@
 package com.cmtech.android.btdeviceapp.model;
 
+import android.bluetooth.BluetoothGattService;
+
 import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
+import com.cmtech.android.ble.core.DeviceMirrorPool;
+import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.util.Uuid;
@@ -49,8 +54,61 @@ public class MyBluetoothDevice extends DataSupport {
     // 存放连接后打开的Fragment
     DeviceFragment fragment;
 
+    // 串行Gatt命令执行器
+    GattSerialExecutor serialExecutor;
+
     // 观察者
     List<IMyBluetoothDeviceObserver> obersvers = new LinkedList<>();
+
+    IConnectSuccessCallback connectSuccessCallback;
+
+    final IConnectCallback connectCallback = new IConnectCallback() {
+        @Override
+        public void onConnectSuccess(DeviceMirror deviceMirror) {
+            DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+            if (deviceMirrorPool.isContainDevice(deviceMirror)) {
+                MyBluetoothDevice.this.deviceMirror = deviceMirror;
+                serialExecutor = new GattSerialExecutor(deviceMirror);
+
+                setDeviceState(DeviceState.CONNECT_SUCCESS);
+
+                connectSuccessCallback.doAfterConnectSuccess(MyBluetoothDevice.this);
+            }
+        }
+
+        @Override
+        public void onConnectFailure(BleException exception) {
+            if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+
+            if(exception instanceof TimeoutException)
+                setDeviceState(DeviceState.SCAN_TIMEOUT);
+            else
+                setDeviceState(DeviceState.CONNECT_ERROR);
+
+            if(deviceMirror != null) {
+                DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+                if(deviceMirrorPool.isContainDevice(deviceMirror)) {
+                    deviceMirrorPool.removeDeviceMirror(deviceMirror);
+                }
+                deviceMirror = null;
+            }
+        }
+
+        @Override
+        public void onDisconnect(boolean isActive) {
+            if(serialExecutor != null) serialExecutor.stopExecuteCommand();
+
+            setDeviceState(DeviceState.CONNECT_DISCONNECT);
+
+            if(deviceMirror != null) {
+                DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+                if(deviceMirrorPool.isContainDevice(deviceMirror)) {
+                    deviceMirrorPool.removeDeviceMirror(deviceMirror);
+                }
+                deviceMirror = null;
+            }
+        }
+    };
 
     public int getId() {
         return id;
@@ -100,11 +158,23 @@ public class MyBluetoothDevice extends DataSupport {
 
     public void setDeviceState(DeviceState state) {
         this.state = state;
+        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
     }
 
-    public DeviceMirror getDeviceMirror() {return deviceMirror;}
+    public GattSerialExecutor getSerialExecutor() {
+        return serialExecutor;
+    }
 
-    public void setDeviceMirror(DeviceMirror deviceMirror) {this.deviceMirror = deviceMirror;}
+    public List<BluetoothGattService> getServices() {
+        if(deviceMirror != null && deviceMirror.getBluetoothGatt() != null) {
+            return deviceMirror.getBluetoothGatt().getServices();
+        }
+        return null;
+    }
+
+    //public DeviceMirror getDeviceMirror() {return deviceMirror;}
+
+    //public void setDeviceMirror(DeviceMirror deviceMirror) {this.deviceMirror = deviceMirror;}
 
     public DeviceFragment getFragment() {
         return fragment;
@@ -115,8 +185,8 @@ public class MyBluetoothDevice extends DataSupport {
         if(fragment != null) registerDeviceObserver(fragment);
     }
 
-    // 判断设备是否已经打开了Fragment
-    public boolean isOpenFragment() {
+    // 判断设备是否有了Fragment
+    public boolean hasFragment() {
         return fragment != null;
     }
 
@@ -146,7 +216,6 @@ public class MyBluetoothDevice extends DataSupport {
     }
 
     // 通知观察者
-    // @param type：状态改变的类型
     public void notifyDeviceObservers(final int type) {
         for(final IMyBluetoothDeviceObserver obersver : obersvers) {
             if(obersver != null) {
@@ -156,9 +225,10 @@ public class MyBluetoothDevice extends DataSupport {
     }
 
     // 发起连接
-    // @param: connectCallback 连接回调
-    public void connect(IConnectCallback connectCallback) {
+    public synchronized void connect(IConnectSuccessCallback connectSuccessCallback) {
         setDeviceState(DeviceState.CONNECT_PROCESS);
+        this.connectSuccessCallback = connectSuccessCallback;
+
         // 如果没有连接过，或者连接没有成功过
         if(deviceMirror == null || !MyApplication.getViseBle().getDeviceMirrorPool().isContainDevice(deviceMirror))
             MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
@@ -166,10 +236,10 @@ public class MyBluetoothDevice extends DataSupport {
             deviceMirror.connect(connectCallback);
     }
 
-    public void disconnect() {
-        if(deviceMirror == null || deviceMirror.getBluetoothLeDevice() == null) return;
+    // 断开连接
+    public synchronized void disconnect() {
+        if(deviceMirror == null) return;
         MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
-        //setConnectState(ConnectState.CONNECT_DISCONNECT);
     }
 
     @Override

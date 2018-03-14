@@ -103,11 +103,11 @@ public class TempHumidFragment extends DeviceFragment {
 
     @Override
     public synchronized void initializeGatt() {
+        GattSerialExecutor serialExecutor = device.getSerialExecutor();
+
         if(serialExecutor != null) serialExecutor.stopExecuteCommand();
 
         Log.d("FragmentThread", ""+Thread.currentThread().getId());
-
-        serialExecutor = new GattSerialExecutor(device.getDeviceMirror());
 
         Object thermoData = serialExecutor.getGattObject(TEMPHUMIDDATA);
         Object thermoControl = serialExecutor.getGattObject(TEMPHUMIDCTRL);
