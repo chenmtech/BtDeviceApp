@@ -15,6 +15,7 @@ import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.DeviceState;
@@ -195,7 +196,10 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
             @Override
             public void onConnectFailure(BleException exception) {
-                device.setDeviceState(DeviceState.CONNECT_ERROR);
+                if(exception instanceof TimeoutException)
+                    device.setDeviceState(DeviceState.SCAN_ERROR);
+                else
+                    device.setDeviceState(DeviceState.CONNECT_ERROR);
             }
 
             @Override

@@ -31,6 +31,7 @@ import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragmentFactory;
 import com.cmtech.android.btdeviceapp.MyApplication;
@@ -185,12 +186,15 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
                             @Override
                             public void onConnectFailure(BleException exception) {
-                                device.setDeviceState(DeviceState.CONNECT_ERROR);
+                                if(exception instanceof TimeoutException)
+                                    device.setDeviceState(DeviceState.SCAN_ERROR);
+                                else
+                                    device.setDeviceState(DeviceState.CONNECT_ERROR);
                             }
 
                             @Override
                             public void onDisconnect(boolean isActive) {
-                                device.setDeviceState(DeviceState.CONNECT_ERROR);
+                                device.setDeviceState(DeviceState.CONNECT_DISCONNECT);
                             }
                         });
                     }

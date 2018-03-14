@@ -10,7 +10,8 @@ public enum DeviceState {
     SCAN_ERROR(1, "扫描超时"),
     CONNECT_PROCESS(2, "连接中"),
     CONNECT_ERROR(3, "连接错误"),
-    CONNECT_SUCCESS(4, "连接成功");
+    CONNECT_DISCONNECT(4, "连接断开"),
+    CONNECT_SUCCESS(5, "连接成功");
 
 
     private int code;  //对应括号里面第一个值,即 0 或 1
