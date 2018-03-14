@@ -47,7 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  MainActivity: 主界面，主要数据存放区
+ *  MainActivity: 主界面，主要数据存放区，需要实现IDeviceFragmentObserver
+ *  Created by bme on 2018/2/19.
  */
 public class MainActivity extends AppCompatActivity implements IDeviceFragmentObserver {
 
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         // 从数据库获取设备信息
         deviceList = DataSupport.findAll(MyBluetoothDevice.class);
 
-        // 设置设备信息列表
+        // 设置设备信息View
         deviceRecycView = (RecyclerView)findViewById(R.id.rvDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         deviceRecycView.setLayoutManager(layoutManager);
@@ -134,8 +135,11 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                 for(MyBluetoothDevice device : deviceList) {
                     deviceMacList.add(device.getMacAddress());
                 }
+
+                // 启动扫描Activity
                 Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
                 intent.putExtra("device_list", (Serializable) deviceMacList);
+
                 startActivityForResult(intent, 1);
             }
         });
@@ -149,27 +153,30 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     Toast.makeText(MainActivity.this, "请先选择一个设备", Toast.LENGTH_SHORT).show();
                 else {
                     final MyBluetoothDevice device = deviceList.get(index);
-                    DeviceState state = device.getDeviceState();
+                    if(device == null) return;
 
                     // 设备有对应的Fragment，表示曾经连接成功过
                     if (device.getFragment() != null) {
                         device.getFragment().connectDevice();
-                        viewPager.setCurrentItem(fragAdapter.getFragmentPosition(device.getFragment()));
+                        viewPager.setCurrentItem(fragAdapter.getPosition(device.getFragment()));
                         return;
                     }
 
+                    // 设备没有连接过
+                    DeviceState state = device.getDeviceState();
                     if (state == DeviceState.CONNECT_SUCCESS) {             // 已经连接
                         Toast.makeText(MainActivity.this, "设备已连接", Toast.LENGTH_SHORT).show();
                     } else if (state == DeviceState.CONNECT_PROCESS) {      // 连接中...
                         Toast.makeText(MainActivity.this, "设备连接中...", Toast.LENGTH_SHORT).show();
                     } else {
+                        // 连接设备，连接成功后创建Fragment
                         device.connect(new IConnectSuccessCallback() {
                             @Override
                             public void doAfterConnectSuccess(final MyBluetoothDevice device) {
                                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        showConnectedDevice(device);
+                                        createFragmentForDevice(device);
                                     }
                                 });
                             }
@@ -201,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         mWelcomeLayout = (LinearLayout)findViewById(R.id.welecome_layout);
         mMainLayout = (LinearLayout)findViewById(R.id.main_layout);
 
-        // TabLayout相关设置
+        // TabLayout和ViewPager相关设置
         viewPager = (ViewPager) findViewById(R.id.main_vp);
         fragAdapter = new MyPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(fragAdapter);
@@ -235,12 +242,13 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         });
 
         mWelcomeLayout.setVisibility(View.VISIBLE);
+
         mMainLayout.setVisibility(View.INVISIBLE);
 
     }
 
     // 显示已连接设备
-    public void showConnectedDevice(MyBluetoothDevice device) {
+    private void createFragmentForDevice(MyBluetoothDevice device) {
         if(device == null) return;
         mDrawerLayout.closeDrawer(GravityCompat.START);
 
@@ -252,14 +260,14 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         updateTabandViewPager();
 
         // 翻到当前Fragment
-        viewPager.setCurrentItem(fragAdapter.getFragmentPosition(fragment));
+        viewPager.setCurrentItem(fragAdapter.getPosition(fragment));
     }
 
 
 
     // 更新TabLayout和ViewPager
     private void updateTabandViewPager() {
-        // 获取已打开的设备的TabEntity、Title和DeviceFragment
+        // 获取已创建Fragment的设备的TabEntity、Title和DeviceFragment
         ArrayList<CustomTabEntity> tabEntities = new ArrayList<>();
         ArrayList<String> titles = new ArrayList<>();
         ArrayList<DeviceFragment> fragments = new ArrayList<>();
@@ -288,6 +296,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     // 修改设备信息
     private void modifyDeviceInfo(final MyBluetoothDevice device) {
+        if(device == null) return;
+
         LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_configured_device_info, null);
         String deviceName = device.getNickName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
@@ -314,6 +324,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     // 删除设备
     private void deleteDevice(final MyBluetoothDevice device) {
+        if(device == null) return;
+
         LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_configured_device_info, null);
         String deviceName = device.getNickName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
@@ -384,11 +396,16 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(deviceList != null && deviceList.size() != 0) {
+            for(MyBluetoothDevice device : deviceList) {
+                device.disconnect();
+            }
+        }
+
         MyApplication.getViseBle().disconnect();
         MyApplication.getViseBle().clear();
         android.os.Process.killProcess(android.os.Process.myPid());
     }
-
 
 
     @Override
@@ -415,7 +432,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             notifyDataSetChanged();
         }
 
-        public int getFragmentPosition(DeviceFragment fragment) {
+        public int getPosition(DeviceFragment fragment) {
             return fragments.indexOf(fragment);
         }
 
@@ -443,9 +460,9 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     }
 
 
-    ///////////// 作为IDeviceFragmentObserver需要实现的函数///////////////////////
+    ///////////////////IDeviceFragmentObserver接口函数///////////////////////
 
-    // 由Fragment调用，寻找对应的设备
+    // 寻找Fragment对应的设备
     @Override
     public MyBluetoothDevice findDevice(DeviceFragment fragment) {
         for(MyBluetoothDevice device : deviceList) {
@@ -456,7 +473,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         return null;
     }
 
-    // 关闭Fragment和它相应的Device
+    // 删除Fragment
     @Override
     public void delete(DeviceFragment fragment) {
         MyBluetoothDevice device = findDevice(fragment);
@@ -465,7 +482,12 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         device.removeDeviceObserver(fragment);
         device.setFragment(null);
 
-        updateTabandViewPager();
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                updateTabandViewPager();
+            }
+        });
     }
-    ///////////// 作为IDeviceFragmentObserver需要实现的函数结束///////////////////////
+    ////////////////////////////////////////////////////////////////////////
 }

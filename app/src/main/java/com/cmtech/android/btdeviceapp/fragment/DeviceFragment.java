@@ -197,12 +197,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
         // 让观察者删除此Fragment
         if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    observer.delete(DeviceFragment.this);
-                }
-            });
+            observer.delete(DeviceFragment.this);
         }
     }
 
