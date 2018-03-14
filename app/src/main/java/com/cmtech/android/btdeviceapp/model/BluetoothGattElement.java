@@ -15,24 +15,32 @@ import java.util.UUID;
  */
 
 public class BluetoothGattElement {
-    private final int TYPE_NULL = 0;                // 空ELement
-    private final int TYPE_SERVICE = 1;             // service element
-    private final int TYPE_CHARACTERISTIC = 2;      // characteristic element
-    private final int TYPE_DESCRIPTOR = 3;          // descriptor element
+    private final int TYPE_NULL = 0;                // 空ELement 类型
+    private final int TYPE_SERVICE = 1;             // service element类型
+    private final int TYPE_CHARACTERISTIC = 2;      // characteristic element类型
+    private final int TYPE_DESCRIPTOR = 3;          // descriptor element类型
 
     // null element
     private static final BluetoothGattElement NULLELEMENT = new BluetoothGattElement((UUID)null, null, null);
 
+    // 服务UUID
     private final UUID serviceUuid;
+
+    // 特征UUID
     private final UUID characteristicUuid;
+
+    // 描述符UUID
     private final UUID descriptorUuid;
 
+    // element的描述
     private final String description;
 
+    // 用短的字符串构建Element
     public BluetoothGattElement(String serviceShortString, String characteristicShortString, String descriptorShortString) {
         this(Uuid.shortStringToUuid(serviceShortString), Uuid.shortStringToUuid(characteristicShortString), Uuid.shortStringToUuid(descriptorShortString));
         }
 
+    // 用UUID构建Element
     public BluetoothGattElement(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid) {
         this.serviceUuid = serviceUuid;
         this.characteristicUuid = characteristicUuid;
@@ -57,7 +65,7 @@ public class BluetoothGattElement {
         return descriptorUuid;
     }
 
-    // 从设备镜像中搜寻此element的Gatt Object
+    // 从设备镜像中搜寻此element的Gatt Object.可用于验证Element是否存在于DeviceMirror中
     public Object retrieveGattObject(DeviceMirror deviceMirror) {
         if(deviceMirror == null || deviceMirror.getBluetoothGatt() == null) return null;
         BluetoothGatt gatt = deviceMirror.getBluetoothGatt();

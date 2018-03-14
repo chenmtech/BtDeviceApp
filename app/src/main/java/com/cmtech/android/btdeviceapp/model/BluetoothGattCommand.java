@@ -28,6 +28,8 @@ public class BluetoothGattCommand {
 
     // 执行命令
     public void execute() {
+        if(deviceMirror == null || channel == null) return;
+
         switch (channel.getPropertyType()) {
             case PROPERTY_READ:
                 deviceMirror.bindChannel( dataOpCallback, channel);

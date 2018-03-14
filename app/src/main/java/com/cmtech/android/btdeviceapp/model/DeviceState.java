@@ -14,8 +14,8 @@ public enum DeviceState {
     CONNECT_SUCCESS(5, "连接成功");
 
 
-    private int code;  //对应括号里面第一个值,即 0 或 1
-    private String description; //对应括号里面第二个值,即不显示 或  显示
+    private int code;                   //对应括号里面第一个值
+    private String description;         //对应括号里面第二个值
     //如果括号里还有其它定义的值,可定义相应的变量与之对应即可
 
     //各个变量的getter,setter方法,注意这里是 public 公共的修饰符啊

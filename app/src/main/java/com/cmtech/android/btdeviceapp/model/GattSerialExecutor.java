@@ -201,7 +201,7 @@ public class GattSerialExecutor {
 
         // 取出一条命令执行
         currentCommand = commandList.poll();
-        currentCommand.execute();
+        if(currentCommand != null) currentCommand.execute();
 
         Log.d("SerialExecutor", "execute command: " + currentCommand.toString());
 
