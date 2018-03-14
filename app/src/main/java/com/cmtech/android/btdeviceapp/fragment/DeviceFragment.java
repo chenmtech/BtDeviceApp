@@ -76,14 +76,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
             public void onClick(View view) {
                 Log.d(DeviceFragment.this.getClass().getSimpleName(), "is closed.");
 
-                if(fragmentObserver != null) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            fragmentObserver.closeFragment(DeviceFragment.this);
-                        }
-                    });
-                }
+                close();
             }
         });
     }
@@ -191,6 +184,23 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         // 断开设备
         if(device != null) device.disconnect();
     }
+
+    @Override
+    public void close() {
+        // 断开设备
+        if(device != null) device.disconnect();
+
+        // 让观察者删除此Fragment
+        if(fragmentObserver != null) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    fragmentObserver.closeFragment(DeviceFragment.this);
+                }
+            });
+        }
+    }
+
     /////////////// 下面是作为IDeviceFragment接口要实现的函数结束//////////////////////
 
 

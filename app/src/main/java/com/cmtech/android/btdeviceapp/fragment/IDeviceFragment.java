@@ -19,4 +19,7 @@ public interface IDeviceFragment extends IMyBluetoothDeviceObserver {
 
     // 连接设备后需要做的Gatt初始化
     void initializeGatt();
+
+    // 关闭Fragment
+    void close();
 }
