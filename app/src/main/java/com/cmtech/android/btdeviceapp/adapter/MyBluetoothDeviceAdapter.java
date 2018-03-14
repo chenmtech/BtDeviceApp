@@ -111,6 +111,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
             this.selectItem = -1;
     }
 
+    // 作为IMyBluetoothDeviceObserver设备观察者要实现的函数
     @Override
     public void updateDeviceInfo(MyBluetoothDevice device, final int type) {
         new Handler(Looper.getMainLooper()).post((new Runnable() {
