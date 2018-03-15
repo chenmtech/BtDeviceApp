@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -36,9 +37,6 @@ import com.cmtech.android.btdeviceapp.model.DeviceState;
 import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
-import com.flyco.tablayout.CommonTabLayout;
-import com.flyco.tablayout.listener.CustomTabEntity;
-import com.flyco.tablayout.listener.OnTabSelectListener;
 
 import org.litepal.crud.DataSupport;
 
@@ -70,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     private LinearLayout mMainLayout;
 
     private ViewPager viewPager;
-    private CommonTabLayout tabLayout;
+    private TabLayout tabLayout;
     private MyPagerAdapter fragAdapter;
 
     @Override
@@ -213,34 +211,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         fragAdapter = new MyPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(fragAdapter);
         //viewPager.setOffscreenPageLimit(5);
-        tabLayout = (CommonTabLayout) findViewById(R.id.main_tab_layout);
-        tabLayout.setOnTabSelectListener(new OnTabSelectListener() {
-            @Override
-            public void onTabSelect(int position) {
-                viewPager.setCurrentItem(position);
-            }
-
-            @Override
-            public void onTabReselect(int position) {
-
-            }
-        });
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                tabLayout.setCurrentTab(position);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
+        tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
+        tabLayout.setupWithViewPager(viewPager);
 
         mWelcomeLayout.setVisibility(View.VISIBLE);
 
@@ -258,23 +230,19 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         device.setFragment(fragment);
 
         // 更新TabLayout和ViewPager
-        updateTabandViewPager();
+        fragAdapter.addFragment(fragment, device.getNickName());
 
         // 翻到当前Fragment
         viewPager.setCurrentItem(fragAdapter.getPosition(fragment));
     }
 
-
-
     // 更新TabLayout和ViewPager
-    private void updateTabandViewPager() {
-        // 获取已创建Fragment的设备的TabEntity、Title和DeviceFragment
-        ArrayList<CustomTabEntity> tabEntities = new ArrayList<>();
+    /*private void updateTabandViewPager() {
+        // 获取已创建Fragment的设备的Title和DeviceFragment
         ArrayList<String> titles = new ArrayList<>();
         ArrayList<DeviceFragment> fragments = new ArrayList<>();
         for(MyBluetoothDevice dev : deviceList) {
             if(dev.hasFragment()) {
-                tabEntities.add(dev.getTabEntity());
                 titles.add(dev.getNickName());
                 fragments.add(dev.getFragment());
             }
@@ -282,18 +250,15 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         // 通知Adapter更新
         fragAdapter.updateData(titles, fragments);
 
-        // 设置tabLayout的TabEntity
-        // 没有Tab的时候不能设置，这个CommonTabLayout的问题
-        if(tabEntities != null && tabEntities.size() != 0) {
-            tabLayout.setTabData(tabEntities);
-            tabLayout.notifyDataSetChanged();
+        // 没有Tab的时候显示WelcomeLayout，否则显示MainLayout
+        if(titles.size() != 0) {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
             mMainLayout.setVisibility(View.VISIBLE);
         } else {
             mWelcomeLayout.setVisibility(View.VISIBLE);
             mMainLayout.setVisibility(View.INVISIBLE);
         }
-    }
+    }*/
 
     // 修改设备信息
     private void modifyDeviceInfo(final MyBluetoothDevice device) {
@@ -311,7 +276,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.setNickName(editText.getText().toString());
                 device.save();
-                updateTabandViewPager();
+                if(device.getFragment() != null) fragAdapter.updateFragmentTitle(device.getFragment(), device.getNickName());
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -420,16 +385,43 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     // 只有从FragmentStatePagerAdapter继承才能正常关闭Fragment
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
-        private List<String> nickNames;
-        private List<DeviceFragment> fragments;
+        private List<String> nickNames = new ArrayList<>();
+        private List<DeviceFragment> fragments = new ArrayList<>();
 
         public MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
-        public void updateData(List<String> nickNames, List<DeviceFragment> fragments) {
+        /*public void updateData(List<String> nickNames, List<DeviceFragment> fragments) {
             this.nickNames = nickNames;
             this.fragments = fragments;
+            notifyDataSetChanged();
+        }*/
+
+        public void addFragment(DeviceFragment fragment, String title) {
+            if(fragments.contains(fragment)) return;
+
+            fragments.add(fragment);
+            nickNames.add(title);
+            notifyDataSetChanged();
+        }
+
+        public void updateFragmentTitle(DeviceFragment fragment, String title) {
+            int index = fragments.indexOf(fragment);
+
+            if(index != -1) {
+                nickNames.set(index, title);
+            }
+            notifyDataSetChanged();
+        }
+
+        public void deleteFragment(DeviceFragment fragment) {
+            int index = fragments.indexOf(fragment);
+
+            if(index != -1) {
+                nickNames.remove(index);
+                fragments.remove(index);
+            }
             notifyDataSetChanged();
         }
 
@@ -476,7 +468,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     // 删除Fragment
     @Override
-    public void delete(DeviceFragment fragment) {
+    public void delete(final DeviceFragment fragment) {
         MyBluetoothDevice device = findDevice(fragment);
         if(device == null) return;
 
@@ -486,7 +478,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                updateTabandViewPager();
+                fragAdapter.deleteFragment(fragment);
             }
         });
     }

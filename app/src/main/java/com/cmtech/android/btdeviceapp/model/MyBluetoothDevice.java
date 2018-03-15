@@ -166,11 +166,6 @@ public class MyBluetoothDevice extends DataSupport {
         this.icon = icon;
     }
 
-    // 获取TabLayout所需的TabEntity
-    public TabEntity getTabEntity() {
-        return new TabEntity(getNickName(), icon, icon);
-    }
-
     public DeviceState getDeviceState() {
         return state;
     }
