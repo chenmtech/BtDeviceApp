@@ -164,9 +164,13 @@ public class GattSerialExecutor {
         return flag;
     }
 
+    private int times = 0;
+
     // 开始执行命令
     public synchronized void start() {
         if(executeThread != null && !executeThread.isInterrupted()) return;
+
+        Log.d("Thread", "start serialexecutor: "+times++);
 
         executeThread = new Thread(new Runnable() {
             @Override

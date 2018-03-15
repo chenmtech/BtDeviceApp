@@ -212,6 +212,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         viewPager = (ViewPager) findViewById(R.id.main_vp);
         fragAdapter = new MyPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(fragAdapter);
+        //viewPager.setOffscreenPageLimit(5);
         tabLayout = (CommonTabLayout) findViewById(R.id.main_tab_layout);
         tabLayout.setOnTabSelectListener(new OnTabSelectListener() {
             @Override

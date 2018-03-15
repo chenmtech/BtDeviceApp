@@ -35,6 +35,8 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     protected Button btnConnectSwitch;
     protected Button btnClose;
 
+    private int times = 0;
+
 
     public DeviceFragment() {
 
@@ -75,7 +77,11 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
                 close();
             }
         });
+
+
     }
+
+
 
     @Override
     public void onAttach(Context context) {
@@ -94,7 +100,11 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         if(device == null) {
             throw new IllegalStateException("fragment对应的device为空。");
         }
+
+
     }
+
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -102,13 +112,14 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
         // 更新连接状态
         updateConnectState();
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        // 执行初始化
+        // 执行初始化, 每次调用MainActivity.updateTabandViewPager, 都会重复调用一次，这样肯定错误
         executeGattInitOperation();
     }
 

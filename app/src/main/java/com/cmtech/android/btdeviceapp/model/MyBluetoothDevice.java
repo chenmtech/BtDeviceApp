@@ -1,6 +1,7 @@
 package com.cmtech.android.btdeviceapp.model;
 
 import android.bluetooth.BluetoothGattService;
+import android.util.Log;
 
 import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
@@ -75,6 +76,8 @@ public class MyBluetoothDevice extends DataSupport {
                 MyBluetoothDevice.this.deviceMirror = deviceMirror;
 
                 serialExecutor = new GattSerialExecutor(deviceMirror);
+
+                //Log.d("Thread", MyBluetoothDevice.this.getNickName()+" create serial executor.");
 
                 setDeviceState(DeviceState.CONNECT_SUCCESS);
 
