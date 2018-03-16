@@ -7,11 +7,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -33,6 +29,7 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.MyBluetoothDeviceAdapter;
 import com.cmtech.android.btdeviceapp.interfa.IDeviceFragmentObserver;
+import com.cmtech.android.btdeviceapp.model.DeviceFragmentShower;
 import com.cmtech.android.btdeviceapp.model.DeviceState;
 import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
@@ -67,9 +64,10 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     private LinearLayout mWelcomeLayout;
     private LinearLayout mMainLayout;
 
-    private ViewPager viewPager;
-    private TabLayout tabLayout;
-    private MyPagerAdapter fragAdapter;
+    //private ViewPager viewPager;
+    //private TabLayout tabLayout;
+    //private MyPagerAdapter fragAdapter;
+    private DeviceFragmentShower deviceFragmentShower;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     // 设备有对应的Fragment，表示曾经连接成功过
                     if (device.getFragment() != null) {
                         device.getFragment().connectDevice();
-                        viewPager.setCurrentItem(fragAdapter.getPosition(device.getFragment()));
+                        deviceFragmentShower.selectFragment(device);
                         return;
                     }
 
@@ -207,16 +205,13 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         mMainLayout = (LinearLayout)findViewById(R.id.main_layout);
 
         // TabLayout和ViewPager相关设置
-        viewPager = (ViewPager) findViewById(R.id.main_vp);
-        fragAdapter = new MyPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(fragAdapter);
-        //viewPager.setOffscreenPageLimit(5);
-        tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
+        //ViewPager viewPager = (ViewPager) findViewById(R.id.main_fragment_layout);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
+        deviceFragmentShower = new DeviceFragmentShower(this, tabLayout, R.id.main_fragment_layout);
 
-        mWelcomeLayout.setVisibility(View.VISIBLE);
-
-        mMainLayout.setVisibility(View.INVISIBLE);
+        //mWelcomeLayout.setVisibility(View.VISIBLE);
+        //mMainLayout.setVisibility(View.INVISIBLE);
+        setMainViewVisibility();
 
     }
 
@@ -230,10 +225,24 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         device.setFragment(fragment);
 
         // 更新TabLayout和ViewPager
-        fragAdapter.addFragment(fragment, device.getNickName());
+        //fragAdapter.addFragment(fragment, device.getNickName());
+        deviceFragmentShower.addFragment(device);
 
         // 翻到当前Fragment
-        viewPager.setCurrentItem(fragAdapter.getPosition(fragment));
+        //viewPager.setCurrentItem(fragAdapter.getPosition(fragment));
+        deviceFragmentShower.selectFragment(device);
+
+        setMainViewVisibility();
+    }
+
+    private void setMainViewVisibility() {
+        if(deviceFragmentShower.size() == 0) {
+            mWelcomeLayout.setVisibility(View.VISIBLE);
+            mMainLayout.setVisibility(View.INVISIBLE);
+        } else {
+            mWelcomeLayout.setVisibility(View.INVISIBLE);
+            mMainLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     // 更新TabLayout和ViewPager
@@ -276,7 +285,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.setNickName(editText.getText().toString());
                 device.save();
-                if(device.getFragment() != null) fragAdapter.updateFragmentTitle(device.getFragment(), device.getNickName());
+                //if(device.getFragment() != null) fragAdapter.updateFragmentTitle(device.getFragment(), device.getNickName());
+                deviceFragmentShower.updateTabInfo(device);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -383,76 +393,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             finish();
     }
 
-    // 只有从FragmentStatePagerAdapter继承才能正常关闭Fragment
-    private class MyPagerAdapter extends FragmentStatePagerAdapter {
-        private List<String> nickNames = new ArrayList<>();
-        private List<DeviceFragment> fragments = new ArrayList<>();
-
-        public MyPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        /*public void updateData(List<String> nickNames, List<DeviceFragment> fragments) {
-            this.nickNames = nickNames;
-            this.fragments = fragments;
-            notifyDataSetChanged();
-        }*/
-
-        public void addFragment(DeviceFragment fragment, String title) {
-            if(fragments.contains(fragment)) return;
-
-            fragments.add(fragment);
-            nickNames.add(title);
-            notifyDataSetChanged();
-        }
-
-        public void updateFragmentTitle(DeviceFragment fragment, String title) {
-            int index = fragments.indexOf(fragment);
-
-            if(index != -1) {
-                nickNames.set(index, title);
-            }
-            notifyDataSetChanged();
-        }
-
-        public void deleteFragment(DeviceFragment fragment) {
-            int index = fragments.indexOf(fragment);
-
-            if(index != -1) {
-                nickNames.remove(index);
-                fragments.remove(index);
-            }
-            notifyDataSetChanged();
-        }
-
-        public int getPosition(DeviceFragment fragment) {
-            return fragments.indexOf(fragment);
-        }
-
-        @Override
-        public int getCount() {
-            return (nickNames == null) ? 0 : nickNames.size();
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return nickNames.get(position);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return fragments.get(position);
-        }
-
-
-        // 一定要重载这个函数
-        @Override
-        public int getItemPosition(Object object) {
-            return POSITION_NONE;
-        }
-    }
-
-
     ///////////////////IDeviceFragmentObserver接口函数///////////////////////
 
     // 寻找Fragment对应的设备
@@ -478,7 +418,9 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                fragAdapter.deleteFragment(fragment);
+                //fragAdapter.deleteFragment(fragment);
+                deviceFragmentShower.deleteFragment(fragment);
+                setMainViewVisibility();
             }
         });
     }

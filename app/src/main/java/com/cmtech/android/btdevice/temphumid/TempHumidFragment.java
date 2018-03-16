@@ -58,6 +58,8 @@ public class TempHumidFragment extends DeviceFragment {
     private TextView tvTempData;
     private TextView tvHumidData;
 
+    private View rootView;
+
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(Message msg) {
@@ -86,8 +88,9 @@ public class TempHumidFragment extends DeviceFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        return inflater.inflate(R.layout.fragment_temphumid, container, false);
+        Log.d("TempHumidFragment", "onCreateView");
+        rootView = inflater.inflate(R.layout.fragment_temphumid, container, false);
+        return rootView;
     }
 
     @Override
