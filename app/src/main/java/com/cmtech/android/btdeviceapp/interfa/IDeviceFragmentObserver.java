@@ -14,5 +14,5 @@ public interface IDeviceFragmentObserver {
     MyBluetoothDevice findDevice(DeviceFragment fragment);
 
     // 删除Fragment
-    void delete(DeviceFragment fragment);
+    void deleteFragment(DeviceFragment fragment);
 }

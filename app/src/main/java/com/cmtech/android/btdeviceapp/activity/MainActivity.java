@@ -29,7 +29,7 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.MyBluetoothDeviceAdapter;
 import com.cmtech.android.btdeviceapp.interfa.IDeviceFragmentObserver;
-import com.cmtech.android.btdeviceapp.model.DeviceFragmentShower;
+import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
 import com.cmtech.android.btdeviceapp.model.DeviceState;
 import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
@@ -64,10 +64,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     private LinearLayout mWelcomeLayout;
     private LinearLayout mMainLayout;
 
-    //private ViewPager viewPager;
-    //private TabLayout tabLayout;
-    //private MyPagerAdapter fragAdapter;
-    private DeviceFragmentShower deviceFragmentShower;
+    // 主界面的TabLayout和Fragment管理器
+    private MainTabFragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,9 +150,9 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     if(device == null) return;
 
                     // 设备有对应的Fragment，表示曾经连接成功过
-                    if (device.getFragment() != null) {
+                    if (device.hasFragment()) {
                         device.getFragment().connectDevice();
-                        deviceFragmentShower.selectFragment(device);
+                        fragmentManager.showDeviceFragment(device);
                         return;
                     }
 
@@ -204,14 +202,12 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         mWelcomeLayout = (LinearLayout)findViewById(R.id.welecome_layout);
         mMainLayout = (LinearLayout)findViewById(R.id.main_layout);
 
-        // TabLayout和ViewPager相关设置
-        //ViewPager viewPager = (ViewPager) findViewById(R.id.main_fragment_layout);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
-        deviceFragmentShower = new DeviceFragmentShower(this, tabLayout, R.id.main_fragment_layout);
 
-        //mWelcomeLayout.setVisibility(View.VISIBLE);
-        //mMainLayout.setVisibility(View.INVISIBLE);
-        setMainViewVisibility();
+        // 创建Fragment管理器
+        fragmentManager = new MainTabFragmentManager(this, tabLayout, R.id.main_fragment_layout);
+
+        setMainLayoutVisibility();
 
     }
 
@@ -224,19 +220,14 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         DeviceFragment fragment = DeviceFragmentFactory.build(device);
         device.setFragment(fragment);
 
-        // 更新TabLayout和ViewPager
-        //fragAdapter.addFragment(fragment, device.getNickName());
-        deviceFragmentShower.addFragment(device);
+        // 添加设备的Fragment到管理器
+        fragmentManager.addDeviceFragment(device);
 
-        // 翻到当前Fragment
-        //viewPager.setCurrentItem(fragAdapter.getPosition(fragment));
-        deviceFragmentShower.selectFragment(device);
-
-        setMainViewVisibility();
+        setMainLayoutVisibility();
     }
 
-    private void setMainViewVisibility() {
-        if(deviceFragmentShower.size() == 0) {
+    private void setMainLayoutVisibility() {
+        if(fragmentManager.size() == 0) {
             mWelcomeLayout.setVisibility(View.VISIBLE);
             mMainLayout.setVisibility(View.INVISIBLE);
         } else {
@@ -244,30 +235,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             mMainLayout.setVisibility(View.VISIBLE);
         }
     }
-
-    // 更新TabLayout和ViewPager
-    /*private void updateTabandViewPager() {
-        // 获取已创建Fragment的设备的Title和DeviceFragment
-        ArrayList<String> titles = new ArrayList<>();
-        ArrayList<DeviceFragment> fragments = new ArrayList<>();
-        for(MyBluetoothDevice dev : deviceList) {
-            if(dev.hasFragment()) {
-                titles.add(dev.getNickName());
-                fragments.add(dev.getFragment());
-            }
-        }
-        // 通知Adapter更新
-        fragAdapter.updateData(titles, fragments);
-
-        // 没有Tab的时候显示WelcomeLayout，否则显示MainLayout
-        if(titles.size() != 0) {
-            mWelcomeLayout.setVisibility(View.INVISIBLE);
-            mMainLayout.setVisibility(View.VISIBLE);
-        } else {
-            mWelcomeLayout.setVisibility(View.VISIBLE);
-            mMainLayout.setVisibility(View.INVISIBLE);
-        }
-    }*/
 
     // 修改设备信息
     private void modifyDeviceInfo(final MyBluetoothDevice device) {
@@ -285,8 +252,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.setNickName(editText.getText().toString());
                 device.save();
-                //if(device.getFragment() != null) fragAdapter.updateFragmentTitle(device.getFragment(), device.getNickName());
-                deviceFragmentShower.updateTabInfo(device);
+                fragmentManager.updateTabInfo(device);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -408,7 +374,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     // 删除Fragment
     @Override
-    public void delete(final DeviceFragment fragment) {
+    public void deleteFragment(final DeviceFragment fragment) {
         MyBluetoothDevice device = findDevice(fragment);
         if(device == null) return;
 
@@ -418,9 +384,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                //fragAdapter.deleteFragment(fragment);
-                deviceFragmentShower.deleteFragment(fragment);
-                setMainViewVisibility();
+                fragmentManager.deleteFragment(fragment);
+                setMainLayoutVisibility();
             }
         });
     }

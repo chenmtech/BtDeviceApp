@@ -101,7 +101,6 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
             throw new IllegalStateException("fragment对应的device为空。");
         }
 
-
     }
 
 
@@ -119,7 +118,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     public void onStart() {
         super.onStart();
 
-        // 执行初始化, 每次调用MainActivity.updateTabandViewPager, 都会重复调用一次，这样肯定错误
+        // 执行初始化
         executeGattInitOperation();
     }
 
@@ -127,13 +126,17 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     public void onDestroy() {
         super.onDestroy();
 
-        observer = null;
-
         disconnectDevice();
-
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
 
+        observer = null;
+
+        //device = null;
+    }
 
     /////////////// IMyBluetoothDeviceObserver接口函数//////////////////////
     @Override
@@ -208,7 +211,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
         // 让观察者删除此Fragment
         if(observer != null) {
-            observer.delete(DeviceFragment.this);
+            observer.deleteFragment(DeviceFragment.this);
         }
     }
 
