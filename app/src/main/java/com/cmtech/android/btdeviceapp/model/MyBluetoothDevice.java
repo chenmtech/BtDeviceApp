@@ -14,6 +14,7 @@ import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 import com.cmtech.android.btdeviceapp.MyApplication;
+import com.vise.log.ViseLog;
 
 import org.litepal.crud.DataSupport;
 
@@ -77,7 +78,8 @@ public class MyBluetoothDevice extends DataSupport {
 
                 serialExecutor = new GattSerialExecutor(deviceMirror);
 
-                //Log.d("Thread", MyBluetoothDevice.this.getNickName()+" create serial executor.");
+                ViseLog.d("IConnectCallback.onConnectSuccess: " + MyBluetoothDevice.this.getNickName()+
+                        " create serial executor.");
 
                 setDeviceState(DeviceState.CONNECT_SUCCESS);
 
@@ -191,6 +193,7 @@ public class MyBluetoothDevice extends DataSupport {
     }
 
     public void setFragment(DeviceFragment fragment) {
+        if(this.fragment != null) removeDeviceObserver(this.fragment);
         this.fragment = fragment;
         if(fragment != null) registerDeviceObserver(fragment);
     }

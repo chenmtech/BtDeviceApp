@@ -12,15 +12,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 管理MainActivity中的TabLayout和Fragment
  * Created by chenm on 2018/3/16.
  */
 
 public class MainTabFragmentManager {
 
+    // Fragment管理器实例
     private final MyFragmentManager fragManager;
 
+    // TabLayout实例
     private final TabLayout tabLayout;
 
+    // 当前显示的Fragment和Tab的位置
     private int curPos = -1;
 
     public MainTabFragmentManager(FragmentActivity activity, TabLayout tabLayout, int containerId) {
@@ -36,8 +40,12 @@ public class MainTabFragmentManager {
                 int pos = tab.getPosition();
                 if(pos < 0) return;
 
+                // 隐藏当前的Fragment
                 if(curPos >= 0 && curPos != pos) fragManager.hideFragment(fragManager.fragments.get(curPos));
+
+                // 显示选中的Fragment
                 fragManager.showFragment(fragManager.fragments.get(pos));
+
                 curPos = pos;
             }
 
@@ -52,10 +60,12 @@ public class MainTabFragmentManager {
         });
     }
 
+    // Fragment数量
     public int size() {
         return fragManager.fragments.size();
     }
 
+    // 添加设备的Fragment，并显示
     public void addDeviceFragment(MyBluetoothDevice device) {
         DeviceFragment fragment = device.getFragment();
         if(fragment == null || fragManager.fragments.contains(fragment)) return;
@@ -64,7 +74,7 @@ public class MainTabFragmentManager {
         tabLayout.addTab(tabLayout.newTab().setText(device.getNickName()).setIcon(device.getIcon()), true);
     }
 
-
+    // 更新设备的Tab信息
     public void updateTabInfo(MyBluetoothDevice device) {
         DeviceFragment fragment = device.getFragment();
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
@@ -72,7 +82,7 @@ public class MainTabFragmentManager {
         if(tab != null) tab.setText(device.getNickName()).setIcon(device.getIcon());
     }
 
-
+    // 删除Fragment
     public void deleteFragment(DeviceFragment fragment) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
@@ -87,6 +97,7 @@ public class MainTabFragmentManager {
         }
     }
 
+    // 显示设备的Fragment
     public void showDeviceFragment(MyBluetoothDevice device) {
         DeviceFragment fragment = device.getFragment();
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
@@ -147,9 +158,9 @@ public class MainTabFragmentManager {
             }
         }
 
-        public List<Fragment> getFragments() {
+        /*public List<Fragment> getFragments() {
             return fragments;
-        }
+        }*/
 
     }
 

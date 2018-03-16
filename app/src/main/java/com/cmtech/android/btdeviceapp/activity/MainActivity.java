@@ -378,7 +378,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         MyBluetoothDevice device = findDevice(fragment);
         if(device == null) return;
 
-        device.removeDeviceObserver(fragment);
         device.setFragment(null);
 
         new Handler(Looper.getMainLooper()).post(new Runnable() {
