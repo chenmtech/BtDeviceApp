@@ -24,18 +24,24 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <LinearLayout
+            <FrameLayout
                 android:id="@+id/welecome_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:visibility="visible">
+                <ImageView
+                    android:id="@+id/welcome_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter"/>
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:text="hi,welcome to btDeviceApp!"/>
-            </LinearLayout>
+                    android:text="欢迎使用广医物联网蓝牙终端！"
+                    android:textColor="#0288d1"
+                    android:textSize="40dp"/>
+            </FrameLayout>
 
             <LinearLayout
                 android:id="@+id/main_layout"

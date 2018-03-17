@@ -16,13 +16,17 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragmentFactory;
 import com.cmtech.android.btdeviceapp.MyApplication;
@@ -61,8 +65,10 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     private Button btnConnect;
 
     private DrawerLayout mDrawerLayout;
-    private LinearLayout mWelcomeLayout;
+    private FrameLayout mWelcomeLayout;
     private LinearLayout mMainLayout;
+
+    private ImageView welcomeImage;
 
     // 主界面的TabLayout和Fragment管理器
     private MainTabFragmentManager fragmentManager;
@@ -199,8 +205,12 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         });
 
         mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-        mWelcomeLayout = (LinearLayout)findViewById(R.id.welecome_layout);
+        mWelcomeLayout = (FrameLayout)findViewById(R.id.welecome_layout);
         mMainLayout = (LinearLayout)findViewById(R.id.main_layout);
+
+        welcomeImage = (ImageView)findViewById(R.id.welcome_image);
+        Glide.with(this).load(R.drawable.welcome_image).into(welcomeImage);
+
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
 
