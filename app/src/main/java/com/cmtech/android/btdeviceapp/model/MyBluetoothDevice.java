@@ -48,6 +48,8 @@ public class MyBluetoothDevice extends DataSupport {
     // 图标
     private int icon;
 
+    private String imageFileName;
+
     // 数据库不保存的变量
     // 设备状态
     DeviceState state = DeviceState.CONNECT_WAITING;
@@ -166,6 +168,14 @@ public class MyBluetoothDevice extends DataSupport {
 
     public void setIcon(int icon) {
         this.icon = icon;
+    }
+
+    public String getImageFileName() {
+        return imageFileName;
+    }
+
+    public void setImageFileName(String imageFileName) {
+        this.imageFileName = imageFileName;
     }
 
     public DeviceState getDeviceState() {

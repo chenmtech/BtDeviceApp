@@ -24,6 +24,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+            <!--  欢迎界面  -->
             <FrameLayout
                 android:id="@+id/welecome_layout"
                 android:layout_width="match_parent"
@@ -43,6 +44,7 @@
                     android:textSize="35dp"/>
             </FrameLayout>
 
+            <!--  设备界面  -->
             <LinearLayout
                 android:id="@+id/main_layout"
                 android:layout_width="match_parent"
@@ -60,7 +62,7 @@
                     android:id="@+id/main_tab_layout"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
-                    android:background="@color/primary_dark"/>
+                    android:background="@color/primary_light"/>
             </LinearLayout>
         </FrameLayout>
 

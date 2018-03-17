@@ -1,15 +1,24 @@
 package com.cmtech.android.btdeviceapp.model;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.cmtech.android.btdeviceapp.MyApplication;
+import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * 管理MainActivity中的TabLayout和Fragment
@@ -71,7 +80,15 @@ public class MainTabFragmentManager {
         if(fragment == null || fragManager.fragments.contains(fragment)) return;
 
         fragManager.addFragment(fragment, "");
-        tabLayout.addTab(tabLayout.newTab().setText(device.getNickName()).setIcon(device.getIcon()), true);
+        Drawable drawable = null;
+        if(device.getIcon() != 0) {
+            drawable = MyApplication.getContext().getResources().getDrawable(device.getIcon());
+        } else if(!"".equals(device.getImageFileName())) {
+            drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImageFileName());
+        } else {
+            drawable = MyApplication.getContext().getResources().getDrawable(R.mipmap.ic_device_default_icon);
+        }
+        tabLayout.addTab(tabLayout.newTab().setText(device.getNickName()).setIcon(drawable), true);
     }
 
     // 更新设备的Tab信息
