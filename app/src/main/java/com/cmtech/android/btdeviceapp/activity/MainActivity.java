@@ -89,6 +89,9 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
         // 从数据库获取设备信息
         deviceList = DataSupport.findAll(MyBluetoothDevice.class);
+        for(int i = 0; i < deviceList.size(); i++) {
+            deviceList.get(i).setIcon(R.mipmap.ic_tv_black_48dp);
+        }
 
         // 设置设备信息View
         deviceRecycView = (RecyclerView)findViewById(R.id.rvDevices);
