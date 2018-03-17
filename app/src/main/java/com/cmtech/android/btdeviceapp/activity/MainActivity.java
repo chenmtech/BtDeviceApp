@@ -314,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     String macAddress = data.getStringExtra("device_macaddress");
                     boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
                     //暂时设置一个图标，以后增加这个功能
-                    int icon = R.mipmap.ic_tablet_mac_black_48dp;
+                    int icon = R.mipmap.ic_tv_black_48dp;
 
                     MyBluetoothDevice device = new MyBluetoothDevice();
                     device.setNickName(nickName);

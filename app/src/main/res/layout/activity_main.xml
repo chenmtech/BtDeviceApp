@@ -38,9 +38,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
-                    android:text="欢迎使用广医物联网蓝牙终端！"
+                    android:text="欢迎使用\n广医物联网蓝牙终端！"
                     android:textColor="#0288d1"
-                    android:textSize="40dp"/>
+                    android:textSize="35dp"/>
             </FrameLayout>
 
             <LinearLayout
@@ -60,7 +60,7 @@
                     android:id="@+id/main_tab_layout"
                     android:layout_width="match_parent"
                     android:layout_height="54dp"
-                    android:background="#ffffff"/>
+                    android:background="@color/primary_dark"/>
             </LinearLayout>
         </FrameLayout>
 

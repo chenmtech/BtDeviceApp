@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
@@ -32,8 +33,8 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     // 连接状态tv
     protected TextView tvConnectState;
 
-    protected Button btnConnectSwitch;
-    protected Button btnClose;
+    protected ImageButton btnConnectSwitch;
+    protected ImageButton btnClose;
 
     private int times = 0;
 
@@ -169,11 +170,11 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
                     switch (device.getDeviceState()) {
                         case CONNECT_SUCCESS:
                         case CONNECT_PROCESS:
-                            btnConnectSwitch.setText("断开");
+                            btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_disconnect_16px));
                             break;
 
                         default:
-                            btnConnectSwitch.setText("连接");
+                            btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_connect_16px));
                             break;
                     }
                 }
