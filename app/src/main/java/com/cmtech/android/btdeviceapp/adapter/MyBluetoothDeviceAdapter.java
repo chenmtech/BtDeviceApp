@@ -23,8 +23,10 @@ import java.util.List;
 public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDeviceAdapter.ViewHolder>
                                     implements IMyBluetoothDeviceObserver {
 
+    // 设备列表
     private List<MyBluetoothDevice> mDeviceList;
 
+    // 选中的item
     private int selectItem = -1;
 
     Drawable defaultBackground;
