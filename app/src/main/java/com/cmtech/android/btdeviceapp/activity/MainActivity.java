@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -315,15 +314,14 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                 if(resultCode == RESULT_OK) {
                     String nickName = data.getStringExtra("device_nickname");
                     String macAddress = data.getStringExtra("device_macaddress");
+                    String imagePath = data.getStringExtra("device_imagepath");
                     boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
-                    //暂时设置一个图标，以后增加这个功能
-                    int icon = R.mipmap.ic_tv_black_48dp;
 
                     MyBluetoothDevice device = new MyBluetoothDevice();
                     device.setNickName(nickName);
                     device.setMacAddress(macAddress);
+                    device.setImagePath(imagePath);
                     device.setAutoConnected(isAutoConnect);
-                    device.setIcon(icon);
 
                     // 保存到数据库
                     device.save();

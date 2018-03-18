@@ -1,7 +1,5 @@
 package com.cmtech.android.btdeviceapp.model;
 
-import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.TabLayout;
@@ -10,15 +8,12 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * 管理MainActivity中的TabLayout和Fragment
@@ -81,12 +76,12 @@ public class MainTabFragmentManager {
 
         fragManager.addFragment(fragment, "");
         Drawable drawable = null;
-        if(device.getIcon() != 0) {
-            drawable = MyApplication.getContext().getResources().getDrawable(device.getIcon());
-        } else if(!"".equals(device.getImageFileName())) {
-            drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImageFileName());
+
+        String imagePath = device.getImagePath();
+        if(imagePath != null && !"".equals(imagePath)) {
+            drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
         } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(R.mipmap.ic_device_default_icon);
+            drawable = MyApplication.getContext().getResources().getDrawable(R.mipmap.ic_unknown_128px);
         }
         tabLayout.addTab(tabLayout.newTab().setText(device.getNickName()).setIcon(drawable), true);
     }
@@ -96,7 +91,14 @@ public class MainTabFragmentManager {
         DeviceFragment fragment = device.getFragment();
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
         TabLayout.Tab tab = tabLayout.getTabAt(fragManager.fragments.indexOf(fragment));
-        if(tab != null) tab.setText(device.getNickName()).setIcon(device.getIcon());
+        if(tab != null) {
+            tab.setText(device.getNickName());
+            String imagePath = device.getImagePath();
+            if(imagePath != null && !"".equals(imagePath)) {
+                Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
+                tab.setIcon(drawable);
+            }
+        }
     }
 
     // 删除Fragment

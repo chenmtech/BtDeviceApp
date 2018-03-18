@@ -1,11 +1,9 @@
 package com.cmtech.android.btdeviceapp.activity;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,7 +23,10 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.btdeviceapp.callback.ScanDeviceCallback;
+import com.vise.utils.file.FileUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,7 +104,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         String deviceName = scanedDeviceList.get(which).getName();
         final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
         editText.setText(deviceName);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(ScanDeviceActivity.this);
+        /*final AlertDialog.Builder builder = new AlertDialog.Builder(ScanDeviceActivity.this);
         builder.setTitle("设置昵称");
         builder.setView(layout);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -112,10 +113,10 @@ public class ScanDeviceActivity extends AppCompatActivity {
                 String nickName = editText.getText().toString();
                 String macAddress = scanedDeviceList.get(which).getAddress();
                 boolean isAutoConnected = false;
-                /*MyBluetoothDevice device = new MyBluetoothDevice();
+                *//*MyBluetoothDevice device = new MyBluetoothDevice();
                 device.setNickName(editText.getText().toString());
                 device.setMacAddress(scanedDeviceList.get(which).getAddress());
-                device.setAutoConnected(false);*/
+                device.setAutoConnected(false);*//*
                 Intent intent = new Intent();
                 intent.putExtra("device_nickname", nickName);
                 intent.putExtra("device_macaddress", macAddress);
@@ -130,7 +131,9 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
             }
         });
-        builder.show();
+        builder.show();*/
+        Intent intent = new Intent(ScanDeviceActivity.this, ConfigureDeviceActivity.class);
+        startActivityForResult(intent, 2);
     }
 
     @Override
@@ -204,15 +207,45 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            if (requestCode == 1) {
-                // 同意了，再使能一次
-                enableBluetooth();
-            }
-        } else if (resultCode == RESULT_CANCELED) { // 不同意
-            Toast.makeText(this, "蓝牙未打开，程序无法运行", Toast.LENGTH_SHORT).show();
-            finish();
+        switch (requestCode) {
+            // 请求蓝牙结果
+            case 1:
+                if (resultCode == RESULT_OK) {
+                    enableBluetooth();
+                } else if (resultCode == RESULT_CANCELED) { // 不同意
+                    Toast.makeText(this, "蓝牙未打开，程序无法运行", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+            // 配置设备信息结果
+            case 2:
+                if ( resultCode == RESULT_OK) {
+                    String deviceNickname = data.getStringExtra("device_nickname");
+                    String imagePath = data.getStringExtra("device_imagepath");
+                    Boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
+                    int which = scanDeviceAdapter.getSelectItem();
+                    String macAddress = scanedDeviceList.get(which).getAddress();
+                    Intent intent = new Intent();
+                    intent.putExtra("device_nickname", deviceNickname);
+                    intent.putExtra("device_macaddress", macAddress);
+
+                    File fromFile = FileUtil.getFile(imagePath);
+                    File toFile = FileUtil.getFile(getExternalFilesDir("images"), macAddress, ".jpg");
+                    try {
+                        FileUtil.copyFile(fromFile, toFile);
+                        imagePath = toFile.getCanonicalPath();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    intent.putExtra("device_imagepath", imagePath);
+
+                    intent.putExtra("device_isautoconnect", isAutoConnect);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+                break;
         }
+
         super.onActivityResult(requestCode, resultCode, data);
     }
 

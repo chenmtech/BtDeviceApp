@@ -1,7 +1,6 @@
 package com.cmtech.android.btdeviceapp.model;
 
 import android.bluetooth.BluetoothGattService;
-import android.util.Log;
 
 import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
@@ -46,9 +45,7 @@ public class MyBluetoothDevice extends DataSupport {
     private boolean isAutoConnected;
 
     // 图标
-    private int icon;
-
-    private String imageFileName;
+    private String imagePath;
 
     // 数据库不保存的变量
     // 设备状态
@@ -162,20 +159,12 @@ public class MyBluetoothDevice extends DataSupport {
         notifyDeviceObservers(TYPE_MODIFY_AUTOCONNECT);
     }
 
-    public int getIcon() {
-        return icon;
+    public String getImagePath() {
+        return imagePath;
     }
 
-    public void setIcon(int icon) {
-        this.icon = icon;
-    }
-
-    public String getImageFileName() {
-        return imageFileName;
-    }
-
-    public void setImageFileName(String imageFileName) {
-        this.imageFileName = imageFileName;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public DeviceState getDeviceState() {

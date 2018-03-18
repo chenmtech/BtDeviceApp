@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".MyApplication"
@@ -15,8 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".activity.ScanDeviceActivity" />
-
         <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +24,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.ScanDeviceActivity" />
 
+        <activity android:name=".activity.ConfigureDeviceActivity"
+            android:theme="@style/Theme.AppCompat.Light.Dialog"
+            android:label="设置设备信息"></activity>
     </application>
 
 </manifest>
