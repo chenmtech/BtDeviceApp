@@ -81,6 +81,7 @@ public class MyBluetoothDevice extends DataSupport {
                         " create serial executor.");
 
                 setDeviceState(DeviceState.CONNECT_SUCCESS);
+                notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
                 connectSuccessCallback.doAfterConnectSuccess(MyBluetoothDevice.this);
             }
@@ -97,6 +98,7 @@ public class MyBluetoothDevice extends DataSupport {
                 setDeviceState(DeviceState.SCAN_TIMEOUT);
             else
                 setDeviceState(DeviceState.CONNECT_ERROR);
+            notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
             if(deviceMirror != null) {
                 DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
@@ -114,6 +116,7 @@ public class MyBluetoothDevice extends DataSupport {
             }
 
             setDeviceState(DeviceState.CONNECT_DISCONNECT);
+            notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
             if(deviceMirror != null) {
                 DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
@@ -147,7 +150,6 @@ public class MyBluetoothDevice extends DataSupport {
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
-        notifyDeviceObservers(TYPE_MODIFY_NICKNAME);
     }
 
     public boolean isAutoConnected() {
@@ -156,7 +158,6 @@ public class MyBluetoothDevice extends DataSupport {
 
     public void setAutoConnected(boolean autoConnected) {
         isAutoConnected = autoConnected;
-        notifyDeviceObservers(TYPE_MODIFY_AUTOCONNECT);
     }
 
     public String getImagePath() {
@@ -173,7 +174,6 @@ public class MyBluetoothDevice extends DataSupport {
 
     public void setDeviceState(DeviceState state) {
         this.state = state;
-        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
     }
 
     public GattSerialExecutor getSerialExecutor() {
@@ -239,6 +239,7 @@ public class MyBluetoothDevice extends DataSupport {
     // 发起连接
     public synchronized void connect(IConnectSuccessCallback connectSuccessCallback) {
         setDeviceState(DeviceState.CONNECT_PROCESS);
+        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
         this.connectSuccessCallback = connectSuccessCallback;
 

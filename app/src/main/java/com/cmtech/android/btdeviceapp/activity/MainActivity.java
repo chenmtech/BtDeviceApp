@@ -44,6 +44,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver.TYPE_MODIFY_NICKNAME;
+
 /**
  *  MainActivity: 主界面，主要数据存放区，需要实现IDeviceFragmentObserver
  *  Created by bme on 2018/2/19.
@@ -264,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.setNickName(editText.getText().toString());
                 device.save();
+                device.notifyDeviceObservers(TYPE_MODIFY_NICKNAME);
                 fragmentManager.updateTabInfo(device);
             }
         });
