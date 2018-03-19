@@ -3,6 +3,8 @@ package com.cmtech.android.btdeviceapp.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.btdeviceapp.callback.ScanDeviceCallback;
 import com.vise.utils.file.FileUtil;
+import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -229,10 +232,10 @@ public class ScanDeviceActivity extends AppCompatActivity {
                     intent.putExtra("device_nickname", deviceNickname);
                     intent.putExtra("device_macaddress", macAddress);
 
-                    File fromFile = FileUtil.getFile(imagePath);
+                    Bitmap bitmap = BitmapUtil.getSmallBitmap(imagePath, 100, 100);
                     File toFile = FileUtil.getFile(getExternalFilesDir("images"), macAddress, ".jpg");
                     try {
-                        FileUtil.copyFile(fromFile, toFile);
+                        BitmapUtil.saveBitmap(bitmap, toFile);
                         imagePath = toFile.getCanonicalPath();
                     } catch (IOException e) {
                         e.printStackTrace();

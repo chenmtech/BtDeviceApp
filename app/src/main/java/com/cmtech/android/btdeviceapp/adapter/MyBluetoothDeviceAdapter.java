@@ -1,6 +1,7 @@
 package com.cmtech.android.btdeviceapp.adapter;
 
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,8 +9,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
@@ -33,6 +36,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView;
+        ImageView deviceImage;
         TextView deviceName;
         TextView deviceAddress;
         TextView deviceStatus;
@@ -41,6 +45,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         public ViewHolder(View itemView) {
             super(itemView);
             deviceView = itemView;
+            deviceImage = deviceView.findViewById(R.id.configure_device_image);
             deviceName = deviceView.findViewById(R.id.configured_device_nickname);
             deviceAddress = deviceView.findViewById(R.id.configured_device_address);
             deviceStatus = deviceView.findViewById(R.id.configured_device_status);
@@ -73,6 +78,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
             public void onClick(View view) {
                 selectItem = holder.getAdapterPosition();
                 notifyDataSetChanged();
+
             }
         });
 
@@ -83,6 +89,13 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
     @Override
     public void onBindViewHolder(MyBluetoothDeviceAdapter.ViewHolder holder, final int position) {
         MyBluetoothDevice device = (MyBluetoothDevice)mDeviceList.get(position);
+
+        String imagePath = device.getImagePath();
+        if(imagePath != null && !"".equals(imagePath)) {
+            Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
+            holder.deviceImage.setImageDrawable(drawable);
+        }
+
         holder.deviceName.setText(device.getNickName());
         holder.deviceAddress.setText(device.getMacAddress());
         holder.deviceStatus.setText(device.getDeviceState().getDescription());
