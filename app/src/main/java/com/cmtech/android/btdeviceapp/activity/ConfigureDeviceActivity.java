@@ -204,8 +204,6 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
     }
 
     private void displayImage(String imagePath) {
-        if(imagePath != null || imagePath != "") {
-            Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivImage);
-        }
+        Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivImage);
     }
 }
