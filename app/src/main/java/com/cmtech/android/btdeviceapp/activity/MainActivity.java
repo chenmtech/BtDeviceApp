@@ -255,11 +255,13 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         String deviceNickname = device.getNickName();
         String macAddress = device.getMacAddress();
         String imagePath = device.getImagePath();
+        boolean isAutoconnect = device.isAutoConnected();
 
         Intent intent = new Intent(MainActivity.this, ConfigureDeviceActivity.class);
         intent.putExtra("device_nickname", deviceNickname);
         intent.putExtra("device_macaddress", macAddress);
         intent.putExtra("device_imagepath", imagePath);
+        intent.putExtra("device_isautoconnect", isAutoconnect);
 
         startActivityForResult(intent, 2);
     }

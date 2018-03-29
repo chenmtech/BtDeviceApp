@@ -31,11 +31,18 @@
             android:layout_gravity="center_vertical"
             android:text="设备图像："/>
         <ImageView
-            android:id="@+id/device_image"
+            android:id="@+id/cfg_device_image"
             android:layout_width="128dp"
             android:layout_height="128dp"
             android:src="@mipmap/ic_unknown_128px"/>
     </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/cfg_device_isautoconnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="自动连接" />
 
     <LinearLayout
         android:layout_width="match_parent"

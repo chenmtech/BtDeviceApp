@@ -105,12 +105,12 @@ public class ScanDeviceActivity extends AppCompatActivity {
     private void addToConfiguredDevice(final int which) {
         String deviceName = scanedDeviceList.get(which).getName();
         String macAddress = scanedDeviceList.get(which).getAddress();
-        String imagePath = "";
 
         Intent intent = new Intent(ScanDeviceActivity.this, ConfigureDeviceActivity.class);
         intent.putExtra("device_nickname", deviceName);
         intent.putExtra("device_macaddress", macAddress);
-        intent.putExtra("device_imagepath", imagePath);
+        intent.putExtra("device_imagepath", "");
+        intent.putExtra("device_isautoconnect", false);
 
         startActivityForResult(intent, 2);
     }

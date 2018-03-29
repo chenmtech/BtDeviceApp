@@ -20,9 +20,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
@@ -39,10 +39,12 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
 
     private EditText etName;
     private ImageView ivImage;
+    private CheckBox cbIsAutoconnect;
 
     private String deviceNickname = "CM1.0";
     private String macAddress = "";
     private String imagePath = "";
+    private boolean isAutoconnect = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +56,36 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
             deviceNickname = intent.getStringExtra("device_nickname");
             macAddress = intent.getStringExtra("device_macaddress");
             imagePath = intent.getStringExtra("device_imagepath");
+            isAutoconnect = intent.getBooleanExtra("device_isautoconnect", false);
         }
 
         setTitle("设备:"+macAddress);
 
         etName = (EditText)findViewById(R.id.cfg_device_nickname);
         etName.setText(deviceNickname);
+
+        ivImage = (ImageView)findViewById(R.id.cfg_device_image);
+
+        if(imagePath != null && !"".equals(imagePath)) {
+            Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
+            ivImage.setImageDrawable(drawable);
+        }
+
+        ivImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(ContextCompat.checkSelfPermission(ConfigureDeviceActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(ConfigureDeviceActivity.this,
+                            new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                } else {
+                    openAlbum();
+                }
+            }
+        });
+
+        cbIsAutoconnect = (CheckBox) findViewById(R.id.cfg_device_isautoconnect);
+        cbIsAutoconnect.setChecked(isAutoconnect);
 
         btnCancel = (Button)findViewById(R.id.configure_device_cancel_btn);
         btnOk = (Button)findViewById(R.id.configure_device_ok_btn);
@@ -79,45 +105,22 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
 
                 // 把图像缩小，保存为macAddress.jpg文件
                 Bitmap bitmap = BitmapUtil.getSmallBitmap(imagePath, 100, 100);
-                File toFile = FileUtil.getFile(getFilesDir(), macAddress+".jpg");
-                if(toFile.exists()) {
-                    toFile.delete();
-                    try {
-                        toFile.createNewFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                File toFile = FileUtil.getFile(getExternalFilesDir("images"), macAddress+".jpg");
                 BitmapUtil.saveBitmap(bitmap, toFile);
                 imagePath = toFile.getAbsolutePath();
+
+                isAutoconnect = cbIsAutoconnect.isChecked();
 
                 Intent intent = new Intent();
                 intent.putExtra("device_nickname", deviceNickname);
                 intent.putExtra("device_imagepath", imagePath);
-                intent.putExtra("device_isautoconnect", false);
+                intent.putExtra("device_isautoconnect", isAutoconnect);
                 setResult(RESULT_OK, intent);
                 finish();
             }
         });
 
-        ivImage = (ImageView)findViewById(R.id.device_image);
 
-        if(imagePath != null && !"".equals(imagePath)) {
-            displayImage(imagePath);
-        }
-
-        ivImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(ContextCompat.checkSelfPermission(ConfigureDeviceActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(ConfigureDeviceActivity.this,
-                            new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                } else {
-                    openAlbum();
-                }
-            }
-        });
     }
 
     private void openAlbum() {
@@ -203,8 +206,6 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
     private void displayImage(String imagePath) {
         if(imagePath != null || imagePath != "") {
             Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivImage);
-            //Toast.makeText(this, "图像文件名："+imagePath, Toast.LENGTH_SHORT).show();
-            etName.setText(imagePath);
         }
     }
 }
