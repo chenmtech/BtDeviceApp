@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
@@ -92,7 +93,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
 
         String imagePath = device.getImagePath();
         if(imagePath != null && !"".equals(imagePath)) {
-            Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
+            Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             holder.deviceImage.setImageDrawable(drawable);
         }
 

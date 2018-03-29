@@ -37,6 +37,7 @@ import com.cmtech.android.btdeviceapp.model.DeviceState;
 import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
+import com.vise.utils.view.DialogUtil;
 
 import org.litepal.crud.DataSupport;
 
@@ -90,9 +91,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
         // 从数据库获取设备信息
         deviceList = DataSupport.findAll(MyBluetoothDevice.class);
-        /*for(int i = 0; i < deviceList.size(); i++) {
-            deviceList.get(i).setIcon(R.mipmap.ic_tv_black_48dp);
-        }*/
 
         // 设置设备信息View
         deviceRecycView = (RecyclerView)findViewById(R.id.rvDevices);
@@ -254,43 +252,25 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     private void modifyDeviceInfo(final MyBluetoothDevice device) {
         if(device == null) return;
 
-        LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_configured_device_info, null);
-        String deviceName = device.getNickName();
-        final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
-        editText.setText(deviceName);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("修改设备信息");
-        builder.setView(layout);
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                device.setNickName(editText.getText().toString());
-                device.save();
-                device.notifyDeviceObservers(TYPE_MODIFY_NICKNAME);
-                fragmentManager.updateTabInfo(device);
-            }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+        String deviceNickname = device.getNickName();
+        String macAddress = device.getMacAddress();
+        String imagePath = device.getImagePath();
 
-            }
-        });
-        builder.show();
+        Intent intent = new Intent(MainActivity.this, ConfigureDeviceActivity.class);
+        intent.putExtra("device_nickname", deviceNickname);
+        intent.putExtra("device_macaddress", macAddress);
+        intent.putExtra("device_imagepath", imagePath);
+
+        startActivityForResult(intent, 2);
     }
 
     // 删除设备
     private void deleteDevice(final MyBluetoothDevice device) {
         if(device == null) return;
 
-        LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_configured_device_info, null);
-        String deviceName = device.getNickName();
-        final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
-        editText.setText(deviceName);
-        editText.setEnabled(false);
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("确定删除该设备吗？");
-        builder.setView(layout);
+        builder.setMessage(device.getMacAddress()+'\n'+device.getNickName());
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -335,6 +315,22 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     // 通知观察者
                     device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_ADDED);
                 }
+                break;
+            case 2:
+                // 修改设备返回
+                if(resultCode == RESULT_OK) {
+                    String deviceNickname = data.getStringExtra("device_nickname");
+                    String imagePath = data.getStringExtra("device_imagepath");
+                    Boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
+                    MyBluetoothDevice device = deviceList.get(deviceAdapter.getSelectItem());
+                    device.setNickName(deviceNickname);
+                    device.setImagePath(imagePath);
+                    device.setAutoConnected(isAutoConnect);
+                    device.save();
+                    device.notifyDeviceObservers(TYPE_MODIFY_NICKNAME);
+                    fragmentManager.updateTabInfo(device);
+                }
+                break;
         }
     }
 

@@ -103,39 +103,15 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     private void addToConfiguredDevice(final int which) {
-        LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_configured_device_info, null);
         String deviceName = scanedDeviceList.get(which).getName();
-        final EditText editText = (EditText)layout.findViewById(R.id.cfg_device_nickname);
-        editText.setText(deviceName);
-        /*final AlertDialog.Builder builder = new AlertDialog.Builder(ScanDeviceActivity.this);
-        builder.setTitle("设置昵称");
-        builder.setView(layout);
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                String nickName = editText.getText().toString();
-                String macAddress = scanedDeviceList.get(which).getAddress();
-                boolean isAutoConnected = false;
-                *//*MyBluetoothDevice device = new MyBluetoothDevice();
-                device.setNickName(editText.getText().toString());
-                device.setMacAddress(scanedDeviceList.get(which).getAddress());
-                device.setAutoConnected(false);*//*
-                Intent intent = new Intent();
-                intent.putExtra("device_nickname", nickName);
-                intent.putExtra("device_macaddress", macAddress);
-                intent.putExtra("device_isautoconnect", isAutoConnected);
-                setResult(RESULT_OK, intent);
-                finish();
-            }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+        String macAddress = scanedDeviceList.get(which).getAddress();
+        String imagePath = "";
 
-            }
-        });
-        builder.show();*/
         Intent intent = new Intent(ScanDeviceActivity.this, ConfigureDeviceActivity.class);
+        intent.putExtra("device_nickname", deviceName);
+        intent.putExtra("device_macaddress", macAddress);
+        intent.putExtra("device_imagepath", imagePath);
+
         startActivityForResult(intent, 2);
     }
 
@@ -231,17 +207,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
                     Intent intent = new Intent();
                     intent.putExtra("device_nickname", deviceNickname);
                     intent.putExtra("device_macaddress", macAddress);
-
-                    Bitmap bitmap = BitmapUtil.getSmallBitmap(imagePath, 100, 100);
-                    File toFile = FileUtil.getFile(getExternalFilesDir("images"), macAddress, ".jpg");
-                    try {
-                        BitmapUtil.saveBitmap(bitmap, toFile);
-                        imagePath = toFile.getCanonicalPath();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                     intent.putExtra("device_imagepath", imagePath);
-
                     intent.putExtra("device_isautoconnect", isAutoConnect);
                     setResult(RESULT_OK, intent);
                     finish();

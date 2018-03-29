@@ -6,6 +6,7 @@ import android.content.ContentUris;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -24,7 +25,13 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
+import com.vise.utils.file.FileUtil;
+import com.vise.utils.view.BitmapUtil;
+
+import java.io.File;
+import java.io.IOException;
 
 public class ConfigureDeviceActivity extends AppCompatActivity {
     private Button btnCancel;
@@ -34,12 +41,22 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
     private ImageView ivImage;
 
     private String deviceNickname = "CM1.0";
+    private String macAddress = "";
     private String imagePath = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_configured_device_info);
+
+        Intent intent = getIntent();
+        if(intent != null) {
+            deviceNickname = intent.getStringExtra("device_nickname");
+            macAddress = intent.getStringExtra("device_macaddress");
+            imagePath = intent.getStringExtra("device_imagepath");
+        }
+
+        setTitle("设备:"+macAddress);
 
         etName = (EditText)findViewById(R.id.cfg_device_nickname);
         etName.setText(deviceNickname);
@@ -60,6 +77,20 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
             public void onClick(View view) {
                 deviceNickname = etName.getText().toString();
 
+                // 把图像缩小，保存为macAddress.jpg文件
+                Bitmap bitmap = BitmapUtil.getSmallBitmap(imagePath, 100, 100);
+                File toFile = FileUtil.getFile(getFilesDir(), macAddress+".jpg");
+                if(toFile.exists()) {
+                    toFile.delete();
+                    try {
+                        toFile.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                BitmapUtil.saveBitmap(bitmap, toFile);
+                imagePath = toFile.getAbsolutePath();
+
                 Intent intent = new Intent();
                 intent.putExtra("device_nickname", deviceNickname);
                 intent.putExtra("device_imagepath", imagePath);
@@ -70,6 +101,10 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
         });
 
         ivImage = (ImageView)findViewById(R.id.device_image);
+
+        if(imagePath != null && !"".equals(imagePath)) {
+            displayImage(imagePath);
+        }
 
         ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,10 +201,10 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
     }
 
     private void displayImage(String imagePath) {
-        if(imagePath != null) {
-            Drawable drawable = new BitmapDrawable(getResources(), imagePath);
-            Glide.with(this).load(imagePath).centerCrop().into(ivImage);
-            Toast.makeText(this, "图像文件名："+imagePath, Toast.LENGTH_SHORT).show();
+        if(imagePath != null || imagePath != "") {
+            Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivImage);
+            //Toast.makeText(this, "图像文件名："+imagePath, Toast.LENGTH_SHORT).show();
+            etName.setText(imagePath);
         }
     }
 }
