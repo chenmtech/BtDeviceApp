@@ -47,6 +47,7 @@ public class EcgMonitorFragment extends DeviceFragment {
 
 
     private TextView tvEcgData;
+    private SignalWaveView ecgView;
 
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
@@ -79,6 +80,9 @@ public class EcgMonitorFragment extends DeviceFragment {
         super.onViewCreated(view, savedInstanceState);
 
         tvEcgData = (TextView)view.findViewById(R.id.tv_ecg_data);
+        ecgView = (SignalWaveView)view.findViewById(R.id.ecg_view);
+
+        ecgView.startShow();
     }
 
 
