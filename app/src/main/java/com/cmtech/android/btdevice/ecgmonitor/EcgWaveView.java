@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -19,13 +20,19 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import com.cmtech.android.btdeviceapp.R;
 
-public class SignalWaveView extends View {
+
+public class EcgWaveView extends View {
 
 	private static final int DEFAULT_SIZE = 100;
 	private static final int DEFAULT_XRES = 1;
 	private static final int DEFAULT_YRES = 1;	
 	private static final double DEFAULT_ZERO_LOCATION = 0.5;
+
+	private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK;
+	private static final int DEFAULT_GRID_COLOR = Color.RED;
+	private static final int DEFAULT_ECG_COLOR = Color.WHITE;
 	
 	private boolean mCanShow = false;	
 	private boolean mIsFirstDraw = true;
@@ -41,6 +48,11 @@ public class SignalWaveView extends View {
 	private Bitmap mBackBitmap, mForeBitmap;	//背景和前景bitmap
 	private Canvas mForeCanvas;					//前景画布
 
+	private final int backgroundColor;
+	private final int gridColor;
+	private final int ecgColor;
+
+
 	private int mXRes;						//X方向分辨率，表示屏幕X方向每个像素代表的采样点数>=1，sample/pixel
 	private int mYRes;						//Y方向分辨率，表示屏幕Y方向每个像素代表的信号值>0，mV/pixel
 	private double mZeroLocation;			//表示零值位置占视图高度的百分比
@@ -49,16 +61,70 @@ public class SignalWaveView extends View {
 
 	private Thread mShowThread;
 
-	public SignalWaveView(Context context) {
+	public EcgWaveView(Context context) {
 		super(context);
+
+		backgroundColor = DEFAULT_BACKGROUND_COLOR;
+		gridColor = DEFAULT_GRID_COLOR;
+		ecgColor = DEFAULT_ECG_COLOR;
 
 		initialize();
 	}
 
-	/*public LinkedBlockingQueue<Integer> getData()
+	public EcgWaveView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		//第二个参数就是我们在attrs.xml文件中的<declare-styleable>标签
+		//即属性集合的标签，在R文件中名称为R.styleable+name
+		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.EcgWaveView);
+
+		//第一个参数为属性集合里面的属性，R文件名称：R.styleable+属性集合名称+下划线+属性名称
+		//第二个参数为，如果没有设置这个属性，则设置的默认的值
+		backgroundColor = a.getColor(R.styleable.EcgWaveView_background_color, DEFAULT_BACKGROUND_COLOR);
+		gridColor = a.getColor(R.styleable.EcgWaveView_grid_color, DEFAULT_GRID_COLOR);
+		ecgColor = a.getColor(R.styleable.EcgWaveView_ecg_color, DEFAULT_ECG_COLOR);
+
+		//最后记得将TypedArray对象回收
+		a.recycle();
+
+		initialize();
+	}
+
+
+	private void initialize()
 	{
-		return mData;
-	}*/
+		//初始化分辨率
+		mXRes = DEFAULT_XRES;
+		mYRes = DEFAULT_YRES;
+
+		//初始化零值位置占视图高度的百分比
+		mZeroLocation = DEFAULT_ZERO_LOCATION;
+
+		//创建显示线程
+		mShowThread = new Thread(new Runnable(){
+			public void run()
+			{
+				while(mCanShow)
+				{
+					Log.v("BME", "showing data ");
+					if(drawPoint())
+					{
+						postInvalidate();
+					}
+				}
+			}
+		});
+
+		/*
+		//初始化显示数据缓存区
+		Context context = getContext();
+		if (context instanceof MainActivity)
+		{
+		    MainActivity activity = (MainActivity)context;
+		    mData = activity.mData;
+		}
+		*/
+	}
+
 
 	public void addData(Integer data) {
 		mData.offer(data);
@@ -68,7 +134,7 @@ public class SignalWaveView extends View {
 		mData.addAll(Arrays.asList(data));
 	}
 
-	public void SetRes(int xRes, int yRes)
+	public void setRes(int xRes, int yRes)
 	{
 		if((xRes < 1) || (yRes < 0)) return;
 
@@ -77,19 +143,19 @@ public class SignalWaveView extends View {
 		mNum = 0;
 	}
 
-	public void SetZeroLocation(double zeroLocation)
+	public void setZeroLocation(double zeroLocation)
 	{
 		mZeroLocation = zeroLocation;
 		mInit_y = (int)(mViewHeight*mZeroLocation);
 		if(!mIsFirstDraw) updateBackBitmap();
 	}
 
-	public int GetXRes()
+	public int getXRes()
 	{
 		return mXRes;
 	}
 
-	public int GetYRes()
+	public int getYRes()
 	{
 		return mYRes;
 	}
@@ -114,7 +180,7 @@ public class SignalWaveView extends View {
 
 		super.onDraw(canvas);
 
-		canvas.drawColor(Color.BLACK);
+		canvas.drawColor(backgroundColor);
 
 
 		if(mIsFirstDraw)
@@ -183,9 +249,9 @@ public class SignalWaveView extends View {
 			if(mPre_x == mViewWidth)	//最后一个像素，抹去第一列
 			{
 				mCur_x = 0;
-				mPaint.setColor(Color.BLACK);
+				mPaint.setColor(backgroundColor);
 				mForeCanvas.drawLine(mInit_x, 0, mInit_x+2, mViewHeight, mPaint);
-				mPaint.setColor(Color.WHITE);
+				mPaint.setColor(ecgColor);
 			}
 			else	//画线
 			{
@@ -193,9 +259,9 @@ public class SignalWaveView extends View {
 				mForeCanvas.drawLine(mPre_x, mPre_y, mCur_x, mCur_y, mPaint);
 
 				//抹去前面一个宽度为2的矩形区域
-				mPaint.setColor(Color.BLACK);
+				mPaint.setColor(backgroundColor);
 				mForeCanvas.drawRect(mCur_x+1, 0, mCur_x+3, mViewHeight, mPaint);
-				mPaint.setColor(Color.WHITE);
+				mPaint.setColor(ecgColor);
 			}
 		}
 
@@ -204,43 +270,6 @@ public class SignalWaveView extends View {
 
 		//Log.v("BME", "cur_x,cur_y" + mCur_x + "," + mCur_y);
 		return true;
-	}
-
-
-
-	private void initialize()
-	{
-		//初始化分辨率
-		mXRes = DEFAULT_XRES;
-		mYRes = DEFAULT_YRES;
-
-		//初始化零值位置占视图高度的百分比
-		mZeroLocation = DEFAULT_ZERO_LOCATION;
-
-		//创建显示线程
-		mShowThread = new Thread(new Runnable(){
-			public void run()
-			{
-				while(mCanShow)
-				{
-					Log.v("BME", "showing data ");
-					if(drawPoint())
-					{
-						postInvalidate();
-					}
-				}
-			}
-		});
-
-		/*
-		//初始化显示数据缓存区
-		Context context = getContext();
-		if (context instanceof MainActivity)
-		{
-		    MainActivity activity = (MainActivity)context;
-		    mData = activity.mData;
-		}
-		*/
 	}
 
 	private void initWhenFirstDraw()
@@ -257,21 +286,21 @@ public class SignalWaveView extends View {
 		//创建背景画布
 		mBackBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Config.ARGB_8888);
 		Canvas c = new Canvas(mBackBitmap);
-		mPaint.setColor(Color.RED);
+		mPaint.setColor(gridColor);
 		c.drawLine(mInit_x, mInit_y, mInit_x+mViewWidth, mInit_y, mPaint);
 
 		//创建前景画布，底色透明
 		mForeBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Config.ARGB_8888);
 		mForeCanvas = new Canvas(mForeBitmap);
-		mPaint.setColor(Color.WHITE);
+		mPaint.setColor(ecgColor);
 	}
 
 	private void updateBackBitmap()
 	{
 		mBackBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Config.ARGB_8888);
 		Canvas c = new Canvas(mBackBitmap);
-		mPaint.setColor(Color.RED);
+		mPaint.setColor(gridColor);
 		c.drawLine(mInit_x, mInit_y, mInit_x+mViewWidth, mInit_y, mPaint);
-		mPaint.setColor(Color.WHITE);
+		mPaint.setColor(ecgColor);
 	}
 }

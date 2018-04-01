@@ -20,7 +20,6 @@ import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.util.Uuid;
-import com.vise.log.ViseLog;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -50,7 +49,7 @@ public class EcgMonitorFragment extends DeviceFragment {
 
 
     private TextView tvEcgData;
-    private SignalWaveView ecgView;
+    private EcgWaveView ecgView;
 
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
@@ -89,8 +88,10 @@ public class EcgMonitorFragment extends DeviceFragment {
         super.onViewCreated(view, savedInstanceState);
 
         tvEcgData = (TextView)view.findViewById(R.id.tv_ecg_data);
-        ecgView = (SignalWaveView)view.findViewById(R.id.ecg_view);
+        ecgView = (EcgWaveView)view.findViewById(R.id.ecg_view);
 
+        ecgView.setRes(5, 100);
+        ecgView.setZeroLocation(0.5);
         ecgView.startShow();
     }
 

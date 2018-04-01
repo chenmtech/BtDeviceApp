@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:cmtech= "http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -31,10 +32,13 @@
 
     </LinearLayout>
 
-    <com.cmtech.android.btdevice.ecgmonitor.SignalWaveView
+    <com.cmtech.android.btdevice.ecgmonitor.EcgWaveView
         android:id="@+id/ecg_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        cmtech:background_color="#000"
+        cmtech:grid_color="#f00"
+        cmtech:ecg_color="@color/primary_dark"/>
 
 </LinearLayout>
