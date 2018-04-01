@@ -20,7 +20,10 @@ import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.util.Uuid;
+import com.vise.log.ViseLog;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 /**
@@ -55,7 +58,13 @@ public class EcgMonitorFragment extends DeviceFragment {
             if (msg.what == MSG_ECGDDATA) {
                 if(msg.obj != null) {
                     byte[] data = (byte[]) msg.obj;
+                    //byte[] data = {0x01,0x02,0x03,0x04};
                     tvEcgData.setText( Arrays.toString(data) );
+
+                    ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+                    for(int i = 0; i < data.length/2; i++) {
+                        ecgView.addData((int)buffer.getShort());
+                    }
                 }
             }
         }
