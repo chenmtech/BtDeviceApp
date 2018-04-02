@@ -20,6 +20,9 @@ import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.util.Uuid;
+import com.cmtech.dsp.filter.IIRFilter;
+import com.cmtech.dsp.filter.design.DCBlockDesigner;
+import com.cmtech.dsp.filter.structure.StructType;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -51,6 +54,8 @@ public class EcgMonitorFragment extends DeviceFragment {
     private TextView tvEcgData;
     private EcgWaveView ecgView;
 
+    private final IIRFilter dcBlock = DCBlockDesigner.design(1, 200);
+
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(Message msg) {
@@ -62,7 +67,8 @@ public class EcgMonitorFragment extends DeviceFragment {
 
                     ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
                     for(int i = 0; i < data.length/2; i++) {
-                        ecgView.addData((int)buffer.getShort());
+                        int filtered = (int)dcBlock.filter((double)buffer.getShort());
+                        ecgView.addData(filtered);
                     }
                 }
             }
@@ -93,6 +99,9 @@ public class EcgMonitorFragment extends DeviceFragment {
         ecgView.setRes(5, 100);
         ecgView.setZeroLocation(0.5);
         ecgView.startShow();
+
+        dcBlock.createStructure(StructType.IIR_DCBLOCK);
+
     }
 
 
