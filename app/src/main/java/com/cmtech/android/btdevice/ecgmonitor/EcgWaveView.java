@@ -15,6 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -56,6 +57,9 @@ public class EcgWaveView extends View {
 	private final int backgroundColor;
 	private final int gridColor;
 	private final int ecgColor;
+
+	private int gridVWidth = 40;		// 纵向栅格宽度为多少个像素
+	private int gridHWidth = 40;		// 横向栅格宽度为多少个像素
 
 
 	private int mXRes;						//X方向分辨率，表示屏幕X方向每个像素代表的采样点数>=1，sample/pixel
@@ -278,24 +282,65 @@ public class EcgWaveView extends View {
 		mPre_x = mCur_x = mInit_x;
 		mPre_y = mCur_y = mInit_y;
 
-		//创建背景画布
-		mBackBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Config.ARGB_8888);
+		//创建背景Bitmap
+		/*mBackBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Config.ARGB_8888);
 		Canvas c = new Canvas(mBackBitmap);
 		mPaint.setColor(gridColor);
-		c.drawLine(mInit_x, mInit_y, mInit_x+mViewWidth, mInit_y, mPaint);
+		c.drawLine(mInit_x, mInit_y, mInit_x+mViewWidth, mInit_y, mPaint);*/
+		createBackBitmap();
 
 		//创建前景画布，底色透明
 		mForeBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Config.ARGB_8888);
 		mForeCanvas = new Canvas(mForeBitmap);
 		mPaint.setColor(ecgColor);
+		mPaint.setStrokeWidth(2);
 	}
 
 	private void updateBackBitmap()
 	{
+		/*mBackBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Config.ARGB_8888);
+		Canvas c = new Canvas(mBackBitmap);
+		mPaint.setColor(gridColor);
+		c.drawLine(mInit_x, mInit_y, mInit_x+mViewWidth, mInit_y, mPaint);*/
+		createBackBitmap();
+		mPaint.setColor(ecgColor);
+		mPaint.setStrokeWidth(2);
+	}
+
+	private void createBackBitmap()
+	{
+		//创建背景Bitmap
 		mBackBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Config.ARGB_8888);
 		Canvas c = new Canvas(mBackBitmap);
 		mPaint.setColor(gridColor);
+
+		// 画零位线
+		mPaint.setStrokeWidth(2);
 		c.drawLine(mInit_x, mInit_y, mInit_x+mViewWidth, mInit_y, mPaint);
-		mPaint.setColor(ecgColor);
+
+		mPaint.setStrokeWidth(1);
+		mPaint.setPathEffect(new DashPathEffect(new float[]{2, 2}, 0));	// 设为虚线
+
+		// 画水平线
+		int vCoordinate = mInit_y - gridVWidth;
+		while(vCoordinate > 0) {
+			c.drawLine(mInit_x, vCoordinate, mInit_x+mViewWidth, vCoordinate, mPaint);
+			vCoordinate -= gridVWidth;
+		}
+		vCoordinate = mInit_y + gridVWidth;
+		while(vCoordinate < mViewHeight) {
+			c.drawLine(mInit_x, vCoordinate, mInit_x+mViewWidth, vCoordinate, mPaint);
+			vCoordinate += gridVWidth;
+		}
+
+		// 画垂直线
+		int hCoordinate = mInit_x + gridHWidth;
+		while(hCoordinate < mViewWidth) {
+			c.drawLine(hCoordinate, 0, hCoordinate, mViewHeight, mPaint);
+			hCoordinate += gridHWidth;
+		}
+
+		mPaint.setPathEffect(null);
+
 	}
 }
