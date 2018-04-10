@@ -42,7 +42,12 @@ public class EcgWaveView extends View {
 	private int mInit_x, mInit_y;			//画图起始位置
 	private int mPre_x, mPre_y;				//画线的前一个点坐标
 	private int mCur_x, mCur_y;				//画线的当前点坐标
-	private int mNum = 0;					//用于点计数
+
+	// mNum：用于点计数，这个变量的作用是用来提高画线效率
+	// 原理是：当来一个数据后，设mNum=0，下一个数据点来后，mNum++
+	// 但是由于屏幕横向一个像素可能代表多个数据（由mXRes表示），所以，这个数据可能并没有改变屏幕的横坐标
+	// 此时，再根据数据幅值，即y坐标是否相同，决定是否画线。很多情况下，是不需要画线的
+	private int mNum = 0;
 
 	private Paint mPaint = new Paint();
 	private Bitmap mBackBitmap, mForeBitmap;	//背景和前景bitmap
@@ -105,7 +110,8 @@ public class EcgWaveView extends View {
 			{
 				while(mCanShow)
 				{
-					Log.v("BME", "showing data ");
+					// Log.v("BME", "showing data ");
+					// 先画点，再刷新
 					if(drawPoint())
 					{
 						postInvalidate();
@@ -114,15 +120,6 @@ public class EcgWaveView extends View {
 			}
 		});
 
-		/*
-		//初始化显示数据缓存区
-		Context context = getContext();
-		if (context instanceof MainActivity)
-		{
-		    MainActivity activity = (MainActivity)context;
-		    mData = activity.mData;
-		}
-		*/
 	}
 
 
@@ -143,13 +140,6 @@ public class EcgWaveView extends View {
 		mNum = 0;
 	}
 
-	public void setZeroLocation(double zeroLocation)
-	{
-		mZeroLocation = zeroLocation;
-		mInit_y = (int)(mViewHeight*mZeroLocation);
-		if(!mIsFirstDraw) updateBackBitmap();
-	}
-
 	public int getXRes()
 	{
 		return mXRes;
@@ -158,6 +148,13 @@ public class EcgWaveView extends View {
 	public int getYRes()
 	{
 		return mYRes;
+	}
+
+	public void setZeroLocation(double zeroLocation)
+	{
+		mZeroLocation = zeroLocation;
+		mInit_y = (int)(mViewHeight*mZeroLocation);
+		if(!mIsFirstDraw) updateBackBitmap();
 	}
 
 	public void startShow()
@@ -232,7 +229,6 @@ public class EcgWaveView extends View {
 
 		Log.v("BME", "start show..." + value.intValue());
 
-
 		mNum++;
 		mCur_y = mInit_y-value/mYRes;
 
@@ -250,8 +246,7 @@ public class EcgWaveView extends View {
 			{
 				mCur_x = 0;
 				mPaint.setColor(backgroundColor);
-				mForeCanvas.drawLine(mInit_x, 0, mInit_x+2, mViewHeight, mPaint);
-				mPaint.setColor(ecgColor);
+				mForeCanvas.drawRect(mInit_x, 0, mInit_x+2, mViewHeight, mPaint);
 			}
 			else	//画线
 			{
@@ -261,8 +256,8 @@ public class EcgWaveView extends View {
 				//抹去前面一个宽度为2的矩形区域
 				mPaint.setColor(backgroundColor);
 				mForeCanvas.drawRect(mCur_x+1, 0, mCur_x+3, mViewHeight, mPaint);
-				mPaint.setColor(ecgColor);
 			}
+			mPaint.setColor(ecgColor);
 		}
 
 		mPre_x = mCur_x;

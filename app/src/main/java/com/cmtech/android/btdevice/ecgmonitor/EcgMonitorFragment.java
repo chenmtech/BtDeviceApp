@@ -54,7 +54,7 @@ public class EcgMonitorFragment extends DeviceFragment {
     private TextView tvEcgData;
     private EcgWaveView ecgView;
 
-    private final IIRFilter dcBlock = DCBlockDesigner.design(1, 200);
+    private final IIRFilter dcBlock = DCBlockDesigner.design(1, 200);   // 隔直滤波器
 
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
@@ -63,7 +63,7 @@ public class EcgMonitorFragment extends DeviceFragment {
                 if(msg.obj != null) {
                     byte[] data = (byte[]) msg.obj;
                     //byte[] data = {0x01,0x02,0x03,0x04};
-                    tvEcgData.setText( Arrays.toString(data) );
+                    //tvEcgData.setText( Arrays.toString(data) );
 
                     ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
                     for(int i = 0; i < data.length/2; i++) {
@@ -96,7 +96,7 @@ public class EcgMonitorFragment extends DeviceFragment {
         tvEcgData = (TextView)view.findViewById(R.id.tv_ecg_data);
         ecgView = (EcgWaveView)view.findViewById(R.id.ecg_view);
 
-        ecgView.setRes(5, 100);
+        ecgView.setRes(1, 50);
         ecgView.setZeroLocation(0.5);
         ecgView.startShow();
 
