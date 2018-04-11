@@ -328,7 +328,7 @@ public class EcgWaveView extends View {
 		mPaint.setColor(gridColor);
 
         // 25mm/s的走纸速度代表每mm的小格为0.04秒，则每小格包含的数据点为mSigSampleRate*0.04个
-		int gridWidth = (int)(mSigSampleRate*0.04);     
+		int gridWidth = (int)(mSigSampleRate*0.04);
 
 		// 画零位线
 		mPaint.setStrokeWidth(2);
