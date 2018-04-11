@@ -62,13 +62,12 @@ public class EcgMonitorFragment extends DeviceFragment {
             if (msg.what == MSG_ECGDDATA) {
                 if(msg.obj != null) {
                     byte[] data = (byte[]) msg.obj;
-                    //byte[] data = {0x01,0x02,0x03,0x04};
                     //tvEcgData.setText( Arrays.toString(data) );
 
                     ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
                     for(int i = 0; i < data.length/2; i++) {
-                        int filtered = (int)dcBlock.filter((double)buffer.getShort());
-                        //int filtered = buffer.getShort();
+                        //int filtered = (int)dcBlock.filter((double)buffer.getShort());
+                        int filtered = buffer.getShort();
                         ecgView.addData(filtered);
                     }
                 }
@@ -97,7 +96,7 @@ public class EcgMonitorFragment extends DeviceFragment {
         tvEcgData = (TextView)view.findViewById(R.id.tv_ecg_data);
         ecgView = (EcgWaveView)view.findViewById(R.id.ecg_view);
 
-        ecgView.setRes(1, 50);
+        ecgView.setRes(1, 15);
         ecgView.setZeroLocation(0.5);
         ecgView.startShow();
 

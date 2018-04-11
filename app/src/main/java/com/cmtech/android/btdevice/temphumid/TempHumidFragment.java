@@ -15,6 +15,7 @@ import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.btdevice.ecgmonitor.EcgWaveView;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
@@ -58,6 +59,8 @@ public class TempHumidFragment extends DeviceFragment {
     private TextView tvTempData;
     private TextView tvHumidData;
 
+    private EcgWaveView ecgView;
+
     private View rootView;
 
     private final Handler handler = new Handler(Looper.myLooper()) {
@@ -69,9 +72,11 @@ public class TempHumidFragment extends DeviceFragment {
                     byte[] buf = Arrays.copyOfRange(data, 0, 4);
                     int humid = (int)ByteUtil.getFloat(buf);
                     tvHumidData.setText( ""+humid );
+                    ecgView.addData(humid);
                     buf = Arrays.copyOfRange(data, 4, 8);
                     float temp = ByteUtil.getFloat(buf);
                     tvTempData.setText(String.format("%.1f", temp));
+
                 }
             }
         }
@@ -99,6 +104,12 @@ public class TempHumidFragment extends DeviceFragment {
 
         tvTempData = (TextView)view.findViewById(R.id.tv_temp_data);
         tvHumidData = (TextView)view.findViewById(R.id.tv_humid_data);
+
+        ecgView = (EcgWaveView)view.findViewById(R.id.ecg_view);
+
+        ecgView.setRes(1, 1);
+        ecgView.setZeroLocation(0.5);
+        ecgView.startShow();
     }
 
 
