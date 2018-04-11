@@ -54,7 +54,7 @@ public class EcgMonitorFragment extends DeviceFragment {
     private TextView tvEcgData;
     private EcgWaveView ecgView;
 
-    private final IIRFilter dcBlock = DCBlockDesigner.design(0.06, 200);   // 隔直滤波器
+    private final IIRFilter dcBlock = DCBlockDesigner.design(0.06, 250);   // 隔直滤波器
 
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
