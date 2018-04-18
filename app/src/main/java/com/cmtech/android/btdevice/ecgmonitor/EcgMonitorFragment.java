@@ -96,7 +96,7 @@ public class EcgMonitorFragment extends DeviceFragment {
         tvEcgData = (TextView)view.findViewById(R.id.tv_ecg_data);
         ecgView = (EcgWaveView)view.findViewById(R.id.ecg_view);
 
-        ecgView.setRes(1, 15);
+        ecgView.setRes(2, 15);
         ecgView.setZeroLocation(0.5);
         ecgView.startShow();
 

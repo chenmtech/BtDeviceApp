@@ -27,10 +27,10 @@ import com.cmtech.android.btdeviceapp.R;
 public class EcgWaveView extends View {
 
 	private static final int DEFAULT_SIZE = 100;
-	private static final int DEFAULT_XRES = 1;
+	private static final int DEFAULT_XRES = 2;
 	private static final int DEFAULT_YRES = 1;	
 	private static final double DEFAULT_ZERO_LOCATION = 0.5;
-	private static final int DEFAULT_SIG_SAMPLERATE = 250;
+	private static final int DEFAULT_SIG_SAMPLERATE = 125;
 
 	private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK;
 	private static final int DEFAULT_GRID_COLOR = Color.RED;
@@ -45,12 +45,6 @@ public class EcgWaveView extends View {
 	private int mPre_x, mPre_y;				//画线的前一个点坐标
 	private int mCur_x, mCur_y;				//画线的当前点坐标
 
-	// mNum：用于点计数，这个变量的作用是用来提高画线效率
-	// 原理是：当来一个数据后，设mNum=0，下一个数据点来后，mNum++
-	// 但是由于屏幕横向一个像素可能代表多个数据（由mXRes表示），所以，这个数据可能并没有改变屏幕的横坐标
-	// 此时，再根据数据幅值，即y坐标是否相同，决定是否画线。很多情况下，是不需要画线的
-	private int mNum = 0;
-
 	private Paint mPaint = new Paint();
 	private Bitmap mBackBitmap, mForeBitmap;	//背景和前景bitmap
 	private Canvas mForeCanvas;					//前景画布
@@ -59,16 +53,14 @@ public class EcgWaveView extends View {
 	private final int gridColor;
 	private final int ecgColor;
 
-	private int mSigSampleRate;
+	private int mSigSampleRate;			// 信号采样率，单位Hz
 
-	private int mCalibration;
+	private int mCalibration;				// 1mV定标信号的数据值
 
-
-	private int mXRes;						//X方向分辨率，表示屏幕X方向每个像素代表的数据点数>=1，sample/pixel
+	private int mXRes;						//X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
 	private int mYRes;						//Y方向分辨率，表示屏幕Y方向每个像素代表的信号值>0，mV/pixel
 	private double mZeroLocation;			//表示零值位置占视图高度的百分比
 	private final LinkedBlockingQueue<Integer> mData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
-
 
 	private Thread mShowThread;
 
@@ -107,7 +99,7 @@ public class EcgWaveView extends View {
 		mXRes = DEFAULT_XRES;
 		mYRes = DEFAULT_YRES;
 
-        mSigSampleRate = DEFAULT_SIG_SAMPLERATE;   // 采样率为250Hz
+        mSigSampleRate = DEFAULT_SIG_SAMPLERATE;
 
 		//初始化零值位置占视图高度的百分比
 		mZeroLocation = DEFAULT_ZERO_LOCATION;
@@ -143,7 +135,6 @@ public class EcgWaveView extends View {
 
 		mXRes = xRes;
 		mYRes = yRes;
-		mNum = 0;
 	}
 
 	public int getXRes()
@@ -238,36 +229,24 @@ public class EcgWaveView extends View {
 
 		//Log.v("BME", "start show..." + value.intValue());
 
-		mNum++;
 		mCur_y = mInit_y-value/mYRes;
 
-		if(mNum != mXRes)	//mCur_x不变
+		if(mPre_x == mViewWidth)	//最后一个像素，抹去第一列
 		{
-			if(mCur_y == mPre_y)	//mCur_y也不变，为了提高速度，不用画
-				return false;
-			else
-				mForeCanvas.drawLine(mPre_x, mPre_y, mCur_x, mCur_y, mPaint);
+			mCur_x = mInit_x;
+			mPaint.setColor(backgroundColor);
+			mForeCanvas.drawRect(mInit_x, 0, mInit_x+2, mViewHeight, mPaint);
 		}
-		else	//mCur_x变了
+		else	//画线
 		{
-			mNum = 0;
-			if(mPre_x == mViewWidth)	//最后一个像素，抹去第一列
-			{
-				mCur_x = mInit_x;
-				mPaint.setColor(backgroundColor);
-				mForeCanvas.drawRect(mInit_x, 0, mInit_x+2, mViewHeight, mPaint);
-			}
-			else	//画线
-			{
-				mCur_x++;
-				mForeCanvas.drawLine(mPre_x, mPre_y, mCur_x, mCur_y, mPaint);
+			mCur_x += mXRes;
+			mForeCanvas.drawLine(mPre_x, mPre_y, mCur_x, mCur_y, mPaint);
 
-				//抹去前面一个宽度为2的矩形区域
-				mPaint.setColor(backgroundColor);
-				mForeCanvas.drawRect(mCur_x+1, 0, mCur_x+3, mViewHeight, mPaint);
-			}
-			mPaint.setColor(ecgColor);
+			//抹去前面一个宽度为2的矩形区域
+			mPaint.setColor(backgroundColor);
+			mForeCanvas.drawRect(mCur_x+1, 0, mCur_x+3, mViewHeight, mPaint);
 		}
+		mPaint.setColor(ecgColor);
 
 		mPre_x = mCur_x;
 		mPre_y = mCur_y;
@@ -307,8 +286,10 @@ public class EcgWaveView extends View {
 		Canvas c = new Canvas(mBackBitmap);
 		mPaint.setColor(gridColor);
 
-        // 25mm/s的走纸速度代表每mm的小格为0.04秒，则每小格包含的数据点为mSigSampleRate*0.04个
-		int gridWidth = (int)(mSigSampleRate*0.04);
+        // 25mm/s的走纸速度代表每mm的小格为0.04秒
+		// 每秒采样mSigSampleRate个数据，每个数据mXRes个像素，即每秒mSigSampleRate*mXRes个像素，所以每小格包含0.04*mSigSampleRate*mXRes个像素
+		// 每小格的像素个数
+		int gridWidth = (int)(0.04*mSigSampleRate*mXRes);
 
 		// 画零位线
 		mPaint.setStrokeWidth(2);
@@ -345,16 +326,16 @@ public class EcgWaveView extends View {
 		}
 
         // 画定标脉冲
-        mPaint.setStrokeWidth(2);
+/*        mPaint.setStrokeWidth(2);
 		mPaint.setColor(Color.BLACK);
 		c.drawLine(0, mInit_y, 2*gridWidth, mInit_y, mPaint);
 		c.drawLine(2*gridWidth, mInit_y, 2*gridWidth, mInit_y-10*gridWidth, mPaint);
 		c.drawLine(2*gridWidth, mInit_y-10*gridWidth, 7*gridWidth, mInit_y-10*gridWidth, mPaint);
         c.drawLine(7*gridWidth, mInit_y-10*gridWidth, 7*gridWidth, mInit_y, mPaint);
-        c.drawLine(7*gridWidth, mInit_y, 10*gridWidth, mInit_y, mPaint);
+        c.drawLine(7*gridWidth, mInit_y, 10*gridWidth, mInit_y, mPaint);*/
 
         mPaint.setColor(ecgColor);
         mPaint.setStrokeWidth(2);
-        mInit_x = (int)(mSigSampleRate*0.04*10);
+        //mInit_x = (int)(mSigSampleRate*0.04*10);
     }
 }
