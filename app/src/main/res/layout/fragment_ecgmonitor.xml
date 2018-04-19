@@ -15,19 +15,38 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:textSize="30dp"
-            android:text="ECG数据："/>
+            android:text="采样率："/>
 
         <TextView
-            android:id="@+id/tv_ecg_data"
+            android:id="@+id/tv_ecg_samplerate"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text="未知"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dp"
+            android:text="Hz"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="导联类型："/>
+
+        <TextView
+            android:id="@+id/tv_ecg_leadtype"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="未知"/>
 
 
     </LinearLayout>

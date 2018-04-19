@@ -6,7 +6,6 @@
  */
 package com.cmtech.android.btdevice.ecgmonitor;
 
-import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import android.content.Context;
@@ -15,10 +14,8 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import com.cmtech.android.btdeviceapp.R;
@@ -26,43 +23,42 @@ import com.cmtech.android.btdeviceapp.R;
 
 public class EcgWaveView extends View {
 
-	private static final int DEFAULT_SIZE = 100;
-	private static final int DEFAULT_XRES = 2;
-	private static final int DEFAULT_YRES = 1;	
-	private static final double DEFAULT_ZERO_LOCATION = 0.5;
-	private static final int DEFAULT_SIG_SAMPLERATE = 125;
+	private static final int DEFAULT_SIZE = 100;                // 缺省View的大小
+	private static final int DEFAULT_XRES = 2;                  // 缺省的X方向的分辨率
+	private static final int DEFAULT_YRES = 1;	                // 缺省的Y方向的分辨率
+	private static final double DEFAULT_ZERO_LOCATION = 0.5;   // 缺省的零线位置在Y方向的高度的比例
+	private static final int DEFAULT_GRID_WIDTH = 10;           // 背景栅格像素宽度
 
-	private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK;
+	private static final int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
 	private static final int DEFAULT_GRID_COLOR = Color.RED;
-	private static final int DEFAULT_ECG_COLOR = Color.WHITE;
+	private static final int DEFAULT_ECG_COLOR = Color.BLACK;
 	
-	private boolean mCanShow = false;	
-	private boolean mIsFirstDraw = true;
+	private boolean canShow = false;
+	private boolean isFirstDraw = true;
 
-	private int mViewWidth;					//视图宽度
-	private int mViewHeight;				//视图高度
-	private int mInit_x, mInit_y;			//画图起始位置
-	private int mPre_x, mPre_y;				//画线的前一个点坐标
-	private int mCur_x, mCur_y;				//画线的当前点坐标
+	private int viewWidth;					//视图宽度
+	private int viewHeight;				    //视图高度
+	private int initX, initY;			        //画图起始位置
+	private int preX, preY;				    //画线的前一个点坐标
+	private int curX, curY;				    //画线的当前点坐标
 
-	private Paint mPaint = new Paint();
-	private Bitmap mBackBitmap, mForeBitmap;	//背景和前景bitmap
-	private Canvas mForeCanvas;					//前景画布
+	private Paint mainPaint = new Paint();
+	private Bitmap backBitmap, foreBitmap;	//背景和前景bitmap
+	private Canvas foreCanvas;					//前景画布
 
 	private final int backgroundColor;
 	private final int gridColor;
 	private final int ecgColor;
 
-	private int mSigSampleRate;			// 信号采样率，单位Hz
+    private int gridWidth;                    // 栅格像素宽度
+	private int calibration;				    // 1mV定标信号的数据值
 
-	private int mCalibration;				// 1mV定标信号的数据值
+	private int xRes;						//X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
+	private int yRes;						//Y方向分辨率，表示屏幕Y方向每个像素代表的信号值的变化，DeltaSignal/pixel
+	private double zeroLocation;			//表示零值位置占视图高度的百分比
+	private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
 
-	private int mXRes;						//X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
-	private int mYRes;						//Y方向分辨率，表示屏幕Y方向每个像素代表的信号值>0，mV/pixel
-	private double mZeroLocation;			//表示零值位置占视图高度的百分比
-	private final LinkedBlockingQueue<Integer> mData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
-
-	private Thread mShowThread;
+	private Thread showThread;
 
 	public EcgWaveView(Context context) {
 		super(context);
@@ -96,21 +92,20 @@ public class EcgWaveView extends View {
 	private void initialize()
 	{
 		//初始化分辨率
-		mXRes = DEFAULT_XRES;
-		mYRes = DEFAULT_YRES;
+		xRes = DEFAULT_XRES;
+		yRes = DEFAULT_YRES;
 
-        mSigSampleRate = DEFAULT_SIG_SAMPLERATE;
+        gridWidth = DEFAULT_GRID_WIDTH;
 
 		//初始化零值位置占视图高度的百分比
-		mZeroLocation = DEFAULT_ZERO_LOCATION;
+		zeroLocation = DEFAULT_ZERO_LOCATION;
 
 		//创建显示线程
-		mShowThread = new Thread(new Runnable(){
+		showThread = new Thread(new Runnable(){
 			public void run()
 			{
-				while(mCanShow)
+				while(canShow)
 				{
-					// Log.v("BME", "showing data ");
 					// 先画点，再刷新
 					if(drawPoint())
 					{
@@ -122,55 +117,55 @@ public class EcgWaveView extends View {
 	}
 
 	public void addData(Integer data) {
-		mData.offer(data);
+		viewData.offer(data);
 	}
 
 	/*public void addData(Integer[] data) {
-		mData.addAll(Arrays.asList(data));
+		viewData.addAll(Arrays.asList(data));
 	}*/
 
 	public void setRes(int xRes, int yRes)
 	{
 		if((xRes < 1) || (yRes < 0)) return;
-
-		mXRes = xRes;
-		mYRes = yRes;
+		this.xRes = xRes;
+		this.yRes = yRes;
 	}
 
 	public int getXRes()
 	{
-		return mXRes;
+		return xRes;
 	}
 
 	public int getYRes()
 	{
-		return mYRes;
+		return yRes;
 	}
 
-	public void setSigSampleRate(int sr) { mSigSampleRate = sr; }
+	public void setGridWidth(int gridWidth) {
+        this.gridWidth = gridWidth;}
 
-	public void setCalibration(int calibration) { mCalibration = calibration; }
+	public void setCalibration(int calibration) { this.calibration = calibration; }
 
 	public void setZeroLocation(double zeroLocation)
 	{
-		mZeroLocation = zeroLocation;
-		mInit_y = (int)(mViewHeight*mZeroLocation);
-		if(!mIsFirstDraw) updateBackBitmap();
+		this.zeroLocation = zeroLocation;
+		initY = (int)(viewHeight * this.zeroLocation);
+		if(!isFirstDraw) updateBackBitmap();
 	}
 
 	public void startShow()
 	{
-		if((mShowThread != null) && !mShowThread.isAlive())
+		if((showThread != null) && !showThread.isAlive())
 		{
-			mCanShow = true;
-			mShowThread.start();
+			canShow = true;
+			showThread.start();
 		}
 	}
 
 	public void clearView()
 	{
-		mData.clear();
-		mIsFirstDraw = true;
+		viewData.clear();
+		isFirstDraw = true;
 	}
 
 	@Override
@@ -180,16 +175,16 @@ public class EcgWaveView extends View {
 
 		canvas.drawColor(backgroundColor);
 
-		if(mIsFirstDraw)
+		if(isFirstDraw)
 		{
-			mIsFirstDraw = false;
+			isFirstDraw = false;
 
 			initWhenFirstDraw();
 		}
 
-		canvas.drawBitmap(mForeBitmap, 0, 0, mPaint);
+		canvas.drawBitmap(foreBitmap, 0, 0, mainPaint);
 
-        canvas.drawBitmap(mBackBitmap, 0, 0, null);
+        canvas.drawBitmap(backBitmap, 0, 0, null);
 	}
 
 	@Override
@@ -221,54 +216,51 @@ public class EcgWaveView extends View {
 		Integer value = 0;
 
 		try {
-			value = mData.take();
+			value = viewData.take();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		//Log.v("BME", "start show..." + value.intValue());
+		curY = initY -value/ yRes;
 
-		mCur_y = mInit_y-value/mYRes;
-
-		if(mPre_x == mViewWidth)	//最后一个像素，抹去第一列
+		if(preX == viewWidth)	//最后一个像素，抹去第一列
 		{
-			mCur_x = mInit_x;
-			mPaint.setColor(backgroundColor);
-			mForeCanvas.drawRect(mInit_x, 0, mInit_x+2, mViewHeight, mPaint);
+			curX = initX;
+			mainPaint.setColor(backgroundColor);
+			foreCanvas.drawRect(initX, 0, initX +2, viewHeight, mainPaint);
 		}
 		else	//画线
 		{
-			mCur_x += mXRes;
-			mForeCanvas.drawLine(mPre_x, mPre_y, mCur_x, mCur_y, mPaint);
+			curX += xRes;
+			foreCanvas.drawLine(preX, preY, curX, curY, mainPaint);
 
 			//抹去前面一个宽度为2的矩形区域
-			mPaint.setColor(backgroundColor);
-			mForeCanvas.drawRect(mCur_x+1, 0, mCur_x+3, mViewHeight, mPaint);
+			mainPaint.setColor(backgroundColor);
+			foreCanvas.drawRect(curX +1, 0, curX +3, viewHeight, mainPaint);
 		}
-		mPaint.setColor(ecgColor);
+		mainPaint.setColor(ecgColor);
 
-		mPre_x = mCur_x;
-		mPre_y = mCur_y;
+		preX = curX;
+		preY = curY;
 
-		//Log.v("BME", "cur_x,cur_y" + mCur_x + "," + mCur_y);
 		return true;
 	}
 
 	private void initWhenFirstDraw()
 	{
-		mViewWidth = getWidth();
-		mViewHeight = getHeight();
+		viewWidth = getWidth();
+		viewHeight = getHeight();
 
 		//创建背景Bitmap
 		createBackBitmap();
 
 		//创建前景画布，底色透明
-		mForeBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Config.ARGB_8888);
-		mForeCanvas = new Canvas(mForeBitmap);
+		foreBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
+		foreCanvas = new Canvas(foreBitmap);
 
-        mPre_x = mCur_x = mInit_x;
-        mPre_y = mCur_y = mInit_y;
+        preX = curX = initX;
+        preY = curY = initY;
 	}
 
 	private void updateBackBitmap()
@@ -278,64 +270,61 @@ public class EcgWaveView extends View {
 
 	private void createBackBitmap()
 	{
-        mInit_x = 0;
-        mInit_y = (int)(mViewHeight*mZeroLocation);
+        initX = 0;
+        initY = (int)(viewHeight * zeroLocation);
 
 		//创建背景Bitmap
-		mBackBitmap = Bitmap.createBitmap(mViewWidth, mViewHeight, Config.ARGB_8888);
-		Canvas c = new Canvas(mBackBitmap);
-		mPaint.setColor(gridColor);
-
-        // 25mm/s的走纸速度代表每mm的小格为0.04秒
-		// 每秒采样mSigSampleRate个数据，每个数据mXRes个像素，即每秒mSigSampleRate*mXRes个像素，所以每小格包含0.04*mSigSampleRate*mXRes个像素
-		// 每小格的像素个数
-		int gridWidth = (int)(0.04*mSigSampleRate*mXRes);
+		backBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
+		Canvas c = new Canvas(backBitmap);
+		mainPaint.setColor(gridColor);
 
 		// 画零位线
-		mPaint.setStrokeWidth(2);
-		c.drawLine(mInit_x, mInit_y, mInit_x+mViewWidth, mInit_y, mPaint);
+		mainPaint.setStrokeWidth(2);
+		c.drawLine(initX, initY, initX + viewWidth, initY, mainPaint);
 
-		mPaint.setStrokeWidth(1);
+		mainPaint.setStrokeWidth(1);
 
 		// 画水平线
-		int vCoordinate = mInit_y - gridWidth;
+		int vCoordinate = initY - gridWidth;
 		int i = 1;
 		while(vCoordinate > 0) {
-			c.drawLine(mInit_x, vCoordinate, mInit_x+mViewWidth, vCoordinate, mPaint);
+			c.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, mainPaint);
 			vCoordinate -= gridWidth;
-			if(++i == 5) {mPaint.setStrokeWidth(2); i = 0;}
-			else mPaint.setStrokeWidth(1);
+			if(++i == 5) {
+                mainPaint.setStrokeWidth(2); i = 0;}
+			else mainPaint.setStrokeWidth(1);
 		}
-		vCoordinate = mInit_y + gridWidth;
+		vCoordinate = initY + gridWidth;
 		i = 1;
-		while(vCoordinate < mViewHeight) {
-			c.drawLine(mInit_x, vCoordinate, mInit_x+mViewWidth, vCoordinate, mPaint);
+		while(vCoordinate < viewHeight) {
+			c.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, mainPaint);
 			vCoordinate += gridWidth;
-			if(++i == 5) {mPaint.setStrokeWidth(2); i = 0;}
-			else mPaint.setStrokeWidth(1);
+			if(++i == 5) {
+                mainPaint.setStrokeWidth(2); i = 0;}
+			else mainPaint.setStrokeWidth(1);
 		}
 
 		// 画垂直线
-		int hCoordinate = mInit_x + gridWidth;
+		int hCoordinate = initX + gridWidth;
 		i = 1;
-		while(hCoordinate < mViewWidth) {
-			c.drawLine(hCoordinate, 0, hCoordinate, mViewHeight, mPaint);
+		while(hCoordinate < viewWidth) {
+			c.drawLine(hCoordinate, 0, hCoordinate, viewHeight, mainPaint);
 			hCoordinate += gridWidth;
-            if(++i == 5) {mPaint.setStrokeWidth(2); i = 0;}
-            else mPaint.setStrokeWidth(1);
+            if(++i == 5) {
+                mainPaint.setStrokeWidth(2); i = 0;}
+            else mainPaint.setStrokeWidth(1);
 		}
 
         // 画定标脉冲
-/*        mPaint.setStrokeWidth(2);
-		mPaint.setColor(Color.BLACK);
-		c.drawLine(0, mInit_y, 2*gridWidth, mInit_y, mPaint);
-		c.drawLine(2*gridWidth, mInit_y, 2*gridWidth, mInit_y-10*gridWidth, mPaint);
-		c.drawLine(2*gridWidth, mInit_y-10*gridWidth, 7*gridWidth, mInit_y-10*gridWidth, mPaint);
-        c.drawLine(7*gridWidth, mInit_y-10*gridWidth, 7*gridWidth, mInit_y, mPaint);
-        c.drawLine(7*gridWidth, mInit_y, 10*gridWidth, mInit_y, mPaint);*/
+/*        mainPaint.setStrokeWidth(2);
+		mainPaint.setColor(Color.BLACK);
+		c.drawLine(0, initY, 2*gridWidth, initY, mainPaint);
+		c.drawLine(2*gridWidth, initY, 2*gridWidth, initY-10*gridWidth, mainPaint);
+		c.drawLine(2*gridWidth, initY-10*gridWidth, 7*gridWidth, initY-10*gridWidth, mainPaint);
+        c.drawLine(7*gridWidth, initY-10*gridWidth, 7*gridWidth, initY, mainPaint);
+        c.drawLine(7*gridWidth, initY, 10*gridWidth, initY, mainPaint);*/
 
-        mPaint.setColor(ecgColor);
-        mPaint.setStrokeWidth(2);
-        //mInit_x = (int)(mSigSampleRate*0.04*10);
+        mainPaint.setColor(ecgColor);
+        mainPaint.setStrokeWidth(2);
     }
 }
