@@ -46,6 +46,20 @@
             android:id="@+id/tv_ecg_leadtype"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="未知"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="1mV定标值："/>
+
+        <TextView
+            android:id="@+id/tv_ecg_1mv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
             android:text="未知"/>
 
 

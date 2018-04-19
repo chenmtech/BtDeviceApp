@@ -25,6 +25,8 @@ import com.cmtech.dsp.filter.design.DCBlockDesigner;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Created by bme on 2018/3/13.
@@ -61,10 +63,12 @@ public class EcgMonitorFragment extends DeviceFragment {
     private int sampleRate = 125;
     private int leadType = 0;
     private boolean isCalibration = false;
+    private ArrayBlockingQueue<Integer> calibrationData = new ArrayBlockingQueue<Integer>(200);
 
 
     private TextView tvEcgSampleRate;
     private TextView tvEcgLeadType;
+    private TextView tvEcg1mV;
     private EcgWaveView ecgView;
 
     private final IIRFilter dcBlock = DCBlockDesigner.design(0.06, 250);   // 隔直滤波器
@@ -74,27 +78,40 @@ public class EcgMonitorFragment extends DeviceFragment {
         public void handleMessage(Message msg) {
             if (msg.what == MSG_ECGDATA) {
                 if(msg.obj != null) {
+                    int tmpData = 0;
                     byte[] data = (byte[]) msg.obj;
 
                     ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
                     for(int i = 0; i < data.length/2; i++) {
                         //int filtered = (int)dcBlock.filter((double)buffer.getShort());
-                        int filtered = buffer.getShort();
-                        ecgView.addData(filtered);
+                        tmpData = buffer.getShort();
+                        if(isCalibration) {
+                            // 采集1个周期的定标信号
+                            if(calibrationData.size() < sampleRate)
+                                calibrationData.add(tmpData);
+                            else {
+                                int value1mV = calculateCalibration(calibrationData);
+                                calibrationData.clear();
+                                tvEcg1mV.setText(""+value1mV);
+                                int xRes = 2;
+                                int yRes = value1mV/100;
+                                ecgView.setRes(xRes, yRes);
+                                // 25mm/s的走纸速度代表每mm的小格为0.04秒
+                                // 每秒采样sampleRate个数据，每个数据xRes个像素，即每秒sampleRate*xRes个像素，所以每小格包含0.04*sampleRate*xRes个像素
+                                // 每小格的像素个数
+                                ecgView.setGridWidth((int)(0.04*sampleRate*xRes));
+                                ecgView.setZeroLocation(0.5);
+                                ecgView.startShow();
+                                isCalibration = false;
+                            }
+                        } else
+                            ecgView.addData(tmpData);
                     }
                 }
             } else if(msg.what ==  MSG_ECGSAMPLERATE) {
                 sampleRate = msg.arg1;
                 tvEcgSampleRate.setText(""+sampleRate);
-                int xRes = 2;
-                int yRes = 15;
-                ecgView.setRes(xRes, yRes);
-                // 25mm/s的走纸速度代表每mm的小格为0.04秒
-                // 每秒采样sampleRate个数据，每个数据xRes个像素，即每秒sampleRate*xRes个像素，所以每小格包含0.04*sampleRate*xRes个像素
-                // 每小格的像素个数
-                ecgView.setGridWidth((int)(0.04*sampleRate*xRes));
-                ecgView.setZeroLocation(0.5);
-                ecgView.startShow();
+
 
             } else if(msg.what == MSG_ECGLEADTYPE) {
                 leadType = msg.arg1;
@@ -133,6 +150,7 @@ public class EcgMonitorFragment extends DeviceFragment {
 
         tvEcgSampleRate = (TextView)view.findViewById(R.id.tv_ecg_samplerate);
         tvEcgLeadType = (TextView)view.findViewById(R.id.tv_ecg_leadtype);
+        tvEcg1mV = (TextView)view.findViewById(R.id.tv_ecg_1mv);
         ecgView = (EcgWaveView)view.findViewById(R.id.ecg_view);
 
         //dcBlock.createStructure(StructType.IIR_DCBLOCK);
@@ -251,6 +269,22 @@ public class EcgMonitorFragment extends DeviceFragment {
         });*/
 
         serialExecutor.start();
+    }
+
+    private int calculateCalibration(ArrayBlockingQueue<Integer> data) {
+
+        Integer[] arr = data.toArray(new Integer[0]);
+        Arrays.sort(arr);
+
+        int len = (arr.length-10)/2;
+        int sum1 = 0;
+        int sum2 = 0;
+        for(int i = 0; i < len; i++) {
+            sum1 += arr[i];
+            sum2 += arr[arr.length-i-1];
+        }
+
+        return (sum2-sum1)/2/len;
     }
 
 }
