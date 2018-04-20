@@ -12,14 +12,12 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -45,7 +43,7 @@ public class BmeFile {
 	
 	public static final byte[] BME = {'B', 'M', 'E'};
 	
-	private Path file;
+	private File file;
 	
 	private DataInputStream in;
 	private DataOutputStream out;
@@ -59,29 +57,30 @@ public class BmeFile {
 	
 	private BmeFile(String fileName, BmeFileHead head) throws FileException{
 		checkFile(fileName);
-		fileHead = create(head);
+		fileHead = createUsingHead(head);
 	}
 	
-
+    // 打开已有文件
 	public static BmeFile openBmeFile(String fileName) throws FileException{
 		return new BmeFile(fileName);
 	}
-	
+
+	// 用缺省文件头创建新的文件
 	public static BmeFile createBmeFile(String fileName) throws FileException{
 		return new BmeFile(fileName, DEFAULT_FILE_HEAD);
 	}
-	
+
+	// 用指定的文件头创建新的文件
 	public static BmeFile createBmeFile(String fileName, BmeFileHead head) throws FileException{
 		return new BmeFile(fileName, head);
 	}
-	
 	
 	private void checkFile(String fileName) throws FileException{
 		if(fileInOperation.contains(fileName))
 			throw new FileException(fileName, "文件已经打开");
 		else {
-			file = Paths.get(fileName);
-			fileInOperation.add(file.toString());
+			file = new File(fileName);
+			fileInOperation.add(fileName);
 		}
 	}
 
@@ -90,24 +89,24 @@ public class BmeFile {
 		
 		if(file == null) 
 			throw new FileException("", "文件未正常设置");
-		if(!Files.exists(file))
-			throw new FileException(file.toString(), "文件不存在");
+		if(!file.exists())
+			throw new FileException(file.getName(), "文件不存在");
 		if(in != null || out != null)
-			throw new FileException(file.toString(), "文件已经打开，需要关闭后重新打开");
+			throw new FileException(file.getName(), "文件已经打开，需要关闭后重新打开");
 		
 		try	{
 			in = new DataInputStream(
 					new BufferedInputStream(
-							new FileInputStream(file.toString())));
+							new FileInputStream(file)));
 			byte[] bme = new byte[3];
 			in.read(bme);
-			if(!Arrays.equals(bme, BME)) throw new FileException(file.toString(), "文件格式不对");
+			if(!Arrays.equals(bme, BME)) throw new FileException(file.getName(), "文件格式不对");
 			byte[] ver = new byte[2];
 			in.read(ver);
 			fileHead = BmeFileHeadFactory.create(ver);
 			fileHead.readFromStream(in);
 		} catch (IOException e) {
-			throw new FileException(file.toString(), "文件打开错误");
+			throw new FileException(file.getName(), "文件打开错误");
 		}
 		return fileHead;
 	}
@@ -118,7 +117,7 @@ public class BmeFile {
 		}
 		
 		if(fileHead.getDataType() != BmeFileDataType.DOUBLE) {
-			throw new FileException(file.toString(), "读取数据类型错误");
+			throw new FileException(file.getName(), "读取数据类型错误");
 		}
 		
 		List<Double> lst = new ArrayList<Double>();
@@ -142,7 +141,7 @@ public class BmeFile {
 				data[i] = lst.get(i);
 			}
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "读数据错误");
+			throw new FileException(file.getName(), "读数据错误");
 		}
 		return data;
 	}
@@ -153,7 +152,7 @@ public class BmeFile {
 		}
 		
 		if(fileHead.getDataType() != BmeFileDataType.INT32) {
-			throw new FileException(file.toString(), "读取数据类型错误");
+			throw new FileException(file.getName(), "读取数据类型错误");
 		}
 		
 		List<Integer> lst = new ArrayList<Integer>();
@@ -177,7 +176,7 @@ public class BmeFile {
 				data[i] = lst.get(i);
 			}
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "读数据错误");
+			throw new FileException(file.getName(), "读数据错误");
 		}
 		return data;
 	}
@@ -188,7 +187,7 @@ public class BmeFile {
 		}
 		
 		if(fileHead.getDataType() != BmeFileDataType.UINT8) {
-			throw new FileException(file.toString(), "读取数据类型错误");
+			throw new FileException(file.getName(), "读取数据类型错误");
 		}
 		
 		List<Byte> lst = new ArrayList<>();
@@ -202,30 +201,32 @@ public class BmeFile {
 				data[i] = lst.get(i);
 			}
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "读数据错误");
+			throw new FileException(file.getName(), "读数据错误");
 		}
 		return data;
 	}
 	
-	private BmeFileHead create(BmeFileHead head) throws FileException{
+	private BmeFileHead createUsingHead(BmeFileHead head) throws FileException{
 		if(file == null) 
 			throw new FileException("", "文件路径设置错误");
 		if(head == null)
 			throw new FileException("file head", "文件头错误");
 		if(in != null || out != null)
-			throw new FileException(file.toString(), "文件已经打开，需要关闭后重新打开");
+			throw new FileException(file.getName(), "文件已经打开，需要关闭后重新打开");
 		
 		try {
-			Files.deleteIfExists(file);
-			Files.createFile(file);
+		    if(file.exists()) {
+                file.delete();
+            }
+            file.createNewFile();
 			out = new DataOutputStream(
 					new BufferedOutputStream(
-							new FileOutputStream(file.toString())));
+							new FileOutputStream(file)));
 			out.write(BME);
 			out.write(head.getVersion());
 			head.writeToStream(out);
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "创建文件错误");
+			throw new FileException(file.getName(), "创建文件错误");
 		}
 		return head;
 	}
@@ -250,7 +251,7 @@ public class BmeFile {
 				}
 			}
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "写数据错误");
+			throw new FileException(file.getName(), "写数据错误");
 		}
 		return this;
 	}
@@ -263,7 +264,7 @@ public class BmeFile {
 				out.write(FormatTransfer.toLH(data));
 			}
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "写数据错误");
+			throw new FileException(file.getName(), "写数据错误");
 		}
 		return this;
 	}
@@ -288,7 +289,7 @@ public class BmeFile {
 				}
 			}
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "写数据错误");
+			throw new FileException(file.getName(), "写数据错误");
 		}
 		return this;
 	}
@@ -301,7 +302,7 @@ public class BmeFile {
 				out.write(FormatTransfer.toLH(data));
 			}
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "写数据错误");
+			throw new FileException(file.getName(), "写数据错误");
 		}
 		return this;
 	}
@@ -320,7 +321,7 @@ public class BmeFile {
 				out.writeByte(data[i]);
 			}
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "写数据错误");
+			throw new FileException(file.getName(), "写数据错误");
 		}
 		return this;
 	}
@@ -329,7 +330,7 @@ public class BmeFile {
 		try {
 			out.writeByte(data);
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "写数据错误");
+			throw new FileException(file.getName(), "写数据错误");
 		}
 		return this;
 	}
@@ -345,10 +346,14 @@ public class BmeFile {
 				out = null;
 			}
 		} catch(IOException ioe) {
-			throw new FileException(file.toString(), "关闭文件操作错误");
+			throw new FileException(file.getName(), "关闭文件操作错误");
 		} finally {
-			fileInOperation.remove(file.toString());
-		}
+            try {
+                fileInOperation.remove(file.getCanonicalPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 	}
 	
 	

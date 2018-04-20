@@ -25,6 +25,10 @@ import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 import com.cmtech.dsp.bmefile.BmeFile;
+import com.cmtech.dsp.bmefile.BmeFileDataType;
+import com.cmtech.dsp.bmefile.BmeFileHead;
+import com.cmtech.dsp.bmefile.BmeFileHead10;
+import com.cmtech.dsp.bmefile.BmeFileHeadFactory;
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.filter.IIRFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
@@ -84,6 +88,8 @@ public class EcgMonitorFragment extends DeviceFragment {
     private CheckBox cbEcgRecord;
 
     private boolean isStart = false;
+
+    private BmeFile ecgFile = null;
 
 
     private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
@@ -190,14 +196,27 @@ public class EcgMonitorFragment extends DeviceFragment {
         cbEcgRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), "chenm.bme");
-                String fileName = toFile.getAbsolutePath();
-                try {
-                    BmeFile bmeFile = BmeFile.createBmeFile(fileName);
-                    bmeFile.writeData(1.2345);
-                    bmeFile.close();
-                } catch (FileException e) {
-                    e.printStackTrace();
+                if(b) {
+                    File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), "chenm.bme");
+                    try {
+                        String fileName = toFile.getCanonicalPath();
+                        BmeFileHead head = BmeFileHeadFactory.create(BmeFileHead10.VER);
+                        head.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+                        head.setDataType(BmeFileDataType.INT32);
+                        head.setFs(sampleRate);
+                        head.setInfo("Ecg Lead I");
+                        ecgFile = BmeFile.createBmeFile(fileName, head);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    if(ecgFile != null) {
+                        try {
+                            ecgFile.close();
+                        } catch (FileException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         });
