@@ -10,20 +10,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.util.Uuid;
+import com.cmtech.dsp.bmefile.BmeFile;
+import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.filter.IIRFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
+import com.vise.utils.file.FileUtil;
+import com.vise.utils.view.BitmapUtil;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -73,6 +81,7 @@ public class EcgMonitorFragment extends DeviceFragment {
     private TextView tvEcg1mV;
     private WaveView ecgView;
     private Button btnEcgStartandStop;
+    private CheckBox cbEcgRecord;
 
     private boolean isStart = false;
 
@@ -94,7 +103,6 @@ public class EcgMonitorFragment extends DeviceFragment {
 
                     ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
                     for(int i = 0; i < data.length/2; i++) {
-                        //int filtered = (int)dcBlock.filter((double)buffer.getShort());
                         tmpData = buffer.getShort();
                         if(isCalibration) {
                             // 采集1个周期的定标信号
@@ -114,8 +122,10 @@ public class EcgMonitorFragment extends DeviceFragment {
                                 msg1.what = MSG_STARTSAMPLEECG;
                                 handler.sendMessage(msg1);
                             }
-                        } else
+                        } else {
+                            //tmpData = (int)dcBlock.filter(tmpData);
                             ecgView.addData(tmpData);
+                        }
                     }
                 }
             } else if(msg.what == MSG_READSAMPLERATE) {
@@ -166,6 +176,7 @@ public class EcgMonitorFragment extends DeviceFragment {
         tvEcg1mV = (TextView)view.findViewById(R.id.tv_ecg_1mv);
         ecgView = (WaveView)view.findViewById(R.id.ecg_view);
         btnEcgStartandStop = view.findViewById(R.id.btn_ecg_startandstop);
+        cbEcgRecord = view.findViewById(R.id.cb_ecg_record);
 
         //dcBlock.createStructure(StructType.IIR_DCBLOCK);
 
@@ -173,6 +184,21 @@ public class EcgMonitorFragment extends DeviceFragment {
             @Override
             public void onClick(View view) {
                 controlSampleEcg();
+            }
+        });
+
+        cbEcgRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), "chenm.bme");
+                String fileName = toFile.getAbsolutePath();
+                try {
+                    BmeFile bmeFile = BmeFile.createBmeFile(fileName);
+                    bmeFile.writeData(1.2345);
+                    bmeFile.close();
+                } catch (FileException e) {
+                    e.printStackTrace();
+                }
             }
         });
 

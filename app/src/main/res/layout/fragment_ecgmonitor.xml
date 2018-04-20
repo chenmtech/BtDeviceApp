@@ -101,6 +101,14 @@
             android:clickable="false"
             android:text="开始"/>
 
+        <CheckBox
+            android:id="@+id/cb_ecg_record"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:checked="false"
+            android:text="记录"/>
+
 
     </LinearLayout>
 
