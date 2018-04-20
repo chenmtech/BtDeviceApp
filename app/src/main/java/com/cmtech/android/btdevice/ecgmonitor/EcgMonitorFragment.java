@@ -32,8 +32,8 @@ import com.cmtech.dsp.bmefile.BmeFileHeadFactory;
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.filter.IIRFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
+import com.cmtech.dsp.filter.structure.StructType;
 import com.vise.utils.file.FileUtil;
-import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -46,26 +46,31 @@ import java.util.Arrays;
  */
 
 public class EcgMonitorFragment extends DeviceFragment {
-    private static final int MSG_ECGDATA = 0;
-    private static final int MSG_READSAMPLERATE = 1;
-    private static final int MSG_READLEADTYPE = 2;
-    private static final int MSG_STARTSAMPLEECG = 3;
+    // 常量
+    private static final int DEFAULT_SAMPLERATE = 125;           // 缺省ECG信号采样率
 
-    ///////////////// 温湿度计Service相关的常量////////////////
-    private static final String ecgMonitorServiceUuid    = "aa40";           // 心电监护仪服务UUID:aa40
-    private static final String ecgMonitorDataUuid       = "aa41";           // ECG数据特征UUID:aa41
-    private static final String ecgMonitorCtrlUuid       = "aa42";           // 测量控制UUID:aa42
-    private static final String ecgMonitorSampleRateUuid    = "aa44";        // 采样率UUID:aa44
-    private static final String ecgMonitorLeadTypeUuid      = "aa45";        // 导联类型UUID:aa45
+    // 消息常量
+    private static final int MSG_ECGDATA = 0;           // ECG数据
+    private static final int MSG_READSAMPLERATE = 1;    // 读采样率
+    private static final int MSG_READLEADTYPE = 2;      // 读导联类型
+    private static final int MSG_STARTSAMPLEECG = 3;    // 启动采样
 
+    /////////////////   心电监护仪Service UUID常量////////////////
+    private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
+    private static final String ecgMonitorDataUuid          = "aa41";           // ECG数据特征UUID:aa41
+    private static final String ecgMonitorCtrlUuid          = "aa42";           // 测量控制UUID:aa42
+    private static final String ecgMonitorSampleRateUuid    = "aa44";           // 采样率UUID:aa44
+    private static final String ecgMonitorLeadTypeUuid      = "aa45";           // 导联类型UUID:aa45
+
+    // 一些Gatt Element常量
     public static final BluetoothGattElement ECGMONITORDATA =
             new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null);
 
-    public static final BluetoothGattElement ECGMONITORCTRL =
-            new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null);
-
     public static final BluetoothGattElement ECGMONITORDATACCC =
             new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, Uuid.CCCUUID);
+
+    public static final BluetoothGattElement ECGMONITORCTRL =
+            new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null);
 
     public static final BluetoothGattElement ECGMONITORSAMPLERATE =
             new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorSampleRateUuid, null);
@@ -74,10 +79,11 @@ public class EcgMonitorFragment extends DeviceFragment {
             new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null);
     ////////////////////////////////////////////////////////
 
-    private int sampleRate = 125;
-    private int leadType = 0;
-    private boolean isCalibration = false;
-    private ArrayList<Integer> calibrationData = new ArrayList<Integer>(200);
+
+    private int sampleRate = DEFAULT_SAMPLERATE;            // 采样率
+    private EcgLeadType leadType = EcgLeadType.LEAD_I;      // 导联类型
+    private boolean isCalibration = true;                  // 是否处于1mV标定阶段
+    private ArrayList<Integer> calibrationData = new ArrayList<Integer>(250);   // 用于保存标定用的数据
 
 
     private TextView tvEcgSampleRate;
@@ -87,74 +93,106 @@ public class EcgMonitorFragment extends DeviceFragment {
     private Button btnEcgStartandStop;
     private CheckBox cbEcgRecord;
 
-    private boolean isStart = false;
+    private boolean isStartSampleEcg = false;       // 是否开始采样心电信号
 
-    private BmeFile ecgFile = null;
+    private BmeFileHead ecgFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead10版本，LITTLE_ENDIAN，数据类型为INT32
+    private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
+
+    private IIRFilter dcBlock = null;               // 隔直滤波器
 
 
+    // 用于设置EcgWaveView的参数
     private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
     // 下面两个参数可用来计算View中的xRes和yRes
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
-    private final IIRFilter dcBlock = DCBlockDesigner.design(0.06, 250);   // 隔直滤波器
 
+    // 消息处理
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what == MSG_ECGDATA) {
-                if(msg.obj != null) {
-                    int tmpData = 0;
-                    byte[] data = (byte[]) msg.obj;
+            switch (msg.what) {
+                // 接收到心电信号或定标信号
+                case MSG_ECGDATA:
+                    if(msg.obj != null) {
+                        byte[] data = (byte[]) msg.obj;
+                        // 单片机发过来的是LITTLE_ENDIAN的数据
+                        ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+                        // 单片机发过来的int是两个字节的short
+                        for(int i = 0; i < data.length/2; i++) {
+                            int tmpData = buffer.getShort();
 
-                    ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-                    for(int i = 0; i < data.length/2; i++) {
-                        tmpData = buffer.getShort();
-                        if(isCalibration) {
-                            // 采集1个周期的定标信号
-                            if(calibrationData.size() < sampleRate)
-                                calibrationData.add(tmpData);
-                            else {
-                                int value1mV = calculateCalibration(calibrationData);
-                                calibrationData.clear();
-                                tvEcg1mV.setText(""+value1mV);
-                                int xRes = Math.round(viewGridWidth/(viewXGridTime *sampleRate));   // 计算横向分辨率
-                                float yRes = value1mV*viewYGridmV/viewGridWidth;                     // 计算纵向分辨率
-                                ecgView.setRes(xRes, yRes);
-                                ecgView.setGridWidth(viewGridWidth);
-                                ecgView.setZeroLocation(0.5);
-                                ecgView.startShow();
-                                Message msg1 = new Message();
-                                msg1.what = MSG_STARTSAMPLEECG;
-                                handler.sendMessage(msg1);
+                            // 如果在标定阶段
+                            if (isCalibration) {
+                                // 采集1个周期的定标信号
+                                if (calibrationData.size() < sampleRate)
+                                    calibrationData.add(tmpData);
+                                else {
+                                    // 计算1mV定标信号值
+                                    int value1mV = calculateCalibration(calibrationData);
+                                    calibrationData.clear();
+                                    tvEcg1mV.setText("" + value1mV);
+
+                                    // 启动ECG View
+                                    int xRes = Math.round(viewGridWidth / (viewXGridTime * sampleRate));   // 计算横向分辨率
+                                    float yRes = value1mV * viewYGridmV / viewGridWidth;                     // 计算纵向分辨率
+                                    ecgView.setRes(xRes, yRes);
+                                    ecgView.setGridWidth(viewGridWidth);
+                                    ecgView.setZeroLocation(0.5);
+                                    ecgView.startShow();
+
+                                    // 发送开始采样消息
+                                    Message msg1 = new Message();
+                                    msg1.what = MSG_STARTSAMPLEECG;
+                                    handler.sendMessage(msg1);
+                                }
+                            } else {
+                                //tmpData = (int)dcBlock.filter(tmpData);
+                                ecgView.addData(tmpData);
                             }
-                        } else {
-                            //tmpData = (int)dcBlock.filter(tmpData);
-                            ecgView.addData(tmpData);
                         }
                     }
-                }
-            } else if(msg.what == MSG_READSAMPLERATE) {
-                sampleRate = msg.arg1;
-                tvEcgSampleRate.setText(""+sampleRate);
+                    break;
 
+                // 接收到采样率数据
+                case MSG_READSAMPLERATE:
+                    sampleRate = msg.arg1;
+                    tvEcgSampleRate.setText(""+sampleRate);
+                    break;
 
-            } else if(msg.what == MSG_READLEADTYPE) {
-                leadType = msg.arg1;
-                switch (leadType) {
-                    case 0:
-                        tvEcgLeadType.setText("I");
-                        break;
-                    case 1:
-                        tvEcgLeadType.setText("II");
-                        break;
-                    case 2:
-                        tvEcgLeadType.setText("III");
-                        break;
-                }
-            } else if(msg.what == MSG_STARTSAMPLEECG) {
-                btnEcgStartandStop.setClickable(true);
-                controlSampleEcg();
+                // 接收到导联类型数据
+                case MSG_READLEADTYPE:
+                    leadType = EcgLeadType.getFromCode(msg.arg1);
+                    tvEcgLeadType.setText(leadType.getDescription());
+                    break;
+
+                // 启动采样心电信号
+                case MSG_STARTSAMPLEECG:
+
+                    // 准备记录心电信号的文件头
+                    try {
+                        ecgFileHead = BmeFileHeadFactory.create(BmeFileHead10.VER);
+                        ecgFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+                        ecgFileHead.setDataType(BmeFileDataType.INT32);
+                        ecgFileHead.setFs(sampleRate);
+                        ecgFileHead.setInfo("Ecg Lead " + leadType.getDescription());
+                    } catch (FileException e) {
+                        e.printStackTrace();
+                    }
+
+                    // 准备隔直滤波器
+                    dcBlock = DCBlockDesigner.design(0.06, sampleRate);   // 设计隔直滤波器
+                    dcBlock.createStructure(StructType.IIR_DCBLOCK);            // 创建隔直滤波器专用结构
+
+                    btnEcgStartandStop.setClickable(true);
+                    cbEcgRecord.setClickable(true);
+                    // 启动采样心电信号
+                    toggleSampleEcg();
+                    break;
+
+                default:
+                    break;
             }
         }
     };
@@ -184,12 +222,12 @@ public class EcgMonitorFragment extends DeviceFragment {
         btnEcgStartandStop = view.findViewById(R.id.btn_ecg_startandstop);
         cbEcgRecord = view.findViewById(R.id.cb_ecg_record);
 
-        //dcBlock.createStructure(StructType.IIR_DCBLOCK);
+
 
         btnEcgStartandStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                controlSampleEcg();
+                toggleSampleEcg();
             }
         });
 
@@ -200,12 +238,7 @@ public class EcgMonitorFragment extends DeviceFragment {
                     File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), "chenm.bme");
                     try {
                         String fileName = toFile.getCanonicalPath();
-                        BmeFileHead head = BmeFileHeadFactory.create(BmeFileHead10.VER);
-                        head.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-                        head.setDataType(BmeFileDataType.INT32);
-                        head.setFs(sampleRate);
-                        head.setInfo("Ecg Lead I");
-                        ecgFile = BmeFile.createBmeFile(fileName, head);
+                        ecgFile = BmeFile.createBmeFile(fileName, ecgFileHead);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -323,15 +356,15 @@ public class EcgMonitorFragment extends DeviceFragment {
         serialExecutor.start();
     }
 
-    private synchronized void controlSampleEcg() {
-        if(!isStart) {
+    private synchronized void toggleSampleEcg() {
+        if(!isStartSampleEcg) {
             startSampleEcg();
             btnEcgStartandStop.setText("停止");
-            isStart = true;
+            isStartSampleEcg = true;
         } else {
             stopSampleEcg();
             btnEcgStartandStop.setText("开始");
-            isStart = false;
+            isStartSampleEcg = false;
         }
     }
 
