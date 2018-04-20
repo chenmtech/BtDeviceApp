@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -71,6 +72,10 @@ public class EcgMonitorFragment extends DeviceFragment {
     private TextView tvEcgLeadType;
     private TextView tvEcg1mV;
     private WaveView ecgView;
+    private Button btnEcgStartandStop;
+
+    private boolean isStart = false;
+
 
     private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
     // 下面两个参数可用来计算View中的xRes和yRes
@@ -104,7 +109,7 @@ public class EcgMonitorFragment extends DeviceFragment {
                                 ecgView.setRes(xRes, yRes);
                                 ecgView.setGridWidth(viewGridWidth);
                                 ecgView.setZeroLocation(0.5);
-
+                                ecgView.startShow();
                                 Message msg1 = new Message();
                                 msg1.what = MSG_STARTSAMPLEECG;
                                 handler.sendMessage(msg1);
@@ -132,7 +137,8 @@ public class EcgMonitorFragment extends DeviceFragment {
                         break;
                 }
             } else if(msg.what == MSG_STARTSAMPLEECG) {
-                startSampleEcg();
+                btnEcgStartandStop.setClickable(true);
+                controlSampleEcg();
             }
         }
     };
@@ -159,8 +165,17 @@ public class EcgMonitorFragment extends DeviceFragment {
         tvEcgLeadType = (TextView)view.findViewById(R.id.tv_ecg_leadtype);
         tvEcg1mV = (TextView)view.findViewById(R.id.tv_ecg_1mv);
         ecgView = (WaveView)view.findViewById(R.id.ecg_view);
+        btnEcgStartandStop = view.findViewById(R.id.btn_ecg_startandstop);
 
         //dcBlock.createStructure(StructType.IIR_DCBLOCK);
+
+        btnEcgStartandStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                controlSampleEcg();
+            }
+        });
+
     }
 
 
@@ -263,6 +278,18 @@ public class EcgMonitorFragment extends DeviceFragment {
         serialExecutor.start();
     }
 
+    private synchronized void controlSampleEcg() {
+        if(!isStart) {
+            startSampleEcg();
+            btnEcgStartandStop.setText("停止");
+            isStart = true;
+        } else {
+            stopSampleEcg();
+            btnEcgStartandStop.setText("开始");
+            isStart = false;
+        }
+    }
+
     private synchronized void startSampleEcg() {
         GattSerialExecutor serialExecutor = device.getSerialExecutor();
 
@@ -272,8 +299,27 @@ public class EcgMonitorFragment extends DeviceFragment {
         serialExecutor.addWriteCommand(ECGMONITORCTRL, new byte[]{0x01}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                ecgView.clearView();
                 isCalibration = false;
-                ecgView.startShow();
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
+    }
+
+    private synchronized void stopSampleEcg() {
+        GattSerialExecutor serialExecutor = device.getSerialExecutor();
+
+        if(serialExecutor == null) return;
+
+        // 停止ECG数据采集
+        serialExecutor.addWriteCommand(ECGMONITORCTRL, new byte[]{0x00}, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+
             }
 
             @Override
