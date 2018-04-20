@@ -41,7 +41,6 @@ import com.cmtech.dsp.util.FormatTransfer;
  */
 public class BmeFile {
 	private static Set<String> fileInOperation = new HashSet<>();
-	private static Path rootPath = Paths.get(System.getProperty("user.dir"));
 	private static final BmeFileHead DEFAULT_FILE_HEAD = BmeFileHeadFactory.createDefault();
 	
 	public static final byte[] BME = {'B', 'M', 'E'};
@@ -78,36 +77,14 @@ public class BmeFile {
 	
 	
 	private void checkFile(String fileName) throws FileException{
-		Path tmpFile = rootPath.resolve(fileName);
-		Path parent = tmpFile.getParent();
-		if(!Files.exists(parent)) throw new FileException(parent.toString(), "文件所在路径不存在");
-
-		if(fileInOperation.contains(tmpFile.toString())) 
-			throw new FileException(tmpFile.toString(), "文件已经打开");
+		if(fileInOperation.contains(fileName))
+			throw new FileException(fileName, "文件已经打开");
 		else {
-			file = tmpFile;
+			file = Paths.get(fileName);
 			fileInOperation.add(file.toString());
 		}
 	}
 
-	public static void setFileDirectory(String pathName) throws FileException{
-		Path p = null;
-		
-		if(pathName == null || "".equals(pathName)) 
-			throw new FileException("", "路径为空");
-		else {
-			p = Paths.get(pathName);
-			if(p.getRoot() == null) 
-				throw new FileException(pathName, "路径必须包含根目录");
-			else if(!Files.exists(p)) 
-				throw new FileException(pathName, "路径不存在");
-			else if(!Files.isDirectory(p))
-				throw new FileException(pathName, "不是有效路径名");
-		}
-		
-		rootPath = p;
-	}
-	
 	private BmeFileHead open() throws FileException{
 		BmeFileHead fileHead;
 		
