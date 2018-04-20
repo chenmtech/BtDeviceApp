@@ -25,8 +25,8 @@ import com.cmtech.dsp.filter.design.DCBlockDesigner;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Created by bme on 2018/3/13.
@@ -34,8 +34,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 public class EcgMonitorFragment extends DeviceFragment {
     private static final int MSG_ECGDATA = 0;
-    private static final int MSG_ECGSAMPLERATE = 1;
-    private static final int MSG_ECGLEADTYPE = 2;
+    private static final int MSG_READSAMPLERATE = 1;
+    private static final int MSG_READLEADTYPE = 2;
+    private static final int MSG_STARTSAMPLEECG = 3;
 
     ///////////////// 温湿度计Service相关的常量////////////////
     private static final String ecgMonitorServiceUuid    = "aa40";           // 心电监护仪服务UUID:aa40
@@ -63,13 +64,18 @@ public class EcgMonitorFragment extends DeviceFragment {
     private int sampleRate = 125;
     private int leadType = 0;
     private boolean isCalibration = false;
-    private ArrayBlockingQueue<Integer> calibrationData = new ArrayBlockingQueue<Integer>(200);
+    private ArrayList<Integer> calibrationData = new ArrayList<Integer>(200);
 
 
     private TextView tvEcgSampleRate;
     private TextView tvEcgLeadType;
     private TextView tvEcg1mV;
-    private EcgWaveView ecgView;
+    private WaveView ecgView;
+
+    private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
+    // 下面两个参数可用来计算View中的xRes和yRes
+    private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
+    private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
     private final IIRFilter dcBlock = DCBlockDesigner.design(0.06, 250);   // 隔直滤波器
 
@@ -93,27 +99,26 @@ public class EcgMonitorFragment extends DeviceFragment {
                                 int value1mV = calculateCalibration(calibrationData);
                                 calibrationData.clear();
                                 tvEcg1mV.setText(""+value1mV);
-                                int xRes = 2;
-                                int yRes = value1mV/100;
+                                int xRes = Math.round(viewGridWidth/(viewXGridTime *sampleRate));   // 计算横向分辨率
+                                float yRes = value1mV*viewYGridmV/viewGridWidth;                     // 计算纵向分辨率
                                 ecgView.setRes(xRes, yRes);
-                                // 25mm/s的走纸速度代表每mm的小格为0.04秒
-                                // 每秒采样sampleRate个数据，每个数据xRes个像素，即每秒sampleRate*xRes个像素，所以每小格包含0.04*sampleRate*xRes个像素
-                                // 每小格的像素个数
-                                ecgView.setGridWidth((int)(0.04*sampleRate*xRes));
+                                ecgView.setGridWidth(viewGridWidth);
                                 ecgView.setZeroLocation(0.5);
-                                ecgView.startShow();
-                                isCalibration = false;
+
+                                Message msg1 = new Message();
+                                msg1.what = MSG_STARTSAMPLEECG;
+                                handler.sendMessage(msg1);
                             }
                         } else
                             ecgView.addData(tmpData);
                     }
                 }
-            } else if(msg.what ==  MSG_ECGSAMPLERATE) {
+            } else if(msg.what == MSG_READSAMPLERATE) {
                 sampleRate = msg.arg1;
                 tvEcgSampleRate.setText(""+sampleRate);
 
 
-            } else if(msg.what == MSG_ECGLEADTYPE) {
+            } else if(msg.what == MSG_READLEADTYPE) {
                 leadType = msg.arg1;
                 switch (leadType) {
                     case 0:
@@ -126,6 +131,8 @@ public class EcgMonitorFragment extends DeviceFragment {
                         tvEcgLeadType.setText("III");
                         break;
                 }
+            } else if(msg.what == MSG_STARTSAMPLEECG) {
+                startSampleEcg();
             }
         }
     };
@@ -151,7 +158,7 @@ public class EcgMonitorFragment extends DeviceFragment {
         tvEcgSampleRate = (TextView)view.findViewById(R.id.tv_ecg_samplerate);
         tvEcgLeadType = (TextView)view.findViewById(R.id.tv_ecg_leadtype);
         tvEcg1mV = (TextView)view.findViewById(R.id.tv_ecg_1mv);
-        ecgView = (EcgWaveView)view.findViewById(R.id.ecg_view);
+        ecgView = (WaveView)view.findViewById(R.id.ecg_view);
 
         //dcBlock.createStructure(StructType.IIR_DCBLOCK);
     }
@@ -181,7 +188,7 @@ public class EcgMonitorFragment extends DeviceFragment {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 Message msg = new Message();
-                msg.what = MSG_ECGSAMPLERATE;
+                msg.what = MSG_READSAMPLERATE;
                 msg.arg1 = (data[0] & 0xff) | ((data[1] << 8) & 0xff00);
                 handler.sendMessage(msg);
             }
@@ -197,7 +204,7 @@ public class EcgMonitorFragment extends DeviceFragment {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 Message msg = new Message();
-                msg.what = MSG_ECGLEADTYPE;
+                msg.what = MSG_READLEADTYPE;
                 msg.arg1 = data[0];
                 handler.sendMessage(msg);
             }
@@ -253,26 +260,30 @@ public class EcgMonitorFragment extends DeviceFragment {
             }
         });
 
+        serialExecutor.start();
+    }
+
+    private synchronized void startSampleEcg() {
+        GattSerialExecutor serialExecutor = device.getSerialExecutor();
+
+        if(serialExecutor == null) return;
+
         // 启动ECG数据采集
-/*        serialExecutor.addWriteCommand(ECGMONITORCTRL, new byte[]{0x01}, new IBleCallback() {
+        serialExecutor.addWriteCommand(ECGMONITORCTRL, new byte[]{0x01}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
-                //handler.sendEmptyMessage(MSG_TEMPHUMIDCTRL);
-                Log.d("Thread", "Control Write Callback Thread: "+Thread.currentThread().getId());
+                isCalibration = false;
+                ecgView.startShow();
             }
 
             @Override
             public void onFailure(BleException exception) {
-                //Log.d("THERMOCONTROL", exception.toString());
-            }
-        });*/
 
-        serialExecutor.start();
+            }
+        });
     }
 
-    private int calculateCalibration(ArrayBlockingQueue<Integer> data) {
-
+    private int calculateCalibration(ArrayList<Integer> data) {
         Integer[] arr = data.toArray(new Integer[0]);
         Arrays.sort(arr);
 
@@ -283,7 +294,6 @@ public class EcgMonitorFragment extends DeviceFragment {
             sum1 += arr[i];
             sum2 += arr[arr.length-i-1];
         }
-
         return (sum2-sum1)/2/len;
     }
 

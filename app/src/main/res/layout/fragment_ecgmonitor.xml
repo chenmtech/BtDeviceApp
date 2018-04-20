@@ -65,7 +65,7 @@
 
     </LinearLayout>
 
-    <com.cmtech.android.btdevice.ecgmonitor.EcgWaveView
+    <com.cmtech.android.btdevice.ecgmonitor.WaveView
         android:id="@+id/ecg_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -73,5 +73,24 @@
         cmtech:background_color="#fff"
         cmtech:grid_color="#f00"
         cmtech:ecg_color="#000"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dp"
+            android:text="横向：25格/秒"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="纵向：0.1mV/格"/>
+    </LinearLayout>
 
 </LinearLayout>

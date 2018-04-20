@@ -74,7 +74,7 @@
 
     </LinearLayout>
 
-    <com.cmtech.android.btdevice.ecgmonitor.EcgWaveView
+    <com.cmtech.android.btdevice.ecgmonitor.WaveView
         android:id="@+id/ecg_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
