@@ -94,6 +94,7 @@ public class EcgMonitorFragment extends DeviceFragment {
     private CheckBox cbEcgRecord;
 
     private boolean isStartSampleEcg = false;       // 是否开始采样心电信号
+    private boolean isRecord = false;                // 是否记录心电信号
 
     private BmeFileHead ecgFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead10版本，LITTLE_ENDIAN，数据类型为INT32
     private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
@@ -150,6 +151,13 @@ public class EcgMonitorFragment extends DeviceFragment {
                             } else {
                                 //tmpData = (int)dcBlock.filter(tmpData);
                                 ecgView.addData(tmpData);
+                                if(isRecord) {
+                                    try {
+                                        ecgFile.writeData(tmpData);
+                                    } catch (FileException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
                         }
                     }
@@ -239,13 +247,16 @@ public class EcgMonitorFragment extends DeviceFragment {
                     try {
                         String fileName = toFile.getCanonicalPath();
                         ecgFile = BmeFile.createBmeFile(fileName, ecgFileHead);
+                        isRecord = true;
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else {
                     if(ecgFile != null) {
                         try {
+                            isRecord = false;
                             ecgFile.close();
+                            ecgFile = null;
                         } catch (FileException e) {
                             e.printStackTrace();
                         }
