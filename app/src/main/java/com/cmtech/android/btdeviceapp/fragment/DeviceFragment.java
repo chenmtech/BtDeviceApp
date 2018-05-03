@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -168,12 +167,15 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
                     tvConnectState.setText(device.getDeviceState().getDescription());
                     switch (device.getDeviceState()) {
                         case CONNECT_SUCCESS:
+                            btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_connect_32px));
+                            break;
+
                         case CONNECT_PROCESS:
-                            btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_disconnect_16px));
+                            btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_connecting_32px));
                             break;
 
                         default:
-                            btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_connect_16px));
+                            btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_disconnect_32px));
                             break;
                     }
                 }

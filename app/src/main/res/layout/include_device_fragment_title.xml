@@ -2,31 +2,32 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="30dp"
-    android:background="#000">
+    android:layout_height="40dp"
+    android:background="#fff">
     <ImageButton
         android:id="@+id/device_connectswitch_btn"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:src="@mipmap/ic_disconnect_16px"/>
+        android:src="@mipmap/ic_disconnect_32px"/>
     <TextView
         android:id="@+id/device_connect_state_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/device_connectswitch_btn"
         android:layout_centerVertical="true"
+        android:layout_marginLeft="5dp"
         android:text="未知"
         android:textColor="#f00"
-        android:textSize="15dp"/>
+        android:textSize="20dp"/>
     <ImageButton
         android:id="@+id/device_close_btn"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
-        android:src="@mipmap/ic_close_16px"/>
+        android:src="@mipmap/ic_close_32px"/>
 
 
 </RelativeLayout>

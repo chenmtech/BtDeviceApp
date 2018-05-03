@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     private RecyclerView deviceRecycView;
 
 
-    private Button btnModify;
+    //private Button btnModify;
     private Button btnDelete;
     private Button btnAdd;
     private Button btnOpen;
@@ -95,13 +95,13 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         deviceAdapter = new MyBluetoothDeviceAdapter(deviceList);
         deviceRecycView.setAdapter(deviceAdapter);
 
-        btnModify = (Button)findViewById(R.id.device_modify_btn);
+        //btnModify = (Button)findViewById(R.id.device_modify_btn);
         btnDelete = (Button)findViewById(R.id.device_delete_btn);
         btnAdd = (Button)findViewById(R.id.device_add_btn);
         btnOpen = (Button)findViewById(R.id.device_open_btn);
 
         // 修改设备信息
-        btnModify.setOnClickListener(new View.OnClickListener() {
+        /*btnModify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int index = deviceAdapter.getSelectItem();
@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                 else
                     modifyDeviceInfo(deviceList.get(index));
             }
-        });
+        });*/
 
         // 删除设备
         btnDelete.setOnClickListener(new View.OnClickListener() {
@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     if (device.hasFragment()) {
                         fragmentManager.showDeviceFragment(device);
                         device.getFragment().connectDevice();
+                        mDrawerLayout.closeDrawer(GravityCompat.START);
                     } else
                         createFragmentForDevice(device);
 
@@ -245,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     }
 
     // 修改设备信息
-    private void modifyDeviceInfo(final MyBluetoothDevice device) {
+    /*private void modifyDeviceInfo(final MyBluetoothDevice device) {
         if(device == null) return;
 
         String deviceNickname = device.getNickName();
@@ -262,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         intent.putExtra("device_isautoconnect", isAutoconnect);
 
         startActivityForResult(intent, 2);
-    }
+    }*/
 
     // 删除设备
     private void deleteDevice(final MyBluetoothDevice device) {
@@ -318,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_ADDED);
                 }
                 break;
-            case 2:
+            /*case 2:
                 // 修改设备返回
                 if(resultCode == RESULT_OK) {
                     String deviceNickname = data.getStringExtra("device_nickname");
@@ -332,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     device.notifyDeviceObservers(TYPE_MODIFY_NICKNAME);
                     fragmentManager.updateTabInfo(device);
                 }
-                break;
+                break;*/
         }
     }
 
