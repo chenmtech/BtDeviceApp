@@ -20,11 +20,13 @@ import android.widget.Toast;
 import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.btdeviceapp.callback.ScanDeviceCallback;
+import com.cmtech.android.btdeviceapp.util.Uuid;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -33,9 +35,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
+
 public class ScanDeviceActivity extends AppCompatActivity {
     private static final String TAG = "ScanDeviceActivity";
-    private static final String SCAN_DEVICE_NAME = "CM1.0";
+    private static final String DEFAULT_DEVICE_NAME = "CM1.0";
 
     private ViseBle viseBle = MyApplication.getViseBle();
 
@@ -44,7 +48,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     private RecyclerView rvScanedDevices;
     private List<BluetoothLeDevice> scanedDeviceList = new ArrayList<>();
 
-    // 当前已经在配置设备列表中的设备
+    // 当前已经配置过的设备列表
     private List<String> deviceMacList = new ArrayList<>();
 
     private Button btnCancel;
@@ -55,7 +59,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_device);
 
-        // 获取已配置设备Mac列表
+        // 获取已配置过的设备Mac列表
         deviceMacList =  (ArrayList<String>) getIntent()
                 .getSerializableExtra("device_list");
 
@@ -83,7 +87,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
                 int which = scanDeviceAdapter.getSelectItem();
                 if(which != -1) {
                     if(hasConfigured(scanedDeviceList.get(which))) {
-                        Toast.makeText(ScanDeviceActivity.this, "此设备已添加", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ScanDeviceActivity.this, "此设备之前已配置！", Toast.LENGTH_LONG).show();
                     } else {
                         addToConfiguredDevice(scanDeviceAdapter.getSelectItem());
                     }
@@ -106,9 +110,17 @@ public class ScanDeviceActivity extends AppCompatActivity {
         String deviceName = scanedDeviceList.get(which).getName();
         String macAddress = scanedDeviceList.get(which).getAddress();
 
+        // 获取设备广播数据中的UUID的短串
+        AdRecord record = scanedDeviceList.get(which)
+                .getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
+        if(record == null) return;
+        String uuidShortString = Uuid.longToShortString(Uuid.byteArrayToUuid(record.getData()).toString());
+        Log.v(TAG, uuidShortString);
+
         Intent intent = new Intent(ScanDeviceActivity.this, ConfigureDeviceActivity.class);
         intent.putExtra("device_nickname", deviceName);
         intent.putExtra("device_macaddress", macAddress);
+        intent.putExtra("device_uuid", uuidShortString);
         intent.putExtra("device_imagepath", "");
         intent.putExtra("device_isautoconnect", false);
 
@@ -122,10 +134,10 @@ public class ScanDeviceActivity extends AppCompatActivity {
         checkBluetoothPermission();
 
         Log.d(TAG, "start to scan now.");
-        viseBle.startScan(new DevNameFilterScanCallback(new ScanDeviceCallback(this)).setDeviceName(SCAN_DEVICE_NAME));
+        viseBle.startScan(new DevNameFilterScanCallback(new ScanDeviceCallback(this)).setDeviceName(DEFAULT_DEVICE_NAME));
     }
 
-    // 将扫描到的设备添加到扫描设备列表中
+    // 将扫描到的一个设备添加到扫描设备列表中
     public boolean addToScanedDevice(BluetoothLeDevice device) {
         if(device == null) return false;
 
@@ -200,6 +212,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
             case 2:
                 if ( resultCode == RESULT_OK) {
                     String deviceNickname = data.getStringExtra("device_nickname");
+                    String deviceUuid = data.getStringExtra("device_uuid");
                     String imagePath = data.getStringExtra("device_imagepath");
                     Boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
                     int which = scanDeviceAdapter.getSelectItem();
@@ -207,6 +220,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
                     Intent intent = new Intent();
                     intent.putExtra("device_nickname", deviceNickname);
                     intent.putExtra("device_macaddress", macAddress);
+                    intent.putExtra("device_uuid", deviceUuid);
                     intent.putExtra("device_imagepath", imagePath);
                     intent.putExtra("device_isautoconnect", isAutoConnect);
                     setResult(RESULT_OK, intent);

@@ -41,6 +41,9 @@ public class MyBluetoothDevice extends DataSupport {
     // 设备昵称
     private String nickName;
 
+    // 设备广播Uuid Short String
+    private String uuidString;
+
     // 是否自动连接
     private boolean isAutoConnected;
 
@@ -150,6 +153,14 @@ public class MyBluetoothDevice extends DataSupport {
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
+    }
+
+    public String getUuidString() {
+        return uuidString;
+    }
+
+    public void setUuidString(String uuidString) {
+        this.uuidString = uuidString;
     }
 
     public boolean isAutoConnected() {

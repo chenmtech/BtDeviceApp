@@ -43,6 +43,7 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
 
     private String deviceNickname = "CM1.0";
     private String macAddress = "";
+    private String deviceUuid = "";
     private String imagePath = "";
     private boolean isAutoconnect = false;
 
@@ -55,6 +56,7 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
         if(intent != null) {
             deviceNickname = intent.getStringExtra("device_nickname");
             macAddress = intent.getStringExtra("device_macaddress");
+            deviceUuid = intent.getStringExtra("device_uuid");
             imagePath = intent.getStringExtra("device_imagepath");
             isAutoconnect = intent.getBooleanExtra("device_isautoconnect", false);
         }
@@ -113,6 +115,7 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
 
                 Intent intent = new Intent();
                 intent.putExtra("device_nickname", deviceNickname);
+                intent.putExtra("device_uuid", deviceUuid);
                 intent.putExtra("device_imagepath", imagePath);
                 intent.putExtra("device_isautoconnect", isAutoconnect);
                 setResult(RESULT_OK, intent);

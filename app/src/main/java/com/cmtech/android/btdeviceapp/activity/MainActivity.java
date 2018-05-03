@@ -254,12 +254,14 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
         String deviceNickname = device.getNickName();
         String macAddress = device.getMacAddress();
+        String uuidString = device.getUuidString();
         String imagePath = device.getImagePath();
         boolean isAutoconnect = device.isAutoConnected();
 
         Intent intent = new Intent(MainActivity.this, ConfigureDeviceActivity.class);
         intent.putExtra("device_nickname", deviceNickname);
         intent.putExtra("device_macaddress", macAddress);
+        intent.putExtra("device_uuid", uuidString);
         intent.putExtra("device_imagepath", imagePath);
         intent.putExtra("device_isautoconnect", isAutoconnect);
 
@@ -299,12 +301,14 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                 if(resultCode == RESULT_OK) {
                     String nickName = data.getStringExtra("device_nickname");
                     String macAddress = data.getStringExtra("device_macaddress");
+                    String deviceUuid = data.getStringExtra("device_uuid");
                     String imagePath = data.getStringExtra("device_imagepath");
                     boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
 
                     MyBluetoothDevice device = new MyBluetoothDevice();
                     device.setNickName(nickName);
                     device.setMacAddress(macAddress);
+                    device.setUuidString(deviceUuid);
                     device.setImagePath(imagePath);
                     device.setAutoConnected(isAutoConnect);
 
