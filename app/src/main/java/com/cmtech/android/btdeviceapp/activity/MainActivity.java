@@ -41,8 +41,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver.TYPE_MODIFY_NICKNAME;
-
 /**
  *  MainActivity: 主界面，主要数据存放区，需要实现IDeviceFragmentObserver
  *  Created by bme on 2018/2/19.
@@ -56,10 +54,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     private MyBluetoothDeviceAdapter deviceAdapter;
     private RecyclerView deviceRecycView;
 
-
-    //private Button btnModify;
-    private Button btnDelete;
     private Button btnAdd;
+    private Button btnDelete;
     private Button btnOpen;
 
     private DrawerLayout mDrawerLayout;
@@ -95,34 +91,9 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         deviceAdapter = new MyBluetoothDeviceAdapter(deviceList);
         deviceRecycView.setAdapter(deviceAdapter);
 
-        //btnModify = (Button)findViewById(R.id.device_modify_btn);
-        btnDelete = (Button)findViewById(R.id.device_delete_btn);
         btnAdd = (Button)findViewById(R.id.device_add_btn);
+        btnDelete = (Button)findViewById(R.id.device_delete_btn);
         btnOpen = (Button)findViewById(R.id.device_open_btn);
-
-        // 修改设备信息
-        /*btnModify.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int index = deviceAdapter.getSelectItem();
-                if(index == -1)
-                    Toast.makeText(MainActivity.this, "请先选择一个设备", Toast.LENGTH_SHORT).show();
-                else
-                    modifyDeviceInfo(deviceList.get(index));
-            }
-        });*/
-
-        // 删除设备
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int index = deviceAdapter.getSelectItem();
-                if(index == -1)
-                    Toast.makeText(MainActivity.this, "请先选择一个设备", Toast.LENGTH_SHORT).show();
-                else
-                    deleteDevice(deviceList.get(index));
-            }
-        });
 
         // 添加设备
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -139,6 +110,18 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                 intent.putExtra("device_list", (Serializable) deviceMacList);
 
                 startActivityForResult(intent, 1);
+            }
+        });
+
+        // 删除设备
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int index = deviceAdapter.getSelectItem();
+                if(index == -1)
+                    Toast.makeText(MainActivity.this, "请先选择一个设备", Toast.LENGTH_SHORT).show();
+                else
+                    deleteDevice(deviceList.get(index));
             }
         });
 
@@ -159,28 +142,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                         device.getFragment().connectDevice();
                         mDrawerLayout.closeDrawer(GravityCompat.START);
                     } else
-                        createFragmentForDevice(device);
+                        createAndOpenFragmentForDevice(device);
 
-                    // 设备没有连接过
-                    /*DeviceState state = device.getDeviceState();
-                    if (state == DeviceState.CONNECT_SUCCESS) {             // 已经连接
-                        Toast.makeText(MainActivity.this, "设备已连接", Toast.LENGTH_SHORT).show();
-                    } else if (state == DeviceState.CONNECT_PROCESS) {      // 连接中...
-                        Toast.makeText(MainActivity.this, "设备连接中...", Toast.LENGTH_SHORT).show();
-                    } else {
-                        // 连接设备，连接成功后创建Fragment
-                        device.connect(new IConnectSuccessCallback() {
-                            @Override
-                            public void doAfterConnectSuccess(final MyBluetoothDevice device) {
-                                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        createFragmentForDevice(device);
-                                    }
-                                });
-                            }
-                        });
-                    }*/
                 }
             }
         });
@@ -220,8 +183,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     }
 
-    // 显示已连接设备
-    private void createFragmentForDevice(MyBluetoothDevice device) {
+    // 为设备创建并打开相应的Fragment
+    private void createAndOpenFragmentForDevice(MyBluetoothDevice device) {
         if(device == null) return;
         mDrawerLayout.closeDrawer(GravityCompat.START);
 
@@ -244,26 +207,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             mMainLayout.setVisibility(View.VISIBLE);
         }
     }
-
-    // 修改设备信息
-    /*private void modifyDeviceInfo(final MyBluetoothDevice device) {
-        if(device == null) return;
-
-        String deviceNickname = device.getNickName();
-        String macAddress = device.getMacAddress();
-        String uuidString = device.getUuidString();
-        String imagePath = device.getImagePath();
-        boolean isAutoconnect = device.isAutoConnected();
-
-        Intent intent = new Intent(MainActivity.this, ConfigureDeviceActivity.class);
-        intent.putExtra("device_nickname", deviceNickname);
-        intent.putExtra("device_macaddress", macAddress);
-        intent.putExtra("device_uuid", uuidString);
-        intent.putExtra("device_imagepath", imagePath);
-        intent.putExtra("device_isautoconnect", isAutoconnect);
-
-        startActivityForResult(intent, 2);
-    }*/
 
     // 删除设备
     private void deleteDevice(final MyBluetoothDevice device) {
@@ -319,21 +262,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_ADDED);
                 }
                 break;
-            /*case 2:
-                // 修改设备返回
-                if(resultCode == RESULT_OK) {
-                    String deviceNickname = data.getStringExtra("device_nickname");
-                    String imagePath = data.getStringExtra("device_imagepath");
-                    Boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
-                    MyBluetoothDevice device = deviceList.get(deviceAdapter.getSelectItem());
-                    device.setNickName(deviceNickname);
-                    device.setImagePath(imagePath);
-                    device.setAutoConnected(isAutoConnect);
-                    device.save();
-                    device.notifyDeviceObservers(TYPE_MODIFY_NICKNAME);
-                    fragmentManager.updateTabInfo(device);
-                }
-                break;*/
         }
     }
 
@@ -374,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     ///////////////////IDeviceFragmentObserver接口函数///////////////////////
 
-    // 寻找Fragment对应的设备
+    // 从deviceList中寻找Fragment对应的设备
     @Override
     public MyBluetoothDevice findDevice(DeviceFragment fragment) {
         for(MyBluetoothDevice device : deviceList) {
@@ -385,13 +313,12 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         return null;
     }
 
-    // 删除Fragment
+    // 删除指定的Fragment
     @Override
     public void deleteFragment(final DeviceFragment fragment) {
         MyBluetoothDevice device = findDevice(fragment);
-        if(device == null) return;
-
-        device.setFragment(null);
+        if(device != null)
+            device.setFragment(null);
 
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
