@@ -117,8 +117,8 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     public void onStart() {
         super.onStart();
 
-        // 执行初始化
-        executeGattInitOperation();
+        // 连接设备
+        connectDevice();
     }
 
     @Override
