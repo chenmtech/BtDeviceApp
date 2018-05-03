@@ -38,7 +38,6 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
     private int times = 0;
 
-
     public DeviceFragment() {
 
     }

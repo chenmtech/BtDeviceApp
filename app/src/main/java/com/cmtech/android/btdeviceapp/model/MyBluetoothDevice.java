@@ -57,7 +57,7 @@ public class MyBluetoothDevice extends DataSupport {
     // 设备镜像，连接成功后才会赋值。连接失败会赋值null
     DeviceMirror deviceMirror = null;
 
-    // 存放连接后打开的Fragment
+    // 存放打开Fragment
     DeviceFragment fragment;
 
     // Gatt命令串行执行器, 连接成功后才会创建。连接失败会赋值null
@@ -211,16 +211,6 @@ public class MyBluetoothDevice extends DataSupport {
     // 判断设备是否有了Fragment
     public boolean hasFragment() {
         return fragment != null;
-    }
-
-    // 获取设备广播中包含的UUID
-    public UUID getDeviceUuidInAd() {
-        if(deviceMirror == null || deviceMirror.getBluetoothLeDevice() == null) return null;
-
-        AdRecord record = deviceMirror.getBluetoothLeDevice()
-                .getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
-        if(record == null) return null;
-        return Uuid.byteArrayToUuid(record.getData());
     }
 
     // 登记观察者

@@ -32,13 +32,13 @@ public class DeviceFragmentFactory {
     }
 
     public static DeviceFragment build(MyBluetoothDevice device) {
-        UUID uuid = device.getDeviceUuidInAd();
+        String uuid = device.getUuidString();
         if(uuid != null) {
-            if(uuid.equals(Uuid.shortStringToUuid(UUID_THERMOMETER))) {
+            if(uuid.equalsIgnoreCase(UUID_THERMOMETER)) {
                 return ThermoFragment.newInstance();
-            } else if(uuid.equals(Uuid.shortStringToUuid(UUID_TEMPHUMID))) {
+            } else if(uuid.equalsIgnoreCase(UUID_TEMPHUMID)) {
                 return TempHumidFragment.newInstance();
-            } else if(uuid.equals(Uuid.shortStringToUuid(UUID_ECGMONITOR))) {
+            } else if(uuid.equalsIgnoreCase(UUID_ECGMONITOR)) {
                 return EcgMonitorFragment.newInstance();
             } else {
                 return UnknownDeviceFragment.newInstance();
