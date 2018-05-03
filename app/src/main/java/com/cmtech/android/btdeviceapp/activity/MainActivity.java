@@ -19,7 +19,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,11 +32,8 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.MyBluetoothDeviceAdapter;
 import com.cmtech.android.btdeviceapp.interfa.IDeviceFragmentObserver;
 import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
-import com.cmtech.android.btdeviceapp.model.DeviceState;
-import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
-import com.vise.utils.view.DialogUtil;
 
 import org.litepal.crud.DataSupport;
 
@@ -64,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     private Button btnModify;
     private Button btnDelete;
     private Button btnAdd;
-    private Button btnConnect;
+    private Button btnOpen;
 
     private DrawerLayout mDrawerLayout;
     private FrameLayout mWelcomeLayout;
@@ -102,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         btnModify = (Button)findViewById(R.id.device_modify_btn);
         btnDelete = (Button)findViewById(R.id.device_delete_btn);
         btnAdd = (Button)findViewById(R.id.device_add_btn);
-        btnConnect = (Button)findViewById(R.id.device_connect_btn);
+        btnOpen = (Button)findViewById(R.id.device_open_btn);
 
         // 修改设备信息
         btnModify.setOnClickListener(new View.OnClickListener() {
@@ -146,8 +142,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             }
         });
 
-        // 连接设备
-        btnConnect.setOnClickListener(new View.OnClickListener() {
+        // 打开设备
+        btnOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int index = deviceAdapter.getSelectItem();
@@ -159,13 +155,13 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
                     // 设备有对应的Fragment，表示曾经连接成功过
                     if (device.hasFragment()) {
-                        device.getFragment().connectDevice();
                         fragmentManager.showDeviceFragment(device);
-                        return;
-                    }
+                        device.getFragment().connectDevice();
+                    } else
+                        createFragmentForDevice(device);
 
                     // 设备没有连接过
-                    DeviceState state = device.getDeviceState();
+                    /*DeviceState state = device.getDeviceState();
                     if (state == DeviceState.CONNECT_SUCCESS) {             // 已经连接
                         Toast.makeText(MainActivity.this, "设备已连接", Toast.LENGTH_SHORT).show();
                     } else if (state == DeviceState.CONNECT_PROCESS) {      // 连接中...
@@ -183,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                                 });
                             }
                         });
-                    }
+                    }*/
                 }
             }
         });

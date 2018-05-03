@@ -8,12 +8,26 @@
     android:orientation="vertical"
     tools:context="com.cmtech.android.btdeviceapp.activity.MainActivity">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="设备列表"
-        android:textSize="20sp"/>
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="设备列表："
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/device_add_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="添加" />
+    </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id = "@+id/rvDevices"
@@ -37,18 +51,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="删除"/>
+
         <Button
-            android:id="@+id/device_add_btn"
+            android:id="@+id/device_open_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="添加"/>
-        <Button
-            android:id="@+id/device_connect_btn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="连接"/>
+            android:text="打开"/>
     </LinearLayout>
 
 </LinearLayout>

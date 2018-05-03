@@ -215,7 +215,6 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         }
     }
 
-    /////////////// 下面是作为IDeviceFragment接口要实现的函数结束//////////////////////
 
 
 
