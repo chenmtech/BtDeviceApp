@@ -202,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         if(fragmentManager.size() == 0) {
             mWelcomeLayout.setVisibility(View.VISIBLE);
             mMainLayout.setVisibility(View.INVISIBLE);
+            setTitle(R.string.app_name);
         } else {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
             mMainLayout.setVisibility(View.VISIBLE);

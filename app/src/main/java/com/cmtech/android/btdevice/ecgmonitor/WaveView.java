@@ -288,6 +288,7 @@ public class WaveView extends View {
                 mainPaint.setStrokeWidth(2); i = 0;}
 			else mainPaint.setStrokeWidth(1);
 		}
+        mainPaint.setStrokeWidth(1);
 		vCoordinate = initY + gridWidth;
 		i = 1;
 		while(vCoordinate < viewHeight) {
@@ -299,6 +300,7 @@ public class WaveView extends View {
 		}
 
 		// 画垂直线
+        mainPaint.setStrokeWidth(1);
 		int hCoordinate = initX + gridWidth;
 		i = 1;
 		while(hCoordinate < viewWidth) {

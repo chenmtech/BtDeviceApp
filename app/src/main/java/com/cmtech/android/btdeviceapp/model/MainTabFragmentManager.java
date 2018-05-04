@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
+import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.List;
  */
 
 public class MainTabFragmentManager {
+    private MainActivity activity;
 
     // Fragment管理器实例
     private final MyFragmentManager fragManager;
@@ -32,6 +34,7 @@ public class MainTabFragmentManager {
     private int curPos = -1;
 
     public MainTabFragmentManager(FragmentActivity activity, TabLayout tabLayout, int containerId) {
+        this.activity = (MainActivity) activity;
         fragManager = new MyFragmentManager(activity, containerId);
         this.tabLayout = tabLayout;
         init();
@@ -49,6 +52,7 @@ public class MainTabFragmentManager {
 
                 // 显示选中的Fragment
                 fragManager.showFragment(fragManager.fragments.get(pos));
+                activity.setTitle(tab.getText());
 
                 curPos = pos;
             }
@@ -127,7 +131,7 @@ public class MainTabFragmentManager {
 
     private static class MyFragmentManager {
 
-        private FragmentActivity context;
+        //private FragmentActivity context;
 
         private FragmentManager manager;
 
@@ -137,9 +141,9 @@ public class MainTabFragmentManager {
 
         public MyFragmentManager(FragmentActivity context, int containerId) {
             super();
-            this.context = context;
+            //this.context = context;
             this.containerId = containerId;
-            manager = this.context.getSupportFragmentManager();
+            manager = context.getSupportFragmentManager();
             fragments = new ArrayList<>();
         }
 
