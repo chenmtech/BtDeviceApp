@@ -10,6 +10,7 @@
         android:layout_height="32dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
+        android:layout_marginLeft="5dp"
         android:src="@mipmap/ic_disconnect_32px"/>
     <TextView
         android:id="@+id/device_connect_state_tv"
@@ -27,6 +28,7 @@
         android:layout_height="32dp"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
+        android:layout_marginRight="5dp"
         android:src="@mipmap/ic_close_32px"/>
 
 
