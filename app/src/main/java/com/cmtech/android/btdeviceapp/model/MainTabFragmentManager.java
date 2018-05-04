@@ -81,7 +81,7 @@ public class MainTabFragmentManager {
         if(imagePath != null && !"".equals(imagePath)) {
             drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
         } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(R.mipmap.ic_unknown_128px);
+            drawable = MyApplication.getContext().getResources().getDrawable(MyBluetoothDeviceType.fromUuid(device.getUuidString()).getImage());
         }
         tabLayout.addTab(tabLayout.newTab().setText(device.getNickName()).setIcon(drawable), true);
     }

@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
+import com.cmtech.android.btdeviceapp.model.MyBluetoothDeviceType;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -64,13 +65,15 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
         setTitle("设备:"+macAddress);
 
         etName = (EditText)findViewById(R.id.cfg_device_nickname);
-        etName.setText(deviceNickname);
+        etName.setText("".equals(deviceNickname) ? MyBluetoothDeviceType.fromUuid(deviceUuid).getName() : deviceNickname);
 
         ivImage = (ImageView)findViewById(R.id.cfg_device_image);
 
         if(imagePath != null && !"".equals(imagePath)) {
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             ivImage.setImageDrawable(drawable);
+        } else {
+            Glide.with(this).load(MyBluetoothDeviceType.fromUuid(deviceUuid).getImage()).into(ivImage);
         }
 
         ivImage.setOnClickListener(new View.OnClickListener() {
@@ -106,10 +109,12 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
                 deviceNickname = etName.getText().toString();
 
                 // 把图像缩小，保存为macAddress.jpg文件
-                Bitmap bitmap = BitmapUtil.getSmallBitmap(imagePath, 100, 100);
-                File toFile = FileUtil.getFile(getExternalFilesDir("images"), macAddress+".jpg");
-                BitmapUtil.saveBitmap(bitmap, toFile);
-                imagePath = toFile.getAbsolutePath();
+                if(imagePath != null && !"".equals(imagePath)) {
+                    Bitmap bitmap = BitmapUtil.getSmallBitmap(imagePath, 100, 100);
+                    File toFile = FileUtil.getFile(getExternalFilesDir("images"), macAddress + ".jpg");
+                    BitmapUtil.saveBitmap(bitmap, toFile);
+                    imagePath = toFile.getAbsolutePath();
+                }
 
                 isAutoconnect = cbIsAutoconnect.isChecked();
 

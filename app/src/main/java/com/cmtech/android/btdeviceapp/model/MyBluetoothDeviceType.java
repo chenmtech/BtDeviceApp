@@ -34,11 +34,11 @@ public class MyBluetoothDeviceType {
     private static final String FRAGNAME_UNKNOWN = "com.cmtech.android.btdevice.unknown.UnknownDeviceFragment";
 
     private static final MyBluetoothDeviceType DEVTYPE_THERMOMETER =
-            new MyBluetoothDeviceType(UUID_THERMOMETER, R.drawable.welcome_image, NAME_THERMOMETER, FRAGNAME_THERMOMETER);
+            new MyBluetoothDeviceType(UUID_THERMOMETER, R.drawable.thermo_image, NAME_THERMOMETER, FRAGNAME_THERMOMETER);
     private static final MyBluetoothDeviceType DEVTYPE_ECGMONITOR =
-            new MyBluetoothDeviceType(UUID_ECGMONITOR, R.drawable.welcome_image, NAME_ECGMONITOR, FRAGNAME_ECGMONITOR);
+            new MyBluetoothDeviceType(UUID_ECGMONITOR, R.drawable.ecgmonitor_image, NAME_ECGMONITOR, FRAGNAME_ECGMONITOR);
     private static final MyBluetoothDeviceType DEVTYPE_TEMPHUMID =
-            new MyBluetoothDeviceType(UUID_TEMPHUMID, R.drawable.welcome_image, NAME_TEMPHUMID, FRAGNAME_TEMPHUMID);
+            new MyBluetoothDeviceType(UUID_TEMPHUMID, R.drawable.temphumid_image, NAME_TEMPHUMID, FRAGNAME_TEMPHUMID);
     private static final MyBluetoothDeviceType DEVTYPE_UNKNOWN =
             new MyBluetoothDeviceType(UUID_UNKNOWN, R.mipmap.ic_unknown_128px, NAME_UNKNOWN, FRAGNAME_UNKNOWN);
 

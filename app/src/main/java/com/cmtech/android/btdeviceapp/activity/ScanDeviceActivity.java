@@ -107,7 +107,6 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     private void addToConfiguredDevice(final int which) {
-        String deviceName = scanedDeviceList.get(which).getName();
         String macAddress = scanedDeviceList.get(which).getAddress();
 
         // 获取设备广播数据中的UUID的短串
@@ -118,7 +117,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         Log.v(TAG, uuidShortString);
 
         Intent intent = new Intent(ScanDeviceActivity.this, ConfigureDeviceActivity.class);
-        intent.putExtra("device_nickname", deviceName);
+        intent.putExtra("device_nickname", "");
         intent.putExtra("device_macaddress", macAddress);
         intent.putExtra("device_uuid", uuidShortString);
         intent.putExtra("device_imagepath", "");
