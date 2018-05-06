@@ -16,71 +16,76 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:background="#0000ff">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textSize="30dp"
-            android:text="当前温度："/>
-
-        <TextView
-            android:id="@+id/tv_temp_data"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="center_horizontal"
             android:textSize="30dp"
             android:textColor="#ff0000"
-            android:text="00.0"/>
+            android:text="温度"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textSize="30dp"
-            android:text="摄氏度"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tv_temp_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="100dp"
+                android:textColor="#ff0000"
+                android:text="00.0"/>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/tv_temp_data"
+                android:textSize="30dp"
+                android:textColor="#ff0000"
+                android:text="℃"/>
+        </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:background="#00ff00">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textSize="30dp"
-            android:text="当前湿度："/>
-
-        <TextView
-            android:id="@+id/tv_humid_data"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_gravity="center_horizontal"
             android:textSize="30dp"
             android:textColor="#ff0000"
-            android:text="00"/>
+            android:text="湿度"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textSize="30dp"
-            android:text="%RH"/>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tv_humid_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="100dp"
+                android:textColor="#ff0000"
+                android:text="00"/>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/tv_humid_data"
+                android:textSize="30dp"
+                android:textColor="#ff0000"
+                android:text="%RH"/>
+        </RelativeLayout>
     </LinearLayout>
 
-    <com.cmtech.android.btdevice.ecgmonitor.WaveView
-        android:id="@+id/ecg_view"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        cmtech:background_color="#fff"
-        cmtech:grid_color="#f00"
-        cmtech:ecg_color="#000"/>
+
 
 </LinearLayout>
