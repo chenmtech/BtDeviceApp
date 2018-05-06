@@ -16,32 +16,19 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            android:gravity="center"
+            android:gravity="left"
             android:text="您的设备"
             android:textSize="20sp" />
 
         <Button
             android:id="@+id/device_add_btn"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_gravity="right"
             android:text="添加" />
 
-        <Button
-            android:id="@+id/device_delete_btn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="删除" />
-
-        <Button
-            android:id="@+id/device_open_btn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="打开"/>
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

@@ -55,8 +55,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     private RecyclerView deviceRecycView;
 
     private Button btnAdd;
-    private Button btnDelete;
-    private Button btnOpen;
 
     private DrawerLayout mDrawerLayout;
     private FrameLayout mWelcomeLayout;
@@ -88,12 +86,10 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         deviceRecycView = (RecyclerView)findViewById(R.id.rvDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         deviceRecycView.setLayoutManager(layoutManager);
-        deviceAdapter = new MyBluetoothDeviceAdapter(deviceList);
+        deviceAdapter = new MyBluetoothDeviceAdapter(deviceList, this);
         deviceRecycView.setAdapter(deviceAdapter);
 
         btnAdd = (Button)findViewById(R.id.device_add_btn);
-        btnDelete = (Button)findViewById(R.id.device_delete_btn);
-        btnOpen = (Button)findViewById(R.id.device_open_btn);
 
         // 添加设备
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -113,40 +109,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             }
         });
 
-        // 删除设备
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int index = deviceAdapter.getSelectItem();
-                if(index == -1)
-                    Toast.makeText(MainActivity.this, "请先选择一个设备", Toast.LENGTH_SHORT).show();
-                else
-                    deleteDevice(deviceList.get(index));
-            }
-        });
-
-        // 打开设备
-        btnOpen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int index = deviceAdapter.getSelectItem();
-                if(index == -1)
-                    Toast.makeText(MainActivity.this, "请先选择一个设备", Toast.LENGTH_SHORT).show();
-                else {
-                    final MyBluetoothDevice device = deviceList.get(index);
-                    if(device == null) return;
-
-                    // 设备有对应的Fragment，表示曾经连接成功过
-                    if (device.hasFragment()) {
-                        fragmentManager.showDeviceFragment(device);
-                        device.getFragment().connectDevice();
-                        mDrawerLayout.closeDrawer(GravityCompat.START);
-                    } else
-                        createAndOpenFragmentForDevice(device);
-
-                }
-            }
-        });
 
         // 导航菜单设置
         NavigationView navView = (NavigationView)findViewById(R.id.nav_view);
@@ -183,6 +145,43 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     }
 
+    // 打开设备
+    public void openDevice(MyBluetoothDevice device) {
+        if(device == null) return;
+
+        // 设备有对应的Fragment，表示曾经连接成功过
+        if (device.hasFragment()) {
+            fragmentManager.showDeviceFragment(device);
+            device.getFragment().connectDevice();
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+        } else
+            createAndOpenFragmentForDevice(device);
+    }
+
+    // 删除设备
+    public void deleteDevice(final MyBluetoothDevice device) {
+        if(device == null) return;
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("确定删除该设备吗？");
+        builder.setMessage(device.getMacAddress()+'\n'+device.getNickName());
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                device.delete();
+                deviceList.remove(device);
+                device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_DELETED);
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.show();
+    }
+
     // 为设备创建并打开相应的Fragment
     private void createAndOpenFragmentForDevice(MyBluetoothDevice device) {
         if(device == null) return;
@@ -207,30 +206,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             mWelcomeLayout.setVisibility(View.INVISIBLE);
             mMainLayout.setVisibility(View.VISIBLE);
         }
-    }
-
-    // 删除设备
-    private void deleteDevice(final MyBluetoothDevice device) {
-        if(device == null) return;
-
-        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("确定删除该设备吗？");
-        builder.setMessage(device.getMacAddress()+'\n'+device.getNickName());
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                device.delete();
-                deviceList.remove(device);
-                device.notifyDeviceObservers(IMyBluetoothDeviceObserver.TYPE_DELETED);
-            }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        });
-        builder.show();
     }
 
     @Override

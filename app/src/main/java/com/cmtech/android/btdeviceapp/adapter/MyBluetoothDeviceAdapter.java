@@ -9,12 +9,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
+import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDeviceType;
@@ -31,10 +33,8 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
     // 设备列表
     private List<MyBluetoothDevice> mDeviceList;
 
-    // 选中的item
-    private int selectItem = -1;
-
-    Drawable defaultBackground;
+    // MainActivity
+    MainActivity activity;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView;
@@ -42,28 +42,29 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         TextView deviceName;
         TextView deviceAddress;
         TextView deviceStatus;
+        ImageButton ibtnDelete;
+        ImageButton ibtnOpen;
 
 
         public ViewHolder(View itemView) {
             super(itemView);
             deviceView = itemView;
-            deviceImage = deviceView.findViewById(R.id.configure_device_image);
+            deviceImage = deviceView.findViewById(R.id.configured_device_image);
             deviceName = deviceView.findViewById(R.id.configured_device_nickname);
             deviceAddress = deviceView.findViewById(R.id.configured_device_address);
             deviceStatus = deviceView.findViewById(R.id.configured_device_status);
-
+            ibtnDelete = deviceView.findViewById(R.id.configured_device_delete_btn);
+            ibtnOpen = deviceView.findViewById(R.id.configured_device_open_btn);
         }
     }
 
-    public MyBluetoothDeviceAdapter(List<MyBluetoothDevice> deviceList) {
+    public MyBluetoothDeviceAdapter(List<MyBluetoothDevice> deviceList, MainActivity activity) {
 
         mDeviceList = deviceList;
+        this.activity = activity;
+
         for(MyBluetoothDevice device : mDeviceList) {
             device.registerDeviceObserver(this);
-        }
-
-        if(mDeviceList.size() > 0) {
-            setSelectItem(0);
         }
     }
 
@@ -73,14 +74,20 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_configured_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
-        defaultBackground = holder.deviceView.getBackground();
 
-        holder.deviceView.setOnClickListener(new View.OnClickListener() {
+        holder.ibtnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                selectItem = holder.getAdapterPosition();
-                notifyDataSetChanged();
+                MyBluetoothDevice device = mDeviceList.get(holder.getAdapterPosition());
+                activity.deleteDevice(device);
+            }
+        });
 
+        holder.ibtnOpen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyBluetoothDevice device = mDeviceList.get(holder.getAdapterPosition());
+                activity.openDevice(device);
             }
         });
 
@@ -104,10 +111,10 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         holder.deviceAddress.setText(device.getMacAddress());
         holder.deviceStatus.setText(device.getDeviceState().getDescription());
 
-        if(selectItem == position) {
-            holder.deviceView.setBackgroundColor(Color.parseColor("#808080"));
+        if(position % 2 == 0) {
+            holder.deviceView.setBackgroundColor(Color.parseColor("#ffffff"));
         } else {
-            holder.deviceView.setBackground(defaultBackground);
+            holder.deviceView.setBackgroundColor(Color.parseColor("#808080"));
         }
 
     }
@@ -117,28 +124,12 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         return mDeviceList.size();
     }
 
-
-    public int getSelectItem() {return selectItem;}
-
-
-    public void setSelectItem(int selectItem) {
-        if(selectItem >= 0 && selectItem < mDeviceList.size())
-            this.selectItem = selectItem;
-        else
-            this.selectItem = -1;
-    }
-
     // 作为IMyBluetoothDeviceObserver设备观察者要实现的函数
     @Override
     public void updateDeviceInfo(MyBluetoothDevice device, final int type) {
         new Handler(Looper.getMainLooper()).post((new Runnable() {
             @Override
             public void run() {
-            if(type == TYPE_ADDED) {
-                setSelectItem(mDeviceList.size()-1);
-            } else if(type == TYPE_DELETED) {
-                setSelectItem(-1);
-            }
             notifyDataSetChanged();
             }
         }));
