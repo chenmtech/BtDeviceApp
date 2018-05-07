@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -91,11 +92,13 @@ public class EcgMonitorFragment extends DeviceFragment {
     private TextView tvEcgLeadType;
     private TextView tvEcg1mV;
     private WaveView ecgView;
-    private Button btnEcgStartandStop;
+    private ImageButton btnEcgStartandStop;
     private CheckBox cbEcgRecord;
+    private CheckBox cbEcgFilter;
 
     private boolean isStartSampleEcg = false;       // 是否开始采样心电信号
     private boolean isRecord = false;                // 是否记录心电信号
+    private boolean isFilter = false;                // 是否对信号滤波
 
     private BmeFileHead ecgFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead10版本，LITTLE_ENDIAN，数据类型为INT32
     private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
@@ -151,7 +154,9 @@ public class EcgMonitorFragment extends DeviceFragment {
                                     handler.sendMessage(msg1);
                                 }
                             } else {
-                                //tmpData = (int)notch.filter(dcBlock.filter(tmpData));
+                                if(isFilter)
+                                    tmpData = (int)notch.filter(dcBlock.filter(tmpData));
+
                                 ecgView.addData(tmpData);
                                 if(isRecord) {
                                     try {
@@ -194,12 +199,13 @@ public class EcgMonitorFragment extends DeviceFragment {
                     // 准备隔直滤波器
                     dcBlock = DCBlockDesigner.design(0.06, sampleRate);   // 设计隔直滤波器
                     dcBlock.createStructure(StructType.IIR_DCBLOCK);            // 创建隔直滤波器专用结构
-
+                    // 准备陷波器
                     notch = NotchDesigner.design(50, 0.5, sampleRate);
                     notch.createStructure(StructType.IIR_NOTCH);
 
                     btnEcgStartandStop.setClickable(true);
                     cbEcgRecord.setClickable(true);
+                    cbEcgFilter.setClickable(true);
                     // 启动采样心电信号
                     toggleSampleEcg();
                     break;
@@ -234,7 +240,7 @@ public class EcgMonitorFragment extends DeviceFragment {
         ecgView = (WaveView)view.findViewById(R.id.ecg_view);
         btnEcgStartandStop = view.findViewById(R.id.btn_ecg_startandstop);
         cbEcgRecord = view.findViewById(R.id.cb_ecg_record);
-
+        cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
 
 
         btnEcgStartandStop.setOnClickListener(new View.OnClickListener() {
@@ -270,6 +276,12 @@ public class EcgMonitorFragment extends DeviceFragment {
             }
         });
 
+        cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                isFilter = b;
+            }
+        });
     }
 
 
@@ -375,11 +387,11 @@ public class EcgMonitorFragment extends DeviceFragment {
     private synchronized void toggleSampleEcg() {
         if(!isStartSampleEcg) {
             startSampleEcg();
-            btnEcgStartandStop.setText("停止");
+            btnEcgStartandStop.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
             isStartSampleEcg = true;
         } else {
             stopSampleEcg();
-            btnEcgStartandStop.setText("开始");
+            btnEcgStartandStop.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
             isStartSampleEcg = false;
         }
     }
