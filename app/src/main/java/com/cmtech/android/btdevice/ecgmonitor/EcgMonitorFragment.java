@@ -32,6 +32,7 @@ import com.cmtech.dsp.bmefile.BmeFileHeadFactory;
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.filter.IIRFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
+import com.cmtech.dsp.filter.design.NotchDesigner;
 import com.cmtech.dsp.filter.structure.StructType;
 import com.vise.utils.file.FileUtil;
 
@@ -100,6 +101,7 @@ public class EcgMonitorFragment extends DeviceFragment {
     private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
 
     private IIRFilter dcBlock = null;               // 隔直滤波器
+    private IIRFilter notch = null;                 // 50Hz陷波器
 
 
     // 用于设置EcgWaveView的参数
@@ -149,7 +151,7 @@ public class EcgMonitorFragment extends DeviceFragment {
                                     handler.sendMessage(msg1);
                                 }
                             } else {
-                                //tmpData = (int)dcBlock.filter(tmpData);
+                                //tmpData = (int)notch.filter(dcBlock.filter(tmpData));
                                 ecgView.addData(tmpData);
                                 if(isRecord) {
                                     try {
@@ -192,6 +194,9 @@ public class EcgMonitorFragment extends DeviceFragment {
                     // 准备隔直滤波器
                     dcBlock = DCBlockDesigner.design(0.06, sampleRate);   // 设计隔直滤波器
                     dcBlock.createStructure(StructType.IIR_DCBLOCK);            // 创建隔直滤波器专用结构
+
+                    notch = NotchDesigner.design(50, 0.5, sampleRate);
+                    notch.createStructure(StructType.IIR_NOTCH);
 
                     btnEcgStartandStop.setClickable(true);
                     cbEcgRecord.setClickable(true);
