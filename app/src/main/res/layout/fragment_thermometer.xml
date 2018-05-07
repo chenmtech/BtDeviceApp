@@ -11,36 +11,56 @@
         android:layout_height="wrap_content">
     </com.cmtech.android.btdeviceapp.activity.DeviceFragTitleLayout>
 
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:background="#0000ff">
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textSize="30dp"
-            android:text="当前体温："/>
-
-        <TextView
-            android:id="@+id/tv_thermo_data"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_horizontal|bottom"
             android:textSize="30dp"
             android:textColor="#ff0000"
-            android:text="33.90"/>
+            android:text="体温值"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2">
+            <TextView
+                android:id="@+id/tv_thermo_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="100dp"
+                android:textColor="#ff0000"
+                android:text="00.00"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/tv_thermo_data"
+                android:layout_alignTop="@+id/tv_thermo_data"
+                android:textSize="30dp"
+                android:textColor="#ff0000"
+                android:text="℃"/>
+        </RelativeLayout>
 
         <TextView
+            android:id="@+id/tv_thermo_status"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
             android:textSize="30dp"
-            android:text="摄氏度"/>
-
+            android:textColor="#ff0000"
+            android:text="正常"/>
     </LinearLayout>
+
 
 
 </LinearLayout>

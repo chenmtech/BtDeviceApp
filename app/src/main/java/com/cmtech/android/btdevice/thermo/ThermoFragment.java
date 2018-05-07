@@ -50,6 +50,7 @@ public class ThermoFragment extends DeviceFragment {
     ///////////////////////////////////////////////////////
 
     private TextView tvThermoData;
+    private TextView tvThermoStatus;
 
     private final Handler handler = new Handler(Looper.myLooper()) {
         @Override
@@ -58,8 +59,22 @@ public class ThermoFragment extends DeviceFragment {
                 if (msg.obj != null) {
                     byte[] data = (byte[]) msg.obj;
                     double temp = ByteUtil.getShort(data)/100.0;
-                    String str = String.format("%.2f", temp);
-                    tvThermoData.setText(str);
+
+                    if(temp < 34.00)
+                        tvThermoData.setText("<34.0");
+                    else {
+                        String str = String.format("%.2f", temp);
+                        tvThermoData.setText(str);
+                    }
+                    if(temp < 37.0) {
+                        tvThermoStatus.setText("正常");
+                    } else if(temp < 38.0) {
+                        tvThermoStatus.setText("低烧，请注意休息！");
+                    } else if(temp < 38.5) {
+                        tvThermoStatus.setText("体温异常，请注意降温！");
+                    } else {
+                        tvThermoStatus.setText("高烧，请及时就医！");
+                    }
                 }
             }
         }
@@ -86,6 +101,7 @@ public class ThermoFragment extends DeviceFragment {
         super.onViewCreated(view, savedInstanceState);
 
         tvThermoData = (TextView)view.findViewById(R.id.tv_thermo_data);
+        tvThermoStatus = view.findViewById(R.id.tv_thermo_status);
     }
 
 
