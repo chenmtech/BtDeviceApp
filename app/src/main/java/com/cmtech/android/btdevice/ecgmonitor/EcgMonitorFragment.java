@@ -367,6 +367,7 @@ public class EcgMonitorFragment extends DeviceFragment {
 
         // 启动1mV数据采集
         isCalibration = true;
+        isStartSampleEcg = false;
         serialExecutor.addWriteCommand(ECGMONITORCTRL, new byte[]{0x02}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
