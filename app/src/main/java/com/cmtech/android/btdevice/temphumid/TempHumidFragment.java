@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -58,6 +59,10 @@ public class TempHumidFragment extends DeviceFragment {
 
     private TextView tvTempData;
     private TextView tvHumidData;
+    private TextView tvHeadIndex;
+
+    private Button btnReadHistoryData;
+
 
 
     private View rootView;
@@ -74,7 +79,8 @@ public class TempHumidFragment extends DeviceFragment {
                     buf = Arrays.copyOfRange(data, 4, 8);
                     float temp = ByteUtil.getFloat(buf);
                     tvTempData.setText(String.format("%.1f", temp));
-
+                    float heatindex = computeHeatIndex(temp, humid);
+                    tvHeadIndex.setText(String.format("%.1f", heatindex));
                 }
             }
         }
@@ -102,6 +108,24 @@ public class TempHumidFragment extends DeviceFragment {
 
         tvTempData = (TextView)view.findViewById(R.id.tv_temp_data);
         tvHumidData = (TextView)view.findViewById(R.id.tv_humid_data);
+        tvHeadIndex = (TextView)view.findViewById(R.id.tv_heat_index);
+
+        btnReadHistoryData = (Button)view.findViewById(R.id.btn_read_history_temphumid);
+        btnReadHistoryData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                readHistoryData();
+            }
+        });
+    }
+
+    private void readHistoryData() {
+        GattSerialExecutor serialExecutor = device.getSerialExecutor();
+
+        if(serialExecutor == null) return;
+
+        serialExecutor.start();
+
 
     }
 
@@ -111,6 +135,8 @@ public class TempHumidFragment extends DeviceFragment {
         GattSerialExecutor serialExecutor = device.getSerialExecutor();
 
         if(serialExecutor == null) return;
+
+        serialExecutor.start();
 
         Log.d("FragmentThread", ""+Thread.currentThread().getId());
 
@@ -140,8 +166,9 @@ public class TempHumidFragment extends DeviceFragment {
             }
         });
 
-        // 设置采样周期为1s
-        serialExecutor.addWriteCommand(TEMPHUMIDPERIOD, new byte[]{0x0A}, new IBleCallback() {
+        // 设置采样周期: 设置的值以100ms为单位
+        int period = 2000;
+        serialExecutor.addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(period/100)}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
@@ -198,9 +225,19 @@ public class TempHumidFragment extends DeviceFragment {
                 //Log.d("THERMOCONTROL", exception.toString());
             }
         });
-
-        serialExecutor.start();
     }
 
-
+    private float computeHeatIndex(float t, float rh) {
+        t = t*1.8f+32.0f;
+        float index = (float)((16.923 + (0.185212 * t) + (5.37941 * rh) - (0.100254 * t * rh) +
+                (0.00941695 * (t * t)) + (0.00728898 * (rh * rh)) +
+                (0.000345372 * (t * t * rh)) - (0.000814971 * (t * rh * rh)) +
+                (0.0000102102 * (t * t * rh * rh)) - (0.000038646 * (t * t * t)) + (0.0000291583 *
+                (rh * rh * rh)) + (0.00000142721 * (t * t * t * rh)) +
+                (0.000000197483 * (t * rh * rh * rh)) - (0.0000000218429 * (t * t * t * rh * rh)) +
+                0.000000000843296 * (t * t * rh * rh * rh)) -
+                (0.0000000000481975 * (t * t * t * rh * rh * rh)));
+        index = (index-32)/1.8f;
+        return index;
+    }
 }
