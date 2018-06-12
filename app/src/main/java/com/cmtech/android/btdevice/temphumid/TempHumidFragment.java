@@ -5,6 +5,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,15 +19,21 @@ import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdevice.ecgmonitor.WaveView;
+import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
+import com.cmtech.android.btdeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.util.ByteUtil;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
 
 
 /**
@@ -36,12 +44,17 @@ public class TempHumidFragment extends DeviceFragment {
     private static final int MSG_TEMPHUMIDDATA = 0;
     private static final int MSG_TEMPHUMIDCTRL = 1;
     private static final int MSG_TEMPHUMIDPERIOD = 2;
+    private static final int MSG_TEMPHUMIDHISTORYDATA = 3;
+    private static final int MSG_TIMERCTRL = 4;
 
     ///////////////// 温湿度计Service相关的常量////////////////
     private static final String tempHumidServiceUuid    = "aa60";           // 温湿度计服务UUID:aa60
     private static final String tempHumidDataUuid       = "aa61";           // 温湿度数据特征UUID:aa61
     private static final String tempHumidCtrlUuid       = "aa62";           // 测量控制UUID:aa62
     private static final String tempHumidPeriodUuid     = "aa63";           // 采样周期UUID:aa63
+    private static final String tempHumidHistoryTimeUuid  = "aa64";         // 历史数据采集的时间UUID
+    private static final String tempHumidHistoryDataUuid = "aa65";          // 历史数据UUID
+
 
     public static final BluetoothGattElement TEMPHUMIDDATA =
             new BluetoothGattElement(tempHumidServiceUuid, tempHumidDataUuid, null);
@@ -54,16 +67,42 @@ public class TempHumidFragment extends DeviceFragment {
 
     public static final BluetoothGattElement TEMPHUMIDDATACCC =
             new BluetoothGattElement(tempHumidServiceUuid, tempHumidDataUuid, Uuid.CCCUUID);
+
+    public static final BluetoothGattElement TEMPHUMIDHISTORYTIME =
+            new BluetoothGattElement(tempHumidServiceUuid, tempHumidHistoryTimeUuid, null);
+
+    public static final BluetoothGattElement TEMPHUMIDHISTORYDATA =
+            new BluetoothGattElement(tempHumidServiceUuid, tempHumidHistoryDataUuid, null);
     ////////////////////////////////////////////////////////
 
+
+    //////////////// 定时服务相关常量 /////////////////////////
+    private static final String timerServiceUuid          = "aa70";
+    private static final String timerCurTimeUuid          = "aa71";         // 当前时间
+    private static final String timerCtrlUuid              = "aa72";        // 定时控制
+    private static final String timerPeriodUuid             = "aa73";       // 定时周期
+
+    public static final BluetoothGattElement TIMERCURTIME =
+            new BluetoothGattElement(timerServiceUuid, timerCurTimeUuid, null);
+
+    public static final BluetoothGattElement TIMERCTRL =
+            new BluetoothGattElement(timerServiceUuid, timerCtrlUuid, null);
+
+    public static final BluetoothGattElement TIMERPERIOD =
+            new BluetoothGattElement(timerServiceUuid, timerPeriodUuid, null);
+    ////////////////////////////////////////////////////////
 
     private TextView tvTempData;
     private TextView tvHumidData;
     private TextView tvHeadIndex;
 
+    private RecyclerView rvHistoryData;
+    private TempHumidHistoryDataAdapter historyDataAdapter;
+    private List<TempHumidData> dataList = new ArrayList<>();
+
     private Button btnReadHistoryData;
 
-
+    private boolean isStartTimerService = false;
 
     private View rootView;
 
@@ -81,6 +120,30 @@ public class TempHumidFragment extends DeviceFragment {
                     tvTempData.setText(String.format("%.1f", temp));
                     float heatindex = computeHeatIndex(temp, humid);
                     tvHeadIndex.setText(String.format("%.1f", heatindex));
+                }
+            } else if(msg.what == MSG_TIMERCTRL) {
+                if(msg.arg1 == 0) {
+                    isStartTimerService = false;
+                    startTimerService();
+                } else {
+                    isStartTimerService = true;
+                    updateHistoryData();
+                }
+            } else if(msg.what == MSG_TEMPHUMIDHISTORYDATA) {
+                if(msg.obj != null) {
+                    GregorianCalendar time = new GregorianCalendar();
+                    time.set(Calendar.HOUR_OF_DAY, msg.arg1);
+                    time.set(Calendar.MINUTE, msg.arg2);
+                    byte[] data = (byte[]) msg.obj;
+                    byte[] buf = Arrays.copyOfRange(data, 0, 4);
+                    int humid = (int)ByteUtil.getFloat(buf);
+                    buf = Arrays.copyOfRange(data, 4, 8);
+                    float temp = ByteUtil.getFloat(buf);
+                    TempHumidData newData = new TempHumidData(time.getTime(), temp, humid);
+                    dataList.add(newData);
+                    historyDataAdapter.notifyItemInserted(dataList.size()-1);
+                    rvHistoryData.scrollToPosition(dataList.size()-1);
+                    //tvHeadIndex.setText(newData.toString());
                 }
             }
         }
@@ -110,25 +173,68 @@ public class TempHumidFragment extends DeviceFragment {
         tvHumidData = (TextView)view.findViewById(R.id.tv_humid_data);
         tvHeadIndex = (TextView)view.findViewById(R.id.tv_heat_index);
 
+        rvHistoryData = (RecyclerView)view.findViewById(R.id.rv_history_temphumid);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(MyApplication.getContext());
+        rvHistoryData.setLayoutManager(layoutManager);
+        historyDataAdapter = new TempHumidHistoryDataAdapter(dataList);
+        rvHistoryData.setAdapter(historyDataAdapter);
+
         btnReadHistoryData = (Button)view.findViewById(R.id.btn_read_history_temphumid);
         btnReadHistoryData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                readHistoryData();
+                updateHistoryData();
             }
         });
     }
 
-    private void readHistoryData() {
-        GattSerialExecutor serialExecutor = device.getSerialExecutor();
-
-        if(serialExecutor == null) return;
-
-        serialExecutor.start();
-
-
+    private void updateHistoryData() {
+        readOneHistoryDataAtTime(new byte[] {(byte)0x10, 0x00});
+        readOneHistoryDataAtTime(new byte[] {(byte)0x0f, 0x1e});
+        readOneHistoryDataAtTime(new byte[] {(byte)0x0f, 0x00});
+        readOneHistoryDataAtTime(new byte[] {(byte)0x0e, 0x1e});
+        readOneHistoryDataAtTime(new byte[] {(byte)0x0e, 0x00});
     }
 
+    private void readOneHistoryDataAtTime(final byte[] time) {
+        GattSerialExecutor serialExecutor = device.getSerialExecutor();
+        if(serialExecutor == null) return;
+        serialExecutor.start();
+
+        // 写历史数据时间
+        serialExecutor.addWriteCommand(TEMPHUMIDHISTORYTIME, time, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+                //Log.d("THERMOCONTROL", exception.toString());
+            }
+        });
+
+        // 读取历史数据
+        serialExecutor.addReadCommand(TEMPHUMIDHISTORYDATA, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                Message msg = new Message();
+                msg.what = MSG_TEMPHUMIDHISTORYDATA;
+                msg.arg1 = (int)time[0];
+                msg.arg2 = (int)time[1];
+                msg.obj = data;
+                handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
+    }
+
+    private void startTimerService() {
+
+    }
 
     @Override
     public synchronized void executeGattInitOperation() {
@@ -167,7 +273,7 @@ public class TempHumidFragment extends DeviceFragment {
         });
 
         // 设置采样周期: 设置的值以100ms为单位
-        int period = 2000;
+        int period = 3000;
         serialExecutor.addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(period/100)}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -223,6 +329,22 @@ public class TempHumidFragment extends DeviceFragment {
             @Override
             public void onFailure(BleException exception) {
                 //Log.d("THERMOCONTROL", exception.toString());
+            }
+        });
+
+        // 读取是否已经开启定时采集服务
+        serialExecutor.addReadCommand(TIMERCTRL, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                Message msg = new Message();
+                msg.what = MSG_TIMERCTRL;
+                msg.arg1 = (int)data[0];
+                handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
             }
         });
     }

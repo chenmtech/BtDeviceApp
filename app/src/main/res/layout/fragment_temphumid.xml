@@ -136,12 +136,11 @@
         android:gravity="center_horizontal"
         android:text="历史数据"/>
 
-    <TextView
-        android:id="@+id/editText"
+    <android.support.v7.widget.RecyclerView
+        android:id = "@+id/rv_history_temphumid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:hint="历史数据"/>
+        android:layout_weight="1"/>
 
     <Button
         android:id="@+id/btn_read_history_temphumid"
