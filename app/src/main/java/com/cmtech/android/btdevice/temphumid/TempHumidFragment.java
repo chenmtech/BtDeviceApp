@@ -18,16 +18,15 @@ import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
-import com.cmtech.android.btdevice.ecgmonitor.WaveView;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.util.ByteUtil;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -102,7 +101,10 @@ public class TempHumidFragment extends DeviceFragment {
 
     private Button btnReadHistoryData;
 
+    // 设备是否启动定时采集服务
     private boolean isStartTimerService = false;
+    // 设备中的当前时间
+    private Calendar deviceCurTime;
 
     private View rootView;
 
@@ -111,38 +113,17 @@ public class TempHumidFragment extends DeviceFragment {
         public void handleMessage(Message msg) {
             if (msg.what == MSG_TEMPHUMIDDATA) {
                 if(msg.obj != null) {
-                    byte[] data = (byte[]) msg.obj;
-                    byte[] buf = Arrays.copyOfRange(data, 0, 4);
-                    int humid = (int)ByteUtil.getFloat(buf);
-                    tvHumidData.setText( ""+humid );
-                    buf = Arrays.copyOfRange(data, 4, 8);
-                    float temp = ByteUtil.getFloat(buf);
-                    tvTempData.setText(String.format("%.1f", temp));
-                    float heatindex = computeHeatIndex(temp, humid);
+                    TempHumidData data = (TempHumidData) msg.obj;
+                    tvHumidData.setText( ""+data.getHumid() );
+                    tvTempData.setText(String.format("%.1f", data.getTemp()));
+                    float heatindex = computeHeatIndex(data.getTemp(), data.getHumid());
                     tvHeadIndex.setText(String.format("%.1f", heatindex));
-                }
-            } else if(msg.what == MSG_TIMERCTRL) {
-                if(msg.arg1 == 0) {
-                    isStartTimerService = false;
-                    startTimerService();
-                } else {
-                    isStartTimerService = true;
-                    updateHistoryData();
                 }
             } else if(msg.what == MSG_TEMPHUMIDHISTORYDATA) {
                 if(msg.obj != null) {
-                    GregorianCalendar time = new GregorianCalendar();
-                    time.set(Calendar.HOUR_OF_DAY, msg.arg1);
-                    time.set(Calendar.MINUTE, msg.arg2);
-                    byte[] data = (byte[]) msg.obj;
-                    byte[] buf = Arrays.copyOfRange(data, 0, 4);
-                    int humid = (int)ByteUtil.getFloat(buf);
-                    buf = Arrays.copyOfRange(data, 4, 8);
-                    float temp = ByteUtil.getFloat(buf);
-                    TempHumidData newData = new TempHumidData(time.getTime(), temp, humid);
-                    dataList.add(newData);
+                    dataList.add((TempHumidData) msg.obj);
                     historyDataAdapter.notifyItemInserted(dataList.size()-1);
-                    rvHistoryData.scrollToPosition(dataList.size()-1);
+                    rvHistoryData.scrollToPosition(0);
                     //tvHeadIndex.setText(newData.toString());
                 }
             }
@@ -183,65 +164,16 @@ public class TempHumidFragment extends DeviceFragment {
         btnReadHistoryData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                updateHistoryData();
+                updateHistoryData(device.getSerialExecutor());
             }
         });
     }
 
-    private void updateHistoryData() {
-        readOneHistoryDataAtTime(new byte[] {(byte)0x10, 0x00});
-        readOneHistoryDataAtTime(new byte[] {(byte)0x0f, 0x1e});
-        readOneHistoryDataAtTime(new byte[] {(byte)0x0f, 0x00});
-        readOneHistoryDataAtTime(new byte[] {(byte)0x0e, 0x1e});
-        readOneHistoryDataAtTime(new byte[] {(byte)0x0e, 0x00});
-    }
-
-    private void readOneHistoryDataAtTime(final byte[] time) {
-        GattSerialExecutor serialExecutor = device.getSerialExecutor();
-        if(serialExecutor == null) return;
-        serialExecutor.start();
-
-        // 写历史数据时间
-        serialExecutor.addWriteCommand(TEMPHUMIDHISTORYTIME, time, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-                //Log.d("THERMOCONTROL", exception.toString());
-            }
-        });
-
-        // 读取历史数据
-        serialExecutor.addReadCommand(TEMPHUMIDHISTORYDATA, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                Message msg = new Message();
-                msg.what = MSG_TEMPHUMIDHISTORYDATA;
-                msg.arg1 = (int)time[0];
-                msg.arg2 = (int)time[1];
-                msg.obj = data;
-                handler.sendMessage(msg);
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        });
-    }
-
-    private void startTimerService() {
-
-    }
 
     @Override
     public synchronized void executeGattInitOperation() {
-        GattSerialExecutor serialExecutor = device.getSerialExecutor();
-
+        final GattSerialExecutor serialExecutor = device.getSerialExecutor();
         if(serialExecutor == null) return;
-
         serialExecutor.start();
 
         Log.d("FragmentThread", ""+Thread.currentThread().getId());
@@ -254,14 +186,14 @@ public class TempHumidFragment extends DeviceFragment {
             return;
         }
 
-        // 读温湿度
+/*        // 先读一次温湿度
         serialExecutor.addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "first write period: " + HexUtil.encodeHexStr(data));
                 Message msg = new Message();
                 msg.what = MSG_TEMPHUMIDDATA;
-                msg.obj = data;
+                msg.obj = new TempHumidData(new Date(), data);
                 handler.sendMessage(msg);
                 Log.d("Thread", "Read Callback Thread: "+Thread.currentThread().getId());
             }
@@ -270,10 +202,10 @@ public class TempHumidFragment extends DeviceFragment {
             public void onFailure(BleException exception) {
                 //Log.d("THERMOCONTROL", exception.toString());
             }
-        });
+        });*/
 
         // 设置采样周期: 设置的值以100ms为单位
-        int period = 3000;
+        int period = 2000;
         serialExecutor.addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(period/100)}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -288,12 +220,13 @@ public class TempHumidFragment extends DeviceFragment {
             }
         });
 
+        // 温湿度数据Notify回调
         IBleCallback notifyCallback = new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 Message msg = new Message();
                 msg.what = MSG_TEMPHUMIDDATA;
-                msg.obj = data;
+                msg.obj = new TempHumidData(Calendar.getInstance(), data);
                 handler.sendMessage(msg);
             }
 
@@ -332,13 +265,103 @@ public class TempHumidFragment extends DeviceFragment {
             }
         });
 
-        // 读取是否已经开启定时采集服务
-        serialExecutor.addReadCommand(TIMERCTRL, new IBleCallback() {
+        // 读取设备是否已经开启定时采集服务
+        if(serialExecutor.getGattObject(TIMERCTRL) != null) {
+            serialExecutor.addReadCommand(TIMERCTRL, new IBleCallback() {
+                @Override
+                public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                    isStartTimerService = (data[0] == 1) ? true : false;
+                    if (isStartTimerService) {
+                        readDeviceCurTime(serialExecutor);  // 开启了定时服务，就先读取设备的当前时间
+                    } else {
+                        startTimerService(serialExecutor);  // 没有开启定时服务（比如刚换电池），就先开启定时服务
+                    }
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+
+                }
+            });
+        }
+    }
+
+    // 读设备中的当前时间
+    private void readDeviceCurTime(final GattSerialExecutor serialExecutor) {
+        // 读取设备当前时间
+        if(serialExecutor.getGattObject(TIMERCURTIME) != null) {
+            serialExecutor.addReadCommand(TIMERCURTIME, new IBleCallback() {
+                @Override
+                public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+
+                    Calendar now = Calendar.getInstance();
+                    Calendar devicenow;
+
+                    Calendar devicetoday = (Calendar) now.clone();
+                    devicetoday.set(Calendar.HOUR_OF_DAY, data[0]);
+                    devicetoday.set(Calendar.MINUTE, data[1]);
+
+                    Calendar deviceyest = (Calendar) devicetoday.clone();
+                    deviceyest.add(Calendar.DAY_OF_MONTH, -1);
+
+                    Calendar devicetomm = (Calendar) devicetoday.clone();
+                    devicetomm.add(Calendar.DAY_OF_MONTH, 1);
+
+                    long difftoday = Math.abs(now.getTimeInMillis()-devicetoday.getTimeInMillis());
+                    long diffyest = Math.abs(now.getTimeInMillis()-deviceyest.getTimeInMillis());
+                    long difftomm = Math.abs(now.getTimeInMillis()-devicetomm.getTimeInMillis());
+                    if(difftoday < Math.min(diffyest, difftomm))
+                        devicenow = devicetoday;
+                    else if(diffyest < Math.min(difftoday, difftomm))
+                        devicenow = deviceyest;
+                    else
+                        devicenow = devicetomm;
+
+                    Log.d("TempHumidFragment", "now=" + DateFormat.getDateTimeInstance().format(now.getTime()) );
+                    Log.d("TempHumidFragment", "devicenow=" + DateFormat.getDateTimeInstance().format(devicenow.getTime()));
+
+                    deviceCurTime = devicenow;
+                    updateHistoryData(serialExecutor);
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+                    deviceCurTime = null;
+                }
+            });
+        }
+    }
+
+    private void updateHistoryData(GattSerialExecutor serialExecutor) {
+        Calendar time = (Calendar)deviceCurTime.clone();
+        for(int i = 0; i < 5; i++) {
+            readHistoryDataAtTime(serialExecutor, time);
+            time.add(Calendar.MINUTE, -30);
+        }
+    }
+
+    private void readHistoryDataAtTime(GattSerialExecutor serialExecutor, final Calendar attime) {
+        final Calendar backuptime = (Calendar) attime.clone();
+        final byte[] time = {(byte)attime.get(Calendar.HOUR_OF_DAY), (byte)attime.get(Calendar.MINUTE)};
+        // 写历史数据时间
+        serialExecutor.addWriteCommand(TEMPHUMIDHISTORYTIME, time, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+                //Log.d("THERMOCONTROL", exception.toString());
+            }
+        });
+
+        // 读取历史数据
+        serialExecutor.addReadCommand(TEMPHUMIDHISTORYDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 Message msg = new Message();
-                msg.what = MSG_TIMERCTRL;
-                msg.arg1 = (int)data[0];
+                msg.what = MSG_TEMPHUMIDHISTORYDATA;
+                msg.obj = new TempHumidData(backuptime, data);
                 handler.sendMessage(msg);
             }
 
@@ -347,6 +370,10 @@ public class TempHumidFragment extends DeviceFragment {
 
             }
         });
+    }
+
+    private void startTimerService(GattSerialExecutor serialExecutor) {
+
     }
 
     private float computeHeatIndex(float t, float rh) {
