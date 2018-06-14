@@ -81,7 +81,7 @@ public class TempHumidFragment extends DeviceFragment {
     public static final BluetoothGattElement TIMERVALUE =
             new BluetoothGattElement(timerServiceUuid, timerValueUuid, null);
 
-    private static final byte DEVICE_DEFAULT_TIMER_PERIOD  = 10; // 设备默认定时周期，单位：分钟
+    private static final byte DEVICE_DEFAULT_TIMER_PERIOD  = 30; // 设备默认定时周期，单位：分钟
     ////////////////////////////////////////////////////////
 
     // 设备是否启动定时服务
