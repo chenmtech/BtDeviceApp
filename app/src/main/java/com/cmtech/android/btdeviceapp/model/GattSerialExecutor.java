@@ -85,7 +85,7 @@ public class GattSerialExecutor {
      * @param dataOpCallback 读回调
      * @return 是否添加成功
      */
-    public boolean addReadCommand(BluetoothGattElement element, IBleCallback dataOpCallback) {
+    public synchronized boolean addReadCommand(BluetoothGattElement element, IBleCallback dataOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -102,7 +102,7 @@ public class GattSerialExecutor {
      * @param dataOpCallback 写回调
      * @return 是否添加成功
      */
-    public boolean addWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
+    public synchronized boolean addWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -121,7 +121,7 @@ public class GattSerialExecutor {
      * @param notifyOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public boolean addNotifyCommand(BluetoothGattElement element, boolean enable
+    public synchronized boolean addNotifyCommand(BluetoothGattElement element, boolean enable
                             , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -142,7 +142,7 @@ public class GattSerialExecutor {
      * @param indicateOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public boolean addIndicateCommand(BluetoothGattElement element, boolean enable
+    public synchronized boolean addIndicateCommand(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -219,7 +219,7 @@ public class GattSerialExecutor {
         executeThread.interrupt();
     }
 
-    public boolean isInterruped() {
+    public synchronized boolean isInterruped() {
         if(executeThread == null) return true;
         else return executeThread.isInterrupted();
     }
