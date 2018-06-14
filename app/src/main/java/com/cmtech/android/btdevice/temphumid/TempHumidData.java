@@ -1,13 +1,16 @@
 package com.cmtech.android.btdevice.temphumid;
 
+import android.support.annotation.NonNull;
+
 import com.cmtech.android.btdeviceapp.util.ByteUtil;
 
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
-public class TempHumidData {
+public class TempHumidData implements Comparable{
     Calendar time;
     float temp;
     int humid;
@@ -55,5 +58,25 @@ public class TempHumidData {
         return DateFormat.getDateTimeInstance().format(time.getTime()) +
                 ": temp=" + temp +
                 ", humid=" + humid;
+    }
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        return time.compareTo(((TempHumidData)o).time);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TempHumidData that = (TempHumidData) o;
+        //return Objects.equals(time, that.time);
+        return time.equals(that.time);
+    }
+
+    @Override
+    public int hashCode() {
+        return time.hashCode();
+        //return Objects.hash(time);
     }
 }

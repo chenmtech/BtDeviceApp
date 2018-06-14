@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -29,6 +30,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -41,8 +43,7 @@ public class TempHumidFragment extends DeviceFragment {
     private static final int MSG_TEMPHUMIDCTRL = 1;
     private static final int MSG_TEMPHUMIDPERIOD = 2;
     private static final int MSG_TEMPHUMIDHISTORYDATA = 3;
-    private static final int MSG_TIMERCTRL = 4;
-    private static final int MSG_TIMERPERIOD = 5;
+    private static final int MSG_TIMERVALUE = 4;
 
     ///////////////// 温湿度计Service相关的常量////////////////
     private static final String tempHumidServiceUuid    = "aa60";           // 温湿度计服务UUID:aa60
@@ -89,6 +90,8 @@ public class TempHumidFragment extends DeviceFragment {
     private Calendar deviceCurTime;
     // 设备的定时周期
     private byte deviceTimerPeriod = DEVICE_DEFAULT_TIMER_PERIOD;   // 设定的设备定时更新周期，单位：分钟
+    // 上次更新设备历史数据的时间
+    private Calendar timeLastUpdated = null;
 
     private TextView tvTempData;
     private TextView tvHumidData;
@@ -118,9 +121,14 @@ public class TempHumidFragment extends DeviceFragment {
             } else if(msg.what == MSG_TEMPHUMIDHISTORYDATA) {
                 if(msg.obj != null) {
                     dataList.add((TempHumidData) msg.obj);
+                    Collections.sort(dataList);
                     historyDataAdapter.notifyItemInserted(dataList.size()-1);
-                    rvHistoryData.scrollToPosition(0);
-                    //tvHeadIndex.setText(newData.toString());
+                }
+            } else if(msg.what == MSG_TIMERVALUE) {
+                if (isDeviceStartTimerService) {
+                    updateHistoryDataFromDevice(device.getSerialExecutor());      // 读取设备的历史数据
+                } else {
+                    startTimerService(device.getSerialExecutor());          // 没有开启定时服务（比如刚换电池），就先开启定时服务
                 }
             }
         }
@@ -153,6 +161,7 @@ public class TempHumidFragment extends DeviceFragment {
         rvHistoryData = (RecyclerView)view.findViewById(R.id.rv_history_temphumid);
         LinearLayoutManager layoutManager = new LinearLayoutManager(MyApplication.getContext());
         rvHistoryData.setLayoutManager(layoutManager);
+        rvHistoryData.addItemDecoration(new DividerItemDecoration(MyApplication.getContext(), DividerItemDecoration.VERTICAL));
         historyDataAdapter = new TempHumidHistoryDataAdapter(dataList);
         rvHistoryData.setAdapter(historyDataAdapter);
 
@@ -160,7 +169,7 @@ public class TempHumidFragment extends DeviceFragment {
         btnReadHistoryData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //readDeviceHistoryData(device.getSerialExecutor());
+                initDeviceTimerService(device.getSerialExecutor());
             }
         });
     }
@@ -183,7 +192,7 @@ public class TempHumidFragment extends DeviceFragment {
         }
 
         // 设置采样周期: 设置的值以100ms为单位
-        int period = 2000;
+        int period = 5000;
         serialExecutor.addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(period/100)}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -243,6 +252,10 @@ public class TempHumidFragment extends DeviceFragment {
             }
         });
 
+        initDeviceTimerService(serialExecutor);
+    }
+
+    private void initDeviceTimerService(GattSerialExecutor serialExecutor) {
         // 读取设备定时服务特征值
         if(serialExecutor.getGattObject(TIMERVALUE) != null) {
             serialExecutor.addReadCommand(TIMERVALUE, new IBleCallback() {
@@ -251,12 +264,10 @@ public class TempHumidFragment extends DeviceFragment {
                     isDeviceStartTimerService = (data[3] == 1) ? true : false;
 
                     if (isDeviceStartTimerService) {
-                        deviceTimerPeriod = data[2];                // 获取设备的定时周期值
+                        deviceTimerPeriod = data[2];                // 保存设备的定时周期值
                         guessDeviceCurTime(data);                     // 通过小时和分钟来猜测设备的当前时间
-                        readDeviceHistoryData(serialExecutor);        // 读取设备的历史数据
-                    } else {
-                        startTimerService(serialExecutor);            // 没有开启定时服务（比如刚换电池），就先开启定时服务
                     }
+                    handler.sendEmptyMessage(MSG_TIMERVALUE);
                 }
 
                 @Override
@@ -298,18 +309,21 @@ public class TempHumidFragment extends DeviceFragment {
         deviceCurTime = devicenow;
     };
 
-    // 读设备中的历史数据
-    private void readDeviceHistoryData(final GattSerialExecutor serialExecutor) {
+    private void updateHistoryDataFromDevice(GattSerialExecutor serialExecutor) {
         if(!isDeviceStartTimerService) return;
-        updateHistoryData(serialExecutor);
-    }
 
-    private void updateHistoryData(GattSerialExecutor serialExecutor) {
         Calendar time = (Calendar)deviceCurTime.clone();
-        for(int i = 0; i < 48; i++) {
-            readHistoryDataAtTime(serialExecutor, time);
-            time.add(Calendar.MINUTE, -deviceTimerPeriod);
+        Calendar tmpTime = (Calendar)deviceCurTime.clone();
+        tmpTime.add(Calendar.MINUTE, -deviceTimerPeriod+1);
+        if(timeLastUpdated == null || tmpTime.after(timeLastUpdated)) {
+            for (int i = 0; i < 48; i++) {
+                readHistoryDataAtTime(serialExecutor, time);
+                time.add(Calendar.MINUTE, -deviceTimerPeriod-1);
+                if(timeLastUpdated != null && time.before(timeLastUpdated)) break;
+                time.add(Calendar.MINUTE, 1);
+            }
         }
+        timeLastUpdated = (Calendar)deviceCurTime.clone();
     }
 
     private void readHistoryDataAtTime(GattSerialExecutor serialExecutor, final Calendar attime) {

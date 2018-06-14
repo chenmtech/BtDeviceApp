@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         deviceRecycView = (RecyclerView)findViewById(R.id.rvDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         deviceRecycView.setLayoutManager(layoutManager);
+        deviceRecycView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         deviceAdapter = new MyBluetoothDeviceAdapter(deviceList, this);
         deviceRecycView.setAdapter(deviceAdapter);
 

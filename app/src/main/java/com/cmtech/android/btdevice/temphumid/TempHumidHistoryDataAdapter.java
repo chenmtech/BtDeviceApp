@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.cmtech.android.btdeviceapp.R;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class TempHumidHistoryDataAdapter extends RecyclerView.Adapter<TempHumidHistoryDataAdapter.ViewHolder> {
@@ -47,7 +48,8 @@ public class TempHumidHistoryDataAdapter extends RecyclerView.Adapter<TempHumidH
     public void onBindViewHolder(TempHumidHistoryDataAdapter.ViewHolder holder, final int position) {
         TempHumidData data = (TempHumidData)dataList.get(position);
 
-        holder.historyTime.setText(DateFormat.getDateTimeInstance().format(data.getTime().getTime()));
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        holder.historyTime.setText(df.format(data.getTime().getTime()));
         holder.historyTemp.setText(data.getTemp()+"");
         holder.historyHumid.setText(data.getHumid()+"");
     }

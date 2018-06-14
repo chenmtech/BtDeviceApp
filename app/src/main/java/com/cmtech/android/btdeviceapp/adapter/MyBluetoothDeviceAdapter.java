@@ -111,12 +111,6 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         holder.deviceAddress.setText(device.getMacAddress());
         holder.deviceStatus.setText(device.getDeviceState().getDescription());
 
-        if(position % 2 == 0) {
-            holder.deviceView.setBackgroundColor(Color.parseColor("#ffffff"));
-        } else {
-            holder.deviceView.setBackgroundColor(Color.parseColor("#808080"));
-        }
-
     }
 
     @Override
