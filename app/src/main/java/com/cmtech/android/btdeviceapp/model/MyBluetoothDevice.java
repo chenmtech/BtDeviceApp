@@ -249,6 +249,7 @@ public class MyBluetoothDevice extends DataSupport {
             MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
         else
             deviceMirror.connect(connectCallback);
+        //MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
     }
 
     // 断开连接
@@ -257,8 +258,12 @@ public class MyBluetoothDevice extends DataSupport {
         if(serialExecutor != null && !serialExecutor.isInterruped())
             serialExecutor.stop();
 
-        if(deviceMirror != null)
+        if(deviceMirror != null) {
             MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
+            // 一定要从Pool中清除DeviceMirror
+            MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+            deviceMirror.clear();
+        }
     }
 
     @Override

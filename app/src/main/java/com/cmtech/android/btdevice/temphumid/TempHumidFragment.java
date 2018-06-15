@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
@@ -39,6 +40,8 @@ import java.util.List;
  */
 
 public class TempHumidFragment extends DeviceFragment {
+    private static final String TAG = "TempHumidFragment";
+
     private static final int MSG_TEMPHUMIDDATA = 0;
     private static final int MSG_TEMPHUMIDCTRL = 1;
     private static final int MSG_TEMPHUMIDPERIOD = 2;
@@ -101,10 +104,6 @@ public class TempHumidFragment extends DeviceFragment {
     private TempHumidHistoryDataAdapter historyDataAdapter;
     private List<TempHumidData> dataList = new ArrayList<>();
 
-    private Button btnReadHistoryData;
-
-
-
     private View rootView;
 
     private final Handler handler = new Handler(Looper.myLooper()) {
@@ -121,8 +120,8 @@ public class TempHumidFragment extends DeviceFragment {
             } else if(msg.what == MSG_TEMPHUMIDHISTORYDATA) {
                 if(msg.obj != null) {
                     dataList.add((TempHumidData) msg.obj);
-                    Collections.sort(dataList);
                     historyDataAdapter.notifyItemInserted(dataList.size()-1);
+                    rvHistoryData.scrollToPosition(dataList.size()-1);
                 }
             } else if(msg.what == MSG_TIMERVALUE) {
                 if (isDeviceStartTimerService) {
@@ -164,12 +163,22 @@ public class TempHumidFragment extends DeviceFragment {
         rvHistoryData.addItemDecoration(new DividerItemDecoration(MyApplication.getContext(), DividerItemDecoration.VERTICAL));
         historyDataAdapter = new TempHumidHistoryDataAdapter(dataList);
         rvHistoryData.setAdapter(historyDataAdapter);
-
-        btnReadHistoryData = (Button)view.findViewById(R.id.btn_read_history_temphumid);
-        btnReadHistoryData.setOnClickListener(new View.OnClickListener() {
+        rvHistoryData.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onClick(View view) {
-                initDeviceTimerService(device.getSerialExecutor());
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    int lastVisiblePosition = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                    if(lastVisiblePosition == recyclerView.getLayoutManager().getItemCount()-1) {
+                        //Toast.makeText(MyApplication.getContext(), "更新历史数据", Toast.LENGTH_SHORT).show();
+                        initDeviceTimerService(device.getSerialExecutor());
+                    }
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
             }
         });
     }
@@ -178,7 +187,10 @@ public class TempHumidFragment extends DeviceFragment {
     @Override
     public synchronized void executeGattInitOperation() {
         final GattSerialExecutor serialExecutor = device.getSerialExecutor();
-        if(serialExecutor == null) return;
+        if(serialExecutor == null) {
+            Log.d("TempHumidFragment", "serialExecutor == null");
+            return;
+        }
         serialExecutor.start();
 
         Log.d("FragmentThread", ""+Thread.currentThread().getId());
@@ -190,6 +202,8 @@ public class TempHumidFragment extends DeviceFragment {
             Log.d("TempHumidFragment", "can't find Gatt object of this element on the device.");
             return;
         }
+
+        Log.d(TAG, "begin to start temphumid sampling");
 
         // 设置采样周期: 设置的值以100ms为单位
         int period = 5000;
@@ -257,7 +271,15 @@ public class TempHumidFragment extends DeviceFragment {
 
     private void initDeviceTimerService(GattSerialExecutor serialExecutor) {
         // 读取设备定时服务特征值
+        if(serialExecutor == null) return;
+
+        Log.d(TAG, "serialExecutor is not null");
+
+        if(serialExecutor.isInterruped()) serialExecutor.start();
+
         if(serialExecutor.getGattObject(TIMERVALUE) != null) {
+            Log.d(TAG, "serialExecutor has GATT TIMERVALUE");
+
             serialExecutor.addReadCommand(TIMERVALUE, new IBleCallback() {
                 @Override
                 public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -265,7 +287,7 @@ public class TempHumidFragment extends DeviceFragment {
 
                     if (isDeviceStartTimerService) {
                         deviceTimerPeriod = data[2];                // 保存设备的定时周期值
-                        guessDeviceCurTime(data);                     // 通过小时和分钟来猜测设备的当前时间
+                        deviceCurTime = guessDeviceCurTime(data);                     // 通过小时和分钟来猜测设备的当前时间
                     }
                     handler.sendEmptyMessage(MSG_TIMERVALUE);
                 }
@@ -278,13 +300,15 @@ public class TempHumidFragment extends DeviceFragment {
         }
     }
 
-    private void guessDeviceCurTime(byte[] data) {
+    private Calendar guessDeviceCurTime(byte[] data) {
         Calendar now = Calendar.getInstance();
         Calendar devicenow;
 
         Calendar devicetoday = (Calendar) now.clone();
         devicetoday.set(Calendar.HOUR_OF_DAY, data[0]);
         devicetoday.set(Calendar.MINUTE, data[1]);
+        devicetoday.set(Calendar.SECOND, 0);
+        devicetoday.set(Calendar.MILLISECOND, 0);
 
         Calendar deviceyest = (Calendar) devicetoday.clone();
         deviceyest.add(Calendar.DAY_OF_MONTH, -1);
@@ -306,31 +330,37 @@ public class TempHumidFragment extends DeviceFragment {
         Log.d("TempHumidFragment", "now=" + DateFormat.getDateTimeInstance().format(now.getTime()) );
         Log.d("TempHumidFragment", "devicenow=" + DateFormat.getDateTimeInstance().format(devicenow.getTime()));
 
-        deviceCurTime = devicenow;
+        return devicenow;
     };
 
     private void updateHistoryDataFromDevice(GattSerialExecutor serialExecutor) {
         if(!isDeviceStartTimerService) return;
 
-        Calendar time = (Calendar)deviceCurTime.clone();
-        Calendar tmpTime = (Calendar)deviceCurTime.clone();
-        tmpTime.add(Calendar.MINUTE, -deviceTimerPeriod+1);
-        if(timeLastUpdated == null || tmpTime.after(timeLastUpdated)) {
-            for (int i = 0; i < 48; i++) {
-                readHistoryDataAtTime(serialExecutor, time);
-                time.add(Calendar.MINUTE, -deviceTimerPeriod-1);
-                if(timeLastUpdated != null && time.before(timeLastUpdated)) break;
-                time.add(Calendar.MINUTE, 1);
-            }
+        Calendar updateFrom;
+        if(timeLastUpdated != null) {
+            updateFrom = (Calendar) timeLastUpdated.clone();
+            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod);
+            if(updateFrom.after(deviceCurTime)) return;    // 上次更新到现在还不到一个deviceTimerPeriod,不需要更新
+        } else {
+            updateFrom = (Calendar) deviceCurTime.clone();
+            updateFrom.add(Calendar.DAY_OF_MONTH, -1);
+            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod); // 从前一天的时间开始更新
         }
+
+        for (int i = 0; i < 48; i++) {
+            readHistoryDataAtTime(serialExecutor, updateFrom);
+            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod);
+            if(updateFrom.after(deviceCurTime)) break;
+        }
+
         timeLastUpdated = (Calendar)deviceCurTime.clone();
     }
 
-    private void readHistoryDataAtTime(GattSerialExecutor serialExecutor, final Calendar attime) {
-        final Calendar backuptime = (Calendar) attime.clone();
-        final byte[] time = {(byte)attime.get(Calendar.HOUR_OF_DAY), (byte)attime.get(Calendar.MINUTE)};
+    private void readHistoryDataAtTime(GattSerialExecutor serialExecutor, Calendar time) {
+        final Calendar backuptime = (Calendar)time.clone();
+        final byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
         // 写历史数据时间
-        serialExecutor.addWriteCommand(TEMPHUMIDHISTORYTIME, time, new IBleCallback() {
+        serialExecutor.addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
             }

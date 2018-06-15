@@ -50,7 +50,7 @@ public class TempHumidHistoryDataAdapter extends RecyclerView.Adapter<TempHumidH
 
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         holder.historyTime.setText(df.format(data.getTime().getTime()));
-        holder.historyTemp.setText(data.getTemp()+"");
+        holder.historyTemp.setText(String.format("%.3f", data.getTemp()));
         holder.historyHumid.setText(data.getHumid()+"");
     }
 
