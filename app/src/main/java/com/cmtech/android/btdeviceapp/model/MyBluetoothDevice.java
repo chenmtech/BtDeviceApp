@@ -265,6 +265,7 @@ public class MyBluetoothDevice extends DataSupport {
             // 一定要从Pool中清除DeviceMirror
             MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
             deviceMirror.clear();
+            deviceMirror = null;
         }
     }
 

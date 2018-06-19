@@ -25,7 +25,7 @@ public class GattSerialExecutor {
     // 要执行的命令队列
     private final Queue<BluetoothGattCommand> commandList = new LinkedList<>();
 
-    // 标记上一个命令是否执行完毕
+    // 标记上一条命令是否执行完毕
     private volatile boolean done = true;
 
     // 执行命令的线程
@@ -34,7 +34,7 @@ public class GattSerialExecutor {
     // 当前在执行的命令
     private BluetoothGattCommand currentCommand;
 
-    // IBleCallback的装饰器类，在一般的回调任务完成后，执行串行命令所需动作
+    // IBleCallback的装饰者，在一般的回调任务完成后，执行串行命令所需动作
     private class BleSerialCommandCallback implements IBleCallback {
         IBleCallback bleCallback;
 
