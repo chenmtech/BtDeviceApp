@@ -104,10 +104,11 @@ public class MyBluetoothDevice extends DataSupport {
             notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
             if(deviceMirror != null) {
-                DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+                /*DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
                 if(deviceMirrorPool.isContainDevice(deviceMirror)) {
                     deviceMirrorPool.removeDeviceMirror(deviceMirror);
-                }
+                }*/
+                disconnect();
                 deviceMirror = null;
             }
         }
@@ -122,10 +123,11 @@ public class MyBluetoothDevice extends DataSupport {
             notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
             if(deviceMirror != null) {
-                DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+                /*DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
                 if(deviceMirrorPool.isContainDevice(deviceMirror)) {
                     deviceMirrorPool.removeDeviceMirror(deviceMirror);
-                }
+                }*/
+                disconnect();
                 deviceMirror = null;
             }
         }
