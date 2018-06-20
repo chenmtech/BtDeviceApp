@@ -93,7 +93,7 @@ public class MyBluetoothDevice extends DataSupport {
         @Override
         public void onConnectFailure(BleException exception) {
 
-            if(serialExecutor != null && !serialExecutor.isInterruped()) {
+            if(serialExecutor != null && serialExecutor.isAlive()) {
                 serialExecutor.stop();
             }
 
@@ -115,7 +115,7 @@ public class MyBluetoothDevice extends DataSupport {
 
         @Override
         public void onDisconnect(boolean isActive) {
-            if(serialExecutor != null && !serialExecutor.isInterruped()) {
+            if(serialExecutor != null && serialExecutor.isAlive()) {
                 serialExecutor.stop();
             }
 
@@ -257,7 +257,7 @@ public class MyBluetoothDevice extends DataSupport {
     // 断开连接
     public synchronized void disconnect() {
         // 停止执行器
-        if(serialExecutor != null && !serialExecutor.isInterruped())
+        if(serialExecutor != null)
             serialExecutor.stop();
 
         if(deviceMirror != null) {

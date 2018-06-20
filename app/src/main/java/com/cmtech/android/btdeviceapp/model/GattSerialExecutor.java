@@ -62,7 +62,7 @@ public class GattSerialExecutor {
                 bleCallback.onFailure(exception);
 
                 // 有错误，直接终止线程
-                if(executeThread != null) executeThread.interrupt();
+                if(executeThread != null && executeThread.isAlive()) executeThread.interrupt();
                 Log.d("SerialExecutor", "Something is wrong! "+exception);
             }
         }
@@ -168,7 +168,7 @@ public class GattSerialExecutor {
 
     // 开始执行命令
     public synchronized void start() {
-        if(executeThread != null && !executeThread.isInterrupted()) return;
+        if(executeThread != null && executeThread.isAlive()) return;
 
         Log.d("Thread", "start serialexecutor: "+times++);
 
@@ -184,7 +184,6 @@ public class GattSerialExecutor {
                         Log.d("SerialExecutor", "The serial executor is interrupted!!!!!!");
                 } finally {
                     commandList.clear();
-                    executeThread = null;
                 }
             }
         });
@@ -214,13 +213,25 @@ public class GattSerialExecutor {
     }
 
     // 停止执行命令
-    public synchronized void stop() {
-        if(executeThread == null) return;
-        executeThread.interrupt();
+    public void stop() {
+        if(executeThread == null || !executeThread.isAlive()) return;
+
+        try {
+            executeThread.interrupt();
+            executeThread.join();
+            executeThread = null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public synchronized boolean isInterruped() {
+    public boolean isInterruped() {
         if(executeThread == null) return true;
         else return executeThread.isInterrupted();
+    }
+
+    public boolean isAlive() {
+        if(executeThread == null) return false;
+        else return executeThread.isAlive();
     }
 }

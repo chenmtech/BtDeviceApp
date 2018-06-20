@@ -273,9 +273,7 @@ public class TempHumidFragment extends DeviceFragment {
         // 读取设备定时服务特征值
         if(serialExecutor == null) return;
 
-        Log.d(TAG, "serialExecutor is not null");
-
-        if(serialExecutor.isInterruped()) serialExecutor.start();
+        serialExecutor.start();
 
         if(serialExecutor.getGattObject(TIMERVALUE) != null) {
             Log.d(TAG, "serialExecutor has GATT TIMERVALUE");
