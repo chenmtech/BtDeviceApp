@@ -181,11 +181,11 @@ public class MyBluetoothDevice extends DataSupport {
         this.imagePath = imagePath;
     }
 
-    public DeviceState getDeviceState() {
+    public synchronized DeviceState getDeviceState() {
         return state;
     }
 
-    public void setDeviceState(DeviceState state) {
+    public synchronized void setDeviceState(DeviceState state) {
         this.state = state;
     }
 
@@ -256,6 +256,8 @@ public class MyBluetoothDevice extends DataSupport {
 
     // 断开连接
     public synchronized void disconnect() {
+        setDeviceState(DeviceState.CONNECT_DISCONNECTING);
+        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
         // 停止执行器
         if(serialExecutor != null)
             serialExecutor.stop();

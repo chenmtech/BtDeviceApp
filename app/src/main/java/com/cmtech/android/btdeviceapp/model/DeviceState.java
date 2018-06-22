@@ -11,7 +11,8 @@ public enum DeviceState {
     CONNECT_PROCESS(2, "连接中"),
     CONNECT_ERROR(3, "连接错误"),
     CONNECT_DISCONNECT(4, "连接断开"),
-    CONNECT_SUCCESS(5, "连接成功");
+    CONNECT_DISCONNECTING(5, "连接断开中"),
+    CONNECT_SUCCESS(6, "连接成功");
 
 
     private int code;                   //对应括号里面第一个值

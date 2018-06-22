@@ -32,6 +32,7 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.MyBluetoothDeviceAdapter;
 import com.cmtech.android.btdeviceapp.interfa.IDeviceFragmentObserver;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
 import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
@@ -65,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     // 主界面的TabLayout和Fragment管理器
     private MainTabFragmentManager fragmentManager;
+
+    private BLEDeviceController deviceController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,13 +154,26 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     public void openDevice(MyBluetoothDevice device) {
         if(device == null) return;
 
+        deviceController = new BLEDeviceController(device, this);
+
+    }
+
+    public DeviceFragment createFragmentForDevice(MyBluetoothDevice device) {
+        mDrawerLayout.closeDrawer(GravityCompat.START);
         // 设备有对应的Fragment，表示曾经连接成功过
         if (device.hasFragment()) {
             fragmentManager.showDeviceFragment(device);
-            device.getFragment().connectDevice();
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        } else
-            createAndOpenFragmentForDevice(device);
+            //device.getFragment().connectDevice();
+
+        } else {
+            DeviceFragment fragment = DeviceFragmentFactory.build(device);
+            device.setFragment(fragment);
+
+            // 添加设备的Fragment到管理器
+            fragmentManager.addDeviceFragment(device);
+            setMainLayoutVisibility();
+        }
+        return device.getFragment();
     }
 
     // 删除设备
@@ -184,20 +200,6 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         builder.show();
     }
 
-    // 为设备创建并打开相应的Fragment
-    private void createAndOpenFragmentForDevice(MyBluetoothDevice device) {
-        if(device == null) return;
-        mDrawerLayout.closeDrawer(GravityCompat.START);
-
-        // 创建正确的Fragment
-        DeviceFragment fragment = DeviceFragmentFactory.build(device);
-        device.setFragment(fragment);
-
-        // 添加设备的Fragment到管理器
-        fragmentManager.addDeviceFragment(device);
-
-        setMainLayoutVisibility();
-    }
 
     private void setMainLayoutVisibility() {
         if(fragmentManager.size() == 0) {
@@ -289,6 +291,12 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             }
         }
         return null;
+    }
+
+    // 从deviceList中寻找Fragment对应的设备
+    @Override
+    public BLEDeviceController findController(DeviceFragment fragment) {
+        return deviceController;
     }
 
     // 删除指定的Fragment

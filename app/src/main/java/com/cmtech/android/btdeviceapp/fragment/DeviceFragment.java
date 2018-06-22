@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.interfa.IDeviceFragment;
 import com.cmtech.android.btdeviceapp.interfa.IDeviceFragmentObserver;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
 import com.cmtech.android.btdeviceapp.model.DeviceState;
 import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
@@ -25,6 +26,8 @@ import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 public abstract class DeviceFragment extends Fragment implements IDeviceFragment {
     // 对应的设备
     protected MyBluetoothDevice device;
+
+    protected BLEDeviceController controller;
 
     // 观察者，一般为Activity
     protected IDeviceFragmentObserver observer;
@@ -96,8 +99,11 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         // 获取device
         device = observer.findDevice(this);
 
-        if(device == null) {
-            throw new IllegalStateException("fragment对应的device为空。");
+        // 获取controller
+        controller = observer.findController(this);
+
+        if(device == null || controller == null) {
+            throw new IllegalStateException();
         }
 
     }
@@ -132,9 +138,6 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     public void onDetach() {
         super.onDetach();
 
-        observer = null;
-
-        //device = null;
     }
 
     /////////////// IMyBluetoothDeviceObserver接口函数//////////////////////
@@ -185,25 +188,13 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
     @Override
     public void connectDevice() {
-        if(device == null) return;
-
-        DeviceState state = device.getDeviceState();
-
-        if(state == DeviceState.CONNECT_SUCCESS || state == DeviceState.CONNECT_PROCESS) return;
-
-        device.connect(new IConnectSuccessCallback() {
-            @Override
-            public void doAfterConnectSuccess(MyBluetoothDevice device) {
-                executeGattInitOperation();
-            }
-        });
+        controller.connectDevice();
     }
 
     @Override
     public void disconnectDevice() {
+        controller.disconnectDevice();
 
-        // 断开设备
-        if(device != null) device.disconnect();
     }
 
     @Override
@@ -213,7 +204,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
         // 让观察者删除此Fragment
         if(observer != null) {
-            observer.deleteFragment(DeviceFragment.this);
+            observer.deleteFragment(this);
         }
     }
 
