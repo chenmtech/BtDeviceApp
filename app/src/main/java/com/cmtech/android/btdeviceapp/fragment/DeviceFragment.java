@@ -58,13 +58,22 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
                 if(device == null) return;
 
                 switch (device.getDeviceState()) {
-                    case CONNECT_SUCCESS:
                     case CONNECT_PROCESS:
+                    case CONNECT_DISCONNECTING:
+                        break;
+
+                    case CONNECT_SUCCESS:
                         disconnectDevice();
                         break;
 
-                    default:
+                    case CONNECT_DISCONNECT:
+                    case CONNECT_WAITING:
+                    case CONNECT_ERROR:
+                    case CONNECT_SCANTIMEOUT:
                         connectDevice();
+                        break;
+
+                    default:
                         break;
                 }
             }
@@ -171,14 +180,18 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
                     switch (device.getDeviceState()) {
                         case CONNECT_SUCCESS:
                             btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_connect_32px));
+                            btnConnectSwitch.setEnabled(true);
                             break;
 
                         case CONNECT_PROCESS:
+                        case CONNECT_DISCONNECTING:
                             btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_connecting_32px));
+                            btnConnectSwitch.setEnabled(false);
                             break;
 
                         default:
                             btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_disconnect_32px));
+                            btnConnectSwitch.setEnabled(true);
                             break;
                     }
                 }
@@ -196,6 +209,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         controller.disconnectDevice();
 
     }
+
 
     @Override
     public void close() {
