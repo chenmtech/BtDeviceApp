@@ -12,9 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
@@ -22,7 +20,7 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
+import com.cmtech.android.btdeviceapp.fragment.BLEDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.util.Uuid;
@@ -31,7 +29,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -39,7 +36,7 @@ import java.util.List;
  * Created by bme on 2018/2/27.
  */
 
-public class TempHumidFragment extends DeviceFragment {
+public class TempHumidFragment extends BLEDeviceFragment {
     private static final String TAG = "TempHumidFragment";
 
     private static final int MSG_TEMPHUMIDDATA = 0;

@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
+import com.cmtech.android.btdeviceapp.fragment.BLEDeviceFragment;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import java.util.List;
  * Created by bme on 2018/2/28.
  */
 
-public class UnknownDeviceFragment extends DeviceFragment {
+public class UnknownDeviceFragment extends BLEDeviceFragment {
     TextView tvServices;
     TextView tvCharacteristic;
 

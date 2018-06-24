@@ -12,8 +12,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.interfa.IDeviceFragment;
-import com.cmtech.android.btdeviceapp.interfa.IDeviceFragmentObserver;
+import com.cmtech.android.btdeviceapp.activity.MainActivity;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 
@@ -21,14 +21,17 @@ import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
  * Created by bme on 2018/2/27.
  */
 
-public abstract class DeviceFragment extends Fragment implements IDeviceFragment {
+public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceFragment {
+    // MainActivity
+    protected MainActivity activity;
+
+    // 对应的控制器
+    protected BLEDeviceController controller;
+
     // 对应的设备
     protected BLEDeviceModel device;
 
-    protected BLEDeviceController controller;
 
-    // 观察者，一般为Activity
-    protected IDeviceFragmentObserver observer;
 
     // 连接状态tv
     protected TextView tvConnectState;
@@ -36,9 +39,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     protected ImageButton btnConnectSwitch;
     protected ImageButton btnClose;
 
-    private int times = 0;
-
-    public DeviceFragment() {
+    public BLEDeviceFragment() {
 
     }
 
@@ -53,27 +54,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         btnConnectSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(device == null) return;
-
-                switch (device.getDeviceState()) {
-                    case CONNECT_PROCESS:
-                    case CONNECT_DISCONNECTING:
-                        break;
-
-                    case CONNECT_SUCCESS:
-                        disconnectDevice();
-                        break;
-
-                    case CONNECT_DISCONNECT:
-                    case CONNECT_WAITING:
-                    case CONNECT_ERROR:
-                    case CONNECT_SCANTIMEOUT:
-                        connectDevice();
-                        break;
-
-                    default:
-                        break;
-                }
+                controller.switchDevice();
             }
         });
 
@@ -81,7 +62,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(DeviceFragment.this.getClass().getSimpleName(), "is closed.");
+                Log.d(BLEDeviceFragment.this.getClass().getSimpleName(), "is closed.");
 
                 close();
             }
@@ -96,18 +77,20 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(!(context instanceof IDeviceFragmentObserver)) {
-            throw new IllegalStateException("context没有实现IDeviceFragmentObserver接口");
+        if(!(context instanceof MainActivity)) {
+            throw new IllegalStateException("context不是MainActivity");
         }
 
-        // 获得Observer
-        observer = (IDeviceFragmentObserver) context;
-
-        // 获取device
-        device = observer.findDevice(this);
+        // 获得Activity
+        activity = (MainActivity) context;
 
         // 获取controller
-        controller = observer.findController(this);
+        controller = activity.findController(this);
+
+        // 获取device
+        if(controller != null) {
+            device = controller.getDevice();
+        }
 
         if(device == null || controller == null) {
             throw new IllegalStateException();
@@ -149,10 +132,10 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
     }
 
-    /////////////// IMyBluetoothDeviceObserver接口函数//////////////////////
+    /////////////// IBLEDeviceObserver接口函数//////////////////////
     @Override
     public void updateDeviceInfo(final BLEDeviceModel device, final int type) {
-        if(device != null && device.getFragment() == this) {
+        if(device == this.device) {
             switch (type) {
                 case TYPE_MODIFY_CONNECTSTATE:
                     updateConnectState();
@@ -216,10 +199,10 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
         // 断开设备
         disconnectDevice();
 
+        device.removeDeviceObserver(this);
+
         // 让观察者删除此Fragment
-        if(observer != null) {
-            observer.deleteFragment(this);
-        }
+        activity.deleteFragment(this);
     }
 
 

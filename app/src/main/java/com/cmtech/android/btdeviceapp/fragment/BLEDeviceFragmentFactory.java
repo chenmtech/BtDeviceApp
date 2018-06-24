@@ -9,16 +9,16 @@ import static java.lang.Class.forName;
  * Created by bme on 2018/2/28.
  */
 
-public class DeviceFragmentFactory {
+public class BLEDeviceFragmentFactory {
 
-    private DeviceFragmentFactory() {
+    private BLEDeviceFragmentFactory() {
 
     }
 
-    public static DeviceFragment build(BLEDeviceModel device) {
+    public static BLEDeviceFragment build(BLEDeviceModel device) {
         MyBluetoothDeviceType deviceType = MyBluetoothDeviceType.fromUuid(device.getUuidString());
         try {
-            DeviceFragment fragment = (DeviceFragment) Class.forName(deviceType.getFragName()).newInstance();
+            BLEDeviceFragment fragment = (BLEDeviceFragment) Class.forName(deviceType.getFragName()).newInstance();
             return fragment;
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

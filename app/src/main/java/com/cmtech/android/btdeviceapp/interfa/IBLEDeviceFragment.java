@@ -5,7 +5,7 @@ package com.cmtech.android.btdeviceapp.interfa;
  * Created by bme on 2018/3/12.
  */
 
-public interface IDeviceFragment extends IMyBluetoothDeviceObserver {
+public interface IBLEDeviceFragment extends IBLEDeviceObserver {
     // 更新设备连接状态
     void updateConnectState();
 

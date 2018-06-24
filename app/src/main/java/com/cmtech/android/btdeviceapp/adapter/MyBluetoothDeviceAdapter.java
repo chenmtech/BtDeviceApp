@@ -16,7 +16,7 @@ import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDeviceType;
 
@@ -27,7 +27,7 @@ import java.util.List;
  */
 
 public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDeviceAdapter.ViewHolder>
-                                    implements IMyBluetoothDeviceObserver {
+                                    implements IBLEDeviceObserver {
 
     // 设备列表
     private List<BLEDeviceModel> mDeviceList;

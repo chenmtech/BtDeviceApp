@@ -1,14 +1,14 @@
 package com.cmtech.android.btdeviceapp.model;
 
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
-import com.cmtech.android.btdeviceapp.fragment.DeviceFragmentFactory;
-import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
+import com.cmtech.android.btdeviceapp.fragment.BLEDeviceFragment;
+import com.cmtech.android.btdeviceapp.fragment.BLEDeviceFragmentFactory;
 
 public class BLEDeviceController {
     private final MainActivity activity;
+
     private final BLEDeviceModel device;
-    private DeviceFragment fragment;
+    private final BLEDeviceFragment fragment;
 
     public BLEDeviceController(BLEDeviceModel device, MainActivity activity) {
         if(device == null || activity == null) {
@@ -17,22 +17,41 @@ public class BLEDeviceController {
 
         this.activity = activity;
         this.device = device;
-        fragment = DeviceFragmentFactory.build(device);
+        fragment = BLEDeviceFragmentFactory.build(device);
 
-        activity.addDeviceFragment(device, fragment);
+        activity.addFragmentToManager(this);
         connectDevice();
     }
 
     public void connectDevice() {
-        device.connect(new IConnectSuccessCallback() {
-            @Override
-            public void doAfterConnectSuccess(BLEDeviceModel device) {
-                fragment.executeGattInitOperation();
-            }
-        });
+        device.connect();
     }
 
     public void disconnectDevice() {
         device.disconnect();
+    }
+
+    public void switchDevice() {
+        DeviceState state = device.getDeviceState();
+        switch (state) {
+            case CONNECT_SUCCESS:
+                disconnectDevice();
+                break;
+            case CONNECT_DISCONNECT:
+            case CONNECT_WAITING:
+                connectDevice();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    public BLEDeviceModel getDevice() {
+        return device;
+    }
+
+    public BLEDeviceFragment getFragment() {
+        return fragment;
     }
 }

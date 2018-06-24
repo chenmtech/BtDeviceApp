@@ -10,18 +10,15 @@ import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.TimeoutException;
-import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
-import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
-import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
-import com.vise.log.ViseLog;
 
 import org.litepal.crud.DataSupport;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver.*;
+import static com.cmtech.android.btdeviceapp.interfa.IBLEDeviceObserver.*;
 import static com.cmtech.android.btdeviceapp.model.DeviceState.*;
 
 /**
@@ -59,14 +56,8 @@ public class BLEDeviceModel extends DataSupport {
     // 设备镜像，连接成功后才会赋值。连接失败会赋值null
     DeviceMirror deviceMirror = null;
 
-    // 存放打开Fragment
-    DeviceFragment fragment;
-
-    // Gatt命令串行执行器, 连接成功后才会创建。连接失败会赋值null
-    GattSerialExecutor serialExecutor;
-
     // 观察者列表
-    final List<IMyBluetoothDeviceObserver> obersvers = new LinkedList<>();
+    final List<IBLEDeviceObserver> observerList = new LinkedList<>();
 
 
     // 用来处理连接和通信回调后产生的消息，由于有些要修改GUI，所以使用主线程
@@ -96,9 +87,6 @@ public class BLEDeviceModel extends DataSupport {
         }
     }
 
-    // 连接成功后的回调。发起连接时要赋值
-    IConnectSuccessCallback connectSuccessCallback;
-
     // 连接回调
     final IConnectCallback connectCallback = new IConnectCallback() {
         private Message msg = new Message();
@@ -109,7 +97,7 @@ public class BLEDeviceModel extends DataSupport {
 
         @Override
         public void onConnectSuccess(DeviceMirror deviceMirror) {
-            msg.obj = new ConnectResult(DeviceState.CONNECT_SUCCESS, (Object)deviceMirror);
+            msg.obj = new ConnectResult(DeviceState.CONNECT_SUCCESS, deviceMirror);
             handler.sendMessage(msg);
         }
 
@@ -121,13 +109,13 @@ public class BLEDeviceModel extends DataSupport {
             else
                 state = CONNECT_ERROR;
 
-            msg.obj = new ConnectResult(state, null);
+            msg.obj = new ConnectResult(state, exception);
             handler.sendMessage(msg);
         }
 
         @Override
         public void onDisconnect(boolean isActive) {
-            msg.obj = new ConnectResult(DeviceState.CONNECT_DISCONNECT, (Object)isActive);
+            msg.obj = new ConnectResult(DeviceState.CONNECT_DISCONNECT, isActive);
             handler.sendMessage(msg);
         }
     };
@@ -189,10 +177,6 @@ public class BLEDeviceModel extends DataSupport {
         this.state = state;
     }
 
-    public GattSerialExecutor getSerialExecutor() {
-        return serialExecutor;
-    }
-
     public List<BluetoothGattService> getServices() {
         if(deviceMirror != null && deviceMirror.getBluetoothGatt() != null) {
             return deviceMirror.getBluetoothGatt().getServices();
@@ -200,39 +184,24 @@ public class BLEDeviceModel extends DataSupport {
         return null;
     }
 
-    public DeviceFragment getFragment() {
-        return fragment;
-    }
-
-    public void setFragment(DeviceFragment fragment) {
-        if(this.fragment != null) removeDeviceObserver(this.fragment);
-        this.fragment = fragment;
-        if(fragment != null) registerDeviceObserver(fragment);
-    }
-
-    // 判断设备是否有了Fragment
-    public boolean hasFragment() {
-        return fragment != null;
-    }
-
     // 登记观察者
-    public void registerDeviceObserver(IMyBluetoothDeviceObserver obersver) {
-        if(!obersvers.contains(obersver)) {
-            obersvers.add(obersver);
+    public void registerDeviceObserver(IBLEDeviceObserver obersver) {
+        if(!observerList.contains(obersver)) {
+            observerList.add(obersver);
         }
     }
 
     // 删除观察者
-    public void removeDeviceObserver(IMyBluetoothDeviceObserver obersver) {
-        int index = obersvers.indexOf(obersver);
+    public void removeDeviceObserver(IBLEDeviceObserver obersver) {
+        int index = observerList.indexOf(obersver);
         if(index >= 0) {
-            obersvers.remove(index);
+            observerList.remove(index);
         }
     }
 
     // 通知观察者
     public void notifyDeviceObservers(final int type) {
-        for(final IMyBluetoothDeviceObserver obersver : obersvers) {
+        for(final IBLEDeviceObserver obersver : observerList) {
             if(obersver != null) {
                 obersver.updateDeviceInfo(this, type);
             }
@@ -240,38 +209,28 @@ public class BLEDeviceModel extends DataSupport {
     }
 
     // 发起连接
-    public synchronized void connect(IConnectSuccessCallback connectSuccessCallback) {
-        if(state == CONNECT_SUCCESS || state == CONNECT_PROCESS || state == CONNECT_DISCONNECTING) return;
+    public synchronized void connect() {
+        if(state == CONNECT_WAITING || state == CONNECT_DISCONNECT) {
 
-        setDeviceState(CONNECT_PROCESS);
-        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
+            setDeviceState(CONNECT_PROCESS);
+            notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
-        this.connectSuccessCallback = connectSuccessCallback;
-
-        if(deviceMirror != null) {
-            // 一定要从Pool中清除DeviceMirror
-            MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
-            deviceMirror.clear();
-            deviceMirror = null;
+            MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
         }
-
-        MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
     }
 
     // 断开连接
     public synchronized void disconnect() {
-        if(state == CONNECT_DISCONNECT || state == CONNECT_PROCESS || state == CONNECT_DISCONNECTING) return;
+        if(state == CONNECT_SUCCESS) {
+            setDeviceState(CONNECT_DISCONNECTING);
+            notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
-        setDeviceState(CONNECT_DISCONNECTING);
-        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
-        // 停止执行器
-        if(serialExecutor != null && !serialExecutor.isAlive())
-            serialExecutor.stop();
-
-        if(deviceMirror != null) {
-            MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
-        } else {
-            setDeviceState(CONNECT_DISCONNECT);
+            if (deviceMirror != null) {
+                MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
+            } else {
+                setDeviceState(CONNECT_DISCONNECT);
+                notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
+            }
         }
     }
 
@@ -293,7 +252,8 @@ public class BLEDeviceModel extends DataSupport {
 
 
     private void processConnectResult(ConnectResult result) {
-        state = result.state;
+        setDeviceState(result.state);
+        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
         switch (result.state) {
             case CONNECT_SUCCESS:
@@ -320,43 +280,33 @@ public class BLEDeviceModel extends DataSupport {
 
             this.deviceMirror = mirror;
 
-            serialExecutor = new GattSerialExecutor(mirror);
-
-            ViseLog.d("onConnectSuccess: " + getNickName()+ " has created serial executor.");
-
-            setDeviceState(CONNECT_SUCCESS);
-            notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
-
-            connectSuccessCallback.doAfterConnectSuccess(this);
+            executeAfterConnectSuccess();
         }
     }
 
     private void onConnectFailure() {
-        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                connect(connectSuccessCallback);
-            }
-        }, 2000);
+        disconnect();
     }
 
     private void onDisconnect(Boolean isActive) {
+        removeDeviceMirrorFromPool();
 
-        if(serialExecutor != null && serialExecutor.isAlive()) {
-            serialExecutor.stop();
-        }
+        executeAfterDisconnect(isActive);
+    }
 
-        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
-
+    private void removeDeviceMirrorFromPool() {
         if(deviceMirror != null) {
-            // 一定要从Pool中清除DeviceMirror
             MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
             deviceMirror.clear();
             deviceMirror = null;
         }
     }
 
+    public void executeAfterConnectSuccess() {
 
+    }
+
+    public void executeAfterDisconnect(boolean isActive) {
+
+    }
 }
