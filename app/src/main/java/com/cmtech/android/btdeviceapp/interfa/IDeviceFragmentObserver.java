@@ -2,7 +2,7 @@ package com.cmtech.android.btdeviceapp.interfa;
 
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
-import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 
 /**
  * DeviceFragment观察者，一般是创建Fragment的Activity
@@ -12,7 +12,7 @@ import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 public interface IDeviceFragmentObserver {
 
     // 用Fragment找到对应的Device
-    MyBluetoothDevice findDevice(DeviceFragment fragment);
+    BLEDeviceModel findDevice(DeviceFragment fragment);
 
     // 用Fragment找到对应的Controller
     BLEDeviceController findController(DeviceFragment fragment);

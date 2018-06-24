@@ -15,9 +15,7 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.interfa.IDeviceFragment;
 import com.cmtech.android.btdeviceapp.interfa.IDeviceFragmentObserver;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
-import com.cmtech.android.btdeviceapp.model.DeviceState;
-import com.cmtech.android.btdeviceapp.interfa.IConnectSuccessCallback;
-import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 
 /**
  * Created by bme on 2018/2/27.
@@ -25,7 +23,7 @@ import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 public abstract class DeviceFragment extends Fragment implements IDeviceFragment {
     // 对应的设备
-    protected MyBluetoothDevice device;
+    protected BLEDeviceModel device;
 
     protected BLEDeviceController controller;
 
@@ -115,6 +113,8 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
             throw new IllegalStateException();
         }
 
+        device.registerDeviceObserver(this);
+
     }
 
 
@@ -151,7 +151,7 @@ public abstract class DeviceFragment extends Fragment implements IDeviceFragment
 
     /////////////// IMyBluetoothDeviceObserver接口函数//////////////////////
     @Override
-    public void updateDeviceInfo(final MyBluetoothDevice device, final int type) {
+    public void updateDeviceInfo(final BLEDeviceModel device, final int type) {
         if(device != null && device.getFragment() == this) {
             switch (type) {
                 case TYPE_MODIFY_CONNECTSTATE:

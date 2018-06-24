@@ -1,6 +1,6 @@
 package com.cmtech.android.btdeviceapp.interfa;
 
-import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 
 /**
  * 设备连接成功回调接口
@@ -9,5 +9,5 @@ import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
 
 public interface IConnectSuccessCallback {
     // 当设备连接成功后需要执行的操作
-    void doAfterConnectSuccess(MyBluetoothDevice device);
+    void doAfterConnectSuccess(BLEDeviceModel device);
 }

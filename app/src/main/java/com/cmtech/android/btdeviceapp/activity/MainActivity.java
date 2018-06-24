@@ -35,7 +35,7 @@ import com.cmtech.android.btdeviceapp.interfa.IDeviceFragmentObserver;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
 import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
-import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 
 import org.litepal.crud.DataSupport;
 
@@ -50,7 +50,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements IDeviceFragmentObserver {
 
     // 设备列表
-    List<MyBluetoothDevice> deviceList = new ArrayList<>();
+    List<BLEDeviceModel> deviceList = new ArrayList<>();
 
     // 显示设备列表的Adapter和RecyclerView
     private MyBluetoothDeviceAdapter deviceAdapter;
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
         }
 
         // 从数据库获取设备信息
-        deviceList = DataSupport.findAll(MyBluetoothDevice.class);
+        deviceList = DataSupport.findAll(BLEDeviceModel.class);
 
         // 设置设备信息View
         deviceRecycView = (RecyclerView)findViewById(R.id.rvDevices);
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
             public void onClick(View view) {
                 // 产生设备Mac地址字符串列表，防止多次添加同一个设备
                 List<String> deviceMacList = new ArrayList<>();
-                for(MyBluetoothDevice device : deviceList) {
+                for(BLEDeviceModel device : deviceList) {
                     deviceMacList.add(device.getMacAddress());
                 }
 
@@ -151,33 +151,22 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     }
 
     // 打开设备
-    public void openDevice(MyBluetoothDevice device) {
+    public void openDevice(BLEDeviceModel device) {
         if(device == null) return;
 
         deviceController = new BLEDeviceController(device, this);
 
     }
 
-    public DeviceFragment createFragmentForDevice(MyBluetoothDevice device) {
+    public void addDeviceFragment(BLEDeviceModel device, DeviceFragment fragment) {
         mDrawerLayout.closeDrawer(GravityCompat.START);
-        // 设备有对应的Fragment，表示曾经连接成功过
-        if (device.hasFragment()) {
-            fragmentManager.showDeviceFragment(device);
-            //device.getFragment().connectDevice();
-
-        } else {
-            DeviceFragment fragment = DeviceFragmentFactory.build(device);
-            device.setFragment(fragment);
-
-            // 添加设备的Fragment到管理器
-            fragmentManager.addDeviceFragment(device);
-            setMainLayoutVisibility();
-        }
-        return device.getFragment();
+        // 添加设备的Fragment到管理器
+        fragmentManager.addDeviceFragment(device);
+        setMainLayoutVisibility();
     }
 
     // 删除设备
-    public void deleteDevice(final MyBluetoothDevice device) {
+    public void deleteDevice(final BLEDeviceModel device) {
         if(device == null) return;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -225,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
                     String imagePath = data.getStringExtra("device_imagepath");
                     boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
 
-                    MyBluetoothDevice device = new MyBluetoothDevice();
+                    BLEDeviceModel device = new BLEDeviceModel();
                     device.setNickName(nickName);
                     device.setMacAddress(macAddress);
                     device.setUuidString(deviceUuid);
@@ -260,7 +249,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     protected void onDestroy() {
         super.onDestroy();
         if(deviceList != null && deviceList.size() != 0) {
-            for(MyBluetoothDevice device : deviceList) {
+            for(BLEDeviceModel device : deviceList) {
                 device.disconnect();
             }
         }
@@ -284,8 +273,8 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
 
     // 从deviceList中寻找Fragment对应的设备
     @Override
-    public MyBluetoothDevice findDevice(DeviceFragment fragment) {
-        for(MyBluetoothDevice device : deviceList) {
+    public BLEDeviceModel findDevice(DeviceFragment fragment) {
+        for(BLEDeviceModel device : deviceList) {
             if(device.getFragment() == fragment) {
                 return device;
             }
@@ -302,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements IDeviceFragmentOb
     // 删除指定的Fragment
     @Override
     public void deleteFragment(final DeviceFragment fragment) {
-        MyBluetoothDevice device = findDevice(fragment);
+        BLEDeviceModel device = findDevice(fragment);
         if(device != null)
             device.setFragment(null);
 

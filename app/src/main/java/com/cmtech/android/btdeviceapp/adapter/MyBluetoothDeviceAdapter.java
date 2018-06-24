@@ -1,6 +1,5 @@
 package com.cmtech.android.btdeviceapp.adapter;
 
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -18,7 +17,7 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.IMyBluetoothDeviceObserver;
-import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 import com.cmtech.android.btdeviceapp.model.MyBluetoothDeviceType;
 
 import java.util.List;
@@ -31,7 +30,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
                                     implements IMyBluetoothDeviceObserver {
 
     // 设备列表
-    private List<MyBluetoothDevice> mDeviceList;
+    private List<BLEDeviceModel> mDeviceList;
 
     // MainActivity
     MainActivity activity;
@@ -58,12 +57,12 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         }
     }
 
-    public MyBluetoothDeviceAdapter(List<MyBluetoothDevice> deviceList, MainActivity activity) {
+    public MyBluetoothDeviceAdapter(List<BLEDeviceModel> deviceList, MainActivity activity) {
 
         mDeviceList = deviceList;
         this.activity = activity;
 
-        for(MyBluetoothDevice device : mDeviceList) {
+        for(BLEDeviceModel device : mDeviceList) {
             device.registerDeviceObserver(this);
         }
     }
@@ -78,7 +77,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         holder.ibtnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyBluetoothDevice device = mDeviceList.get(holder.getAdapterPosition());
+                BLEDeviceModel device = mDeviceList.get(holder.getAdapterPosition());
                 activity.deleteDevice(device);
             }
         });
@@ -86,7 +85,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         holder.ibtnOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyBluetoothDevice device = mDeviceList.get(holder.getAdapterPosition());
+                BLEDeviceModel device = mDeviceList.get(holder.getAdapterPosition());
                 activity.openDevice(device);
             }
         });
@@ -97,7 +96,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
 
     @Override
     public void onBindViewHolder(MyBluetoothDeviceAdapter.ViewHolder holder, final int position) {
-        MyBluetoothDevice device = (MyBluetoothDevice)mDeviceList.get(position);
+        BLEDeviceModel device = (BLEDeviceModel)mDeviceList.get(position);
 
         String imagePath = device.getImagePath();
         if(imagePath != null && !"".equals(imagePath)) {
@@ -120,7 +119,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
 
     // 作为IMyBluetoothDeviceObserver设备观察者要实现的函数
     @Override
-    public void updateDeviceInfo(MyBluetoothDevice device, final int type) {
+    public void updateDeviceInfo(BLEDeviceModel device, final int type) {
         new Handler(Looper.getMainLooper()).post((new Runnable() {
             @Override
             public void run() {

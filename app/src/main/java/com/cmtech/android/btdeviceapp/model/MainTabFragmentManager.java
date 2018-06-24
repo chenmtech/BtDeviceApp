@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
 import com.cmtech.android.btdeviceapp.MyApplication;
-import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.fragment.DeviceFragment;
 
@@ -74,7 +73,7 @@ public class MainTabFragmentManager {
     }
 
     // 添加设备的Fragment，并显示
-    public void addDeviceFragment(MyBluetoothDevice device) {
+    public void addDeviceFragment(BLEDeviceModel device) {
         DeviceFragment fragment = device.getFragment();
         if(fragment == null || fragManager.fragments.contains(fragment)) return;
 
@@ -91,7 +90,7 @@ public class MainTabFragmentManager {
     }
 
     // 更新设备的Tab信息
-    public void updateTabInfo(MyBluetoothDevice device) {
+    public void updateTabInfo(BLEDeviceModel device) {
         DeviceFragment fragment = device.getFragment();
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
         TabLayout.Tab tab = tabLayout.getTabAt(fragManager.fragments.indexOf(fragment));
@@ -121,7 +120,7 @@ public class MainTabFragmentManager {
     }
 
     // 显示设备的Fragment
-    public void showDeviceFragment(MyBluetoothDevice device) {
+    public void showDeviceFragment(BLEDeviceModel device) {
         DeviceFragment fragment = device.getFragment();
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 

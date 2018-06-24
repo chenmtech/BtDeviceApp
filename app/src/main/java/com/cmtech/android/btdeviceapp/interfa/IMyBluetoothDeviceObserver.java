@@ -1,6 +1,6 @@
 package com.cmtech.android.btdeviceapp.interfa;
 
-import com.cmtech.android.btdeviceapp.model.MyBluetoothDevice;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 
 /**
  * MyBluetoothDevice的观察者
@@ -15,5 +15,5 @@ public interface IMyBluetoothDeviceObserver {
     int TYPE_DELETED = 4;                   // 删除
 
     // 更新设备信息
-    void updateDeviceInfo(MyBluetoothDevice device, int type);
+    void updateDeviceInfo(BLEDeviceModel device, int type);
 }
