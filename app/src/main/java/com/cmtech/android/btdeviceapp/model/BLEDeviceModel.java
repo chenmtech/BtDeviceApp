@@ -13,7 +13,6 @@ import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
 
-import org.litepal.crud.DataSupport;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,29 +24,16 @@ import static com.cmtech.android.btdeviceapp.model.DeviceState.*;
  * Created by bme on 2018/2/19.
  */
 
-public class BLEDeviceModel extends DataSupport {
+public class BLEDeviceModel {
 
     private static final int MSG_CONNECTCALLBACK    =  100;         // 连接相关回调消息
 
 
-    // 数据库保存的字段
-    // id
-    private int id;
+    private BLEDevicePersistantInfo persistantInfo;
 
-    // mac地址
-    private String macAddress;
-
-    // 设备昵称
-    private String nickName;
-
-    // 设备广播Uuid Short String
-    private String uuidString;
-
-    // 是否自动连接
-    private boolean isAutoConnected;
-
-    // 图标
-    private String imagePath;
+    public BLEDeviceModel(BLEDevicePersistantInfo persistantInfo) {
+        this.persistantInfo = persistantInfo;
+    }
 
     // 数据库不保存的变量
     // 设备状态
@@ -122,51 +108,51 @@ public class BLEDeviceModel extends DataSupport {
 
 
     public int getId() {
-        return id;
+        return persistantInfo.getId();
     }
 
     public void setId(int id) {
-        this.id = id;
+        persistantInfo.setId(id);
     }
 
     public String getMacAddress() {
-        return macAddress;
+        return persistantInfo.getMacAddress();
     }
 
     public void setMacAddress(String macAddress) {
-        this.macAddress = macAddress;
+        persistantInfo.setMacAddress(macAddress);
     }
 
     public String getNickName() {
-        return nickName;
+        return persistantInfo.getNickName();
     }
 
     public void setNickName(String nickName) {
-        this.nickName = nickName;
+        persistantInfo.setNickName(nickName);
     }
 
     public String getUuidString() {
-        return uuidString;
+        return persistantInfo.getUuidString();
     }
 
     public void setUuidString(String uuidString) {
-        this.uuidString = uuidString;
+        persistantInfo.setUuidString(uuidString);
     }
 
     public boolean isAutoConnected() {
-        return isAutoConnected;
+        return persistantInfo.isAutoConnected();
     }
 
     public void setAutoConnected(boolean autoConnected) {
-        isAutoConnected = autoConnected;
+        persistantInfo.setAutoConnected(autoConnected);
     }
 
     public String getImagePath() {
-        return imagePath;
+        return persistantInfo.getImagePath();
     }
 
     public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+        persistantInfo.setImagePath(imagePath);
     }
 
     public DeviceState getDeviceState() {
@@ -215,7 +201,7 @@ public class BLEDeviceModel extends DataSupport {
             setDeviceState(CONNECT_PROCESS);
             notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
-            MyApplication.getViseBle().connectByMac(macAddress, connectCallback);
+            MyApplication.getViseBle().connectByMac(persistantInfo.getMacAddress(), connectCallback);
         }
     }
 
@@ -241,13 +227,15 @@ public class BLEDeviceModel extends DataSupport {
         if (o == null || getClass() != o.getClass()) return false;
 
         BLEDeviceModel that = (BLEDeviceModel) o;
+        String thisAddress = persistantInfo.getMacAddress();
+        String thatAddress = persistantInfo.getMacAddress();
 
-        return macAddress != null ? macAddress.equals(that.macAddress) : that.macAddress == null;
+        return thisAddress != null ? thisAddress.equals(thatAddress) : thatAddress == null;
     }
 
     @Override
     public int hashCode() {
-        return macAddress != null ? macAddress.hashCode() : 0;
+        return getMacAddress() != null ? getMacAddress().hashCode() : 0;
     }
 
 

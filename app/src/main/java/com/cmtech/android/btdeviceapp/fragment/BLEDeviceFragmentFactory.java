@@ -1,7 +1,7 @@
 package com.cmtech.android.btdeviceapp.fragment;
 
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
-import com.cmtech.android.btdeviceapp.model.MyBluetoothDeviceType;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceType;
 
 import static java.lang.Class.forName;
 
@@ -16,7 +16,7 @@ public class BLEDeviceFragmentFactory {
     }
 
     public static BLEDeviceFragment build(BLEDeviceModel device) {
-        MyBluetoothDeviceType deviceType = MyBluetoothDeviceType.fromUuid(device.getUuidString());
+        BLEDeviceType deviceType = BLEDeviceType.fromUuid(device.getUuidString());
         try {
             BLEDeviceFragment fragment = (BLEDeviceFragment) Class.forName(deviceType.getFragName()).newInstance();
             return fragment;

@@ -18,7 +18,7 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
-import com.cmtech.android.btdeviceapp.model.MyBluetoothDeviceType;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceType;
 
 import java.util.List;
 
@@ -103,7 +103,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             holder.deviceImage.setImageDrawable(drawable);
         } else {
-            Glide.with(MyApplication.getContext()).load(MyBluetoothDeviceType.fromUuid(device.getUuidString()).getImage()).into(holder.deviceImage);
+            Glide.with(MyApplication.getContext()).load(BLEDeviceType.fromUuid(device.getUuidString()).getImage()).into(holder.deviceImage);
         }
 
         holder.deviceName.setText(device.getNickName());

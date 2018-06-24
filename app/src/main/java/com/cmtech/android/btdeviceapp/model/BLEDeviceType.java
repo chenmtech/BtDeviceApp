@@ -2,7 +2,7 @@ package com.cmtech.android.btdeviceapp.model;
 
 import com.cmtech.android.btdeviceapp.R;
 
-public class MyBluetoothDeviceType {
+public class BLEDeviceType {
 
     //支持的设备类型信息，以后要保存到数据库中，并从数据库中加载
 
@@ -33,21 +33,21 @@ public class MyBluetoothDeviceType {
     private static final String FRAGNAME_TEMPHUMID = "com.cmtech.android.btdevice.temphumid.TempHumidFragment";
     private static final String FRAGNAME_UNKNOWN = "com.cmtech.android.btdevice.unknown.UnknownDeviceFragment";
 
-    private static final MyBluetoothDeviceType DEVTYPE_THERMOMETER =
-            new MyBluetoothDeviceType(UUID_THERMOMETER, R.drawable.thermo_image, NAME_THERMOMETER, FRAGNAME_THERMOMETER);
-    private static final MyBluetoothDeviceType DEVTYPE_ECGMONITOR =
-            new MyBluetoothDeviceType(UUID_ECGMONITOR, R.drawable.ecgmonitor_image, NAME_ECGMONITOR, FRAGNAME_ECGMONITOR);
-    private static final MyBluetoothDeviceType DEVTYPE_TEMPHUMID =
-            new MyBluetoothDeviceType(UUID_TEMPHUMID, R.drawable.temphumid_image, NAME_TEMPHUMID, FRAGNAME_TEMPHUMID);
-    private static final MyBluetoothDeviceType DEVTYPE_UNKNOWN =
-            new MyBluetoothDeviceType(UUID_UNKNOWN, R.mipmap.ic_unknown_128px, NAME_UNKNOWN, FRAGNAME_UNKNOWN);
+    private static final BLEDeviceType DEVTYPE_THERMOMETER =
+            new BLEDeviceType(UUID_THERMOMETER, R.drawable.thermo_image, NAME_THERMOMETER, FRAGNAME_THERMOMETER);
+    private static final BLEDeviceType DEVTYPE_ECGMONITOR =
+            new BLEDeviceType(UUID_ECGMONITOR, R.drawable.ecgmonitor_image, NAME_ECGMONITOR, FRAGNAME_ECGMONITOR);
+    private static final BLEDeviceType DEVTYPE_TEMPHUMID =
+            new BLEDeviceType(UUID_TEMPHUMID, R.drawable.temphumid_image, NAME_TEMPHUMID, FRAGNAME_TEMPHUMID);
+    private static final BLEDeviceType DEVTYPE_UNKNOWN =
+            new BLEDeviceType(UUID_UNKNOWN, R.mipmap.ic_unknown_128px, NAME_UNKNOWN, FRAGNAME_UNKNOWN);
 
     private String uuid;        // 设备16位UUID字符串
     private Integer image;      // 缺省图标
     private String name;        // 缺省设备名
     private String fragName;    // 设备Fragment类名
 
-    private MyBluetoothDeviceType(String uuid, Integer image, String name, String fragName) {
+    private BLEDeviceType(String uuid, Integer image, String name, String fragName) {
         this.uuid = uuid;
         this.image = image;
         this.name = name;
@@ -86,7 +86,7 @@ public class MyBluetoothDeviceType {
         this.fragName = fragName;
     }
 
-    public static MyBluetoothDeviceType fromUuid(String uuid) {
+    public static BLEDeviceType fromUuid(String uuid) {
         if(DEVTYPE_THERMOMETER.uuid.equalsIgnoreCase(uuid)) return DEVTYPE_THERMOMETER;
         if(DEVTYPE_ECGMONITOR.uuid.equalsIgnoreCase(uuid)) return DEVTYPE_ECGMONITOR;
         if(DEVTYPE_TEMPHUMID.uuid.equalsIgnoreCase(uuid)) return DEVTYPE_TEMPHUMID;
