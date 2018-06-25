@@ -1,8 +1,7 @@
 package com.cmtech.android.btdeviceapp.model;
 
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.fragment.BLEDeviceFragment;
-import com.cmtech.android.btdeviceapp.fragment.BLEDeviceFragmentFactory;
+import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
 
 public class BLEDeviceController {
     private final MainActivity activity;
@@ -17,10 +16,10 @@ public class BLEDeviceController {
 
         this.activity = activity;
         this.device = device;
-        fragment = BLEDeviceFragmentFactory.build(device);
+        fragment = BLEDeviceAbstractFactory.getBLEDeviceFactory(device).createFragment();
 
         activity.addFragmentToManager(this);
-        connectDevice();
+        //connectDevice();
     }
 
     public void connectDevice() {

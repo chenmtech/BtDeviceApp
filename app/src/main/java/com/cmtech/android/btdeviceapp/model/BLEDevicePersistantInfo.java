@@ -22,6 +22,19 @@ public class BLEDevicePersistantInfo extends DataSupport {
     // 图标
     private String imagePath;
 
+    public BLEDevicePersistantInfo() {
+
+    }
+
+    public BLEDevicePersistantInfo(BLEDevicePersistantInfo persistantInfo) {
+        id = persistantInfo.id;
+        macAddress = persistantInfo.macAddress;
+        nickName = persistantInfo.nickName;
+        uuidString = persistantInfo.uuidString;
+        isAutoConnected = persistantInfo.isAutoConnected;
+        imagePath = persistantInfo.imagePath;
+    }
+
     public int getId() {
         return id;
     }

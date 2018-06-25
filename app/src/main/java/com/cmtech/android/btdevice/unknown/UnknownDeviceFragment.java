@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.fragment.BLEDeviceFragment;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
 
 import java.util.List;
 
@@ -61,9 +61,5 @@ public class UnknownDeviceFragment extends BLEDeviceFragment {
 
     }
 
-    @Override
-    public void executeGattInitOperation() {
-
-    }
 
 }

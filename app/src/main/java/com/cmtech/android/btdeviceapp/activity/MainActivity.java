@@ -26,11 +26,13 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.cmtech.android.btdeviceapp.fragment.BLEDeviceFragment;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.adapter.MyBluetoothDeviceAdapter;
+import com.cmtech.android.btdeviceapp.adapter.BLEDeviceListAdapter;
+import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
+import com.cmtech.android.btdeviceapp.model.BLEDevicePersistantInfo;
 import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceObserver;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
@@ -43,30 +45,38 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *  MainActivity: 主界面，主要数据存放区，需要实现IDeviceFragmentObserver
+ *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
 public class MainActivity extends AppCompatActivity{
 
     // 设备列表
-    List<BLEDeviceModel> deviceList = new ArrayList<>();
+    private List<BLEDeviceModel> deviceList = new ArrayList<>();
+
+    // 设备控制器列表
+    private List<BLEDeviceController> deviceControllerList = new LinkedList<>();
 
     // 显示设备列表的Adapter和RecyclerView
-    private MyBluetoothDeviceAdapter deviceAdapter;
-    private RecyclerView deviceRecycView;
+    private BLEDeviceListAdapter deviceListAdapter;
+    private RecyclerView deviceListRecycView;
 
+    // 添加设备按钮
     private Button btnAdd;
 
+    // 侧滑界面
     private DrawerLayout mDrawerLayout;
+
+    // 欢迎界面
     private FrameLayout mWelcomeLayout;
+
+    // 包含设备Fragment和Tablayout的界面
     private LinearLayout mMainLayout;
 
+    // 欢迎界面中的图像
     private ImageView welcomeImage;
 
     // 主界面的TabLayout和Fragment管理器
     private MainTabFragmentManager fragmentManager;
-
-    private List<BLEDeviceController> deviceControllerList = new LinkedList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,16 +92,22 @@ public class MainActivity extends AppCompatActivity{
             actionBar.setHomeAsUpIndicator(R.mipmap.ic_menu_white_18dp);
         }
 
-        // 从数据库获取设备信息
-        deviceList = DataSupport.findAll(BLEDeviceModel.class);
+        // 从数据库获取设备信息，并构造相应的BLEDevice
+        List<BLEDevicePersistantInfo> persistantInfoList = DataSupport.findAll(BLEDevicePersistantInfo.class);
+        if(persistantInfoList != null && !persistantInfoList.isEmpty()) {
+            for(BLEDevicePersistantInfo info : persistantInfoList) {
+                BLEDeviceAbstractFactory factory = BLEDeviceAbstractFactory.getBLEDeviceFactory(info);
+                deviceList.add(factory.createDevice(info));
+            }
+        }
 
         // 设置设备信息View
-        deviceRecycView = (RecyclerView)findViewById(R.id.rvDevices);
+        deviceListRecycView = (RecyclerView)findViewById(R.id.rvDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        deviceRecycView.setLayoutManager(layoutManager);
-        deviceRecycView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        deviceAdapter = new MyBluetoothDeviceAdapter(deviceList, this);
-        deviceRecycView.setAdapter(deviceAdapter);
+        deviceListRecycView.setLayoutManager(layoutManager);
+        deviceListRecycView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        deviceListAdapter = new BLEDeviceListAdapter(deviceList, this);
+        deviceListRecycView.setAdapter(deviceListAdapter);
 
         btnAdd = (Button)findViewById(R.id.device_add_btn);
 
@@ -132,15 +148,14 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-        mWelcomeLayout = (FrameLayout)findViewById(R.id.welecome_layout);
-        mMainLayout = (LinearLayout)findViewById(R.id.main_layout);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mWelcomeLayout = findViewById(R.id.welecome_layout);
+        mMainLayout = findViewById(R.id.main_layout);
 
-        welcomeImage = (ImageView)findViewById(R.id.welcome_image);
+        welcomeImage = findViewById(R.id.welcome_image);
         Glide.with(this).load(R.drawable.welcome_image).into(welcomeImage);
 
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.main_tab_layout);
+        TabLayout tabLayout = findViewById(R.id.main_tab_layout);
 
         // 创建Fragment管理器
         fragmentManager = new MainTabFragmentManager(this, tabLayout, R.id.main_fragment_layout);
@@ -160,7 +175,8 @@ public class MainActivity extends AppCompatActivity{
             }
         }
         if(!isContained) {
-            BLEDeviceController deviceController = new BLEDeviceController(device, this);
+            BLEDeviceAbstractFactory factory = BLEDeviceAbstractFactory.getBLEDeviceFactory(device);
+            BLEDeviceController deviceController = factory.createController(device, this);
             deviceControllerList.add(deviceController);
         }
     }
@@ -221,19 +237,20 @@ public class MainActivity extends AppCompatActivity{
                     String imagePath = data.getStringExtra("device_imagepath");
                     boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
 
-                    BLEDeviceModel device = new BLEDeviceModel();
-                    device.setNickName(nickName);
-                    device.setMacAddress(macAddress);
-                    device.setUuidString(deviceUuid);
-                    device.setImagePath(imagePath);
-                    device.setAutoConnected(isAutoConnect);
+                    BLEDevicePersistantInfo persistantInfo = new BLEDevicePersistantInfo();
+                    persistantInfo.setNickName(nickName);
+                    persistantInfo.setMacAddress(macAddress);
+                    persistantInfo.setUuidString(deviceUuid);
+                    persistantInfo.setImagePath(imagePath);
+                    persistantInfo.setAutoConnected(isAutoConnect);
 
                     // 保存到数据库
-                    device.save();
+                    persistantInfo.save();
                     // 添加到设备列表
+                    BLEDeviceModel device = BLEDeviceAbstractFactory.getBLEDeviceFactory(persistantInfo).createDevice(persistantInfo);
                     deviceList.add(device);
                     // 添加deviceAdapter作为观察者
-                    device.registerDeviceObserver(deviceAdapter);
+                    device.registerDeviceObserver(deviceListAdapter);
                     // 通知观察者
                     device.notifyDeviceObservers(IBLEDeviceObserver.TYPE_ADDED);
                 }
@@ -255,7 +272,7 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(deviceList != null && deviceList.size() != 0) {
+        if(deviceList != null && !deviceList.isEmpty()) {
             for(BLEDeviceModel device : deviceList) {
                 device.disconnect();
             }
@@ -263,7 +280,7 @@ public class MainActivity extends AppCompatActivity{
 
         MyApplication.getViseBle().disconnect();
         MyApplication.getViseBle().clear();
-        android.os.Process.killProcess(android.os.Process.myPid());
+        //android.os.Process.killProcess(android.os.Process.myPid());
     }
 
 
@@ -278,7 +295,7 @@ public class MainActivity extends AppCompatActivity{
 
 
     // 从deviceControllerList中寻找Fragment对应的控制器
-    public BLEDeviceController findController(BLEDeviceFragment fragment) {
+    public BLEDeviceController getController(BLEDeviceFragment fragment) {
         for(BLEDeviceController controller : deviceControllerList) {
             if(controller.getFragment().equals(fragment)) {
                 return controller;

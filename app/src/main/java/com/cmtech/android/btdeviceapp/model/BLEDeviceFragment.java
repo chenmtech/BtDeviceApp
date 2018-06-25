@@ -1,4 +1,4 @@
-package com.cmtech.android.btdeviceapp.fragment;
+package com.cmtech.android.btdeviceapp.model;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -8,20 +8,19 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceFragment;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceObserver;
 
 /**
  * Created by bme on 2018/2/27.
  */
 
-public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceFragment {
+public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceObserver {
     // MainActivity
     protected MainActivity activity;
 
@@ -67,11 +66,7 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceFr
                 close();
             }
         });
-
-
     }
-
-
 
     @Override
     public void onAttach(Context context) {
@@ -85,7 +80,7 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceFr
         activity = (MainActivity) context;
 
         // 获取controller
-        controller = activity.findController(this);
+        controller = activity.getController(this);
 
         // 获取device
         if(controller != null) {
@@ -129,7 +124,49 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceFr
     @Override
     public void onDetach() {
         super.onDetach();
+    }
 
+    public void updateConnectState() {
+        tvConnectState.setText(device.getDeviceState().getDescription());
+        switch (device.getDeviceState()) {
+            case CONNECT_SUCCESS:
+                setImageButton(btnConnectSwitch, R.mipmap.ic_connect_32px, true);
+                break;
+
+            case CONNECT_DISCONNECT:
+            case CONNECT_WAITING:
+                setImageButton(btnConnectSwitch, R.mipmap.ic_disconnect_32px, true);
+                break;
+
+            default:
+                setImageButton(btnConnectSwitch, R.mipmap.ic_connecting_32px, false);
+                break;
+        }
+    }
+
+    public void connectDevice() {
+        controller.connectDevice();
+    }
+
+
+    public void disconnectDevice() {
+        controller.disconnectDevice();
+
+    }
+
+    public void close() {
+        // 断开设备
+        disconnectDevice();
+
+        device.removeDeviceObserver(this);
+
+        // 让观察者删除此Fragment
+        activity.deleteFragment(this);
+    }
+
+    private void setImageButton(ImageButton btn, int imageId, boolean enable) {
+        btn.setImageDrawable(getResources().getDrawable(imageId));
+        btn.setEnabled(enable);
     }
 
     /////////////// IBLEDeviceObserver接口函数//////////////////////
@@ -148,65 +185,5 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceFr
         }
     }
     //////////////////////////////////////////////////////////////////////////
-
-
-
-
-    ////////////////////////IDeviceFragment接口函数/////////////////////////////
-    @Override
-    public void updateConnectState() {
-        if(device != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    tvConnectState.setText(device.getDeviceState().getDescription());
-                    switch (device.getDeviceState()) {
-                        case CONNECT_SUCCESS:
-                            btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_connect_32px));
-                            btnConnectSwitch.setEnabled(true);
-                            break;
-
-                        case CONNECT_PROCESS:
-                        case CONNECT_DISCONNECTING:
-                            btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_connecting_32px));
-                            btnConnectSwitch.setEnabled(false);
-                            break;
-
-                        default:
-                            btnConnectSwitch.setImageDrawable(getResources().getDrawable(R.mipmap.ic_disconnect_32px));
-                            btnConnectSwitch.setEnabled(true);
-                            break;
-                    }
-                }
-            });
-        }
-    }
-
-    @Override
-    public void connectDevice() {
-        controller.connectDevice();
-    }
-
-    @Override
-    public void disconnectDevice() {
-        controller.disconnectDevice();
-
-    }
-
-
-    @Override
-    public void close() {
-        // 断开设备
-        disconnectDevice();
-
-        device.removeDeviceObserver(this);
-
-        // 让观察者删除此Fragment
-        activity.deleteFragment(this);
-    }
-
-
-
-
 
 }

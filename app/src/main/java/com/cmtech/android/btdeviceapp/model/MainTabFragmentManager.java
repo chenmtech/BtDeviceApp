@@ -10,7 +10,6 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.fragment.BLEDeviceFragment;
 
 import java.util.ArrayList;
 import java.util.List;

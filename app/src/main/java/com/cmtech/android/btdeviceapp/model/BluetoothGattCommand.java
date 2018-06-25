@@ -27,8 +27,8 @@ public class BluetoothGattCommand {
     }
 
     // 执行命令
-    public void execute() {
-        if(deviceMirror == null || channel == null) return;
+    public boolean execute() {
+        if(deviceMirror == null || channel == null) return false;
 
         switch (channel.getPropertyType()) {
             case PROPERTY_READ:
@@ -62,6 +62,7 @@ public class BluetoothGattCommand {
             default:
                 break;
         }
+        return true;
     }
 
     @Override

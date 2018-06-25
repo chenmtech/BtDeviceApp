@@ -26,7 +26,7 @@ import java.util.List;
  * Created by bme on 2018/2/8.
  */
 
-public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDeviceAdapter.ViewHolder>
+public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdapter.ViewHolder>
                                     implements IBLEDeviceObserver {
 
     // 设备列表
@@ -57,7 +57,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
         }
     }
 
-    public MyBluetoothDeviceAdapter(List<BLEDeviceModel> deviceList, MainActivity activity) {
+    public BLEDeviceListAdapter(List<BLEDeviceModel> deviceList, MainActivity activity) {
 
         mDeviceList = deviceList;
         this.activity = activity;
@@ -69,7 +69,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
 
 
     @Override
-    public MyBluetoothDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BLEDeviceListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_configured_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
@@ -95,7 +95,7 @@ public class MyBluetoothDeviceAdapter extends RecyclerView.Adapter<MyBluetoothDe
     }
 
     @Override
-    public void onBindViewHolder(MyBluetoothDeviceAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(BLEDeviceListAdapter.ViewHolder holder, final int position) {
         BLEDeviceModel device = (BLEDeviceModel)mDeviceList.get(position);
 
         String imagePath = device.getImagePath();
