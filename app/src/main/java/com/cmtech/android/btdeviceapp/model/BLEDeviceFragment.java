@@ -154,14 +154,10 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceOb
     }
 
     public void close() {
-        // 断开设备
-        disconnectDevice();
 
-        device.removeDeviceObserver(this);
-
-        // 让观察者删除此Fragment
-        activity.deleteFragment(this);
+        activity.closeFragment(this);
     }
+
 
     private void setImageButton(ImageButton btn, int imageId, boolean enable) {
         btn.setImageDrawable(getResources().getDrawable(imageId));

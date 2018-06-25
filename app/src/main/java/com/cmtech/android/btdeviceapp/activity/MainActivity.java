@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity{
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainController.startScanAndAddDevice();
+                mainController.startScanNewDevice();
             }
         });
 
@@ -143,14 +143,19 @@ public class MainActivity extends AppCompatActivity{
         startActivityForResult(intent, 1);
     }
 
-    // 打开一个BLE设备：创建控制器，创建Fragment，并自动连接
-    public void openBLEDevice(BLEDeviceModel device) {
-        mainController.openBLEDevice(device);
+    // 连接一个BLE设备：创建控制器，创建Fragment，并自动连接
+    public void connectBLEDevice(BLEDeviceModel device) {
+        mainController.connectBLEDevice(device);
     }
 
-    // 删除设备
+    // 从数据库中删除设备
     public void deleteBLEDevice(final BLEDeviceModel device) {
         mainController.deleteBLEDevice(device);
+    }
+
+    public void closeFragment(BLEDeviceFragment fragment) {
+        mainController.closeFragment(fragment);
+
     }
 
     // 将一个Fragment添加到管理器中，并显示
@@ -163,8 +168,8 @@ public class MainActivity extends AppCompatActivity{
 
     // 显示一个Fragment
     public void showDeviceFragment(BLEDeviceFragment fragment) {
-        fragmentManager.showDeviceFragment(fragment);
         openDrawer(false);
+        fragmentManager.showDeviceFragment(fragment);
     }
 
     // 删除指定的Fragment
@@ -206,7 +211,7 @@ public class MainActivity extends AppCompatActivity{
                     persistantInfo.setImagePath(imagePath);
                     persistantInfo.setAutoConnected(isAutoConnect);
 
-                    mainController.createAndAddNewDevice(persistantInfo);
+                    mainController.addNewScanedDevice(persistantInfo);
                 }
                 break;
         }
@@ -220,9 +225,9 @@ public class MainActivity extends AppCompatActivity{
     // 打开或关闭侧滑菜单
     private void openDrawer(boolean open) {
         if(open) {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
-        } else {
             mDrawerLayout.openDrawer(GravityCompat.START);
+        } else {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
         }
     }
 
@@ -239,11 +244,8 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        /*if(deviceList != null && !deviceList.isEmpty()) {
-            for(BLEDeviceModel device : deviceList) {
-                device.disconnect();
-            }
-        }*/
+
+        mainController.closeAllFragment();
 
         MyApplication.getViseBle().disconnect();
         MyApplication.getViseBle().clear();
@@ -261,7 +263,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-    // 从deviceControllerList中寻找Fragment对应的控制器
+    // 从deviceControllerList中寻找Fragment对应的控制器,在Fragment的OnAttach()中会调用
     public BLEDeviceController getController(BLEDeviceFragment fragment) {
         return mainController.getController(fragment);
     }

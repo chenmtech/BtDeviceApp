@@ -91,107 +91,105 @@ public class EcgMonitorDevice extends BLEDeviceModel {
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
 
-    // 消息处理
-    private final Handler handler = new Handler(Looper.myLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                // 接收到心电信号或定标信号
-                case MSG_ECGDATA:
-                    if(msg.obj != null) {
-                        byte[] data = (byte[]) msg.obj;
-                        // 单片机发过来的是LITTLE_ENDIAN的数据
-                        ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-                        // 单片机发过来的int是两个字节的short
-                        for(int i = 0; i < data.length/2; i++) {
-                            int tmpData = buffer.getShort();
+    @Override
+    public void processDeviceSpecialMessage(Message msg)
+    {
+        switch (msg.what) {
+            // 接收到心电信号或定标信号
+            case MSG_ECGDATA:
+                if(msg.obj != null) {
+                    byte[] data = (byte[]) msg.obj;
+                    // 单片机发过来的是LITTLE_ENDIAN的数据
+                    ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+                    // 单片机发过来的int是两个字节的short
+                    for(int i = 0; i < data.length/2; i++) {
+                        int tmpData = buffer.getShort();
 
-                            // 如果在标定阶段
-                            if (isCalibration) {
-                                // 采集1个周期的定标信号
-                                if (calibrationData.size() < sampleRate)
-                                    calibrationData.add(tmpData);
-                                else {
-                                    // 计算1mV定标信号值
-                                    int value1mV = calculateCalibration(calibrationData);
-                                    calibrationData.clear();
-                                    //tvEcg1mV.setText("" + value1mV);
+                        // 如果在标定阶段
+                        if (isCalibration) {
+                            // 采集1个周期的定标信号
+                            if (calibrationData.size() < sampleRate)
+                                calibrationData.add(tmpData);
+                            else {
+                                // 计算1mV定标信号值
+                                int value1mV = calculateCalibration(calibrationData);
+                                calibrationData.clear();
+                                //tvEcg1mV.setText("" + value1mV);
 
-                                    // 启动ECG View
-                                    int xRes = Math.round(viewGridWidth / (viewXGridTime * sampleRate));   // 计算横向分辨率
-                                    float yRes = value1mV * viewYGridmV / viewGridWidth;                     // 计算纵向分辨率
-                                    //ecgView.setRes(xRes, yRes);
-                                    //ecgView.setGridWidth(viewGridWidth);
-                                    //ecgView.setZeroLocation(0.5);
-                                    //ecgView.startShow();
+                                // 启动ECG View
+                                int xRes = Math.round(viewGridWidth / (viewXGridTime * sampleRate));   // 计算横向分辨率
+                                float yRes = value1mV * viewYGridmV / viewGridWidth;                     // 计算纵向分辨率
+                                //ecgView.setRes(xRes, yRes);
+                                //ecgView.setGridWidth(viewGridWidth);
+                                //ecgView.setZeroLocation(0.5);
+                                //ecgView.startShow();
 
-                                    // 发送开始采样消息
-                                    Message msg1 = new Message();
-                                    msg1.what = MSG_STARTSAMPLEECG;
-                                    handler.sendMessage(msg1);
-                                }
-                            } else {
-                                if(isFilter)
-                                    tmpData = (int)notch.filter(dcBlock.filter(tmpData));
+                                // 发送开始采样消息
+                                Message msg1 = new Message();
+                                msg1.what = MSG_STARTSAMPLEECG;
+                                handler.sendMessage(msg1);
+                            }
+                        } else {
+                            if(isFilter)
+                                tmpData = (int)notch.filter(dcBlock.filter(tmpData));
 
-                                //ecgView.addData(tmpData);
-                                if(isRecord) {
-                                    try {
-                                        ecgFile.writeData(tmpData);
-                                    } catch (FileException e) {
-                                        e.printStackTrace();
-                                    }
+                            //ecgView.addData(tmpData);
+                            if(isRecord) {
+                                try {
+                                    ecgFile.writeData(tmpData);
+                                } catch (FileException e) {
+                                    e.printStackTrace();
                                 }
                             }
                         }
                     }
-                    break;
+                }
+                break;
 
-                // 接收到采样率数据
-                case MSG_READSAMPLERATE:
-                    sampleRate = msg.arg1;
-                    //tvEcgSampleRate.setText(""+sampleRate);
-                    break;
+            // 接收到采样率数据
+            case MSG_READSAMPLERATE:
+                sampleRate = msg.arg1;
+                //tvEcgSampleRate.setText(""+sampleRate);
+                break;
 
-                // 接收到导联类型数据
-                case MSG_READLEADTYPE:
-                    leadType = EcgLeadType.getFromCode(msg.arg1);
-                    //tvEcgLeadType.setText(leadType.getDescription());
-                    break;
+            // 接收到导联类型数据
+            case MSG_READLEADTYPE:
+                leadType = EcgLeadType.getFromCode(msg.arg1);
+                //tvEcgLeadType.setText(leadType.getDescription());
+                break;
 
+            // 启动采样心电信号
+            case MSG_STARTSAMPLEECG:
+
+                // 准备记录心电信号的文件头
+                try {
+                    ecgFileHead = BmeFileHeadFactory.create(BmeFileHead10.VER);
+                    ecgFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+                    ecgFileHead.setDataType(BmeFileDataType.INT32);
+                    ecgFileHead.setFs(sampleRate);
+                    ecgFileHead.setInfo("Ecg Lead " + leadType.getDescription());
+                } catch (FileException e) {
+                    e.printStackTrace();
+                }
+
+                // 准备隔直滤波器
+                dcBlock = DCBlockDesigner.design(0.06, sampleRate);   // 设计隔直滤波器
+                dcBlock.createStructure(StructType.IIR_DCBLOCK);            // 创建隔直滤波器专用结构
+                // 准备陷波器
+                notch = NotchDesigner.design(50, 0.5, sampleRate);
+                notch.createStructure(StructType.IIR_NOTCH);
+
+                //btnEcgStartandStop.setClickable(true);
+                //cbEcgRecord.setClickable(true);
+                //cbEcgFilter.setClickable(true);
                 // 启动采样心电信号
-                case MSG_STARTSAMPLEECG:
+                toggleSampleEcg();
+                break;
 
-                    // 准备记录心电信号的文件头
-                    try {
-                        ecgFileHead = BmeFileHeadFactory.create(BmeFileHead10.VER);
-                        ecgFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-                        ecgFileHead.setDataType(BmeFileDataType.INT32);
-                        ecgFileHead.setFs(sampleRate);
-                        ecgFileHead.setInfo("Ecg Lead " + leadType.getDescription());
-                    } catch (FileException e) {
-                        e.printStackTrace();
-                    }
-
-                    // 准备隔直滤波器
-                    dcBlock = DCBlockDesigner.design(0.06, sampleRate);   // 设计隔直滤波器
-                    dcBlock.createStructure(StructType.IIR_DCBLOCK);            // 创建隔直滤波器专用结构
-                    // 准备陷波器
-                    notch = NotchDesigner.design(50, 0.5, sampleRate);
-                    notch.createStructure(StructType.IIR_NOTCH);
-
-                    //btnEcgStartandStop.setClickable(true);
-                    //cbEcgRecord.setClickable(true);
-                    //cbEcgFilter.setClickable(true);
-                    // 启动采样心电信号
-                    toggleSampleEcg();
-                    break;
-
-                default:
-                    break;
-            }
+            default:
+                break;
         }
-    };
+    }
 
     public void setEcgRecord(boolean isRecord) {
         if(isRecord) {
@@ -318,6 +316,11 @@ public class EcgMonitorDevice extends BLEDeviceModel {
 
     @Override
     public void executeAfterDisconnect(boolean isActive) {
+
+    }
+
+    @Override
+    public void executeAfterConnectFailure() {
 
     }
 

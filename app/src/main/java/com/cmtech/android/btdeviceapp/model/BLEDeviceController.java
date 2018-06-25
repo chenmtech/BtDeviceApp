@@ -16,10 +16,7 @@ public class BLEDeviceController {
 
         this.activity = activity;
         this.device = device;
-        fragment = BLEDeviceAbstractFactory.getBLEDeviceFactory(device).createFragment();
-
-        //activity.addFragmentToManager(this);
-        //connectDevice();
+        fragment = BLEDeviceAbstractFactory.getBLEDeviceFactory(device.getPersistantInfo()).createFragment();
     }
 
     public void connectDevice() {
@@ -28,6 +25,11 @@ public class BLEDeviceController {
 
     public void disconnectDevice() {
         device.disconnect();
+    }
+
+    public void closeDevice() {
+        device.close();
+        //activity.deleteFragment(fragment);
     }
 
     public void switchDevice() {

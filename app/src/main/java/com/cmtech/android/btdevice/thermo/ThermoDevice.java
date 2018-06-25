@@ -42,34 +42,34 @@ public class ThermoDevice extends BLEDeviceModel {
         super(persistantInfo);
     }
 
-    private final Handler handler = new Handler(Looper.myLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == MSG_THERMODATA) {
-                if (msg.obj != null) {
-                    byte[] data = (byte[]) msg.obj;
-                    double temp = ByteUtil.getShort(data)/100.0;
 
-                    if(temp < 34.00) {
-                        //tvThermoData.setText("<34.0");
-                    }
-                    else {
-                        String str = String.format("%.2f", temp);
-                        //tvThermoData.setText(str);
-                    }
-                    if(temp < 37.0) {
-                        //tvThermoStatus.setText("正常");
-                    } else if(temp < 38.0) {
-                        //tvThermoStatus.setText("低烧，请注意休息！");
-                    } else if(temp < 38.5) {
-                        //tvThermoStatus.setText("体温异常，请注意降温！");
-                    } else {
-                        //tvThermoStatus.setText("高烧，请及时就医！");
-                    }
+    @Override
+    public void processDeviceSpecialMessage(Message msg)
+    {
+        if (msg.what == MSG_THERMODATA) {
+            if (msg.obj != null) {
+                byte[] data = (byte[]) msg.obj;
+                double temp = ByteUtil.getShort(data)/100.0;
+
+                if(temp < 34.00) {
+                    //tvThermoData.setText("<34.0");
+                }
+                else {
+                    String str = String.format("%.2f", temp);
+                    //tvThermoData.setText(str);
+                }
+                if(temp < 37.0) {
+                    //tvThermoStatus.setText("正常");
+                } else if(temp < 38.0) {
+                    //tvThermoStatus.setText("低烧，请注意休息！");
+                } else if(temp < 38.5) {
+                    //tvThermoStatus.setText("体温异常，请注意降温！");
+                } else {
+                    //tvThermoStatus.setText("高烧，请及时就医！");
                 }
             }
         }
-    };
+    }
 
 
     @Override
@@ -167,5 +167,8 @@ public class ThermoDevice extends BLEDeviceModel {
 
     }
 
+    @Override
+    public void executeAfterConnectFailure() {
 
+    }
 }

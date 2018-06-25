@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothGattService;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
@@ -26,12 +27,66 @@ import static com.cmtech.android.btdeviceapp.model.DeviceState.*;
  * Created by bme on 2018/2/19.
  */
 
-public class BLEDeviceModel extends BLEDevicePersistantInfo{
+public abstract class BLEDeviceModel {
 
     private static final int MSG_CONNECTCALLBACK    =  0;         // 连接相关回调消息
 
+    private final BLEDevicePersistantInfo persistantInfo;
+
     public BLEDeviceModel(BLEDevicePersistantInfo persistantInfo) {
-        super(persistantInfo);
+        this.persistantInfo = persistantInfo;
+    }
+
+    public int getId() {
+        return persistantInfo.getId();
+    }
+
+    public void setId(int id) {
+        persistantInfo.setId(id);
+    }
+
+    public String getMacAddress() {
+        return persistantInfo.getMacAddress();
+    }
+
+    public void setMacAddress(String macAddress) {
+        persistantInfo.setMacAddress(macAddress);
+    }
+
+    public String getNickName() {
+        return persistantInfo.getNickName();
+    }
+
+    public void setNickName(String nickName) {
+        persistantInfo.setNickName(nickName);
+    }
+
+    public String getUuidString() {
+        return persistantInfo.getUuidString();
+    }
+
+    public void setUuidString(String uuidString) {
+        persistantInfo.setUuidString(uuidString);
+    }
+
+    public boolean isAutoConnected() {
+        return persistantInfo.isAutoConnected();
+    }
+
+    public void setAutoConnected(boolean autoConnected) {
+        persistantInfo.setAutoConnected(autoConnected);
+    }
+
+    public String getImagePath() {
+        return persistantInfo.getImagePath();
+    }
+
+    public void setImagePath(String imagePath) {
+        persistantInfo.setImagePath(imagePath);
+    }
+
+    public BLEDevicePersistantInfo getPersistantInfo() {
+        return persistantInfo;
     }
 
     // 设备状态
@@ -45,15 +100,16 @@ public class BLEDeviceModel extends BLEDevicePersistantInfo{
 
 
     // 用来处理连接和通信回调后产生的消息，由于有些要修改GUI，所以使用主线程
-    final Handler handler = new Handler(Looper.myLooper()) {
+    final protected Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_CONNECTCALLBACK:
-                    processConnectResult((ConnectResult)msg.obj);
+                    processConnectResultObject((ConnectResultObject)msg.obj);
                     break;
 
                 default:
+                    processDeviceSpecialMessage(msg);
                     break;
 
             }
@@ -61,27 +117,74 @@ public class BLEDeviceModel extends BLEDevicePersistantInfo{
         }
     };
 
-    static class ConnectResult{
+    static class ConnectResultObject {
         DeviceState state;
         Object obj;
 
-        ConnectResult(DeviceState state, Object obj) {
+        ConnectResultObject(DeviceState state, Object obj) {
             this.state = state;
             this.obj = obj;
         }
     }
 
-    // 连接回调
-    final IConnectCallback connectCallback = new IConnectCallback() {
-        private Message msg = new Message();
+    private void processConnectResultObject(ConnectResultObject result) {
+        setDeviceState(result.state);
+        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
-        {
-            msg.what = MSG_CONNECTCALLBACK;
+        switch (result.state) {
+            case CONNECT_SUCCESS:
+                onConnectSuccess((DeviceMirror)result.obj);
+                break;
+            case CONNECT_SCANTIMEOUT:
+            case CONNECT_ERROR:
+                onConnectFailure((BleException)result.obj);
+                break;
+            case CONNECT_DISCONNECT:
+                onDisconnect((Boolean) result.obj);
+                break;
+
+            default:
+                break;
         }
 
+    }
+
+    private void onConnectSuccess(DeviceMirror mirror) {
+        DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+
+        if (deviceMirrorPool.isContainDevice(mirror)) {
+
+            this.deviceMirror = mirror;
+
+            executeAfterConnectSuccess();
+        }
+    }
+
+    private void onConnectFailure(BleException exception) {
+        removeDeviceMirrorFromPool();
+        executeAfterConnectFailure();
+    }
+
+    private void onDisconnect(Boolean isActive) {
+        removeDeviceMirrorFromPool();
+        executeAfterDisconnect(isActive);
+    }
+
+    private void removeDeviceMirrorFromPool() {
+        if(deviceMirror != null) {
+            MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+            deviceMirror.clear();
+            deviceMirror = null;
+        }
+    }
+
+    // 连接回调
+    final IConnectCallback connectCallback = new IConnectCallback() {
         @Override
         public void onConnectSuccess(DeviceMirror deviceMirror) {
-            msg.obj = new ConnectResult(DeviceState.CONNECT_SUCCESS, deviceMirror);
+            Message msg = new Message();
+            msg.what = MSG_CONNECTCALLBACK;
+            msg.obj = new ConnectResultObject(DeviceState.CONNECT_SUCCESS, deviceMirror);
             handler.sendMessage(msg);
         }
 
@@ -92,17 +195,21 @@ public class BLEDeviceModel extends BLEDevicePersistantInfo{
                 state = CONNECT_SCANTIMEOUT;
             else
                 state = CONNECT_ERROR;
-
-            msg.obj = new ConnectResult(state, exception);
+            Message msg = new Message();
+            msg.what = MSG_CONNECTCALLBACK;
+            msg.obj = new ConnectResultObject(state, exception);
             handler.sendMessage(msg);
         }
 
         @Override
         public void onDisconnect(boolean isActive) {
-            msg.obj = new ConnectResult(DeviceState.CONNECT_DISCONNECT, isActive);
+            Message msg = new Message();
+            msg.what = MSG_CONNECTCALLBACK;
+            msg.obj = new ConnectResultObject(DeviceState.CONNECT_DISCONNECT, isActive);
             handler.sendMessage(msg);
         }
     };
+
 
     public DeviceState getDeviceState() {
         return state;
@@ -156,7 +263,7 @@ public class BLEDeviceModel extends BLEDevicePersistantInfo{
 
     // 断开连接
     public synchronized void disconnect() {
-        if(state == CONNECT_SUCCESS) {
+        if(state == CONNECT_SUCCESS || state == CONNECT_ERROR || state == CONNECT_SCANTIMEOUT) {
             setDeviceState(CONNECT_DISCONNECTING);
             notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
@@ -167,6 +274,13 @@ public class BLEDeviceModel extends BLEDevicePersistantInfo{
                 notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
             }
         }
+    }
+
+    // 关闭设备
+    public synchronized void close() {
+        observerList.clear();
+        disconnect();
+        removeDeviceMirrorFromPool();
     }
 
     // 在设备上获取element的Gatt Object
@@ -215,7 +329,7 @@ public class BLEDeviceModel extends BLEDevicePersistantInfo{
      * @param notifyOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public synchronized boolean executeNotifyCommand(BluetoothGattElement element, boolean enable
+    public boolean executeNotifyCommand(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -235,7 +349,7 @@ public class BLEDeviceModel extends BLEDevicePersistantInfo{
      * @param indicateOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public synchronized boolean executeIndicateCommand(BluetoothGattElement element, boolean enable
+    public boolean executeIndicateCommand(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -260,7 +374,7 @@ public class BLEDeviceModel extends BLEDevicePersistantInfo{
 
         BLEDeviceModel that = (BLEDeviceModel) o;
         String thisAddress = getMacAddress();
-        String thatAddress = getMacAddress();
+        String thatAddress = that.getMacAddress();
 
         return thisAddress != null ? thisAddress.equals(thatAddress) : thatAddress == null;
     }
@@ -271,64 +385,11 @@ public class BLEDeviceModel extends BLEDevicePersistantInfo{
     }
 
 
+    public abstract void executeAfterConnectSuccess();
 
+    public abstract void executeAfterConnectFailure();
 
-    private void processConnectResult(ConnectResult result) {
-        setDeviceState(result.state);
-        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
+    public abstract void executeAfterDisconnect(boolean isActive);
 
-        switch (result.state) {
-            case CONNECT_SUCCESS:
-                onConnectSuccess((DeviceMirror)result.obj);
-                break;
-            case CONNECT_SCANTIMEOUT:
-            case CONNECT_ERROR:
-                onConnectFailure();
-                break;
-            case CONNECT_DISCONNECT:
-                onDisconnect((Boolean) result.obj);
-                break;
-
-            default:
-                break;
-        }
-
-    }
-
-    private void onConnectSuccess(DeviceMirror mirror) {
-        DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
-
-        if (deviceMirrorPool.isContainDevice(mirror)) {
-
-            this.deviceMirror = mirror;
-
-            executeAfterConnectSuccess();
-        }
-    }
-
-    private void onConnectFailure() {
-        disconnect();
-    }
-
-    private void onDisconnect(Boolean isActive) {
-        removeDeviceMirrorFromPool();
-
-        executeAfterDisconnect(isActive);
-    }
-
-    private void removeDeviceMirrorFromPool() {
-        if(deviceMirror != null) {
-            MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
-            deviceMirror.clear();
-            deviceMirror = null;
-        }
-    }
-
-    public void executeAfterConnectSuccess() {
-
-    }
-
-    public void executeAfterDisconnect(boolean isActive) {
-
-    }
+    public abstract void processDeviceSpecialMessage(Message msg);
 }

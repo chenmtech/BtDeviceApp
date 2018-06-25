@@ -83,39 +83,40 @@ public class TempHumidDevice extends BLEDeviceModel {
 
     private List<TempHumidData> dataList = new ArrayList<>();
 
-    private final Handler handler = new Handler(Looper.myLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            if (msg.what == MSG_TEMPHUMIDDATA) {
-                if(msg.obj != null) {
-                    TempHumidData data = (TempHumidData) msg.obj;
-                    //tvHumidData.setText( ""+data.getHumid() );
-                    //tvTempData.setText(String.format("%.1f", data.getTemp()));
-                    float heatindex = computeHeatIndex(data.getTemp(), data.getHumid());
-                    //tvHeadIndex.setText(String.format("%.1f", heatindex));
-                }
-            } else if(msg.what == MSG_TEMPHUMIDHISTORYDATA) {
-                if(msg.obj != null) {
-                    //dataList.add((TempHumidData) msg.obj);
-                    //historyDataAdapter.notifyItemInserted(dataList.size()-1);
-                    //rvHistoryData.scrollToPosition(dataList.size()-1);
-                }
-            } else if(msg.what == MSG_TIMERVALUE) {
-                if (isDeviceStartTimerService) {
-                    //updateHistoryDataFromDevice(device.getSerialExecutor());      // 读取设备的历史数据
-                } else {
-                    //startTimerService(device.getSerialExecutor());          // 没有开启定时服务（比如刚换电池），就先开启定时服务
-                }
-            }
-        }
-    };
-
     public TempHumidDevice(BLEDevicePersistantInfo persistantInfo) {
         super(persistantInfo);
     }
 
     @Override
+    public void processDeviceSpecialMessage(Message msg)
+    {
+        if (msg.what == MSG_TEMPHUMIDDATA) {
+            if(msg.obj != null) {
+                TempHumidData data = (TempHumidData) msg.obj;
+                //tvHumidData.setText( ""+data.getHumid() );
+                //tvTempData.setText(String.format("%.1f", data.getTemp()));
+                float heatindex = computeHeatIndex(data.getTemp(), data.getHumid());
+                //tvHeadIndex.setText(String.format("%.1f", heatindex));
+            }
+        } else if(msg.what == MSG_TEMPHUMIDHISTORYDATA) {
+            if(msg.obj != null) {
+                //dataList.add((TempHumidData) msg.obj);
+                //historyDataAdapter.notifyItemInserted(dataList.size()-1);
+                //rvHistoryData.scrollToPosition(dataList.size()-1);
+            }
+        } else if(msg.what == MSG_TIMERVALUE) {
+            if (isDeviceStartTimerService) {
+                //updateHistoryDataFromDevice(device.getSerialExecutor());      // 读取设备的历史数据
+            } else {
+                //startTimerService(device.getSerialExecutor());          // 没有开启定时服务（比如刚换电池），就先开启定时服务
+            }
+        }
+    }
+
+    @Override
     public void executeAfterConnectSuccess() {
+        return;
+        /*
         Object thermoData = getGattObject(TEMPHUMIDDATA);
         Object thermoControl = getGattObject(TEMPHUMIDCTRL);
         Object thermoPeriod = getGattObject(TEMPHUMIDPERIOD);
@@ -190,6 +191,7 @@ public class TempHumidDevice extends BLEDeviceModel {
         });
 
         initDeviceTimerService();
+        */
     }
 
 
@@ -339,6 +341,11 @@ public class TempHumidDevice extends BLEDeviceModel {
 
     @Override
     public void executeAfterDisconnect(boolean isActive) {
+
+    }
+
+    @Override
+    public void executeAfterConnectFailure() {
 
     }
 }
