@@ -18,7 +18,7 @@ public class BLEDeviceController {
         this.device = device;
         fragment = BLEDeviceAbstractFactory.getBLEDeviceFactory(device).createFragment();
 
-        activity.addFragmentToManager(this);
+        //activity.addFragmentToManager(this);
         //connectDevice();
     }
 

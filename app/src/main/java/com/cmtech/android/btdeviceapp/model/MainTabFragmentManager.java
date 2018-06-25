@@ -72,9 +72,7 @@ public class MainTabFragmentManager {
     }
 
     // 添加设备的Fragment，并显示
-    public void addDeviceFragment(BLEDeviceController controller) {
-        BLEDeviceFragment fragment = controller.getFragment();
-        BLEDeviceModel device = controller.getDevice();
+    public void addFragment(BLEDeviceModel device, BLEDeviceFragment fragment) {
         if(fragment == null || fragManager.fragments.contains(fragment)) return;
 
         fragManager.addFragment(fragment, "");
@@ -90,13 +88,15 @@ public class MainTabFragmentManager {
     }
 
     // 更新设备的Tab信息
-    public void updateTabInfo(BLEDeviceController controller) {
-        BLEDeviceFragment fragment = controller.getFragment();
+    public void updateTabInfo(BLEDeviceFragment fragment) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
+
+        BLEDeviceModel device = fragment.getDevice();
+
         TabLayout.Tab tab = tabLayout.getTabAt(fragManager.fragments.indexOf(fragment));
         if(tab != null) {
-            tab.setText(controller.getDevice().getNickName());
-            String imagePath = controller.getDevice().getImagePath();
+            tab.setText(device.getNickName());
+            String imagePath = device.getImagePath();
             if(imagePath != null && !"".equals(imagePath)) {
                 Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
                 tab.setIcon(drawable);
@@ -120,8 +120,7 @@ public class MainTabFragmentManager {
     }
 
     // 显示设备的Fragment
-    public void showDeviceFragment(BLEDeviceController controller) {
-        BLEDeviceFragment fragment = controller.getFragment();
+    public void showDeviceFragment(BLEDeviceFragment fragment) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
         int index = fragManager.fragments.indexOf(fragment);

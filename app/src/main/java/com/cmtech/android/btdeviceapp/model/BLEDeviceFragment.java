@@ -30,8 +30,6 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceOb
     // 对应的设备
     protected BLEDeviceModel device;
 
-
-
     // 连接状态tv
     protected TextView tvConnectState;
 
@@ -92,10 +90,11 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceOb
         }
 
         device.registerDeviceObserver(this);
-
     }
 
-
+    public BLEDeviceModel getDevice() {
+        return device;
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
