@@ -152,29 +152,37 @@ public abstract class BLEDeviceModel {
     private void onConnectSuccess(DeviceMirror mirror) {
         DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
+        if (deviceMirror != null) {
+            //deviceMirror.disconnect();
+            deviceMirrorPool.removeDeviceMirror(deviceMirror);
+            deviceMirror.clear();
+            deviceMirror = null;
+        }
+
         if (deviceMirrorPool.isContainDevice(mirror)) {
-
             this.deviceMirror = mirror;
-
             executeAfterConnectSuccess();
         }
     }
 
     private void onConnectFailure(BleException exception) {
-        removeDeviceMirrorFromPool();
         executeAfterConnectFailure();
     }
 
     private void onDisconnect(Boolean isActive) {
-        removeDeviceMirrorFromPool();
         executeAfterDisconnect(isActive);
     }
 
     private void removeDeviceMirrorFromPool() {
-        if(deviceMirror != null) {
-            MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
-            deviceMirror.clear();
-            deviceMirror = null;
+        if(deviceMirror == null) return;
+
+        synchronized (deviceMirror) {
+            if (deviceMirror != null) {
+                deviceMirror.disconnect();
+                MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+                deviceMirror.clear();
+                deviceMirror = null;
+            }
         }
     }
 
@@ -182,6 +190,7 @@ public abstract class BLEDeviceModel {
     final IConnectCallback connectCallback = new IConnectCallback() {
         @Override
         public void onConnectSuccess(DeviceMirror deviceMirror) {
+            Log.d("CONNECTCALLBACK", "onConnectSuccess");
             Message msg = new Message();
             msg.what = MSG_CONNECTCALLBACK;
             msg.obj = new ConnectResultObject(DeviceState.CONNECT_SUCCESS, deviceMirror);
@@ -190,11 +199,15 @@ public abstract class BLEDeviceModel {
 
         @Override
         public void onConnectFailure(BleException exception) {
+            //removeDeviceMirrorFromPool();
+
             DeviceState state;
             if(exception instanceof TimeoutException)
                 state = CONNECT_SCANTIMEOUT;
             else
                 state = CONNECT_ERROR;
+
+            Log.d("CONNECTCALLBACK", "onConnectFailure with state = " + state);
             Message msg = new Message();
             msg.what = MSG_CONNECTCALLBACK;
             msg.obj = new ConnectResultObject(state, exception);
@@ -203,6 +216,9 @@ public abstract class BLEDeviceModel {
 
         @Override
         public void onDisconnect(boolean isActive) {
+            //removeDeviceMirrorFromPool();
+
+            Log.d("CONNECTCALLBACK", "onDisconnect");
             Message msg = new Message();
             msg.what = MSG_CONNECTCALLBACK;
             msg.obj = new ConnectResultObject(DeviceState.CONNECT_DISCONNECT, isActive);
@@ -252,18 +268,16 @@ public abstract class BLEDeviceModel {
 
     // 发起连接
     public synchronized void connect() {
-        if(state == CONNECT_WAITING || state == CONNECT_DISCONNECT) {
+        if(state == CONNECT_SUCCESS || state == CONNECT_PROCESS || state == CONNECT_DISCONNECTING) return;
+        setDeviceState(CONNECT_PROCESS);
+        notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
-            setDeviceState(CONNECT_PROCESS);
-            notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
-
-            MyApplication.getViseBle().connectByMac(getMacAddress(), connectCallback);
-        }
+        MyApplication.getViseBle().connectByMac(getMacAddress(), connectCallback);
     }
 
     // 断开连接
     public synchronized void disconnect() {
-        if(state == CONNECT_SUCCESS || state == CONNECT_ERROR || state == CONNECT_SCANTIMEOUT) {
+        if(state == CONNECT_SUCCESS) {
             setDeviceState(CONNECT_DISCONNECTING);
             notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 

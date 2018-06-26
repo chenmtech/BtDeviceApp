@@ -60,6 +60,8 @@ public class WaveView extends View {
 	private float yRes;					//Y方向分辨率，表示屏幕Y方向每个像素代表的信号值的变化，DeltaSignal/pixel
 	private double zeroLocation;			//表示零值位置占视图高度的百分比
 
+
+
 	public WaveView(Context context) {
 		super(context);
 

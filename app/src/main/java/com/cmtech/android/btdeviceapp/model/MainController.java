@@ -2,7 +2,6 @@ package com.cmtech.android.btdeviceapp.model;
 
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
@@ -47,7 +46,7 @@ public class MainController {
     }
 
     // 开始扫描新的设备
-    public void startScanNewDevice() {
+    public void startScanDevice() {
         List<String> deviceMacList = getIncludedDeviceMacAddressList();
         activity.startScanActivity(deviceMacList);
     }
@@ -68,21 +67,12 @@ public class MainController {
         device.notifyDeviceObservers(IBLEDeviceObserver.TYPE_ADDED);
     }
 
-    // 从deviceControllerList中寻找Fragment对应的控制器
-    public BLEDeviceController getController(BLEDeviceFragment fragment) {
-        for(BLEDeviceController controller : openedControllerList) {
-            if(controller.getFragment().equals(fragment)) {
-                return controller;
-            }
-        }
-        return null;
-    }
 
-    // 连接设备
-    public void connectBLEDevice(BLEDeviceModel device) {
+    // 打开设备
+    public void openDevice(BLEDeviceModel device) {
         if(device == null) return;
 
-        BLEDeviceFragment fragment = getOpenedFragmentForDevice(device);
+        BLEDeviceFragment fragment = getFragmentForDevice(device);
         if(fragment != null) {
             activity.showDeviceFragment(fragment);
             fragment.connectDevice();
@@ -95,11 +85,38 @@ public class MainController {
         }
     }
 
-    // 关闭一个打开的Fragment
-    public void closeFragment(BLEDeviceFragment fragment) {
-        BLEDeviceController controller = getController(fragment);
-        controller.closeDevice();
-        openedControllerList.remove(controller);
+    // 连接设备
+    public void connectDevice(BLEDeviceModel device) {
+        if(device == null) return;
+
+        BLEDeviceFragment fragment = getFragmentForDevice(device);
+        if(fragment != null) {
+            fragment.connectDevice();
+        }
+    }
+
+    // 连接设备
+    public void disconnectDevice(BLEDeviceModel device) {
+        if(device == null) return;
+
+        BLEDeviceFragment fragment = getFragmentForDevice(device);
+        if(fragment != null) {
+            fragment.disconnectDevice();
+        }
+    }
+
+    // 关闭设备
+    public void closeDevice(BLEDeviceModel device) {
+        if(device == null) return;
+
+        BLEDeviceController controller = getController(device);
+        if(controller == null) return;
+        BLEDeviceFragment fragment = controller.getFragment();
+        if(fragment != null) {
+            controller.closeDevice();
+            openedControllerList.remove(controller);
+            activity.deleteFragment(fragment);
+        }
     }
 
     public void closeAllFragment() {
@@ -111,7 +128,7 @@ public class MainController {
     }
 
     // 删除设备
-    public void deleteBLEDevice(final BLEDeviceModel device) {
+    public void deleteIncludedDevice(final BLEDeviceModel device) {
         if(device == null) return;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -134,14 +151,34 @@ public class MainController {
         builder.show();
     }
 
-    // 获取设备对应的打开的Fragment
-    private BLEDeviceFragment getOpenedFragmentForDevice(BLEDeviceModel device) {
+    private boolean isDeviceOpened(BLEDeviceModel device) {
+        return (getController(device) == null) ? false : true;
+    }
+
+    // 从deviceControllerList中寻找Fragment对应的控制器
+    public BLEDeviceController getController(BLEDeviceFragment fragment) {
         for(BLEDeviceController controller : openedControllerList) {
-            if(device.equals(controller.getDevice())) {
-                return controller.getFragment();
+            if(controller.getFragment().equals(fragment)) {
+                return controller;
             }
         }
         return null;
+    }
+
+    // 从deviceControllerList中寻找Fragment对应的控制器
+    public BLEDeviceController getController(BLEDeviceModel device) {
+        for(BLEDeviceController controller : openedControllerList) {
+            if(device.equals(controller.getDevice())) {
+                return controller;
+            }
+        }
+        return null;
+    }
+
+    // 获取设备对应的Fragment
+    private BLEDeviceFragment getFragmentForDevice(BLEDeviceModel device) {
+        BLEDeviceController controller = getController(device);
+        return (controller != null) ? controller.getFragment() : null;
     }
 
     // 产生已包含的设备Mac地址字符串列表字符串

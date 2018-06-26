@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity{
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mainController.startScanNewDevice();
+                scanDevice();
             }
         });
 
@@ -132,30 +132,47 @@ public class MainActivity extends AppCompatActivity{
         // 创建Fragment管理器
         fragmentManager = new MainTabFragmentManager(this, tabLayout, R.id.main_fragment_layout);
 
+        // 更新主界面
         updateMainLayoutVisibility();
     }
 
-    public void startScanActivity(List<String> deviceMacList) {
+    // 开始扫描设备
+    public void scanDevice() {
+        mainController.startScanDevice();
+    }
+
+    // 打开一个BLE设备：创建控制器，创建Fragment，并自动连接
+    public void openDevice(BLEDeviceModel device) {
+        mainController.openDevice(device);
+    }
+
+    // 连接设备
+    public void connectDevice(BLEDeviceModel device) {
+        mainController.connectDevice(device);
+    }
+
+    // 断开连接
+    public void disconnectDevice(BLEDeviceModel device) {
+        mainController.disconnectDevice(device);
+    }
+
+    // 关闭设备
+    public void closeDevice(BLEDeviceModel device) {
+        mainController.closeDevice(device);
+    }
+
+    // 删除已添加设备
+    public void deleteIncludedDevice(final BLEDeviceModel device) {
+        mainController.deleteIncludedDevice(device);
+    }
+
+    // 启动扫描设备Activity
+    public void startScanActivity(List<String> includedDeviceMacList) {
         // 启动扫描Activity
         Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
-        intent.putExtra("device_list", (Serializable) deviceMacList);
+        intent.putExtra("device_list", (Serializable) includedDeviceMacList);
 
         startActivityForResult(intent, 1);
-    }
-
-    // 连接一个BLE设备：创建控制器，创建Fragment，并自动连接
-    public void connectBLEDevice(BLEDeviceModel device) {
-        mainController.connectBLEDevice(device);
-    }
-
-    // 从数据库中删除设备
-    public void deleteBLEDevice(final BLEDeviceModel device) {
-        mainController.deleteBLEDevice(device);
-    }
-
-    public void closeFragment(BLEDeviceFragment fragment) {
-        mainController.closeFragment(fragment);
-
     }
 
     // 将一个Fragment添加到管理器中，并显示
@@ -177,7 +194,6 @@ public class MainActivity extends AppCompatActivity{
         fragmentManager.deleteFragment(fragment);
         updateMainLayoutVisibility();
     }
-
 
 
     private void updateMainLayoutVisibility() {

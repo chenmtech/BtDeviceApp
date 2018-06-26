@@ -1,5 +1,7 @@
 package com.cmtech.android.btdeviceapp.model;
 
+import android.util.Log;
+
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
 
@@ -29,21 +31,22 @@ public class BLEDeviceController {
 
     public void closeDevice() {
         device.close();
-        //activity.deleteFragment(fragment);
     }
 
     public void switchDevice() {
         DeviceState state = device.getDeviceState();
+        Log.d("BLEDEVICECONTROLLER", "now the state is " + state);
         switch (state) {
             case CONNECT_SUCCESS:
                 disconnectDevice();
                 break;
-            case CONNECT_DISCONNECT:
-            case CONNECT_WAITING:
-                connectDevice();
+
+            case CONNECT_PROCESS:
+            case CONNECT_DISCONNECTING:
                 break;
 
             default:
+                connectDevice();
                 break;
         }
     }

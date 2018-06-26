@@ -61,7 +61,7 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceOb
             public void onClick(View view) {
                 Log.d(BLEDeviceFragment.this.getClass().getSimpleName(), "is closed.");
 
-                close();
+                closeDevice();
             }
         });
     }
@@ -132,13 +132,13 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceOb
                 setImageButton(btnConnectSwitch, R.mipmap.ic_connect_32px, true);
                 break;
 
-            case CONNECT_DISCONNECT:
-            case CONNECT_WAITING:
-                setImageButton(btnConnectSwitch, R.mipmap.ic_disconnect_32px, true);
+            case CONNECT_DISCONNECTING:
+            case CONNECT_PROCESS:
+                setImageButton(btnConnectSwitch, R.mipmap.ic_connecting_32px, false);
                 break;
 
             default:
-                setImageButton(btnConnectSwitch, R.mipmap.ic_connecting_32px, false);
+                setImageButton(btnConnectSwitch, R.mipmap.ic_disconnect_32px, true);
                 break;
         }
     }
@@ -153,9 +153,8 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceOb
 
     }
 
-    public void close() {
-
-        activity.closeFragment(this);
+    public void closeDevice() {
+        activity.closeDevice(device);
     }
 
 
