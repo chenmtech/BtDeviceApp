@@ -34,7 +34,7 @@ public class BLEDevicePersistantInfo extends DataSupport {
         isAutoConnected = persistantInfo.isAutoConnected;
         imagePath = persistantInfo.imagePath;
     }
-    
+
 
     public int getId() {
         return id;
