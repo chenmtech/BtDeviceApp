@@ -9,7 +9,7 @@ public enum DeviceState {
     CONNECT_WAITING(0, "等待连接"),
     CONNECT_SCANTIMEOUT(1, "扫描超时"),
     CONNECT_PROCESS(2, "连接中"),
-    CONNECT_ERROR(3, "连接错误"),
+    CONNECT_FAILURE(3, "连接错误"),
     CONNECT_DISCONNECT(4, "连接断开"),
     CONNECT_DISCONNECTING(5, "连接断开中"),
     CONNECT_SUCCESS(6, "连接成功");

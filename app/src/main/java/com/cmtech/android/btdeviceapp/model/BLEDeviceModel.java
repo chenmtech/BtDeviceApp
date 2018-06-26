@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothGattService;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -127,7 +128,9 @@ public abstract class BLEDeviceModel {
         }
     }
 
-    private void processConnectResultObject(ConnectResultObject result) {
+    private synchronized void processConnectResultObject(ConnectResultObject result) {
+        //if(state == result.state) return;   // 有时候会有连续多次回调，忽略后面的回调处理
+
         setDeviceState(result.state);
         notifyDeviceObservers(TYPE_MODIFY_CONNECTSTATE);
 
@@ -136,7 +139,7 @@ public abstract class BLEDeviceModel {
                 onConnectSuccess((DeviceMirror)result.obj);
                 break;
             case CONNECT_SCANTIMEOUT:
-            case CONNECT_ERROR:
+            case CONNECT_FAILURE:
                 onConnectFailure((BleException)result.obj);
                 break;
             case CONNECT_DISCONNECT:
@@ -150,14 +153,11 @@ public abstract class BLEDeviceModel {
     }
 
     private void onConnectSuccess(DeviceMirror mirror) {
-        DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+        //if(deviceMirror != null && !TextUtils.isEmpty(deviceMirror.getUniqueSymbol())
+        //        && deviceMirror.getUniqueSymbol().equalsIgnoreCase(mirror.getUniqueSymbol())) return;
+        //if(deviceMirror != null && deviceMirror.isConnected()) return;
 
-        if (deviceMirror != null) {
-            //deviceMirror.disconnect();
-            deviceMirrorPool.removeDeviceMirror(deviceMirror);
-            deviceMirror.clear();
-            deviceMirror = null;
-        }
+        DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
         if (deviceMirrorPool.isContainDevice(mirror)) {
             this.deviceMirror = mirror;
@@ -166,25 +166,16 @@ public abstract class BLEDeviceModel {
     }
 
     private void onConnectFailure(BleException exception) {
+        //clearDeviceMirror();
         executeAfterConnectFailure();
     }
 
     private void onDisconnect(Boolean isActive) {
+        //clearDeviceMirror();
         executeAfterDisconnect(isActive);
     }
 
-    private void removeDeviceMirrorFromPool() {
-        if(deviceMirror == null) return;
 
-        synchronized (deviceMirror) {
-            if (deviceMirror != null) {
-                deviceMirror.disconnect();
-                MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
-                deviceMirror.clear();
-                deviceMirror = null;
-            }
-        }
-    }
 
     // 连接回调
     final IConnectCallback connectCallback = new IConnectCallback() {
@@ -194,18 +185,17 @@ public abstract class BLEDeviceModel {
             Message msg = new Message();
             msg.what = MSG_CONNECTCALLBACK;
             msg.obj = new ConnectResultObject(DeviceState.CONNECT_SUCCESS, deviceMirror);
+            handler.removeMessages(MSG_CONNECTCALLBACK);
             handler.sendMessage(msg);
         }
 
         @Override
         public void onConnectFailure(BleException exception) {
-            //removeDeviceMirrorFromPool();
-
             DeviceState state;
             if(exception instanceof TimeoutException)
                 state = CONNECT_SCANTIMEOUT;
             else
-                state = CONNECT_ERROR;
+                state = CONNECT_FAILURE;
 
             Log.d("CONNECTCALLBACK", "onConnectFailure with state = " + state);
             Message msg = new Message();
@@ -216,8 +206,6 @@ public abstract class BLEDeviceModel {
 
         @Override
         public void onDisconnect(boolean isActive) {
-            //removeDeviceMirrorFromPool();
-
             Log.d("CONNECTCALLBACK", "onDisconnect");
             Message msg = new Message();
             msg.what = MSG_CONNECTCALLBACK;
@@ -293,8 +281,16 @@ public abstract class BLEDeviceModel {
     // 关闭设备
     public synchronized void close() {
         observerList.clear();
-        disconnect();
-        removeDeviceMirrorFromPool();
+
+        clearDeviceMirror();
+    }
+
+    private void clearDeviceMirror() {
+        if (deviceMirror != null) {
+            deviceMirror.disconnect();
+            MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+            //deviceMirror.clear();     // 不能clear，否则下次连接出错
+        }
     }
 
     // 在设备上获取element的Gatt Object
