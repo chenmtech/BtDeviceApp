@@ -25,10 +25,11 @@ import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.BLEDeviceListAdapter;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
-import com.cmtech.android.btdeviceapp.model.BLEDevicePersistantInfo;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.MainController;
 import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
 
@@ -39,7 +40,7 @@ import java.util.List;
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity implements IBLEDeviceConnectStateObserver{
 
     // 显示设备列表的Adapter和RecyclerView
     private BLEDeviceListAdapter deviceListAdapter;
@@ -220,22 +221,17 @@ public class MainActivity extends AppCompatActivity{
                     String imagePath = data.getStringExtra("device_imagepath");
                     boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
 
-                    BLEDevicePersistantInfo persistantInfo = new BLEDevicePersistantInfo();
+                    BLEDeviceBasicInfo persistantInfo = new BLEDeviceBasicInfo();
                     persistantInfo.setNickName(nickName);
                     persistantInfo.setMacAddress(macAddress);
                     persistantInfo.setUuidString(deviceUuid);
                     persistantInfo.setImagePath(imagePath);
                     persistantInfo.setAutoConnected(isAutoConnect);
 
-                    mainController.addNewScanedDevice(persistantInfo);
+                    mainController.createAndAddNewDevice(persistantInfo);
                 }
                 break;
         }
-    }
-
-    // 登记设备的观察者
-    public void registerDeviceObserver(BLEDeviceModel device) {
-        device.registerDeviceObserver(deviceListAdapter);
     }
 
     // 打开或关闭侧滑菜单
@@ -284,4 +280,8 @@ public class MainActivity extends AppCompatActivity{
         return mainController.getController(fragment);
     }
 
+    @Override
+    public void updateConnectState(BLEDeviceModel device) {
+        if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
+    }
 }

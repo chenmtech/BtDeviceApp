@@ -1,7 +1,5 @@
 package com.cmtech.android.btdevice.thermo;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -10,9 +8,8 @@ import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
-import com.cmtech.android.btdeviceapp.model.BLEDevicePersistantInfo;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
-import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.util.ByteUtil;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 
@@ -38,7 +35,7 @@ public class ThermoDevice extends BLEDeviceModel {
             new BluetoothGattElement(thermoServiceUuid, thermoDataUuid, Uuid.CCCUUID);
     ///////////////////////////////////////////////////////
 
-    public ThermoDevice(BLEDevicePersistantInfo persistantInfo) {
+    public ThermoDevice(BLEDeviceBasicInfo persistantInfo) {
         super(persistantInfo);
     }
 

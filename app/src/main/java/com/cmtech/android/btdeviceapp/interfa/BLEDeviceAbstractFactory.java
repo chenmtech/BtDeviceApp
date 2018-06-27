@@ -7,8 +7,7 @@ import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
-import com.cmtech.android.btdeviceapp.model.BLEDevicePersistantInfo;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceType;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 
 public abstract class BLEDeviceAbstractFactory {
     // 支持的设备类型的16位UUID的字符串
@@ -20,7 +19,7 @@ public abstract class BLEDeviceAbstractFactory {
     private static final String UUID_TEMPHUMID = "aa60";
     private static final String UUID_UNKNOWN = "0000";
 
-    public static BLEDeviceAbstractFactory getBLEDeviceFactory(BLEDevicePersistantInfo persistantInfo) {
+    public static BLEDeviceAbstractFactory getBLEDeviceFactory(BLEDeviceBasicInfo persistantInfo) {
         String uuid = persistantInfo.getUuidString();
         if(UUID_TEMPHUMID.equalsIgnoreCase(uuid))
             return new TempHumidDeviceFactory();
@@ -32,7 +31,7 @@ public abstract class BLEDeviceAbstractFactory {
             return null;
     }
 
-    public abstract BLEDeviceModel createDevice(BLEDevicePersistantInfo persistantInfo);
+    public abstract BLEDeviceModel createDevice(BLEDeviceBasicInfo persistantInfo);
     public abstract BLEDeviceController createController(BLEDeviceModel device, MainActivity activity);
     public abstract BLEDeviceFragment createFragment();
 }

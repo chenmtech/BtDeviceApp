@@ -1,7 +1,5 @@
 package com.cmtech.android.btdevice.ecgmonitor;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -10,11 +8,9 @@ import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.MyApplication;
-import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
-import com.cmtech.android.btdeviceapp.model.BLEDevicePersistantInfo;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
-import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileDataType;
@@ -219,7 +215,7 @@ public class EcgMonitorDevice extends BLEDeviceModel {
     }
 
 
-    public EcgMonitorDevice(BLEDevicePersistantInfo persistantInfo) {
+    public EcgMonitorDevice(BLEDeviceBasicInfo persistantInfo) {
         super(persistantInfo);
     }
 

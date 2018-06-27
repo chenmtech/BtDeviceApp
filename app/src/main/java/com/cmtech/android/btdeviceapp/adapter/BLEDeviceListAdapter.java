@@ -2,8 +2,6 @@ package com.cmtech.android.btdeviceapp.adapter;
 
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +14,7 @@ import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceObserver;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceType;
 
@@ -26,8 +24,7 @@ import java.util.List;
  * Created by bme on 2018/2/8.
  */
 
-public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdapter.ViewHolder>
-                                    implements IBLEDeviceObserver {
+public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdapter.ViewHolder> {
 
     // 设备列表
     private List<BLEDeviceModel> mDeviceList;
@@ -61,10 +58,6 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
 
         mDeviceList = deviceList;
         this.activity = activity;
-
-        for(BLEDeviceModel device : mDeviceList) {
-            device.registerDeviceObserver(this);
-        }
     }
 
 
@@ -117,15 +110,5 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
         return mDeviceList.size();
     }
 
-    // 作为IMyBluetoothDeviceObserver设备观察者要实现的函数
-    @Override
-    public void updateDeviceInfo(BLEDeviceModel device, final int type) {
-        new Handler(Looper.getMainLooper()).post((new Runnable() {
-            @Override
-            public void run() {
-            notifyDataSetChanged();
-            }
-        }));
 
-    }
 }

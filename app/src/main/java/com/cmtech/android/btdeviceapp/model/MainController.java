@@ -5,7 +5,6 @@ import android.support.v7.app.AlertDialog;
 
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceObserver;
 
 import org.litepal.crud.DataSupport;
 
@@ -28,15 +27,13 @@ public class MainController {
         this.activity = activity;
     }
 
-    // 从数据库中获取以前添加的设备列表
+    // 从数据库中获取以前添加的设备基本信息列表
     public void initialize() {
         // 从数据库获取设备信息，并构造相应的BLEDevice
-        List<BLEDevicePersistantInfo> persistantInfoList = DataSupport.findAll(BLEDevicePersistantInfo.class);
-        if(persistantInfoList != null && !persistantInfoList.isEmpty()) {
-            for(BLEDevicePersistantInfo info : persistantInfoList) {
-                BLEDeviceAbstractFactory factory = BLEDeviceAbstractFactory.getBLEDeviceFactory(info);
-                if(factory != null)
-                    includedDeviceList.add(factory.createDevice(info));
+        List<BLEDeviceBasicInfo> basicInfoList = DataSupport.findAll(BLEDeviceBasicInfo.class);
+        if(basicInfoList != null && !basicInfoList.isEmpty()) {
+            for(BLEDeviceBasicInfo info : basicInfoList) {
+                createAndAddNewDevice(info);
             }
         }
     }
@@ -51,20 +48,26 @@ public class MainController {
         activity.startScanActivity(deviceMacList);
     }
 
-    // 添加一个新的扫描到的设备
-    public void addNewScanedDevice(BLEDevicePersistantInfo persistantInfo) {
-        BLEDeviceAbstractFactory factory = BLEDeviceAbstractFactory.getBLEDeviceFactory(persistantInfo);
-        if(factory == null) return;
+    // 创建并添加一个新的设备
+    public void createAndAddNewDevice(BLEDeviceBasicInfo basicInfo) {
+        BLEDeviceModel device = createDeviceUsingBasicInfo(basicInfo);
 
-        // 保存到数据库
-        persistantInfo.save();
-        // 添加到设备列表
-        BLEDeviceModel device = factory.createDevice(persistantInfo);
-        includedDeviceList.add(device);
-        // 添加deviceAdapter作为观察者
-        activity.registerDeviceObserver(device);
-        // 通知观察者
-        device.notifyDeviceObservers(IBLEDeviceObserver.TYPE_ADDED);
+        if(device != null) {
+            // 将设备基本信息保存到数据库
+            basicInfo.save();
+            // 将设备添加到设备列表
+            includedDeviceList.add(device);
+            // 添加Activity作为设备连接状态的观察者
+            device.registerConnectStateObserver(activity);
+            // 通知观察者
+            device.notifyConnectStateObservers();
+        }
+    }
+
+    private BLEDeviceModel createDeviceUsingBasicInfo(BLEDeviceBasicInfo basicInfo) {
+        BLEDeviceAbstractFactory factory = BLEDeviceAbstractFactory.getBLEDeviceFactory(basicInfo);
+        if(factory == null) return null;
+        return factory.createDevice(basicInfo);
     }
 
 
@@ -77,7 +80,7 @@ public class MainController {
             activity.showDeviceFragment(fragment);
             fragment.connectDevice();
         } else {
-            BLEDeviceAbstractFactory factory = BLEDeviceAbstractFactory.getBLEDeviceFactory(device.getPersistantInfo());
+            BLEDeviceAbstractFactory factory = BLEDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo());
             if(factory == null) return;
             BLEDeviceController deviceController = factory.createController(device, activity);
             openedControllerList.add(deviceController);
@@ -137,9 +140,9 @@ public class MainController {
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                device.getPersistantInfo().delete();
+                device.getBasicInfo().delete();
                 includedDeviceList.remove(device);
-                device.notifyDeviceObservers(IBLEDeviceObserver.TYPE_DELETED);
+                device.notifyConnectStateObservers();
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {

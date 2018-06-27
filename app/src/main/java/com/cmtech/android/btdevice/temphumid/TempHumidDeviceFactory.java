@@ -5,11 +5,11 @@ import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
 import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
-import com.cmtech.android.btdeviceapp.model.BLEDevicePersistantInfo;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 
 public class TempHumidDeviceFactory extends BLEDeviceAbstractFactory {
     @Override
-    public BLEDeviceModel createDevice(BLEDevicePersistantInfo persistantInfo) {
+    public BLEDeviceModel createDevice(BLEDeviceBasicInfo persistantInfo) {
         return new TempHumidDevice(persistantInfo);
     }
 

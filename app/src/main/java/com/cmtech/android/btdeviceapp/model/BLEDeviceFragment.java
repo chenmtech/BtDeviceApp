@@ -2,25 +2,22 @@ package com.cmtech.android.btdeviceapp.model;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceObserver;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
 
 /**
  * Created by bme on 2018/2/27.
  */
 
-public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceObserver {
+public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceConnectStateObserver {
     // MainActivity
     protected MainActivity activity;
 
@@ -89,7 +86,7 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceOb
             throw new IllegalStateException();
         }
 
-        device.registerDeviceObserver(this);
+        device.registerConnectStateObserver(this);
     }
 
     public BLEDeviceModel getDevice() {
@@ -125,23 +122,7 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceOb
         super.onDetach();
     }
 
-    public void updateConnectState() {
-        tvConnectState.setText(device.getDeviceState().getDescription());
-        switch (device.getDeviceState()) {
-            case CONNECT_SUCCESS:
-                setImageButton(btnConnectSwitch, R.mipmap.ic_connect_32px, true);
-                break;
 
-            case CONNECT_DISCONNECTING:
-            case CONNECT_PROCESS:
-                setImageButton(btnConnectSwitch, R.mipmap.ic_connecting_32px, false);
-                break;
-
-            default:
-                setImageButton(btnConnectSwitch, R.mipmap.ic_disconnect_32px, true);
-                break;
-        }
-    }
 
     public void connectDevice() {
         controller.connectDevice();
@@ -163,19 +144,29 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceOb
         btn.setEnabled(enable);
     }
 
-    /////////////// IBLEDeviceObserver接口函数//////////////////////
+    /////////////// IBLEDeviceConnectStateObserver接口函数//////////////////////
     @Override
-    public void updateDeviceInfo(final BLEDeviceModel device, final int type) {
+    public void updateConnectState(final BLEDeviceModel device) {
         if(device == this.device) {
-            switch (type) {
-                case TYPE_MODIFY_CONNECTSTATE:
-                    updateConnectState();
-                    break;
+            updateConnectState();
+        }
+    }
 
-                default:
-                    break;
-            }
+    private void updateConnectState() {
+        tvConnectState.setText(device.getDeviceState().getDescription());
+        switch (device.getDeviceState()) {
+            case CONNECT_SUCCESS:
+                setImageButton(btnConnectSwitch, R.mipmap.ic_connect_32px, true);
+                break;
 
+            case CONNECT_DISCONNECTING:
+            case CONNECT_CONNECTING:
+                setImageButton(btnConnectSwitch, R.mipmap.ic_connecting_32px, false);
+                break;
+
+            default:
+                setImageButton(btnConnectSwitch, R.mipmap.ic_disconnect_32px, true);
+                break;
         }
     }
     //////////////////////////////////////////////////////////////////////////

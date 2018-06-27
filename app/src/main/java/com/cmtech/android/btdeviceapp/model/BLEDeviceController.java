@@ -18,7 +18,7 @@ public class BLEDeviceController {
 
         this.activity = activity;
         this.device = device;
-        fragment = BLEDeviceAbstractFactory.getBLEDeviceFactory(device.getPersistantInfo()).createFragment();
+        fragment = BLEDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();
     }
 
     public void connectDevice() {
@@ -41,7 +41,7 @@ public class BLEDeviceController {
                 disconnectDevice();
                 break;
 
-            case CONNECT_PROCESS:
+            case CONNECT_CONNECTING:
             case CONNECT_DISCONNECTING:
                 break;
 

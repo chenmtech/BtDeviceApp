@@ -45,20 +45,6 @@ public class UnknownDeviceFragment extends BLEDeviceFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        List<BluetoothGattService> services = device.getServices();
-        StringBuilder serviceStr = new StringBuilder();
-        StringBuilder charaStr = new StringBuilder();
-        for(BluetoothGattService service : services) {
-            serviceStr.append(service.getUuid().toString() + '\n');
-            List<BluetoothGattCharacteristic> charas = service.getCharacteristics();
-            for(BluetoothGattCharacteristic chara : charas) {
-                charaStr.append(chara.getUuid().toString() + '\n');
-            }
-        }
-
-        tvServices.setText(serviceStr.toString());
-        tvCharacteristic.setText(charaStr.toString());
-
     }
 
 

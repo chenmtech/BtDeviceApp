@@ -2,7 +2,12 @@ package com.cmtech.android.btdeviceapp.model;
 
 import org.litepal.crud.DataSupport;
 
-public class BLEDevicePersistantInfo extends DataSupport {
+/**
+ *  BLEDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库中
+ *  Created by bme on 2018/6/27.
+ */
+
+public class BLEDeviceBasicInfo extends DataSupport {
     // 数据库保存的字段
     // id
     private int id;
@@ -22,17 +27,17 @@ public class BLEDevicePersistantInfo extends DataSupport {
     // 图标
     private String imagePath;
 
-    public BLEDevicePersistantInfo() {
+    public BLEDeviceBasicInfo() {
 
     }
 
-    public BLEDevicePersistantInfo(BLEDevicePersistantInfo persistantInfo) {
-        id = persistantInfo.id;
-        macAddress = persistantInfo.macAddress;
-        nickName = persistantInfo.nickName;
-        uuidString = persistantInfo.uuidString;
-        isAutoConnected = persistantInfo.isAutoConnected;
-        imagePath = persistantInfo.imagePath;
+    public BLEDeviceBasicInfo(BLEDeviceBasicInfo basicInfo) {
+        id = basicInfo.id;
+        macAddress = basicInfo.macAddress;
+        nickName = basicInfo.nickName;
+        uuidString = basicInfo.uuidString;
+        isAutoConnected = basicInfo.isAutoConnected;
+        imagePath = basicInfo.imagePath;
     }
 
 

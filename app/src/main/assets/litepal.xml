@@ -6,7 +6,7 @@
     <version value="1"></version>
 
     <list>
-        <mapping class="com.cmtech.android.btdeviceapp.model.BLEDevicePersistantInfo"></mapping>
+        <mapping class="com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo"></mapping>
 
     </list>
 </litepal>
