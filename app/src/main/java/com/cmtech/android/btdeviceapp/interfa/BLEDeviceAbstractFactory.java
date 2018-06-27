@@ -19,8 +19,8 @@ public abstract class BLEDeviceAbstractFactory {
     private static final String UUID_TEMPHUMID = "aa60";
     private static final String UUID_UNKNOWN = "0000";
 
-    public static BLEDeviceAbstractFactory getBLEDeviceFactory(BLEDeviceBasicInfo persistantInfo) {
-        String uuid = persistantInfo.getUuidString();
+    public static BLEDeviceAbstractFactory getBLEDeviceFactory(BLEDeviceBasicInfo basicInfo) {
+        String uuid = basicInfo.getUuidString();
         if(UUID_TEMPHUMID.equalsIgnoreCase(uuid))
             return new TempHumidDeviceFactory();
         else if(UUID_ECGMONITOR.equalsIgnoreCase(uuid))
@@ -31,7 +31,7 @@ public abstract class BLEDeviceAbstractFactory {
             return null;
     }
 
-    public abstract BLEDeviceModel createDevice(BLEDeviceBasicInfo persistantInfo);
-    public abstract BLEDeviceController createController(BLEDeviceModel device, MainActivity activity);
+    public abstract IBLEDeviceModelInterface createDevice(BLEDeviceBasicInfo basicInfo);
+    public abstract IBLEDeviceControllerInterface createController(IBLEDeviceModelInterface device, MainActivity activity);
     public abstract BLEDeviceFragment createFragment();
 }

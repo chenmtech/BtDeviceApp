@@ -15,18 +15,19 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
 
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.btdeviceapp.model.DeviceState.*;
+import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.*;
 
 /**
  * Created by bme on 2018/2/19.
  */
 
-public abstract class BLEDeviceModel {
+public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     private static final int MSG_CONNECTCALLBACK    =  0;         // 连接相关回调消息
 
@@ -37,66 +38,71 @@ public abstract class BLEDeviceModel {
         this.basicInfo = basicInfo;
     }
 
-    public int getId() {
-        return basicInfo.getId();
-    }
-
-    public void setId(int id) {
-        basicInfo.setId(id);
-    }
-
+    @Override
     public String getMacAddress() {
         return basicInfo.getMacAddress();
     }
 
+    @Override
     public void setMacAddress(String macAddress) {
         basicInfo.setMacAddress(macAddress);
     }
 
+    @Override
     public String getNickName() {
         return basicInfo.getNickName();
     }
 
+    @Override
     public void setNickName(String nickName) {
         basicInfo.setNickName(nickName);
     }
 
+    @Override
     public String getUuidString() {
         return basicInfo.getUuidString();
     }
 
+    @Override
     public void setUuidString(String uuidString) {
         basicInfo.setUuidString(uuidString);
     }
 
+    @Override
     public boolean isAutoConnected() {
         return basicInfo.isAutoConnected();
     }
 
+    @Override
     public void setAutoConnected(boolean autoConnected) {
         basicInfo.setAutoConnected(autoConnected);
     }
 
+    @Override
     public String getImagePath() {
         return basicInfo.getImagePath();
     }
 
+    @Override
     public void setImagePath(String imagePath) {
         basicInfo.setImagePath(imagePath);
     }
 
+    @Override
     public BLEDeviceBasicInfo getBasicInfo() {
         return basicInfo;
     }
 
     // 设备状态
-    DeviceState state = DeviceState.CONNECT_WAITING;
+    DeviceConnectState state = DeviceConnectState.CONNECT_WAITING;
 
-    public DeviceState getDeviceState() {
+    @Override
+    public DeviceConnectState getDeviceConnectState() {
         return state;
     }
 
-    public void setDeviceState(DeviceState state) {
+    @Override
+    public void setDeviceConnectState(DeviceConnectState state) {
         this.state = state;
     }
 
@@ -126,10 +132,10 @@ public abstract class BLEDeviceModel {
 
     // 连接结果类
     static class ConnectResultObject {
-        DeviceState state;
+        DeviceConnectState state;
         Object obj;
 
-        ConnectResultObject(DeviceState state, Object obj) {
+        ConnectResultObject(DeviceConnectState state, Object obj) {
             this.state = state;
             this.obj = obj;
         }
@@ -142,14 +148,14 @@ public abstract class BLEDeviceModel {
             Log.d("CONNECTCALLBACK", "onConnectSuccess");
             Message msg = new Message();
             msg.what = MSG_CONNECTCALLBACK;
-            msg.obj = new ConnectResultObject(DeviceState.CONNECT_SUCCESS, deviceMirror);
+            msg.obj = new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror);
             handler.removeMessages(MSG_CONNECTCALLBACK);
             handler.sendMessage(msg);
         }
 
         @Override
         public void onConnectFailure(BleException exception) {
-            DeviceState state;
+            DeviceConnectState state;
             if(exception instanceof TimeoutException)
                 state = CONNECT_SCANTIMEOUT;
             else
@@ -168,7 +174,7 @@ public abstract class BLEDeviceModel {
             Log.d("CONNECTCALLBACK", "onDisconnect");
             Message msg = new Message();
             msg.what = MSG_CONNECTCALLBACK;
-            msg.obj = new ConnectResultObject(DeviceState.CONNECT_DISCONNECT, isActive);
+            msg.obj = new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive);
             handler.removeMessages(MSG_CONNECTCALLBACK);
             handler.sendMessage(msg);
         }
@@ -178,7 +184,7 @@ public abstract class BLEDeviceModel {
     private void processConnectResultObject(ConnectResultObject result) {
         //if(state == result.state) return;   // 有时候会有连续多次回调，忽略后面的回调处理
 
-        setDeviceState(result.state);
+        setDeviceConnectState(result.state);
         notifyConnectStateObservers();
 
         switch (result.state) {
@@ -223,36 +229,43 @@ public abstract class BLEDeviceModel {
 
 
     // 发起连接
+    @Override
     public synchronized void connect() {
         if(state == CONNECT_SUCCESS || state == CONNECT_CONNECTING || state == CONNECT_DISCONNECTING) return;
-        setDeviceState(CONNECT_CONNECTING);
+        setDeviceConnectState(CONNECT_CONNECTING);
         notifyConnectStateObservers();
 
         MyApplication.getViseBle().connectByMac(getMacAddress(), connectCallback);
     }
 
     // 断开连接
+    @Override
     public synchronized void disconnect() {
         if(state == CONNECT_SUCCESS) {
-            setDeviceState(CONNECT_DISCONNECTING);
+            setDeviceConnectState(CONNECT_DISCONNECTING);
             notifyConnectStateObservers();
 
             if (deviceMirror != null) {
                 MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
             } else {
-                setDeviceState(CONNECT_DISCONNECT);
+                setDeviceConnectState(CONNECT_DISCONNECT);
                 notifyConnectStateObservers();
             }
         }
     }
 
     // 关闭设备
+    @Override
     public synchronized void close() {
-        // 清空连接状态观察者列表
-        connectStateObserverList.clear();
-
         // 断开连接
         clearDeviceMirror();
+
+        state = CONNECT_WAITING;
+
+        notifyConnectStateObservers();
+
+        // 清空连接状态观察者列表
+        connectStateObserverList.clear();
     }
 
     private void clearDeviceMirror() {
@@ -264,6 +277,7 @@ public abstract class BLEDeviceModel {
     }
 
     // 获取设备的服务列表
+    @Override
     public List<BluetoothGattService> getServices() {
         if(deviceMirror != null && deviceMirror.getBluetoothGatt() != null) {
             return deviceMirror.getBluetoothGatt().getServices();
@@ -272,7 +286,7 @@ public abstract class BLEDeviceModel {
     }
 
     // 获取设备上element对应的Gatt Object
-    public Object getGattObject(BluetoothGattElement element) {
+    protected Object getGattObject(BluetoothGattElement element) {
         if(deviceMirror == null || element == null) return null;
         return element.retrieveGattObject(deviceMirror);
     }
@@ -283,7 +297,7 @@ public abstract class BLEDeviceModel {
      * @param dataOpCallback 读回调
      * @return 是否添加成功
      */
-    public boolean executeReadCommand(BluetoothGattElement element, IBleCallback dataOpCallback) {
+    protected boolean executeReadCommand(BluetoothGattElement element, IBleCallback dataOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -299,7 +313,7 @@ public abstract class BLEDeviceModel {
      * @param dataOpCallback 写回调
      * @return 是否添加成功
      */
-    public boolean executeWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
+    protected boolean executeWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -317,7 +331,7 @@ public abstract class BLEDeviceModel {
      * @param notifyOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public boolean executeNotifyCommand(BluetoothGattElement element, boolean enable
+    protected boolean executeNotifyCommand(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -337,7 +351,7 @@ public abstract class BLEDeviceModel {
      * @param indicateOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public boolean executeIndicateCommand(BluetoothGattElement element, boolean enable
+    protected boolean executeIndicateCommand(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -372,34 +386,30 @@ public abstract class BLEDeviceModel {
     }
 
     // 登记连接状态观察者
-    public void registerConnectStateObserver(IBLEDeviceConnectStateObserver obersver) {
-        if(!connectStateObserverList.contains(obersver)) {
-            connectStateObserverList.add(obersver);
+    @Override
+    public void registerConnectStateObserver(IBLEDeviceConnectStateObserver observer) {
+        if(!connectStateObserverList.contains(observer)) {
+            connectStateObserverList.add(observer);
         }
     }
 
     // 删除连接状态观察者
-    public void removeConnectStateObserver(IBLEDeviceConnectStateObserver obersver) {
-        int index = connectStateObserverList.indexOf(obersver);
+    @Override
+    public void removeConnectStateObserver(IBLEDeviceConnectStateObserver observer) {
+        int index = connectStateObserverList.indexOf(observer);
         if(index >= 0) {
             connectStateObserverList.remove(index);
         }
     }
 
     // 通知连接状态观察者
+    @Override
     public void notifyConnectStateObservers() {
-        for(final IBLEDeviceConnectStateObserver obersver : connectStateObserverList) {
-            if(obersver != null) {
-                obersver.updateConnectState(this);
+        for(final IBLEDeviceConnectStateObserver observer : connectStateObserverList) {
+            if(observer != null) {
+                observer.updateConnectState(this);
             }
         }
     }
 
-    public abstract void executeAfterConnectSuccess();
-
-    public abstract void executeAfterConnectFailure();
-
-    public abstract void executeAfterDisconnect(boolean isActive);
-
-    public abstract void processDeviceSpecialMessage(Message msg);
 }

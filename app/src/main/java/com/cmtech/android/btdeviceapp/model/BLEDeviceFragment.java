@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
 
 /**
  * Created by bme on 2018/2/27.
@@ -21,16 +23,17 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
     // MainActivity
     protected MainActivity activity;
 
-    // 对应的控制器
-    protected BLEDeviceController controller;
+    // 对应的控制器接口
+    protected IBLEDeviceControllerInterface controller;
 
-    // 对应的设备
-    protected BLEDeviceModel device;
+    // 对应的设备接口
+    protected IBLEDeviceModelInterface device;
 
     // 连接状态tv
     protected TextView tvConnectState;
 
-    protected ImageButton btnConnectSwitch;
+    protected ImageButton btnSwitchConnectState;
+
     protected ImageButton btnClose;
 
     public BLEDeviceFragment() {
@@ -42,13 +45,15 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
         super.onViewCreated(view, savedInstanceState);
 
         tvConnectState = view.findViewById(R.id.device_connect_state_tv);
-        btnConnectSwitch = view.findViewById(R.id.device_connectswitch_btn);
+
+        btnSwitchConnectState = view.findViewById(R.id.device_connectswitch_btn);
+
         btnClose = view.findViewById(R.id.device_close_btn);
 
-        btnConnectSwitch.setOnClickListener(new View.OnClickListener() {
+        btnSwitchConnectState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                controller.switchDevice();
+                switchDeviceConnectState();
             }
         });
 
@@ -57,7 +62,6 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
             @Override
             public void onClick(View view) {
                 Log.d(BLEDeviceFragment.this.getClass().getSimpleName(), "is closed.");
-
                 closeDevice();
             }
         });
@@ -89,9 +93,6 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
         device.registerConnectStateObserver(this);
     }
 
-    public BLEDeviceModel getDevice() {
-        return device;
-    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -99,7 +100,6 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
 
         // 更新连接状态
         updateConnectState();
-
     }
 
     @Override
@@ -123,26 +123,26 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
     }
 
 
+    public IBLEDeviceModelInterface getDevice() {
+        return device;
+    }
 
     public void connectDevice() {
         controller.connectDevice();
     }
 
-
     public void disconnectDevice() {
         controller.disconnectDevice();
-
     }
 
     public void closeDevice() {
         activity.closeDevice(device);
     }
 
-
-    private void setImageButton(ImageButton btn, int imageId, boolean enable) {
-        btn.setImageDrawable(getResources().getDrawable(imageId));
-        btn.setEnabled(enable);
+    public void switchDeviceConnectState() {
+        controller.switchDeviceConnectState();
     }
+
 
     /////////////// IBLEDeviceConnectStateObserver接口函数//////////////////////
     @Override
@@ -153,21 +153,26 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
     }
 
     private void updateConnectState() {
-        tvConnectState.setText(device.getDeviceState().getDescription());
-        switch (device.getDeviceState()) {
+        tvConnectState.setText(device.getDeviceConnectState().getDescription());
+        switch (device.getDeviceConnectState()) {
             case CONNECT_SUCCESS:
-                setImageButton(btnConnectSwitch, R.mipmap.ic_connect_32px, true);
+                setImageButton(btnSwitchConnectState, R.mipmap.ic_connect_32px, true);
                 break;
 
             case CONNECT_DISCONNECTING:
             case CONNECT_CONNECTING:
-                setImageButton(btnConnectSwitch, R.mipmap.ic_connecting_32px, false);
+                setImageButton(btnSwitchConnectState, R.mipmap.ic_connecting_32px, false);
                 break;
 
             default:
-                setImageButton(btnConnectSwitch, R.mipmap.ic_disconnect_32px, true);
+                setImageButton(btnSwitchConnectState, R.mipmap.ic_disconnect_32px, true);
                 break;
         }
+    }
+
+    private void setImageButton(ImageButton btn, int imageId, boolean enable) {
+        btn.setImageDrawable(getResources().getDrawable(imageId));
+        btn.setEnabled(enable);
     }
     //////////////////////////////////////////////////////////////////////////
 

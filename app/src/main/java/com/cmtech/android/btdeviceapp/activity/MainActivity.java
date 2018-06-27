@@ -26,7 +26,8 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.BLEDeviceListAdapter;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     private RecyclerView deviceListRecycView;
 
     // 添加设备按钮
-    private Button btnAdd;
+    private Button btnScan;
 
     // 侧滑界面
     private DrawerLayout mDrawerLayout;
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     private MainTabFragmentManager fragmentManager;
 
     // 所有设备的主控制器
-    private MainController mainController;
+    private final MainController mainController = new MainController(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +82,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
             actionBar.setHomeAsUpIndicator(R.mipmap.ic_menu_white_18dp);
         }
 
-        mainController = new MainController(this);
-        mainController.initialize();
-
-        // 设置设备信息View
+        // 设置设备信息RecycleView
         deviceListRecycView = (RecyclerView)findViewById(R.id.rvDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         deviceListRecycView.setLayoutManager(layoutManager);
@@ -92,16 +90,14 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
         deviceListAdapter = new BLEDeviceListAdapter(mainController.getIncludedDeviceList(), this);
         deviceListRecycView.setAdapter(deviceListAdapter);
 
-        btnAdd = (Button)findViewById(R.id.device_add_btn);
-
+        btnScan = (Button)findViewById(R.id.device_scan_btn);
         // 添加设备
-        btnAdd.setOnClickListener(new View.OnClickListener() {
+        btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 scanDevice();
             }
         });
-
 
         // 导航菜单设置
         NavigationView navView = (NavigationView)findViewById(R.id.nav_view);
@@ -135,49 +131,51 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
 
         // 更新主界面
         updateMainLayoutVisibility();
+
+        // 初始化主控制器
+        mainController.initialize();
     }
 
     // 开始扫描设备
     public void scanDevice() {
-        mainController.startScanDevice();
+        mainController.scanDevice();
     }
 
-    // 打开一个BLE设备：创建控制器，创建Fragment，并自动连接
-    public void openDevice(BLEDeviceModel device) {
+    // 打开一个BLE设备：为设备创建控制器和Fragment，并自动连接
+    public void openDevice(IBLEDeviceModelInterface device) {
         mainController.openDevice(device);
     }
 
     // 连接设备
-    public void connectDevice(BLEDeviceModel device) {
+    public void connectDevice(IBLEDeviceModelInterface device) {
         mainController.connectDevice(device);
     }
 
     // 断开连接
-    public void disconnectDevice(BLEDeviceModel device) {
+    public void disconnectDevice(IBLEDeviceModelInterface device) {
         mainController.disconnectDevice(device);
     }
 
     // 关闭设备
-    public void closeDevice(BLEDeviceModel device) {
+    public void closeDevice(IBLEDeviceModelInterface device) {
         mainController.closeDevice(device);
     }
 
     // 删除已添加设备
-    public void deleteIncludedDevice(final BLEDeviceModel device) {
+    public void deleteIncludedDevice(final IBLEDeviceModelInterface device) {
         mainController.deleteIncludedDevice(device);
     }
 
     // 启动扫描设备Activity
     public void startScanActivity(List<String> includedDeviceMacList) {
-        // 启动扫描Activity
         Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
         intent.putExtra("device_list", (Serializable) includedDeviceMacList);
 
         startActivityForResult(intent, 1);
     }
 
-    // 将一个Fragment添加到管理器中，并显示
-    public void addFragmentToManager(BLEDeviceModel device, BLEDeviceFragment fragment) {
+    // 添加设备及其Fragment，并显示Fragment
+    public void addFragment(IBLEDeviceModelInterface device, BLEDeviceFragment fragment) {
         mDrawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
         fragmentManager.addFragment(device, fragment);
@@ -185,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     }
 
     // 显示一个Fragment
-    public void showDeviceFragment(BLEDeviceFragment fragment) {
+    public void showFragment(BLEDeviceFragment fragment) {
         openDrawer(false);
         fragmentManager.showDeviceFragment(fragment);
     }
@@ -221,14 +219,14 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
                     String imagePath = data.getStringExtra("device_imagepath");
                     boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
 
-                    BLEDeviceBasicInfo persistantInfo = new BLEDeviceBasicInfo();
-                    persistantInfo.setNickName(nickName);
-                    persistantInfo.setMacAddress(macAddress);
-                    persistantInfo.setUuidString(deviceUuid);
-                    persistantInfo.setImagePath(imagePath);
-                    persistantInfo.setAutoConnected(isAutoConnect);
+                    BLEDeviceBasicInfo basicInfo = new BLEDeviceBasicInfo();
+                    basicInfo.setNickName(nickName);
+                    basicInfo.setMacAddress(macAddress);
+                    basicInfo.setUuidString(deviceUuid);
+                    basicInfo.setImagePath(imagePath);
+                    basicInfo.setAutoConnected(isAutoConnect);
 
-                    mainController.createAndAddNewDevice(persistantInfo);
+                    mainController.createNewDeviceUsingBasicInfo(basicInfo);
                 }
                 break;
         }
@@ -257,10 +255,11 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     protected void onDestroy() {
         super.onDestroy();
 
-        mainController.closeAllFragment();
+        mainController.closeAllDevice();
 
-        MyApplication.getViseBle().disconnect();
-        MyApplication.getViseBle().clear();
+
+        //MyApplication.getViseBle().disconnect();
+        //MyApplication.getViseBle().clear();
         //android.os.Process.killProcess(android.os.Process.myPid());
     }
 
@@ -274,14 +273,19 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
             finish();
     }
 
-
     // 从deviceControllerList中寻找Fragment对应的控制器,在Fragment的OnAttach()中会调用
-    public BLEDeviceController getController(BLEDeviceFragment fragment) {
+    public IBLEDeviceControllerInterface getController(BLEDeviceFragment fragment) {
         return mainController.getController(fragment);
     }
 
+    // IBLEDeviceConnectStateObserver接口函数，更新设备连接状态
     @Override
     public void updateConnectState(BLEDeviceModel device) {
+        updateDeviceListAdapter();
+    }
+
+    // 更新设备列表
+    public void updateDeviceListAdapter() {
         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
     }
 }
