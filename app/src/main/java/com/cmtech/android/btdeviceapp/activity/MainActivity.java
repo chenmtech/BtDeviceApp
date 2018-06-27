@@ -255,12 +255,8 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     protected void onDestroy() {
         super.onDestroy();
 
-        mainController.closeAllDevice();
-
-
-        //MyApplication.getViseBle().disconnect();
-        //MyApplication.getViseBle().clear();
-        //android.os.Process.killProcess(android.os.Process.myPid());
+        MyApplication.getViseBle().disconnect();
+        MyApplication.getViseBle().clear();
     }
 
 

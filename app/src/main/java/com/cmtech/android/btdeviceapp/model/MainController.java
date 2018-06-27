@@ -111,18 +111,12 @@ public class MainController {
         if(controller == null) return;
         BLEDeviceFragment fragment = controller.getFragment();
         if(fragment != null) {
-            controller.closeDevice();
+            //controller.closeDevice();
             openedControllerList.remove(controller);
             activity.deleteFragment(fragment);
         }
     }
 
-    public void closeAllDevice() {
-        for(IBLEDeviceControllerInterface controller : openedControllerList) {
-            closeDevice(controller.getDevice());
-        }
-        openedControllerList.clear();
-    }
 
     // 删除设备
     public void deleteIncludedDevice(final IBLEDeviceModelInterface device) {

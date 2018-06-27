@@ -114,7 +114,7 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
     public void onDestroy() {
         super.onDestroy();
 
-        disconnectDevice();
+        controller.closeDevice();
     }
 
     @Override
@@ -148,7 +148,8 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
     @Override
     public void updateConnectState(final BLEDeviceModel device) {
         if(device == this.device) {
-            updateConnectState();
+            // isAdded()用来判断Fragment是否与Activity关联，如果关联了，才能更新状态信息
+            if(isAdded()) updateConnectState();
         }
     }
 
