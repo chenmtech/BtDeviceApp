@@ -257,6 +257,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
 
         MyApplication.getViseBle().disconnect();
         MyApplication.getViseBle().clear();
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
 
