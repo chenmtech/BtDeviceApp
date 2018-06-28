@@ -36,5 +36,6 @@ public interface IBLEDeviceModelInterface {
     public void executeAfterConnectSuccess();
     public void executeAfterConnectFailure();
     public void executeAfterDisconnect(boolean isActive);
-    public void processDeviceSpecialMessage(Message msg);
+    public void processGattResultData(int cmd, int success, byte[] data);
+    public void processOtherMessages(Message msg);
 }

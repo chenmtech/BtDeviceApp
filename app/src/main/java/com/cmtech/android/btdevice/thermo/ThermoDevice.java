@@ -2,11 +2,13 @@ package com.cmtech.android.btdevice.thermo;
 
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
@@ -39,9 +41,13 @@ public class ThermoDevice extends BLEDeviceModel {
         super(persistantInfo);
     }
 
+    @Override
+    public void processGattResultData(int cmd, int success, byte[] data) {
+        Toast.makeText(MyApplication.getContext(), "hello, gatt", Toast.LENGTH_LONG).show();
+    }
 
     @Override
-    public void processDeviceSpecialMessage(Message msg)
+    public void processOtherMessages(Message msg)
     {
         if (msg.what == MSG_THERMODATA) {
             if (msg.obj != null) {

@@ -2,6 +2,7 @@ package com.cmtech.android.btdevice.ecgmonitor;
 
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
@@ -86,9 +87,13 @@ public class EcgMonitorDevice extends BLEDeviceModel {
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
+    @Override
+    public void processGattResultData(int cmd, int success, byte[] data) {
+        Toast.makeText(MyApplication.getContext(), "hello, gatt", Toast.LENGTH_LONG).show();
+    }
 
     @Override
-    public void processDeviceSpecialMessage(Message msg)
+    public void processOtherMessages(Message msg)
     {
         switch (msg.what) {
             // 接收到心电信号或定标信号

@@ -11,6 +11,7 @@ import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.util.Uuid;
+import com.vise.log.ViseLog;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -21,11 +22,15 @@ import java.util.List;
 public class TempHumidDevice extends BLEDeviceModel {
     private static final String TAG = "TempHumidFragment";
 
-    private static final int MSG_TEMPHUMIDDATA = 1;
-    private static final int MSG_TEMPHUMIDCTRL = 2;
-    private static final int MSG_TEMPHUMIDPERIOD = 3;
-    private static final int MSG_TEMPHUMIDHISTORYDATA = 4;
-    private static final int MSG_TIMERVALUE = 5;
+    private static final int MSG_TEMPHUMIDDATA = 2;
+    private static final int MSG_TEMPHUMIDCTRL = 3;
+    private static final int MSG_TEMPHUMIDPERIOD = 4;
+    private static final int MSG_TEMPHUMIDHISTORYDATA = 5;
+    private static final int MSG_TIMERVALUE = 6;
+
+    private static final int CMD_WRITE_TEMPHUMIDPERIOD = 1;
+    private static final int CMD_NOTIFY_TEMPHUMIDDATACCC = 2;
+    private static final int CMD_WRITE_TEMPHUMIDCTRL = 3;
 
     ///////////////// 温湿度计Service相关的常量////////////////
     private static final String tempHumidServiceUuid    = "aa60";           // 温湿度计服务UUID:aa60
@@ -86,7 +91,25 @@ public class TempHumidDevice extends BLEDeviceModel {
     }
 
     @Override
-    public void processDeviceSpecialMessage(Message msg)
+    public void processGattResultData(int cmd, int success, byte[] data) {
+        ViseLog.i("gatt data: cmd = " + cmd + ",result = " + success + ",data = " + Arrays.toString(data));
+        switch (cmd) {
+            case CMD_NOTIFY_TEMPHUMIDDATACCC:
+                int period = 5000;
+                executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
+                break;
+
+            case CMD_WRITE_TEMPHUMIDPERIOD:
+                // 启动温湿度采集
+                executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void processOtherMessages(Message msg)
     {
         if (msg.what == MSG_TEMPHUMIDDATA) {
             if(msg.obj != null) {
@@ -95,8 +118,10 @@ public class TempHumidDevice extends BLEDeviceModel {
                 //tvTempData.setText(String.format("%.1f", data.getTemp()));
                 float heatindex = computeHeatIndex(data.getTemp(), data.getHumid());
                 //tvHeadIndex.setText(String.format("%.1f", heatindex));
+                ViseLog.i("heatindex is = " + heatindex);
             }
-        } else if(msg.what == MSG_TEMPHUMIDHISTORYDATA) {
+        }
+        /*else if(msg.what == MSG_TEMPHUMIDHISTORYDATA) {
             if(msg.obj != null) {
                 //dataList.add((TempHumidData) msg.obj);
                 //historyDataAdapter.notifyItemInserted(dataList.size()-1);
@@ -108,13 +133,11 @@ public class TempHumidDevice extends BLEDeviceModel {
             } else {
                 //startTimerService(device.getSerialExecutor());          // 没有开启定时服务（比如刚换电池），就先开启定时服务
             }
-        }
+        }*/
     }
 
     @Override
     public void executeAfterConnectSuccess() {
-        return;
-        /*
         Object thermoData = getGattObject(TEMPHUMIDDATA);
         Object thermoControl = getGattObject(TEMPHUMIDCTRL);
         Object thermoPeriod = getGattObject(TEMPHUMIDPERIOD);
@@ -127,20 +150,7 @@ public class TempHumidDevice extends BLEDeviceModel {
 
         // 设置采样周期: 设置的值以100ms为单位
         int period = 5000;
-        executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice
-                    bluetoothLeDevice) {
-                //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
-                handler.sendEmptyMessage(MSG_TEMPHUMIDPERIOD);
-                Log.d("Thread", "Period Write Callback Thread: " + Thread.currentThread().getId());
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-                //Log.d("THERMOCONTROL", exception.toString());
-            }
-        });
+        //executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
 
 
         // 温湿度数据Notify回调
@@ -160,34 +170,12 @@ public class TempHumidDevice extends BLEDeviceModel {
         };
 
         // enable温湿度notify
-        executeNotifyCommand(TEMPHUMIDDATACCC, true, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                Log.d("Thread", "Notify Callback Thread: " + Thread.currentThread().getId());
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        }, notifyCallback);
+        executeNotifyCommand(TEMPHUMIDDATACCC, true, new BLEDeviceModel.BleGattMsgCallback(CMD_NOTIFY_TEMPHUMIDDATACCC), notifyCallback);
 
 
         // 启动温湿度采集
-        executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
-                //handler.sendEmptyMessage(MSG_TEMPHUMIDCTRL);
-                Log.d("Thread", "Control Write Callback Thread: " + Thread.currentThread().getId());
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-                //Log.d("THERMOCONTROL", exception.toString());
-            }
-        });
-
+        //executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
+ /*
         initDeviceTimerService();
         */
     }

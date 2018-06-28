@@ -1,7 +1,5 @@
 package com.cmtech.android.btdeviceapp.model;
 
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattService;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,10 +9,12 @@ import android.util.Log;
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.common.PropertyType;
+import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.TimeoutException;
+import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
@@ -31,7 +31,8 @@ import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.*;
 
 public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
-    private static final int MSG_CONNECTCALLBACK    =  0;         // 连接相关回调消息
+    private static final int MSG_CONNECTCALLBACK       =  0;         // 连接相关回调消息
+    private static final int MSG_GATTCALLBACK          = 1;          // Gatt相关回调消息
 
     // 设备基本信息
     private final BLEDeviceBasicInfo basicInfo;
@@ -123,8 +124,12 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                     processConnectResultObject((ConnectResultObject)msg.obj);
                     break;
 
+                case MSG_GATTCALLBACK:
+                    processGattResultData(msg.arg1, msg.arg2, (byte[])msg.obj);
+                    break;
+
                 default:
-                    processDeviceSpecialMessage(msg);
+                    processOtherMessages(msg);
                     break;
 
             }
@@ -140,6 +145,34 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         ConnectResultObject(DeviceConnectState state, Object obj) {
             this.state = state;
             this.obj = obj;
+        }
+    }
+
+    protected class BleGattMsgCallback implements IBleCallback {
+
+        private final int gattCmd;
+
+        public BleGattMsgCallback(int gattCmd) {
+            this.gattCmd = gattCmd;
+        }
+        @Override
+        public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            Message msg = new Message();
+            msg.what = MSG_GATTCALLBACK;
+            msg.arg1 = gattCmd;
+            msg.arg2 = 1;
+            msg.obj = data;
+            handler.sendMessage(msg);
+        }
+
+        @Override
+        public void onFailure(BleException exception) {
+            Message msg = new Message();
+            msg.what = MSG_GATTCALLBACK;
+            msg.arg1 = gattCmd;
+            msg.arg2 = 0;
+            msg.obj = null;
+            handler.sendMessage(msg);
         }
     }
 
