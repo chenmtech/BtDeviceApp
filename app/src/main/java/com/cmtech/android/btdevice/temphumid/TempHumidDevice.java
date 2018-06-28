@@ -22,7 +22,7 @@ import java.util.List;
 public class TempHumidDevice extends BLEDeviceModel {
     private static final String TAG = "TempHumidFragment";
 
-    private static final int MSG_TEMPHUMIDDATA = 2;
+    private static final int MSG_TEMPHUMIDDATA = 102;
     private static final int MSG_TEMPHUMIDCTRL = 3;
     private static final int MSG_TEMPHUMIDPERIOD = 4;
     private static final int MSG_TEMPHUMIDHISTORYDATA = 5;
@@ -94,11 +94,11 @@ public class TempHumidDevice extends BLEDeviceModel {
 
     @Override
     public synchronized void processGattResultData(int cmd, int success, byte[] data) {
+        /*
         ViseLog.i("gatt data: cmd = " + cmd + ",result = " + success + ",data = " + Arrays.toString(data));
         switch (cmd) {
             case CMD_WRITE_TEMPHUMIDPERIOD:
                 // 温湿度数据Notify回调
-
 
                 //int period = 5000;
                 //executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
@@ -131,6 +131,7 @@ public class TempHumidDevice extends BLEDeviceModel {
             default:
                 break;
         }
+        */
     }
 
     @Override
@@ -162,7 +163,7 @@ public class TempHumidDevice extends BLEDeviceModel {
     }
 
     @Override
-    public void executeAfterConnectSuccess() {
+    public synchronized void executeAfterConnectSuccess() {
         Object thermoData = getGattObject(TEMPHUMIDDATA);
         Object thermoControl = getGattObject(TEMPHUMIDCTRL);
         Object thermoPeriod = getGattObject(TEMPHUMIDPERIOD);
@@ -172,6 +173,28 @@ public class TempHumidDevice extends BLEDeviceModel {
         }
 
         Log.d(TAG, "begin to start temphumid sampling");
+
+
+        // 设置采样周期: 设置的值以100ms为单位
+        int period = 5000;
+        executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // 启动温湿度采集
+        executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
 
         IBleCallback notifyCallback = new IBleCallback() {
             @Override
@@ -191,12 +214,9 @@ public class TempHumidDevice extends BLEDeviceModel {
         executeNotifyCommand(TEMPHUMIDDATACCC, true, new BLEDeviceModel.BleGattMsgCallback(CMD_NOTIFY_TEMPHUMIDDATACCC), notifyCallback);
 
 
-        // 设置采样周期: 设置的值以100ms为单位
-        //int period = 5000;
-        //executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
 
-        // 启动温湿度采集
-        //executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
+
+
  /*
         initDeviceTimerService();
         */

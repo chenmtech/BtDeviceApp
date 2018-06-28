@@ -18,8 +18,10 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
+import com.vise.log.ViseLog;
 
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -159,25 +161,27 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         }
         @Override
         public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            ViseLog.i("onSuccess: " + gattCmd + "   " +Arrays.toString(data) + " " + Thread.currentThread());
             //synchronized (msg) {
-                Message msg = new Message();
-                msg.what = MSG_GATTCALLBACK;
-                msg.arg1 = gattCmd;
-                msg.arg2 = 1;
-                msg.obj = data;
-                handler.sendMessage(msg);
+                //Message msg = new Message();
+                //msg.what = MSG_GATTCALLBACK;
+                //msg.arg1 = gattCmd;
+               // msg.arg2 = 1;
+               // msg.obj = data;
+               // handler.sendMessage(msg);
             //}
         }
 
         @Override
         public void onFailure(BleException exception) {
+            ViseLog.i("onFailure: " + gattCmd + "   " + exception);
             //synchronized (msg) {
                 //Message msg = new Message();
                 //msg.what = MSG_GATTCALLBACK;
-                msg.arg1 = gattCmd;
-                msg.arg2 = 0;
-                msg.obj = null;
-                handler.sendMessage(msg);
+                //msg.arg1 = gattCmd;
+                //msg.arg2 = 0;
+                //msg.obj = null;
+                //handler.sendMessage(msg);
             //}
         }
     }
