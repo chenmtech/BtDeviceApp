@@ -1,5 +1,7 @@
 package com.cmtech.android.btdeviceapp.model;
 
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattService;
 import android.os.Handler;
 import android.os.Looper;
@@ -232,16 +234,6 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     @Override
     public synchronized void connect() {
         if(state == CONNECT_SUCCESS || state == CONNECT_CONNECTING || state == CONNECT_DISCONNECTING) return;
-
-        if(deviceMirror != null && deviceMirror.getBluetoothGatt() != null) {
-            deviceMirror.getBluetoothGatt().disconnect();
-            deviceMirror.getBluetoothGatt().close();
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
 
         setDeviceConnectState(CONNECT_CONNECTING);
         notifyConnectStateObservers();
