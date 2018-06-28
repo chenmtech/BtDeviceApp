@@ -77,6 +77,8 @@ public class ThermoDevice extends BLEDeviceModel {
 
     @Override
     public void executeAfterConnectSuccess() {
+        return;
+        /*
         Object thermoData = getGattObject(THERMODATA);
         Object thermoControl = getGattObject(THERMOCONTROL);
         Object thermoPeriod = getGattObject(THERMOPERIOD);
@@ -161,7 +163,7 @@ public class ThermoDevice extends BLEDeviceModel {
                 //Log.d("THERMOCONTROL", exception.toString());
             }
         });
-
+*/
 
     }
 

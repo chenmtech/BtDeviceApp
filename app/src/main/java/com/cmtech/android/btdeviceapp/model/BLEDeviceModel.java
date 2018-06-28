@@ -151,28 +151,34 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     protected class BleGattMsgCallback implements IBleCallback {
 
         private final int gattCmd;
+        private Message msg = new Message();
 
         public BleGattMsgCallback(int gattCmd) {
             this.gattCmd = gattCmd;
+            msg.what = MSG_GATTCALLBACK;
         }
         @Override
         public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-            Message msg = new Message();
-            msg.what = MSG_GATTCALLBACK;
-            msg.arg1 = gattCmd;
-            msg.arg2 = 1;
-            msg.obj = data;
-            handler.sendMessage(msg);
+            //synchronized (msg) {
+                Message msg = new Message();
+                msg.what = MSG_GATTCALLBACK;
+                msg.arg1 = gattCmd;
+                msg.arg2 = 1;
+                msg.obj = data;
+                handler.sendMessage(msg);
+            //}
         }
 
         @Override
         public void onFailure(BleException exception) {
-            Message msg = new Message();
-            msg.what = MSG_GATTCALLBACK;
-            msg.arg1 = gattCmd;
-            msg.arg2 = 0;
-            msg.obj = null;
-            handler.sendMessage(msg);
+            //synchronized (msg) {
+                //Message msg = new Message();
+                //msg.what = MSG_GATTCALLBACK;
+                msg.arg1 = gattCmd;
+                msg.arg2 = 0;
+                msg.obj = null;
+                handler.sendMessage(msg);
+            //}
         }
     }
 

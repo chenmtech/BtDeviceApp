@@ -28,9 +28,11 @@ public class TempHumidDevice extends BLEDeviceModel {
     private static final int MSG_TEMPHUMIDHISTORYDATA = 5;
     private static final int MSG_TIMERVALUE = 6;
 
-    private static final int CMD_WRITE_TEMPHUMIDPERIOD = 1;
-    private static final int CMD_NOTIFY_TEMPHUMIDDATACCC = 2;
-    private static final int CMD_WRITE_TEMPHUMIDCTRL = 3;
+    private static final int CMD_NOTIFY_TEMPHUMIDDATACCC = 1;
+    private static final int CMD_WRITE_TEMPHUMIDCTRL = 2;
+    private static final int CMD_WRITE_TEMPHUMIDPERIOD = 3;
+
+
 
     ///////////////// 温湿度计Service相关的常量////////////////
     private static final String tempHumidServiceUuid    = "aa60";           // 温湿度计服务UUID:aa60
@@ -86,30 +88,53 @@ public class TempHumidDevice extends BLEDeviceModel {
 
     private List<TempHumidData> dataList = new ArrayList<>();
 
-    public TempHumidDevice(BLEDeviceBasicInfo persistantInfo) {
-        super(persistantInfo);
+    public TempHumidDevice(BLEDeviceBasicInfo basicInfo) {
+        super(basicInfo);
     }
 
     @Override
-    public void processGattResultData(int cmd, int success, byte[] data) {
+    public synchronized void processGattResultData(int cmd, int success, byte[] data) {
         ViseLog.i("gatt data: cmd = " + cmd + ",result = " + success + ",data = " + Arrays.toString(data));
         switch (cmd) {
-            case CMD_NOTIFY_TEMPHUMIDDATACCC:
-                int period = 5000;
-                executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
+            case CMD_WRITE_TEMPHUMIDPERIOD:
+                // 温湿度数据Notify回调
+
+
+                //int period = 5000;
+                //executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
+
                 break;
 
-            case CMD_WRITE_TEMPHUMIDPERIOD:
-                // 启动温湿度采集
-                executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
+            case CMD_NOTIFY_TEMPHUMIDDATACCC:
+                //int period = 5000;
+                //executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
+                //executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
+                IBleCallback notifyCallback = new IBleCallback() {
+                    @Override
+                    public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                        Message msg = new Message();
+                        msg.what = MSG_TEMPHUMIDDATA;
+                        msg.obj = new TempHumidData(Calendar.getInstance(), data);
+                        handler.sendMessage(msg);
+                    }
+
+                    @Override
+                    public void onFailure(BleException exception) {
+
+                    }
+                };
+                // enable温湿度notify
+                executeNotifyCommand(TEMPHUMIDDATACCC, true, new BLEDeviceModel.BleGattMsgCallback(CMD_NOTIFY_TEMPHUMIDDATACCC), notifyCallback);
+
                 break;
+
             default:
                 break;
         }
     }
 
     @Override
-    public void processOtherMessages(Message msg)
+    public synchronized void processOtherMessages(Message msg)
     {
         if (msg.what == MSG_TEMPHUMIDDATA) {
             if(msg.obj != null) {
@@ -148,12 +173,6 @@ public class TempHumidDevice extends BLEDeviceModel {
 
         Log.d(TAG, "begin to start temphumid sampling");
 
-        // 设置采样周期: 设置的值以100ms为单位
-        int period = 5000;
-        //executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
-
-
-        // 温湿度数据Notify回调
         IBleCallback notifyCallback = new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -168,10 +187,13 @@ public class TempHumidDevice extends BLEDeviceModel {
 
             }
         };
-
         // enable温湿度notify
         executeNotifyCommand(TEMPHUMIDDATACCC, true, new BLEDeviceModel.BleGattMsgCallback(CMD_NOTIFY_TEMPHUMIDDATACCC), notifyCallback);
 
+
+        // 设置采样周期: 设置的值以100ms为单位
+        //int period = 5000;
+        //executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
 
         // 启动温湿度采集
         //executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
