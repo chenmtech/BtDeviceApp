@@ -1,5 +1,6 @@
 package com.cmtech.android.btdeviceapp.model;
 
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Handler;
 import android.os.Looper;
@@ -150,7 +151,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         }
     }
 
-    protected class BleGattMsgCallback implements IBleCallback {
+    /*protected class BleGattMsgCallback implements IBleCallback {
 
         private final int gattCmd;
         private Message msg = new Message();
@@ -184,7 +185,21 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 //handler.sendMessage(msg);
             //}
         }
-    }
+    }*/
+
+    final protected IBleCallback bleCallback = new IBleCallback() {
+        @Override
+        public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            ViseLog.i("onSuccess : characteristic = " + bluetoothGattChannel.getCharacteristic().getUuid() +
+                    ", value = " + Arrays.toString(bluetoothGattChannel.getCharacteristic().getValue()));
+        }
+
+        @Override
+        public void onFailure(BleException exception) {
+            ViseLog.i("onFailure");
+
+        }
+    };
 
     // 连接回调
     final IConnectCallback connectCallback = new IConnectCallback() {
@@ -255,7 +270,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
         if (deviceMirrorPool.isContainDevice(mirror)) {
             this.deviceMirror = mirror;
-            executeAfterConnectSuccess();
+            //executeAfterConnectSuccess();
         }
     }
 
@@ -368,6 +383,19 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 .setDataOpCallback(dataOpCallback).build();
         return executeGattCommand(command);
     }
+
+    protected boolean executeWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback, boolean noResponse) {
+        if( noResponse ) ((BluetoothGattCharacteristic)element.retrieveGattObject(deviceMirror)).setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
+        BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
+                .setBluetoothElement(element)
+                .setPropertyType(PropertyType.PROPERTY_WRITE)
+                .setData(data)
+                .setDataOpCallback(dataOpCallback).build();
+        return executeGattCommand(command);
+    }
+
+
 
     /**
      * 执行"数据单元Notify"操作

@@ -1,5 +1,6 @@
 package com.cmtech.android.btdevice.temphumid;
 
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Message;
 import android.util.Log;
 
@@ -167,6 +168,10 @@ public class TempHumidDevice extends BLEDeviceModel {
         Object thermoData = getGattObject(TEMPHUMIDDATA);
         Object thermoControl = getGattObject(TEMPHUMIDCTRL);
         Object thermoPeriod = getGattObject(TEMPHUMIDPERIOD);
+        ((BluetoothGattCharacteristic)thermoPeriod).setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        ((BluetoothGattCharacteristic)thermoControl).setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        ((BluetoothGattCharacteristic)thermoData).setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+
         if (thermoData == null || thermoControl == null || thermoPeriod == null) {
             Log.d("TempHumidFragment", "can't find Gatt object of this element on the device.");
             return;
@@ -175,49 +180,50 @@ public class TempHumidDevice extends BLEDeviceModel {
         Log.d(TAG, "begin to start temphumid sampling");
 
 
-        // 设置采样周期: 设置的值以100ms为单位
-        int period = 5000;
-        executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
 
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // 启动温湿度采集
-        executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
-
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-
-        IBleCallback notifyCallback = new IBleCallback() {
+        handler.postDelayed(new Runnable() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                Message msg = new Message();
-                msg.what = MSG_TEMPHUMIDDATA;
-                msg.obj = new TempHumidData(Calendar.getInstance(), data);
-                handler.sendMessage(msg);
+            public void run() {
+                // 设置采样周期: 设置的值以100ms为单位
+                int period = 5000;
+                executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, bleCallback, true);
             }
+        },1000);
 
+
+        handler.postDelayed(new Runnable() {
             @Override
-            public void onFailure(BleException exception) {
-
+            public void run() {
+                // 启动温湿度采集
+                executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, bleCallback, true);
             }
-        };
-        // enable温湿度notify
-        executeNotifyCommand(TEMPHUMIDDATACCC, true, new BLEDeviceModel.BleGattMsgCallback(CMD_NOTIFY_TEMPHUMIDDATACCC), notifyCallback);
+        },1000);
 
 
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                IBleCallback notifyCallback = new IBleCallback() {
+                    @Override
+                    public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                        Message msg = new Message();
+                        msg.what = MSG_TEMPHUMIDDATA;
+                        msg.obj = new TempHumidData(Calendar.getInstance(), data);
+                        handler.sendMessage(msg);
+                    }
 
+                    @Override
+                    public void onFailure(BleException exception) {
 
+                    }
+                };
 
- /*
+                // enable温湿度notify
+                executeNotifyCommand(TEMPHUMIDDATACCC, true, bleCallback, notifyCallback);
+            }
+        },1000);
+
+        /*
         initDeviceTimerService();
         */
     }
