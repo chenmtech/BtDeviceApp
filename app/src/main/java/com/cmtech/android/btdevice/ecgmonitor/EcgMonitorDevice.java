@@ -1,5 +1,6 @@
 package com.cmtech.android.btdevice.ecgmonitor;
 
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
@@ -88,12 +89,12 @@ public class EcgMonitorDevice extends BLEDeviceModel {
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
     @Override
-    public void processGattResultData(int cmd, int success, byte[] data) {
+    public void processNormalGattMessage(BluetoothGattCharacteristic characteristic) {
         Toast.makeText(MyApplication.getContext(), "hello, gatt", Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public void processOtherMessages(Message msg)
+    public void processSpecialGattMessage(Message msg)
     {
         switch (msg.what) {
             // 接收到心电信号或定标信号

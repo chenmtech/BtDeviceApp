@@ -21,18 +21,13 @@ import java.util.Calendar;
 import java.util.List;
 
 public class TempHumidDevice extends BLEDeviceModel {
-    private static final String TAG = "TempHumidFragment";
+    private static final String TAG = "TempHumidDevice";
 
-    private static final int MSG_TEMPHUMIDDATA = 102;
+    private static final int MSG_TEMPHUMIDDATA = 2;
     private static final int MSG_TEMPHUMIDCTRL = 3;
     private static final int MSG_TEMPHUMIDPERIOD = 4;
     private static final int MSG_TEMPHUMIDHISTORYDATA = 5;
     private static final int MSG_TIMERVALUE = 6;
-
-    private static final int CMD_NOTIFY_TEMPHUMIDDATACCC = 1;
-    private static final int CMD_WRITE_TEMPHUMIDCTRL = 2;
-    private static final int CMD_WRITE_TEMPHUMIDPERIOD = 3;
-
 
 
     ///////////////// 温湿度计Service相关的常量////////////////
@@ -65,8 +60,8 @@ public class TempHumidDevice extends BLEDeviceModel {
 
 
     //////////////// 定时服务相关常量 /////////////////////////
-    private static final String timerServiceUuid          = "AA70";
-    private static final String timerValueUuid              ="aa71";
+    private static final String timerServiceUuid            = "aa70";
+    private static final String timerValueUuid              = "aa71";
 
     public static final BluetoothGattElement TIMERVALUE =
             new BluetoothGattElement(timerServiceUuid, timerValueUuid, null);
@@ -93,50 +88,33 @@ public class TempHumidDevice extends BLEDeviceModel {
         super(basicInfo);
     }
 
+
+    // 处理一般Gatt消息
     @Override
-    public synchronized void processGattResultData(int cmd, int success, byte[] data) {
-        /*
-        ViseLog.i("gatt data: cmd = " + cmd + ",result = " + success + ",data = " + Arrays.toString(data));
-        switch (cmd) {
-            case CMD_WRITE_TEMPHUMIDPERIOD:
-                // 温湿度数据Notify回调
+    public synchronized void processNormalGattMessage(BluetoothGattCharacteristic characteristic) {
+        String uuid = Uuid.longToShortString(characteristic.getUuid().toString());
+        if(!uuid.equalsIgnoreCase(wantedCharacteristicUuid)) return;
 
-                //int period = 5000;
-                //executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDPERIOD));
 
-                break;
-
-            case CMD_NOTIFY_TEMPHUMIDDATACCC:
-                //int period = 5000;
-                //executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
-                //executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new BLEDeviceModel.BleGattMsgCallback(CMD_WRITE_TEMPHUMIDCTRL));
-                IBleCallback notifyCallback = new IBleCallback() {
-                    @Override
-                    public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                        Message msg = new Message();
-                        msg.what = MSG_TEMPHUMIDDATA;
-                        msg.obj = new TempHumidData(Calendar.getInstance(), data);
-                        handler.sendMessage(msg);
-                    }
-
-                    @Override
-                    public void onFailure(BleException exception) {
-
-                    }
-                };
-                // enable温湿度notify
-                executeNotifyCommand(TEMPHUMIDDATACCC, true, new BLEDeviceModel.BleGattMsgCallback(CMD_NOTIFY_TEMPHUMIDDATACCC), notifyCallback);
-
-                break;
-
-            default:
-                break;
+        if(uuid.equalsIgnoreCase(tempHumidDataUuid)) {
+            ViseLog.i("notify data success.");
+            int period = 5000;
+            // AA63
+            wantedCharacteristicUuid = tempHumidPeriodUuid;
+            executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(period / 100)}, normalGattCallback);
+        } else if(uuid.equalsIgnoreCase(tempHumidPeriodUuid)) {
+            ViseLog.i("write period success.");
+            // 启动温湿度采集
+            // AA62
+            wantedCharacteristicUuid = tempHumidCtrlUuid;
+            executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, normalGattCallback);
+        } else if(uuid.equalsIgnoreCase(tempHumidCtrlUuid)) {
+            ViseLog.i("write ctrl success.");
         }
-        */
     }
 
     @Override
-    public synchronized void processOtherMessages(Message msg)
+    public synchronized void processSpecialGattMessage(Message msg)
     {
         if (msg.what == MSG_TEMPHUMIDDATA) {
             if(msg.obj != null) {
@@ -165,73 +143,59 @@ public class TempHumidDevice extends BLEDeviceModel {
 
     @Override
     public synchronized void executeAfterConnectSuccess() {
-        Object thermoData = getGattObject(TEMPHUMIDDATA);
-        Object thermoControl = getGattObject(TEMPHUMIDCTRL);
-        Object thermoPeriod = getGattObject(TEMPHUMIDPERIOD);
-        ((BluetoothGattCharacteristic)thermoPeriod).setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        ((BluetoothGattCharacteristic)thermoControl).setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        ((BluetoothGattCharacteristic)thermoData).setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-
-        if (thermoData == null || thermoControl == null || thermoPeriod == null) {
-            Log.d("TempHumidFragment", "can't find Gatt object of this element on the device.");
-            return;
-        }
+        if(!checkServiceAndCharacteristic()) return;
 
         Log.d(TAG, "begin to start temphumid sampling");
 
-
-
-        handler.postDelayed(new Runnable() {
+        IBleCallback notifyCallback = new IBleCallback() {
             @Override
-            public void run() {
-                // 设置采样周期: 设置的值以100ms为单位
-                int period = 5000;
-                executeWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, bleCallback, true);
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                Message msg = new Message();
+                msg.what = MSG_TEMPHUMIDDATA;
+                msg.obj = new TempHumidData(Calendar.getInstance(), data);
+                handler.sendMessage(msg);
             }
-        },1000);
 
-
-        handler.postDelayed(new Runnable() {
             @Override
-            public void run() {
-                // 启动温湿度采集
-                executeWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, bleCallback, true);
+            public void onFailure(BleException exception) {
+
             }
-        },1000);
+        };
 
-
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                IBleCallback notifyCallback = new IBleCallback() {
-                    @Override
-                    public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                        Message msg = new Message();
-                        msg.what = MSG_TEMPHUMIDDATA;
-                        msg.obj = new TempHumidData(Calendar.getInstance(), data);
-                        handler.sendMessage(msg);
-                    }
-
-                    @Override
-                    public void onFailure(BleException exception) {
-
-                    }
-                };
-
-                // enable温湿度notify
-                executeNotifyCommand(TEMPHUMIDDATACCC, true, bleCallback, notifyCallback);
-            }
-        },1000);
+        // enable温湿度
+        wantedCharacteristicUuid = tempHumidDataUuid;
+        wantedCharacteristicUuidList.add(tempHumidDataUuid);
+        executeNotifyCommand(TEMPHUMIDDATACCC, true, normalGattCallback, notifyCallback);
 
         /*
         initDeviceTimerService();
         */
     }
 
+    private boolean checkServiceAndCharacteristic() {
+        Object tempHumidData = getGattObject(TEMPHUMIDDATA);
+        Object tempHumidControl = getGattObject(TEMPHUMIDCTRL);
+        Object tempHumidPeriod = getGattObject(TEMPHUMIDPERIOD);
+        Object tempHumidDataCCC = getGattObject(TEMPHUMIDDATACCC);
+
+        if (tempHumidData == null || tempHumidControl == null || tempHumidPeriod == null || tempHumidDataCCC == null) {
+            ViseLog.i("The basic service and characteristic is bad.");
+            return false;
+        }
+
+        Object historyTime = getGattObject(TEMPHUMIDHISTORYTIME);
+        Object historyData = getGattObject(TEMPHUMIDHISTORYDATA);
+        if (historyTime == null || historyData == null) {
+            ViseLog.i("The device don't provide history data sampling service.");
+            isDeviceStartTimerService = false;
+        }
+        return true;
+    }
+
 
     private void initDeviceTimerService() {
         if(getGattObject(TIMERVALUE) != null) {
-            Log.d(TAG, "serialExecutor has GATT TIMERVALUE");
+            Log.d(TAG, "serialExecutor has no GATT TIMERVALUE");
 
             executeReadCommand(TIMERVALUE, new IBleCallback() {
                 @Override

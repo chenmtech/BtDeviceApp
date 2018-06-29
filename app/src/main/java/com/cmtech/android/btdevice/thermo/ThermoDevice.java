@@ -1,5 +1,6 @@
 package com.cmtech.android.btdevice.thermo;
 
+import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
@@ -42,12 +43,12 @@ public class ThermoDevice extends BLEDeviceModel {
     }
 
     @Override
-    public void processGattResultData(int cmd, int success, byte[] data) {
+    public void processNormalGattMessage(BluetoothGattCharacteristic characteristic) {
         Toast.makeText(MyApplication.getContext(), "hello, gatt", Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public void processOtherMessages(Message msg)
+    public void processSpecialGattMessage(Message msg)
     {
         if (msg.what == MSG_THERMODATA) {
             if (msg.obj != null) {

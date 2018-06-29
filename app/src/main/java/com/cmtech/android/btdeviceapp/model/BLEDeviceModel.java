@@ -22,9 +22,10 @@ import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
 import com.vise.log.ViseLog;
 
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.*;
 
@@ -35,7 +36,7 @@ import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.*;
 public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     private static final int MSG_CONNECTCALLBACK       =  0;         // 连接相关回调消息
-    private static final int MSG_GATTCALLBACK          = 1;          // Gatt相关回调消息
+    private static final int MSG_NORMALGATTCALLBACK = 1;          // Gatt相关回调消息
 
     // 设备基本信息
     private final BLEDeviceBasicInfo basicInfo;
@@ -118,27 +119,10 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     // 连接状态观察者列表
     final List<IBLEDeviceConnectStateObserver> connectStateObserverList = new LinkedList<>();
 
-    // 用来处理连接和通信回调后产生的消息，由于有些要修改GUI，所以使用主线程
-    final protected Handler handler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_CONNECTCALLBACK:
-                    processConnectResultObject((ConnectResultObject)msg.obj);
-                    break;
+    // 想要的下一个Characteristic 16位UUID字符串
+    protected String wantedCharacteristicUuid;
 
-                case MSG_GATTCALLBACK:
-                    processGattResultData(msg.arg1, msg.arg2, (byte[])msg.obj);
-                    break;
-
-                default:
-                    processOtherMessages(msg);
-                    break;
-
-            }
-
-        }
-    };
+    protected List<String> wantedCharacteristicUuidList = new LinkedList<>();
 
     // 连接结果类
     static class ConnectResultObject {
@@ -150,56 +134,6 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
             this.obj = obj;
         }
     }
-
-    /*protected class BleGattMsgCallback implements IBleCallback {
-
-        private final int gattCmd;
-        private Message msg = new Message();
-
-        public BleGattMsgCallback(int gattCmd) {
-            this.gattCmd = gattCmd;
-            msg.what = MSG_GATTCALLBACK;
-        }
-        @Override
-        public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-            ViseLog.i("onSuccess: " + gattCmd + "   " +Arrays.toString(data) + " " + Thread.currentThread());
-            //synchronized (msg) {
-                //Message msg = new Message();
-                //msg.what = MSG_GATTCALLBACK;
-                //msg.arg1 = gattCmd;
-               // msg.arg2 = 1;
-               // msg.obj = data;
-               // handler.sendMessage(msg);
-            //}
-        }
-
-        @Override
-        public void onFailure(BleException exception) {
-            ViseLog.i("onFailure: " + gattCmd + "   " + exception);
-            //synchronized (msg) {
-                //Message msg = new Message();
-                //msg.what = MSG_GATTCALLBACK;
-                //msg.arg1 = gattCmd;
-                //msg.arg2 = 0;
-                //msg.obj = null;
-                //handler.sendMessage(msg);
-            //}
-        }
-    }*/
-
-    final protected IBleCallback bleCallback = new IBleCallback() {
-        @Override
-        public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-            ViseLog.i("onSuccess : characteristic = " + bluetoothGattChannel.getCharacteristic().getUuid() +
-                    ", value = " + Arrays.toString(bluetoothGattChannel.getCharacteristic().getValue()));
-        }
-
-        @Override
-        public void onFailure(BleException exception) {
-            ViseLog.i("onFailure");
-
-        }
-    };
 
     // 连接回调
     final IConnectCallback connectCallback = new IConnectCallback() {
@@ -240,8 +174,54 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         }
     };
 
+    // 一般的Gatt回调，会产生一般的Gatt消息
+    final protected IBleCallback normalGattCallback = new IBleCallback() {
+        @Override
+        public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            //ViseLog.i("onSuccess : characteristic = " + bluetoothGattChannel.getCharacteristic().getUuid() +
+            //        ", value = " + Arrays.toString(bluetoothGattChannel.getCharacteristic().getValue()));
+
+            Message msg = new Message();
+            msg.what = MSG_NORMALGATTCALLBACK;
+            msg.obj = bluetoothGattChannel.getCharacteristic();
+            handler.sendMessage(msg);
+        }
+
+        @Override
+        public void onFailure(BleException exception) {
+            ViseLog.i("onFailure");
+
+        }
+    };
+
+    // 消息分发：用来处理连接和通信回调后产生的消息，由于有些要修改GUI，所以使用主线程
+    final protected Handler handler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                // 连接消息
+                case MSG_CONNECTCALLBACK:
+                    processConnectMessage((ConnectResultObject)msg.obj);
+                    break;
+
+                // 一般Gatt消息
+                case MSG_NORMALGATTCALLBACK:
+                    processNormalGattMessage((BluetoothGattCharacteristic) msg.obj);
+                    break;
+
+                // 主要用来处理Notify和Indicate之类的消息
+                default:
+                    processSpecialGattMessage(msg);
+                    break;
+
+            }
+
+        }
+    };
+
+
     // 连接结果处理函数
-    private void processConnectResultObject(ConnectResultObject result) {
+    private void processConnectMessage(ConnectResultObject result) {
         //if(state == result.state) return;   // 有时候会有连续多次回调，忽略后面的回调处理
 
         setDeviceConnectState(result.state);
@@ -270,7 +250,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
         if (deviceMirrorPool.isContainDevice(mirror)) {
             this.deviceMirror = mirror;
-            //executeAfterConnectSuccess();
+            executeAfterConnectSuccess();
         }
     }
 
@@ -383,19 +363,6 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 .setDataOpCallback(dataOpCallback).build();
         return executeGattCommand(command);
     }
-
-    protected boolean executeWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback, boolean noResponse) {
-        if( noResponse ) ((BluetoothGattCharacteristic)element.retrieveGattObject(deviceMirror)).setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
-        BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
-                .setBluetoothElement(element)
-                .setPropertyType(PropertyType.PROPERTY_WRITE)
-                .setData(data)
-                .setDataOpCallback(dataOpCallback).build();
-        return executeGattCommand(command);
-    }
-
-
 
     /**
      * 执行"数据单元Notify"操作
