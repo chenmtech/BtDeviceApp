@@ -34,7 +34,7 @@ import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.*;
 public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     private static final int MSG_CONNECTCALLBACK       =  0;         // 连接相关回调消息
-    private static final int MSG_NORMALGATTCALLBACK = 1;          // Gatt相关回调消息
+    private static final int MSG_NORMALGATTCALLBACK = 1;             // Gatt相关回调消息
 
     // 设备基本信息
     private final BLEDeviceBasicInfo basicInfo;
@@ -45,16 +45,13 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     // 设备连接状态
     private DeviceConnectState state = DeviceConnectState.CONNECT_WAITING;
 
-    // 想要的下一个Characteristic 16位UUID字符串
-    protected String wantedCharacteristicUuid;
-
-    // GATT命令执行器
-    private GattCommandSerialExecutor commandExecutor;
+    // GATT命令串行执行器
+    protected GattCommandSerialExecutor commandExecutor;
 
     // 连接状态观察者列表
     private final List<IBLEDeviceConnectStateObserver> connectStateObserverList = new LinkedList<>();
 
-
+    // 构造器
     public BLEDeviceModel(BLEDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
     }
@@ -124,16 +121,16 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         this.state = state;
     }
 
-    public GattCommandSerialExecutor getCommandExecutor() {
+    public boolean isCommandExecutorAlive() {
         if((commandExecutor != null) && commandExecutor.isAlive())
-            return commandExecutor;
+            return true;
         else {
-            return null;
+            return false;
         }
     }
 
     public void createCommandExecutor() {
-        if(getCommandExecutor() != null) return;
+        if(isCommandExecutorAlive()) return;
 
         commandExecutor = new GattCommandSerialExecutor();
         commandExecutor.start();
@@ -190,7 +187,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     };
 
     // 一般的Gatt回调，会产生一般的Gatt消息
-    final protected IBleCallback normalGattCallback = new IBleCallback() {
+    final protected IBleCallback commonGattCallback = new IBleCallback() {
         @Override
         public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
             //ViseLog.i("onSuccess : characteristic = " + bluetoothGattChannel.getCharacteristic().getUuid() +
@@ -198,14 +195,14 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
             Message msg = new Message();
             msg.what = MSG_NORMALGATTCALLBACK;
-            msg.obj = bluetoothGattChannel.getCharacteristic();
+            msg.obj = bluetoothGattChannel;
             handler.sendMessage(msg);
         }
 
         @Override
         public void onFailure(BleException exception) {
-            ViseLog.i("onFailure");
-            if(commandExecutor != null) commandExecutor.notifyCurrentCommandExecuted(false);
+            ViseLog.i("onFailure" + exception);
+            //commandExecutor.reExecuteCurrentCommand();
         }
     };
 
@@ -221,7 +218,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
                 // 一般Gatt消息
                 case MSG_NORMALGATTCALLBACK:
-                    processNormalGattMessage((BluetoothGattCharacteristic) msg.obj);
+                    processCommonGattMessage((BluetoothGattChannel) msg.obj);
                     break;
 
                 // 主要用来处理Notify和Indicate之类的消息
@@ -280,8 +277,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         executeAfterDisconnect(isActive);
     }
 
-    private void stopCommandExecutor() {
-        if(commandExecutor != null) {
+    public void stopCommandExecutor() {
+        if(isCommandExecutorAlive()) {
             commandExecutor.interrupt();
             try {
                 commandExecutor.join();
@@ -307,7 +304,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     @Override
     public synchronized void disconnect() {
         if(state == CONNECT_SUCCESS) {
-            stopCommandExecutor();
+            //stopCommandExecutor();
 
             setDeviceConnectState(CONNECT_DISCONNECTING);
             notifyConnectStateObservers();
@@ -324,7 +321,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     // 关闭设备
     @Override
     public synchronized void close() {
-        stopCommandExecutor();
+        //stopCommandExecutor();
 
         // 断开连接
         clearDeviceMirror();
@@ -366,15 +363,15 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
      * @param dataOpCallback 读回调
      * @return 是否添加成功
      */
-    protected boolean addReadCommand(BluetoothGattElement element, IBleCallback dataOpCallback) {
-        if(getCommandExecutor() == null || state != CONNECT_SUCCESS) return false;
+    protected synchronized boolean addReadCommand(BluetoothGattElement element, IBleCallback dataOpCallback) {
+        if(!isCommandExecutorAlive() || state != CONNECT_SUCCESS) return false;
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
                 .setPropertyType(PropertyType.PROPERTY_READ)
                 .setDataOpCallback(dataOpCallback).build();
         if(command == null) return false;
-        return getCommandExecutor().addOneGattCommand(command);
+        return commandExecutor.addOneGattCommand(command);
     }
 
     /**
@@ -384,8 +381,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
      * @param dataOpCallback 写回调
      * @return 是否添加成功
      */
-    protected boolean addWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
-        if(getCommandExecutor() == null || state != CONNECT_SUCCESS) return false;
+    protected synchronized boolean addWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
+        if(!isCommandExecutorAlive() || state != CONNECT_SUCCESS) return false;
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -393,7 +390,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 .setData(data)
                 .setDataOpCallback(dataOpCallback).build();
         if(command == null) return false;
-        return getCommandExecutor().addOneGattCommand(command);
+        return commandExecutor.addOneGattCommand(command);
     }
 
     /**
@@ -404,9 +401,9 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
      * @param notifyOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    protected boolean addNotifyCommand(BluetoothGattElement element, boolean enable
+    protected synchronized boolean addNotifyCommand(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
-        if(getCommandExecutor() == null || state != CONNECT_SUCCESS) return false;
+        if(!isCommandExecutorAlive() || state != CONNECT_SUCCESS) return false;
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -415,7 +412,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 .setDataOpCallback(dataOpCallback)
                 .setNotifyOpCallback(notifyOpCallback).build();
         if(command == null) return false;
-        return getCommandExecutor().addOneGattCommand(command);
+        return commandExecutor.addOneGattCommand(command);
     }
 
     /**
@@ -426,9 +423,9 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
      * @param indicateOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    protected boolean addIndicateCommand(BluetoothGattElement element, boolean enable
+    protected synchronized boolean addIndicateCommand(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
-        if(getCommandExecutor() == null || state != CONNECT_SUCCESS) return false;
+        if(!isCommandExecutorAlive() || state != CONNECT_SUCCESS) return false;
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -437,7 +434,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 .setDataOpCallback(dataOpCallback)
                 .setNotifyOpCallback(indicateOpCallback).build();
         if(command == null) return false;
-        return getCommandExecutor().addOneGattCommand(command);
+        return commandExecutor.addOneGattCommand(command);
     }
 
     @Override

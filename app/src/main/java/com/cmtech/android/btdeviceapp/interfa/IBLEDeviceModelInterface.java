@@ -1,9 +1,9 @@
 package com.cmtech.android.btdeviceapp.interfa;
 
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Message;
 
+import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.DeviceConnectState;
 
@@ -37,6 +37,6 @@ public interface IBLEDeviceModelInterface {
     public void executeAfterConnectSuccess();
     public void executeAfterConnectFailure();
     public void executeAfterDisconnect(boolean isActive);
-    public void processNormalGattMessage(BluetoothGattCharacteristic characteristic);
+    public void processCommonGattMessage(BluetoothGattChannel channel);
     public void processSpecialGattMessage(Message msg);
 }

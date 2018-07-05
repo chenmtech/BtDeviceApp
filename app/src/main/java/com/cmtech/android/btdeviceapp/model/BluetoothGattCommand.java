@@ -30,6 +30,10 @@ public class BluetoothGattCommand {
         return channel;
     }
 
+    public PropertyType getPropertyType() {
+        return channel.getPropertyType();
+    }
+
     // 执行命令
     public boolean execute() {
         if(deviceMirror == null || channel == null) return false;

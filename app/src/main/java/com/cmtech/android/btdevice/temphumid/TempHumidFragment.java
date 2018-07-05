@@ -1,5 +1,6 @@
 package com.cmtech.android.btdevice.temphumid;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
@@ -20,7 +21,7 @@ import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
  * Created by bme on 2018/2/27.
  */
 
-public class TempHumidFragment extends BLEDeviceFragment {
+public class TempHumidFragment extends BLEDeviceFragment implements ITempHumidDataObserver{
 
     private TextView tvTempData;
     private TextView tvHumidData;
@@ -37,6 +38,13 @@ public class TempHumidFragment extends BLEDeviceFragment {
 
     public static TempHumidFragment newInstance() {
         return new TempHumidFragment();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        ((TempHumidDevice)device).registerTempHumidDataObserver(this);
     }
 
     @Nullable
@@ -59,7 +67,7 @@ public class TempHumidFragment extends BLEDeviceFragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(MyApplication.getContext());
         rvHistoryData.setLayoutManager(layoutManager);
         rvHistoryData.addItemDecoration(new DividerItemDecoration(MyApplication.getContext(), DividerItemDecoration.VERTICAL));
-        historyDataAdapter = new TempHumidHistoryDataAdapter(((TempHumidDevice)device).getDataList());
+        historyDataAdapter = new TempHumidHistoryDataAdapter(((TempHumidDevice)device).getHistoryDataList());
         rvHistoryData.setAdapter(historyDataAdapter);
         rvHistoryData.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -79,5 +87,24 @@ public class TempHumidFragment extends BLEDeviceFragment {
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
+    }
+
+
+
+    @Override
+    public void updateCurrentTempHumidData() {
+        TempHumidData data = ((TempHumidDevice)device).getCurTempHumid();
+
+        tvHumidData.setText( ""+data.getHumid() );
+
+        tvTempData.setText(String.format("%.1f", data.getTemp()));
+
+        float heatindex = data.computeHeatIndex();
+        tvHeadIndex.setText(String.format("%.1f", heatindex));
+    }
+
+    @Override
+    public void updateHistoryTempHumidData() {
+        historyDataAdapter.notifyDataSetChanged();
     }
 }
