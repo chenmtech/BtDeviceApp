@@ -15,6 +15,8 @@ import java.util.Queue;
  */
 
 public class GattCommandSerialExecutor extends Thread{
+    private DeviceMirror deviceMirror;
+
     // 要执行的GATT命令队列
     private final Queue<BluetoothGattCommand> commandList = new LinkedList<>();
 
@@ -25,7 +27,8 @@ public class GattCommandSerialExecutor extends Thread{
     private boolean isCurrentCmdDone = true;
 
     // 构造器
-    public GattCommandSerialExecutor() {
+    public GattCommandSerialExecutor(DeviceMirror deviceMirror) {
+        this.deviceMirror = deviceMirror;
     }
 
     // 通知当前命令已经执行完毕：成功或失败
@@ -39,7 +42,7 @@ public class GattCommandSerialExecutor extends Thread{
         }
     }
 
-    // 当前命令中的channel是否与指定的相同：比较其UUID和PropertyType
+    // 当前命令中的channel是否与指定的channel相同：比较其UUID和PropertyType
     public synchronized boolean isChannelSameAsCurrentCommand(BluetoothGattChannel channel) {
         if(currentCommand == null) return false;
         String uuid = channel.getCharacteristic().getUuid().toString();
@@ -84,9 +87,9 @@ public class GattCommandSerialExecutor extends Thread{
         }
         // 清除上次执行命令的数据操作IBleCallback，否则会出现多次执行该回调.
         // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
-        //if(currentCommand != null) {
-        //    if(deviceMirror != null) deviceMirror.removeBleCallback(currentCommand.getGattInfoKey());
-        //}
+        if(currentCommand != null) {
+            if(deviceMirror != null) deviceMirror.removeBleCallback(currentCommand.getGattInfoKey());
+        }
 
         // 取出一条命令执行
         currentCommand = commandList.poll();

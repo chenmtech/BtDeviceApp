@@ -75,8 +75,10 @@ public class TempHumidDevice extends BLEDeviceModel {
 
     private static final byte DEVICE_DEFAULT_TIMER_PERIOD  = 30; // 设备默认定时周期，单位：分钟
 
-    // 设备是否启动定时服务
-    private boolean hasDeviceStartTimerService = false;
+    // 设备是否具有定时服务
+    private boolean hasTimerService = false;
+    // 设备是否已经启动定时服务
+    private boolean hasStartTimerService = false;
     // 设备的定时周期
     private byte deviceTimerPeriod = DEVICE_DEFAULT_TIMER_PERIOD;   // 设定的设备定时更新周期，单位：分钟
     // 设备的当前时间
@@ -89,6 +91,7 @@ public class TempHumidDevice extends BLEDeviceModel {
     private List<TempHumidData> historyDataList = new ArrayList<>();
     ////////////////////////////////////////////////////////
 
+    private int times = 0;
 
     public TempHumidDevice(BLEDeviceBasicInfo basicInfo) {
         super(basicInfo);
@@ -109,8 +112,10 @@ public class TempHumidDevice extends BLEDeviceModel {
         BluetoothGattCharacteristic characteristic = channel.getCharacteristic();
         String shortUuid = Uuid.longToShortString(characteristic.getUuid().toString());
 
+        ViseLog.i("Characteristic uuid: " + shortUuid + ", Property: " + channel.getPropertyType() + ", Value: " + Arrays.toString(characteristic.getValue()));
+
         if(commandExecutor.isChannelSameAsCurrentCommand(channel)) {
-            ViseLog.i("A characteristic is finished, which uuid is " + shortUuid);
+
             if(shortUuid.equalsIgnoreCase(tempHumidDataUuid)) {
                 if(channel.getPropertyType() == PropertyType.PROPERTY_READ) {
                     curTempHumid = new TempHumidData(Calendar.getInstance(), characteristic.getValue());
@@ -119,7 +124,7 @@ public class TempHumidDevice extends BLEDeviceModel {
             } else if(shortUuid.equalsIgnoreCase(timerValueUuid)) {
                 if(channel.getPropertyType() == PropertyType.PROPERTY_READ) {
                     onReadTimerValue(characteristic.getValue());
-                    ViseLog.i("The timer value read is " + Arrays.toString(characteristic.getValue()));
+                    ViseLog.i("The timer value is " + Arrays.toString(characteristic.getValue()));
                 } else {
                     ViseLog.i("The timer service has been started.");
                 }
@@ -127,6 +132,8 @@ public class TempHumidDevice extends BLEDeviceModel {
                 TempHumidData data = new TempHumidData(backuptime, characteristic.getValue());
                 historyDataList.add(data);
                 notifyObserverHistoryTempHumidDataChanged();
+                times++;
+                ViseLog.i("the history data was read " + times + " times.");
                 /*timeLastUpdated = (Calendar)backuptime.clone();
                 backuptime.add(Calendar.MINUTE, deviceTimerPeriod);
                 if(!backuptime.after(deviceCurTime)) {
@@ -156,6 +163,11 @@ public class TempHumidDevice extends BLEDeviceModel {
 
         addReadCommand(TEMPHUMIDDATA, commonGattCallback);
 
+        // 设置采集周期
+        int period = 5000;
+        addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(period / 100)}, commonGattCallback);
+
+
         // enable 温湿度采集的notification
         IBleCallback notifyCallback = new IBleCallback() {
             @Override
@@ -174,14 +186,12 @@ public class TempHumidDevice extends BLEDeviceModel {
         };
         addNotifyCommand(TEMPHUMIDDATACCC, true, commonGattCallback, notifyCallback);
 
-        // 设置采集周期
-        int period = 5000;
-        addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(period / 100)}, commonGattCallback);
 
         // 启动温湿度采集
         addWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, commonGattCallback);
 
-        startTimerService();
+        if(hasTimerService)
+            startTimerService();
     }
 
     private boolean checkServiceAndCharacteristic() {
@@ -195,34 +205,74 @@ public class TempHumidDevice extends BLEDeviceModel {
             return false;
         }
 
+        Object timerValue = getGattObject(TIMERVALUE);
         Object historyTime = getGattObject(TEMPHUMIDHISTORYTIME);
         Object historyData = getGattObject(TEMPHUMIDHISTORYDATA);
-        if (historyTime == null || historyData == null) {
+        if (timerValue == null || historyTime == null || historyData == null) {
             ViseLog.i("The device don't provide history data sampling service.");
-            hasDeviceStartTimerService = false;
+            hasTimerService = false;
+        } else {
+            hasTimerService = true;
         }
         return true;
     }
 
 
     private void startTimerService() {
-        if(getGattObject(TIMERVALUE) == null) return;
-
         addReadCommand(TIMERVALUE, commonGattCallback);
     }
 
     private void onReadTimerValue(byte[] data) {
         if(data.length != 4) return;
 
-        hasDeviceStartTimerService = (data[3] == 1) ? true : false;
+        hasStartTimerService = (data[3] == 1) ? true : false;
 
-        if (hasDeviceStartTimerService) {
+        if (hasStartTimerService) {
             deviceTimerPeriod = data[2];                // 保存设备的定时周期值
             deviceCurTime = guessDeviceCurTime(data);                     // 通过小时和分钟来猜测设备的当前时间
             onReadHistoryDataFromDevice();      // 读取设备的历史数据
         } else {
             onStartTimerService();                // 没有开启定时服务（比如刚换电池），就先开启定时服务
         }
+    }
+
+
+
+    private void onReadHistoryDataFromDevice() {
+        if(!hasStartTimerService) return;
+
+        Calendar updateFrom;
+        if(timeLastUpdated != null) {
+            updateFrom = (Calendar) timeLastUpdated.clone();
+            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod);
+            if(updateFrom.after(deviceCurTime)) return;    // 上次更新到现在还不到一个deviceTimerPeriod,不需要更新
+        } else {
+            updateFrom = (Calendar) deviceCurTime.clone();
+            updateFrom.add(Calendar.DAY_OF_MONTH, -1);
+            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod); // 从前一天的时间开始更新
+        }
+
+        // 这里有问题
+        readHistoryDataAtTime(updateFrom);
+        //readHistoryDataAtTime(updateFrom);
+    }
+
+    private void readHistoryDataAtTime(Calendar time) {
+        backuptime = (Calendar)time.clone();
+        final byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
+
+        // 写历史数据时间
+        //addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, commonGattCallback);
+
+        // 读取历史数据
+        addReadCommand(TEMPHUMIDHISTORYDATA, commonGattCallback);
+    }
+
+    private void onStartTimerService() {
+        Calendar time = Calendar.getInstance();
+        byte[] value = {(byte)time.get(Calendar.HOUR_OF_DAY), (byte)time.get(Calendar.MINUTE), deviceTimerPeriod, 0x01};
+
+        addWriteCommand(TIMERVALUE, value, commonGattCallback);
     }
 
     private Calendar guessDeviceCurTime(byte[] data) {
@@ -257,43 +307,6 @@ public class TempHumidDevice extends BLEDeviceModel {
 
         return devicenow;
     };
-
-    private void onReadHistoryDataFromDevice() {
-        if(!hasDeviceStartTimerService) return;
-
-        Calendar updateFrom;
-        if(timeLastUpdated != null) {
-            updateFrom = (Calendar) timeLastUpdated.clone();
-            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod);
-            if(updateFrom.after(deviceCurTime)) return;    // 上次更新到现在还不到一个deviceTimerPeriod,不需要更新
-        } else {
-            updateFrom = (Calendar) deviceCurTime.clone();
-            updateFrom.add(Calendar.DAY_OF_MONTH, -1);
-            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod); // 从前一天的时间开始更新
-        }
-
-        // 这里有问题
-        readHistoryDataAtTime(updateFrom);
-        //readHistoryDataAtTime(updateFrom);
-    }
-
-    private void readHistoryDataAtTime(Calendar time) {
-        backuptime = (Calendar)time.clone();
-        final byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
-
-        // 写历史数据时间
-        addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, commonGattCallback);
-
-        // 读取历史数据
-        addReadCommand(TEMPHUMIDHISTORYDATA, commonGattCallback);
-    }
-
-    private void onStartTimerService() {
-        Calendar time = Calendar.getInstance();
-        byte[] value = {(byte)time.get(Calendar.HOUR_OF_DAY), (byte)time.get(Calendar.MINUTE), deviceTimerPeriod, 0x01};
-
-        addWriteCommand(TIMERVALUE, value, commonGattCallback);
-    }
 
 
 

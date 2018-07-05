@@ -130,9 +130,10 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     }
 
     public void createCommandExecutor() {
+        ViseLog.i("create new command executor.");
         if(isCommandExecutorAlive()) return;
 
-        commandExecutor = new GattCommandSerialExecutor();
+        commandExecutor = new GattCommandSerialExecutor(deviceMirror);
         commandExecutor.start();
     }
 
@@ -304,13 +305,19 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     @Override
     public synchronized void disconnect() {
         if(state == CONNECT_SUCCESS) {
-            //stopCommandExecutor();
+            stopCommandExecutor();
+
+            if (handler != null) {
+                handler.removeCallbacksAndMessages(null);
+            }
 
             setDeviceConnectState(CONNECT_DISCONNECTING);
             notifyConnectStateObservers();
 
             if (deviceMirror != null) {
                 MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
+                deviceMirror.clear();
+                MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
             } else {
                 setDeviceConnectState(CONNECT_DISCONNECT);
                 notifyConnectStateObservers();
@@ -321,7 +328,11 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     // 关闭设备
     @Override
     public synchronized void close() {
-        //stopCommandExecutor();
+        stopCommandExecutor();
+
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
 
         // 断开连接
         clearDeviceMirror();
