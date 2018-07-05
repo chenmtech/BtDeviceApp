@@ -1,11 +1,7 @@
 package com.cmtech.android.btdevice.ecgmonitor;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,33 +10,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.ble.callback.IBleCallback;
-import com.cmtech.android.ble.core.BluetoothGattChannel;
-import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
-import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
-import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
-import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
-import com.cmtech.android.btdeviceapp.util.Uuid;
-import com.cmtech.dsp.bmefile.BmeFile;
-import com.cmtech.dsp.bmefile.BmeFileDataType;
-import com.cmtech.dsp.bmefile.BmeFileHead;
-import com.cmtech.dsp.bmefile.BmeFileHead10;
-import com.cmtech.dsp.bmefile.BmeFileHeadFactory;
-import com.cmtech.dsp.exception.FileException;
-import com.cmtech.dsp.filter.IIRFilter;
-import com.cmtech.dsp.filter.design.DCBlockDesigner;
-import com.cmtech.dsp.filter.design.NotchDesigner;
-import com.cmtech.dsp.filter.structure.StructType;
-import com.vise.utils.file.FileUtil;
-
-import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by bme on 2018/3/13.

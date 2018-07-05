@@ -26,6 +26,10 @@ public class BluetoothGattCommand {
         this.notifyOpCallback = notifyOpCallback;
     }
 
+    public BluetoothGattChannel getChannel() {
+        return channel;
+    }
+
     // 执行命令
     public boolean execute() {
         if(deviceMirror == null || channel == null) return false;

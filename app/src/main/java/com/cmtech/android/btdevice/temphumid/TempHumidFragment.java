@@ -1,9 +1,6 @@
 package com.cmtech.android.btdevice.temphumid;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,22 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.ble.callback.IBleCallback;
-import com.cmtech.android.ble.core.BluetoothGattChannel;
-import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
-import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
-import com.cmtech.android.btdeviceapp.model.GattSerialExecutor;
-import com.cmtech.android.btdeviceapp.util.Uuid;
-
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
 
 
 /**

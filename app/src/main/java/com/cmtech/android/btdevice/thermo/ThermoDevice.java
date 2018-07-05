@@ -89,7 +89,7 @@ public class ThermoDevice extends BLEDeviceModel {
         }
 
         // 读温度数据
-        executeReadCommand(THERMODATA, new IBleCallback() {
+        addReadCommand(THERMODATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "first write period: " + HexUtil.encodeHexStr(data));
@@ -107,7 +107,7 @@ public class ThermoDevice extends BLEDeviceModel {
         });
 
         // 设置采样周期为1s
-        executeWriteCommand(THERMOPERIOD, new byte[]{0x01}, new IBleCallback() {
+        addWriteCommand(THERMOPERIOD, new byte[]{0x01}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
@@ -137,7 +137,7 @@ public class ThermoDevice extends BLEDeviceModel {
         };
 
         // enable温度数据notify
-        executeNotifyCommand(THERMODATACCC, true, new IBleCallback() {
+        addNotifyCommand(THERMODATACCC, true, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 Log.d("Thread", "Notify Callback Thread: "+Thread.currentThread().getId());
@@ -151,7 +151,7 @@ public class ThermoDevice extends BLEDeviceModel {
 
 
         // 启动温度采集
-        executeWriteCommand(THERMOCONTROL, new byte[]{0x03}, new IBleCallback() {
+        addWriteCommand(THERMOCONTROL, new byte[]{0x03}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));

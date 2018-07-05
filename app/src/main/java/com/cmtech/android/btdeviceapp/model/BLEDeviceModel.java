@@ -24,8 +24,6 @@ import com.vise.log.ViseLog;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.*;
 
@@ -40,6 +38,22 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     // 设备基本信息
     private final BLEDeviceBasicInfo basicInfo;
+
+    // 设备镜像，连接成功后才会赋值。连接断开后，其Gatt将close
+    protected DeviceMirror deviceMirror = null;
+
+    // 设备连接状态
+    private DeviceConnectState state = DeviceConnectState.CONNECT_WAITING;
+
+    // 想要的下一个Characteristic 16位UUID字符串
+    protected String wantedCharacteristicUuid;
+
+    // GATT命令执行器
+    private GattCommandSerialExecutor commandExecutor;
+
+    // 连接状态观察者列表
+    private final List<IBLEDeviceConnectStateObserver> connectStateObserverList = new LinkedList<>();
+
 
     public BLEDeviceModel(BLEDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
@@ -100,9 +114,6 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         return basicInfo;
     }
 
-    // 设备状态
-    DeviceConnectState state = DeviceConnectState.CONNECT_WAITING;
-
     @Override
     public DeviceConnectState getDeviceConnectState() {
         return state;
@@ -113,16 +124,20 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         this.state = state;
     }
 
-    // 设备镜像，连接成功后才会赋值。连接断开后，其Gatt将close
-    DeviceMirror deviceMirror = null;
+    public GattCommandSerialExecutor getCommandExecutor() {
+        if((commandExecutor != null) && commandExecutor.isAlive())
+            return commandExecutor;
+        else {
+            return null;
+        }
+    }
 
-    // 连接状态观察者列表
-    final List<IBLEDeviceConnectStateObserver> connectStateObserverList = new LinkedList<>();
+    public void createCommandExecutor() {
+        if(getCommandExecutor() != null) return;
 
-    // 想要的下一个Characteristic 16位UUID字符串
-    protected String wantedCharacteristicUuid;
-
-    protected List<String> wantedCharacteristicUuidList = new LinkedList<>();
+        commandExecutor = new GattCommandSerialExecutor();
+        commandExecutor.start();
+    }
 
     // 连接结果类
     static class ConnectResultObject {
@@ -190,7 +205,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         @Override
         public void onFailure(BleException exception) {
             ViseLog.i("onFailure");
-
+            if(commandExecutor != null) commandExecutor.notifyCurrentCommandExecuted(false);
         }
     };
 
@@ -218,7 +233,6 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
         }
     };
-
 
     // 连接结果处理函数
     private void processConnectMessage(ConnectResultObject result) {
@@ -266,7 +280,17 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         executeAfterDisconnect(isActive);
     }
 
-
+    private void stopCommandExecutor() {
+        if(commandExecutor != null) {
+            commandExecutor.interrupt();
+            try {
+                commandExecutor.join();
+                commandExecutor = null;
+            } catch (InterruptedException ex) {
+                ViseLog.i("The Gatt Command serial executor is interrupted!!!!!!" + commandExecutor.getName());
+            }
+        }
+    }
 
     // 发起连接
     @Override
@@ -283,6 +307,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     @Override
     public synchronized void disconnect() {
         if(state == CONNECT_SUCCESS) {
+            stopCommandExecutor();
+
             setDeviceConnectState(CONNECT_DISCONNECTING);
             notifyConnectStateObservers();
 
@@ -298,6 +324,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     // 关闭设备
     @Override
     public synchronized void close() {
+        stopCommandExecutor();
+
         // 断开连接
         clearDeviceMirror();
 
@@ -338,13 +366,15 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
      * @param dataOpCallback 读回调
      * @return 是否添加成功
      */
-    protected boolean executeReadCommand(BluetoothGattElement element, IBleCallback dataOpCallback) {
+    protected boolean addReadCommand(BluetoothGattElement element, IBleCallback dataOpCallback) {
+        if(getCommandExecutor() == null || state != CONNECT_SUCCESS) return false;
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
                 .setPropertyType(PropertyType.PROPERTY_READ)
                 .setDataOpCallback(dataOpCallback).build();
-        return executeGattCommand(command);
+        if(command == null) return false;
+        return getCommandExecutor().addOneGattCommand(command);
     }
 
     /**
@@ -354,14 +384,16 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
      * @param dataOpCallback 写回调
      * @return 是否添加成功
      */
-    protected boolean executeWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
+    protected boolean addWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
+        if(getCommandExecutor() == null || state != CONNECT_SUCCESS) return false;
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
                 .setPropertyType(PropertyType.PROPERTY_WRITE)
                 .setData(data)
                 .setDataOpCallback(dataOpCallback).build();
-        return executeGattCommand(command);
+        if(command == null) return false;
+        return getCommandExecutor().addOneGattCommand(command);
     }
 
     /**
@@ -372,8 +404,9 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
      * @param notifyOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    protected boolean executeNotifyCommand(BluetoothGattElement element, boolean enable
+    protected boolean addNotifyCommand(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
+        if(getCommandExecutor() == null || state != CONNECT_SUCCESS) return false;
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -381,7 +414,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 .setData((enable) ? new byte[]{0x01} : new byte[]{0x00})
                 .setDataOpCallback(dataOpCallback)
                 .setNotifyOpCallback(notifyOpCallback).build();
-        return executeGattCommand(command);
+        if(command == null) return false;
+        return getCommandExecutor().addOneGattCommand(command);
     }
 
     /**
@@ -392,8 +426,9 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
      * @param indicateOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    protected boolean executeIndicateCommand(BluetoothGattElement element, boolean enable
+    protected boolean addIndicateCommand(BluetoothGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
+        if(getCommandExecutor() == null || state != CONNECT_SUCCESS) return false;
         BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
         BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -401,12 +436,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 .setData((enable) ? new byte[]{0x01} : new byte[]{0x00})
                 .setDataOpCallback(dataOpCallback)
                 .setNotifyOpCallback(indicateOpCallback).build();
-        return executeGattCommand(command);
-    }
-
-    private boolean executeGattCommand(BluetoothGattCommand command) {
-        if(command == null || state != CONNECT_SUCCESS) return false;
-        return command.execute();
+        if(command == null) return false;
+        return getCommandExecutor().addOneGattCommand(command);
     }
 
     @Override
@@ -425,6 +456,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     public int hashCode() {
         return getMacAddress() != null ? getMacAddress().hashCode() : 0;
     }
+
+
 
     // 登记连接状态观察者
     @Override
