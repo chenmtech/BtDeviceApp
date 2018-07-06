@@ -25,7 +25,7 @@ import java.util.List;
 public class TempHumidDevice extends BLEDeviceModel {
     private static final String TAG = "TempHumidDevice";
 
-    private static final int MSG_TEMPHUMIDDATA = 102;
+    private static final int MSG_TEMPHUMIDDATA = 2;
     private static final int MSG_TEMPHUMIDCTRL = 3;
     private static final int MSG_TEMPHUMIDPERIOD = 4;
     private static final int MSG_TEMPHUMIDHISTORYDATA = 5;
@@ -107,7 +107,7 @@ public class TempHumidDevice extends BLEDeviceModel {
     // 处理一般Gatt消息
     @Override
     public synchronized void processCommonGattMessage(BluetoothGattChannel channel) {
-        if(!isCommandExecutorAlive() || channel == null) return;
+        /*if(!isCommandExecutorAlive() || channel == null) return;
         BluetoothGattCharacteristic characteristic = channel.getCharacteristic();
         String shortUuid = Uuid.longToShortString(characteristic.getUuid().toString());
 
@@ -136,7 +136,7 @@ public class TempHumidDevice extends BLEDeviceModel {
             }
             //handler.removeMessages(1);
             commandExecutor.notifyCurrentCommandExecuted(true);
-        }
+        }*/
     }
 
     @Override
@@ -147,6 +147,8 @@ public class TempHumidDevice extends BLEDeviceModel {
                 curTempHumid = (TempHumidData) msg.obj;
                 notifyObserverCurrentTempHumidDataChanged();
             }
+        } else  if(msg.what == MSG_TIMERVALUE) {
+            onReadTimerValue((byte[])msg.obj);
         }
     }
 
@@ -154,16 +156,49 @@ public class TempHumidDevice extends BLEDeviceModel {
     public synchronized void executeAfterConnectSuccess() {
         if(!checkServiceAndCharacteristic()) return;
 
-        if(!isCommandExecutorAlive()) createCommandExecutor();
+        createCommandExecutor();
 
-        addReadCommand(TEMPHUMIDDATA, commonGattCallback);
+        commandExecutor.addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                Message msg = new Message();
+                msg.what = MSG_TEMPHUMIDDATA;
+                msg.obj = new TempHumidData(Calendar.getInstance(), data);
+                handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
 
         // 设置采集周期
         int period = 5000;
-        addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(50)}, commonGattCallback);
+        commandExecutor.addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
 
         // 启动温湿度采集
-        addWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, commonGattCallback);
+        commandExecutor.addWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
 
 
         // enable 温湿度采集的notification
@@ -182,7 +217,17 @@ public class TempHumidDevice extends BLEDeviceModel {
 
             }
         };
-        addNotifyCommand(TEMPHUMIDDATACCC, true, commonGattCallback, notifyCallback);
+        commandExecutor.addNotifyCommand(TEMPHUMIDDATACCC, true, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        }, notifyCallback);
 
 
         if(hasTimerService) {
@@ -215,7 +260,20 @@ public class TempHumidDevice extends BLEDeviceModel {
 
 
     private void startTimerService() {
-        addReadCommand(TIMERVALUE, commonGattCallback);
+        commandExecutor.addReadCommand(TIMERVALUE, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                Message msg = new Message();
+                msg.what = MSG_TIMERVALUE;
+                msg.obj = data;
+                handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
 
         // 写历史数据时间
         //addWriteCommand(TEMPHUMIDHISTORYTIME, new byte[] {0,0}, commonGattCallback);
@@ -257,7 +315,6 @@ public class TempHumidDevice extends BLEDeviceModel {
 
         // 这里有问题
         readHistoryDataAtTime(updateFrom);
-        //readHistoryDataAtTime(updateFrom);
     }
 
     private void readHistoryDataAtTime(Calendar time) {
@@ -268,14 +325,24 @@ public class TempHumidDevice extends BLEDeviceModel {
         //addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, commonGattCallback);
 
         // 读取历史数据
-        addReadCommand(TEMPHUMIDHISTORYDATA, commonGattCallback);
+        //addReadCommand(TEMPHUMIDHISTORYDATA, commonGattCallback);
     }
 
     private void onStartTimerService() {
         Calendar time = Calendar.getInstance();
         byte[] value = {(byte)time.get(Calendar.HOUR_OF_DAY), (byte)time.get(Calendar.MINUTE), deviceTimerPeriod, 0x01};
 
-        addWriteCommand(TIMERVALUE, value, commonGattCallback);
+        commandExecutor.addWriteCommand(TIMERVALUE, value, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                ViseLog.i("Success to start timer service.");
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
     }
 
     private Calendar guessDeviceCurTime(byte[] data) {

@@ -119,8 +119,8 @@ public class BluetoothGattCommand {
         }
 
         public Builder setData(byte[] data) {
-            //this.data = data;
-            this.data = Arrays.copyOf(data, data.length);
+            this.data = data;
+            //this.data = Arrays.copyOf(data, data.length);
             return this;
         }
 

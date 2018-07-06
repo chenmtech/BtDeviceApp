@@ -237,7 +237,7 @@ public class EcgMonitorDevice extends BLEDeviceModel {
         }
 
         // 读采样率命令
-        addReadCommand(ECGMONITORSAMPLERATE, new IBleCallback() {
+        commandExecutor.addReadCommand(ECGMONITORSAMPLERATE, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 Message msg = new Message();
@@ -253,7 +253,7 @@ public class EcgMonitorDevice extends BLEDeviceModel {
         });
 
         // 读导联类型命令
-        addReadCommand(ECGMONITORLEADTYPE, new IBleCallback() {
+        commandExecutor.addReadCommand(ECGMONITORLEADTYPE, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 Message msg = new Message();
@@ -284,7 +284,7 @@ public class EcgMonitorDevice extends BLEDeviceModel {
         };
 
         // enable ECG 数据notify
-        addNotifyCommand(ECGMONITORDATACCC, true, new IBleCallback() {
+        commandExecutor.addNotifyCommand(ECGMONITORDATACCC, true, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 Log.d("Thread", "Notify Callback Thread: "+Thread.currentThread().getId());
@@ -300,7 +300,7 @@ public class EcgMonitorDevice extends BLEDeviceModel {
         // 启动1mV数据采集
         isCalibration = true;
         isStartSampleEcg = false;
-        addWriteCommand(ECGMONITORCTRL, new byte[]{0x02}, new IBleCallback() {
+        commandExecutor.addWriteCommand(ECGMONITORCTRL, new byte[]{0x02}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
@@ -339,7 +339,7 @@ public class EcgMonitorDevice extends BLEDeviceModel {
 
     private void startSampleEcg() {
         // 启动ECG数据采集
-        addWriteCommand(ECGMONITORCTRL, new byte[]{0x01}, new IBleCallback() {
+        commandExecutor.addWriteCommand(ECGMONITORCTRL, new byte[]{0x01}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //ecgView.clearView();
@@ -355,7 +355,7 @@ public class EcgMonitorDevice extends BLEDeviceModel {
 
     private void stopSampleEcg() {
         // 停止ECG数据采集
-        addWriteCommand(ECGMONITORCTRL, new byte[]{0x00}, new IBleCallback() {
+        commandExecutor.addWriteCommand(ECGMONITORCTRL, new byte[]{0x00}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
 
