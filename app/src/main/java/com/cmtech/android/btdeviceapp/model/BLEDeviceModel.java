@@ -153,6 +153,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         @Override
         public void onConnectSuccess(DeviceMirror deviceMirror) {
             Log.d("CONNECTCALLBACK", "onConnectSuccess");
+
             processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
 
         }
@@ -228,6 +229,12 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         //if(state == result.state) return;   // 有时候会有连续多次回调，忽略后面的回调处理
 
         setDeviceConnectState(result.state);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                notifyConnectStateObservers();
+            }
+        });
         //notifyConnectStateObservers();
 
         switch (result.state) {

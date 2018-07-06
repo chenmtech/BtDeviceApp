@@ -275,12 +275,6 @@ public class TempHumidDevice extends BLEDeviceModel {
             }
         });
 
-        // 写历史数据时间
-        //addWriteCommand(TEMPHUMIDHISTORYTIME, new byte[] {0,0}, commonGattCallback);
-
-        // 读取历史数据
-        //addReadCommand(TEMPHUMIDHISTORYDATA, commonGattCallback);
-
     }
 
     private synchronized void onReadTimerValue(byte[] data) {
@@ -322,10 +316,30 @@ public class TempHumidDevice extends BLEDeviceModel {
         byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
 
         // 写历史数据时间
-        //addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, commonGattCallback);
+        commandExecutor.addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
 
         // 读取历史数据
-        //addReadCommand(TEMPHUMIDHISTORYDATA, commonGattCallback);
+        commandExecutor.addReadCommand(TEMPHUMIDHISTORYDATA, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
     }
 
     private void onStartTimerService() {
