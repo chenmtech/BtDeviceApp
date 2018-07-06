@@ -50,6 +50,7 @@ public class GattCommandSerialExecutor {
                 // 先做一般操作
                 bleCallback.onSuccess(data, bluetoothGattChannel, bluetoothLeDevice);
 
+                deviceMirror.unbindChannel(currentCommand.getChannel());
                 // 标记命令执行完毕
                 currentCommandDone = true;
                 // 通知执行线程执行下一条
@@ -64,8 +65,10 @@ public class GattCommandSerialExecutor {
                 bleCallback.onFailure(exception);
 
                 // 有错误，直接终止线程
-                if(executeThread != null && executeThread.isAlive()) executeThread.interrupt();
-                ViseLog.i("Something is wrong in GattCommandSerialExecutor! " + exception);
+                //if(executeThread != null && executeThread.isAlive()) executeThread.interrupt();
+                currentCommandDone = true;
+                GattCommandSerialExecutor.this.notifyAll();
+                ViseLog.i("GattCommandSerialExecutor Wrong: " + exception);
             }
         }
     }
@@ -73,12 +76,6 @@ public class GattCommandSerialExecutor {
     // 构造器：指定设备镜像
     public GattCommandSerialExecutor(DeviceMirror deviceMirror) {
         this.deviceMirror = deviceMirror;
-    }
-
-    // 在设备上获取element的Gatt Object
-    public Object getGattObject(BluetoothGattElement element) {
-        if(deviceMirror == null || element == null) return null;
-        return element.retrieveGattObject(deviceMirror);
     }
 
     /**

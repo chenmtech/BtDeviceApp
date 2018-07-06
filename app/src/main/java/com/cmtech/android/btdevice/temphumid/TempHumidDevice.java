@@ -402,7 +402,6 @@ public class TempHumidDevice extends BLEDeviceModel {
     @Override
     public void executeAfterConnectFailure() {
         stopCommandExecutor();
-        //disconnect();
     }
 
     // 关闭设备

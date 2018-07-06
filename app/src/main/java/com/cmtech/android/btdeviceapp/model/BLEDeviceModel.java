@@ -152,7 +152,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     final IConnectCallback connectCallback = new IConnectCallback() {
         @Override
         public void onConnectSuccess(DeviceMirror deviceMirror) {
-            Log.d("CONNECTCALLBACK", "onConnectSuccess");
+            ViseLog.i("onConnectSuccess");
 
             processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
 
@@ -166,38 +166,18 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
             else
                 state = CONNECT_FAILURE;
 
-            Log.d("CONNECTCALLBACK", "onConnectFailure with state = " + state);
+            ViseLog.i("onConnectFailure with state = " + state);
 
             processConnectMessage(new ConnectResultObject(state, exception));
         }
 
         @Override
         public void onDisconnect(boolean isActive) {
-            Log.d("CONNECTCALLBACK", "onDisconnect");
+            ViseLog.d("onDisconnect");
 
             processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive));
         }
     };
-
-    /*// 一般的Gatt回调，会产生一般的Gatt消息
-    final protected IBleCallback commonGattCallback = new IBleCallback() {
-        @Override
-        public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-            //ViseLog.i("onSuccess : characteristic = " + bluetoothGattChannel.getCharacteristic().getUuid() +
-            //        ", value = " + Arrays.toString(bluetoothGattChannel.getCharacteristic().getValue()));
-
-            Message msg = new Message();
-            msg.what = MSG_NORMALGATTCALLBACK;
-            msg.obj = bluetoothGattChannel;
-            handler.sendMessage(msg);
-        }
-
-        @Override
-        public void onFailure(BleException exception) {
-            ViseLog.i("onFailure: " + Thread.currentThread());
-            //commandExecutor.reExecuteCurrentCommand();
-        }
-    };*/
 
     // 消息分发：用来处理连接和通信回调后产生的消息，由于有些要修改GUI，所以使用主线程
     final protected Handler handler = new Handler(Looper.myLooper()) {
@@ -235,7 +215,6 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 notifyConnectStateObservers();
             }
         });
-        //notifyConnectStateObservers();
 
         switch (result.state) {
             case CONNECT_SUCCESS:
@@ -280,7 +259,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     }
 
     public void stopCommandExecutor() {
-        commandExecutor.stop();
+        if(commandExecutor != null) commandExecutor.stop();
     }
 
     // 发起连接
@@ -306,7 +285,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 //MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
                 deviceMirror.disconnect();
                 deviceMirror.removeAllCallback();
-                MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+                //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
                 stopCommandExecutor();
 
             } else {
@@ -319,9 +298,12 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     // 关闭设备
     @Override
     public synchronized void close() {
-        stopCommandExecutor();
+        //stopCommandExecutor();
 
         // 断开连接
+        //clearDeviceMirror();
+        disconnect();
+
         clearDeviceMirror();
 
         state = CONNECT_WAITING;
@@ -334,7 +316,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     private void clearDeviceMirror() {
         if (deviceMirror != null) {
-            MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
+            //deviceMirror.disconnect();
+            //MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
             MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
             //deviceMirror.clear();     // 不能clear，否则下次连接出错
         }
