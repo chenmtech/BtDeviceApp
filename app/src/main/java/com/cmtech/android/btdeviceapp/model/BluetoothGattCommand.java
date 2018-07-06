@@ -5,6 +5,8 @@ import com.cmtech.android.ble.common.PropertyType;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.core.DeviceMirror;
 
+import java.util.Arrays;
+
 /**
  * Created by bme on 2018/3/1.
  */

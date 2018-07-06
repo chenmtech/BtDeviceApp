@@ -202,13 +202,13 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
         @Override
         public void onFailure(BleException exception) {
-            ViseLog.i("onFailure" + exception);
-            //commandExecutor.reExecuteCurrentCommand();
+            ViseLog.i("onFailure" );
+            commandExecutor.reExecuteCurrentCommand();
         }
     };
 
     // 消息分发：用来处理连接和通信回调后产生的消息，由于有些要修改GUI，所以使用主线程
-    final protected Handler handler = new Handler(Looper.getMainLooper()) {
+    final protected Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -258,24 +258,39 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     // 连接成功处理
     private void onConnectSuccess(DeviceMirror mirror) {
+
+
         DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
         if (deviceMirrorPool.isContainDevice(mirror)) {
             this.deviceMirror = mirror;
             executeAfterConnectSuccess();
+            if(handler != null) {
+                handler.removeCallbacksAndMessages(null);
+            }
         }
     }
 
     // 连接失败处理
     private void onConnectFailure(BleException exception) {
-        //clearDeviceMirror();
+        clearDeviceMirror();
+
         executeAfterConnectFailure();
+
+        if(handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
     }
 
     // 断开连接处理
     private void onDisconnect(Boolean isActive) {
-        //clearDeviceMirror();
+        clearDeviceMirror();
+
         executeAfterDisconnect(isActive);
+
+        if(handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
     }
 
     public void stopCommandExecutor() {
@@ -316,7 +331,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
             if (deviceMirror != null) {
                 MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
-                deviceMirror.clear();
+                deviceMirror.removeAllCallback();
                 MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
             } else {
                 setDeviceConnectState(CONNECT_DISCONNECT);

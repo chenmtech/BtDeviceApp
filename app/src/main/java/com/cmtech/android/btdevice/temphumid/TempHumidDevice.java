@@ -129,17 +129,15 @@ public class TempHumidDevice extends BLEDeviceModel {
                     ViseLog.i("The timer service has been started.");
                 }
             } else if(shortUuid.equalsIgnoreCase(tempHumidHistoryDataUuid)) {
-                TempHumidData data = new TempHumidData(backuptime, characteristic.getValue());
-                historyDataList.add(data);
-                notifyObserverHistoryTempHumidDataChanged();
-                times++;
-                ViseLog.i("the history data was read " + times + " times.");
-                /*timeLastUpdated = (Calendar)backuptime.clone();
-                backuptime.add(Calendar.MINUTE, deviceTimerPeriod);
-                if(!backuptime.after(deviceCurTime)) {
-                    readHistoryDataAtTime(backuptime);
-                }*/
+                if(channel.getPropertyType() == PropertyType.PROPERTY_READ) {
+                    TempHumidData data = new TempHumidData(backuptime, characteristic.getValue());
+                    historyDataList.add(data);
+                    notifyObserverHistoryTempHumidDataChanged();
+                    times++;
+                    ViseLog.i("the history data was read " + times + " times.");
+                }
             }
+            //handler.removeMessages(1);
             commandExecutor.notifyCurrentCommandExecuted(true);
         }
     }
@@ -167,6 +165,8 @@ public class TempHumidDevice extends BLEDeviceModel {
         int period = 5000;
         addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(period / 100)}, commonGattCallback);
 
+        // 启动温湿度采集
+        addWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, commonGattCallback);
 
         // enable 温湿度采集的notification
         IBleCallback notifyCallback = new IBleCallback() {
@@ -186,12 +186,9 @@ public class TempHumidDevice extends BLEDeviceModel {
         };
         addNotifyCommand(TEMPHUMIDDATACCC, true, commonGattCallback, notifyCallback);
 
-
-        // 启动温湿度采集
-        addWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, commonGattCallback);
-
-        if(hasTimerService)
+        if(hasTimerService) {
             startTimerService();
+        }
     }
 
     private boolean checkServiceAndCharacteristic() {
@@ -220,6 +217,7 @@ public class TempHumidDevice extends BLEDeviceModel {
 
     private void startTimerService() {
         addReadCommand(TIMERVALUE, commonGattCallback);
+
     }
 
     private void onReadTimerValue(byte[] data) {
@@ -253,13 +251,14 @@ public class TempHumidDevice extends BLEDeviceModel {
         }
 
         // 这里有问题
-        readHistoryDataAtTime(updateFrom);
+        for(int i = 0; i < 10; i++)
+            readHistoryDataAtTime(updateFrom);
         //readHistoryDataAtTime(updateFrom);
     }
 
     private void readHistoryDataAtTime(Calendar time) {
         backuptime = (Calendar)time.clone();
-        final byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
+        byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
 
         // 写历史数据时间
         //addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, commonGattCallback);
