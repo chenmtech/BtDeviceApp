@@ -33,8 +33,8 @@ import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.*;
 
 public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
-    private static final int MSG_CONNECTCALLBACK       =  0;         // 连接相关回调消息
-    private static final int MSG_NORMALGATTCALLBACK = 1;             // Gatt相关回调消息
+    private static final int MSG_CONNECTCALLBACK       =  100;         // 连接相关回调消息
+    private static final int MSG_NORMALGATTCALLBACK = 101;             // Gatt相关回调消息
 
     // 设备基本信息
     private final BLEDeviceBasicInfo basicInfo;
@@ -202,8 +202,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
         @Override
         public void onFailure(BleException exception) {
-            ViseLog.i("onFailure" );
-            commandExecutor.reExecuteCurrentCommand();
+            ViseLog.i("onFailure: " + Thread.currentThread());
+            //commandExecutor.reExecuteCurrentCommand();
         }
     };
 
@@ -233,7 +233,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     };
 
     // 连接结果处理函数
-    private void processConnectMessage(ConnectResultObject result) {
+    private synchronized void processConnectMessage(ConnectResultObject result) {
         //if(state == result.state) return;   // 有时候会有连续多次回调，忽略后面的回调处理
 
         setDeviceConnectState(result.state);
@@ -258,16 +258,11 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     // 连接成功处理
     private void onConnectSuccess(DeviceMirror mirror) {
-
-
         DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
         if (deviceMirrorPool.isContainDevice(mirror)) {
             this.deviceMirror = mirror;
             executeAfterConnectSuccess();
-            if(handler != null) {
-                handler.removeCallbacksAndMessages(null);
-            }
         }
     }
 
@@ -277,9 +272,6 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
         executeAfterConnectFailure();
 
-        if(handler != null) {
-            handler.removeCallbacksAndMessages(null);
-        }
     }
 
     // 断开连接处理
@@ -287,10 +279,6 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         clearDeviceMirror();
 
         executeAfterDisconnect(isActive);
-
-        if(handler != null) {
-            handler.removeCallbacksAndMessages(null);
-        }
     }
 
     public void stopCommandExecutor() {
@@ -320,19 +308,17 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     @Override
     public synchronized void disconnect() {
         if(state == CONNECT_SUCCESS) {
-            stopCommandExecutor();
-
-            if (handler != null) {
-                handler.removeCallbacksAndMessages(null);
-            }
 
             setDeviceConnectState(CONNECT_DISCONNECTING);
             notifyConnectStateObservers();
 
             if (deviceMirror != null) {
-                MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
+                //MyApplication.getViseBle().disconnect(deviceMirror.getBluetoothLeDevice());
+                deviceMirror.disconnect();
                 deviceMirror.removeAllCallback();
                 MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+                stopCommandExecutor();
+
             } else {
                 setDeviceConnectState(CONNECT_DISCONNECT);
                 notifyConnectStateObservers();
@@ -344,10 +330,6 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     @Override
     public synchronized void close() {
         stopCommandExecutor();
-
-        if (handler != null) {
-            handler.removeCallbacksAndMessages(null);
-        }
 
         // 断开连接
         clearDeviceMirror();
@@ -409,14 +391,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
      */
     protected synchronized boolean addWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
         if(!isCommandExecutorAlive() || state != CONNECT_SUCCESS) return false;
-        BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
-        BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
-                .setBluetoothElement(element)
-                .setPropertyType(PropertyType.PROPERTY_WRITE)
-                .setData(data)
-                .setDataOpCallback(dataOpCallback).build();
-        if(command == null) return false;
-        return commandExecutor.addOneGattCommand(command);
+
+        return commandExecutor.addWriteCommand(element, data, dataOpCallback);
     }
 
     /**

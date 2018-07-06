@@ -2,12 +2,17 @@ package com.cmtech.android.btdeviceapp.model;
 
 import android.bluetooth.BluetoothGattCharacteristic;
 
+import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.common.PropertyType;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.vise.log.ViseLog;
+
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
+
+import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.CONNECT_SUCCESS;
 
 /**
  * Created by bme on 2018/3/2.
@@ -74,8 +79,8 @@ public class GattCommandSerialExecutor extends Thread{
             ViseLog.i("The Gatt Command serial executor is interrupted!!!!!!" + getName());
         } finally {
             commandList.clear();
-            currentCommand = null;
-            isCurrentCmdDone = true;
+            //currentCommand = null;
+            //isCurrentCmdDone = true;
         }
     }
 
@@ -93,11 +98,29 @@ public class GattCommandSerialExecutor extends Thread{
 
         // 取出一条命令执行
         currentCommand = commandList.poll();
-        if(currentCommand != null) currentCommand.execute();
+        currentCommand.execute();
 
-        //ViseLog.i("Now the executed command is : " + currentCommand.toString());
+        ViseLog.i("Do Command: " + currentCommand.toString() + " , " + Arrays.toString(currentCommand.getChannel().getCharacteristic().getValue()));
 
         // 设置未完成标记
         isCurrentCmdDone = false;
+    }
+
+    /**
+     * 执行"写数据单元"操作
+     * @param element 数据单元
+     * @param data 数据
+     * @param dataOpCallback 写回调
+     * @return 是否添加成功
+     */
+    protected synchronized boolean addWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
+        BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
+        BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
+                .setBluetoothElement(element)
+                .setPropertyType(PropertyType.PROPERTY_WRITE)
+                .setData(data)
+                .setDataOpCallback(dataOpCallback).build();
+        if(command == null) return false;
+        return addOneGattCommand(command);
     }
 }

@@ -37,7 +37,7 @@ public class BluetoothGattCommand {
     }
 
     // 执行命令
-    public boolean execute() {
+    public synchronized boolean execute() {
         if(deviceMirror == null || channel == null) return false;
 
         switch (channel.getPropertyType()) {
@@ -119,7 +119,8 @@ public class BluetoothGattCommand {
         }
 
         public Builder setData(byte[] data) {
-            this.data = data;
+            //this.data = data;
+            this.data = Arrays.copyOf(data, data.length);
             return this;
         }
 

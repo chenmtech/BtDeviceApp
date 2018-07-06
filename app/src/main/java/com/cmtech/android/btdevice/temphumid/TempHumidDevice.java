@@ -25,7 +25,7 @@ import java.util.List;
 public class TempHumidDevice extends BLEDeviceModel {
     private static final String TAG = "TempHumidDevice";
 
-    private static final int MSG_TEMPHUMIDDATA = 2;
+    private static final int MSG_TEMPHUMIDDATA = 102;
     private static final int MSG_TEMPHUMIDCTRL = 3;
     private static final int MSG_TEMPHUMIDPERIOD = 4;
     private static final int MSG_TEMPHUMIDHISTORYDATA = 5;
@@ -91,7 +91,6 @@ public class TempHumidDevice extends BLEDeviceModel {
     private List<TempHumidData> historyDataList = new ArrayList<>();
     ////////////////////////////////////////////////////////
 
-    private int times = 0;
 
     public TempHumidDevice(BLEDeviceBasicInfo basicInfo) {
         super(basicInfo);
@@ -133,8 +132,6 @@ public class TempHumidDevice extends BLEDeviceModel {
                     TempHumidData data = new TempHumidData(backuptime, characteristic.getValue());
                     historyDataList.add(data);
                     notifyObserverHistoryTempHumidDataChanged();
-                    times++;
-                    ViseLog.i("the history data was read " + times + " times.");
                 }
             }
             //handler.removeMessages(1);
@@ -163,10 +160,11 @@ public class TempHumidDevice extends BLEDeviceModel {
 
         // 设置采集周期
         int period = 5000;
-        addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(period / 100)}, commonGattCallback);
+        addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte)(50)}, commonGattCallback);
 
         // 启动温湿度采集
         addWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, commonGattCallback);
+
 
         // enable 温湿度采集的notification
         IBleCallback notifyCallback = new IBleCallback() {
@@ -185,6 +183,7 @@ public class TempHumidDevice extends BLEDeviceModel {
             }
         };
         addNotifyCommand(TEMPHUMIDDATACCC, true, commonGattCallback, notifyCallback);
+
 
         if(hasTimerService) {
             startTimerService();
@@ -218,9 +217,15 @@ public class TempHumidDevice extends BLEDeviceModel {
     private void startTimerService() {
         addReadCommand(TIMERVALUE, commonGattCallback);
 
+        // 写历史数据时间
+        //addWriteCommand(TEMPHUMIDHISTORYTIME, new byte[] {0,0}, commonGattCallback);
+
+        // 读取历史数据
+        //addReadCommand(TEMPHUMIDHISTORYDATA, commonGattCallback);
+
     }
 
-    private void onReadTimerValue(byte[] data) {
+    private synchronized void onReadTimerValue(byte[] data) {
         if(data.length != 4) return;
 
         hasStartTimerService = (data[3] == 1) ? true : false;
@@ -251,8 +256,7 @@ public class TempHumidDevice extends BLEDeviceModel {
         }
 
         // 这里有问题
-        for(int i = 0; i < 10; i++)
-            readHistoryDataAtTime(updateFrom);
+        readHistoryDataAtTime(updateFrom);
         //readHistoryDataAtTime(updateFrom);
     }
 
