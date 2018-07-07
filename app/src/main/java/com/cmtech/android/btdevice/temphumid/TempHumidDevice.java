@@ -309,6 +309,8 @@ public class TempHumidDevice extends BLEDeviceModel {
 
         // 这里有问题
         readHistoryDataAtTime(updateFrom);
+
+        readHistoryDataAtTime(updateFrom);
     }
 
     private void readHistoryDataAtTime(Calendar time) {
