@@ -25,11 +25,11 @@ import java.util.List;
 public class TempHumidDevice extends BLEDeviceModel {
     private static final String TAG = "TempHumidDevice";
 
-    private static final int MSG_TEMPHUMIDDATA = 2;
-    private static final int MSG_TEMPHUMIDCTRL = 3;
-    private static final int MSG_TEMPHUMIDPERIOD = 4;
-    private static final int MSG_TEMPHUMIDHISTORYDATA = 5;
-    private static final int MSG_TIMERVALUE = 6;
+    private static final int MSG_TEMPHUMIDDATA = 3;
+    private static final int MSG_TEMPHUMIDCTRL = 4;
+    private static final int MSG_TEMPHUMIDPERIOD = 5;
+    private static final int MSG_TEMPHUMIDHISTORYDATA = 6;
+    private static final int MSG_TIMERVALUE = 7;
 
 
     ///////////////// 温湿度计Service相关的常量和变量////////////////
@@ -149,6 +149,10 @@ public class TempHumidDevice extends BLEDeviceModel {
             }
         } else  if(msg.what == MSG_TIMERVALUE) {
             onReadTimerValue((byte[])msg.obj);
+        } else if(msg.what == MSG_TEMPHUMIDHISTORYDATA) {
+            TempHumidData data = new TempHumidData(backuptime, (byte[]) msg.obj);
+            historyDataList.add(data);
+            notifyObserverHistoryTempHumidDataChanged();
         }
     }
 
@@ -334,7 +338,10 @@ public class TempHumidDevice extends BLEDeviceModel {
         commandExecutor.addReadCommand(TEMPHUMIDHISTORYDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-
+                Message msg = new Message();
+                msg.what = MSG_TEMPHUMIDHISTORYDATA;
+                msg.obj = data;
+                handler.sendMessage(msg);
             }
 
             @Override

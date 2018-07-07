@@ -1,5 +1,6 @@
 package com.cmtech.android.btdeviceapp.model;
 
+import android.os.Message;
 import android.util.Log;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -48,13 +49,11 @@ public class GattCommandSerialExecutor {
         public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
             synchronized(GattCommandSerialExecutor.this) {
                 // 先做一般操作
-                bleCallback.onSuccess(data, bluetoothGattChannel, bluetoothLeDevice);
+                if(bleCallback != null)
+                    bleCallback.onSuccess(data, bluetoothGattChannel, bluetoothLeDevice);
 
-                deviceMirror.unbindChannel(currentCommand.getChannel());
-                // 标记命令执行完毕
-                currentCommandDone = true;
-                // 通知执行线程执行下一条
-                GattCommandSerialExecutor.this.notifyAll();
+                currentCommandSuccess();
+
                 ViseLog.i("The returned data is " + HexUtil.encodeHexStr(data));
             }
         }
@@ -62,12 +61,10 @@ public class GattCommandSerialExecutor {
         @Override
         public void onFailure(BleException exception) {
             synchronized(GattCommandSerialExecutor.this) {
-                bleCallback.onFailure(exception);
+                if(bleCallback != null)
+                    bleCallback.onFailure(exception);
 
-                // 有错误，直接终止线程
-                //if(executeThread != null && executeThread.isAlive()) executeThread.interrupt();
-                currentCommandDone = true;
-                GattCommandSerialExecutor.this.notifyAll();
+                currentCommandFail();
                 ViseLog.i("GattCommandSerialExecutor Wrong: " + exception);
             }
         }
@@ -161,6 +158,22 @@ public class GattCommandSerialExecutor {
         if(flag) notifyAll();
 
         return flag;
+    }
+
+    private synchronized void currentCommandSuccess() {
+        // 解除当前命令的Channel
+        deviceMirror.unbindChannel(currentCommand.getChannel());
+        // 标记命令执行完毕
+        currentCommandDone = true;
+        // 通知执行线程执行下一条
+        GattCommandSerialExecutor.this.notifyAll();
+    }
+
+    private synchronized void currentCommandFail() {
+        // 有错误，直接终止线程
+        if(executeThread != null && executeThread.isAlive()) executeThread.interrupt();
+        //currentCommandDone = true;
+        //GattCommandSerialExecutor.this.notifyAll();
     }
 
 
