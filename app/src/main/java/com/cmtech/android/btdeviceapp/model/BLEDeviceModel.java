@@ -246,7 +246,8 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     // 连接失败处理
     private void onConnectFailure(BleException exception) {
-        clearDeviceMirror();
+        //clearDeviceMirror();
+        //disconnect();
 
         executeAfterConnectFailure();
 
@@ -254,7 +255,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     // 断开连接处理
     private void onDisconnect(Boolean isActive) {
-        clearDeviceMirror();
+        //clearDeviceMirror();
 
         executeAfterDisconnect(isActive);
     }
@@ -305,7 +306,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         //clearDeviceMirror();
         disconnect();
 
-        clearDeviceMirror();
+        //clearDeviceMirror();
 
         state = CONNECT_WAITING;
 
