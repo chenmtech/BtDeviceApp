@@ -123,11 +123,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     }
 
     private boolean isCommandExecutorAlive() {
-        if((commandExecutor != null) && commandExecutor.isAlive())
-            return true;
-        else {
-            return false;
-        }
+        return ((commandExecutor != null) && commandExecutor.isAlive());
     }
 
     public synchronized void createCommandExecutor() {
@@ -152,14 +148,19 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     // 连接回调
     final IConnectCallback connectCallback = new IConnectCallback() {
         @Override
-        public void onConnectSuccess(DeviceMirror deviceMirror) {
-            ViseLog.i("onConnectSuccess");
-            Message msg = new Message();
-            msg.what = MSG_CONNECTCALLBACK;
-            msg.obj = new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror);
-            handler.sendMessage(msg);
-            //processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
+        public void onConnectSuccess(DeviceMirror mirror) {
+            DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
+            if (deviceMirrorPool.isContainDevice(mirror)) {
+                deviceMirror = mirror;
+                //setDeviceConnectState(CONNECT_SUCCESS);
+                //notifyConnectStateObservers();
+                ViseLog.i("onConnectSuccess");
+                Message msg = new Message();
+                msg.what = MSG_CONNECTCALLBACK;
+                msg.obj = new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror);
+                handler.sendMessage(msg);
+            }
         }
 
         @Override
@@ -170,24 +171,27 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
             else
                 state = CONNECT_FAILURE;
 
+            setDeviceConnectState(state);
+            notifyConnectStateObservers();
+
             ViseLog.i("onConnectFailure with state = " + state);
             Message msg = new Message();
             msg.what = MSG_CONNECTCALLBACK;
             msg.obj = new ConnectResultObject(state, exception);
-            handler.sendMessage(msg);
-            //processConnectMessage(new ConnectResultObject(state, exception));
+            //handler.sendMessage(msg);
         }
 
         @Override
         public void onDisconnect(boolean isActive) {
             ViseLog.d("onDisconnect");
 
+            setDeviceConnectState(CONNECT_DISCONNECT);
+            notifyConnectStateObservers();
+
             Message msg = new Message();
             msg.what = MSG_CONNECTCALLBACK;
             msg.obj = new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive);
-            handler.sendMessage(msg);
-
-            //processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive));
+            //handler.sendMessage(msg);
         }
     };
 
@@ -204,7 +208,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
                 // 一般Gatt消息
                 case MSG_NORMALGATTCALLBACK:
-                    processCommonGattMessage((BluetoothGattChannel) msg.obj);
+                    //processCommonGattMessage((BluetoothGattChannel) msg.obj);
                     break;
 
                 // 主要用来处理Notify和Indicate之类的消息
@@ -243,14 +247,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     // 连接成功处理
     private void onConnectSuccess(DeviceMirror mirror) {
-        DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
-
-        if (deviceMirrorPool.isContainDevice(mirror)) {
-            this.deviceMirror = mirror;
-            executeAfterConnectSuccess();
-        }
-
-        handler.removeMessages(MSG_CONNECTCALLBACK);
+        executeAfterConnectSuccess();
     }
 
     // 连接失败处理
@@ -271,6 +268,10 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     public void stopCommandExecutor() {
         if(commandExecutor != null) commandExecutor.stop();
+    }
+
+    public boolean isConnect() {
+        return ((deviceMirror != null) && MyApplication.getViseBle().isConnect(deviceMirror.getBluetoothLeDevice()));
     }
 
     // 发起连接
@@ -391,7 +392,13 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     public void notifyConnectStateObservers() {
         for(final IBLEDeviceConnectStateObserver observer : connectStateObserverList) {
             if(observer != null) {
-                observer.updateConnectState(this);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        observer.updateConnectState(BLEDeviceModel.this);
+                    }
+                });
+
             }
         }
     }

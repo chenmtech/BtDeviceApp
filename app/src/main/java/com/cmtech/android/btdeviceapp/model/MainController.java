@@ -116,7 +116,7 @@ public class MainController {
             openedControllerList.remove(controller);
             activity.deleteFragment(fragment);
         }
-        MyApplication.getViseBle().clear();
+        //MyApplication.getViseBle().clear();
     }
 
 
