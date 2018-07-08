@@ -87,10 +87,6 @@ public class EcgMonitorDevice extends BLEDeviceModel {
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
-    @Override
-    public void processCommonGattMessage(BluetoothGattChannel channel) {
-        Toast.makeText(MyApplication.getContext(), "hello, gatt", Toast.LENGTH_LONG).show();
-    }
 
     @Override
     public void processGattMessage(Message msg)
@@ -320,10 +316,6 @@ public class EcgMonitorDevice extends BLEDeviceModel {
 
     }
 
-    @Override
-    public void executeAfterConnectFailure() {
-
-    }
 
     public void toggleSampleEcg() {
         if(!isStartSampleEcg) {

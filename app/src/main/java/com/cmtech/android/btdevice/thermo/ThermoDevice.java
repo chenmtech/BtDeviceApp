@@ -37,10 +37,6 @@ public class ThermoDevice extends BLEDeviceModel {
         super(persistantInfo);
     }
 
-    @Override
-    public void processCommonGattMessage(BluetoothGattChannel channel) {
-        Toast.makeText(MyApplication.getContext(), "hello, gatt", Toast.LENGTH_LONG).show();
-    }
 
     @Override
     public void processGattMessage(Message msg)
@@ -168,8 +164,4 @@ public class ThermoDevice extends BLEDeviceModel {
 
     }
 
-    @Override
-    public void executeAfterConnectFailure() {
-
-    }
 }
