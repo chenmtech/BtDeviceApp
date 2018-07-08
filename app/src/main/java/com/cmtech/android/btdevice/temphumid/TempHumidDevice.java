@@ -142,6 +142,7 @@ public class TempHumidDevice extends BLEDeviceModel {
     @Override
     public synchronized void processSpecialGattMessage(Message msg)
     {
+        ViseLog.i("processSpecialGattMessage");
         if (msg.what == MSG_TEMPHUMIDDATA) {
             if(msg.obj != null) {
                 curTempHumid = (TempHumidData) msg.obj;

@@ -35,7 +35,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     private static final int MSG_CONNECTCALLBACK       =  0;                // 连接相关回调消息
     private static final int MSG_NORMALGATTCALLBACK    =  1;                // Gatt相关回调消息
-    private static final int MSG_GATTFAILURE           =  2;                // Gatt错误消息
+    //private static final int MSG_GATTFAILURE           =  2;                // Gatt错误消息
 
     // 设备基本信息
     private final BLEDeviceBasicInfo basicInfo;
@@ -184,6 +184,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     final protected Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(Message msg) {
+            ViseLog.i("message what = " + msg.what);
             switch (msg.what) {
                 // 连接消息
                 case MSG_CONNECTCALLBACK:

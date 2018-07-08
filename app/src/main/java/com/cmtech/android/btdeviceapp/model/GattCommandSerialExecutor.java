@@ -161,8 +161,6 @@ public class GattCommandSerialExecutor {
     }
 
     private synchronized void currentCommandSuccess() {
-        // 解除当前命令的Channel
-        deviceMirror.unbindChannel(currentCommand.getChannel());
         // 标记命令执行完毕
         currentCommandDone = true;
         // 通知执行线程执行下一条
