@@ -1,21 +1,15 @@
 package com.cmtech.android.btdeviceapp.model;
 
-import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
-import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
-import com.cmtech.android.ble.common.PropertyType;
-import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.TimeoutException;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
@@ -34,7 +28,7 @@ import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.*;
 public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
     private static final int MSG_CONNECTCALLBACK       =  0;                // 连接相关回调消息
-    private static final int MSG_NORMALGATTCALLBACK    =  1;                // Gatt相关回调消息
+    //private static final int MSG_NORMALGATTCALLBACK    =  1;                // Gatt相关回调消息
     //private static final int MSG_GATTFAILURE           =  2;                // Gatt错误消息
 
     // 设备基本信息
@@ -135,9 +129,9 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     }
 
     // 连接结果类
-    static class ConnectResultObject {
-        DeviceConnectState state;
-        Object obj;
+    static final class ConnectResultObject {
+        final DeviceConnectState state;
+        final Object obj;
 
         ConnectResultObject(DeviceConnectState state, Object obj) {
             this.state = state;
@@ -206,14 +200,10 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                     processConnectMessage((ConnectResultObject)msg.obj);
                     break;
 
-                // 一般Gatt消息
-                case MSG_NORMALGATTCALLBACK:
-                    //processCommonGattMessage((BluetoothGattChannel) msg.obj);
-                    break;
 
-                // 主要用来处理Notify和Indicate之类的消息
+                // 主要用来处理Gatt消息
                 default:
-                    processSpecialGattMessage(msg);
+                    processGattMessage(msg);
                     break;
 
             }

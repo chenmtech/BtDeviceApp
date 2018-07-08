@@ -93,7 +93,7 @@ public class EcgMonitorDevice extends BLEDeviceModel {
     }
 
     @Override
-    public void processSpecialGattMessage(Message msg)
+    public void processGattMessage(Message msg)
     {
         switch (msg.what) {
             // 接收到心电信号或定标信号

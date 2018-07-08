@@ -38,5 +38,5 @@ public interface IBLEDeviceModelInterface {
     public void executeAfterConnectFailure();
     public void executeAfterDisconnect(boolean isActive);
     public void processCommonGattMessage(BluetoothGattChannel channel);
-    public void processSpecialGattMessage(Message msg);
+    public void processGattMessage(Message msg);
 }
