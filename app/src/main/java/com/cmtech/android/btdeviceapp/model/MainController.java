@@ -3,6 +3,7 @@ package com.cmtech.android.btdeviceapp.model;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
+import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
@@ -115,6 +116,7 @@ public class MainController {
             openedControllerList.remove(controller);
             activity.deleteFragment(fragment);
         }
+        MyApplication.getViseBle().clear();
     }
 
 

@@ -5,14 +5,14 @@ package com.cmtech.android.btdeviceapp.model;
  */
 
 public enum DeviceConnectState {
-
-    CONNECT_WAITING(0, "等待连接"),
-    CONNECT_SCANTIMEOUT(1, "扫描超时"),
-    CONNECT_CONNECTING(2, "连接中"),
-    CONNECT_FAILURE(3, "连接错误"),
-    CONNECT_DISCONNECT(4, "连接断开"),
-    CONNECT_DISCONNECTING(5, "连接断开中"),
-    CONNECT_SUCCESS(6, "连接成功");
+    CONNECT_SCANTIMEOUT(0, "扫描超时"),
+    CONNECT_WAITING(1, "等待连接"),
+    CONNECT_CONNECTTIMEOUT(2, "连接超时"),
+    CONNECT_CONNECTING(3, "连接中"),
+    CONNECT_FAILURE(4, "连接错误"),
+    CONNECT_DISCONNECT(5, "连接断开"),
+    CONNECT_DISCONNECTING(6, "连接断开中"),
+    CONNECT_SUCCESS(7, "连接成功");
 
 
     private int code;                   //对应括号里面第一个值

@@ -154,8 +154,11 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         @Override
         public void onConnectSuccess(DeviceMirror deviceMirror) {
             ViseLog.i("onConnectSuccess");
-
-            processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
+            Message msg = new Message();
+            msg.what = MSG_CONNECTCALLBACK;
+            msg.obj = new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror);
+            handler.sendMessage(msg);
+            //processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
 
         }
 
@@ -168,15 +171,23 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 state = CONNECT_FAILURE;
 
             ViseLog.i("onConnectFailure with state = " + state);
-
-            processConnectMessage(new ConnectResultObject(state, exception));
+            Message msg = new Message();
+            msg.what = MSG_CONNECTCALLBACK;
+            msg.obj = new ConnectResultObject(state, exception);
+            handler.sendMessage(msg);
+            //processConnectMessage(new ConnectResultObject(state, exception));
         }
 
         @Override
         public void onDisconnect(boolean isActive) {
             ViseLog.d("onDisconnect");
 
-            processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive));
+            Message msg = new Message();
+            msg.what = MSG_CONNECTCALLBACK;
+            msg.obj = new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive);
+            handler.sendMessage(msg);
+
+            //processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive));
         }
     };
 
@@ -211,12 +222,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         //if(state == result.state) return;   // 有时候会有连续多次回调，忽略后面的回调处理
 
         setDeviceConnectState(result.state);
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                notifyConnectStateObservers();
-            }
-        });
+        notifyConnectStateObservers();
 
         switch (result.state) {
             case CONNECT_SUCCESS:
@@ -243,12 +249,14 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
             this.deviceMirror = mirror;
             executeAfterConnectSuccess();
         }
+
+        handler.removeMessages(MSG_CONNECTCALLBACK);
     }
 
     // 连接失败处理
     private void onConnectFailure(BleException exception) {
         //clearDeviceMirror();
-        //disconnect();
+        disconnect();
 
         executeAfterConnectFailure();
 
