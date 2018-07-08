@@ -147,7 +147,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
 
             if (deviceMirrorPool.isContainDevice(mirror)) {
                 deviceMirror = mirror;
-                //setDeviceConnectState(CONNECT_SUCCESS);
+                //setDeviceConnectState(CONNECT_SUCCESS); 
                 //notifyConnectStateObservers();
                 ViseLog.i("onConnectSuccess");
                 Message msg = new Message();
