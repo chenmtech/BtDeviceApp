@@ -1,17 +1,14 @@
 package com.cmtech.android.btdevice.thermo;
 
 import android.os.Message;
-import android.widget.Toast;
 
-import com.cmtech.android.ble.core.BluetoothGattChannel;
-import com.cmtech.android.btdeviceapp.MyApplication;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
+import com.cmtech.android.btdeviceapp.model.BLEDevice;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.util.ByteUtil;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 
-public class ThermoDevice extends BLEDeviceModel {
+public class ThermoDevice extends BLEDevice {
     private static final int MSG_THERMODATA = 0;
 
     ///////////////// 体温计Service相关的常量////////////////

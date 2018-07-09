@@ -27,9 +27,9 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.BLEDeviceListAdapter;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
+import com.cmtech.android.btdeviceapp.model.BLEDevice;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.MainController;
 import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
@@ -142,27 +142,27 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     }
 
     // 打开一个BLE设备：为设备创建控制器和Fragment，并自动连接
-    public void openDevice(IBLEDeviceModelInterface device) {
+    public void openDevice(IBLEDeviceInterface device) {
         mainController.openDevice(device);
     }
 
     // 连接设备
-    public void connectDevice(IBLEDeviceModelInterface device) {
+    public void connectDevice(IBLEDeviceInterface device) {
         mainController.connectDevice(device);
     }
 
     // 断开连接
-    public void disconnectDevice(IBLEDeviceModelInterface device) {
+    public void disconnectDevice(IBLEDeviceInterface device) {
         mainController.disconnectDevice(device);
     }
 
     // 关闭设备
-    public void closeDevice(IBLEDeviceModelInterface device) {
+    public void closeDevice(IBLEDeviceInterface device) {
         mainController.closeDevice(device);
     }
 
     // 删除已添加设备
-    public void deleteIncludedDevice(final IBLEDeviceModelInterface device) {
+    public void deleteIncludedDevice(final IBLEDeviceInterface device) {
         mainController.deleteIncludedDevice(device);
     }
 
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     }
 
     // 添加设备及其Fragment，并显示Fragment
-    public void addFragment(IBLEDeviceModelInterface device, BLEDeviceFragment fragment) {
+    public void addFragment(IBLEDeviceInterface device, BLEDeviceFragment fragment) {
         mDrawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
         fragmentManager.addFragment(device, fragment);
@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
 
     // IBLEDeviceConnectStateObserver接口函数，更新设备连接状态
     @Override
-    public void updateConnectState(BLEDeviceModel device) {
+    public void updateConnectState(BLEDevice device) {
         updateDeviceListAdapter();
     }
 

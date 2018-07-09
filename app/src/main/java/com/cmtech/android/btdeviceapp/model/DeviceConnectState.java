@@ -5,8 +5,8 @@ package com.cmtech.android.btdeviceapp.model;
  */
 
 public enum DeviceConnectState {
-    CONNECT_TIMEOUT(0, "扫描或连接超时"),
-    CONNECT_WAITING(1, "等待连接"),
+    CONNECT_WAITING(0, "等待连接"),
+    CONNECT_TIMEOUT(1, "超时"),
     CONNECT_CONNECTING(2, "连接中"),
     CONNECT_FAILURE(3, "连接错误"),
     CONNECT_DISCONNECT(4, "连接断开"),

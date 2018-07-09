@@ -12,7 +12,7 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
 import com.vise.log.ViseLog;
 
 
@@ -25,7 +25,7 @@ import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.*;
  * Created by bme on 2018/2/19.
  */
 
-public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
+public abstract class BLEDevice implements IBLEDeviceInterface {
     // 连接相关回调消息
     private static final int MSG_CONNECTCALLBACK       =  0;
 
@@ -45,7 +45,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
     private final List<IBLEDeviceConnectStateObserver> connectStateObserverList = new LinkedList<>();
 
     // 构造器
-    public BLEDeviceModel(BLEDeviceBasicInfo basicInfo) {
+    public BLEDevice(BLEDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
     }
 
@@ -118,7 +118,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         return ((commandExecutor != null) && commandExecutor.isAlive());
     }
 
-    public synchronized void createCommandExecutor() {
+    public synchronized void createGattCommandExecutor() {
         ViseLog.i("create new command executor.");
         if(isCommandExecutorAlive()) return;
 
@@ -275,12 +275,15 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         // 断开连接
         disconnect();
 
+        if(deviceMirror != null)
+            deviceMirror.close();
+
         state = CONNECT_WAITING;
 
         notifyConnectStateObservers();
 
         // 清空连接状态观察者列表
-        connectStateObserverList.clear();
+        //connectStateObserverList.clear();
     }
 
     private void clearDeviceMirror() {
@@ -318,7 +321,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        BLEDeviceModel that = (BLEDeviceModel) o;
+        BLEDevice that = (BLEDevice) o;
         String thisAddress = getMacAddress();
         String thatAddress = that.getMacAddress();
 
@@ -357,7 +360,7 @@ public abstract class BLEDeviceModel implements IBLEDeviceModelInterface{
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        observer.updateConnectState(BLEDeviceModel.this);
+                        observer.updateConnectState(BLEDevice.this);
                     }
                 });
             }

@@ -4,9 +4,7 @@ import com.cmtech.android.btdevice.ecgmonitor.EcgMonitorDeviceFactory;
 import com.cmtech.android.btdevice.temphumid.TempHumidDeviceFactory;
 import com.cmtech.android.btdevice.thermo.ThermoDeviceFactory;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 
 public abstract class BLEDeviceAbstractFactory {
@@ -31,7 +29,7 @@ public abstract class BLEDeviceAbstractFactory {
             return null;
     }
 
-    public abstract IBLEDeviceModelInterface createDevice(BLEDeviceBasicInfo basicInfo);
-    public abstract IBLEDeviceControllerInterface createController(IBLEDeviceModelInterface device, MainActivity activity);
+    public abstract IBLEDeviceInterface createDevice(BLEDeviceBasicInfo basicInfo);
+    public abstract IBLEDeviceControllerInterface createController(IBLEDeviceInterface device, MainActivity activity);
     public abstract BLEDeviceFragment createFragment();
 }

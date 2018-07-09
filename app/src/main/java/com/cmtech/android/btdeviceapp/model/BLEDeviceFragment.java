@@ -13,7 +13,7 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
 
 /**
  * Created by bme on 2018/2/27.
@@ -27,7 +27,7 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
     protected IBLEDeviceControllerInterface controller;
 
     // 对应的设备接口
-    protected IBLEDeviceModelInterface device;
+    protected IBLEDeviceInterface device;
 
     // 连接状态tv
     protected TextView tvConnectState;
@@ -115,6 +115,9 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
         super.onDestroy();
 
         controller.closeDevice();
+
+        if(device != null)
+            device.removeConnectStateObserver(this);
     }
 
     @Override
@@ -123,7 +126,7 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
     }
 
 
-    public IBLEDeviceModelInterface getDevice() {
+    public IBLEDeviceInterface getDevice() {
         return device;
     }
 
@@ -146,7 +149,7 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
 
     /////////////// IBLEDeviceConnectStateObserver接口函数//////////////////////
     @Override
-    public void updateConnectState(final BLEDeviceModel device) {
+    public void updateConnectState(final BLEDevice device) {
         if(device == this.device) {
             // isAdded()用来判断Fragment是否与Activity关联，如果关联了，才能更新状态信息
             if(isAdded()) updateConnectState();

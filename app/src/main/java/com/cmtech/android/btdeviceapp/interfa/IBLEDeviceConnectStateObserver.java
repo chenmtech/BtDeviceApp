@@ -1,6 +1,6 @@
 package com.cmtech.android.btdeviceapp.interfa;
 
-import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
+import com.cmtech.android.btdeviceapp.model.BLEDevice;
 
 /**
  * IBLEDeviceConnectStateObserver: 设备连接状态观察者接口
@@ -15,5 +15,5 @@ public interface IBLEDeviceConnectStateObserver {
     //int TYPE_DELETED = 4;                   // 删除
 
     // 更新设备信息
-    void updateConnectState(BLEDeviceModel device);
+    void updateConnectState(BLEDevice device);
 }

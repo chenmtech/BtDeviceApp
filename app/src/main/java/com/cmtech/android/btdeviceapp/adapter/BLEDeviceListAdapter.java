@@ -14,8 +14,8 @@ import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
+import com.cmtech.android.btdeviceapp.model.BLEDevice;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceType;
 
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
 public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdapter.ViewHolder> {
 
     // 设备列表
-    private List<IBLEDeviceModelInterface> mDeviceList;
+    private List<IBLEDeviceInterface> mDeviceList;
 
     // MainActivity
     MainActivity activity;
@@ -54,7 +54,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
         }
     }
 
-    public BLEDeviceListAdapter(List<IBLEDeviceModelInterface> deviceList, MainActivity activity) {
+    public BLEDeviceListAdapter(List<IBLEDeviceInterface> deviceList, MainActivity activity) {
 
         mDeviceList = deviceList;
         this.activity = activity;
@@ -70,7 +70,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
         holder.ibtnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                IBLEDeviceModelInterface device = mDeviceList.get(holder.getAdapterPosition());
+                IBLEDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
                 activity.deleteIncludedDevice(device);
             }
         });
@@ -78,7 +78,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
         holder.ibtnOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                IBLEDeviceModelInterface device = mDeviceList.get(holder.getAdapterPosition());
+                IBLEDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
                 activity.openDevice(device);
             }
         });
@@ -89,7 +89,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
 
     @Override
     public void onBindViewHolder(BLEDeviceListAdapter.ViewHolder holder, final int position) {
-        BLEDeviceModel device = (BLEDeviceModel)mDeviceList.get(position);
+        BLEDevice device = (BLEDevice)mDeviceList.get(position);
 
         String imagePath = device.getImagePath();
         if(imagePath != null && !"".equals(imagePath)) {

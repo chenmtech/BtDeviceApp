@@ -5,19 +5,19 @@ import android.util.Log;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
 
 public class BLEDeviceController implements IBLEDeviceControllerInterface{
     private final MainActivity activity;
 
     // Model
-    private final IBLEDeviceModelInterface device;
+    private final IBLEDeviceInterface device;
 
     // View
     private final BLEDeviceFragment fragment;
 
 
-    public BLEDeviceController(IBLEDeviceModelInterface device, MainActivity activity) {
+    public BLEDeviceController(IBLEDeviceInterface device, MainActivity activity) {
         if(device == null || activity == null) {
             throw new IllegalStateException();
         }
@@ -62,7 +62,7 @@ public class BLEDeviceController implements IBLEDeviceControllerInterface{
     }
 
     @Override
-    public IBLEDeviceModelInterface getDevice() {
+    public IBLEDeviceInterface getDevice() {
         return device;
     }
 

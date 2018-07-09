@@ -1,13 +1,12 @@
 package com.cmtech.android.btdevice.temphumid;
 
 import android.os.Message;
-import android.util.Log;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
+import com.cmtech.android.btdeviceapp.model.BLEDevice;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.util.Uuid;
@@ -19,7 +18,7 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-public class TempHumidDevice extends BLEDeviceModel {
+public class TempHumidDevice extends BLEDevice {
     private static final String TAG = "TempHumidDevice";
 
     private static final int MSG_TEMPHUMIDDATA = 1;
@@ -56,6 +55,8 @@ public class TempHumidDevice extends BLEDeviceModel {
     public static final BluetoothGattElement TEMPHUMIDHISTORYDATA =
             new BluetoothGattElement(tempHumidServiceUuid, tempHumidHistoryDataUuid, null);
 
+    private static final int DEFAULT_TEMPHUMID_PERIOD  = 5000; // 默认温湿度采样周期，单位：毫秒
+
     private TempHumidData curTempHumid;
 
     // 当前温湿度数据观察者列表
@@ -82,21 +83,23 @@ public class TempHumidDevice extends BLEDeviceModel {
     private Calendar deviceCurTime;
     // 上次更新设备历史数据的时间
     private Calendar timeLastUpdated = null;
-    // 准备读取的历史数据时间备份
+    // 准备读取的历史数据对应的时间备份
     private Calendar backuptime;
     // 设备的历史数据
     private List<TempHumidData> historyDataList = new ArrayList<>();
     ////////////////////////////////////////////////////////
 
-
+    // 构造器
     public TempHumidDevice(BLEDeviceBasicInfo basicInfo) {
         super(basicInfo);
     }
 
+    // 获取当前温湿度值
     public TempHumidData getCurTempHumid() {
         return curTempHumid;
     }
 
+    // 获取历史数据
     public List<TempHumidData> getHistoryDataList() {
         return historyDataList;
     }
@@ -106,6 +109,7 @@ public class TempHumidDevice extends BLEDeviceModel {
     public synchronized void processGattMessage(Message msg)
     {
         switch (msg.what) {
+            // 获取到当前温湿度值
             case MSG_TEMPHUMIDDATA:
                 if(msg.obj != null) {
                     curTempHumid = (TempHumidData) msg.obj;
@@ -113,10 +117,12 @@ public class TempHumidDevice extends BLEDeviceModel {
                 }
                 break;
 
+            // 获取到设备上的定时器设定数据值
             case MSG_TIMERVALUE:
-                onReadTimerValue((byte[])msg.obj);
+                processTimerServiceValue((byte[])msg.obj);
                 break;
 
+            // 获取到设备上指定时间的一个历史数据值
             case MSG_TEMPHUMIDHISTORYDATA:
                 TempHumidData data = new TempHumidData(backuptime, (byte[]) msg.obj);
                 historyDataList.add(data);
@@ -131,10 +137,13 @@ public class TempHumidDevice extends BLEDeviceModel {
 
     @Override
     public synchronized void executeAfterConnectSuccess() {
+        // 检查所需的服务和特征值
         if(!checkServiceAndCharacteristic()) return;
 
-        createCommandExecutor();
+        // 创建Gatt串行命令执行器
+        createGattCommandExecutor();
 
+        // 先读取一次当前温湿度值
         commandExecutor.addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -147,12 +156,12 @@ public class TempHumidDevice extends BLEDeviceModel {
             }
         });
 
-        // 设置采集周期
-        int period = 5000;
-        commandExecutor.addWriteCommand(TEMPHUMIDPERIOD, new byte[]{(byte) (period / 100)}, null);
+        // 设置温湿度采样周期
+        int period = DEFAULT_TEMPHUMID_PERIOD;
+        commandExecutor.addWriteCommand(TEMPHUMIDPERIOD, (byte) (period / 100), null);
 
         // 启动温湿度采集
-        commandExecutor.addWriteCommand(TEMPHUMIDCTRL, new byte[]{0x01}, null);
+        commandExecutor.addWriteCommand(TEMPHUMIDCTRL, (byte)0x01, null);
 
         // enable 温湿度采集的notification
         IBleCallback notifyCallback = new IBleCallback() {
@@ -164,18 +173,19 @@ public class TempHumidDevice extends BLEDeviceModel {
             @Override
             public void onFailure(BleException exception) {
                 ViseLog.i("onFailure");
-
             }
         };
         commandExecutor.addNotifyCommand(TEMPHUMIDDATACCC, true, null, notifyCallback);
 
 
         if(hasTimerService) {
-            checkTimerService();
+            readTimerServiceValue();
         }
     }
 
     private boolean checkServiceAndCharacteristic() {
+        boolean hasBasicTempHumidService = true;
+
         Object tempHumidData = getGattObject(TEMPHUMIDDATA);
         Object tempHumidControl = getGattObject(TEMPHUMIDCTRL);
         Object tempHumidPeriod = getGattObject(TEMPHUMIDPERIOD);
@@ -183,7 +193,7 @@ public class TempHumidDevice extends BLEDeviceModel {
 
         if (tempHumidData == null || tempHumidControl == null || tempHumidPeriod == null || tempHumidDataCCC == null) {
             ViseLog.i("The basic service and characteristic is bad.");
-            return false;
+            hasBasicTempHumidService = false;
         }
 
         Object timerValue = getGattObject(TIMERVALUE);
@@ -195,11 +205,10 @@ public class TempHumidDevice extends BLEDeviceModel {
         } else {
             hasTimerService = true;
         }
-        return true;
+        return hasBasicTempHumidService;
     }
 
-
-    private void checkTimerService() {
+    private void readTimerServiceValue() {
         commandExecutor.addReadCommand(TIMERVALUE, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -213,18 +222,19 @@ public class TempHumidDevice extends BLEDeviceModel {
         });
     }
 
-    private synchronized void onReadTimerValue(byte[] data) {
-        if(data.length != 4) return;
+    private synchronized boolean processTimerServiceValue(byte[] data) {
+        if(data.length != 4) return false;
 
         hasStartTimerService = (data[3] == 1) ? true : false;
 
         if (hasStartTimerService) {
             deviceTimerPeriod = data[2];                // 保存设备的定时周期值
-            deviceCurTime = guessDeviceCurTime(data);                     // 通过小时和分钟来猜测设备的当前时间
+            deviceCurTime = guessDeviceCurTime(data[0], data[1]);                     // 通过小时和分钟来猜测设备的当前时间
             readHistoryDataFromDevice();      // 读取设备的历史数据
         } else {
             startTimerService();                // 没有开启定时服务（比如刚换电池），就先开启定时服务
         }
+        return true;
     }
 
     private void readHistoryDataFromDevice() {
@@ -242,12 +252,12 @@ public class TempHumidDevice extends BLEDeviceModel {
         }
 
         // 这里有问题
-        readHistoryDataAtTime(updateFrom);
+        readOneHistoryDataAtTime(updateFrom);
 
-        readHistoryDataAtTime(updateFrom);
+        readOneHistoryDataAtTime(updateFrom);
     }
 
-    private void readHistoryDataAtTime(Calendar time) {
+    private void readOneHistoryDataAtTime(Calendar time) {
         backuptime = (Calendar)time.clone();
         byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
 
@@ -285,40 +295,38 @@ public class TempHumidDevice extends BLEDeviceModel {
         });
     }
 
-    private Calendar guessDeviceCurTime(byte[] data) {
+    private Calendar guessDeviceCurTime(byte hour, byte minute) {
         Calendar now = Calendar.getInstance();
         Calendar devicenow;
 
-        Calendar devicetoday = (Calendar) now.clone();
-        devicetoday.set(Calendar.HOUR_OF_DAY, data[0]);
-        devicetoday.set(Calendar.MINUTE, data[1]);
-        devicetoday.set(Calendar.SECOND, 0);
-        devicetoday.set(Calendar.MILLISECOND, 0);
+        Calendar today = (Calendar) now.clone();
+        today.set(Calendar.HOUR_OF_DAY, hour);
+        today.set(Calendar.MINUTE, minute);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
 
-        Calendar deviceyest = (Calendar) devicetoday.clone();
-        deviceyest.add(Calendar.DAY_OF_MONTH, -1);
+        Calendar yesterday = (Calendar) today.clone();
+        yesterday.add(Calendar.DAY_OF_MONTH, -1);
 
-        Calendar devicetomm = (Calendar) devicetoday.clone();
-        devicetomm.add(Calendar.DAY_OF_MONTH, 1);
+        Calendar tommorow = (Calendar) today.clone();
+        tommorow.add(Calendar.DAY_OF_MONTH, 1);
 
-        long difftoday = Math.abs(now.getTimeInMillis()-devicetoday.getTimeInMillis());
-        long diffyest = Math.abs(now.getTimeInMillis()-deviceyest.getTimeInMillis());
-        long difftomm = Math.abs(now.getTimeInMillis()-devicetomm.getTimeInMillis());
+        long difftoday = Math.abs(now.getTimeInMillis()-today.getTimeInMillis());
+        long diffyest = Math.abs(now.getTimeInMillis()-yesterday.getTimeInMillis());
+        long difftomm = Math.abs(now.getTimeInMillis()-tommorow.getTimeInMillis());
 
         if(difftoday < Math.min(diffyest, difftomm))
-            devicenow = devicetoday;
+            devicenow = today;
         else if(diffyest < Math.min(difftoday, difftomm))
-            devicenow = deviceyest;
+            devicenow = yesterday;
         else
-            devicenow = devicetomm;
+            devicenow = tommorow;
 
         ViseLog.i("now = " + DateFormat.getDateTimeInstance().format(now.getTime()) );
         ViseLog.i("devicenow = " + DateFormat.getDateTimeInstance().format(devicenow.getTime()));
 
         return devicenow;
     };
-
-
 
     @Override
     public void executeAfterDisconnect(boolean isActive) {

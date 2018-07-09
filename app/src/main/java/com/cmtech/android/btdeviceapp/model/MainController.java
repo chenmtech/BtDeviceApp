@@ -3,11 +3,10 @@ package com.cmtech.android.btdeviceapp.model;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
-import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
 
 import org.litepal.crud.DataSupport;
 
@@ -20,7 +19,7 @@ public class MainController {
     private final MainActivity activity;
 
     // 已添加的设备列表
-    private final List<IBLEDeviceModelInterface> includedDeviceList = new ArrayList<>();
+    private final List<IBLEDeviceInterface> includedDeviceList = new ArrayList<>();
 
     // 已打开的设备控制器列表
     private final List<IBLEDeviceControllerInterface> openedControllerList = new LinkedList<>();
@@ -29,7 +28,7 @@ public class MainController {
         this.activity = activity;
     }
 
-    public List<IBLEDeviceModelInterface> getIncludedDeviceList() {
+    public List<IBLEDeviceInterface> getIncludedDeviceList() {
         return includedDeviceList;
     }
 
@@ -46,7 +45,7 @@ public class MainController {
 
     // 根据设备基本信息创建一个新的设备，并添加到设备列表中
     public void createNewDeviceUsingBasicInfo(BLEDeviceBasicInfo basicInfo) {
-        IBLEDeviceModelInterface device = createDeviceUsingBasicInfo(basicInfo);
+        IBLEDeviceInterface device = createDeviceUsingBasicInfo(basicInfo);
 
         if(device != null) {
             // 将设备基本信息保存到数据库
@@ -67,7 +66,7 @@ public class MainController {
     }
 
     // 打开设备
-    public void openDevice(IBLEDeviceModelInterface device) {
+    public void openDevice(IBLEDeviceInterface device) {
         if(device == null) return;
 
         BLEDeviceFragment fragment = getFragmentForDevice(device);
@@ -85,7 +84,7 @@ public class MainController {
     }
 
     // 连接设备
-    public void connectDevice(IBLEDeviceModelInterface device) {
+    public void connectDevice(IBLEDeviceInterface device) {
         if(device == null) return;
 
         BLEDeviceFragment fragment = getFragmentForDevice(device);
@@ -95,7 +94,7 @@ public class MainController {
     }
 
     // 断开设备
-    public void disconnectDevice(IBLEDeviceModelInterface device) {
+    public void disconnectDevice(IBLEDeviceInterface device) {
         if(device == null) return;
 
         BLEDeviceFragment fragment = getFragmentForDevice(device);
@@ -105,7 +104,7 @@ public class MainController {
     }
 
     // 关闭设备
-    public void closeDevice(IBLEDeviceModelInterface device) {
+    public void closeDevice(IBLEDeviceInterface device) {
         if(device == null) return;
 
         IBLEDeviceControllerInterface controller = getController(device);
@@ -121,7 +120,7 @@ public class MainController {
 
 
     // 删除设备
-    public void deleteIncludedDevice(final IBLEDeviceModelInterface device) {
+    public void deleteIncludedDevice(final IBLEDeviceInterface device) {
         if(device == null) return;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -155,7 +154,7 @@ public class MainController {
     }
 
     // 从deviceControllerList中寻找Fragment对应的控制器
-    public IBLEDeviceControllerInterface getController(IBLEDeviceModelInterface device) {
+    public IBLEDeviceControllerInterface getController(IBLEDeviceInterface device) {
         for(IBLEDeviceControllerInterface controller : openedControllerList) {
             if(device.equals(controller.getDevice())) {
                 return controller;
@@ -165,7 +164,7 @@ public class MainController {
     }
 
     // 获取设备对应的Fragment
-    private BLEDeviceFragment getFragmentForDevice(IBLEDeviceModelInterface device) {
+    private BLEDeviceFragment getFragmentForDevice(IBLEDeviceInterface device) {
         IBLEDeviceControllerInterface controller = getController(device);
         return (controller != null) ? controller.getFragment() : null;
     }
@@ -173,19 +172,19 @@ public class MainController {
     // 产生已包含的设备Mac地址字符串列表字符串
     private List<String> getIncludedDeviceMacAddressList() {
         List<String> deviceMacList = new ArrayList<>();
-        for(IBLEDeviceModelInterface device : includedDeviceList) {
+        for(IBLEDeviceInterface device : includedDeviceList) {
             deviceMacList.add(device.getMacAddress());
         }
         return deviceMacList;
     }
 
     // 设备是否打开
-    private boolean isDeviceOpened(BLEDeviceModel device) {
+    private boolean isDeviceOpened(BLEDevice device) {
         return (getController(device) == null) ? false : true;
     }
 
     // 根据设备基本信息创建一个新的设备
-    private IBLEDeviceModelInterface createDeviceUsingBasicInfo(BLEDeviceBasicInfo basicInfo) {
+    private IBLEDeviceInterface createDeviceUsingBasicInfo(BLEDeviceBasicInfo basicInfo) {
         BLEDeviceAbstractFactory factory = BLEDeviceAbstractFactory.getBLEDeviceFactory(basicInfo);
         if(factory == null) return null;
         return factory.createDevice(basicInfo);

@@ -7,7 +7,7 @@ public interface IBLEDeviceControllerInterface {
     public void disconnectDevice();
     public void closeDevice();
     public void switchDeviceConnectState();
-    public IBLEDeviceModelInterface getDevice();
+    public IBLEDeviceInterface getDevice();
     public BLEDeviceFragment getFragment();
 
 }

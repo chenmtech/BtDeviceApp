@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceModelInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +73,7 @@ public class MainTabFragmentManager {
     }
 
     // 添加设备的Fragment，并显示
-    public void addFragment(IBLEDeviceModelInterface device, BLEDeviceFragment fragment) {
+    public void addFragment(IBLEDeviceInterface device, BLEDeviceFragment fragment) {
         if(fragment == null || fragManager.fragments.contains(fragment)) return;
 
         fragManager.addFragment(fragment, "");
@@ -92,7 +92,7 @@ public class MainTabFragmentManager {
     public void updateTabInfo(BLEDeviceFragment fragment) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
-        IBLEDeviceModelInterface device = fragment.getDevice();
+        IBLEDeviceInterface device = fragment.getDevice();
 
         TabLayout.Tab tab = tabLayout.getTabAt(fragManager.fragments.indexOf(fragment));
         if(tab != null) {

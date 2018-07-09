@@ -2,14 +2,13 @@ package com.cmtech.android.btdevice.ecgmonitor;
 
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.MyApplication;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceModel;
+import com.cmtech.android.btdeviceapp.model.BLEDevice;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.util.Uuid;
@@ -31,7 +30,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class EcgMonitorDevice extends BLEDeviceModel {
+public class EcgMonitorDevice extends BLEDevice {
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;           // 缺省ECG信号采样率
 

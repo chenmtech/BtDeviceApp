@@ -109,6 +109,11 @@ public class GattCommandSerialExecutor {
         return addCommandToList(command);
     }
 
+    // 写单字节数据
+    public synchronized boolean addWriteCommand(BluetoothGattElement element, byte data, IBleCallback dataOpCallback) {
+        return addWriteCommand(element, new byte[]{data}, dataOpCallback);
+    }
+
     /**
      * 将"数据单元Notify"操作加入串行执行器
      * @param element 数据单元
@@ -170,8 +175,6 @@ public class GattCommandSerialExecutor {
     private synchronized void currentCommandFail() {
         // 有错误，直接终止线程
         if(executeThread != null && executeThread.isAlive()) executeThread.interrupt();
-        //currentCommandDone = true;
-        //GattCommandSerialExecutor.this.notifyAll();
     }
 
 
@@ -203,7 +206,7 @@ public class GattCommandSerialExecutor {
         while(!currentCommandDone || commandList.isEmpty()) {
             wait();
         }
-        // 清除上次执行命令的数据操作IBleCallback，否则会出现多次执行该回调.
+        // 清除当前命令的数据操作IBleCallback，否则会出现多次执行该回调.
         // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
         if(currentCommand != null) {
             if(deviceMirror != null) deviceMirror.removeBleCallback(currentCommand.getGattInfoKey());
@@ -221,7 +224,7 @@ public class GattCommandSerialExecutor {
 
     // 停止执行命令
     public void stop() {
-        if(executeThread == null || !executeThread.isAlive()) return;
+        if(!isAlive()) return;
 
         try {
             executeThread.interrupt();
@@ -233,9 +236,6 @@ public class GattCommandSerialExecutor {
     }
 
     public boolean isAlive() {
-        if(executeThread == null)
-            return false;
-        else
-            return executeThread.isAlive();
+        return ((executeThread != null) && executeThread.isAlive());
     }
 }
