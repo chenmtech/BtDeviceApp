@@ -88,6 +88,11 @@ public class MainTabFragmentManager {
         tabLayout.addTab(tabLayout.newTab().setText(device.getNickName()).setIcon(drawable), true);
     }
 
+    public Fragment getCurrentFragment() {
+        if(curPos < 0) return null;
+        else return fragManager.getFragment(curPos);
+    }
+
     // 更新设备的Tab信息
     public void updateTabInfo(BLEDeviceFragment fragment) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
@@ -180,9 +185,9 @@ public class MainTabFragmentManager {
             }
         }
 
-        /*public List<Fragment> getFragments() {
-            return fragments;
-        }*/
+        public Fragment getFragment(int pos) {
+            return fragments.get(pos);
+        }
 
     }
 

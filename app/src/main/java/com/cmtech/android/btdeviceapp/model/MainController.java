@@ -167,7 +167,7 @@ public class MainController {
     }
 
     // 获取设备对应的Fragment
-    private BLEDeviceFragment getFragmentForDevice(IBLEDeviceInterface device) {
+    public BLEDeviceFragment getFragmentForDevice(IBLEDeviceInterface device) {
         IBLEDeviceControllerInterface controller = getController(device);
         return (controller != null) ? controller.getFragment() : null;
     }

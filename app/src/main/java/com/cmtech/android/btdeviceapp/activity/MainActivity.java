@@ -1,5 +1,6 @@
 package com.cmtech.android.btdeviceapp.activity;
 
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +14,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.BLEDeviceListAdapter;
@@ -31,11 +34,16 @@ import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BLEDevice;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
+import com.cmtech.android.btdeviceapp.model.DeviceConnectState;
 import com.cmtech.android.btdeviceapp.model.MainController;
 import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
 
 import java.io.Serializable;
 import java.util.List;
+
+import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.CONNECT_CONNECTING;
+import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.CONNECT_DISCONNECTING;
+import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.CONNECT_SUCCESS;
 
 /**
  *  MainActivity: 主界面
@@ -67,6 +75,9 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
 
     // 所有设备的主控制器
     private final MainController mainController = new MainController(this);
+
+    private MenuItem menuConnect;
+    private MenuItem menuClose;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -246,10 +257,33 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
+        menuConnect = menu.findItem(R.id.toolbar_connectswitch);
+        menuClose = menu.findItem(R.id.toolbar_close);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        BLEDeviceFragment fragment;
         switch (item.getItemId()) {
             case android.R.id.home:
                 openDrawer(true);
+                break;
+            case R.id.toolbar_close:
+                fragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
+                if(fragment != null) fragment.closeDevice();
+                break;
+            case R.id.toolbar_connectswitch:
+                fragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
+                if(fragment != null) {
+                    DeviceConnectState state = fragment.getDevice().getDeviceConnectState();
+                    if(state == CONNECT_SUCCESS)
+                        fragment.disconnectDevice();
+                    else if(state != CONNECT_DISCONNECTING && state != CONNECT_CONNECTING)
+                        fragment.connectDevice();
+                }
                 break;
         }
         return true;
@@ -283,6 +317,18 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     @Override
     public void updateConnectState(BLEDevice device) {
         updateDeviceListAdapter();
+        BLEDeviceFragment curFragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
+        if(curFragment == null) return;
+        if(device == null) return;
+        BLEDeviceFragment fragment = mainController.getFragmentForDevice(device);
+        if(fragment == null) return;
+        if(curFragment == fragment) {
+            DeviceConnectState state = fragment.getDevice().getDeviceConnectState();
+            if(state == CONNECT_SUCCESS)
+                menuConnect.setTitle("断开");
+            else if(state != CONNECT_DISCONNECTING && state != CONNECT_CONNECTING)
+                menuConnect.setTitle("连接");
+        }
     }
 
     // 更新设备列表
