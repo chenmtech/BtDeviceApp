@@ -28,7 +28,7 @@ public class TempHumidDevice extends BLEDevice {
     private static final int MSG_TIMERVALUE = 5;
 
 
-    ///////////////// 温湿度计Service相关的常量和变量////////////////
+    ///////////////// 温湿度计Service相关的常量////////////////
     private static final String tempHumidServiceUuid    = "aa60";           // 温湿度计服务UUID:aa60
     private static final String tempHumidDataUuid       = "aa61";           // 温湿度数据特征UUID:aa61
     private static final String tempHumidCtrlUuid       = "aa62";           // 测量控制UUID:aa62
@@ -56,15 +56,10 @@ public class TempHumidDevice extends BLEDevice {
             new BluetoothGattElement(tempHumidServiceUuid, tempHumidHistoryDataUuid, null);
 
     private static final int DEFAULT_TEMPHUMID_PERIOD  = 5000; // 默认温湿度采样周期，单位：毫秒
-
-    private TempHumidData curTempHumid;
-
-    // 当前温湿度数据观察者列表
-    private final List<ITempHumidDataObserver> tempHumidDataObserverList = new LinkedList<>();
     ////////////////////////////////////////////////////////
 
 
-    //////////////// 定时服务相关常量和变量 /////////////////////////
+    //////////////// 定时服务相关常量 /////////////////////////
     private static final String timerServiceUuid            = "aa70";
     private static final String timerValueUuid              = "aa71";
 
@@ -72,26 +67,54 @@ public class TempHumidDevice extends BLEDevice {
             new BluetoothGattElement(timerServiceUuid, timerValueUuid, null);
 
     private static final byte DEVICE_DEFAULT_TIMER_PERIOD  = 30; // 设备默认定时周期，单位：分钟
+    ////////////////////////////////////////////////////////
+
+
+    ////////////////////////////// 变量 ////////////////////////////////////////////////
+    // 当前温湿度
+    private TempHumidData curTempHumid;
+
+    // 历史温湿度数据
+    private List<TempHumidData> historyDataList = new ArrayList<>();
 
     // 设备是否具有定时服务
     private boolean hasTimerService = false;
+
     // 设备是否已经启动定时服务
     private boolean hasStartTimerService = false;
+
     // 设备的定时周期
     private byte deviceTimerPeriod = DEVICE_DEFAULT_TIMER_PERIOD;   // 设定的设备定时更新周期，单位：分钟
+
     // 设备的当前时间
     private Calendar deviceCurTime;
+
     // 上次更新设备历史数据的时间
     private Calendar timeLastUpdated = null;
+
     // 准备读取的历史数据对应的时间备份
-    private Calendar backuptime;
-    // 设备的历史数据
-    private List<TempHumidData> historyDataList = new ArrayList<>();
-    ////////////////////////////////////////////////////////
+    private Calendar backuptime = null;
+
+    // 当前温湿度数据观察者列表
+    private final List<ITempHumidDataObserver> tempHumidDataObserverList = new LinkedList<>();
+    ////////////////////////////////////////////////////////////////////////////////////
+
 
     // 构造器
     public TempHumidDevice(BLEDeviceBasicInfo basicInfo) {
         super(basicInfo);
+        initialize();
+    }
+
+    private void initialize() {
+        curTempHumid = null;
+        historyDataList.clear();
+        hasTimerService = false;
+        hasStartTimerService = false;
+        timeLastUpdated = null;
+        backuptime = null;
+
+        tempHumidDataObserverList.clear();
     }
 
     // 获取当前温湿度值
@@ -338,8 +361,8 @@ public class TempHumidDevice extends BLEDevice {
     public synchronized void close() {
         super.close();
 
-        // 清空数据观察者列表
-        tempHumidDataObserverList.clear();
+        // 初始化所有数据
+        initialize();
     }
 
     // 登记温湿度数据观察者

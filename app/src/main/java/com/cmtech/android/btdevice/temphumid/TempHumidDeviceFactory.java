@@ -9,7 +9,7 @@ import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 
 public class TempHumidDeviceFactory extends BLEDeviceAbstractFactory {
     @Override
-    public IBLEDeviceInterface createDevice(BLEDeviceBasicInfo basicInfo) {
+    public IBLEDeviceInterface createBleDevice(BLEDeviceBasicInfo basicInfo) {
         return new TempHumidDevice(basicInfo);
     }
 
@@ -22,4 +22,6 @@ public class TempHumidDeviceFactory extends BLEDeviceAbstractFactory {
     public BLEDeviceFragment createFragment() {
         return new TempHumidFragment();
     }
+
+
 }

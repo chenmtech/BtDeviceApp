@@ -283,7 +283,7 @@ public abstract class BLEDevice implements IBLEDeviceInterface {
         notifyConnectStateObservers();
 
         // 清空连接状态观察者列表
-        //connectStateObserverList.clear();
+        connectStateObserverList.clear();
     }
 
     private void clearDeviceMirror() {

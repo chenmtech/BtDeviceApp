@@ -9,7 +9,7 @@ import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 
 public class ThermoDeviceFactory extends BLEDeviceAbstractFactory {
     @Override
-    public IBLEDeviceInterface createDevice(BLEDeviceBasicInfo basicInfo) {
+    public IBLEDeviceInterface createBleDevice(BLEDeviceBasicInfo basicInfo) {
         return new ThermoDevice(basicInfo);
     }
 

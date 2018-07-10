@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -87,11 +88,11 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         deviceListRecycView.setLayoutManager(layoutManager);
         deviceListRecycView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        deviceListAdapter = new BLEDeviceListAdapter(mainController.getIncludedDeviceList(), this);
+        deviceListAdapter = new BLEDeviceListAdapter(mainController.getAddedDeviceList(), this);
         deviceListRecycView.setAdapter(deviceListAdapter);
 
+        // 添加(扫描)设备
         btnScan = (Button)findViewById(R.id.device_scan_btn);
-        // 添加设备
         btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -124,9 +125,8 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
         welcomeImage = findViewById(R.id.welcome_image);
         Glide.with(this).load(R.drawable.welcome_image).into(welcomeImage);
 
-        TabLayout tabLayout = findViewById(R.id.main_tab_layout);
-
         // 创建Fragment管理器
+        TabLayout tabLayout = findViewById(R.id.main_tab_layout);
         fragmentManager = new MainTabFragmentManager(this, tabLayout, R.id.main_fragment_layout);
 
         // 更新主界面
@@ -226,7 +226,11 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
                     basicInfo.setImagePath(imagePath);
                     basicInfo.setAutoConnected(isAutoConnect);
 
-                    mainController.createNewDeviceUsingBasicInfo(basicInfo);
+                    // 用基本信息创建BleDevice
+                    if(mainController.createBleDeviceUsingBasicInfo(basicInfo)) {
+                        // 创建成功后，将设备基本信息保存到数据库
+                        basicInfo.save();
+                    }
                 }
                 break;
         }

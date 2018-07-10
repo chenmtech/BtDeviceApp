@@ -29,7 +29,7 @@ public abstract class BLEDeviceAbstractFactory {
             return null;
     }
 
-    public abstract IBLEDeviceInterface createDevice(BLEDeviceBasicInfo basicInfo);
+    public abstract IBLEDeviceInterface createBleDevice(BLEDeviceBasicInfo basicInfo);
     public abstract IBLEDeviceControllerInterface createController(IBLEDeviceInterface device, MainActivity activity);
     public abstract BLEDeviceFragment createFragment();
 }
