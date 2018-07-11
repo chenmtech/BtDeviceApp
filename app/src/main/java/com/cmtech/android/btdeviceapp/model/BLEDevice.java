@@ -147,13 +147,8 @@ public abstract class BLEDevice implements IBLEDeviceInterface {
                 deviceMirror = mirror;
                 ViseLog.i("onConnectSuccess");
 
-                //sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
-                    }
-                });
+                sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
+
             }
         }
 
@@ -167,26 +162,16 @@ public abstract class BLEDevice implements IBLEDeviceInterface {
 
             ViseLog.i("onConnectFailure with state = " + state);
 
-            //sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(state, exception));
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    processConnectMessage(new ConnectResultObject(state, exception));
-                }
-            });
+            sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(state, exception));
+
         }
 
         @Override
         public void onDisconnect(final boolean isActive) {
             ViseLog.d("onDisconnect");
 
-            //sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive));
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive));
-                }
-            });
+            sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive));
+
         }
     };
 
@@ -309,7 +294,7 @@ public abstract class BLEDevice implements IBLEDeviceInterface {
         notifyConnectStateObservers();
 
         // 清空连接状态观察者列表
-        connectStateObserverList.clear();
+        //connectStateObserverList.clear();
     }
 
     private void clearDeviceMirror() {

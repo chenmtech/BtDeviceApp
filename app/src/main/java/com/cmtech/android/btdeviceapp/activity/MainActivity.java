@@ -2,6 +2,7 @@ package com.cmtech.android.btdeviceapp.activity;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -37,6 +38,7 @@ import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.DeviceConnectState;
 import com.cmtech.android.btdeviceapp.model.MainController;
 import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
+import com.vise.log.ViseLog;
 
 import java.io.Serializable;
 import java.util.List;
@@ -273,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
                 break;
             case R.id.toolbar_close:
                 fragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
-                if(fragment != null) closeDevice(fragment.getDevice());
+                if(fragment != null) fragment.closeDevice();
                 break;
             case R.id.toolbar_connectswitch:
                 fragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();

@@ -89,7 +89,6 @@ public class MainTabFragmentManager {
         }
         TabLayout.Tab tab = tabLayout.newTab();
         tabLayout.addTab(tab.setText(device.getNickName()).setIcon(drawable), true);
-        activity.updateToolBar(fragment, tab);
     }
 
     public Fragment getCurrentFragment() {
