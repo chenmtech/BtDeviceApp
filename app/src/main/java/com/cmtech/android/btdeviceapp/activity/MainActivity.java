@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
         //tab可滚动
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
         //tab的字体选择器,默认黑色,选择时红色
-        tabLayout.setTabTextColors(Color.BLACK, Color.RED);
+        tabLayout.setTabTextColors(Color.BLACK, Color.BLUE);
         //tab的下划线颜色,默认是粉红色
         tabLayout.setSelectedTabIndicatorColor(Color.BLUE);
         fragmentManager = new MainTabFragmentManager(this, tabLayout, R.id.main_fragment_layout);

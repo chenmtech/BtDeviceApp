@@ -1,13 +1,14 @@
 package com.cmtech.android.btdeviceapp.model;
 
-import org.litepal.crud.DataSupport;
+
+import org.litepal.crud.LitePalSupport;
 
 /**
  *  BLEDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库中
  *  Created by bme on 2018/6/27.
  */
 
-public class BLEDeviceBasicInfo extends DataSupport {
+public class BLEDeviceBasicInfo extends LitePalSupport {
     // 数据库保存的字段
     // id
     private int id;

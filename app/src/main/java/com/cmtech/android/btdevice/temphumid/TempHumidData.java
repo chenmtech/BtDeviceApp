@@ -11,9 +11,9 @@ import java.util.Date;
 import java.util.Objects;
 
 public class TempHumidData implements Comparable{
-    Calendar time;
-    float temp;
-    int humid;
+    private Calendar time;
+    private float temp;
+    private int humid;
 
     public TempHumidData(Calendar time, float temp, int humid) {
         this.time = (Calendar)time.clone();
@@ -86,13 +86,11 @@ public class TempHumidData implements Comparable{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TempHumidData that = (TempHumidData) o;
-        //return Objects.equals(time, that.time);
         return time.equals(that.time);
     }
 
     @Override
     public int hashCode() {
         return time.hashCode();
-        //return Objects.hash(time);
     }
 }

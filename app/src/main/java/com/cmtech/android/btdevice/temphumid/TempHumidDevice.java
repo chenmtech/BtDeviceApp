@@ -12,6 +12,8 @@ import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 import com.vise.log.ViseLog;
 
+import org.litepal.LitePal;
+
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -150,6 +152,7 @@ public class TempHumidDevice extends BLEDevice {
             case MSG_TEMPHUMIDHISTORYDATA:
                 TempHumidData data = new TempHumidData(backuptime, (byte[]) msg.obj);
                 historyDataList.add(data);
+                saveDataToDb(data);
                 notifyObserverHistoryTempHumidDataChanged();
                 break;
 
@@ -157,6 +160,15 @@ public class TempHumidDevice extends BLEDevice {
                     break;
 
         }
+    }
+
+    private void saveDataToDb(TempHumidData data) {
+        TempHumidHistoryData historyData = new TempHumidHistoryData();
+        historyData.setMacAddress(getMacAddress());
+        historyData.setTime(data.getTime());
+        historyData.setTemp(data.getTemp());
+        historyData.setHumid(data.getHumid());
+        historyData.save();
     }
 
     @Override
@@ -272,7 +284,7 @@ public class TempHumidDevice extends BLEDevice {
         } else {
             updateFrom = (Calendar) deviceCurTime.clone();
             updateFrom.add(Calendar.DAY_OF_MONTH, -1);
-            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod); // 从前一天的时间开始更新
+            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod); // 从前一天的一个deviceTimerPeriod周期时间开始更新
         }
 
         // 这里有问题

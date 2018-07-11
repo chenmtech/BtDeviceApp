@@ -8,8 +8,7 @@ import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
 import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
 
-import org.litepal.crud.DataSupport;
-
+import org.litepal.LitePal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +34,7 @@ public class MainController {
     // 从数据库中获取以前添加的设备基本信息列表
     public void initialize() {
         // 从数据库获取设备信息，并构造相应的BLEDevice
-        List<BLEDeviceBasicInfo> basicInfoList = DataSupport.findAll(BLEDeviceBasicInfo.class);
+        List<BLEDeviceBasicInfo> basicInfoList = LitePal.findAll(BLEDeviceBasicInfo.class);
         if(basicInfoList != null && !basicInfoList.isEmpty()) {
             for(BLEDeviceBasicInfo basicInfo : basicInfoList) {
                 createBleDeviceUsingBasicInfo(basicInfo);
