@@ -273,15 +273,15 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
                 break;
             case R.id.toolbar_close:
                 fragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
-                if(fragment != null) fragment.closeDevice();
+                if(fragment != null) closeDevice(fragment.getDevice());
                 break;
             case R.id.toolbar_connectswitch:
                 fragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
                 if(fragment != null) {
-                    DeviceConnectState state = fragment.getDevice().getDeviceConnectState();
-                    if(state == CONNECT_SUCCESS)
+                    BLEDevice device = (BLEDevice) fragment.getDevice();
+                    if(device.canDisconnect())
                         fragment.disconnectDevice();
-                    else if(state != CONNECT_DISCONNECTING && state != CONNECT_CONNECTING)
+                    else if(device.canConnect())
                         fragment.connectDevice();
                 }
                 break;
@@ -317,22 +317,41 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     @Override
     public void updateConnectState(BLEDevice device) {
         updateDeviceListAdapter();
-        BLEDeviceFragment curFragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
-        if(curFragment == null) return;
-        if(device == null) return;
-        BLEDeviceFragment fragment = mainController.getFragmentForDevice(device);
-        if(fragment == null) return;
-        if(curFragment == fragment) {
-            DeviceConnectState state = fragment.getDevice().getDeviceConnectState();
-            if(state == CONNECT_SUCCESS)
-                menuConnect.setTitle("断开");
-            else if(state != CONNECT_DISCONNECTING && state != CONNECT_CONNECTING)
-                menuConnect.setTitle("连接");
-        }
+        updateToolBarUsingBLEDevice(device);
     }
 
     // 更新设备列表
     public void updateDeviceListAdapter() {
         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
+    }
+
+    public void updateToolBarUsingBLEDevice(BLEDevice device) {
+        BLEDeviceFragment currentFrag = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
+        if(currentFrag == null) return;
+        if(device == null) return;
+        BLEDeviceFragment deviceFrag = mainController.getFragmentForDevice(device);
+        if(deviceFrag == null) return;
+        if(currentFrag == deviceFrag) {
+            updateToolBar(currentFrag, fragmentManager.getCurrentTab());
+        }
+    }
+
+    public void updateToolBar(BLEDeviceFragment fragment, TabLayout.Tab tab) {
+        BLEDevice device = (BLEDevice) fragment.getDevice();
+        if(device == null) return;
+
+        if(device.canDisconnect()) {
+            menuConnect.setEnabled(true);
+            menuConnect.setTitle("断开");
+        }
+        else if(device.canConnect()) {
+            menuConnect.setEnabled(true);
+            menuConnect.setTitle("连接");
+        }
+        else {
+            menuConnect.setEnabled(false);
+        }
+
+        setTitle(tab.getText() + " " + device.getDeviceConnectState().getDescription());
     }
 }

@@ -91,6 +91,8 @@ public abstract class BLEDeviceFragment extends Fragment implements IBLEDeviceCo
         }
 
         device.registerConnectStateObserver(this);
+
+        activity.updateToolBarUsingBLEDevice((BLEDevice) device);
     }
 
 

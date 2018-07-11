@@ -147,13 +147,19 @@ public abstract class BLEDevice implements IBLEDeviceInterface {
                 deviceMirror = mirror;
                 ViseLog.i("onConnectSuccess");
 
-                sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
+                //sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_SUCCESS, deviceMirror));
+                    }
+                });
             }
         }
 
         @Override
-        public void onConnectFailure(BleException exception) {
-            DeviceConnectState state;
+        public void onConnectFailure(final BleException exception) {
+            final DeviceConnectState state;
             if(exception instanceof TimeoutException)
                 state = CONNECT_TIMEOUT;
             else
@@ -161,14 +167,26 @@ public abstract class BLEDevice implements IBLEDeviceInterface {
 
             ViseLog.i("onConnectFailure with state = " + state);
 
-            sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(state, exception));
+            //sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(state, exception));
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    processConnectMessage(new ConnectResultObject(state, exception));
+                }
+            });
         }
 
         @Override
-        public void onDisconnect(boolean isActive) {
+        public void onDisconnect(final boolean isActive) {
             ViseLog.d("onDisconnect");
 
-            sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive));
+            //sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive));
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    processConnectMessage(new ConnectResultObject(DeviceConnectState.CONNECT_DISCONNECT, isActive));
+                }
+            });
         }
     };
 
@@ -238,18 +256,18 @@ public abstract class BLEDevice implements IBLEDeviceInterface {
     // 发起连接
     @Override
     public synchronized void connect() {
-        if(state == CONNECT_SUCCESS || state == CONNECT_CONNECTING || state == CONNECT_DISCONNECTING) return;
+        if(canConnect()) {
+            setDeviceConnectState(CONNECT_CONNECTING);
+            notifyConnectStateObservers();
 
-        setDeviceConnectState(CONNECT_CONNECTING);
-        notifyConnectStateObservers();
-
-        MyApplication.getViseBle().connectByMac(getMacAddress(), connectCallback);
+            MyApplication.getViseBle().connectByMac(getMacAddress(), connectCallback);
+        }
     }
 
     // 断开连接
     @Override
     public synchronized void disconnect() {
-        if(state == CONNECT_SUCCESS) {
+        if(canDisconnect()) {
 
             setDeviceConnectState(CONNECT_DISCONNECTING);
             notifyConnectStateObservers();
@@ -265,6 +283,14 @@ public abstract class BLEDevice implements IBLEDeviceInterface {
                 notifyConnectStateObservers();
             }
         }
+    }
+
+    public boolean canConnect() {
+        return (state != CONNECT_SUCCESS && state != CONNECT_CONNECTING && state != CONNECT_DISCONNECTING);
+    }
+
+    public boolean canDisconnect() {
+        return (state == CONNECT_SUCCESS);
     }
 
     // 关闭设备

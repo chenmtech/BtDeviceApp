@@ -32,6 +32,7 @@ public class MainTabFragmentManager {
     // 当前显示的Fragment和Tab的位置
     private int curPos = -1;
 
+
     public MainTabFragmentManager(FragmentActivity activity, TabLayout tabLayout, int containerId) {
         this.activity = (MainActivity) activity;
         fragManager = new MyFragmentManager(activity, containerId);
@@ -51,9 +52,10 @@ public class MainTabFragmentManager {
 
                 // 显示选中的Fragment
                 fragManager.showFragment(fragManager.fragments.get(pos));
-                activity.setTitle(tab.getText());
+                //activity.setTitle(tab.getText());
 
                 curPos = pos;
+                activity.updateToolBar(((BLEDeviceFragment)fragManager.fragments.get(curPos)), tab);
             }
 
             @Override
@@ -85,12 +87,19 @@ public class MainTabFragmentManager {
         } else {
             drawable = MyApplication.getContext().getResources().getDrawable(BLEDeviceType.fromUuid(device.getUuidString()).getImage());
         }
-        tabLayout.addTab(tabLayout.newTab().setText(device.getNickName()).setIcon(drawable), true);
+        TabLayout.Tab tab = tabLayout.newTab();
+        tabLayout.addTab(tab.setText(device.getNickName()).setIcon(drawable), true);
+        activity.updateToolBar(fragment, tab);
     }
 
     public Fragment getCurrentFragment() {
         if(curPos < 0) return null;
         else return fragManager.getFragment(curPos);
+    }
+
+    public TabLayout.Tab getCurrentTab() {
+        if(curPos < 0 || size() == 0) return null;
+        else return tabLayout.getTabAt(curPos);
     }
 
     // 更新设备的Tab信息
@@ -186,9 +195,8 @@ public class MainTabFragmentManager {
         }
 
         public Fragment getFragment(int pos) {
-            return fragments.get(pos);
+            return (pos < fragments.size() && pos >= 0) ? fragments.get(pos) : null;
         }
-
     }
 
 }
