@@ -106,7 +106,8 @@ public class TempHumidDevice extends BLEDevice {
         initialize();
     }
 
-    private void initialize() {
+    @Override
+    public void initialize() {
         curTempHumid = null;
         historyDataList.clear();
         hasTimerService = false;
@@ -114,7 +115,7 @@ public class TempHumidDevice extends BLEDevice {
         timeLastUpdated = null;
         backuptime = null;
 
-        tempHumidDataObserverList.clear();
+        //tempHumidDataObserverList.clear();
     }
 
     // 获取当前温湿度值

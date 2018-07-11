@@ -22,6 +22,7 @@ public interface IBLEDeviceInterface {
     public void setImagePath(String imagePath);
     public BLEDeviceBasicInfo getBasicInfo();
 
+    public void initialize();
     public DeviceConnectState getDeviceConnectState();
     public void setDeviceConnectState(DeviceConnectState state);
     public void connect();

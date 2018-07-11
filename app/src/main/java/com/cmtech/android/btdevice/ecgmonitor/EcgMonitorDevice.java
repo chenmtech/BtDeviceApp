@@ -187,6 +187,10 @@ public class EcgMonitorDevice extends BLEDevice {
         }
     }
 
+    @Override
+    public void initialize() {
+    }
+
     public void setEcgRecord(boolean isRecord) {
         if(isRecord) {
             File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), "chenm.bme");

@@ -245,6 +245,8 @@ public abstract class BLEDevice implements IBLEDeviceInterface {
             setDeviceConnectState(CONNECT_CONNECTING);
             notifyConnectStateObservers();
 
+            initialize();
+
             MyApplication.getViseBle().connectByMac(getMacAddress(), connectCallback);
         }
     }
@@ -292,9 +294,6 @@ public abstract class BLEDevice implements IBLEDeviceInterface {
         state = CONNECT_WAITING;
 
         notifyConnectStateObservers();
-
-        // 清空连接状态观察者列表
-        //connectStateObserverList.clear();
     }
 
     private void clearDeviceMirror() {

@@ -65,6 +65,10 @@ public class ThermoDevice extends BLEDevice {
 
 
     @Override
+    public void initialize() {
+    }
+
+    @Override
     public void executeAfterConnectSuccess() {
         return;
         /*

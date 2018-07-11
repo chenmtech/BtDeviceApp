@@ -2,6 +2,9 @@ package com.cmtech.android.btdeviceapp.activity;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -35,6 +38,7 @@ import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BLEDevice;
 import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
+import com.cmtech.android.btdeviceapp.model.BLEDeviceType;
 import com.cmtech.android.btdeviceapp.model.DeviceConnectState;
 import com.cmtech.android.btdeviceapp.model.MainController;
 import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
@@ -140,6 +144,12 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
 
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.main_tab_layout);
+        //tab可滚动
+        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+        //tab的字体选择器,默认黑色,选择时红色
+        tabLayout.setTabTextColors(Color.BLACK, Color.RED);
+        //tab的下划线颜色,默认是粉红色
+        tabLayout.setSelectedTabIndicatorColor(Color.BLUE);
         fragmentManager = new MainTabFragmentManager(this, tabLayout, R.id.main_fragment_layout);
 
         // 更新主界面
@@ -273,10 +283,16 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
             case android.R.id.home:
                 openDrawer(true);
                 break;
+
             case R.id.toolbar_close:
                 fragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
-                if(fragment != null) fragment.closeDevice();
+                if(fragment != null) {
+                    fragment.closeDevice();
+                } else {
+                    finish();
+                }
                 break;
+
             case R.id.toolbar_connectswitch:
                 fragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
                 if(fragment != null) {
@@ -318,8 +334,19 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     // IBLEDeviceConnectStateObserver接口函数，更新设备连接状态
     @Override
     public void updateConnectState(BLEDevice device) {
+        // 更新设备列表
         updateDeviceListAdapter();
-        updateToolBarUsingBLEDevice(device);
+
+        BLEDeviceFragment deviceFrag = mainController.getFragmentForDevice(device);
+        BLEDeviceFragment currentFrag = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
+
+        // 更新设备的Fragment
+        if(deviceFrag != null) deviceFrag.updateConnectState(device);
+
+        // 更新Activity的ToolBar
+        if(currentFrag != null && deviceFrag == currentFrag) {
+            updateToolBar(currentFrag, fragmentManager.getCurrentTab());
+        }
     }
 
     // 更新设备列表
@@ -327,21 +354,12 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
     }
 
-    public void updateToolBarUsingBLEDevice(BLEDevice device) {
-        BLEDeviceFragment currentFrag = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
-        if(currentFrag == null) return;
-        if(device == null) return;
-        BLEDeviceFragment deviceFrag = mainController.getFragmentForDevice(device);
-        if(deviceFrag == null) return;
-        if(currentFrag == deviceFrag) {
-            updateToolBar(currentFrag, fragmentManager.getCurrentTab());
-        }
-    }
 
     public void updateToolBar(BLEDeviceFragment fragment, TabLayout.Tab tab) {
         BLEDevice device = (BLEDevice) fragment.getDevice();
         if(device == null) return;
 
+        // 更新工具条菜单
         if(device.canDisconnect()) {
             menuConnect.setEnabled(true);
             menuConnect.setTitle("断开");
@@ -354,6 +372,23 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
             menuConnect.setEnabled(false);
         }
 
+        // 更新Activity的工具条图标
+        /*Drawable drawable = null;
+
+        String imagePath = device.getImagePath();
+        if(imagePath != null && !"".equals(imagePath)) {
+            drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
+        } else {
+            drawable = MyApplication.getContext().getResources().getDrawable(BLEDeviceType.fromUuid(device.getUuidString()).getImage());
+        }
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeAsUpIndicator(drawable);*/
+
         setTitle(tab.getText() + " " + device.getDeviceConnectState().getDescription());
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        if(device.getDeviceConnectState() == CONNECT_SUCCESS)
+            toolbar.setTitleTextColor(Color.RED);
+        else
+            toolbar.setTitleTextColor(Color.GRAY);
     }
 }
