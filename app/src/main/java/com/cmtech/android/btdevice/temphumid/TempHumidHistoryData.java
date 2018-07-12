@@ -12,7 +12,7 @@ public class TempHumidHistoryData extends LitePalSupport {
     // 设备mac地址
     private String macAddress;
 
-    private Calendar time;
+    private long timeInMillis;
 
     private float temp;
 
@@ -34,12 +34,12 @@ public class TempHumidHistoryData extends LitePalSupport {
         this.macAddress = macAddress;
     }
 
-    public Calendar getTime() {
-        return time;
+    public long getTimeInMillis() {
+        return timeInMillis;
     }
 
-    public void setTime(Calendar time) {
-        this.time = time;
+    public void setTimeInMillis(long timeInMillis) {
+        this.timeInMillis = timeInMillis;
     }
 
     public float getTemp() {

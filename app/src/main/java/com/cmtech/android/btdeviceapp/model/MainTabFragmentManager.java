@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ public class MainTabFragmentManager {
                 //activity.setTitle(tab.getText());
 
                 curPos = pos;
-                activity.updateToolBar(((BLEDeviceFragment)fragManager.fragments.get(curPos)), tab);
+                activity.updateToolBar(((BleDeviceFragment)fragManager.fragments.get(curPos)), tab);
             }
 
             @Override
@@ -75,7 +75,7 @@ public class MainTabFragmentManager {
     }
 
     // 添加设备的Fragment，并显示
-    public void addFragment(IBLEDeviceInterface device, BLEDeviceFragment fragment) {
+    public void addFragment(IBleDeviceInterface device, BleDeviceFragment fragment) {
         if(fragment == null || fragManager.fragments.contains(fragment)) return;
 
         fragManager.addFragment(fragment, "");
@@ -85,7 +85,7 @@ public class MainTabFragmentManager {
         if(imagePath != null && !"".equals(imagePath)) {
             drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
         } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(BLEDeviceType.fromUuid(device.getUuidString()).getImage());
+            drawable = MyApplication.getContext().getResources().getDrawable(BleDeviceType.fromUuid(device.getUuidString()).getImage());
         }
         TabLayout.Tab tab = tabLayout.newTab();
         tabLayout.addTab(tab.setText(device.getNickName()).setIcon(drawable), true);
@@ -102,10 +102,10 @@ public class MainTabFragmentManager {
     }
 
     // 更新设备的Tab信息
-    public void updateTabInfo(BLEDeviceFragment fragment) {
+    public void updateTabInfo(BleDeviceFragment fragment) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
-        IBLEDeviceInterface device = fragment.getDevice();
+        IBleDeviceInterface device = fragment.getDevice();
 
         TabLayout.Tab tab = tabLayout.getTabAt(fragManager.fragments.indexOf(fragment));
         if(tab != null) {
@@ -119,7 +119,7 @@ public class MainTabFragmentManager {
     }
 
     // 删除Fragment
-    public void deleteFragment(BLEDeviceFragment fragment) {
+    public void deleteFragment(BleDeviceFragment fragment) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
         int index = fragManager.fragments.indexOf(fragment);
@@ -134,7 +134,7 @@ public class MainTabFragmentManager {
     }
 
     // 显示设备的Fragment
-    public void showDeviceFragment(BLEDeviceFragment fragment) {
+    public void showDeviceFragment(BleDeviceFragment fragment) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
         int index = fragManager.fragments.indexOf(fragment);

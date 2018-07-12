@@ -2,13 +2,13 @@ package com.cmtech.android.btdevice.thermo;
 
 import android.os.Message;
 
-import com.cmtech.android.btdeviceapp.model.BLEDevice;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
-import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
+import com.cmtech.android.btdeviceapp.model.BleDevice;
+import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
+import com.cmtech.android.btdeviceapp.model.BleGattElement;
 import com.cmtech.android.btdeviceapp.util.ByteUtil;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 
-public class ThermoDevice extends BLEDevice {
+public class ThermoDevice extends BleDevice {
     private static final int MSG_THERMODATA = 0;
 
     ///////////////// 体温计Service相关的常量////////////////
@@ -17,20 +17,20 @@ public class ThermoDevice extends BLEDevice {
     private static final String thermoControlUuid       = "aa32";           // 体温测量控制UUID:aa32
     private static final String thermoPeriodUuid        = "aa33";           // 体温采样周期UUID:aa33
 
-    public static final BluetoothGattElement THERMODATA =
-            new BluetoothGattElement(thermoServiceUuid, thermoDataUuid, null);
+    public static final BleGattElement THERMODATA =
+            new BleGattElement(thermoServiceUuid, thermoDataUuid, null);
 
-    public static final BluetoothGattElement THERMOCONTROL =
-            new BluetoothGattElement(thermoServiceUuid, thermoControlUuid, null);
+    public static final BleGattElement THERMOCONTROL =
+            new BleGattElement(thermoServiceUuid, thermoControlUuid, null);
 
-    public static final BluetoothGattElement THERMOPERIOD =
-            new BluetoothGattElement(thermoServiceUuid, thermoPeriodUuid, null);
+    public static final BleGattElement THERMOPERIOD =
+            new BleGattElement(thermoServiceUuid, thermoPeriodUuid, null);
 
-    public static final BluetoothGattElement THERMODATACCC =
-            new BluetoothGattElement(thermoServiceUuid, thermoDataUuid, Uuid.CCCUUID);
+    public static final BleGattElement THERMODATACCC =
+            new BleGattElement(thermoServiceUuid, thermoDataUuid, Uuid.CCCUUID);
     ///////////////////////////////////////////////////////
 
-    public ThermoDevice(BLEDeviceBasicInfo persistantInfo) {
+    public ThermoDevice(BleDeviceBasicInfo persistantInfo) {
         super(persistantInfo);
     }
 

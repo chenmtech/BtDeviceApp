@@ -29,6 +29,13 @@ public class TempHumidData implements Comparable{
         temp = ByteUtil.getFloat(buf);
     }
 
+    public TempHumidData(TempHumidHistoryData data) {
+        time = Calendar.getInstance();
+        time.setTimeInMillis(data.getTimeInMillis());
+        temp = data.getTemp();
+        humid = data.getHumid();
+    }
+
     public Calendar getTime() {
         return time;
     }

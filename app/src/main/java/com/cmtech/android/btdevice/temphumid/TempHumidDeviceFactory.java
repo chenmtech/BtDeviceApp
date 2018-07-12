@@ -1,25 +1,25 @@
 package com.cmtech.android.btdevice.temphumid;
 
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
-import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
+import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
+import com.cmtech.android.btdeviceapp.interfa.BleDeviceAbstractFactory;
+import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
 
-public class TempHumidDeviceFactory extends BLEDeviceAbstractFactory {
+public class TempHumidDeviceFactory extends BleDeviceAbstractFactory {
     @Override
-    public IBLEDeviceInterface createBleDevice(BLEDeviceBasicInfo basicInfo) {
+    public IBleDeviceInterface createBleDevice(BleDeviceBasicInfo basicInfo) {
         return new TempHumidDevice(basicInfo);
     }
 
     @Override
-    public IBLEDeviceControllerInterface createController(IBLEDeviceInterface device, MainActivity activity) {
+    public IBleDeviceControllerInterface createController(IBleDeviceInterface device, MainActivity activity) {
         return new TempHumidDeviceController(device, activity);
     }
 
     @Override
-    public BLEDeviceFragment createFragment() {
+    public BleDeviceFragment createFragment() {
         return new TempHumidFragment();
     }
 

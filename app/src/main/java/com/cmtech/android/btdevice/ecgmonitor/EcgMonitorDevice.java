@@ -8,9 +8,9 @@ import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.MyApplication;
-import com.cmtech.android.btdeviceapp.model.BLEDevice;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
-import com.cmtech.android.btdeviceapp.model.BluetoothGattElement;
+import com.cmtech.android.btdeviceapp.model.BleDevice;
+import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
+import com.cmtech.android.btdeviceapp.model.BleGattElement;
 import com.cmtech.android.btdeviceapp.util.Uuid;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileDataType;
@@ -30,7 +30,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class EcgMonitorDevice extends BLEDevice {
+public class EcgMonitorDevice extends BleDevice {
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;           // 缺省ECG信号采样率
 
@@ -48,20 +48,20 @@ public class EcgMonitorDevice extends BLEDevice {
     private static final String ecgMonitorLeadTypeUuid      = "aa45";           // 导联类型UUID:aa45
 
     // 一些Gatt Element常量
-    public static final BluetoothGattElement ECGMONITORDATA =
-            new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null);
+    public static final BleGattElement ECGMONITORDATA =
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null);
 
-    public static final BluetoothGattElement ECGMONITORDATACCC =
-            new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, Uuid.CCCUUID);
+    public static final BleGattElement ECGMONITORDATACCC =
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, Uuid.CCCUUID);
 
-    public static final BluetoothGattElement ECGMONITORCTRL =
-            new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null);
+    public static final BleGattElement ECGMONITORCTRL =
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null);
 
-    public static final BluetoothGattElement ECGMONITORSAMPLERATE =
-            new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorSampleRateUuid, null);
+    public static final BleGattElement ECGMONITORSAMPLERATE =
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorSampleRateUuid, null);
 
-    public static final BluetoothGattElement ECGMONITORLEADTYPE =
-            new BluetoothGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null);
+    public static final BleGattElement ECGMONITORLEADTYPE =
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null);
     ////////////////////////////////////////////////////////
 
 
@@ -219,7 +219,7 @@ public class EcgMonitorDevice extends BLEDevice {
     }
 
 
-    public EcgMonitorDevice(BLEDeviceBasicInfo persistantInfo) {
+    public EcgMonitorDevice(BleDeviceBasicInfo persistantInfo) {
         super(persistantInfo);
     }
 

@@ -4,11 +4,11 @@ package com.cmtech.android.btdeviceapp.model;
 import org.litepal.crud.LitePalSupport;
 
 /**
- *  BLEDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库中
+ *  BleDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库中
  *  Created by bme on 2018/6/27.
  */
 
-public class BLEDeviceBasicInfo extends LitePalSupport {
+public class BleDeviceBasicInfo extends LitePalSupport {
     // 数据库保存的字段
     // id
     private int id;
@@ -28,11 +28,11 @@ public class BLEDeviceBasicInfo extends LitePalSupport {
     // 图标
     private String imagePath;
 
-    public BLEDeviceBasicInfo() {
+    public BleDeviceBasicInfo() {
 
     }
 
-    public BLEDeviceBasicInfo(BLEDeviceBasicInfo basicInfo) {
+    public BleDeviceBasicInfo(BleDeviceBasicInfo basicInfo) {
         id = basicInfo.id;
         macAddress = basicInfo.macAddress;
         nickName = basicInfo.nickName;

@@ -8,14 +8,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
+import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 
 
 /**
  * Created by bme on 2018/2/27.
  */
 
-public class ThermoFragment extends BLEDeviceFragment {
+public class ThermoFragment extends BleDeviceFragment {
 
 
     private TextView tvThermoData;

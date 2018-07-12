@@ -14,14 +14,14 @@ import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
+import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 
 
 /**
  * Created by bme on 2018/2/27.
  */
 
-public class TempHumidFragment extends BLEDeviceFragment implements ITempHumidDataObserver{
+public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDataObserver{
 
     private TextView tvTempData;
     private TextView tvHumidData;
@@ -77,7 +77,7 @@ public class TempHumidFragment extends BLEDeviceFragment implements ITempHumidDa
                     int lastVisiblePosition = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
                     if(lastVisiblePosition == recyclerView.getLayoutManager().getItemCount()-1) {
                         //Toast.makeText(MyApplication.getContext(), "更新历史数据", Toast.LENGTH_SHORT).show();
-                        ((TempHumidDeviceController)controller).initDeviceTimerService();
+                        ((TempHumidDevice)device).readTimerServiceValue();
                     }
                 }
             }

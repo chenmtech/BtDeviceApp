@@ -1,7 +1,5 @@
 package com.cmtech.android.btdevice.unknown;
 
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -10,15 +8,13 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
-
-import java.util.List;
+import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 
 /**
  * Created by bme on 2018/2/28.
  */
 
-public class UnknownDeviceFragment extends BLEDeviceFragment {
+public class UnknownDeviceFragment extends BleDeviceFragment {
     TextView tvServices;
     TextView tvCharacteristic;
 

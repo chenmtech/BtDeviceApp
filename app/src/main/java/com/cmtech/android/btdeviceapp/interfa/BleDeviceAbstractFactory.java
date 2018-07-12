@@ -4,10 +4,10 @@ import com.cmtech.android.btdevice.ecgmonitor.EcgMonitorDeviceFactory;
 import com.cmtech.android.btdevice.temphumid.TempHumidDeviceFactory;
 import com.cmtech.android.btdevice.thermo.ThermoDeviceFactory;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
+import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
+import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
 
-public abstract class BLEDeviceAbstractFactory {
+public abstract class BleDeviceAbstractFactory {
     // 支持的设备类型的16位UUID的字符串
     private static final String UUID_SIMPLE128GATTPROFILE = "aa10";
     private static final String UUID_HEIGHTSCALE = "aa20";
@@ -17,7 +17,7 @@ public abstract class BLEDeviceAbstractFactory {
     private static final String UUID_TEMPHUMID = "aa60";
     private static final String UUID_UNKNOWN = "0000";
 
-    public static BLEDeviceAbstractFactory getBLEDeviceFactory(BLEDeviceBasicInfo basicInfo) {
+    public static BleDeviceAbstractFactory getBLEDeviceFactory(BleDeviceBasicInfo basicInfo) {
         String uuid = basicInfo.getUuidString();
         if(UUID_TEMPHUMID.equalsIgnoreCase(uuid))
             return new TempHumidDeviceFactory();
@@ -29,7 +29,7 @@ public abstract class BLEDeviceAbstractFactory {
             return null;
     }
 
-    public abstract IBLEDeviceInterface createBleDevice(BLEDeviceBasicInfo basicInfo);
-    public abstract IBLEDeviceControllerInterface createController(IBLEDeviceInterface device, MainActivity activity);
-    public abstract BLEDeviceFragment createFragment();
+    public abstract IBleDeviceInterface createBleDevice(BleDeviceBasicInfo basicInfo);
+    public abstract IBleDeviceControllerInterface createController(IBleDeviceInterface device, MainActivity activity);
+    public abstract BleDeviceFragment createFragment();
 }

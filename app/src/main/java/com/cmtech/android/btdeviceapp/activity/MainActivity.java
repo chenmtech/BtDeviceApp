@@ -1,11 +1,7 @@
 package com.cmtech.android.btdeviceapp.activity;
 
-import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -28,34 +24,28 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.BLEDeviceListAdapter;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceConnectStateObserver;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
-import com.cmtech.android.btdeviceapp.model.BLEDevice;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceBasicInfo;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceType;
-import com.cmtech.android.btdeviceapp.model.DeviceConnectState;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceConnectStateObserver;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
+import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
+import com.cmtech.android.btdeviceapp.model.BleDevice;
+import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.MainController;
 import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
-import com.vise.log.ViseLog;
 
 import java.io.Serializable;
 import java.util.List;
 
-import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.CONNECT_CONNECTING;
-import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.CONNECT_DISCONNECTING;
-import static com.cmtech.android.btdeviceapp.model.DeviceConnectState.CONNECT_SUCCESS;
+import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT_SUCCESS;
 
 /**
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
-public class MainActivity extends AppCompatActivity implements IBLEDeviceConnectStateObserver{
+public class MainActivity extends AppCompatActivity implements IBleDeviceConnectStateObserver {
 
     // 显示设备列表的Adapter和RecyclerView
     private BLEDeviceListAdapter deviceListAdapter;
@@ -165,27 +155,27 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     }
 
     // 打开一个BLE设备：为设备创建控制器和Fragment，并自动连接
-    public void openDevice(IBLEDeviceInterface device) {
+    public void openDevice(IBleDeviceInterface device) {
         mainController.openDevice(device);
     }
 
     // 连接设备
-    public void connectDevice(IBLEDeviceInterface device) {
+    public void connectDevice(IBleDeviceInterface device) {
         mainController.connectDevice(device);
     }
 
     // 断开连接
-    public void disconnectDevice(IBLEDeviceInterface device) {
+    public void disconnectDevice(IBleDeviceInterface device) {
         mainController.disconnectDevice(device);
     }
 
     // 关闭设备
-    public void closeDevice(IBLEDeviceInterface device) {
+    public void closeDevice(IBleDeviceInterface device) {
         mainController.closeDevice(device);
     }
 
     // 删除已添加设备
-    public void deleteIncludedDevice(final IBLEDeviceInterface device) {
+    public void deleteIncludedDevice(final IBleDeviceInterface device) {
         mainController.deleteIncludedDevice(device);
     }
 
@@ -198,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     }
 
     // 添加设备及其Fragment，并显示Fragment
-    public void addFragment(IBLEDeviceInterface device, BLEDeviceFragment fragment) {
+    public void addFragment(IBleDeviceInterface device, BleDeviceFragment fragment) {
         mDrawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
         fragmentManager.addFragment(device, fragment);
@@ -206,13 +196,13 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     }
 
     // 显示一个Fragment
-    public void showFragment(BLEDeviceFragment fragment) {
+    public void showFragment(BleDeviceFragment fragment) {
         openDrawer(false);
         fragmentManager.showDeviceFragment(fragment);
     }
 
     // 删除指定的Fragment
-    public void deleteFragment(final BLEDeviceFragment fragment) {
+    public void deleteFragment(final BleDeviceFragment fragment) {
         fragmentManager.deleteFragment(fragment);
         updateMainLayoutVisibility();
     }
@@ -242,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
                     String imagePath = data.getStringExtra("device_imagepath");
                     boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
 
-                    BLEDeviceBasicInfo basicInfo = new BLEDeviceBasicInfo();
+                    BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo();
                     basicInfo.setNickName(nickName);
                     basicInfo.setMacAddress(macAddress);
                     basicInfo.setUuidString(deviceUuid);
@@ -278,15 +268,16 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        BLEDeviceFragment fragment;
+        BleDeviceFragment fragment;
         switch (item.getItemId()) {
             case android.R.id.home:
                 openDrawer(true);
                 break;
 
             case R.id.toolbar_close:
-                fragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
+                fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
                 if(fragment != null) {
+                    fragment.disconnectDevice();
                     fragment.closeDevice();
                 } else {
                     finish();
@@ -294,9 +285,9 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
                 break;
 
             case R.id.toolbar_connectswitch:
-                fragment = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
+                fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
                 if(fragment != null) {
-                    BLEDevice device = (BLEDevice) fragment.getDevice();
+                    BleDevice device = (BleDevice) fragment.getDevice();
                     if(device.canDisconnect())
                         fragment.disconnectDevice();
                     else if(device.canConnect())
@@ -327,18 +318,18 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     }
 
     // 从deviceControllerList中寻找Fragment对应的控制器,在Fragment的OnAttach()中会调用
-    public IBLEDeviceControllerInterface getController(BLEDeviceFragment fragment) {
+    public IBleDeviceControllerInterface getController(BleDeviceFragment fragment) {
         return mainController.getController(fragment);
     }
 
     // IBLEDeviceConnectStateObserver接口函数，更新设备连接状态
     @Override
-    public void updateConnectState(BLEDevice device) {
+    public void updateConnectState(BleDevice device) {
         // 更新设备列表
         updateDeviceListAdapter();
 
-        BLEDeviceFragment deviceFrag = mainController.getFragmentForDevice(device);
-        BLEDeviceFragment currentFrag = (BLEDeviceFragment)fragmentManager.getCurrentFragment();
+        BleDeviceFragment deviceFrag = mainController.getFragmentForDevice(device);
+        BleDeviceFragment currentFrag = (BleDeviceFragment)fragmentManager.getCurrentFragment();
 
         // 更新设备的Fragment
         if(deviceFrag != null) deviceFrag.updateConnectState(device);
@@ -355,8 +346,8 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
     }
 
 
-    public void updateToolBar(BLEDeviceFragment fragment, TabLayout.Tab tab) {
-        BLEDevice device = (BLEDevice) fragment.getDevice();
+    public void updateToolBar(BleDeviceFragment fragment, TabLayout.Tab tab) {
+        BleDevice device = (BleDevice) fragment.getDevice();
         if(device == null) return;
 
         // 更新工具条菜单
@@ -379,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements IBLEDeviceConnect
         if(imagePath != null && !"".equals(imagePath)) {
             drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
         } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(BLEDeviceType.fromUuid(device.getUuidString()).getImage());
+            drawable = MyApplication.getContext().getResources().getDrawable(BleDeviceType.fromUuid(device.getUuidString()).getImage());
         }
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(drawable);*/

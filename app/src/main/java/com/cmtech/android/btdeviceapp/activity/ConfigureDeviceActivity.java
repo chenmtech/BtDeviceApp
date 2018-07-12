@@ -27,7 +27,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceType;
+import com.cmtech.android.btdeviceapp.model.BleDeviceType;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -64,7 +64,7 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
         setTitle("设备:"+macAddress);
 
         etName = (EditText)findViewById(R.id.cfg_device_nickname);
-        etName.setText("".equals(deviceNickname) ? BLEDeviceType.fromUuid(deviceUuid).getName() : deviceNickname);
+        etName.setText("".equals(deviceNickname) ? BleDeviceType.fromUuid(deviceUuid).getName() : deviceNickname);
 
         ivImage = (ImageView)findViewById(R.id.cfg_device_image);
 
@@ -72,7 +72,7 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             ivImage.setImageDrawable(drawable);
         } else {
-            Glide.with(this).load(BLEDeviceType.fromUuid(deviceUuid).getImage()).into(ivImage);
+            Glide.with(this).load(BleDeviceType.fromUuid(deviceUuid).getImage()).into(ivImage);
         }
 
         ivImage.setOnClickListener(new View.OnClickListener() {

@@ -1,8 +1,5 @@
 package com.cmtech.android.btdeviceapp.model;
 
-import android.os.Message;
-import android.util.Log;
-
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.common.PropertyType;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
@@ -25,10 +22,10 @@ public class GattCommandSerialExecutor {
     private final DeviceMirror deviceMirror;
 
     // 要执行的命令队列
-    private final Queue<BluetoothGattCommand> commandList = new LinkedList<>();
+    private final Queue<BleGattCommand> commandList = new LinkedList<>();
 
     // 当前在执行的命令
-    private BluetoothGattCommand currentCommand;
+    private BleGattCommand currentCommand;
 
     // 标记当前命令是否执行完毕
     private volatile boolean currentCommandDone = true;
@@ -81,9 +78,9 @@ public class GattCommandSerialExecutor {
      * @param dataOpCallback 读回调
      * @return 是否添加成功
      */
-    public synchronized boolean addReadCommand(BluetoothGattElement element, IBleCallback dataOpCallback) {
-        BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
-        BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
+    public synchronized boolean addReadCommand(BleGattElement element, IBleCallback dataOpCallback) {
+        BleGattCommand.Builder builder = new BleGattCommand.Builder();
+        BleGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
                 .setPropertyType(PropertyType.PROPERTY_READ)
                 .setDataOpCallback(new BleSerialCommandCallback(dataOpCallback)).build();
@@ -98,9 +95,9 @@ public class GattCommandSerialExecutor {
      * @param dataOpCallback 写回调
      * @return 是否添加成功
      */
-    public synchronized boolean addWriteCommand(BluetoothGattElement element, byte[] data, IBleCallback dataOpCallback) {
-        BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
-        BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
+    public synchronized boolean addWriteCommand(BleGattElement element, byte[] data, IBleCallback dataOpCallback) {
+        BleGattCommand.Builder builder = new BleGattCommand.Builder();
+        BleGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
                 .setPropertyType(PropertyType.PROPERTY_WRITE)
                 .setData(data)
@@ -110,7 +107,7 @@ public class GattCommandSerialExecutor {
     }
 
     // 写单字节数据
-    public synchronized boolean addWriteCommand(BluetoothGattElement element, byte data, IBleCallback dataOpCallback) {
+    public synchronized boolean addWriteCommand(BleGattElement element, byte data, IBleCallback dataOpCallback) {
         return addWriteCommand(element, new byte[]{data}, dataOpCallback);
     }
 
@@ -122,10 +119,10 @@ public class GattCommandSerialExecutor {
      * @param notifyOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public synchronized boolean addNotifyCommand(BluetoothGattElement element, boolean enable
+    public synchronized boolean addNotifyCommand(BleGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
-        BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
-        BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
+        BleGattCommand.Builder builder = new BleGattCommand.Builder();
+        BleGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
                 .setPropertyType(PropertyType.PROPERTY_NOTIFY)
                 .setData((enable) ? new byte[]{0x01} : new byte[]{0x00})
@@ -143,10 +140,10 @@ public class GattCommandSerialExecutor {
      * @param indicateOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public synchronized boolean addIndicateCommand(BluetoothGattElement element, boolean enable
+    public synchronized boolean addIndicateCommand(BleGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
-        BluetoothGattCommand.Builder builder = new BluetoothGattCommand.Builder();
-        BluetoothGattCommand command = builder.setDeviceMirror(deviceMirror)
+        BleGattCommand.Builder builder = new BleGattCommand.Builder();
+        BleGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
                 .setPropertyType(PropertyType.PROPERTY_INDICATE)
                 .setData((enable) ? new byte[]{0x01} : new byte[]{0x00})
@@ -156,7 +153,7 @@ public class GattCommandSerialExecutor {
         return addCommandToList(command);
     }
 
-    private synchronized boolean addCommandToList(BluetoothGattCommand command) {
+    private synchronized boolean addCommandToList(BleGattCommand command) {
         boolean flag = commandList.offer(command);
 
         // 添加成功，通知执行线程

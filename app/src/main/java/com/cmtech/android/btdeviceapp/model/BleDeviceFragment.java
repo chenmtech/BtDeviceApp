@@ -11,22 +11,22 @@ import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 
 /**
  * Created by bme on 2018/2/27.
  */
 
-public abstract class BLEDeviceFragment extends Fragment{
+public abstract class BleDeviceFragment extends Fragment{
     // MainActivity
     protected MainActivity activity;
 
     // 对应的控制器接口
-    protected IBLEDeviceControllerInterface controller;
+    protected IBleDeviceControllerInterface controller;
 
     // 对应的设备接口
-    protected IBLEDeviceInterface device;
+    protected IBleDeviceInterface device;
 
     // 连接状态tv
     protected TextView tvConnectState;
@@ -35,7 +35,7 @@ public abstract class BLEDeviceFragment extends Fragment{
 
     protected ImageButton btnClose;
 
-    public BLEDeviceFragment() {
+    public BleDeviceFragment() {
 
     }
 
@@ -60,7 +60,7 @@ public abstract class BLEDeviceFragment extends Fragment{
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(BLEDeviceFragment.this.getClass().getSimpleName(), "is closed.");
+                Log.d(BleDeviceFragment.this.getClass().getSimpleName(), "is closed.");
                 closeDevice();
             }
         });
@@ -120,7 +120,7 @@ public abstract class BLEDeviceFragment extends Fragment{
     }
 
 
-    public IBLEDeviceInterface getDevice() {
+    public IBleDeviceInterface getDevice() {
         return device;
     }
 
@@ -140,7 +140,7 @@ public abstract class BLEDeviceFragment extends Fragment{
         controller.switchDeviceConnectState();
     }
 
-    public void updateConnectState(final BLEDevice device) {
+    public void updateConnectState(final BleDevice device) {
         if(device == this.device) {
             // isAdded()用来判断Fragment是否与Activity关联，如果关联了，才能更新状态信息
             if(isAdded()) updateConnectState();

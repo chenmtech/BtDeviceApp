@@ -1,14 +1,14 @@
 package com.cmtech.android.btdevice.ecgmonitor;
 
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceController;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
+import com.cmtech.android.btdeviceapp.model.BleDeviceController;
 
-public class EcgMonitorDeviceController extends BLEDeviceController {
+public class EcgMonitorDeviceController extends BleDeviceController {
     private final EcgMonitorDevice device;
     private final EcgMonitorFragment fragment;
 
-    public EcgMonitorDeviceController(IBLEDeviceInterface device, MainActivity activity) {
+    public EcgMonitorDeviceController(IBleDeviceInterface device, MainActivity activity) {
         super(device, activity);
         this.device = (EcgMonitorDevice) device;
         this.fragment = (EcgMonitorFragment) getFragment();

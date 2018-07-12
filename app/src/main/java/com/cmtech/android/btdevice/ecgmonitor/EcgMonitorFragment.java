@@ -11,13 +11,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.model.BLEDeviceFragment;
+import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 
 /**
  * Created by bme on 2018/3/13.
  */
 
-public class EcgMonitorFragment extends BLEDeviceFragment {
+public class EcgMonitorFragment extends BleDeviceFragment {
     private TextView tvEcgSampleRate;
     private TextView tvEcgLeadType;
     private TextView tvEcg1mV;

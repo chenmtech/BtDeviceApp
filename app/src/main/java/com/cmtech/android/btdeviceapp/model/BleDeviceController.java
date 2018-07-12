@@ -3,28 +3,28 @@ package com.cmtech.android.btdeviceapp.model;
 import android.util.Log;
 
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.BLEDeviceAbstractFactory;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceControllerInterface;
-import com.cmtech.android.btdeviceapp.interfa.IBLEDeviceInterface;
+import com.cmtech.android.btdeviceapp.interfa.BleDeviceAbstractFactory;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 
-public class BLEDeviceController implements IBLEDeviceControllerInterface{
+public class BleDeviceController implements IBleDeviceControllerInterface {
     private final MainActivity activity;
 
     // Model
-    private final IBLEDeviceInterface device;
+    private final IBleDeviceInterface device;
 
     // View
-    private final BLEDeviceFragment fragment;
+    private final BleDeviceFragment fragment;
 
 
-    public BLEDeviceController(IBLEDeviceInterface device, MainActivity activity) {
+    public BleDeviceController(IBleDeviceInterface device, MainActivity activity) {
         if(device == null || activity == null) {
             throw new IllegalStateException();
         }
 
         this.activity = activity;
         this.device = device;
-        fragment = BLEDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();
+        fragment = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();
     }
 
     @Override
@@ -44,7 +44,7 @@ public class BLEDeviceController implements IBLEDeviceControllerInterface{
 
     @Override
     public void switchDeviceConnectState() {
-        DeviceConnectState state = device.getDeviceConnectState();
+        BleDeviceConnectState state = device.getDeviceConnectState();
         Log.d("BLEDEVICECONTROLLER", "now the state is " + state);
         switch (state) {
             case CONNECT_SUCCESS:
@@ -62,12 +62,12 @@ public class BLEDeviceController implements IBLEDeviceControllerInterface{
     }
 
     @Override
-    public IBLEDeviceInterface getDevice() {
+    public IBleDeviceInterface getDevice() {
         return device;
     }
 
     @Override
-    public BLEDeviceFragment getFragment() {
+    public BleDeviceFragment getFragment() {
         return fragment;
     }
 }

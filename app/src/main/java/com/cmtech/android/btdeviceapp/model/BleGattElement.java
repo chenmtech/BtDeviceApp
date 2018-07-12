@@ -14,14 +14,14 @@ import java.util.UUID;
  * Created by bme on 2018/3/1.
  */
 
-public class BluetoothGattElement {
+public class BleGattElement {
     private final int TYPE_NULL = 0;                // 空ELement 类型
     private final int TYPE_SERVICE = 1;             // service element类型
     private final int TYPE_CHARACTERISTIC = 2;      // characteristic element类型
     private final int TYPE_DESCRIPTOR = 3;          // descriptor element类型
 
     // null element
-    private static final BluetoothGattElement NULLELEMENT = new BluetoothGattElement((UUID)null, null, null);
+    private static final BleGattElement NULLELEMENT = new BleGattElement((UUID)null, null, null);
 
     // 服务UUID
     private final UUID serviceUuid;
@@ -36,12 +36,12 @@ public class BluetoothGattElement {
     private final String description;
 
     // 用短的字符串构建Element
-    public BluetoothGattElement(String serviceShortString, String characteristicShortString, String descriptorShortString) {
+    public BleGattElement(String serviceShortString, String characteristicShortString, String descriptorShortString) {
         this(Uuid.shortStringToUuid(serviceShortString), Uuid.shortStringToUuid(characteristicShortString), Uuid.shortStringToUuid(descriptorShortString));
         }
 
     // 用UUID构建Element
-    public BluetoothGattElement(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid) {
+    public BleGattElement(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid) {
         this.serviceUuid = serviceUuid;
         this.characteristicUuid = characteristicUuid;
         this.descriptorUuid = descriptorUuid;

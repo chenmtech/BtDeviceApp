@@ -4,14 +4,14 @@ package com.cmtech.android.btdeviceapp.model;
  * Created by bme on 2018/3/14.
  */
 
-public enum DeviceConnectState {
+public enum BleDeviceConnectState {
     CONNECT_WAITING(0, "等待连接"),
     CONNECT_TIMEOUT(1, "超时"),
     CONNECT_CONNECTING(2, "连接中"),
     CONNECT_FAILURE(3, "连接错误"),
     CONNECT_DISCONNECT(4, "连接断开"),
     CONNECT_DISCONNECTING(5, "连接断开中"),
-    CONNECT_SUCCESS(6, "连接成功");
+    CONNECT_SUCCESS(6, "已连接");
 
 
     private int code;                   //对应括号里面第一个值
@@ -36,16 +36,16 @@ public enum DeviceConnectState {
     }
 
     //enum 构造方法,注意这里是 private 私有的修饰符啊
-    private DeviceConnectState(int code, String description) {
+    private BleDeviceConnectState(int code, String description) {
         this.code = code;
         this.description = description;
     }
 
     //通过code,即 0 或 1 获取对应 enum 对象
-    public static DeviceConnectState getByCode(Integer code){
-        DeviceConnectState state = null;
-        for(int i = 0; i < DeviceConnectState.values().length; i++){
-            state = DeviceConnectState.values()[i];
+    public static BleDeviceConnectState getByCode(Integer code){
+        BleDeviceConnectState state = null;
+        for(int i = 0; i < BleDeviceConnectState.values().length; i++){
+            state = BleDeviceConnectState.values()[i];
             if(code == state.getCode()){
                 break;
             }
