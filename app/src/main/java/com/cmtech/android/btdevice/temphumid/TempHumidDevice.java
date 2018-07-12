@@ -172,15 +172,22 @@ public class TempHumidDevice extends BleDevice {
     }
 
     private void readHistoryDataFromDb() {
-        List<TempHumidHistoryData> historyData = LitePal.where("macAddress = ?", getMacAddress()).
-                order("timeInMillis asc").limit(50).find(TempHumidHistoryData.class);
-        for(TempHumidHistoryData data : historyData) {
-            historyDataList.add(new TempHumidData(data));
-        }
-        if(historyDataList.isEmpty())
+        Calendar time = Calendar.getInstance();
+        time.add(Calendar.DAY_OF_MONTH, -1);
+        long timeInMillis = time.getTimeInMillis();
+
+        List<TempHumidHistoryData> historyData = LitePal.where("macAddress = ? and timeInMillis > ?", getMacAddress(), String.valueOf(timeInMillis)).
+                order("timeInMillis desc").find(TempHumidHistoryData.class);
+        if(historyData.isEmpty()) {
             timeLastUpdated = null;
-        else
+        } else {
+            for(int i = historyData.size()-1; i >= 0; i--) {
+                historyDataList.add(new TempHumidData(historyData.get(i)));
+            }
             timeLastUpdated = historyDataList.get(historyDataList.size()-1).getTime();
+        }
+
+        //ViseLog.i("historyDataList = " + historyDataList);
         ViseLog.i("timeLastUpdated = " + timeLastUpdated);
 
     }

@@ -22,6 +22,7 @@ import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 import com.cmtech.android.btdeviceapp.model.BleDevice;
 import com.cmtech.android.btdeviceapp.model.BleDeviceType;
+import com.vise.log.ViseLog;
 
 import java.util.List;
 
@@ -46,20 +47,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
         ImageButton ibtnDelete;
         ImageButton ibtnOpen;
 
-        MenuItem.OnMenuItemClickListener listener=new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
-                switch (item.getItemId()){
-                    case 1:
-                        //do something
-                        return true;
-                    case 2:
-                        //do something
-                    default:
-                        return true;
-                }
-            }
-        };
+
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -71,16 +59,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
             ibtnDelete = deviceView.findViewById(R.id.configured_device_delete_btn);
             ibtnOpen = deviceView.findViewById(R.id.configured_device_open_btn);
 
-            itemView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                @Override
-                public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                    MenuInflater inflater = activity.getMenuInflater();
-                    MenuItem delete = menu.add(Menu.NONE, 1, 1, "删除");
-                    MenuItem delete_much = menu.add(Menu.NONE, 2, 2, "批量删除");
-                    delete.setOnMenuItemClickListener(listener);            //响应点击事件
-                    delete_much.setOnMenuItemClickListener(listener);
-                }
-            });
+
 
         }
     }
@@ -106,14 +85,6 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
             }
         });
 
-        /*holder.ibtnOpen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                IBleDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
-                activity.openDevice(device);
-            }
-        });*/
-
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -122,12 +93,42 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
             }
         });
 
-        /*holder.deviceView.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.deviceView.setOnLongClickListener(new View.OnLongClickListener() {
+            final MenuItem.OnMenuItemClickListener listener=new MenuItem.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
+                    IBleDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
+                    switch (item.getItemId()){
+                        case 1:
+                            ViseLog.i("你想配置" + device.getMacAddress());
+
+                            //do something
+                            return true;
+                        case 2:
+                            activity.deleteIncludedDevice(device);
+                            return true;
+
+                        default:
+                            return true;
+                    }
+                }
+            };
+
             @Override
             public boolean onLongClick(View view) {
+                view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                    @Override
+                    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                        MenuInflater inflater = activity.getMenuInflater();
+                        MenuItem config = menu.add(Menu.NONE, 1, 0, "配置");
+                        MenuItem delete = menu.add(Menu.NONE, 2, 0, "删除");
+                        config.setOnMenuItemClickListener(listener);            //响应点击事件
+                        delete.setOnMenuItemClickListener(listener);
+                    }
+                });
                 return false;
             }
-        });*/
+        });
 
         return holder;
     }
