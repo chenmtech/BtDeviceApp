@@ -261,6 +261,8 @@ public class TempHumidDevice extends BleDevice {
     }
 
     public void readTimerServiceValue() {
+        if(!isCommandExecutorAlive()) return;
+
         commandExecutor.addReadCommand(TIMERVALUE, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {

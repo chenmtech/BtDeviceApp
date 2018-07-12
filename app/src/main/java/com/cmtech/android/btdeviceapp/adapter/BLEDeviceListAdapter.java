@@ -3,7 +3,12 @@ package com.cmtech.android.btdeviceapp.adapter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -32,7 +37,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
     // MainActivity
     MainActivity activity;
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView;
         ImageView deviceImage;
         TextView deviceName;
@@ -41,6 +46,20 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
         ImageButton ibtnDelete;
         ImageButton ibtnOpen;
 
+        MenuItem.OnMenuItemClickListener listener=new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
+                switch (item.getItemId()){
+                    case 1:
+                        //do something
+                        return true;
+                    case 2:
+                        //do something
+                    default:
+                        return true;
+                }
+            }
+        };
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -51,6 +70,18 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
             deviceStatus = deviceView.findViewById(R.id.configured_device_status);
             ibtnDelete = deviceView.findViewById(R.id.configured_device_delete_btn);
             ibtnOpen = deviceView.findViewById(R.id.configured_device_open_btn);
+
+            itemView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                @Override
+                public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                    MenuInflater inflater = activity.getMenuInflater();
+                    MenuItem delete = menu.add(Menu.NONE, 1, 1, "删除");
+                    MenuItem delete_much = menu.add(Menu.NONE, 2, 2, "批量删除");
+                    delete.setOnMenuItemClickListener(listener);            //响应点击事件
+                    delete_much.setOnMenuItemClickListener(listener);
+                }
+            });
+
         }
     }
 
@@ -90,6 +121,13 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
                 activity.openDevice(device);
             }
         });
+
+        /*holder.deviceView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                return false;
+            }
+        });*/
 
         return holder;
     }

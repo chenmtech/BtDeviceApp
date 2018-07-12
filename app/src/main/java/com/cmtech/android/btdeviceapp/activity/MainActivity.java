@@ -98,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         deviceListAdapter = new BLEDeviceListAdapter(mainController.getAddedDeviceList(), this);
         deviceListRecycView.setAdapter(deviceListAdapter);
 
+        //registerForContextMenu(deviceListRecycView);
+
         // 添加(扫描)设备
         btnScan = (Button)findViewById(R.id.device_scan_btn);
         btnScan.setOnClickListener(new View.OnClickListener() {

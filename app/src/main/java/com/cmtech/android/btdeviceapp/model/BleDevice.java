@@ -114,7 +114,7 @@ public abstract class BleDevice implements IBleDeviceInterface {
         this.state = state;
     }
 
-    private boolean isCommandExecutorAlive() {
+    protected boolean isCommandExecutorAlive() {
         return ((commandExecutor != null) && commandExecutor.isAlive());
     }
 
@@ -204,6 +204,7 @@ public abstract class BleDevice implements IBleDeviceInterface {
                 onConnectFailure((BleException)result.obj);
                 break;
             case CONNECT_DISCONNECT:
+                handler.removeCallbacks(disconnectCallback);
                 onDisconnect((Boolean) result.obj);
                 break;
 
@@ -211,6 +212,14 @@ public abstract class BleDevice implements IBleDeviceInterface {
                 break;
         }
     }
+
+    // 断开连接后的回调响应，防止有时候断开连接收不到对方的回调响应
+    private final Runnable disconnectCallback = new Runnable() {
+        @Override
+        public void run() {
+            processConnectMessage(new ConnectResultObject(BleDeviceConnectState.CONNECT_DISCONNECT, true));
+        }
+    };
 
     // 连接成功处理
     private void onConnectSuccess(DeviceMirror mirror) {
@@ -262,6 +271,7 @@ public abstract class BleDevice implements IBleDeviceInterface {
             if (deviceMirror != null) {
                 deviceMirror.disconnect();
                 deviceMirror.close();
+                handler.postDelayed(disconnectCallback, 10000); // 10秒后触发断开回调
                 //deviceMirror.removeAllCallback();
                 //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
             } else {
