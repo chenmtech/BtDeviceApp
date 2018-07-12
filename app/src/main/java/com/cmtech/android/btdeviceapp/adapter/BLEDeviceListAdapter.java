@@ -75,14 +75,21 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
             }
         });
 
-        holder.ibtnOpen.setOnClickListener(new View.OnClickListener() {
+        /*holder.ibtnOpen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                IBleDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
+                activity.openDevice(device);
+            }
+        });*/
+
+        holder.deviceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 IBleDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
                 activity.openDevice(device);
             }
         });
-
 
         return holder;
     }

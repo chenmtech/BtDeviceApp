@@ -77,6 +77,8 @@
         android:layout_gravity="start"
         android:background="#fff"
         android:orientation="vertical">
+
+
         <android.support.design.widget.NavigationView
             android:id="@+id/nav_view"
             android:layout_width="match_parent"
@@ -86,6 +88,7 @@
             app:headerLayout="@layout/navigation_header">
 
         </android.support.design.widget.NavigationView>
+
 
         <include layout="@layout/activity_configured_device"
             android:layout_width="match_parent"
