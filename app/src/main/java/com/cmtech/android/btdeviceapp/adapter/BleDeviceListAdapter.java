@@ -3,7 +3,6 @@ package com.cmtech.android.btdeviceapp.adapter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,7 +10,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,7 +28,7 @@ import java.util.List;
  * Created by bme on 2018/2/8.
  */
 
-public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdapter.ViewHolder> {
+public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdapter.ViewHolder> {
 
     // 设备列表
     private List<IBleDeviceInterface> mDeviceList;
@@ -56,7 +54,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
         }
     }
 
-    public BLEDeviceListAdapter(List<IBleDeviceInterface> deviceList, MainActivity activity) {
+    public BleDeviceListAdapter(List<IBleDeviceInterface> deviceList, MainActivity activity) {
 
         mDeviceList = deviceList;
         this.activity = activity;
@@ -64,7 +62,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
 
 
     @Override
-    public BLEDeviceListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BleDeviceListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_configured_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
@@ -84,7 +82,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
                     IBleDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
                     switch (item.getItemId()){
                         case 1:
-                            ViseLog.i("你想配置" + device.getMacAddress());
+                            ViseLog.i("你想修改" + device.getMacAddress());
                             activity.modifyDeviceInfo(device);
                             return true;
                         case 2:
@@ -103,7 +101,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
                         MenuInflater inflater = activity.getMenuInflater();
-                        MenuItem config = menu.add(Menu.NONE, 1, 0, "配置");
+                        MenuItem config = menu.add(Menu.NONE, 1, 0, "修改");
                         MenuItem delete = menu.add(Menu.NONE, 2, 0, "删除");
                         config.setOnMenuItemClickListener(listener);            //响应点击事件
                         delete.setOnMenuItemClickListener(listener);
@@ -117,7 +115,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
     }
 
     @Override
-    public void onBindViewHolder(BLEDeviceListAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(BleDeviceListAdapter.ViewHolder holder, final int position) {
         BleDevice device = (BleDevice)mDeviceList.get(position);
 
         String imagePath = device.getImagePath();

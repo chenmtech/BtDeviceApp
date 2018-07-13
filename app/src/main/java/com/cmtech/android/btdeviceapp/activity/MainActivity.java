@@ -26,7 +26,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
-import com.cmtech.android.btdeviceapp.adapter.BLEDeviceListAdapter;
+import com.cmtech.android.btdeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
@@ -48,7 +48,7 @@ import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT
 public class MainActivity extends AppCompatActivity implements IBleDeviceConnectStateObserver {
 
     // 显示设备列表的Adapter和RecyclerView
-    private BLEDeviceListAdapter deviceListAdapter;
+    private BleDeviceListAdapter deviceListAdapter;
     private RecyclerView deviceListRecycView;
 
     // 添加设备按钮
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         deviceListRecycView.setLayoutManager(layoutManager);
         deviceListRecycView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        deviceListAdapter = new BLEDeviceListAdapter(mainController.getAddedDeviceList(), this);
+        deviceListAdapter = new BleDeviceListAdapter(mainController.getAddedDeviceList(), this);
         deviceListRecycView.setAdapter(deviceListAdapter);
 
 
@@ -228,7 +228,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         if(fragmentManager.size() == 0) {
             mWelcomeLayout.setVisibility(View.VISIBLE);
             mMainLayout.setVisibility(View.INVISIBLE);
-            setTitle(R.string.app_name);
+            Toolbar toolbar = findViewById(R.id.toolbar);
+            toolbar.setTitleTextColor(Color.BLACK);
+            setTitle("陈天乐，你好！");
+            
         } else {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
             mMainLayout.setVisibility(View.VISIBLE);

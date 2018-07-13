@@ -128,8 +128,9 @@ public class MainTabFragmentManager {
 
         int size = fragManager.size();
         if(size > 0) {
-            fragManager.showFragment(fragManager.fragments.get(size-1));
+            //fragManager.showFragment(fragManager.fragments.get(size-1));
             curPos = size-1;
+            tabLayout.getTabAt(curPos).select();
         }
     }
 

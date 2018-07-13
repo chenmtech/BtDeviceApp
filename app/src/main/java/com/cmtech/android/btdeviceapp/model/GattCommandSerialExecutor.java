@@ -78,7 +78,7 @@ public class GattCommandSerialExecutor {
      * @param dataOpCallback 读回调
      * @return 是否添加成功
      */
-    public synchronized boolean addReadCommand(BleGattElement element, IBleCallback dataOpCallback) {
+    public boolean addReadCommand(BleGattElement element, IBleCallback dataOpCallback) {
         BleGattCommand.Builder builder = new BleGattCommand.Builder();
         BleGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -95,7 +95,7 @@ public class GattCommandSerialExecutor {
      * @param dataOpCallback 写回调
      * @return 是否添加成功
      */
-    public synchronized boolean addWriteCommand(BleGattElement element, byte[] data, IBleCallback dataOpCallback) {
+    public boolean addWriteCommand(BleGattElement element, byte[] data, IBleCallback dataOpCallback) {
         BleGattCommand.Builder builder = new BleGattCommand.Builder();
         BleGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
@@ -107,7 +107,7 @@ public class GattCommandSerialExecutor {
     }
 
     // 写单字节数据
-    public synchronized boolean addWriteCommand(BleGattElement element, byte data, IBleCallback dataOpCallback) {
+    public boolean addWriteCommand(BleGattElement element, byte data, IBleCallback dataOpCallback) {
         return addWriteCommand(element, new byte[]{data}, dataOpCallback);
     }
 
@@ -119,7 +119,7 @@ public class GattCommandSerialExecutor {
      * @param notifyOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public synchronized boolean addNotifyCommand(BleGattElement element, boolean enable
+    public boolean addNotifyCommand(BleGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
         BleGattCommand.Builder builder = new BleGattCommand.Builder();
         BleGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -140,7 +140,7 @@ public class GattCommandSerialExecutor {
      * @param indicateOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public synchronized boolean addIndicateCommand(BleGattElement element, boolean enable
+    public boolean addIndicateCommand(BleGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
         BleGattCommand.Builder builder = new BleGattCommand.Builder();
         BleGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -220,19 +220,19 @@ public class GattCommandSerialExecutor {
     }
 
     // 停止执行命令
-    public void stop() {
-        if(!isAlive()) return;
+    public synchronized void stop() {
+        if(isAlive()) executeThread.interrupt();
 
-        try {
+        /*try {
             executeThread.interrupt();
             executeThread.join();
             executeThread = null;
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
-    public boolean isAlive() {
+    public synchronized boolean isAlive() {
         return ((executeThread != null) && executeThread.isAlive());
     }
 }

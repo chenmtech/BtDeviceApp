@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/toolbar_connectswitch"
-        android:icon="@mipmap/ic_disconnect_32px"
+        android:icon="@mipmap/ic_open_24px"
         android:orderInCategory="0"
         android:title="连接"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/toolbar_close"
-        android:icon="@mipmap/ic_close_32px"
+        android:icon="@mipmap/ic_delete_24px"
         android:title="关闭"
         android:orderInCategory="1"
         app:showAsAction="never" />

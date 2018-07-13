@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
@@ -36,6 +37,7 @@ import java.io.File;
 public class ConfigureDeviceActivity extends AppCompatActivity {
     private Button btnCancel;
     private Button btnOk;
+
 
     private EditText etName;
     private ImageView ivImage;
