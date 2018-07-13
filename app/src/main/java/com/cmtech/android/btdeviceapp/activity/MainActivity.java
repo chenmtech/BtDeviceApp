@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
             Toolbar toolbar = findViewById(R.id.toolbar);
             toolbar.setTitleTextColor(Color.BLACK);
             setTitle("陈天乐，你好！");
-            
+
         } else {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
             mMainLayout.setVisibility(View.VISIBLE);
@@ -370,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
 
         // 更新Activity的ToolBar
         if(currentFrag != null && deviceFrag == currentFrag) {
-            updateToolBar(currentFrag, fragmentManager.getCurrentTab());
+            updateToolBar(currentFrag);
         }
     }
 
@@ -380,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     }
 
 
-    public void updateToolBar(BleDeviceFragment fragment, TabLayout.Tab tab) {
+    public void updateToolBar(BleDeviceFragment fragment) {
         BleDevice device = (BleDevice) fragment.getDevice();
         if(device == null) return;
 
@@ -409,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(drawable);*/
 
-        setTitle(tab.getText() + " " + device.getDeviceConnectState().getDescription());
+        setTitle(fragment.getDevice().getNickName() + " " + device.getDeviceConnectState().getDescription());
         Toolbar toolbar = findViewById(R.id.toolbar);
         if(device.getDeviceConnectState() == CONNECT_SUCCESS)
             toolbar.setTitleTextColor(Color.RED);

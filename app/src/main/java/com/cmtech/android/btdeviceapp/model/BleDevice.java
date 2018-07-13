@@ -10,6 +10,7 @@ import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.TimeoutException;
+import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
@@ -217,7 +218,13 @@ public abstract class BleDevice implements IBleDeviceInterface {
     private final Runnable disconnectCallback = new Runnable() {
         @Override
         public void run() {
-            processConnectMessage(new ConnectResultObject(BleDeviceConnectState.CONNECT_DISCONNECT, true));
+            if(deviceMirror != null) {
+                BluetoothLeDevice bluetoothLeDevice = deviceMirror.getBluetoothLeDevice();
+                if (bluetoothLeDevice != null && MyApplication.getViseBle().getDeviceMirrorPool().isContainDevice(bluetoothLeDevice)) {
+                    MyApplication.getViseBle().disconnect(bluetoothLeDevice);
+                }
+                processConnectMessage(new ConnectResultObject(BleDeviceConnectState.CONNECT_DISCONNECT, true));
+            }
         }
     };
 

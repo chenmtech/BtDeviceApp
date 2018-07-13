@@ -55,7 +55,7 @@ public class MainTabFragmentManager {
                 //activity.setTitle(tab.getText());
 
                 curPos = pos;
-                activity.updateToolBar(((BleDeviceFragment)fragManager.fragments.get(curPos)), tab);
+                activity.updateToolBar(((BleDeviceFragment)fragManager.fragments.get(curPos)));
             }
 
             @Override
@@ -88,7 +88,8 @@ public class MainTabFragmentManager {
             drawable = MyApplication.getContext().getResources().getDrawable(BleDeviceType.fromUuid(device.getUuidString()).getImage());
         }
         TabLayout.Tab tab = tabLayout.newTab();
-        tabLayout.addTab(tab.setText(device.getNickName()).setIcon(drawable), true);
+        //tabLayout.addTab(tab.setText(device.getNickName()).setIcon(drawable), true);
+        tabLayout.addTab(tab.setText(device.getNickName()), true);
     }
 
     public Fragment getCurrentFragment() {
