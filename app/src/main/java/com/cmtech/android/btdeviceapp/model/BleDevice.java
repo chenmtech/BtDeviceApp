@@ -278,6 +278,7 @@ public abstract class BleDevice implements IBleDeviceInterface {
             if (deviceMirror != null) {
                 deviceMirror.disconnect();
                 deviceMirror.close();
+                MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
                 handler.postDelayed(disconnectCallback, 10000); // 10秒后触发断开回调
                 //deviceMirror.removeAllCallback();
                 //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
