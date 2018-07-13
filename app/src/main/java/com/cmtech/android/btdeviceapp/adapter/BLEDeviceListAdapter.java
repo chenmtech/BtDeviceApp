@@ -44,10 +44,6 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
         TextView deviceName;
         TextView deviceAddress;
         TextView deviceStatus;
-        ImageButton ibtnDelete;
-        ImageButton ibtnOpen;
-
-
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -56,10 +52,6 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
             deviceName = deviceView.findViewById(R.id.configured_device_nickname);
             deviceAddress = deviceView.findViewById(R.id.configured_device_address);
             deviceStatus = deviceView.findViewById(R.id.configured_device_status);
-            ibtnDelete = deviceView.findViewById(R.id.configured_device_delete_btn);
-            ibtnOpen = deviceView.findViewById(R.id.configured_device_open_btn);
-
-
 
         }
     }
@@ -77,14 +69,6 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
                 .inflate(R.layout.recycle_item_configured_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
 
-        holder.ibtnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                IBleDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
-                activity.deleteIncludedDevice(device);
-            }
-        });
-
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,8 +85,7 @@ public class BLEDeviceListAdapter extends RecyclerView.Adapter<BLEDeviceListAdap
                     switch (item.getItemId()){
                         case 1:
                             ViseLog.i("你想配置" + device.getMacAddress());
-
-                            //do something
+                            activity.modifyDeviceInfo(device);
                             return true;
                         case 2:
                             activity.deleteIncludedDevice(device);

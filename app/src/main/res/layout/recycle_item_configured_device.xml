@@ -38,28 +38,4 @@
     </LinearLayout>
 
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-        <ImageButton
-            android:id="@+id/configured_device_delete_btn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:src="@mipmap/ic_delete_24px"/>
-        <ImageButton
-            android:id="@+id/configured_device_open_btn"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:src="@mipmap/ic_open_24px"/>
-    </LinearLayout>
-
-
-
-
 </LinearLayout>

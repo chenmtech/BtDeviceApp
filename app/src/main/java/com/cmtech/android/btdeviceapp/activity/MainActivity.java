@@ -75,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     private MenuItem menuConnect;
     private MenuItem menuClose;
 
+    private IBleDeviceInterface modifyDevice;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         deviceListAdapter = new BLEDeviceListAdapter(mainController.getAddedDeviceList(), this);
         deviceListRecycView.setAdapter(deviceListAdapter);
 
-        //registerForContextMenu(deviceListRecycView);
 
         // 添加(扫描)设备
         btnScan = (Button)findViewById(R.id.device_scan_btn);
@@ -181,6 +182,19 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         mainController.deleteIncludedDevice(device);
     }
 
+    // 修改设备信息 
+    public void modifyDeviceInfo(final IBleDeviceInterface device) {
+        modifyDevice = device;
+        Intent intent = new Intent(this, ConfigureDeviceActivity.class);
+        intent.putExtra("device_nickname", device.getNickName());
+        intent.putExtra("device_macaddress", device.getMacAddress());
+        intent.putExtra("device_uuid", device.getUuidString());
+        intent.putExtra("device_imagepath", device.getImagePath());
+        intent.putExtra("device_isautoconnect", device.isAutoConnected());
+
+        startActivityForResult(intent, 2);
+    }
+
     // 启动扫描设备Activity
     public void startScanActivity(List<String> includedDeviceMacList) {
         Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
@@ -246,6 +260,21 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
                         // 创建成功后，将设备基本信息保存到数据库
                         basicInfo.save();
                     }
+                }
+                break;
+            case 2:
+                if ( resultCode == RESULT_OK) {
+                    String deviceNickname = data.getStringExtra("device_nickname");
+                    String deviceUuid = data.getStringExtra("device_uuid");
+                    String imagePath = data.getStringExtra("device_imagepath");
+                    Boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
+                    if(modifyDevice == null) return;
+                    BleDeviceBasicInfo basicInfo = modifyDevice.getBasicInfo();
+                    basicInfo.setNickName(deviceNickname);
+                    basicInfo.setImagePath(imagePath);
+                    basicInfo.setAutoConnected(isAutoConnect);
+                    basicInfo.save();
+                    deviceListAdapter.notifyDataSetChanged();
                 }
                 break;
         }
