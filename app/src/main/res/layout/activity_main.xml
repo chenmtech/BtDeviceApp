@@ -90,7 +90,7 @@
         </android.support.design.widget.NavigationView>
 
 
-        <include layout="@layout/activity_configured_device"
+        <include layout="@layout/activity_registered_device"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"/>

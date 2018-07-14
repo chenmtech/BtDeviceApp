@@ -23,7 +23,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
@@ -34,7 +33,7 @@ import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
 
-public class ConfigureDeviceActivity extends AppCompatActivity {
+public class RegisterDeviceActivity extends AppCompatActivity {
     private Button btnCancel;
     private Button btnOk;
 
@@ -52,7 +51,7 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_configured_device_info);
+        setContentView(R.layout.dialog_device_basicinfo);
 
         Intent intent = getIntent();
         if(intent != null) {
@@ -80,9 +79,9 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
         ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ContextCompat.checkSelfPermission(ConfigureDeviceActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                if(ContextCompat.checkSelfPermission(RegisterDeviceActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(ConfigureDeviceActivity.this,
+                    ActivityCompat.requestPermissions(RegisterDeviceActivity.this,
                             new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 } else {
                     openAlbum();
@@ -93,8 +92,8 @@ public class ConfigureDeviceActivity extends AppCompatActivity {
         cbIsAutoconnect = (CheckBox) findViewById(R.id.cfg_device_isautoconnect);
         cbIsAutoconnect.setChecked(isAutoconnect);
 
-        btnCancel = (Button)findViewById(R.id.configure_device_cancel_btn);
-        btnOk = (Button)findViewById(R.id.configure_device_ok_btn);
+        btnCancel = (Button)findViewById(R.id.register_device_cancel_btn);
+        btnOk = (Button)findViewById(R.id.register_device_ok_btn);
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override

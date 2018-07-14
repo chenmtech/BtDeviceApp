@@ -50,13 +50,13 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <Button
-            android:id="@+id/configure_device_cancel_btn"
+            android:id="@+id/register_device_cancel_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="取消"/>
         <Button
-            android:id="@+id/configure_device_ok_btn"
+            android:id="@+id/register_device_ok_btn"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

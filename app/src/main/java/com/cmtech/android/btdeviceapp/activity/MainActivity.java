@@ -47,12 +47,12 @@ import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT
  */
 public class MainActivity extends AppCompatActivity implements IBleDeviceConnectStateObserver {
 
-    // 显示设备列表的Adapter和RecyclerView
+    // 显示已登记设备列表的Adapter和RecyclerView
     private BleDeviceListAdapter deviceListAdapter;
     private RecyclerView deviceListRecycView;
 
-    // 添加设备按钮
-    private Button btnScan;
+    // 登记设备按钮
+    private Button btnRegister;
 
     // 侧滑界面
     private DrawerLayout mDrawerLayout;
@@ -101,9 +101,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         deviceListRecycView.setAdapter(deviceListAdapter);
 
 
-        // 添加(扫描)设备
-        btnScan = (Button)findViewById(R.id.device_scan_btn);
-        btnScan.setOnClickListener(new View.OnClickListener() {
+        // 登记新设备
+        btnRegister = (Button)findViewById(R.id.device_register_btn);
+        btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 scanDevice();
@@ -182,10 +182,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         mainController.deleteIncludedDevice(device);
     }
 
-    // 修改设备信息 
+    // 修改已登记设备信息 
     public void modifyDeviceInfo(final IBleDeviceInterface device) {
         modifyDevice = device;
-        Intent intent = new Intent(this, ConfigureDeviceActivity.class);
+        Intent intent = new Intent(this, RegisterDeviceActivity.class);
         intent.putExtra("device_nickname", device.getNickName());
         intent.putExtra("device_macaddress", device.getMacAddress());
         intent.putExtra("device_uuid", device.getUuidString());
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
             mMainLayout.setVisibility(View.INVISIBLE);
             Toolbar toolbar = findViewById(R.id.toolbar);
             toolbar.setTitleTextColor(Color.BLACK);
-            setTitle("陈天乐，你好！");
+            setTitle("物联网蓝牙终端App");
 
         } else {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
@@ -243,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case 1:
-                // 添加设备返回
+                // 登记设备返回
                 if(resultCode == RESULT_OK) {
                     String nickName = data.getStringExtra("device_nickname");
                     String macAddress = data.getStringExtra("device_macaddress");
@@ -266,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
                 }
                 break;
             case 2:
+                // 修改设备信息返回
                 if ( resultCode == RESULT_OK) {
                     String deviceNickname = data.getStringExtra("device_nickname");
                     String deviceUuid = data.getStringExtra("device_uuid");

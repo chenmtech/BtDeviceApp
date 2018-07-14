@@ -17,17 +17,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <Button
-            android:id="@+id/device_add_cancel_btn"
+            android:id="@+id/device_register_cancel_btn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="取消"/>
         <Button
-            android:id="@+id/device_add_ok_btn"
+            android:id="@+id/device_register_ok_btn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="添加"/>
+            android:text="登记"/>
 
     </LinearLayout>
 

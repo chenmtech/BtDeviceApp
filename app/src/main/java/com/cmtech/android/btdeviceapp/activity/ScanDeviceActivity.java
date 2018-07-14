@@ -3,8 +3,6 @@ package com.cmtech.android.btdeviceapp.activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,8 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.ViseBle;
@@ -28,11 +24,7 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.btdeviceapp.callback.ScanDeviceCallback;
 import com.cmtech.android.btdeviceapp.util.Uuid;
-import com.vise.utils.file.FileUtil;
-import com.vise.utils.view.BitmapUtil;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +41,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     private RecyclerView rvScanedDevices;
     private List<BluetoothLeDevice> scanedDeviceList = new ArrayList<>();
 
-    // 当前已经配置过的设备列表
+    // 当前已经登记过的设备列表
     private List<String> deviceMacList = new ArrayList<>();
 
     private Button btnCancel;
@@ -73,8 +65,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
         rvScanedDevices.setAdapter(scanDeviceAdapter);
 
 
-        btnCancel = (Button)findViewById(R.id.device_add_cancel_btn);
-        btnOk = (Button)findViewById(R.id.device_add_ok_btn);
+        btnCancel = (Button)findViewById(R.id.device_register_cancel_btn);
+        btnOk = (Button)findViewById(R.id.device_register_ok_btn);
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,7 +83,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
                     if(hasConfigured(scanedDeviceList.get(which))) {
                         Toast.makeText(ScanDeviceActivity.this, "此设备之前已配置！", Toast.LENGTH_LONG).show();
                     } else {
-                        addToConfiguredDevice(scanDeviceAdapter.getSelectItem());
+                        addToRegisteredDevices(scanDeviceAdapter.getSelectItem());
                     }
                 }
             }
@@ -108,7 +100,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         return false;
     }
 
-    private void addToConfiguredDevice(final int which) {
+    private void addToRegisteredDevices(final int which) {
         String macAddress = scanedDeviceList.get(which).getAddress();
 
         // 获取设备广播数据中的UUID的短串
@@ -118,7 +110,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         String uuidShortString = Uuid.longToShortString(Uuid.byteArrayToUuid(record.getData()).toString());
         Log.v(TAG, uuidShortString);
 
-        Intent intent = new Intent(ScanDeviceActivity.this, ConfigureDeviceActivity.class);
+        Intent intent = new Intent(ScanDeviceActivity.this, RegisterDeviceActivity.class);
         intent.putExtra("device_nickname", "");
         intent.putExtra("device_macaddress", macAddress);
         intent.putExtra("device_uuid", uuidShortString);

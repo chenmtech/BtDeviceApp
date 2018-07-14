@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="已有设备列表"
+        android:text="已登记设备列表"
         android:textSize="20sp" />
 
     <android.support.v7.widget.RecyclerView
@@ -21,10 +21,10 @@
         android:layout_weight="1"/>
 
     <Button
-        android:id="@+id/device_scan_btn"
+        android:id="@+id/device_register_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="添加新设备"/>
+        android:text="登记新设备"/>
 
 
 </LinearLayout>

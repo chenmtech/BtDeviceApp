@@ -198,15 +198,24 @@ public abstract class BleDevice implements IBleDeviceInterface {
 
         switch (result.state) {
             case CONNECT_SUCCESS:
-                onConnectSuccess((DeviceMirror)result.obj);
+                //onConnectSuccess((DeviceMirror)result.obj);
+                executeAfterConnectSuccess();
                 break;
             case CONNECT_TIMEOUT:
             case CONNECT_FAILURE:
-                onConnectFailure((BleException)result.obj);
+                //onConnectFailure((BleException)result.obj);
+                // 连接失败后，立刻断开连接，不做其他处理
+                disconnect();
                 break;
             case CONNECT_DISCONNECT:
+                //onDisconnect((Boolean) result.obj);
                 handler.removeCallbacks(disconnectCallback);
-                onDisconnect((Boolean) result.obj);
+
+                if(deviceMirror != null) {
+                    deviceMirror.close();
+                    MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+                }
+                executeAfterDisconnect((Boolean) result.obj);
                 break;
 
             default:
@@ -229,18 +238,24 @@ public abstract class BleDevice implements IBleDeviceInterface {
     };
 
     // 连接成功处理
-    private void onConnectSuccess(DeviceMirror mirror) {
-        executeAfterConnectSuccess();
-    }
+    //private void onConnectSuccess(DeviceMirror mirror) {
+    //    executeAfterConnectSuccess();
+    //}
 
     // 连接失败处理
-    private void onConnectFailure(BleException exception) {
+    /*private void onConnectFailure(BleException exception) {
         // 连接失败后，立刻断开连接，不做其他处理
         disconnect();
-    }
+    }*/
 
     // 断开连接处理
     private void onDisconnect(Boolean isActive) {
+        handler.removeCallbacks(disconnectCallback);
+
+        if(deviceMirror != null) {
+            deviceMirror.close();
+            MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+        }
         executeAfterDisconnect(isActive);
     }
 
@@ -277,9 +292,9 @@ public abstract class BleDevice implements IBleDeviceInterface {
 
             if (deviceMirror != null) {
                 deviceMirror.disconnect();
-                deviceMirror.close();
-                MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
-                handler.postDelayed(disconnectCallback, 10000); // 10秒后触发断开回调
+                //deviceMirror.close();
+                //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+                handler.postDelayed(disconnectCallback, 5000); // 5秒后触发断开回调
                 //deviceMirror.removeAllCallback();
                 //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
             } else {
