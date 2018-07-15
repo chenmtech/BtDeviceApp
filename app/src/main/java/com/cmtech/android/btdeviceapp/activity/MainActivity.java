@@ -34,7 +34,7 @@ import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BleDevice;
 import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.MainController;
-import com.cmtech.android.btdeviceapp.model.MainTabFragmentManager;
+import com.cmtech.android.btdeviceapp.model.FragmentAndTabLayoutManager;
 
 import java.io.Serializable;
 import java.util.List;
@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     private ImageView welcomeImage;
 
     // 主界面的TabLayout和Fragment管理器
-    private MainTabFragmentManager fragmentManager;
+    private FragmentAndTabLayoutManager fragmentManager;
 
     // 所有设备的主控制器
     private final MainController mainController = new MainController(this);
@@ -143,7 +143,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         tabLayout.setTabTextColors(Color.BLACK, Color.BLUE);
         //tab的下划线颜色,默认是粉红色
         tabLayout.setSelectedTabIndicatorColor(Color.BLUE);
-        fragmentManager = new MainTabFragmentManager(this, tabLayout, R.id.main_fragment_layout);
+        fragmentManager = new FragmentAndTabLayoutManager(getSupportFragmentManager(), tabLayout, R.id.main_fragment_layout);
+        fragmentManager.setOnFragmentChangedListener(new FragmentAndTabLayoutManager.OnFragmentChangedListener() {
+            @Override
+            public void onFragmentchanged() {
+                updateToolBar((BleDeviceFragment) fragmentManager.getCurrentFragment());
+            }
+        });
 
         // 更新主界面
         updateMainLayoutVisibility();
@@ -207,14 +213,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     public void addFragment(IBleDeviceInterface device, BleDeviceFragment fragment) {
         mDrawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
-        fragmentManager.addFragment(device, fragment);
+        fragmentManager.addFragment(fragment, device.getImagePath(), device.getNickName());
         updateMainLayoutVisibility();
     }
 
     // 显示一个Fragment
     public void showFragment(BleDeviceFragment fragment) {
         openDrawer(false);
-        fragmentManager.showDeviceFragment(fragment);
+        fragmentManager.showFragment(fragment);
     }
 
     // 删除指定的Fragment
@@ -383,6 +389,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
 
 
     public void updateToolBar(BleDeviceFragment fragment) {
+        if(fragment == null || fragment.getDevice() == null) return;
+
         BleDevice device = (BleDevice) fragment.getDevice();
         if(device == null) return;
 
