@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.BleDeviceListAdapter;
+import com.cmtech.android.btdeviceapp.interfa.BleDeviceAbstractFactory;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
@@ -36,7 +37,10 @@ import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
 import com.cmtech.android.btdeviceapp.model.MainController;
 import com.cmtech.android.btdeviceapp.model.FragmentAndTabLayoutManager;
 
+import org.litepal.LitePal;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT_SUCCESS;
@@ -46,6 +50,8 @@ import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT
  *  Created by bme on 2018/2/19.
  */
 public class MainActivity extends AppCompatActivity implements IBleDeviceConnectStateObserver {
+    // 已登记的设备列表
+    private final List<IBleDeviceInterface> registeredDeviceList = new ArrayList<>();
 
     // 显示已登记设备列表的Adapter和RecyclerView
     private BleDeviceListAdapter deviceListAdapter;
@@ -156,6 +162,36 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
 
         // 初始化主控制器
         mainController.initialize();
+    }
+
+    // 从数据库中获取已登记的设备基本信息列表
+    public void initialize() {
+        // 从数据库获取设备信息，并构造相应的BLEDevice
+        List<BleDeviceBasicInfo> basicInfoList = LitePal.findAll(BleDeviceBasicInfo.class);
+        if(basicInfoList != null && !basicInfoList.isEmpty()) {
+            for(BleDeviceBasicInfo basicInfo : basicInfoList) {
+                createBleDeviceUsingBasicInfo(basicInfo);
+            }
+        }
+    }
+
+    // 根据设备基本信息创建一个新的设备，并添加到设备列表中
+    public boolean createBleDeviceUsingBasicInfo(BleDeviceBasicInfo basicInfo) {
+        // 获取相应的抽象工厂
+        BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(basicInfo);
+        if(factory == null) return false;
+        // 用工厂创建BleDevice
+        IBleDeviceInterface device = factory.createBleDevice(basicInfo);
+
+        if(device != null) {
+            // 将设备添加到设备列表
+            registeredDeviceList.add(device);
+            // 添加Activity作为设备连接状态的观察者
+            device.registerConnectStateObserver(this);
+            // 通知观察者
+            device.notifyConnectStateObservers();
+        }
+        return true;
     }
 
     // 开始扫描设备
