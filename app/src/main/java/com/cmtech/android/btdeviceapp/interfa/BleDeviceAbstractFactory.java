@@ -6,6 +6,7 @@ import com.cmtech.android.btdevice.thermo.ThermoDeviceFactory;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
+import com.cmtech.android.btdeviceapp.model.MainController;
 
 public abstract class BleDeviceAbstractFactory {
     // 支持的设备类型的16位UUID的字符串
@@ -30,6 +31,6 @@ public abstract class BleDeviceAbstractFactory {
     }
 
     public abstract IBleDeviceInterface createBleDevice(BleDeviceBasicInfo basicInfo);
-    public abstract IBleDeviceControllerInterface createController(IBleDeviceInterface device, MainActivity activity);
+    public abstract IBleDeviceControllerInterface createController(IBleDeviceInterface device, MainController mainController);
     public abstract BleDeviceFragment createFragment();
 }

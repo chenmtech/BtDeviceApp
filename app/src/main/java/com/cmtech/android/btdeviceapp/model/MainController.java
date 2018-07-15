@@ -79,7 +79,7 @@ public class MainController {
         } else {
             BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo());
             if(factory == null) return;
-            IBleDeviceControllerInterface deviceController = factory.createController(device, activity);
+            IBleDeviceControllerInterface deviceController = factory.createController(device, this);
             openedControllerList.add(deviceController);
             activity.addFragment(device, deviceController.getFragment());
         }

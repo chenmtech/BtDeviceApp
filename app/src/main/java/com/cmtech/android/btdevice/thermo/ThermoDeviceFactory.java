@@ -6,6 +6,7 @@ import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
+import com.cmtech.android.btdeviceapp.model.MainController;
 
 public class ThermoDeviceFactory extends BleDeviceAbstractFactory {
     @Override
@@ -14,8 +15,8 @@ public class ThermoDeviceFactory extends BleDeviceAbstractFactory {
     }
 
     @Override
-    public IBleDeviceControllerInterface createController(IBleDeviceInterface device, MainActivity activity) {
-        return new ThermoController(device, activity);
+    public IBleDeviceControllerInterface createController(IBleDeviceInterface device, MainController mainController) {
+        return new ThermoController(device, mainController);
     }
 
     @Override
