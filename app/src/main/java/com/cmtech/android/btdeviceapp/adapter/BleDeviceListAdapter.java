@@ -83,10 +83,10 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
                     switch (item.getItemId()){
                         case 1:
                             ViseLog.i("你想修改" + device.getMacAddress());
-                            activity.modifyDeviceInfo(device);
+                            activity.modifyRegisteredDeviceInfo(device);
                             return true;
                         case 2:
-                            activity.deleteIncludedDevice(device);
+                            activity.deleteRegisteredDevice(device);
                             return true;
 
                         default:

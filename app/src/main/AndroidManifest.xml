@@ -26,7 +26,7 @@
 
         <activity android:name=".activity.ScanDeviceActivity" />
 
-        <activity android:name=".activity.RegisterDeviceActivity"
+        <activity android:name=".activity.DeviceBasicInfoActivity"
             android:theme="@style/Theme.AppCompat.Light.Dialog"
             android:label="设置设备信息"></activity>
     </application>

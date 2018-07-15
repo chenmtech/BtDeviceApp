@@ -110,7 +110,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         String uuidShortString = Uuid.longToShortString(Uuid.byteArrayToUuid(record.getData()).toString());
         Log.v(TAG, uuidShortString);
 
-        Intent intent = new Intent(ScanDeviceActivity.this, RegisterDeviceActivity.class);
+        Intent intent = new Intent(ScanDeviceActivity.this, DeviceBasicInfoActivity.class);
         intent.putExtra("device_nickname", "");
         intent.putExtra("device_macaddress", macAddress);
         intent.putExtra("device_uuid", uuidShortString);

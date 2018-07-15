@@ -33,7 +33,7 @@ import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
 
-public class RegisterDeviceActivity extends AppCompatActivity {
+public class DeviceBasicInfoActivity extends AppCompatActivity {
     private Button btnCancel;
     private Button btnOk;
 
@@ -79,9 +79,9 @@ public class RegisterDeviceActivity extends AppCompatActivity {
         ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ContextCompat.checkSelfPermission(RegisterDeviceActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                if(ContextCompat.checkSelfPermission(DeviceBasicInfoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(RegisterDeviceActivity.this,
+                    ActivityCompat.requestPermissions(DeviceBasicInfoActivity.this,
                             new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 } else {
                     openAlbum();

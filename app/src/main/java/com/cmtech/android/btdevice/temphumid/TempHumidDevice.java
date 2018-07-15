@@ -194,7 +194,7 @@ public class TempHumidDevice extends BleDevice {
 
     @Override
     public synchronized void executeAfterConnectSuccess() {
-        //initialize();
+        //initializeBleDevice();
 
         // 检查所需的服务和特征值
         if(!checkServiceAndCharacteristic()) return;

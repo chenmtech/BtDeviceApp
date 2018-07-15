@@ -294,7 +294,7 @@ public abstract class BleDevice implements IBleDeviceInterface {
                 deviceMirror.disconnect();
                 //deviceMirror.close();
                 //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
-                handler.postDelayed(disconnectCallback, 5000); // 5秒后触发断开回调
+                handler.postDelayed(disconnectCallback, 2000); // 2秒后触发断开回调
                 //deviceMirror.removeAllCallback();
                 //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
             } else {
@@ -320,8 +320,10 @@ public abstract class BleDevice implements IBleDeviceInterface {
         // 断开连接
         disconnect();
 
-        if(deviceMirror != null)
+        if(deviceMirror != null) {
             deviceMirror.close();
+            MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+        }
 
         state = CONNECT_WAITING;
         notifyConnectStateObservers();
