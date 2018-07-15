@@ -21,8 +21,8 @@ import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
  */
 
 public abstract class BleDeviceFragment extends Fragment{
-    // 主控制器
-    //protected MainController mainController;
+    // MainActivity
+    protected MainActivity activity;
 
     // 对应的控制器接口
     protected IBleDeviceControllerInterface controller;
@@ -77,10 +77,10 @@ public abstract class BleDeviceFragment extends Fragment{
         }
 
         // 获得Activity
-        //mainController = ((MainActivity) context).getMainController();
+        activity = (MainActivity) context;
 
         // 获取controller
-        controller = ((MainActivity) context).getMainController().getController(this);
+        controller = activity.getController(this);
 
         // 获取device
         if(controller != null) {
@@ -113,7 +113,7 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
 
-        device.close();
+        controller.closeDevice();
     }
 
     @Override
@@ -135,7 +135,13 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     public void closeDevice() {
-        controller.closeDevice();
+        /*new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                activity.closeDevice(device);
+            }
+        });*/
+        activity.closeDevice(device);
     }
 
     public void switchDeviceConnectState() {

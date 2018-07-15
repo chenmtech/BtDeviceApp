@@ -8,22 +8,21 @@ import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 
 public class BleDeviceController implements IBleDeviceControllerInterface {
-    // 主控制器
-    private final MainController mainController;
+    private final MainActivity activity;
 
-    // 设备接口
+    // Model
     private final IBleDeviceInterface device;
 
-    // 设备Fragment
+    // View
     private final BleDeviceFragment fragment;
 
 
-    public BleDeviceController(IBleDeviceInterface device, MainController mainController) {
-        if(device == null || mainController == null) {
+    public BleDeviceController(IBleDeviceInterface device, MainActivity activity) {
+        if(device == null || activity == null) {
             throw new IllegalStateException();
         }
 
-        this.mainController = mainController;
+        this.activity = activity;
         this.device = device;
         fragment = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();
     }
@@ -40,7 +39,7 @@ public class BleDeviceController implements IBleDeviceControllerInterface {
 
     @Override
     public void closeDevice() {
-        mainController.closeDevice(device);
+        device.close();
     }
 
     @Override

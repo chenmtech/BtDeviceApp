@@ -69,7 +69,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     // 主界面的TabLayout和Fragment管理器
     private FragmentAndTabLayoutManager fragmentManager;
 
-
     // 所有设备的主控制器
     private final MainController mainController = new MainController(this);
 
@@ -157,11 +156,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
 
         // 初始化主控制器
         mainController.initialize();
-    }
-
-
-    public MainController getMainController() {
-        return mainController;
     }
 
     // 开始扫描设备
