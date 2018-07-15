@@ -2,6 +2,8 @@ package com.cmtech.android.btdeviceapp.model;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -133,6 +135,12 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     public void closeDevice() {
+        /*new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                activity.closeDevice(device);
+            }
+        });*/
         activity.closeDevice(device);
     }
 

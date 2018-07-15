@@ -312,8 +312,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
             case R.id.toolbar_close:
                 fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
                 if(fragment != null) {
-                    fragment.disconnectDevice();
-                    fragment.closeDevice();
+                    //fragment.disconnectDevice();
+                    //fragment.closeDevice();
+                    closeDevice(fragment.getDevice());
                 } else {
                     finish();
                 }

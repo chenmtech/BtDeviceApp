@@ -246,7 +246,7 @@ public abstract class BleDevice implements IBleDeviceInterface {
     /*private void onConnectFailure(BleException exception) {
         // 连接失败后，立刻断开连接，不做其他处理
         disconnect();
-    }*/
+    }
 
     // 断开连接处理
     private void onDisconnect(Boolean isActive) {
@@ -257,7 +257,7 @@ public abstract class BleDevice implements IBleDeviceInterface {
             MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
         }
         executeAfterDisconnect(isActive);
-    }
+    }*/
 
     // 停止命令执行器
     public void stopCommandExecutor() {
@@ -324,7 +324,6 @@ public abstract class BleDevice implements IBleDeviceInterface {
             deviceMirror.close();
 
         state = CONNECT_WAITING;
-
         notifyConnectStateObservers();
     }
 

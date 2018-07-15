@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,13 +49,13 @@ public class MainTabFragmentManager {
                 if(pos < 0) return;
 
                 // 隐藏当前的Fragment
-                if(curPos >= 0 && curPos != pos) fragManager.hideFragment(fragManager.fragments.get(curPos));
+                if(curPos >= 0 && curPos < size() && curPos != pos) fragManager.hideFragment(fragManager.fragments.get(curPos));
 
                 // 显示选中的Fragment
                 fragManager.showFragment(fragManager.fragments.get(pos));
-                //activity.setTitle(tab.getText());
 
                 curPos = pos;
+                // 更新工具条
                 activity.updateToolBar(((BleDeviceFragment)fragManager.fragments.get(curPos)));
             }
 
@@ -93,7 +94,7 @@ public class MainTabFragmentManager {
     }
 
     public Fragment getCurrentFragment() {
-        if(curPos < 0) return null;
+        if(curPos < 0 || curPos >= size()) return null;
         else return fragManager.getFragment(curPos);
     }
 
@@ -124,15 +125,14 @@ public class MainTabFragmentManager {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
         int index = fragManager.fragments.indexOf(fragment);
-        tabLayout.removeTab(tabLayout.getTabAt(index));
         fragManager.removeFragment(fragment);
+        tabLayout.removeTab(tabLayout.getTabAt(index));
 
-        int size = fragManager.size();
+        // 回到第一个Fragment
+        /*int size = fragManager.size();
         if(size > 0) {
-            //fragManager.showFragment(fragManager.fragments.get(size-1));
-            curPos = size-1;
-            tabLayout.getTabAt(curPos).select();
-        }
+            tabLayout.getTabAt(0).select();
+        }*/
     }
 
     // 显示设备的Fragment
@@ -172,10 +172,11 @@ public class MainTabFragmentManager {
 
         public void removeFragment(Fragment fragment) {
             if (fragment != null) {
+                ViseLog.i("removeFragment " + fragment);
+                fragments.remove(fragment);
                 FragmentTransaction transaction = manager.beginTransaction();
                 transaction.remove(fragment);
                 transaction.commit();
-                fragments.remove(fragment);
             }
         }
 
@@ -188,6 +189,7 @@ public class MainTabFragmentManager {
         }
 
         public void showFragment(Fragment fragment) {
+            ViseLog.i("showFragment " + fragment);
             if (fragment != null) {
                 FragmentTransaction transaction = manager.beginTransaction();
                 transaction.show(fragment);
