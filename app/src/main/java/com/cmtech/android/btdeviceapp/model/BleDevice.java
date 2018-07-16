@@ -221,14 +221,10 @@ public abstract class BleDevice implements IBleDevice {
 
             if (deviceMirror != null) {
                 deviceMirror.disconnect();
-                //deviceMirror.close();
-                //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
                 handler.postDelayed(disconnectCallback, 2000); // 2秒后触发断开回调
-                //deviceMirror.removeAllCallback();
-                //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
             } else {
-                setDeviceConnectState(CONNECT_DISCONNECT);
-                notifyConnectStateObservers();
+                //setDeviceConnectState(CONNECT_DISCONNECT);
+                //notifyConnectStateObservers();
             }
         }
     }
@@ -371,17 +367,18 @@ public abstract class BleDevice implements IBleDevice {
 
         switch (result.state) {
             case CONNECT_SUCCESS:
-                //onConnectSuccess((DeviceMirror)result.obj);
+
                 executeAfterConnectSuccess();
                 break;
+
             case CONNECT_CONNECTTIMEOUT:
             case CONNECT_CONNECTFAILURE:
-                //onConnectFailure((BleException)result.obj);
+
                 // 连接失败后，立刻断开连接，不做其他处理
                 disconnect();
                 break;
+
             case CONNECT_DISCONNECT:
-                //onDisconnect((Boolean) result.obj);
                 handler.removeCallbacks(disconnectCallback);
 
                 if(deviceMirror != null) {
@@ -389,7 +386,11 @@ public abstract class BleDevice implements IBleDevice {
                     MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
                 }
                 executeAfterDisconnect((Boolean) result.obj);
+
+                setDeviceConnectState(CONNECT_WAITING);
+                notifyConnectStateObservers();
                 break;
+
             case CONNECT_SCANFAILURE:
                 // 扫描错误，什么也不做
                 break;
