@@ -5,8 +5,8 @@ import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 import com.cmtech.android.btdeviceapp.model.BleDeviceController;
 
 public class TempHumidDeviceController extends BleDeviceController {
-    public TempHumidDeviceController(IBleDeviceInterface device, MainActivity activity) {
-        super(device, activity);
+    public TempHumidDeviceController(IBleDeviceInterface device) {
+        super(device);
     }
 
 

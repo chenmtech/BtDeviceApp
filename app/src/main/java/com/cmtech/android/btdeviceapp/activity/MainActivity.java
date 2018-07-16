@@ -333,7 +333,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         } else {
             BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo());
             if(factory == null) return;
-            IBleDeviceControllerInterface deviceController = factory.createController(device, this);
+            // 在构造BleDeviceController时，会自动创建BleDeviceFragment
+            IBleDeviceControllerInterface deviceController = factory.createController(device);
             openedControllerList.add(deviceController);
             addFragment(deviceController.getFragment(), device.getImagePath(), device.getNickName());
         }

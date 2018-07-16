@@ -14,8 +14,8 @@ public class ThermoDeviceFactory extends BleDeviceAbstractFactory {
     }
 
     @Override
-    public IBleDeviceControllerInterface createController(IBleDeviceInterface device, MainActivity activity) {
-        return new ThermoController(device, activity);
+    public IBleDeviceControllerInterface createController(IBleDeviceInterface device) {
+        return new ThermoController(device);
     }
 
     @Override

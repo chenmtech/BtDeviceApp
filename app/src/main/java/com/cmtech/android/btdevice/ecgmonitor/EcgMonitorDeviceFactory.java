@@ -14,8 +14,8 @@ public class EcgMonitorDeviceFactory extends BleDeviceAbstractFactory {
     }
 
     @Override
-    public IBleDeviceControllerInterface createController(IBleDeviceInterface device, MainActivity activity) {
-        return new EcgMonitorDeviceController(device, activity);
+    public IBleDeviceControllerInterface createController(IBleDeviceInterface device) {
+        return new EcgMonitorDeviceController(device);
     }
 
     @Override

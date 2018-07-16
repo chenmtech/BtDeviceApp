@@ -8,22 +8,20 @@ import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 
 public class BleDeviceController implements IBleDeviceControllerInterface {
-    private final MainActivity activity;
-
-    // Model
+    // 设备
     private final IBleDeviceInterface device;
 
-    // View
+    // Fragment
     private final BleDeviceFragment fragment;
 
 
-    public BleDeviceController(IBleDeviceInterface device, MainActivity activity) {
-        if(device == null || activity == null) {
+    public BleDeviceController(IBleDeviceInterface device) {
+        if(device == null) {
             throw new IllegalStateException();
         }
 
-        this.activity = activity;
         this.device = device;
+        // 为设备创建fragment，但是fragment还没有Attach到Activity
         fragment = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();
     }
 

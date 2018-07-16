@@ -30,6 +30,6 @@ public abstract class BleDeviceAbstractFactory {
     }
 
     public abstract IBleDeviceInterface createBleDevice(BleDeviceBasicInfo basicInfo);
-    public abstract IBleDeviceControllerInterface createController(IBleDeviceInterface device, MainActivity activity);
+    public abstract IBleDeviceControllerInterface createController(IBleDeviceInterface device);
     public abstract BleDeviceFragment createFragment();
 }

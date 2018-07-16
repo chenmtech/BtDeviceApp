@@ -6,12 +6,13 @@ package com.cmtech.android.btdeviceapp.model;
 
 public enum BleDeviceConnectState {
     CONNECT_WAITING(0, "等待连接"),
-    CONNECT_TIMEOUT(1, "超时"),
+    CONNECT_SCANFAILURE(1, "扫描错误"),
     CONNECT_CONNECTING(2, "连接中"),
-    CONNECT_FAILURE(3, "连接错误"),
-    CONNECT_DISCONNECT(4, "连接断开"),
-    CONNECT_DISCONNECTING(5, "连接断开中"),
-    CONNECT_SUCCESS(6, "已连接");
+    CONNECT_CONNECTFAILURE(3, "连接错误"),
+    CONNECT_CONNECTTIMEOUT(4, "连接超时"),
+    CONNECT_DISCONNECT(5, "连接断开"),
+    CONNECT_DISCONNECTING(6, "连接断开中"),
+    CONNECT_SUCCESS(7, "已连接");
 
 
     private int code;                   //对应括号里面第一个值

@@ -30,11 +30,13 @@ public abstract class BleDeviceFragment extends Fragment{
     // 对应的设备接口
     protected IBleDeviceInterface device;
 
-    // 连接状态tv
+    // 设备连接状态tv
     protected TextView tvConnectState;
 
+    // 切换设备连接状态开关
     protected ImageButton btnSwitchConnectState;
 
+    // 关闭设备开关
     protected ImageButton btnClose;
 
     public BleDeviceFragment() {
@@ -48,9 +50,6 @@ public abstract class BleDeviceFragment extends Fragment{
         tvConnectState = view.findViewById(R.id.device_connect_state_tv);
 
         btnSwitchConnectState = view.findViewById(R.id.device_connectswitch_btn);
-
-        btnClose = view.findViewById(R.id.device_close_btn);
-
         btnSwitchConnectState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -59,10 +58,10 @@ public abstract class BleDeviceFragment extends Fragment{
         });
 
 
+        btnClose = view.findViewById(R.id.device_close_btn);
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(BleDeviceFragment.this.getClass().getSimpleName(), "is closed.");
                 closeDevice();
             }
         });
@@ -121,37 +120,40 @@ public abstract class BleDeviceFragment extends Fragment{
         super.onDetach();
     }
 
-
+    // 获取设备
     public IBleDeviceInterface getDevice() {
         return device;
     }
 
+    // 连接设备
     public void connectDevice() {
         controller.connectDevice();
     }
 
+    // 断开设备
     public void disconnectDevice() {
         controller.disconnectDevice();
     }
 
+    // 关闭设备
+    // 为什么这里不是调用controller.closeDevice()，而是调用activity.closeDevice(fragment)???
+    // 因为关闭一个带Fragment的设备，除了要关闭设备本身以外，还要销毁它的Fragment，并将设备的控制器从控制器列表中删除
+    // 这些动作需要调用activity.closeDevice才能完成
+    // 关闭设备的动作会在销毁Fragment时触发onDestroy()，那里会调用controller.closeDevice()来关闭设备
     public void closeDevice() {
-        /*new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                activity.closeDevice(device);
-            }
-        });*/
         activity.closeDevice(this);
     }
 
+    // 切换设备的连接状态
     public void switchDeviceConnectState() {
         controller.switchDeviceConnectState();
     }
 
+    // 更新设备连接状态
     public void updateConnectState(final BleDevice device) {
-        if(device == this.device) {
-            // isAdded()用来判断Fragment是否与Activity关联，如果关联了，才能更新状态信息
-            if(isAdded()) updateConnectState();
+        // isAdded()用来判断Fragment是否与Activity关联，如果关联了，才能更新状态信息
+        if(device == this.device && isAdded()) {
+            updateConnectState();
         }
     }
 

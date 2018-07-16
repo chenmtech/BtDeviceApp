@@ -5,7 +5,7 @@ import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 import com.cmtech.android.btdeviceapp.model.BleDeviceController;
 
 public class ThermoController extends BleDeviceController {
-    public ThermoController(IBleDeviceInterface device, MainActivity activity) {
-        super(device, activity);
+    public ThermoController(IBleDeviceInterface device) {
+        super(device);
     }
 }

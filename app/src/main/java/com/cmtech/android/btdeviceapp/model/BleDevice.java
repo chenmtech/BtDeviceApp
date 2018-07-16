@@ -119,7 +119,7 @@ public abstract class BleDevice implements IBleDeviceInterface {
         return ((commandExecutor != null) && commandExecutor.isAlive());
     }
 
-    public synchronized void createGattCommandExecutor() {
+    protected synchronized void createGattCommandExecutor() {
         ViseLog.i("create new command executor.");
         if(isCommandExecutorAlive()) return;
 
@@ -157,9 +157,9 @@ public abstract class BleDevice implements IBleDeviceInterface {
         public void onConnectFailure(final BleException exception) {
             final BleDeviceConnectState state;
             if(exception instanceof TimeoutException)
-                state = CONNECT_TIMEOUT;
+                state = CONNECT_CONNECTTIMEOUT;
             else
-                state = CONNECT_FAILURE;
+                state = CONNECT_CONNECTFAILURE;
 
             ViseLog.i("onConnectFailure with state = " + state);
 
@@ -173,6 +173,13 @@ public abstract class BleDevice implements IBleDeviceInterface {
 
             sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_DISCONNECT, isActive));
 
+        }
+
+        @Override
+        public void onScanFailure(BleException exception) {
+            ViseLog.d("onScanFailure");
+
+            sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_SCANFAILURE, exception));
         }
     };
 
@@ -201,8 +208,8 @@ public abstract class BleDevice implements IBleDeviceInterface {
                 //onConnectSuccess((DeviceMirror)result.obj);
                 executeAfterConnectSuccess();
                 break;
-            case CONNECT_TIMEOUT:
-            case CONNECT_FAILURE:
+            case CONNECT_CONNECTTIMEOUT:
+            case CONNECT_CONNECTFAILURE:
                 //onConnectFailure((BleException)result.obj);
                 // 连接失败后，立刻断开连接，不做其他处理
                 disconnect();
@@ -216,6 +223,9 @@ public abstract class BleDevice implements IBleDeviceInterface {
                     MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
                 }
                 executeAfterDisconnect((Boolean) result.obj);
+                break;
+            case CONNECT_SCANFAILURE:
+                // 扫描错误，什么也不做
                 break;
 
             default:

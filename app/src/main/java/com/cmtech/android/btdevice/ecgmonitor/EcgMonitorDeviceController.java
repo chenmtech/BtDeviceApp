@@ -8,8 +8,8 @@ public class EcgMonitorDeviceController extends BleDeviceController {
     private final EcgMonitorDevice device;
     private final EcgMonitorFragment fragment;
 
-    public EcgMonitorDeviceController(IBleDeviceInterface device, MainActivity activity) {
-        super(device, activity);
+    public EcgMonitorDeviceController(IBleDeviceInterface device) {
+        super(device);
         this.device = (EcgMonitorDevice) device;
         this.fragment = (EcgMonitorFragment) getFragment();
     }

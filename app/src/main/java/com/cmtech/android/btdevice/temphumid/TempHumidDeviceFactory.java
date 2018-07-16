@@ -14,8 +14,8 @@ public class TempHumidDeviceFactory extends BleDeviceAbstractFactory {
     }
 
     @Override
-    public IBleDeviceControllerInterface createController(IBleDeviceInterface device, MainActivity activity) {
-        return new TempHumidDeviceController(device, activity);
+    public IBleDeviceControllerInterface createController(IBleDeviceInterface device) {
+        return new TempHumidDeviceController(device);
     }
 
     @Override
