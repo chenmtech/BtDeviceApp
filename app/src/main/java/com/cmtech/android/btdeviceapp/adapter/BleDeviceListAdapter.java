@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,6 @@ import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 import com.cmtech.android.btdeviceapp.model.BleDevice;
 import com.cmtech.android.btdeviceapp.model.BleDeviceType;
-import com.vise.log.ViseLog;
 
 import java.util.List;
 
@@ -71,22 +69,21 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
             @Override
             public void onClick(View view) {
                 IBleDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
-                activity.openDevice(device);
+                activity.launchDevice(device);
             }
         });
 
         holder.deviceView.setOnLongClickListener(new View.OnLongClickListener() {
-            final MenuItem.OnMenuItemClickListener listener=new MenuItem.OnMenuItemClickListener() {
+            final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
                     IBleDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
                     switch (item.getItemId()){
                         case 1:
-                            ViseLog.i("你想修改" + device.getMacAddress());
-                            activity.modifyRegisteredDeviceInfo(device);
+                            activity.modifyDeviceBasicInfo(device);
                             return true;
                         case 2:
-                            activity.deleteRegisteredDevice(device);
+                            activity.deleteDeviceFromRegisteredDeviceList(device);
                             return true;
 
                         default:
@@ -100,7 +97,6 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
                 view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                        MenuInflater inflater = activity.getMenuInflater();
                         MenuItem config = menu.add(Menu.NONE, 1, 0, "修改");
                         MenuItem delete = menu.add(Menu.NONE, 2, 0, "删除");
                         config.setOnMenuItemClickListener(listener);            //响应点击事件

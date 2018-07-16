@@ -141,7 +141,7 @@ public abstract class BleDeviceFragment extends Fragment{
                 activity.closeDevice(device);
             }
         });*/
-        activity.closeDevice(device);
+        activity.closeDevice(this);
     }
 
     public void switchDeviceConnectState() {

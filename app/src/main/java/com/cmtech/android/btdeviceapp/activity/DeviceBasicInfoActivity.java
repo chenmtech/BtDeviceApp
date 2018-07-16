@@ -33,6 +33,11 @@ import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
 
+/**
+ *  DeviceBasicInfoActivity: 设备基本信息Activity，可用于修改BleDeviceBasicInfo字段
+ *  Created by bme on 2018/6/27.
+ */
+
 public class DeviceBasicInfoActivity extends AppCompatActivity {
     private Button btnCancel;
     private Button btnOk;
