@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
 import com.cmtech.android.btdeviceapp.MyApplication;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;

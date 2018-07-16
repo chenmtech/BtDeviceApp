@@ -2,23 +2,16 @@ package com.cmtech.android.btdeviceapp.model;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
-
-import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT_CONNECTING;
-import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT_DISCONNECTING;
-import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT_SUCCESS;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceController;
+import com.cmtech.android.btdeviceapp.interfa.IBleDevice;
 
 /**
  * Created by bme on 2018/2/27.
@@ -29,7 +22,7 @@ public abstract class BleDeviceFragment extends Fragment{
     protected MainActivity activity;
 
     // 对应的控制器接口
-    protected IBleDeviceControllerInterface controller;
+    protected IBleDeviceController controller;
 
     // 对应的设备接口
     protected BleDevice device;
@@ -125,7 +118,7 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     // 获取设备
-    public IBleDeviceInterface getDevice() {
+    public IBleDevice getDevice() {
         return device;
     }
 

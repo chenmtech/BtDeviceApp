@@ -16,7 +16,7 @@ import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBleDevice;
 import com.cmtech.android.btdeviceapp.model.BleDevice;
 import com.cmtech.android.btdeviceapp.model.BleDeviceType;
 
@@ -29,7 +29,7 @@ import java.util.List;
 public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdapter.ViewHolder> {
 
     // 设备列表
-    private List<IBleDeviceInterface> mDeviceList;
+    private List<IBleDevice> mDeviceList;
 
     // MainActivity
     MainActivity activity;
@@ -52,7 +52,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         }
     }
 
-    public BleDeviceListAdapter(List<IBleDeviceInterface> deviceList, MainActivity activity) {
+    public BleDeviceListAdapter(List<IBleDevice> deviceList, MainActivity activity) {
 
         mDeviceList = deviceList;
         this.activity = activity;
@@ -68,7 +68,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                IBleDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
+                IBleDevice device = mDeviceList.get(holder.getAdapterPosition());
                 activity.launchDevice(device);
             }
         });
@@ -77,7 +77,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
             final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
-                    IBleDeviceInterface device = mDeviceList.get(holder.getAdapterPosition());
+                    IBleDevice device = mDeviceList.get(holder.getAdapterPosition());
                     switch (item.getItemId()){
                         case 1:
                             activity.modifyDeviceBasicInfo(device);

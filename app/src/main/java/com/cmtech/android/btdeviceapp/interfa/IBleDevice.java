@@ -8,7 +8,7 @@ import com.cmtech.android.btdeviceapp.model.BleDeviceConnectState;
 
 import java.util.List;
 
-public interface IBleDeviceInterface {
+public interface IBleDevice {
     public String getMacAddress();
     public void setMacAddress(String macAddress);
     public String getNickName();

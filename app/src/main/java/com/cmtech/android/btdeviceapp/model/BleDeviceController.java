@@ -2,20 +2,19 @@ package com.cmtech.android.btdeviceapp.model;
 
 import android.util.Log;
 
-import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.BleDeviceAbstractFactory;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceController;
+import com.cmtech.android.btdeviceapp.interfa.IBleDevice;
 
-public class BleDeviceController implements IBleDeviceControllerInterface {
+public class BleDeviceController implements IBleDeviceController {
     // 设备
-    private final IBleDeviceInterface device;
+    private final IBleDevice device;
 
     // Fragment
     private final BleDeviceFragment fragment;
 
 
-    public BleDeviceController(IBleDeviceInterface device) {
+    public BleDeviceController(IBleDevice device) {
         if(device == null) {
             throw new IllegalStateException();
         }
@@ -60,7 +59,7 @@ public class BleDeviceController implements IBleDeviceControllerInterface {
     }
 
     @Override
-    public IBleDeviceInterface getDevice() {
+    public IBleDevice getDevice() {
         return device;
     }
 

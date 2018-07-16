@@ -13,7 +13,7 @@ import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
+import com.cmtech.android.btdeviceapp.interfa.IBleDevice;
 import com.vise.log.ViseLog;
 
 
@@ -26,7 +26,7 @@ import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.*;
  * Created by bme on 2018/2/19.
  */
 
-public abstract class BleDevice implements IBleDeviceInterface {
+public abstract class BleDevice implements IBleDevice {
     // 连接相关回调消息
     private static final int MSG_CONNECTCALLBACK       =  0;
 

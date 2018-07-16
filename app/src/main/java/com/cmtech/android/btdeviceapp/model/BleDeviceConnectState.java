@@ -6,7 +6,7 @@ package com.cmtech.android.btdeviceapp.model;
 
 public enum BleDeviceConnectState {
     CONNECT_WAITING(0, "等待连接"),
-    CONNECT_SCANFAILURE(1, "扫描错误"),
+    CONNECT_SCANFAILURE(1, "扫描超时"),
     CONNECT_CONNECTING(2, "连接中"),
     CONNECT_CONNECTFAILURE(3, "连接错误"),
     CONNECT_CONNECTTIMEOUT(4, "连接超时"),
