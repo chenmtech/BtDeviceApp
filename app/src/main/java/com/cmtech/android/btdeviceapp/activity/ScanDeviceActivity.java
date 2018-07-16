@@ -204,19 +204,20 @@ public class ScanDeviceActivity extends AppCompatActivity {
             // 配置设备信息结果
             case 2:
                 if ( resultCode == RESULT_OK) {
-                    String deviceNickname = data.getStringExtra("device_nickname");
+                    /*String deviceNickname = data.getStringExtra("device_nickname");
+                    String macAddress = data.getStringExtra("device_macaddress");
                     String deviceUuid = data.getStringExtra("device_uuid");
                     String imagePath = data.getStringExtra("device_imagepath");
                     Boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
                     int which = scanDeviceAdapter.getSelectItem();
-                    String macAddress = scanedDeviceList.get(which).getAddress();
+
                     Intent intent = new Intent();
                     intent.putExtra("device_nickname", deviceNickname);
                     intent.putExtra("device_macaddress", macAddress);
                     intent.putExtra("device_uuid", deviceUuid);
                     intent.putExtra("device_imagepath", imagePath);
-                    intent.putExtra("device_isautoconnect", isAutoConnect);
-                    setResult(RESULT_OK, intent);
+                    intent.putExtra("device_isautoconnect", isAutoConnect);*/
+                    setResult(RESULT_OK, data);
                     finish();
                 }
                 break;

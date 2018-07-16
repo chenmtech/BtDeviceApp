@@ -58,9 +58,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     // 已打开的设备控制器列表
     private final List<IBleDeviceControllerInterface> openedControllerList = new LinkedList<>();
 
-    // 正在修改基本信息的设备，以后应该可以优化掉
-    private IBleDeviceInterface modifyDevice;
-
     // 显示已登记设备列表的Adapter和RecyclerView
     private BleDeviceListAdapter deviceListAdapter;
     private RecyclerView deviceListRecycView;
@@ -199,16 +196,27 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
                 // 修改设备信息返回
                 if ( resultCode == RESULT_OK) {
                     String deviceNickname = data.getStringExtra("device_nickname");
+                    String macAddress = data.getStringExtra("device_macaddress");
                     String deviceUuid = data.getStringExtra("device_uuid");
                     String imagePath = data.getStringExtra("device_imagepath");
                     Boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
-                    if(modifyDevice == null) return;
-                    BleDeviceBasicInfo basicInfo = modifyDevice.getBasicInfo();
-                    basicInfo.setNickName(deviceNickname);
-                    basicInfo.setImagePath(imagePath);
-                    basicInfo.setAutoConnected(isAutoConnect);
-                    basicInfo.save();
-                    deviceListAdapter.notifyDataSetChanged();
+                    IBleDeviceInterface device = null;
+                    for(IBleDeviceInterface ele : registeredDeviceList) {
+                        if(macAddress.equalsIgnoreCase(ele.getMacAddress())) {
+                            device = ele;
+                            break;
+                        }
+                    }
+                    if(device != null) {
+                        BleDeviceBasicInfo basicInfo = device.getBasicInfo();
+                        basicInfo.setNickName(deviceNickname);
+                        basicInfo.setMacAddress(macAddress);
+                        basicInfo.setUuidString(deviceUuid);
+                        basicInfo.setImagePath(imagePath);
+                        basicInfo.setAutoConnected(isAutoConnect);
+                        basicInfo.save();
+                        deviceListAdapter.notifyDataSetChanged();
+                    }
                 }
                 break;
         }
@@ -433,7 +441,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
 
     // 修改已登记设备信息 
     public void modifyRegisteredDeviceInfo(final IBleDeviceInterface device) {
-        modifyDevice = device;
         Intent intent = new Intent(this, DeviceBasicInfoActivity.class);
         intent.putExtra("device_nickname", device.getNickName());
         intent.putExtra("device_macaddress", device.getMacAddress());

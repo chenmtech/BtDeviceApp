@@ -120,6 +120,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
                 Intent intent = new Intent();
                 intent.putExtra("device_nickname", deviceNickname);
+                intent.putExtra("device_macaddress", macAddress);
                 intent.putExtra("device_uuid", deviceUuid);
                 intent.putExtra("device_imagepath", imagePath);
                 intent.putExtra("device_isautoconnect", isAutoconnect);
