@@ -322,6 +322,10 @@ public abstract class BleDevice implements IBleDeviceInterface {
         return (state == CONNECT_SUCCESS);
     }
 
+    public boolean canClose() {
+        return (state != CONNECT_CONNECTING && state != CONNECT_DISCONNECTING);
+    }
+
     // 关闭设备
     @Override
     public synchronized void close() {

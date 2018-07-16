@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
             case R.id.toolbar_close:
                 fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
                 if(fragment != null) {
-                    closeDevice(fragment);
+                    fragment.closeDevice();
                 } else {
                     finish();
                 }
@@ -507,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         BleDevice device = (BleDevice) fragment.getDevice();
         if(device == null) return;
 
-        // 更新工具条菜单
+        // 更新工具条连接菜单
         if(device.canDisconnect()) {
             menuConnect.setEnabled(true);
             menuConnect.setTitle("断开");
@@ -518,6 +518,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         }
         else {
             menuConnect.setEnabled(false);
+        }
+
+        // 更新工具条关闭菜单
+        if(device.canClose()) {
+            menuClose.setEnabled(true);
+        } else {
+            menuClose.setEnabled(false);
         }
 
         // 更新Activity的工具条图标

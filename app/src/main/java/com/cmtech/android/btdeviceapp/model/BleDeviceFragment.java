@@ -16,6 +16,10 @@ import com.cmtech.android.btdeviceapp.activity.MainActivity;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceControllerInterface;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceInterface;
 
+import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT_CONNECTING;
+import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT_DISCONNECTING;
+import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT_SUCCESS;
+
 /**
  * Created by bme on 2018/2/27.
  */
@@ -28,7 +32,7 @@ public abstract class BleDeviceFragment extends Fragment{
     protected IBleDeviceControllerInterface controller;
 
     // 对应的设备接口
-    protected IBleDeviceInterface device;
+    protected BleDevice device;
 
     // 设备连接状态tv
     protected TextView tvConnectState;
@@ -83,7 +87,7 @@ public abstract class BleDeviceFragment extends Fragment{
 
         // 获取device
         if(controller != null) {
-            device = controller.getDevice();
+            device = (BleDevice) controller.getDevice();
         }
 
         if(device == null || controller == null) {
@@ -127,12 +131,14 @@ public abstract class BleDeviceFragment extends Fragment{
 
     // 连接设备
     public void connectDevice() {
-        controller.connectDevice();
+        if(canConnect())
+            controller.connectDevice();
     }
 
     // 断开设备
     public void disconnectDevice() {
-        controller.disconnectDevice();
+        if(canDisconnect())
+            controller.disconnectDevice();
     }
 
     // 关闭设备
@@ -141,7 +147,8 @@ public abstract class BleDeviceFragment extends Fragment{
     // 这些动作需要调用activity.closeDevice才能完成
     // 关闭设备的动作会在销毁Fragment时触发onDestroy()，那里会调用controller.closeDevice()来关闭设备
     public void closeDevice() {
-        activity.closeDevice(this);
+        if(canClose())
+            activity.closeDevice(this);
     }
 
     // 切换设备的连接状态
@@ -155,6 +162,18 @@ public abstract class BleDeviceFragment extends Fragment{
         if(device == this.device && isAdded()) {
             updateConnectState();
         }
+    }
+
+    private boolean canConnect() {
+        return device.canConnect();
+    }
+
+    public boolean canDisconnect() {
+        return device.canDisconnect();
+    }
+
+    public boolean canClose() {
+        return device.canClose();
     }
 
     private void updateConnectState() {
