@@ -1,6 +1,5 @@
 package com.cmtech.android.btdeviceapp.model;
 
-import android.bluetooth.BluetoothGattService;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -27,14 +26,16 @@ import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.*;
  */
 
 public abstract class BleDevice implements IBleDevice {
+    private static DeviceMirrorPool mirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+
     // 连接相关回调消息
     private static final int MSG_CONNECTCALLBACK       =  0;
 
     // 设备基本信息
     private final BleDeviceBasicInfo basicInfo;
 
-    // 设备镜像，连接成功后才会赋值。连接断开后，其Gatt将close
-    private DeviceMirror deviceMirror = null;
+    // ViseBle内部设备
+    private BluetoothLeDevice bluetoothLeDevice = null;
 
     // 设备连接状态
     private BleDeviceConnectState state = BleDeviceConnectState.CONNECT_WAITING;
@@ -61,33 +62,38 @@ public abstract class BleDevice implements IBleDevice {
         @Override
         public void onConnectSuccess(DeviceMirror mirror) {
             synchronized (BleDevice.this) {
-                DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+                bluetoothLeDevice = mirror.getBluetoothLeDevice();
 
-                if (deviceMirrorPool.isContainDevice(mirror)) {
-                    deviceMirror = mirror;
-                    ViseLog.i("onConnectSuccess");
+                ViseLog.i("onConnectSuccess");
 
-                    sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_SUCCESS, deviceMirror));
-                }
+                sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_SUCCESS, bluetoothLeDevice));
             }
         }
         @Override
         public void onConnectFailure(final BleException exception) {
-            final BleDeviceConnectState state;
-            if(exception instanceof TimeoutException)
-                state = CONNECT_CONNECTTIMEOUT;
-            else
-                state = CONNECT_CONNECTFAILURE;
+            synchronized (BleDevice.this) {
+                bluetoothLeDevice = null;
 
-            ViseLog.i("onConnectFailure with state = " + state);
+                final BleDeviceConnectState state;
+                if (exception instanceof TimeoutException)
+                    state = CONNECT_CONNECTTIMEOUT;
+                else
+                    state = CONNECT_CONNECTFAILURE;
 
-            sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(state, exception));
+                ViseLog.i("onConnectFailure with state = " + state);
+
+                sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(state, exception));
+            }
         }
         @Override
         public void onDisconnect(final boolean isActive) {
-            ViseLog.d("onDisconnect");
+            synchronized (BleDevice.this) {
+                bluetoothLeDevice = null;
 
-            sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_DISCONNECT, isActive));
+                ViseLog.d("onDisconnect");
+
+                sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_DISCONNECT, isActive));
+            }
         }
         @Override
         public void onScanFailure(BleException exception) {
@@ -101,10 +107,9 @@ public abstract class BleDevice implements IBleDevice {
     protected final Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            ViseLog.i("processing the message " + msg);
             if(msg.what == MSG_CONNECTCALLBACK) {
-                // 处理连接相关消息
-                processConnectMessage((ConnectResultObject)msg.obj);
+                // 处理连接回调消息
+                processConnectCallbackMessage((ConnectResultObject)msg.obj);
             } else {
                 // 处理Gatt相关消息
                 processGattMessage(msg);
@@ -116,16 +121,16 @@ public abstract class BleDevice implements IBleDevice {
     private final Runnable disconnectCallback = new Runnable() {
         @Override
         public void run() {
+            DeviceMirror deviceMirror = mirrorPool.getDeviceMirror(bluetoothLeDevice);
             if(deviceMirror != null) {
-                BluetoothLeDevice bluetoothLeDevice = deviceMirror.getBluetoothLeDevice();
-                if (bluetoothLeDevice != null && MyApplication.getViseBle().getDeviceMirrorPool().isContainDevice(bluetoothLeDevice)) {
-                    MyApplication.getViseBle().disconnect(bluetoothLeDevice);
-                }
-                processConnectMessage(new ConnectResultObject(BleDeviceConnectState.CONNECT_DISCONNECT, true));
+                bluetoothLeDevice = null;
+
+                ViseLog.d("onDisconnect");
+
+                sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_DISCONNECT, true));
             }
         }
     };
-
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
@@ -221,40 +226,28 @@ public abstract class BleDevice implements IBleDevice {
 
             stopCommandExecutor();
 
-            if (deviceMirror != null) {
-                deviceMirror.disconnect();
-                handler.postDelayed(disconnectCallback, 2000); // 2秒后触发断开回调
-            } else {
-                //setDeviceConnectState(CONNECT_DISCONNECT);
-                //notifyConnectStateObservers();
-            }
+            mirrorPool.disconnect(bluetoothLeDevice);
+            handler.postDelayed(disconnectCallback, 2000); // 2秒后触发断开回调
         }
     }
 
     // 关闭设备
     @Override
     public synchronized void close() {
-        stopCommandExecutor();
+        if(canClose()) {
+            stopCommandExecutor();
 
-        // 断开连接
-        disconnect();
+            DeviceMirror deviceMirror = mirrorPool.getDeviceMirror(bluetoothLeDevice);
 
-        if(deviceMirror != null) {
-            deviceMirror.close();
-            MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
+            if(deviceMirror != null) {
+                // 断开连接
+                deviceMirror.close();
+                mirrorPool.removeDeviceMirror(deviceMirror);
+
+                state = CONNECT_WAITING;
+                notifyConnectStateObservers();
+            }
         }
-
-        state = CONNECT_WAITING;
-        notifyConnectStateObservers();
-    }
-
-    // 获取设备的服务列表
-    @Override
-    public List<BluetoothGattService> getServices() {
-        if(deviceMirror != null && deviceMirror.getBluetoothGatt() != null) {
-            return deviceMirror.getBluetoothGatt().getServices();
-        }
-        return null;
     }
 
     @Override
@@ -322,11 +315,6 @@ public abstract class BleDevice implements IBleDevice {
         return (state != CONNECT_CONNECTING && state != CONNECT_DISCONNECTING);
     }
 
-    // 判断是否连接
-    public boolean isConnect() {
-        return ((deviceMirror != null) && MyApplication.getViseBle().isConnect(deviceMirror.getBluetoothLeDevice()));
-    }
-
     // 停止命令执行器
     protected void stopCommandExecutor() {
         if(commandExecutor != null) commandExecutor.stop();
@@ -339,6 +327,8 @@ public abstract class BleDevice implements IBleDevice {
     protected synchronized void createGattCommandExecutor() {
         ViseLog.i("create new command executor.");
         if(isCommandExecutorAlive()) return;
+        DeviceMirror deviceMirror = mirrorPool.getDeviceMirror(bluetoothLeDevice);
+        if(deviceMirror == null) return;
 
         commandExecutor = new GattCommandSerialExecutor(deviceMirror);
         commandExecutor.start();
@@ -346,6 +336,7 @@ public abstract class BleDevice implements IBleDevice {
 
     // 获取设备上element对应的Gatt Object
     protected Object getGattObject(BleGattElement element) {
+        DeviceMirror deviceMirror = mirrorPool.getDeviceMirror(bluetoothLeDevice);
         if(deviceMirror == null || element == null) return null;
         return element.retrieveGattObject(deviceMirror);
     }
@@ -363,7 +354,7 @@ public abstract class BleDevice implements IBleDevice {
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     // 连接结果处理函数
-    private synchronized void processConnectMessage(ConnectResultObject result) {
+    private synchronized void processConnectCallbackMessage(ConnectResultObject result) {
         setDeviceConnectState(result.state);
         notifyConnectStateObservers();
 
@@ -381,14 +372,10 @@ public abstract class BleDevice implements IBleDevice {
             case CONNECT_DISCONNECT:
                 handler.removeCallbacks(disconnectCallback);
 
-                /*if(deviceMirror != null) {
-                    deviceMirror.close();
-                    MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
-                }*/
                 executeAfterDisconnect((Boolean) result.obj);
 
-                setDeviceConnectState(CONNECT_WAITING);
-                notifyConnectStateObservers();
+                //setDeviceConnectState(CONNECT_WAITING);
+                //notifyConnectStateObservers();
                 break;
 
             case CONNECT_SCANFAILURE:
@@ -397,13 +384,6 @@ public abstract class BleDevice implements IBleDevice {
 
             default:
                 break;
-        }
-    }
-
-    private void clearDeviceMirror() {
-        if (deviceMirror != null) {
-            MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
-            //deviceMirror.clear();     // 不能clear，否则下次连接出错
         }
     }
 }

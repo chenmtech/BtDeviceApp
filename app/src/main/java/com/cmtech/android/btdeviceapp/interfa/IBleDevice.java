@@ -28,8 +28,6 @@ public interface IBleDevice {
     public void disconnect();
     public void close();
 
-    public List<BluetoothGattService> getServices();
-
     public void registerConnectStateObserver(IBleDeviceConnectStateObserver observer);
     public void removeConnectStateObserver(IBleDeviceConnectStateObserver observer);
     public void notifyConnectStateObservers();
