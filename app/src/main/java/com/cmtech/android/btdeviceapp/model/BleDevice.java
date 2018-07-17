@@ -354,7 +354,6 @@ public abstract class BleDevice implements IBleDevice {
             case CONNECT_CONNECTTIMEOUT:
             case CONNECT_CONNECTFAILURE:
 
-                //stopCommandExecutor();
                 executeAfterConnectFailure();
                 break;
 
