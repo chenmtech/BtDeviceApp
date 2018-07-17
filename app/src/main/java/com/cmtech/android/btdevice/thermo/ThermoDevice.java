@@ -165,4 +165,9 @@ public class ThermoDevice extends BleDevice {
 
     }
 
+    @Override
+    public void executeAfterConnectFailure() {
+        stopCommandExecutor();
+    }
+
 }

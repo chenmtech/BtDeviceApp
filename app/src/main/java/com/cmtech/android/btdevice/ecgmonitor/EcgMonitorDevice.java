@@ -319,6 +319,11 @@ public class EcgMonitorDevice extends BleDevice {
 
     }
 
+    @Override
+    public void executeAfterConnectFailure() {
+        stopCommandExecutor();
+    }
+
 
     public void toggleSampleEcg() {
         if(!isStartSampleEcg) {

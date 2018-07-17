@@ -26,7 +26,7 @@ import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.*;
  */
 
 public abstract class BleDevice implements IBleDevice {
-    private static DeviceMirrorPool mirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+    private static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
     // 连接相关回调消息
     private static final int MSG_CONNECTCALLBACK       =  0;
@@ -117,20 +117,7 @@ public abstract class BleDevice implements IBleDevice {
         }
     };
 
-    // 断开连接后的回调响应，防止有时候断开连接收不到对方的回调响应
-    private final Runnable disconnectCallback = new Runnable() {
-        @Override
-        public void run() {
-            DeviceMirror deviceMirror = mirrorPool.getDeviceMirror(bluetoothLeDevice);
-            if(deviceMirror != null) {
-                bluetoothLeDevice = null;
 
-                ViseLog.d("onDisconnect");
-
-                sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_DISCONNECT, true));
-            }
-        }
-    };
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
@@ -226,8 +213,7 @@ public abstract class BleDevice implements IBleDevice {
 
             stopCommandExecutor();
 
-            mirrorPool.disconnect(bluetoothLeDevice);
-            handler.postDelayed(disconnectCallback, 2000); // 2秒后触发断开回调
+            deviceMirrorPool.disconnect(bluetoothLeDevice);
         }
     }
 
@@ -235,17 +221,15 @@ public abstract class BleDevice implements IBleDevice {
     @Override
     public synchronized void close() {
         if(canClose()) {
+
+            setDeviceConnectState(CONNECT_WAITING);
+            notifyConnectStateObservers();
+
             stopCommandExecutor();
 
-            DeviceMirror deviceMirror = mirrorPool.getDeviceMirror(bluetoothLeDevice);
-
-            if(deviceMirror != null) {
-                // 断开连接
-                deviceMirror.close();
-                mirrorPool.removeDeviceMirror(deviceMirror);
-
-                state = CONNECT_WAITING;
-                notifyConnectStateObservers();
+            if(bluetoothLeDevice != null) {
+                deviceMirrorPool.removeDeviceMirror(deviceMirrorPool.getDeviceMirror(bluetoothLeDevice));
+                bluetoothLeDevice = null;
             }
         }
     }
@@ -300,6 +284,9 @@ public abstract class BleDevice implements IBleDevice {
         }
     }
 
+
+
+
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
@@ -327,7 +314,7 @@ public abstract class BleDevice implements IBleDevice {
     protected synchronized void createGattCommandExecutor() {
         ViseLog.i("create new command executor.");
         if(isCommandExecutorAlive()) return;
-        DeviceMirror deviceMirror = mirrorPool.getDeviceMirror(bluetoothLeDevice);
+        DeviceMirror deviceMirror = deviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
         if(deviceMirror == null) return;
 
         commandExecutor = new GattCommandSerialExecutor(deviceMirror);
@@ -336,7 +323,7 @@ public abstract class BleDevice implements IBleDevice {
 
     // 获取设备上element对应的Gatt Object
     protected Object getGattObject(BleGattElement element) {
-        DeviceMirror deviceMirror = mirrorPool.getDeviceMirror(bluetoothLeDevice);
+        DeviceMirror deviceMirror = deviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
         if(deviceMirror == null || element == null) return null;
         return element.retrieveGattObject(deviceMirror);
     }
@@ -366,16 +353,14 @@ public abstract class BleDevice implements IBleDevice {
 
             case CONNECT_CONNECTTIMEOUT:
             case CONNECT_CONNECTFAILURE:
-                // 连接失败后，不做其他处理
+
+                //stopCommandExecutor();
+                executeAfterConnectFailure();
                 break;
 
             case CONNECT_DISCONNECT:
-                handler.removeCallbacks(disconnectCallback);
 
                 executeAfterDisconnect((Boolean) result.obj);
-
-                //setDeviceConnectState(CONNECT_WAITING);
-                //notifyConnectStateObservers();
                 break;
 
             case CONNECT_SCANFAILURE:

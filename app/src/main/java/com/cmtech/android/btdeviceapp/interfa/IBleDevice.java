@@ -33,6 +33,7 @@ public interface IBleDevice {
     public void notifyConnectStateObservers();
 
     public void executeAfterConnectSuccess();
+    public void executeAfterConnectFailure();
     public void executeAfterDisconnect(boolean isActive);
     public void processGattMessage(Message msg);
 }
