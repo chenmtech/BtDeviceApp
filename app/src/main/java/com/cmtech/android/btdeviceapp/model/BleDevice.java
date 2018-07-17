@@ -60,13 +60,15 @@ public abstract class BleDevice implements IBleDevice {
     final IConnectCallback connectCallback = new IConnectCallback() {
         @Override
         public void onConnectSuccess(DeviceMirror mirror) {
-            DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+            synchronized (BleDevice.this) {
+                DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
-            if (deviceMirrorPool.isContainDevice(mirror)) {
-                deviceMirror = mirror;
-                ViseLog.i("onConnectSuccess");
+                if (deviceMirrorPool.isContainDevice(mirror)) {
+                    deviceMirror = mirror;
+                    ViseLog.i("onConnectSuccess");
 
-                sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_SUCCESS, deviceMirror));
+                    sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_SUCCESS, deviceMirror));
+                }
             }
         }
         @Override
@@ -373,18 +375,16 @@ public abstract class BleDevice implements IBleDevice {
 
             case CONNECT_CONNECTTIMEOUT:
             case CONNECT_CONNECTFAILURE:
-
-                // 连接失败后，立刻断开连接，不做其他处理
-                disconnect();
+                // 连接失败后，不做其他处理
                 break;
 
             case CONNECT_DISCONNECT:
                 handler.removeCallbacks(disconnectCallback);
 
-                if(deviceMirror != null) {
+                /*if(deviceMirror != null) {
                     deviceMirror.close();
                     MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(deviceMirror);
-                }
+                }*/
                 executeAfterDisconnect((Boolean) result.obj);
 
                 setDeviceConnectState(CONNECT_WAITING);
