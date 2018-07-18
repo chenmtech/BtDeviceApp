@@ -62,6 +62,8 @@ public abstract class BleDevice implements IBleDevice {
         @Override
         public void onConnectFailure(final BleException exception) {
             synchronized (BleDevice.this) {
+                stopCommandExecutor();
+
                 bluetoothLeDevice = null;
 
                 final BleDeviceConnectState state;
@@ -78,6 +80,8 @@ public abstract class BleDevice implements IBleDevice {
         @Override
         public void onDisconnect(final boolean isActive) {
             synchronized (BleDevice.this) {
+                stopCommandExecutor();
+
                 bluetoothLeDevice = null;
 
                 ViseLog.d("onDisconnect");
@@ -337,6 +341,10 @@ public abstract class BleDevice implements IBleDevice {
             case CONNECT_CONNECTFAILURE:
 
                 executeAfterConnectFailure();
+
+                // 连接错误或超时，重新连接
+                connect();
+
                 break;
 
             case CONNECT_DISCONNECT:

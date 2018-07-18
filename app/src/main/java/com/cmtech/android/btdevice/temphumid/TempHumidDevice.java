@@ -409,6 +409,8 @@ public class TempHumidDevice extends BleDevice {
     @Override
     public void executeAfterConnectFailure() {
         stopCommandExecutor();
+
+        //connect();
     }
 
     // 关闭设备
