@@ -199,12 +199,12 @@ public abstract class BleDevice implements IBleDevice {
     // 断开连接
     @Override
     public synchronized void disconnect() {
+        stopCommandExecutor();
+
         if(canDisconnect()) {
 
             setDeviceConnectState(CONNECT_DISCONNECTING);
             notifyConnectStateObservers();
-
-            stopCommandExecutor();
 
             deviceMirrorPool.disconnect(bluetoothLeDevice);
         }
@@ -213,18 +213,7 @@ public abstract class BleDevice implements IBleDevice {
     // 关闭设备
     @Override
     public synchronized void close() {
-        if(canClose()) {
-
-            setDeviceConnectState(CONNECT_DISCONNECTING);
-            notifyConnectStateObservers();
-
-            stopCommandExecutor();
-
-            if(bluetoothLeDevice != null) {
-                deviceMirrorPool.removeDeviceMirror(deviceMirrorPool.getDeviceMirror(bluetoothLeDevice));
-                bluetoothLeDevice = null;
-            }
-        }
+        disconnect();
     }
 
     @Override
@@ -284,7 +273,7 @@ public abstract class BleDevice implements IBleDevice {
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     public boolean canConnect() {
-        return (state != CONNECT_SUCCESS && state != CONNECT_CONNECTING && state != CONNECT_DISCONNECTING);
+        return (state != CONNECT_SUCCESS && state != CONNECT_CONNECTING && state != CONNECT_DISCONNECTING && state != CONNECT_SCANSUCCESS);
     }
 
     public boolean canDisconnect() {
@@ -292,7 +281,7 @@ public abstract class BleDevice implements IBleDevice {
     }
 
     public boolean canClose() {
-        return (state != CONNECT_CONNECTING && state != CONNECT_DISCONNECTING);
+        return (state != CONNECT_CONNECTING && state != CONNECT_DISCONNECTING && state != CONNECT_SCANSUCCESS);
     }
 
     // 停止命令执行器
