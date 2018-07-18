@@ -96,10 +96,10 @@ public abstract class BleDevice implements IBleDevice {
             }
         }
         @Override
-        public void onScanFailure(BleException exception) {
+        public void onScanFinish(boolean result) {
             ViseLog.d("onScanFailure");
 
-            sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_SCANFAILURE, exception));
+            sendMessage(MSG_CONNECTCALLBACK, new ConnectResultObject(BleDeviceConnectState.CONNECT_SCANFAILURE, result));
         }
     };
 
