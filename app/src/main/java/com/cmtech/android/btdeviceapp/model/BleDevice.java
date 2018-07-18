@@ -224,14 +224,6 @@ public abstract class BleDevice implements IBleDevice {
                 deviceMirrorPool.removeDeviceMirror(deviceMirrorPool.getDeviceMirror(bluetoothLeDevice));
                 bluetoothLeDevice = null;
             }
-
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    setDeviceConnectState(CONNECT_WAITING);
-                    notifyConnectStateObservers();
-                }
-            }, 2000);
         }
     }
 
