@@ -88,7 +88,7 @@ public class EcgMonitorDevice extends BleDevice {
 
 
     @Override
-    public void processGattMessage(Message msg)
+    public void processGattCallbackMessage(Message msg)
     {
         switch (msg.what) {
             // 接收到心电信号或定标信号
@@ -315,7 +315,7 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     @Override
-    public void executeAfterDisconnect(boolean isActive) {
+    public void executeAfterDisconnect() {
 
     }
 

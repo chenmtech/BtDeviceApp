@@ -34,6 +34,6 @@ public interface IBleDevice {
 
     public void executeAfterConnectSuccess();
     public void executeAfterConnectFailure();
-    public void executeAfterDisconnect(boolean isActive);
-    public void processGattMessage(Message msg);
+    public void executeAfterDisconnect();
+    public void processGattCallbackMessage(Message msg);
 }

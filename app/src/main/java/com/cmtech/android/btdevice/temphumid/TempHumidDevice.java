@@ -131,7 +131,7 @@ public class TempHumidDevice extends BleDevice {
 
 
     @Override
-    public synchronized void processGattMessage(Message msg)
+    public synchronized void processGattCallbackMessage(Message msg)
     {
         switch (msg.what) {
             // 获取到当前温湿度值
@@ -402,7 +402,7 @@ public class TempHumidDevice extends BleDevice {
     };
 
     @Override
-    public void executeAfterDisconnect(boolean isActive) {
+    public void executeAfterDisconnect() {
         stopCommandExecutor();
     }
 

@@ -36,7 +36,7 @@ public class ThermoDevice extends BleDevice {
 
 
     @Override
-    public void processGattMessage(Message msg)
+    public void processGattCallbackMessage(Message msg)
     {
         if (msg.what == MSG_THERMODATA) {
             if (msg.obj != null) {
@@ -161,7 +161,7 @@ public class ThermoDevice extends BleDevice {
     }
 
     @Override
-    public void executeAfterDisconnect(boolean isActive) {
+    public void executeAfterDisconnect() {
 
     }
 
