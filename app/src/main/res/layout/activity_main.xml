@@ -51,6 +51,12 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:visibility="invisible">
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/main_tab_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/primary_light"/>
+
                 <FrameLayout
                     android:id="@+id/main_fragment_layout"
                     android:layout_width="match_parent"
@@ -58,11 +64,7 @@
                     android:layout_weight="1">
                 </FrameLayout>
 
-                <android.support.design.widget.TabLayout
-                    android:id="@+id/main_tab_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="54dp"
-                    android:background="@color/primary_light"/>
+
             </LinearLayout>
         </FrameLayout>
 

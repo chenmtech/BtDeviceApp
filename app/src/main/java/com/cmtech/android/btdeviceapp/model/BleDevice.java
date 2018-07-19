@@ -343,7 +343,12 @@ public abstract class BleDevice implements IBleDevice {
                 executeAfterConnectFailure();
 
                 // 连接错误或超时，重新连接
-                connect();
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        connect();
+                    }
+                }, 500);
 
                 break;
 
