@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
+
         <item
-            android:id="@+id/nav_userinfo"
-            android:title="用户信息"/>
+            android:id="@+id/nav_registerdevice"
+            android:title="登记设备"/>
+
         <item
-            android:id="@+id/nav_aboutus"
-            android:title="关于我们"/>
+            android:id="@+id/nav_exit"
+            android:title="退出"/>
     </group>
 </menu>

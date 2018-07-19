@@ -98,12 +98,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        /*ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null) {
-            //actionBar.setDisplayHomeAsUpEnabled(true);
-            //actionBar.setHomeAsUpIndicator(R.mipmap.ic_menu_white_18dp);
-        }*/
-
         // 设置设备信息RecycleView
         deviceListRecycView = (RecyclerView)findViewById(R.id.rvDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -113,27 +107,18 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         deviceListRecycView.setAdapter(deviceListAdapter);
 
 
-        // 登记新设备
-        btnRegister = (Button)findViewById(R.id.device_register_btn);
-        btnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startScanDevice();
-            }
-        });
-
         // 导航菜单设置
-        NavigationView navView = (NavigationView)findViewById(R.id.nav_view);
-        navView.setCheckedItem(R.id.nav_userinfo);
+        NavigationView navView = findViewById(R.id.nav_view);
+        navView.setCheckedItem(R.id.nav_registerdevice);
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.nav_userinfo:
-                        Toast.makeText(MainActivity.this, "you click userinfo", Toast.LENGTH_SHORT).show();
+                    case R.id.nav_registerdevice:
+                        startScanDevice();
                         return true;
-                    case R.id.nav_aboutus:
-                        Toast.makeText(MainActivity.this, "you click aboutus", Toast.LENGTH_SHORT).show();
+                    case R.id.nav_exit:
+                        finish();
                         return true;
                 }
                 return false;
@@ -149,12 +134,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
 
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.main_tab_layout);
-        //tab可滚动
-        //tabLayout.setTabMode(TabLayout.MODE_FIXED);
-        //tab的字体选择器,默认黑色,选择时红色
-        //tabLayout.setTabTextColors(Color.BLACK, Color.BLUE);
-        //tab的下划线颜色,默认是粉红色
-        //tabLayout.setSelectedTabIndicatorColor(Color.BLUE);
         fragmentManager = new FragmentAndTabLayoutManager(getSupportFragmentManager(), tabLayout, R.id.main_fragment_layout);
         fragmentManager.setOnFragmentChangedListener(new FragmentAndTabLayoutManager.OnFragmentChangedListener() {
             @Override
@@ -391,9 +370,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         if(fragmentManager.size() == 0) {
             mWelcomeLayout.setVisibility(View.VISIBLE);
             mMainLayout.setVisibility(View.INVISIBLE);
-            Toolbar toolbar = findViewById(R.id.toolbar);
+
             toolbar.setTitleTextColor(Color.BLACK);
             setTitle("物联网蓝牙终端App");
+            toolbar.setLogo(null);
 
         } else {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
