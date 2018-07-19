@@ -28,13 +28,13 @@ public abstract class BleDeviceFragment extends Fragment{
     protected BleDevice device;
 
     // 设备连接状态tv
-    protected TextView tvConnectState;
+    //protected TextView tvConnectState;
 
     // 切换设备连接状态开关
-    protected ImageButton btnSwitchConnectState;
+    //protected ImageButton btnSwitchConnectState;
 
     // 关闭设备开关
-    protected ImageButton btnClose;
+    //protected ImageButton btnClose;
 
     public BleDeviceFragment() {
 
@@ -44,7 +44,7 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvConnectState = view.findViewById(R.id.device_connect_state_tv);
+        /*tvConnectState = view.findViewById(R.id.device_connect_state_tv);
 
         btnSwitchConnectState = view.findViewById(R.id.device_connectswitch_btn);
         btnSwitchConnectState.setOnClickListener(new View.OnClickListener() {
@@ -61,7 +61,7 @@ public abstract class BleDeviceFragment extends Fragment{
             public void onClick(View view) {
                 closeDevice();
             }
-        });
+        });*/
     }
 
     @Override
@@ -170,7 +170,7 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     private void updateConnectState() {
-        tvConnectState.setText(device.getDeviceConnectState().getDescription());
+        /*tvConnectState.setText(device.getDeviceConnectState().getDescription());
         switch (device.getDeviceConnectState()) {
             case CONNECT_SUCCESS:
                 setImageButton(btnSwitchConnectState, R.mipmap.ic_connect_32px, true);
@@ -184,7 +184,7 @@ public abstract class BleDeviceFragment extends Fragment{
             default:
                 setImageButton(btnSwitchConnectState, R.mipmap.ic_disconnect_32px, true);
                 break;
-        }
+        }*/
     }
 
     private void setImageButton(ImageButton btn, int imageId, boolean enable) {
