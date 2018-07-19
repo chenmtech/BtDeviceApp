@@ -3,6 +3,8 @@ package com.cmtech.android.btdeviceapp.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -36,6 +38,7 @@ import com.cmtech.android.btdeviceapp.interfa.IBleDevice;
 import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BleDevice;
 import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
+import com.cmtech.android.btdeviceapp.model.BleDeviceType;
 import com.cmtech.android.btdeviceapp.model.FragmentAndTabLayoutManager;
 
 import org.litepal.LitePal;
@@ -83,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     private MenuItem menuConnect;
     private MenuItem menuClose;
 
+    private Toolbar toolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,14 +95,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         setContentView(R.layout.activity_main);
 
         // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ActionBar actionBar = getSupportActionBar();
+        /*ActionBar actionBar = getSupportActionBar();
         if(actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.mipmap.ic_menu_white_18dp);
-        }
+            //actionBar.setDisplayHomeAsUpEnabled(true);
+            //actionBar.setHomeAsUpIndicator(R.mipmap.ic_menu_white_18dp);
+        }*/
 
         // 设置设备信息RecycleView
         deviceListRecycView = (RecyclerView)findViewById(R.id.rvDevices);
@@ -528,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         }
 
         // 更新Activity的工具条图标
-        /*Drawable drawable = null;
+        Drawable drawable = null;
 
         String imagePath = device.getImagePath();
         if(imagePath != null && !"".equals(imagePath)) {
@@ -536,11 +541,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         } else {
             drawable = MyApplication.getContext().getResources().getDrawable(BleDeviceType.fromUuid(device.getUuidString()).getImage());
         }
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setHomeAsUpIndicator(drawable);*/
+        toolbar.setLogo(drawable);
 
-        setTitle(device.getDeviceConnectState().getDescription());
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle(device.getDeviceConnectState().getDescription());
+
         if(device.getDeviceConnectState() == CONNECT_SUCCESS)
             toolbar.setTitleTextColor(Color.RED);
         else
