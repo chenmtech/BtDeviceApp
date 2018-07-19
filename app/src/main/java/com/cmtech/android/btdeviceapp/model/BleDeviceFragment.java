@@ -88,6 +88,13 @@ public abstract class BleDeviceFragment extends Fragment{
         }
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // 连接设备
+        connectDevice();
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -101,8 +108,6 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onStart() {
         super.onStart();
 
-        // 连接设备
-        connectDevice();
     }
 
     @Override
@@ -170,27 +175,10 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     private void updateConnectState() {
-        /*tvConnectState.setText(device.getDeviceConnectState().getDescription());
-        switch (device.getDeviceConnectState()) {
-            case CONNECT_SUCCESS:
-                setImageButton(btnSwitchConnectState, R.mipmap.ic_connect_32px, true);
-                break;
 
-            case CONNECT_DISCONNECTING:
-            case CONNECT_CONNECTING:
-                setImageButton(btnSwitchConnectState, R.mipmap.ic_connecting_32px, false);
-                break;
 
-            default:
-                setImageButton(btnSwitchConnectState, R.mipmap.ic_disconnect_32px, true);
-                break;
-        }*/
     }
 
-    private void setImageButton(ImageButton btn, int imageId, boolean enable) {
-        btn.setImageDrawable(getResources().getDrawable(imageId));
-        btn.setEnabled(enable);
-    }
     //////////////////////////////////////////////////////////////////////////
 
 }
