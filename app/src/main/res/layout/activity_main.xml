@@ -55,6 +55,13 @@
                     android:id="@+id/main_tab_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:tabGravity="fill"
+                    app:tabIndicatorColor="#f00"
+                    app:tabMode="fixed"
+                    app:tabPadding="0dp"
+                    app:tabSelectedTextColor = "#f00"
+                    app:tabTextColor = "#00f"
+                    app:tabTextAppearance="@style/MyTabLayoutTextAppearance"
                     android:background="@color/primary_light"/>
 
                 <FrameLayout

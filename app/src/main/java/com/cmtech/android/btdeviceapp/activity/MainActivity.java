@@ -145,11 +145,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.main_tab_layout);
         //tab可滚动
-        tabLayout.setTabMode(TabLayout.MODE_FIXED);
+        //tabLayout.setTabMode(TabLayout.MODE_FIXED);
         //tab的字体选择器,默认黑色,选择时红色
-        tabLayout.setTabTextColors(Color.BLACK, Color.BLUE);
+        //tabLayout.setTabTextColors(Color.BLACK, Color.BLUE);
         //tab的下划线颜色,默认是粉红色
-        tabLayout.setSelectedTabIndicatorColor(Color.BLUE);
+        //tabLayout.setSelectedTabIndicatorColor(Color.BLUE);
         fragmentManager = new FragmentAndTabLayoutManager(getSupportFragmentManager(), tabLayout, R.id.main_fragment_layout);
         fragmentManager.setOnFragmentChangedListener(new FragmentAndTabLayoutManager.OnFragmentChangedListener() {
             @Override
@@ -539,7 +539,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeAsUpIndicator(drawable);*/
 
-        setTitle(fragment.getDevice().getNickName() + " " + device.getDeviceConnectState().getDescription());
+        setTitle(device.getDeviceConnectState().getDescription());
         Toolbar toolbar = findViewById(R.id.toolbar);
         if(device.getDeviceConnectState() == CONNECT_SUCCESS)
             toolbar.setTitleTextColor(Color.RED);
