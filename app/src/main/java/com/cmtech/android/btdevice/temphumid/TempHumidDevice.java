@@ -83,7 +83,7 @@ public class TempHumidDevice extends BleDevice {
     private boolean hasTimerService = false;
 
     // 设备是否已经启动定时服务
-    private boolean hasStartTimerService = false;
+    private boolean timerServiceStarted = false;
 
     // 设备的定时周期
     private byte deviceTimerPeriod = DEVICE_DEFAULT_TIMER_PERIOD;   // 设定的设备定时更新周期，单位：分钟
@@ -110,7 +110,7 @@ public class TempHumidDevice extends BleDevice {
         curTempHumid = null;
 
         hasTimerService = false;
-        hasStartTimerService = false;
+        timerServiceStarted = false;
 
         historyDataList.clear();
         timeLastUpdated = null;
@@ -286,9 +286,9 @@ public class TempHumidDevice extends BleDevice {
     private synchronized boolean processTimerServiceValue(byte[] data) {
         if(data.length != 4) return false;
 
-        hasStartTimerService = (data[3] == 1) ? true : false;
+        timerServiceStarted = (data[3] == 1) ? true : false;
 
-        if (hasStartTimerService) {
+        if (timerServiceStarted) {
             deviceTimerPeriod = data[2];                // 保存设备的定时周期值
             deviceCurTime = guessDeviceCurTime(data[0], data[1]);                     // 通过小时和分钟来猜测设备的当前时间
             readHistoryDataFromDevice();      // 读取设备的历史数据
@@ -299,7 +299,7 @@ public class TempHumidDevice extends BleDevice {
     }
 
     private void readHistoryDataFromDevice() {
-        if(!hasStartTimerService) return;
+        if(!timerServiceStarted) return;
 
         Calendar updateFrom = (Calendar) deviceCurTime.clone();
         updateFrom.add(Calendar.DAY_OF_MONTH, -1);
