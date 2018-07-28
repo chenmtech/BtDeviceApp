@@ -29,9 +29,6 @@ public abstract class BleDevice implements IBleDevice {
     // 设备镜像池
     private static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
-    // 连接相关回调消息
-    private static final int MSG_CONNECTCALLBACK       =  0;
-
     // 设备基本信息
     private final BleDeviceBasicInfo basicInfo;
 
@@ -56,7 +53,12 @@ public abstract class BleDevice implements IBleDevice {
 
                 ViseLog.i("onConnectSuccess");
 
-                sendMessage(MSG_CONNECTCALLBACK, BleDeviceConnectState.CONNECT_SUCCESS);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        processConnectCallbackMessage(CONNECT_SUCCESS);
+                    }
+                });
             }
         }
         @Override
@@ -74,7 +76,12 @@ public abstract class BleDevice implements IBleDevice {
 
                 ViseLog.i("onConnectFailure with state = " + state);
 
-                sendMessage(MSG_CONNECTCALLBACK, state);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        processConnectCallbackMessage(state);
+                    }
+                });
             }
         }
         @Override
@@ -86,17 +93,32 @@ public abstract class BleDevice implements IBleDevice {
 
                 ViseLog.d("onDisconnect");
 
-                sendMessage(MSG_CONNECTCALLBACK, BleDeviceConnectState.CONNECT_DISCONNECT);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        processConnectCallbackMessage(CONNECT_DISCONNECT);
+                    }
+                });
             }
         }
+
         @Override
         public void onScanFinish(boolean result) {
-            ViseLog.d("onScanFailure");
+            synchronized (BleDevice.this) {
+                ViseLog.d("onScanFailure");
 
-            if(result)
-                sendMessage(MSG_CONNECTCALLBACK, BleDeviceConnectState.CONNECT_SCANSUCCESS);
-            else
-                sendMessage(MSG_CONNECTCALLBACK, BleDeviceConnectState.CONNECT_SCANFAILURE);
+                final BleDeviceConnectState state;
+                if (result)
+                    state = CONNECT_SCANSUCCESS;
+                else
+                    state = CONNECT_SCANFAILURE;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        processConnectCallbackMessage(state);
+                    }
+                });
+            }
         }
     };
 
@@ -104,17 +126,9 @@ public abstract class BleDevice implements IBleDevice {
     protected final Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            if(msg.what == MSG_CONNECTCALLBACK) {
-                // 处理连接回调消息
-                processConnectCallbackMessage((BleDeviceConnectState)msg.obj);
-            } else {
-                // 处理Gatt相关消息
-                processGattCallbackMessage(msg);
-            }
+            processGattCallbackMessage(msg);
         }
     };
-
-
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
