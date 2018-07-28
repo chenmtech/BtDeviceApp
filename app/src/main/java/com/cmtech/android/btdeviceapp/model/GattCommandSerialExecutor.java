@@ -18,7 +18,7 @@ import java.util.Queue;
  */
 
 public class GattCommandSerialExecutor {
-    private final int ERROR_TIMES = 3;      // Gatt命令执行错误可重复的次数
+    private final int CMD_ERROR_RETRY_TIMES = 3;      // Gatt命令执行错误可重复的次数
 
     // 指定的设备镜像
     private final DeviceMirror deviceMirror;
@@ -36,12 +36,12 @@ public class GattCommandSerialExecutor {
     private Thread executeThread;
 
     // 命令执行错误的次数
-    private int errorTimes = 0;
+    private int cmdErrorTimes = 0;
 
 
     // IBleCallback的装饰者，在一般的回调任务完成后，执行串行命令所需动作
     private class BleSerialCommandCallback implements IBleCallback {
-        IBleCallback bleCallback;
+        private IBleCallback bleCallback;
 
         public BleSerialCommandCallback(IBleCallback bleCallback) {
             this.bleCallback = bleCallback;
@@ -50,11 +50,22 @@ public class GattCommandSerialExecutor {
         @Override
         public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
             synchronized(GattCommandSerialExecutor.this) {
-                // 先做一般操作
+                // 清除当前命令的数据操作IBleCallback，否则会出现多次执行该回调.
+                // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
+                if(currentCommand != null && deviceMirror != null) {
+                    deviceMirror.removeBleCallback(currentCommand.getGattInfoKey());
+                }
+
+                // 先做一般Gatt成功操作
                 if(bleCallback != null)
                     bleCallback.onSuccess(data, bluetoothGattChannel, bluetoothLeDevice);
 
-                currentCommandSuccess();
+                // 标记命令执行完毕
+                currentCommandDone = true;
+                // 命令错误次数归零
+                cmdErrorTimes = 0;
+                // 通知执行线程执行下一条
+                GattCommandSerialExecutor.this.notifyAll();
 
                 ViseLog.i("The returned data is " + HexUtil.encodeHexStr(data));
             }
@@ -63,10 +74,31 @@ public class GattCommandSerialExecutor {
         @Override
         public void onFailure(BleException exception) {
             synchronized(GattCommandSerialExecutor.this) {
-                if(bleCallback != null)
-                    bleCallback.onFailure(exception);
+                // 清除当前命令的数据操作IBleCallback，否则会出现多次执行该回调.
+                // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
+                if(currentCommand != null) {
+                    if(deviceMirror != null) deviceMirror.removeBleCallback(currentCommand.getGattInfoKey());
+                }
 
-                currentCommandFail();
+                // 有错误，且次数小于指定次数，重新执行当前命令
+                if(cmdErrorTimes < CMD_ERROR_RETRY_TIMES) {
+                    // 再次执行当前命令
+                    currentCommand.execute();
+                    cmdErrorTimes++;
+                    ViseLog.i("Retry current command times = " + cmdErrorTimes);
+
+                } else {
+                    // 错误次数大于指定次数
+                    cmdErrorTimes = 0;
+                    // 停止命令执行器
+                    stop();
+                    // 断开连接
+                    if(deviceMirror != null) deviceMirror.disconnect();
+
+                    if(bleCallback != null)
+                        bleCallback.onFailure(exception);
+
+                }
                 ViseLog.i("GattCommandSerialExecutor Wrong: " + exception);
             }
         }
@@ -167,37 +199,6 @@ public class GattCommandSerialExecutor {
         return flag;
     }
 
-    private synchronized void currentCommandSuccess() {
-        // 标记命令执行完毕
-        currentCommandDone = true;
-        // 命令错误次数归零
-        errorTimes = 0;
-        // 通知执行线程执行下一条
-        GattCommandSerialExecutor.this.notifyAll();
-    }
-
-    private synchronized void currentCommandFail() {
-        // 有错误，且次数小于ERROR_TIMES次，重新执行当前命令
-        if(errorTimes < ERROR_TIMES) {
-            // 清除当前命令的数据操作IBleCallback，否则会出现多次执行该回调.
-            // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
-            if(currentCommand != null) {
-                if(deviceMirror != null) deviceMirror.removeBleCallback(currentCommand.getGattInfoKey());
-            }
-
-            currentCommand.execute();
-            errorTimes++;
-            ViseLog.i("Retry current command, times = " + errorTimes);
-
-        } else {
-            // 错误次数大于ERROR_TIMES次，断开连接
-            errorTimes = 0;
-            if (executeThread != null && executeThread.isAlive()) executeThread.interrupt();
-            deviceMirror.disconnect();
-
-        }
-    }
-
 
     // 开始执行命令
     public synchronized void start() {
@@ -227,11 +228,7 @@ public class GattCommandSerialExecutor {
         while(!currentCommandDone || commandList.isEmpty()) {
             wait();
         }
-        // 清除当前命令的数据操作IBleCallback，否则会出现多次执行该回调.
-        // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
-        if(currentCommand != null) {
-            if(deviceMirror != null) deviceMirror.removeBleCallback(currentCommand.getGattInfoKey());
-        }
+
 
         // 取出一条命令执行
         currentCommand = commandList.poll();
