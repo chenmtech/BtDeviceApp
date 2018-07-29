@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.cmtech.android.ble.ViseBle;
+import com.cmtech.android.ble.common.BleConfig;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
 
@@ -30,6 +31,7 @@ public class MyApplication extends Application {
         // 初始化ViseBle
         viseBle = ViseBle.getInstance();
         viseBle.init(this);
+        BleConfig.getInstance().setConnectTimeout(60000).setConnectRetryCount(0).setOperateRetryCount(0);
 
         // 初始化LitePal
         LitePal.initialize(context);
