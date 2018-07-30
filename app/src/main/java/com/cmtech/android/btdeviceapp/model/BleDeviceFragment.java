@@ -5,13 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
-import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.activity.MainActivity;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceController;
-import com.cmtech.android.btdeviceapp.interfa.IBleDevice;
 
 /**
  * Created by bme on 2018/2/27.
@@ -22,7 +17,7 @@ public abstract class BleDeviceFragment extends Fragment{
     protected MainActivity activity;
 
     // 对应的控制器接口
-    protected IBleDeviceController controller;
+    protected BleDeviceController controller;
 
     // 对应的设备接口
     protected BleDevice device;
@@ -123,7 +118,7 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     // 获取设备
-    public IBleDevice getDevice() {
+    public BleDevice getDevice() {
         return device;
     }
 

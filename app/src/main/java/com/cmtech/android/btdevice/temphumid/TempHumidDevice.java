@@ -102,11 +102,11 @@ public class TempHumidDevice extends BleDevice {
     // 构造器
     public TempHumidDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
-        initialize();
+        initializeAfterConstruction();
     }
 
     @Override
-    public void initialize() {
+    public void initializeAfterConstruction() {
         curTempHumid = null;
 
         hasTimerService = false;

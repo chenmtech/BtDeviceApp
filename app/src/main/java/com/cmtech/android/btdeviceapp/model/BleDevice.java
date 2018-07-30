@@ -12,7 +12,6 @@ import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
-import com.cmtech.android.btdeviceapp.interfa.IBleDevice;
 import com.vise.log.ViseLog;
 
 
@@ -25,7 +24,7 @@ import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.*;
  * Created by bme on 2018/2/19.
  */
 
-public abstract class BleDevice implements IBleDevice {
+public abstract class BleDevice {
     // 设备镜像池
     private static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
@@ -140,48 +139,39 @@ public abstract class BleDevice implements IBleDevice {
         this.basicInfo = basicInfo;
     }
 
-    @Override
     public String getMacAddress() {
         return basicInfo.getMacAddress();
     }
 
-    @Override
     public String getNickName() {
         return basicInfo.getNickName();
     }
 
-    @Override
     public String getUuidString() {
         return basicInfo.getUuidString();
     }
 
-    @Override
     public boolean isAutoConnected() {
         return basicInfo.isAutoConnected();
     }
 
-    @Override
     public String getImagePath() {
         return basicInfo.getImagePath();
     }
 
-    @Override
     public BleDeviceBasicInfo getBasicInfo() {
         return basicInfo;
     }
 
-    @Override
     public BleDeviceConnectState getDeviceConnectState() {
         return state;
     }
 
-    @Override
     public void setDeviceConnectState(BleDeviceConnectState state) {
         this.state = state;
     }
 
     // 发起连接
-    @Override
     public synchronized void connect() {
         if(canConnect()) {
             handler.removeCallbacksAndMessages(null);
@@ -194,7 +184,6 @@ public abstract class BleDevice implements IBleDevice {
     }
 
     // 断开连接
-    @Override
     public synchronized void disconnect() {
         if(canDisconnect()) {
             stopCommandExecutor();
@@ -207,7 +196,6 @@ public abstract class BleDevice implements IBleDevice {
     }
 
     // 关闭设备
-    @Override
     public synchronized void close() {
         if(canClose()) {
             deviceMirrorPool.disconnect(bluetoothLeDevice);
@@ -233,7 +221,6 @@ public abstract class BleDevice implements IBleDevice {
     }
 
     // 登记连接状态观察者
-    @Override
     public void registerConnectStateObserver(IBleDeviceConnectStateObserver observer) {
         if(!connectStateObserverList.contains(observer)) {
             connectStateObserverList.add(observer);
@@ -241,7 +228,6 @@ public abstract class BleDevice implements IBleDevice {
     }
 
     // 删除连接状态观察者
-    @Override
     public void removeConnectStateObserver(IBleDeviceConnectStateObserver observer) {
         int index = connectStateObserverList.indexOf(observer);
         if(index >= 0) {
@@ -250,7 +236,6 @@ public abstract class BleDevice implements IBleDevice {
     }
 
     // 通知连接状态观察者
-    @Override
     public void notifyConnectStateObservers() {
         for(final IBleDeviceConnectStateObserver observer : connectStateObserverList) {
             if(observer != null) {
@@ -317,6 +302,21 @@ public abstract class BleDevice implements IBleDevice {
         msg.obj = obj;
         handler.sendMessage(msg);
     }
+
+    // 构造之后的初始化操作
+    public abstract void initializeAfterConstruction();
+
+    // 连接成功后执行的操作
+    public abstract void executeAfterConnectSuccess();
+
+    // 连接错误后执行的操作
+    public abstract void executeAfterConnectFailure();
+
+    // 断开连接后执行的操作
+    public abstract void executeAfterDisconnect();
+
+    // 处理Gatt回调消息函数
+    public abstract void processGattCallbackMessage(Message msg);
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////

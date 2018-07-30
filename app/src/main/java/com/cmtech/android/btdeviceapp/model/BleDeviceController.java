@@ -3,18 +3,16 @@ package com.cmtech.android.btdeviceapp.model;
 import android.util.Log;
 
 import com.cmtech.android.btdeviceapp.interfa.BleDeviceAbstractFactory;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceController;
-import com.cmtech.android.btdeviceapp.interfa.IBleDevice;
 
-public class BleDeviceController implements IBleDeviceController {
+public class BleDeviceController {
     // 设备
-    private final IBleDevice device;
+    private final BleDevice device;
 
     // Fragment
     private final BleDeviceFragment fragment;
 
 
-    public BleDeviceController(IBleDevice device) {
+    public BleDeviceController(BleDevice device) {
         if(device == null) {
             throw new IllegalStateException();
         }
@@ -24,22 +22,18 @@ public class BleDeviceController implements IBleDeviceController {
         fragment = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();
     }
 
-    @Override
     public void connectDevice() {
         device.connect();
     }
 
-    @Override
     public void disconnectDevice() {
         device.disconnect();
     }
 
-    @Override
     public void closeDevice() {
         device.close();
     }
 
-    @Override
     public void switchDeviceConnectState() {
         BleDeviceConnectState state = device.getDeviceConnectState();
         Log.d("BLEDEVICECONTROLLER", "now the state is " + state);
@@ -58,12 +52,10 @@ public class BleDeviceController implements IBleDeviceController {
         }
     }
 
-    @Override
-    public IBleDevice getDevice() {
+    public BleDevice getDevice() {
         return device;
     }
 
-    @Override
     public BleDeviceFragment getFragment() {
         return fragment;
     }

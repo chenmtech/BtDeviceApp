@@ -11,7 +11,6 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -25,7 +24,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.btdeviceapp.MyApplication;
@@ -33,8 +31,7 @@ import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.btdeviceapp.interfa.BleDeviceAbstractFactory;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceConnectStateObserver;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceController;
-import com.cmtech.android.btdeviceapp.interfa.IBleDevice;
+import com.cmtech.android.btdeviceapp.model.BleDeviceController;
 import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BleDevice;
 import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
@@ -56,10 +53,10 @@ import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT
  */
 public class MainActivity extends AppCompatActivity implements IBleDeviceConnectStateObserver {
     // 已登记的设备列表
-    private final List<IBleDevice> registeredDeviceList = new ArrayList<>();
+    private final List<BleDevice> registeredDeviceList = new ArrayList<>();
 
     // 已打开的设备控制器列表
-    private final List<IBleDeviceController> openedControllerList = new LinkedList<>();
+    private final List<BleDeviceController> openedControllerList = new LinkedList<>();
 
     // 显示已登记设备列表的Adapter和RecyclerView
     private BleDeviceListAdapter deviceListAdapter;
@@ -184,8 +181,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
                     String deviceUuid = data.getStringExtra("device_uuid");
                     String imagePath = data.getStringExtra("device_imagepath");
                     Boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
-                    IBleDevice device = null;
-                    for(IBleDevice ele : registeredDeviceList) {
+                    BleDevice device = null;
+                    for(BleDevice ele : registeredDeviceList) {
                         if(macAddress.equalsIgnoreCase(ele.getMacAddress())) {
                             device = ele;
                             break;
@@ -287,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     public void closeDevice(BleDeviceFragment fragment) {
         if(fragment == null) return;
 
-        IBleDeviceController controller = getController(fragment);
+        BleDeviceController controller = getController(fragment);
         if(controller == null) return;
 
         openedControllerList.remove(controller);
@@ -296,8 +293,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     }
 
     // 从deviceControllerList中寻找Fragment对应的控制器
-    public IBleDeviceController getController(BleDeviceFragment fragment) {
-        for(IBleDeviceController controller : openedControllerList) {
+    public BleDeviceController getController(BleDeviceFragment fragment) {
+        for(BleDeviceController controller : openedControllerList) {
             if(controller.getFragment().equals(fragment)) {
                 return controller;
             }
@@ -306,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     }
 
     // 启动一个BLE设备：为设备创建控制器和Fragment，并自动连接
-    public void launchDevice(IBleDevice device) {
+    public void launchDevice(BleDevice device) {
         if(device == null) return;
 
         BleDeviceFragment fragment = getFragment(device);
@@ -318,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
             BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo());
             if(factory == null) return;
             // 在构造BleDeviceController时，会自动创建BleDeviceFragment
-            IBleDeviceController deviceController = factory.createController(device);
+            BleDeviceController deviceController = factory.createController(device);
             openedControllerList.add(deviceController);
             addFragment(deviceController.getFragment(), device.getImagePath(), device.getNickName());
         }
@@ -326,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
 
 
     // 删除一个已登记设备
-    public void deleteDeviceFromRegisteredDeviceList(final IBleDevice device) {
+    public void deleteDeviceFromRegisteredDeviceList(final BleDevice device) {
         if(device == null) return;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -350,7 +347,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     }
 
     // 修改设备基本信息 
-    public void modifyDeviceBasicInfo(final IBleDevice device) {
+    public void modifyDeviceBasicInfo(final BleDevice device) {
         Intent intent = new Intent(this, DeviceBasicInfoActivity.class);
         intent.putExtra("device_nickname", device.getNickName());
         intent.putExtra("device_macaddress", device.getMacAddress());
@@ -398,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(basicInfo);
         if(factory == null) return false;
         // 用工厂创建BleDevice
-        IBleDevice device = factory.createBleDevice(basicInfo);
+        BleDevice device = factory.createBleDevice(basicInfo);
 
         if(device != null) {
             // 将设备添加到设备列表
@@ -424,7 +421,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     // 产生已登记的设备Mac地址字符串列表
     private List<String> getRegisteredDeviceMacAddressList() {
         List<String> deviceMacList = new ArrayList<>();
-        for(IBleDevice device : registeredDeviceList) {
+        for(BleDevice device : registeredDeviceList) {
             deviceMacList.add(device.getMacAddress());
         }
         return deviceMacList;
@@ -445,8 +442,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     }
 
     // 从deviceControllerList中寻找Fragment对应的控制器
-    private IBleDeviceController getController(IBleDevice device) {
-        for(IBleDeviceController controller : openedControllerList) {
+    private BleDeviceController getController(BleDevice device) {
+        for(BleDeviceController controller : openedControllerList) {
             if(device.equals(controller.getDevice())) {
                 return controller;
             }
@@ -455,8 +452,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
     }
 
     // 获取设备对应的Fragment
-    private BleDeviceFragment getFragment(IBleDevice device) {
-        IBleDeviceController controller = getController(device);
+    private BleDeviceFragment getFragment(BleDevice device) {
+        BleDeviceController controller = getController(device);
         return (controller != null) ? controller.getFragment() : null;
     }
 

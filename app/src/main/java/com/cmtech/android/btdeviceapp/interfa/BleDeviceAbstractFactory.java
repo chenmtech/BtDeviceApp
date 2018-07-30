@@ -3,6 +3,8 @@ package com.cmtech.android.btdeviceapp.interfa;
 import com.cmtech.android.btdevice.ecgmonitor.EcgMonitorDeviceFactory;
 import com.cmtech.android.btdevice.temphumid.TempHumidDeviceFactory;
 import com.cmtech.android.btdevice.thermo.ThermoDeviceFactory;
+import com.cmtech.android.btdeviceapp.model.BleDevice;
+import com.cmtech.android.btdeviceapp.model.BleDeviceController;
 import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
 
@@ -28,7 +30,7 @@ public abstract class BleDeviceAbstractFactory {
             return null;
     }
 
-    public abstract IBleDevice createBleDevice(BleDeviceBasicInfo basicInfo);
-    public abstract IBleDeviceController createController(IBleDevice device);
+    public abstract BleDevice createBleDevice(BleDeviceBasicInfo basicInfo);
+    public abstract BleDeviceController createController(BleDevice device);
     public abstract BleDeviceFragment createFragment();
 }

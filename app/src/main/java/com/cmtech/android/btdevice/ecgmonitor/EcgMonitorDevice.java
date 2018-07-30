@@ -188,7 +188,7 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     @Override
-    public void initialize() {
+    public void initializeAfterConstruction() {
     }
 
     public void setEcgRecord(boolean isRecord) {

@@ -65,7 +65,7 @@ public class ThermoDevice extends BleDevice {
 
 
     @Override
-    public void initialize() {
+    public void initializeAfterConstruction() {
     }
 
     @Override
