@@ -198,8 +198,18 @@ public abstract class BleDevice {
     // 关闭设备
     public synchronized void close() {
         if(canClose()) {
-            deviceMirrorPool.disconnect(bluetoothLeDevice);
-            isClosing = true;
+            if(state != CONNECT_DISCONNECT) {
+                stopCommandExecutor();
+
+                setDeviceConnectState(CONNECT_DISCONNECTING);
+                notifyConnectStateObservers();
+
+                deviceMirrorPool.disconnect(bluetoothLeDevice);
+                isClosing = true;
+            } else {
+                setDeviceConnectState(CONNECT_WAITING);
+                notifyConnectStateObservers();
+            }
         }
     }
 
