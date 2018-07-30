@@ -206,7 +206,7 @@ public class TempHumidDevice extends BleDevice {
         commandExecutor.addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
+                sendGattCallbackMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
             @Override
@@ -226,7 +226,7 @@ public class TempHumidDevice extends BleDevice {
         IBleCallback notifyCallback = new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
+                sendGattCallbackMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
             @Override
@@ -273,7 +273,7 @@ public class TempHumidDevice extends BleDevice {
         commandExecutor.addReadCommand(TIMERVALUE, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_TIMERVALUE, data);
+                sendGattCallbackMessage(MSG_TIMERVALUE, data);
             }
 
             @Override
@@ -341,7 +341,7 @@ public class TempHumidDevice extends BleDevice {
         commandExecutor.addReadCommand(TEMPHUMIDHISTORYDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
+                sendGattCallbackMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
             }
 
             @Override

@@ -88,7 +88,7 @@ public class ThermoDevice extends BleDevice {
                 Message msg = new Message();
                 msg.what = MSG_THERMODATA;
                 msg.obj = data;
-                handler.sendMessage(msg);
+                handler.sendGattCallbackMessage(msg);
                 Log.d("Thread", "Read Callback Thread: "+Thread.currentThread().getId());
             }
 
@@ -119,7 +119,7 @@ public class ThermoDevice extends BleDevice {
                 Message msg = new Message();
                 msg.what = MSG_THERMODATA;
                 msg.obj = data;
-                handler.sendMessage(msg);
+                handler.sendGattCallbackMessage(msg);
             }
 
             @Override

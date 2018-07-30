@@ -44,8 +44,10 @@ public abstract class BleDevice implements IBleDevice {
     // 连接状态观察者列表
     private final List<IBleDeviceConnectStateObserver> connectStateObserverList = new LinkedList<>();
 
+    private boolean isClosing = false;
+
     // 连接回调
-    final IConnectCallback connectCallback = new IConnectCallback() {
+    private final IConnectCallback connectCallback = new IConnectCallback() {
         @Override
         public void onConnectSuccess(DeviceMirror mirror) {
             synchronized (BleDevice.this) {
@@ -56,7 +58,7 @@ public abstract class BleDevice implements IBleDevice {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        processConnectCallbackMessage(CONNECT_SUCCESS);
+                        processConnectCallback(CONNECT_SUCCESS);
                     }
                 });
             }
@@ -79,7 +81,7 @@ public abstract class BleDevice implements IBleDevice {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        processConnectCallbackMessage(state);
+                        processConnectCallback(state);
                     }
                 });
             }
@@ -96,7 +98,7 @@ public abstract class BleDevice implements IBleDevice {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        processConnectCallbackMessage(CONNECT_DISCONNECT);
+                        processConnectCallback(CONNECT_DISCONNECT);
                     }
                 });
             }
@@ -115,14 +117,14 @@ public abstract class BleDevice implements IBleDevice {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        processConnectCallbackMessage(state);
+                        processConnectCallback(state);
                     }
                 });
             }
         }
     };
 
-    // 消息分发：用来处理连接和通信回调后产生的消息，由于有些要修改GUI，所以使用主线程
+    // 处理Gatt操作回调消息
     protected final Handler handler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(Message msg) {
@@ -144,18 +146,8 @@ public abstract class BleDevice implements IBleDevice {
     }
 
     @Override
-    public void setMacAddress(String macAddress) {
-        basicInfo.setMacAddress(macAddress);
-    }
-
-    @Override
     public String getNickName() {
         return basicInfo.getNickName();
-    }
-
-    @Override
-    public void setNickName(String nickName) {
-        basicInfo.setNickName(nickName);
     }
 
     @Override
@@ -164,28 +156,13 @@ public abstract class BleDevice implements IBleDevice {
     }
 
     @Override
-    public void setUuidString(String uuidString) {
-        basicInfo.setUuidString(uuidString);
-    }
-
-    @Override
     public boolean isAutoConnected() {
         return basicInfo.isAutoConnected();
     }
 
     @Override
-    public void setAutoConnected(boolean autoConnected) {
-        basicInfo.setAutoConnected(autoConnected);
-    }
-
-    @Override
     public String getImagePath() {
         return basicInfo.getImagePath();
-    }
-
-    @Override
-    public void setImagePath(String imagePath) {
-        basicInfo.setImagePath(imagePath);
     }
 
     @Override
@@ -207,6 +184,8 @@ public abstract class BleDevice implements IBleDevice {
     @Override
     public synchronized void connect() {
         if(canConnect()) {
+            handler.removeCallbacksAndMessages(null);
+
             setDeviceConnectState(CONNECT_CONNECTING);
             notifyConnectStateObservers();
 
@@ -217,9 +196,8 @@ public abstract class BleDevice implements IBleDevice {
     // 断开连接
     @Override
     public synchronized void disconnect() {
-        stopCommandExecutor();
-
         if(canDisconnect()) {
+            stopCommandExecutor();
 
             setDeviceConnectState(CONNECT_DISCONNECTING);
             notifyConnectStateObservers();
@@ -231,7 +209,10 @@ public abstract class BleDevice implements IBleDevice {
     // 关闭设备
     @Override
     public synchronized void close() {
-        disconnect();
+        if(canClose()) {
+            deviceMirrorPool.disconnect(bluetoothLeDevice);
+            isClosing = true;
+        }
     }
 
     @Override
@@ -285,32 +266,23 @@ public abstract class BleDevice implements IBleDevice {
     }
 
 
-
-
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
-    public boolean canConnect() {
+    // 可连接
+    public synchronized boolean canConnect() {
         return (state != CONNECT_SUCCESS && state != CONNECT_CONNECTING && state != CONNECT_DISCONNECTING && state != CONNECT_SCANSUCCESS);
     }
-
-    public boolean canDisconnect() {
+    // 可断开
+    public synchronized boolean canDisconnect() {
         return (state == CONNECT_SUCCESS);
     }
-
-    public boolean canClose() {
-        return (state != CONNECT_CONNECTING && state != CONNECT_DISCONNECTING && state != CONNECT_SCANSUCCESS);
+    // 可关闭
+    public synchronized boolean canClose() {
+        return (state != CONNECT_WAITING && isClosing == false);
     }
 
-    // 停止命令执行器
-    protected void stopCommandExecutor() {
-        if(commandExecutor != null) commandExecutor.stop();
-    }
-
-    protected boolean isCommandExecutorAlive() {
-        return ((commandExecutor != null) && commandExecutor.isAlive());
-    }
-
+    // 创建Gatt命令执行器
     protected synchronized void createGattCommandExecutor() {
         ViseLog.i("create new command executor.");
         if(isCommandExecutorAlive()) return;
@@ -321,6 +293,16 @@ public abstract class BleDevice implements IBleDevice {
         commandExecutor.start();
     }
 
+    // 停止Gatt命令执行器
+    protected void stopCommandExecutor() {
+        if(commandExecutor != null) commandExecutor.stop();
+    }
+
+    // Gatt命令执行器是否Alive
+    protected boolean isCommandExecutorAlive() {
+        return ((commandExecutor != null) && commandExecutor.isAlive());
+    }
+
     // 获取设备上element对应的Gatt Object
     protected Object getGattObject(BleGattElement element) {
         DeviceMirror deviceMirror = deviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
@@ -328,32 +310,29 @@ public abstract class BleDevice implements IBleDevice {
         return element.retrieveGattObject(deviceMirror);
     }
 
-    // 发送消息
-    protected void sendMessage(int what, Object obj) {
+    // 发送Gatt回调后的消息
+    protected void sendGattCallbackMessage(int what, Object obj) {
         Message msg = new Message();
         msg.what = what;
         msg.obj = obj;
         handler.sendMessage(msg);
     }
 
-
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
-    // 连接结果处理函数
-    private synchronized void processConnectCallbackMessage(BleDeviceConnectState state) {
+    // 连接回调处理函数
+    private synchronized void processConnectCallback(BleDeviceConnectState state) {
         setDeviceConnectState(state);
         notifyConnectStateObservers();
 
         switch (state) {
             case CONNECT_SUCCESS:
-
                 executeAfterConnectSuccess();
                 break;
 
             case CONNECT_CONNECTTIMEOUT:
             case CONNECT_CONNECTFAILURE:
-
                 executeAfterConnectFailure();
 
                 // 连接错误或超时，重新连接
@@ -367,8 +346,14 @@ public abstract class BleDevice implements IBleDevice {
                 break;
 
             case CONNECT_DISCONNECT:
-
                 executeAfterDisconnect();
+
+                if(isClosing) {
+                    setDeviceConnectState(CONNECT_WAITING);
+                    notifyConnectStateObservers();
+                    isClosing = false;
+                }
+
                 break;
 
             case CONNECT_SCANFAILURE:
@@ -376,6 +361,7 @@ public abstract class BleDevice implements IBleDevice {
                 break;
 
             case CONNECT_SCANSUCCESS:
+                // 扫描成功，什么也不做。内部会自动发起连接
                 break;
 
             default:
