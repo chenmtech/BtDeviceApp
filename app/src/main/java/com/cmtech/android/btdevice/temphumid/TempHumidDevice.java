@@ -199,8 +199,6 @@ public class TempHumidDevice extends BleDevice {
         // 检查所需的服务和特征值
         if(!checkServiceAndCharacteristic()) return;
 
-        // 创建Gatt串行命令执行器
-        createGattCommandExecutor();
 
         // 先读取一次当前温湿度值
         commandExecutor.addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
@@ -268,7 +266,7 @@ public class TempHumidDevice extends BleDevice {
     }
 
     public void readTimerServiceValue() {
-        if(!isCommandExecutorAlive()) return;
+        //if(!isCommandExecutorAlive()) return;
 
         commandExecutor.addReadCommand(TIMERVALUE, new IBleCallback() {
             @Override
@@ -403,12 +401,12 @@ public class TempHumidDevice extends BleDevice {
 
     @Override
     public void executeAfterDisconnect() {
-        stopCommandExecutor();
+        //stopCommandExecutor();
     }
 
     @Override
     public void executeAfterConnectFailure() {
-        stopCommandExecutor();
+        //stopCommandExecutor();
 
         //connect();
     }

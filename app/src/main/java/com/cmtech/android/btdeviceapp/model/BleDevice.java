@@ -278,23 +278,24 @@ public abstract class BleDevice {
     }
 
     // 创建Gatt命令执行器
-    protected synchronized void createGattCommandExecutor() {
+    private boolean createGattCommandExecutor() {
         ViseLog.i("create new command executor.");
-        if(isCommandExecutorAlive()) return;
+        if(isCommandExecutorAlive()) return false;
         DeviceMirror deviceMirror = deviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
-        if(deviceMirror == null) return;
+        if(deviceMirror == null) return false;
 
         commandExecutor = new GattCommandSerialExecutor(deviceMirror);
         commandExecutor.start();
+        return true;
     }
 
     // 停止Gatt命令执行器
-    protected void stopCommandExecutor() {
-        if(commandExecutor != null) commandExecutor.stop();
+    private void stopCommandExecutor() {
+        if(isCommandExecutorAlive()) commandExecutor.stop();
     }
 
     // Gatt命令执行器是否Alive
-    protected boolean isCommandExecutorAlive() {
+    private boolean isCommandExecutorAlive() {
         return ((commandExecutor != null) && commandExecutor.isAlive());
     }
 
@@ -338,11 +339,24 @@ public abstract class BleDevice {
 
         switch (state) {
             case CONNECT_SUCCESS:
-                executeAfterConnectSuccess();
+                // 创建Gatt串行命令执行器
+                if(createGattCommandExecutor()) {
+                    executeAfterConnectSuccess();
+                } else {
+                    // 断开连接
+                    new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            disconnect();
+                        }
+                    }, 500);
+                }
                 break;
 
             case CONNECT_CONNECTTIMEOUT:
             case CONNECT_CONNECTFAILURE:
+                stopCommandExecutor();
+
                 executeAfterConnectFailure();
 
                 // 连接错误或超时，重新连接
@@ -356,6 +370,8 @@ public abstract class BleDevice {
                 break;
 
             case CONNECT_DISCONNECT:
+                stopCommandExecutor();
+
                 executeAfterDisconnect();
 
                 if(isClosing) {
