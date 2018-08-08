@@ -4,7 +4,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
+import com.cmtech.android.ble.common.PropertyType;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
@@ -38,11 +40,12 @@ public abstract class BleDevice {
     private BleDeviceConnectState state = BleDeviceConnectState.CONNECT_WAITING;
 
     // GATT命令串行执行器
-    protected GattCommandSerialExecutor commandExecutor;
+    private GattCommandSerialExecutor commandExecutor;
 
     // 连接状态观察者列表
     private final List<IBleDeviceConnectStateObserver> connectStateObserverList = new LinkedList<>();
 
+    // 是否正在关闭
     private boolean isClosing = false;
 
     // 连接回调
@@ -260,10 +263,6 @@ public abstract class BleDevice {
         }
     }
 
-
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
     // 可连接
     public synchronized boolean canConnect() {
         return (state != CONNECT_SUCCESS && state != CONNECT_CONNECTING && state != CONNECT_DISCONNECTING && state != CONNECT_SCANSUCCESS);
@@ -277,6 +276,32 @@ public abstract class BleDevice {
         return (state != CONNECT_WAITING && isClosing == false);
     }
 
+    public boolean addReadCommand(BleGattElement element, IBleCallback dataOpCallback) {
+        return ((commandExecutor != null) && commandExecutor.addReadCommand(element, dataOpCallback));
+    }
+
+    public boolean addWriteCommand(BleGattElement element, byte[] data, IBleCallback dataOpCallback) {
+        return ((commandExecutor != null) && commandExecutor.addWriteCommand(element, data, dataOpCallback));
+    }
+
+    public boolean addWriteCommand(BleGattElement element, byte data, IBleCallback dataOpCallback) {
+        return ((commandExecutor != null) && commandExecutor.addWriteCommand(element, data, dataOpCallback));
+    }
+
+    public boolean addNotifyCommand(BleGattElement element, boolean enable
+            , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
+        return ((commandExecutor != null) && commandExecutor.addNotifyCommand(element, enable, dataOpCallback, notifyOpCallback));
+    }
+
+    public boolean addIndicateCommand(BleGattElement element, boolean enable
+            , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
+        return ((commandExecutor != null) && commandExecutor.addIndicateCommand(element, enable, dataOpCallback, indicateOpCallback));
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
     // 创建Gatt命令执行器
     private boolean createGattCommandExecutor() {
         ViseLog.i("create new command executor.");
@@ -343,7 +368,7 @@ public abstract class BleDevice {
                 if(createGattCommandExecutor()) {
                     executeAfterConnectSuccess();
                 } else {
-                    // 断开连接
+                    // 创建失败，断开连接
                     new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                         @Override
                         public void run() {

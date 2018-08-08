@@ -201,7 +201,7 @@ public class TempHumidDevice extends BleDevice {
 
 
         // 先读取一次当前温湿度值
-        commandExecutor.addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
+        addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 sendGattCallbackMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
@@ -215,10 +215,10 @@ public class TempHumidDevice extends BleDevice {
 
         // 设置温湿度采样周期
         int period = DEFAULT_TEMPHUMID_PERIOD;
-        commandExecutor.addWriteCommand(TEMPHUMIDPERIOD, (byte) (period / 100), null);
+        addWriteCommand(TEMPHUMIDPERIOD, (byte) (period / 100), null);
 
         // 启动温湿度采集
-        commandExecutor.addWriteCommand(TEMPHUMIDCTRL, (byte)0x01, null);
+        addWriteCommand(TEMPHUMIDCTRL, (byte)0x01, null);
 
         // enable 温湿度采集的notification
         IBleCallback notifyCallback = new IBleCallback() {
@@ -232,7 +232,7 @@ public class TempHumidDevice extends BleDevice {
                 ViseLog.i("onFailure");
             }
         };
-        commandExecutor.addNotifyCommand(TEMPHUMIDDATACCC, true, null, notifyCallback);
+        addNotifyCommand(TEMPHUMIDDATACCC, true, null, notifyCallback);
 
 
         if(hasTimerService) {
@@ -268,7 +268,7 @@ public class TempHumidDevice extends BleDevice {
     public void readTimerServiceValue() {
         //if(!isCommandExecutorAlive()) return;
 
-        commandExecutor.addReadCommand(TIMERVALUE, new IBleCallback() {
+        addReadCommand(TIMERVALUE, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 sendGattCallbackMessage(MSG_TIMERVALUE, data);
@@ -333,10 +333,10 @@ public class TempHumidDevice extends BleDevice {
         byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
 
         // 写历史数据时间
-        commandExecutor.addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, null);
+        addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, null);
 
         // 读取历史数据
-        commandExecutor.addReadCommand(TEMPHUMIDHISTORYDATA, new IBleCallback() {
+        addReadCommand(TEMPHUMIDHISTORYDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 sendGattCallbackMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
@@ -353,7 +353,7 @@ public class TempHumidDevice extends BleDevice {
         Calendar time = Calendar.getInstance();
         byte[] value = {(byte)time.get(Calendar.HOUR_OF_DAY), (byte)time.get(Calendar.MINUTE), deviceTimerPeriod, 0x01};
 
-        commandExecutor.addWriteCommand(TIMERVALUE, value, new IBleCallback() {
+        addWriteCommand(TIMERVALUE, value, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 ViseLog.i("Success to start timer service.");
