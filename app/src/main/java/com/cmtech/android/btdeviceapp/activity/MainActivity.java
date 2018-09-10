@@ -45,8 +45,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.btdeviceapp.model.BleDeviceConnectState.CONNECT_SUCCESS;
-
 /**
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
@@ -222,10 +220,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
             case R.id.toolbar_connectswitch:
                 fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
                 if(fragment != null && fragment.getDevice() != null) {
-                        if (((BleDevice)fragment.getDevice()).canDisconnect())
-                            fragment.disconnectDevice();
-                        else if (((BleDevice)fragment.getDevice()).canConnect())
-                            fragment.openDevice();
+                        fragment.getDevice().switchState();
                 }
                 break;
 
@@ -520,11 +515,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         }
         toolbar.setLogo(drawable);
 
-        toolbar.setTitle(device.getDeviceConnectState().getDescription());
+        toolbar.setTitle(device.getStateDescription());
 
-        if(device.getDeviceConnectState() == CONNECT_SUCCESS)
+        /*if(device.getDeviceConnectState() == CONNECT_SUCCESS)
             toolbar.setTitleTextColor(Color.RED);
         else
-            toolbar.setTitleTextColor(Color.GRAY);
+            toolbar.setTitleTextColor(Color.GRAY);*/
     }
 }

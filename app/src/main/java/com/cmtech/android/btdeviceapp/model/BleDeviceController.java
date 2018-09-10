@@ -1,7 +1,5 @@
 package com.cmtech.android.btdeviceapp.model;
 
-import android.util.Log;
-
 import com.cmtech.android.btdeviceapp.interfa.BleDeviceAbstractFactory;
 
 public class BleDeviceController {
@@ -23,7 +21,11 @@ public class BleDeviceController {
     }
 
     public void openDevice() {
-        device.deviceOpen();
+        device.open();
+    }
+
+    public void scanDevice() {
+        device.scan();
     }
 
     public void disconnectDevice() {
@@ -35,21 +37,7 @@ public class BleDeviceController {
     }
 
     public void switchDeviceConnectState() {
-        BleDeviceConnectState state = device.getDeviceConnectState();
-        Log.d("BLEDEVICECONTROLLER", "now the state is " + state);
-        switch (state) {
-            case CONNECT_SUCCESS:
-                disconnectDevice();
-                break;
-
-            case CONNECT_CONNECTING:
-            case CONNECT_DISCONNECTING:
-                break;
-
-            default:
-                openDevice();
-                break;
-        }
+        device.switchState();
     }
 
     public BleDevice getDevice() {

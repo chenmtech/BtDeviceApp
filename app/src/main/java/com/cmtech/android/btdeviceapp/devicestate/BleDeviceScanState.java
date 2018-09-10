@@ -12,22 +12,27 @@ public class BleDeviceScanState implements IBleDeviceState {
     }
 
     @Override
-    public void deviceOpen() {
+    public void open() {
         ViseLog.i("action wrong");
     }
 
     @Override
-    public void deviceClose() {
+    public void close() {
         ViseLog.i("action wrong");
     }
 
     @Override
-    public void deviceStartScan() {
+    public void scan() {
         ViseLog.i("action wrong");
     }
 
     @Override
-    public void deviceDisconnect() {
+    public void disconnect() {
+        ViseLog.i("action wrong");
+    }
+
+    @Override
+    public void switchState() {
         ViseLog.i("action wrong");
     }
 
@@ -43,26 +48,41 @@ public class BleDeviceScanState implements IBleDeviceState {
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-
+        ViseLog.i("callback wrong");
     }
 
     @Override
     public void onDeviceConnectFailure() {
-
+        ViseLog.i("callback wrong");
     }
 
     @Override
     public void onDeviceConnectTimeout() {
-
+        ViseLog.i("callback wrong");
     }
 
     @Override
     public void onDeviceDisconnect() {
-
+        ViseLog.i("callback wrong");
     }
 
     @Override
-    public String deviceGetStateInfo() {
+    public String getStateDescription() {
         return "扫描中";
+    }
+
+    @Override
+    public boolean canConnect() {
+        return false;
+    }
+
+    @Override
+    public boolean canDisconnect() {
+        return false;
+    }
+
+    @Override
+    public boolean canClose() {
+        return false;
     }
 }

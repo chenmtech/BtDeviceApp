@@ -124,14 +124,12 @@ public abstract class BleDeviceFragment extends Fragment{
 
     // 连接设备
     public void openDevice() {
-        if(canConnect())
-            controller.openDevice();
+        controller.openDevice();
     }
 
     // 断开设备
     public void disconnectDevice() {
-        if(canDisconnect())
-            controller.disconnectDevice();
+        controller.disconnectDevice();
     }
 
     // 关闭设备
@@ -140,8 +138,7 @@ public abstract class BleDeviceFragment extends Fragment{
     // 这些动作需要调用activity.closeDevice才能完成
     // 关闭设备的动作会在销毁Fragment时触发onDestroy()，那里会调用controller.closeDevice()来关闭设备
     public void closeDevice() {
-        if(canClose())
-            activity.closeDevice(this);
+        activity.closeDevice(this);
     }
 
     // 切换设备的连接状态
@@ -155,18 +152,6 @@ public abstract class BleDeviceFragment extends Fragment{
         if(device == this.device && isAdded()) {
             updateConnectState();
         }
-    }
-
-    private boolean canConnect() {
-        return device.canConnect();
-    }
-
-    public boolean canDisconnect() {
-        return device.canDisconnect();
-    }
-
-    public boolean canClose() {
-        return device.canClose();
     }
 
     private void updateConnectState() {

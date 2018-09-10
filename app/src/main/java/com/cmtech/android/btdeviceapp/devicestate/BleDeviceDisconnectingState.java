@@ -12,58 +12,79 @@ public class BleDeviceDisconnectingState implements IBleDeviceState {
     }
 
     @Override
-    public void deviceOpen() {
+    public void open() {
         ViseLog.i("action wrong");
     }
 
     @Override
-    public void deviceClose() {
+    public void close() {
         ViseLog.i("action wrong");
     }
 
     @Override
-    public void deviceStartScan() {
+    public void scan() {
         ViseLog.i("action wrong");
     }
 
     @Override
-    public void deviceDisconnect() {
+    public void disconnect() {
+        ViseLog.i("action wrong");
+    }
+
+    @Override
+    public void switchState() {
         ViseLog.i("action wrong");
     }
 
     @Override
     public void onDeviceScanSuccess() {
-
+        ViseLog.i("callback wrong");
     }
 
     @Override
     public void onDeviceScanFailure() {
-
+        ViseLog.i("callback wrong");
     }
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-
+        ViseLog.i("callback wrong");
     }
 
     @Override
     public void onDeviceConnectFailure() {
-
+        ViseLog.i("callback wrong");
     }
 
     @Override
     public void onDeviceConnectTimeout() {
-
+        ViseLog.i("callback wrong");
     }
 
     @Override
     public void onDeviceDisconnect() {
-        device.setBluetoothLeDevice(null);
+        device.getHandler().removeCallbacksAndMessages(null);
+        device.processDisconnect();
         device.setState(device.getOpenState());
     }
 
     @Override
-    public String deviceGetStateInfo() {
+    public String getStateDescription() {
         return "断开中";
+    }
+
+    @Override
+    public boolean canConnect() {
+        return false;
+    }
+
+    @Override
+    public boolean canDisconnect() {
+        return false;
+    }
+
+    @Override
+    public boolean canClose() {
+        return false;
     }
 }

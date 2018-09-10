@@ -3,10 +3,11 @@ package com.cmtech.android.btdeviceapp.devicestate;
 import com.cmtech.android.ble.core.DeviceMirror;
 
 public interface IBleDeviceState {
-    void deviceOpen();
-    void deviceClose();
-    void deviceStartScan();
-    void deviceDisconnect();
+    void open();
+    void close();
+    void scan();
+    void disconnect();
+    void switchState();
 
     void onDeviceScanSuccess();
     void onDeviceScanFailure();
@@ -15,5 +16,9 @@ public interface IBleDeviceState {
     void onDeviceConnectTimeout();
     void onDeviceDisconnect();
 
-    String deviceGetStateInfo();
+    String getStateDescription();
+
+    boolean canConnect();
+    boolean canDisconnect();
+    boolean canClose();
 }

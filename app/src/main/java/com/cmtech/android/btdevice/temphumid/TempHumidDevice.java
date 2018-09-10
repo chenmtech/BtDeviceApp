@@ -415,7 +415,6 @@ public class TempHumidDevice extends BleDevice {
     @Override
     public synchronized void close() {
         super.close();
-
     }
 
     // 登记温湿度数据观察者

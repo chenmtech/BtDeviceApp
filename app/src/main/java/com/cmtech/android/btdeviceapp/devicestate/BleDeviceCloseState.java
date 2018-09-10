@@ -13,24 +13,27 @@ public class BleDeviceCloseState implements IBleDeviceState {
     }
 
     @Override
-    public void deviceOpen() {
-        device.getHandler().removeCallbacksAndMessages(null);
-
+    public void open() {
         device.setState(device.getOpenState());
     }
 
     @Override
-    public void deviceClose() {
+    public void close() {
         ViseLog.i("action wrong");
     }
 
     @Override
-    public void deviceStartScan() {
+    public void scan() {
         ViseLog.i("action wrong");
     }
 
     @Override
-    public void deviceDisconnect() {
+    public void disconnect() {
+        ViseLog.i("action wrong");
+    }
+
+    @Override
+    public void switchState() {
         ViseLog.i("action wrong");
     }
 
@@ -47,8 +50,6 @@ public class BleDeviceCloseState implements IBleDeviceState {
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
         ViseLog.i("callback wrong");
-        if(mirror != null)
-            MyApplication.getViseBle().getDeviceMirrorPool().disconnect(mirror.getBluetoothLeDevice());
     }
 
     @Override
@@ -67,7 +68,22 @@ public class BleDeviceCloseState implements IBleDeviceState {
     }
 
     @Override
-    public String deviceGetStateInfo() {
+    public String getStateDescription() {
         return "关闭";
+    }
+
+    @Override
+    public boolean canConnect() {
+        return false;
+    }
+
+    @Override
+    public boolean canDisconnect() {
+        return false;
+    }
+
+    @Override
+    public boolean canClose() {
+        return false;
     }
 }
