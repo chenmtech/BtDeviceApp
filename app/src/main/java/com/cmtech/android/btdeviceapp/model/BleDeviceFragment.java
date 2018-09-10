@@ -88,7 +88,7 @@ public abstract class BleDeviceFragment extends Fragment{
         super.onCreate(savedInstanceState);
 
         // 连接设备
-        connectDevice();
+        openDevice();
     }
 
     @Override
@@ -123,9 +123,9 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     // 连接设备
-    public void connectDevice() {
+    public void openDevice() {
         if(canConnect())
-            controller.connectDevice();
+            controller.openDevice();
     }
 
     // 断开设备

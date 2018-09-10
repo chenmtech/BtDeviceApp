@@ -6,14 +6,20 @@ import android.os.Message;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
-import com.cmtech.android.ble.common.PropertyType;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.btdeviceapp.devicestate.BleDeviceCloseState;
+import com.cmtech.android.btdeviceapp.devicestate.BleDeviceConnectedState;
+import com.cmtech.android.btdeviceapp.devicestate.BleDeviceConnectingState;
+import com.cmtech.android.btdeviceapp.devicestate.BleDeviceDisconnectingState;
+import com.cmtech.android.btdeviceapp.devicestate.BleDeviceOpenState;
+import com.cmtech.android.btdeviceapp.devicestate.BleDeviceScanState;
 import com.cmtech.android.btdeviceapp.interfa.IBleDeviceConnectStateObserver;
 import com.cmtech.android.btdeviceapp.MyApplication;
+import com.cmtech.android.btdeviceapp.devicestate.IBleDeviceState;
 import com.vise.log.ViseLog;
 
 
@@ -47,6 +53,15 @@ public abstract class BleDevice {
 
     // 是否正在关闭
     private boolean isClosing = false;
+
+    private BleDeviceCloseState closeState = new BleDeviceCloseState(this);
+    private BleDeviceOpenState openState = new BleDeviceOpenState(this);
+    private BleDeviceScanState scanState = new BleDeviceScanState(this);
+    private BleDeviceConnectingState connectingState = new BleDeviceConnectingState(this);
+    private BleDeviceConnectedState connectedState = new BleDeviceConnectedState(this);
+    private BleDeviceDisconnectingState disconnectingState = new BleDeviceDisconnectingState(this);
+
+    private IBleDeviceState deviceState = closeState;
 
     // 连接回调
     private final IConnectCallback connectCallback = new IConnectCallback() {
@@ -112,8 +127,10 @@ public abstract class BleDevice {
                 ViseLog.d("onScanFailure");
 
                 final BleDeviceConnectState state;
-                if (result)
+                if (result) {
                     state = CONNECT_SCANSUCCESS;
+                    deviceState.onDeviceScanSuccess();
+                }
                 else
                     state = CONNECT_SCANFAILURE;
                 handler.post(new Runnable() {
@@ -125,6 +142,7 @@ public abstract class BleDevice {
             }
         }
     };
+
 
     // 处理Gatt操作回调消息
     protected final Handler handler = new Handler(Looper.myLooper()) {
@@ -173,6 +191,67 @@ public abstract class BleDevice {
     public void setDeviceConnectState(BleDeviceConnectState state) {
         this.state = state;
     }
+
+    public BluetoothLeDevice getBluetoothLeDevice() {
+        return bluetoothLeDevice;
+    }
+
+    public void setBluetoothLeDevice(BluetoothLeDevice bluetoothLeDevice) {
+        this.bluetoothLeDevice = bluetoothLeDevice;
+    }
+
+    public BleDeviceCloseState getCloseState() {
+        return closeState;
+    }
+    public BleDeviceOpenState getOpenState() {
+        return openState;
+    }
+    public BleDeviceScanState getScanState() {
+        return scanState;
+    }
+    public BleDeviceConnectingState getConnectingState() {
+        return connectingState;
+    }
+    public BleDeviceConnectedState getConnectedState() {
+        return connectedState;
+    }
+    public BleDeviceDisconnectingState getDisconnectingState() {
+        return disconnectingState;
+    }
+    public void setState(IBleDeviceState state) {
+        deviceState = state;
+    }
+    public IBleDeviceState getState() {
+        return deviceState;
+    }
+
+    public Handler getHandler() {
+        return handler;
+    }
+
+    public IConnectCallback getConnectCallback() {
+        return connectCallback;
+    }
+
+    public void deviceOpen() {
+        deviceState.deviceOpen();
+        deviceStartScan();
+    }
+
+    public void deviceClose() {
+        deviceState.deviceClose();
+    }
+
+    public void deviceStartScan() {
+        deviceState.deviceStartScan();
+    }
+
+    public void deviceDisconnect() {
+        deviceState.deviceDisconnect();
+    }
+
+
+
 
     // 发起连接
     public synchronized void connect() {
@@ -357,6 +436,11 @@ public abstract class BleDevice {
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
+
+    public void processConnectCallback() {
+
+    }
+
     // 连接回调处理函数
     private synchronized void processConnectCallback(BleDeviceConnectState state) {
         setDeviceConnectState(state);

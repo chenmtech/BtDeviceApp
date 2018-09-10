@@ -22,8 +22,8 @@ public class BleDeviceController {
         fragment = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();
     }
 
-    public void connectDevice() {
-        device.connect();
+    public void openDevice() {
+        device.deviceOpen();
     }
 
     public void disconnectDevice() {
@@ -47,7 +47,7 @@ public class BleDeviceController {
                 break;
 
             default:
-                connectDevice();
+                openDevice();
                 break;
         }
     }

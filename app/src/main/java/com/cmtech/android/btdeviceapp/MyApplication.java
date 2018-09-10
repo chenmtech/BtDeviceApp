@@ -31,7 +31,7 @@ public class MyApplication extends Application {
         // 初始化ViseBle
         viseBle = ViseBle.getInstance();
         viseBle.init(this);
-        BleConfig.getInstance().setConnectTimeout(60000).setConnectRetryCount(0).setOperateRetryCount(0);
+        BleConfig.getInstance().setScanTimeout(10000).setConnectTimeout(10000).setConnectRetryCount(0).setOperateRetryCount(0);
 
         // 初始化LitePal
         LitePal.initialize(context);

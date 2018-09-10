@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
                         if (((BleDevice)fragment.getDevice()).canDisconnect())
                             fragment.disconnectDevice();
                         else if (((BleDevice)fragment.getDevice()).canConnect())
-                            fragment.connectDevice();
+                            fragment.openDevice();
                 }
                 break;
 
@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         if(fragment != null) {
             // 已经打开了，只要显示Fragment，并开始连接
             showFragment(fragment);
-            fragment.connectDevice();
+            fragment.openDevice();
         } else {
             BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo());
             if(factory == null) return;
