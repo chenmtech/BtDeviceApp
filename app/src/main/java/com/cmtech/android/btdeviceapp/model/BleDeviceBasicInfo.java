@@ -23,7 +23,7 @@ public class BleDeviceBasicInfo extends LitePalSupport {
     private String uuidString;
 
     // 是否自动连接
-    private boolean isAutoConnected;
+    private boolean autoConnect;
 
     // 图标
     private String imagePath;
@@ -37,7 +37,7 @@ public class BleDeviceBasicInfo extends LitePalSupport {
         macAddress = basicInfo.macAddress;
         nickName = basicInfo.nickName;
         uuidString = basicInfo.uuidString;
-        isAutoConnected = basicInfo.isAutoConnected;
+        autoConnect = basicInfo.autoConnect;
         imagePath = basicInfo.imagePath;
     }
 
@@ -74,12 +74,12 @@ public class BleDeviceBasicInfo extends LitePalSupport {
         this.uuidString = uuidString;
     }
 
-    public boolean isAutoConnected() {
-        return isAutoConnected;
+    public boolean autoConnect() {
+        return autoConnect;
     }
 
-    public void setAutoConnected(boolean autoConnected) {
-        isAutoConnected = autoConnected;
+    public void setAutoConnect(boolean autoConnect) {
+        this.autoConnect = autoConnect;
     }
 
     public String getImagePath() {

@@ -124,8 +124,8 @@ public abstract class BleDevice {
         return basicInfo.getUuidString();
     }
 
-    public boolean isAutoConnected() {
-        return basicInfo.isAutoConnected();
+    public boolean autoConnect() {
+        return basicInfo.autoConnect();
     }
 
     public String getImagePath() {
@@ -173,7 +173,8 @@ public abstract class BleDevice {
 
     public synchronized void open() {
         state.open();
-        state.scan();
+        if(autoConnect())
+            state.scan();
     }
 
     public synchronized void close() {

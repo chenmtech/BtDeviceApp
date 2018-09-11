@@ -48,7 +48,9 @@ public class BleDeviceScanState implements IBleDeviceState {
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-        ViseLog.i("callback wrong");
+        device.processConnectSuccess(mirror);
+
+        device.setState(device.getConnectedState());
     }
 
     @Override

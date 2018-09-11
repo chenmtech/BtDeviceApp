@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
                     basicInfo.setMacAddress(macAddress);
                     basicInfo.setUuidString(deviceUuid);
                     basicInfo.setImagePath(imagePath);
-                    basicInfo.setAutoConnected(isAutoConnect);
+                    basicInfo.setAutoConnect(isAutoConnect);
 
                     // 用基本信息创建BleDevice
                     if(createBleDeviceUsingBasicInfo(basicInfo)) {
@@ -192,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
                         basicInfo.setMacAddress(macAddress);
                         basicInfo.setUuidString(deviceUuid);
                         basicInfo.setImagePath(imagePath);
-                        basicInfo.setAutoConnected(isAutoConnect);
+                        basicInfo.setAutoConnect(isAutoConnect);
                         basicInfo.save();
                         deviceListAdapter.notifyDataSetChanged();
                     }
@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
         intent.putExtra("device_macaddress", device.getMacAddress());
         intent.putExtra("device_uuid", device.getUuidString());
         intent.putExtra("device_imagepath", device.getImagePath());
-        intent.putExtra("device_isautoconnect", device.isAutoConnected());
+        intent.putExtra("device_isautoconnect", device.autoConnect());
 
         startActivityForResult(intent, 2);
     }
