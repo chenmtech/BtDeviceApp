@@ -171,41 +171,45 @@ public abstract class BleDevice {
         return connectCallback;
     }
 
-    public void open() {
+    public synchronized void open() {
         state.open();
         state.scan();
     }
 
-    public void close() {
+    public synchronized void close() {
         state.close();
     }
 
-    public void scan() {
+    public synchronized void scan() {
         state.scan();
     }
 
-    public void disconnect() {
+    public synchronized void disconnect() {
         state.disconnect();
     }
 
-    public void switchState() {
+    public synchronized void switchState() {
         state.switchState();
     }
 
-    public String getStateDescription() {
+    public synchronized String getStateDescription() {
         return state.getStateDescription();
     }
 
-    public boolean canConnect() {
+    public synchronized boolean canConnect() {
         return state.canConnect();
     }
 
-    public boolean canDisconnect() {
+    public synchronized boolean canDisconnect() {
         return state.canDisconnect();
     }
 
-    public boolean canClose() {
+    public synchronized boolean canClose() {
         return state.canClose();
+    }
+
+    public synchronized boolean isConnected() {
+        return (state instanceof BleDeviceConnectedState);
     }
 
 
@@ -338,7 +342,7 @@ public abstract class BleDevice {
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
 
-    public void processConnectSuccess(DeviceMirror mirror) {
+    public synchronized void processConnectSuccess(DeviceMirror mirror) {
         bluetoothLeDevice = mirror.getBluetoothLeDevice();
 
         ViseLog.i("onConnectSuccess");
@@ -357,7 +361,7 @@ public abstract class BleDevice {
         }
     }
 
-    public void processConnectFailure() {
+    public synchronized void processConnectFailure() {
         stopCommandExecutor();
 
         bluetoothLeDevice = null;
@@ -365,12 +369,10 @@ public abstract class BleDevice {
         executeAfterConnectFailure();
     }
 
-    public void processDisconnect() {
+    public synchronized void processDisconnect() {
         stopCommandExecutor();
 
         bluetoothLeDevice = null;
-
-        ViseLog.d("onDisconnect");
 
         executeAfterDisconnect();
     }

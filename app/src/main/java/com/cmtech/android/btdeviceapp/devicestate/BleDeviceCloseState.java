@@ -50,6 +50,8 @@ public class BleDeviceCloseState implements IBleDeviceState {
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
         ViseLog.i("callback wrong");
+        if(mirror != null)
+            MyApplication.getViseBle().getDeviceMirrorPool().disconnect(mirror.getBluetoothLeDevice());
     }
 
     @Override

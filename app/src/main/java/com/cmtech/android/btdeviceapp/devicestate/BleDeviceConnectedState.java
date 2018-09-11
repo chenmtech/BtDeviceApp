@@ -63,12 +63,16 @@ public class BleDeviceConnectedState implements IBleDeviceState {
 
     @Override
     public void onDeviceConnectFailure() {
-        ViseLog.i("callback wrong");
+        device.getHandler().removeCallbacksAndMessages(null);
+        device.processConnectFailure();
+        device.setState(device.getOpenState());
     }
 
     @Override
     public void onDeviceConnectTimeout() {
-        ViseLog.i("callback wrong");
+        device.getHandler().removeCallbacksAndMessages(null);
+        device.processConnectFailure();
+        device.setState(device.getOpenState());
     }
 
     @Override
