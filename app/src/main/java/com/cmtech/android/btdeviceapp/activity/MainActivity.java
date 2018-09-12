@@ -30,7 +30,7 @@ import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.btdeviceapp.interfa.BleDeviceAbstractFactory;
-import com.cmtech.android.btdeviceapp.interfa.IBleDeviceConnectStateObserver;
+import com.cmtech.android.btdeviceapp.interfa.IBleDeviceStateObserver;
 import com.cmtech.android.btdeviceapp.model.BleDeviceController;
 import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 import com.cmtech.android.btdeviceapp.model.BleDevice;
@@ -49,7 +49,7 @@ import java.util.List;
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
-public class MainActivity extends AppCompatActivity implements IBleDeviceConnectStateObserver {
+public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver {
     // 已登记的设备列表
     private final List<BleDevice> registeredDeviceList = new ArrayList<>();
 
@@ -255,9 +255,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
             finish();
     }
 
-    // IBLEDeviceConnectStateObserver接口函数，更新设备连接状态
+    // IBLEDeviceStateObserver接口函数，更新设备状态
     @Override
-    public void updateConnectState(BleDevice device) {
+    public void updateDeviceState(BleDevice device) {
         // 更新设备列表
         updateDeviceListAdapter();
 
@@ -396,9 +396,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceConnect
             // 将设备添加到设备列表
             registeredDeviceList.add(device);
             // 添加Activity作为设备连接状态的观察者
-            device.registerConnectStateObserver(this);
+            device.registerDeviceStateObserver(this);
             // 通知观察者
-            device.notifyConnectStateObservers();
+            device.notifyDeviceStateObservers();
         }
         return true;
     }
