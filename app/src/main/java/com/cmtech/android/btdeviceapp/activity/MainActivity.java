@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     }
 
     // 启动一个BLE设备：为设备创建控制器和Fragment，并自动连接
-    public void launchDevice(BleDevice device) {
+    public void openDevice(BleDevice device) {
         if(device == null) return;
 
         BleDeviceFragment fragment = getFragment(device);
@@ -309,10 +309,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         } else {
             BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo());
             if(factory == null) return;
-            // 在构造BleDeviceController时，会自动创建BleDeviceFragment
+
             BleDeviceController deviceController = factory.createController(device);
             openedControllerList.add(deviceController);
-            addFragment(deviceController.getFragment(), device.getImagePath(), device.getNickName());
+            openFragment(deviceController.getFragment(), device.getImagePath(), device.getNickName());
         }
     }
 
@@ -395,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(device != null) {
             // 将设备添加到设备列表
             registeredDeviceList.add(device);
-            // 添加Activity作为设备连接状态的观察者
+            // 添加Activity作为设备状态的观察者
             device.registerDeviceStateObserver(this);
             // 通知观察者
             device.notifyDeviceStateObservers();
@@ -452,8 +452,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         return (controller != null) ? controller.getFragment() : null;
     }
 
-    // 添加设备及其Fragment，并显示
-    private void addFragment(BleDeviceFragment fragment, String tabImagePath, String tabText) {
+    // 打开Fragment：将Fragment加入Manager，并显示
+    private void openFragment(BleDeviceFragment fragment, String tabImagePath, String tabText) {
         mDrawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
         fragmentManager.addFragment(fragment, tabImagePath, tabText);

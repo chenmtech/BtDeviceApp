@@ -68,7 +68,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
             @Override
             public void onClick(View view) {
                 BleDevice device = mDeviceList.get(holder.getAdapterPosition());
-                activity.launchDevice(device);
+                activity.openDevice(device);
             }
         });
 

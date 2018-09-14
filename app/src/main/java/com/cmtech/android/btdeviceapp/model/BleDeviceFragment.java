@@ -39,24 +39,6 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        /*tvConnectState = view.findViewById(R.id.device_connect_state_tv);
-
-        btnSwitchConnectState = view.findViewById(R.id.device_connectswitch_btn);
-        btnSwitchConnectState.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switchDeviceConnectState();
-            }
-        });
-
-
-        btnClose = view.findViewById(R.id.device_close_btn);
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                closeDevice();
-            }
-        });*/
     }
 
     @Override
@@ -87,7 +69,7 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 连接设备
+        // 打开设备
         openDevice();
     }
 
@@ -141,9 +123,9 @@ public abstract class BleDeviceFragment extends Fragment{
         activity.closeDevice(this);
     }
 
-    // 切换设备的连接状态
-    public void switchDeviceConnectState() {
-        controller.switchDeviceConnectState();
+    // 切换设备状态
+    public void switchState() {
+        controller.switchState();
     }
 
     // 更新设备连接状态

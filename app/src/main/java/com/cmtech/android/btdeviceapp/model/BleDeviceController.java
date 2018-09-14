@@ -16,8 +16,7 @@ public class BleDeviceController {
         }
 
         this.device = device;
-        // 为设备创建fragment，但是fragment还没有Attach到Activity
-        fragment = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();
+        fragment = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();;
     }
 
     public void openDevice() {
@@ -36,7 +35,7 @@ public class BleDeviceController {
         device.close();
     }
 
-    public void switchDeviceConnectState() {
+    public void switchState() {
         device.switchState();
     }
 
