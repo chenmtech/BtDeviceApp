@@ -16,7 +16,7 @@ public class BleDeviceController {
         }
 
         this.device = device;
-        fragment = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();;
+        fragment = createFragment(device);
     }
 
     public void openDevice() {
@@ -45,5 +45,9 @@ public class BleDeviceController {
 
     public BleDeviceFragment getFragment() {
         return fragment;
+    }
+
+    private BleDeviceFragment createFragment(BleDevice device) {
+        return BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();
     }
 }

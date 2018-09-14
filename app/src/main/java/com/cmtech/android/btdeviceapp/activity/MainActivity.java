@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         BleDeviceFragment currentFrag = (BleDeviceFragment)fragmentManager.getCurrentFragment();
 
         // 更新设备的Fragment
-        if(deviceFrag != null) deviceFrag.updateConnectState(device);
+        if(deviceFrag != null) deviceFrag.updateDeviceState(device);
 
         // 更新Activity的ToolBar
         if(currentFrag != null && deviceFrag == currentFrag) {

@@ -78,7 +78,7 @@ public abstract class BleDeviceFragment extends Fragment{
         super.onActivityCreated(savedInstanceState);
 
         // 更新连接状态
-        updateConnectState();
+        updateDeviceState();
     }
 
     @Override
@@ -129,14 +129,14 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     // 更新设备连接状态
-    public void updateConnectState(final BleDevice device) {
+    public void updateDeviceState(final BleDevice device) {
         // isAdded()用来判断Fragment是否与Activity关联，如果关联了，才能更新状态信息
         if(device == this.device && isAdded()) {
-            updateConnectState();
+            updateDeviceState();
         }
     }
 
-    private void updateConnectState() {
+    private void updateDeviceState() {
 
 
     }
