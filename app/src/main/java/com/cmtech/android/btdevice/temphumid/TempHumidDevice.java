@@ -23,11 +23,11 @@ import java.util.List;
 public class TempHumidDevice extends BleDevice {
     private static final String TAG = "TempHumidDevice";
 
-    private static final int MSG_TEMPHUMIDDATA = 1;
-    private static final int MSG_TEMPHUMIDCTRL = 2;
+    private static final int MSG_TEMPHUMIDDATA = 1;             // 当前温湿度数据消息
+    private static final int MSG_TEMPHUMIDCTRL = 2;             //
     private static final int MSG_TEMPHUMIDPERIOD = 3;
-    private static final int MSG_TEMPHUMIDHISTORYDATA = 4;
-    private static final int MSG_TIMERVALUE = 5;
+    private static final int MSG_TEMPHUMIDHISTORYDATA = 4;      // 历史数据消息
+    private static final int MSG_TIMERVALUE = 5;                // 定时器服务特征值消息
 
 
     ///////////////// 温湿度计Service相关的常量////////////////
@@ -76,7 +76,7 @@ public class TempHumidDevice extends BleDevice {
     // 当前温湿度
     private TempHumidData curTempHumid;
 
-    // 历史温湿度数据
+    // 历史温湿度数据列表
     private List<TempHumidData> historyDataList = new ArrayList<>();
 
     // 设备是否具有定时服务
@@ -96,6 +96,17 @@ public class TempHumidDevice extends BleDevice {
 
     // 当前温湿度数据观察者列表
     private final List<ITempHumidDataObserver> tempHumidDataObserverList = new LinkedList<>();
+
+
+    // 获取当前温湿度值
+    public TempHumidData getCurTempHumid() {
+        return curTempHumid;
+    }
+
+    // 获取历史数据列表
+    public List<TempHumidData> getHistoryDataList() {
+        return historyDataList;
+    }
     ////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -119,16 +130,40 @@ public class TempHumidDevice extends BleDevice {
         readHistoryDataFromDb();
     }
 
-    // 获取当前温湿度值
-    public TempHumidData getCurTempHumid() {
-        return curTempHumid;
+    @Override
+    public synchronized void executeAfterConnectSuccess() {
+
+        // 检查是否有正常的温湿度服务和特征值
+        if(!checkBasicTempHumidService()) return;
+
+        hasTimerService = existTimerService();
+
+        // 先读取一次当前温湿度值
+        readCurrentTempHumid();
+
+        // 启动温湿度采集服务
+        int period = DEFAULT_TEMPHUMID_PERIOD;
+        startTempHumidService(period);
+
+        // 更新历史数据
+        updateHistoryData();
     }
 
-    // 获取历史数据
-    public List<TempHumidData> getHistoryDataList() {
-        return historyDataList;
+    @Override
+    public void executeAfterDisconnect() {
+
     }
 
+    @Override
+    public void executeAfterConnectFailure() {
+
+    }
+
+    // 关闭设备
+    @Override
+    public synchronized void close() {
+        super.close();
+    }
 
     @Override
     public synchronized void processGattCallbackMessage(Message msg)
@@ -162,45 +197,14 @@ public class TempHumidDevice extends BleDevice {
         }
     }
 
-    private void saveDataToDb(TempHumidData data) {
-        TempHumidHistoryData historyData = new TempHumidHistoryData();
-        historyData.setMacAddress(getMacAddress());
-        historyData.setTimeInMillis(data.getTime().getTimeInMillis());
-        historyData.setTemp(data.getTemp());
-        historyData.setHumid(data.getHumid());
-        historyData.save();
+    // 更新历史数据
+    public void updateHistoryData() {
+        if(hasTimerService)
+            readTimerServiceValue();
     }
 
-    private void readHistoryDataFromDb() {
-        Calendar time = Calendar.getInstance();
-        time.add(Calendar.DAY_OF_MONTH, -1);
-        long timeInMillis = time.getTimeInMillis();
-
-        List<TempHumidHistoryData> historyData = LitePal.where("macAddress = ? and timeInMillis > ?", getMacAddress(), String.valueOf(timeInMillis)).
-                order("timeInMillis desc").find(TempHumidHistoryData.class);
-        if(historyData.isEmpty()) {
-            timeLastUpdated = null;
-        } else {
-            for(int i = historyData.size()-1; i >= 0; i--) {
-                historyDataList.add(new TempHumidData(historyData.get(i)));
-            }
-            timeLastUpdated = historyDataList.get(historyDataList.size()-1).getTime();
-        }
-
-        //ViseLog.i("historyDataList = " + historyDataList);
-        ViseLog.i("timeLastUpdated = " + timeLastUpdated);
-
-    }
-
-    @Override
-    public synchronized void executeAfterConnectSuccess() {
-        //initializeBleDevice();
-
-        // 检查所需的服务和特征值
-        if(!checkServiceAndCharacteristic()) return;
-
-
-        // 先读取一次当前温湿度值
+    // 读取当前温湿度值
+    private void readCurrentTempHumid() {
         addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -212,9 +216,10 @@ public class TempHumidDevice extends BleDevice {
 
             }
         });
+    }
 
-        // 设置温湿度采样周期
-        int period = DEFAULT_TEMPHUMID_PERIOD;
+    // 启动温湿度采集服务
+    private void startTempHumidService(int period) {
         addWriteCommand(TEMPHUMIDPERIOD, (byte) (period / 100), null);
 
         // 启动温湿度采集
@@ -233,14 +238,42 @@ public class TempHumidDevice extends BleDevice {
             }
         };
         addNotifyCommand(TEMPHUMIDDATACCC, true, null, notifyCallback);
-
-
-        if(hasTimerService) {
-            readTimerServiceValue();
-        }
     }
 
-    private boolean checkServiceAndCharacteristic() {
+    // 将一个数据保存到数据库中
+    private void saveDataToDb(TempHumidData data) {
+        TempHumidHistoryData historyData = new TempHumidHistoryData();
+        historyData.setMacAddress(getMacAddress());
+        historyData.setTimeInMillis(data.getTime().getTimeInMillis());
+        historyData.setTemp(data.getTemp());
+        historyData.setHumid(data.getHumid());
+        historyData.save();
+    }
+
+    // 从数据库中读取设备历史数据
+    private void readHistoryDataFromDb() {
+        Calendar time = Calendar.getInstance();
+        time.add(Calendar.DAY_OF_MONTH, -1);
+        long timeInMillis = time.getTimeInMillis();
+
+        List<TempHumidHistoryData> historyDataList = LitePal.where("macAddress = ? and timeInMillis > ?", getMacAddress(), String.valueOf(timeInMillis)).
+                order("timeInMillis desc").find(TempHumidHistoryData.class);
+        if(historyDataList.isEmpty()) {
+            timeLastUpdated = null;
+        } else {
+            for(int i = historyDataList.size()-1; i >= 0; i--) {
+                this.historyDataList.add(new TempHumidData(historyDataList.get(i)));
+            }
+            timeLastUpdated = this.historyDataList.get(this.historyDataList.size()-1).getTime();
+        }
+
+        //ViseLog.i("historyDataList = " + historyDataList);
+        ViseLog.i("timeLastUpdated = " + timeLastUpdated);
+
+    }
+
+    // 检测基本温湿度服务是否正常
+    private boolean checkBasicTempHumidService() {
         boolean hasBasicTempHumidService = true;
 
         Object tempHumidData = getGattObject(TEMPHUMIDDATA);
@@ -253,21 +286,24 @@ public class TempHumidDevice extends BleDevice {
             hasBasicTempHumidService = false;
         }
 
+        return hasBasicTempHumidService;
+    }
+
+    // 检测是否存在定时器服务
+    private boolean existTimerService() {
         Object timerValue = getGattObject(TIMERVALUE);
         Object historyTime = getGattObject(TEMPHUMIDHISTORYTIME);
         Object historyData = getGattObject(TEMPHUMIDHISTORYDATA);
         if (timerValue == null || historyTime == null || historyData == null) {
             ViseLog.i("The device don't provide history data sampling service.");
-            hasTimerService = false;
+            return false;
         } else {
-            hasTimerService = true;
+            return true;
         }
-        return hasBasicTempHumidService;
     }
 
-    public void readTimerServiceValue() {
-        //if(!isCommandExecutorAlive()) return;
-
+    // 读取定时器服务特征值
+    private void readTimerServiceValue() {
         addReadCommand(TIMERVALUE, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
@@ -281,6 +317,7 @@ public class TempHumidDevice extends BleDevice {
         });
     }
 
+    // 处理定时器服务特征值
     private synchronized boolean processTimerServiceValue(byte[] data) {
         if(data.length != 4) return false;
 
@@ -288,7 +325,7 @@ public class TempHumidDevice extends BleDevice {
 
         if (timerServiceStarted) {
             deviceTimerPeriod = data[2];                // 保存设备的定时周期值
-            deviceCurTime = guessDeviceCurTime(data[0], data[1]);                     // 通过小时和分钟来猜测设备的当前时间
+            deviceCurTime = getDeviceCurrentTime(data[0], data[1]);                     // 通过小时和分钟来猜测设备的当前时间
             readHistoryDataFromDevice();      // 读取设备的历史数据
         } else {
             startTimerService();                // 没有开启定时服务（比如刚换电池），就先开启定时服务
@@ -296,38 +333,23 @@ public class TempHumidDevice extends BleDevice {
         return true;
     }
 
+    // 从设备读取历史数据
     private void readHistoryDataFromDevice() {
-        if(!timerServiceStarted) return;
-
         Calendar updateFrom = (Calendar) deviceCurTime.clone();
         updateFrom.add(Calendar.DAY_OF_MONTH, -1);
         if(timeLastUpdated != null && updateFrom.before(timeLastUpdated))
             updateFrom = (Calendar) timeLastUpdated.clone();
-        updateFrom.add(Calendar.MINUTE, deviceTimerPeriod); // 从前一天的一个deviceTimerPeriod周期时间开始更新
+        updateFrom.add(Calendar.MINUTE, deviceTimerPeriod); // 从前一天的一个deviceTimerPeriod周期时间之后开始更新
         if(updateFrom.after(deviceCurTime)) return;    // 上次更新到现在还不到一个deviceTimerPeriod,不需要更新
 
-        /*if(timeLastUpdated != null) {
-            updateFrom = (Calendar) timeLastUpdated.clone();
-            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod);
-            if(updateFrom.after(deviceCurTime)) return;    // 上次更新到现在还不到一个deviceTimerPeriod,不需要更新
-        } else {
-            updateFrom = (Calendar) deviceCurTime.clone();
-            updateFrom.add(Calendar.DAY_OF_MONTH, -1);
-            if(updateFrom.before(timeLastUpdated))
-                updateFrom = (Calendar) timeLastUpdated.clone();
-            updateFrom.add(Calendar.MINUTE, deviceTimerPeriod); // 从前一天的一个deviceTimerPeriod周期时间开始更新
-        }*/
-
-        // 这里有问题
         do {
             readOneHistoryDataAtTime(updateFrom);
             updateFrom.add(Calendar.MINUTE, deviceTimerPeriod);
             if(updateFrom.after(deviceCurTime)) break;
         }while(true);
-
-
     }
 
+    // 读取一个历史数据
     private void readOneHistoryDataAtTime(Calendar time) {
         final Calendar backuptime = (Calendar)time.clone();
         byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
@@ -349,24 +371,16 @@ public class TempHumidDevice extends BleDevice {
         });
     }
 
+    // 启动定时器服务
     private void startTimerService() {
         Calendar time = Calendar.getInstance();
         byte[] value = {(byte)time.get(Calendar.HOUR_OF_DAY), (byte)time.get(Calendar.MINUTE), deviceTimerPeriod, 0x01};
 
-        addWriteCommand(TIMERVALUE, value, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                ViseLog.i("Success to start timer service.");
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        });
+        addWriteCommand(TIMERVALUE, value, null);
     }
 
-    private Calendar guessDeviceCurTime(byte hour, byte minute) {
+    // 获取设备当前时间
+    private Calendar getDeviceCurrentTime(byte hour, byte minute) {
         Calendar now = Calendar.getInstance();
         Calendar devicenow;
 
@@ -399,23 +413,6 @@ public class TempHumidDevice extends BleDevice {
         return devicenow;
     };
 
-    @Override
-    public void executeAfterDisconnect() {
-        //stopCommandExecutor();
-    }
-
-    @Override
-    public void executeAfterConnectFailure() {
-        //stopCommandExecutor();
-
-        //connect();
-    }
-
-    // 关闭设备
-    @Override
-    public synchronized void close() {
-        super.close();
-    }
 
     // 登记温湿度数据观察者
     public void registerTempHumidDataObserver(ITempHumidDataObserver observer) {

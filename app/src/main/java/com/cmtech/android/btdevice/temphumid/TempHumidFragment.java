@@ -77,7 +77,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
                     int lastVisiblePosition = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
                     if(lastVisiblePosition == recyclerView.getLayoutManager().getItemCount()-1) {
                         //Toast.makeText(MyApplication.getContext(), "更新历史数据", Toast.LENGTH_SHORT).show();
-                        ((TempHumidDevice)device).readTimerServiceValue();
+                        ((TempHumidDevice)device).updateHistoryData();
                     }
                 }
             }
@@ -88,8 +88,6 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
             }
         });
     }
-
-
 
     @Override
     public void updateCurrentTempHumidData() {
