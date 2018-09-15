@@ -1,5 +1,6 @@
 package com.cmtech.android.btdevice.ecgmonitor;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -10,6 +11,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.cmtech.android.btdevice.temphumid.TempHumidDevice;
+import com.cmtech.android.btdevice.thermo.ThermoDevice;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 
@@ -33,6 +36,13 @@ public class EcgMonitorFragment extends BleDeviceFragment {
 
     public static EcgMonitorFragment newInstance() {
         return new EcgMonitorFragment();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        //((EcgMonitorDevice)device).registerTempHumidDataObserver(this);
     }
 
     @Nullable

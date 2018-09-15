@@ -159,12 +159,6 @@ public class TempHumidDevice extends BleDevice {
 
     }
 
-    // 关闭设备
-    @Override
-    public synchronized void close() {
-        super.close();
-    }
-
     @Override
     public synchronized void processGattCallbackMessage(Message msg)
     {
@@ -198,7 +192,7 @@ public class TempHumidDevice extends BleDevice {
     }
 
     // 更新历史数据
-    public void updateHistoryData() {
+    public synchronized void updateHistoryData() {
         if(hasTimerService)
             readTimerServiceValue();
     }
