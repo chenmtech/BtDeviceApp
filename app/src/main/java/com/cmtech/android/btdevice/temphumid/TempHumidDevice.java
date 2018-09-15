@@ -131,7 +131,7 @@ public class TempHumidDevice extends BleDevice {
     }
 
     @Override
-    public synchronized void executeAfterConnectSuccess() {
+    public void executeAfterConnectSuccess() {
 
         // 检查是否有正常的温湿度服务和特征值
         if(!checkBasicTempHumidService()) return;

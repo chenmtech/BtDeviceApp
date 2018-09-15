@@ -32,7 +32,7 @@ import java.util.List;
 
 public abstract class BleDevice {
     // 设备镜像池
-    private static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
+    private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
     // 设备基本信息
     private final BleDeviceBasicInfo basicInfo;
@@ -43,7 +43,7 @@ public abstract class BleDevice {
     // GATT命令串行执行器
     private GattCommandSerialExecutor commandExecutor;
 
-    // 连接状态观察者列表
+    // 设备状态观察者列表
     private final List<IBleDeviceStateObserver> deviceStateObserverList = new LinkedList<>();
 
     // 是否正在关闭
@@ -352,7 +352,7 @@ public abstract class BleDevice {
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
 
-    public synchronized void processConnectSuccess(DeviceMirror mirror) {
+    public void processConnectSuccess(DeviceMirror mirror) {
         bluetoothLeDevice = mirror.getBluetoothLeDevice();
 
         ViseLog.i("onConnectSuccess");
@@ -371,7 +371,7 @@ public abstract class BleDevice {
         }
     }
 
-    public synchronized void processConnectFailure() {
+    public void processConnectFailure() {
         stopCommandExecutor();
 
         bluetoothLeDevice = null;
@@ -379,7 +379,7 @@ public abstract class BleDevice {
         executeAfterConnectFailure();
     }
 
-    public synchronized void processDisconnect() {
+    public void processDisconnect() {
         stopCommandExecutor();
 
         bluetoothLeDevice = null;
