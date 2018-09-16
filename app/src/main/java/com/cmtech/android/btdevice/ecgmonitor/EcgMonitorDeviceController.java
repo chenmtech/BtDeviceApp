@@ -2,7 +2,6 @@ package com.cmtech.android.btdevice.ecgmonitor;
 
 import com.cmtech.android.btdeviceapp.model.BleDevice;
 import com.cmtech.android.btdeviceapp.model.BleDeviceController;
-import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 
 public class EcgMonitorDeviceController extends BleDeviceController {
     private final EcgMonitorDevice device;
@@ -14,15 +13,15 @@ public class EcgMonitorDeviceController extends BleDeviceController {
         this.fragment = (EcgMonitorFragment) getFragment();
     }
 
-    public void setEcgRecord(boolean isRecord) {
+    public void isRecordEcg(boolean isRecord) {
         device.setEcgRecord(isRecord);
     }
 
-    public void setEcgFilter(boolean isFilter) {
+    public void isFilterEcg(boolean isFilter) {
         device.setEcgFilter(isFilter);
     }
 
-    public void toggleSampleEcg() {
-        device.toggleSampleEcg();
+    public void switchSampleEcg() {
+        device.switchSampleEcg();
     }
 }

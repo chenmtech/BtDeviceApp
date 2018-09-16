@@ -32,13 +32,13 @@ import java.util.Arrays;
 
 public class EcgMonitorDevice extends BleDevice {
     // 常量
-    private static final int DEFAULT_SAMPLERATE = 125;           // 缺省ECG信号采样率
+    private static final int DEFAULT_SAMPLERATE = 125;           // 缺省ECG信号采样率,Hz
 
     // 消息常量
-    private static final int MSG_ECGDATA = 0;           // ECG数据
-    private static final int MSG_READSAMPLERATE = 1;    // 读采样率
-    private static final int MSG_READLEADTYPE = 2;      // 读导联类型
-    private static final int MSG_STARTSAMPLEECG = 3;    // 启动采样
+    private static final int MSG_ECGDATA = 1;           // ECG数据
+    private static final int MSG_READSAMPLERATE = 2;    // 读采样率
+    private static final int MSG_READLEADTYPE = 3;      // 读导联类型
+    private static final int MSG_STARTSAMPLEECG = 4;    // 启动采样
 
     /////////////////   心电监护仪Service UUID常量////////////////
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
@@ -67,10 +67,10 @@ public class EcgMonitorDevice extends BleDevice {
 
     private int sampleRate = DEFAULT_SAMPLERATE;            // 采样率
     private EcgLeadType leadType = EcgLeadType.LEAD_I;      // 导联类型
-    private boolean isCalibration = true;                  // 是否处于1mV标定阶段
+    private boolean isCalibrating = true;                  // 是否处于1mV标定阶段
     private ArrayList<Integer> calibrationData = new ArrayList<Integer>(250);   // 用于保存标定用的数据
 
-    private boolean isStartSampleEcg = false;       // 是否开始采样心电信号
+    private boolean isStartSampleEcg = false;        // 是否开始采样心电信号
     private boolean isRecord = false;                // 是否记录心电信号
     private boolean isFilter = false;                // 是否对信号滤波
 
@@ -87,8 +87,80 @@ public class EcgMonitorDevice extends BleDevice {
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
 
+
+    public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
+        super(basicInfo);
+    }
+
     @Override
-    public void processGattCallbackMessage(Message msg)
+    public void initializeAfterConstruction() {
+    }
+
+    @Override
+    public void executeAfterConnectSuccess() {
+
+        if(!checkBasicEcgMonitorService()) return;
+
+        // 读采样率命令
+        addReadCommand(ECGMONITORSAMPLERATE, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                sendGattCallbackMessage(MSG_READSAMPLERATE, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
+
+        // 读导联类型命令
+        addReadCommand(ECGMONITORLEADTYPE, new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                sendGattCallbackMessage(MSG_READLEADTYPE, data[0]);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
+
+        IBleCallback notifyCallback = new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                sendGattCallbackMessage(MSG_ECGDATA, data);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        };
+
+        // enable ECG 数据notify
+        addNotifyCommand(ECGMONITORDATACCC, true, null, notifyCallback);
+
+
+        // 启动1mV数据采集
+        isCalibrating = true;
+        isStartSampleEcg = false;
+        addWriteCommand(ECGMONITORCTRL, (byte)0x02, null);
+    }
+
+    @Override
+    public void executeAfterDisconnect() {
+
+    }
+
+    @Override
+    public void executeAfterConnectFailure() {
+
+    }
+
+    @Override
+    public synchronized void processGattCallbackMessage(Message msg)
     {
         switch (msg.what) {
             // 接收到心电信号或定标信号
@@ -102,7 +174,7 @@ public class EcgMonitorDevice extends BleDevice {
                         int tmpData = buffer.getShort();
 
                         // 如果在标定阶段
-                        if (isCalibration) {
+                        if (isCalibrating) {
                             // 采集1个周期的定标信号
                             if (calibrationData.size() < sampleRate)
                                 calibrationData.add(tmpData);
@@ -144,14 +216,18 @@ public class EcgMonitorDevice extends BleDevice {
 
             // 接收到采样率数据
             case MSG_READSAMPLERATE:
-                sampleRate = msg.arg1;
-                //tvEcgSampleRate.setText(""+sampleRate);
+                if(msg.obj != null) {
+                    sampleRate = (Integer) msg.obj;
+                    //tvEcgSampleRate.setText(""+sampleRate);
+                }
                 break;
 
             // 接收到导联类型数据
             case MSG_READLEADTYPE:
-                leadType = EcgLeadType.getFromCode(msg.arg1);
-                //tvEcgLeadType.setText(leadType.getDescription());
+                if(msg.obj != null) {
+                    leadType = EcgLeadType.getFromCode((Integer) msg.obj);
+                    //tvEcgLeadType.setText(leadType.getDescription());
+                }
                 break;
 
             // 启动采样心电信号
@@ -179,7 +255,7 @@ public class EcgMonitorDevice extends BleDevice {
                 //cbEcgRecord.setClickable(true);
                 //cbEcgFilter.setClickable(true);
                 // 启动采样心电信号
-                toggleSampleEcg();
+                switchSampleEcg();
                 break;
 
             default:
@@ -187,145 +263,39 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    @Override
-    public void initializeAfterConstruction() {
-    }
+    public synchronized void setEcgRecord(boolean isRecord) {
+        if(this.isRecord != isRecord) {
 
-    public void setEcgRecord(boolean isRecord) {
-        if(isRecord) {
-            File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), "chenm.bme");
-            try {
-                String fileName = toFile.getCanonicalPath();
-                ecgFile = BmeFile.createBmeFile(fileName, ecgFileHead);
-                isRecord = true;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else {
-            if(ecgFile != null) {
+            if (isRecord) {
+                File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), "chenm.bme");
                 try {
-                    isRecord = false;
-                    ecgFile.close();
-                    ecgFile = null;
-                } catch (FileException e) {
+                    String fileName = toFile.getCanonicalPath();
+                    ecgFile = BmeFile.createBmeFile(fileName, ecgFileHead);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
+            } else {
+                if (ecgFile != null) {
+                    try {
+                        ecgFile.close();
+                        ecgFile = null;
+                    } catch (FileException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
+
+            this.isRecord = isRecord;
+
         }
     }
 
-    public void setEcgFilter(boolean isFilter) {
+    public synchronized void setEcgFilter(boolean isFilter) {
         this.isFilter = isFilter;
     }
 
 
-    public EcgMonitorDevice(BleDeviceBasicInfo persistantInfo) {
-        super(persistantInfo);
-    }
-
-    @Override
-    public void executeAfterConnectSuccess() {
-        Object ecgData = getGattObject(ECGMONITORDATA);
-        Object ecgControl = getGattObject(ECGMONITORCTRL);
-        Object ecgSampleRate = getGattObject(ECGMONITORSAMPLERATE);
-        Object ecgLeadType = getGattObject(ECGMONITORLEADTYPE);
-
-        if(ecgData == null || ecgControl == null || ecgSampleRate == null || ecgLeadType == null) {
-            Log.d("EcgMonitorFragment", "can't find Gatt object of this element on the device.");
-            return;
-        }
-
-        // 读采样率命令
-        addReadCommand(ECGMONITORSAMPLERATE, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                Message msg = new Message();
-                msg.what = MSG_READSAMPLERATE;
-                msg.arg1 = (data[0] & 0xff) | ((data[1] << 8) & 0xff00);
-                handler.sendMessage(msg);
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        });
-
-        // 读导联类型命令
-        addReadCommand(ECGMONITORLEADTYPE, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                Message msg = new Message();
-                msg.what = MSG_READLEADTYPE;
-                msg.arg1 = data[0];
-                handler.sendMessage(msg);
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        });
-
-        IBleCallback notifyCallback = new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                Message msg = new Message();
-                msg.what = MSG_ECGDATA;
-                msg.obj = data;
-                handler.sendMessage(msg);
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        };
-
-        // enable ECG 数据notify
-        addNotifyCommand(ECGMONITORDATACCC, true, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                Log.d("Thread", "Notify Callback Thread: "+Thread.currentThread().getId());
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        }, notifyCallback);
-
-
-        // 启动1mV数据采集
-        isCalibration = true;
-        isStartSampleEcg = false;
-        addWriteCommand(ECGMONITORCTRL, new byte[]{0x02}, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                //Log.d("THERMOPERIOD", "second write period: " + HexUtil.encodeHexStr(data));
-                //handler.sendEmptyMessage(MSG_TEMPHUMIDCTRL);
-                Log.d("Thread", "Control Write Callback Thread: "+Thread.currentThread().getId());
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-                //Log.d("THERMOCONTROL", exception.toString());
-            }
-        });
-    }
-
-    @Override
-    public void executeAfterDisconnect() {
-
-    }
-
-    @Override
-    public void executeAfterConnectFailure() {
-        //stopCommandExecutor();
-    }
-
-
-    public void toggleSampleEcg() {
+    public synchronized void switchSampleEcg() {
         if(!isStartSampleEcg) {
             startSampleEcg();
             //btnEcgStartandStop.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
@@ -337,13 +307,29 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
+    // 检测基本心电监护服务是否正常
+    private boolean checkBasicEcgMonitorService() {
+        Object ecgData = getGattObject(ECGMONITORDATA);
+        Object ecgControl = getGattObject(ECGMONITORCTRL);
+        Object ecgSampleRate = getGattObject(ECGMONITORSAMPLERATE);
+        Object ecgLeadType = getGattObject(ECGMONITORLEADTYPE);
+        Object ecgDataCCC = getGattObject(ECGMONITORDATACCC);
+
+        if(ecgData == null || ecgControl == null || ecgSampleRate == null || ecgLeadType == null || ecgDataCCC == null) {
+            Log.d("EcgMonitorFragment", "can't find Gatt object of this element on the device.");
+            return false;
+        }
+
+        return true;
+    }
+
     private void startSampleEcg() {
         // 启动ECG数据采集
         addWriteCommand(ECGMONITORCTRL, new byte[]{0x01}, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //ecgView.clearView();
-                isCalibration = false;
+                isCalibrating = false;
             }
 
             @Override

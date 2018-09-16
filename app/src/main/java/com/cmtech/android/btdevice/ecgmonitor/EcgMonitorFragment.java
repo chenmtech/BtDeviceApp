@@ -11,8 +11,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.btdevice.temphumid.TempHumidDevice;
-import com.cmtech.android.btdevice.thermo.ThermoDevice;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
 
@@ -25,7 +23,7 @@ public class EcgMonitorFragment extends BleDeviceFragment {
     private TextView tvEcgLeadType;
     private TextView tvEcg1mV;
     private WaveView ecgView;
-    private ImageButton btnEcgStartandStop;
+    private ImageButton btnSwitchSampleEcg;
     private CheckBox cbEcgRecord;
     private CheckBox cbEcgFilter;
 
@@ -59,29 +57,29 @@ public class EcgMonitorFragment extends BleDeviceFragment {
         tvEcgLeadType = (TextView)view.findViewById(R.id.tv_ecg_leadtype);
         tvEcg1mV = (TextView)view.findViewById(R.id.tv_ecg_1mv);
         ecgView = (WaveView)view.findViewById(R.id.ecg_view);
-        btnEcgStartandStop = view.findViewById(R.id.btn_ecg_startandstop);
+        btnSwitchSampleEcg = view.findViewById(R.id.btn_ecg_startandstop);
         cbEcgRecord = view.findViewById(R.id.cb_ecg_record);
         cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
 
 
-        btnEcgStartandStop.setOnClickListener(new View.OnClickListener() {
+        btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((EcgMonitorDeviceController)controller).toggleSampleEcg();
+                ((EcgMonitorDeviceController)controller).switchSampleEcg();
             }
         });
 
         cbEcgRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorDeviceController)controller).setEcgRecord(b);
+                ((EcgMonitorDeviceController)controller).isRecordEcg(b);
             }
         });
 
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorDeviceController)controller).setEcgFilter(b);
+                ((EcgMonitorDeviceController)controller).isFilterEcg(b);
             }
         });
     }

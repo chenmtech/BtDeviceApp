@@ -94,7 +94,7 @@ public class ThermoDevice extends BleDevice {
 
 
     @Override
-    public void processGattCallbackMessage(Message msg)
+    public synchronized void processGattCallbackMessage(Message msg)
     {
         if (msg.what == MSG_THERMODATA) {
             if (msg.obj != null) {
