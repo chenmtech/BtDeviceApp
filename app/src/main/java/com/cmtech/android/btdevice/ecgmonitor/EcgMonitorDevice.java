@@ -323,9 +323,9 @@ public class EcgMonitorDevice extends BleDevice {
         return true;
     }
 
+    // 启动ECG数据采集
     private void startSampleEcg() {
-        // 启动ECG数据采集
-        addWriteCommand(ECGMONITORCTRL, new byte[]{0x01}, new IBleCallback() {
+        addWriteCommand(ECGMONITORCTRL, (byte)0x01, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //ecgView.clearView();
@@ -339,19 +339,14 @@ public class EcgMonitorDevice extends BleDevice {
         });
     }
 
+    // 停止ECG数据采集
     private void stopSampleEcg() {
-        // 停止ECG数据采集
-        addWriteCommand(ECGMONITORCTRL, new byte[]{0x00}, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+        addWriteCommand(ECGMONITORCTRL, (byte)0x00, null);
+    }
 
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        });
+    // 启动1mV数据采集
+    private void startSample1mV() {
+        addWriteCommand(ECGMONITORCTRL, (byte)0x02, null);
     }
 
     private int calculateCalibration(ArrayList<Integer> data) {
