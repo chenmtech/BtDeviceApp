@@ -260,6 +260,11 @@ public abstract class BleDevice {
         return ((commandExecutor != null) && commandExecutor.addIndicateCommand(element, enable, dataOpCallback, indicateOpCallback));
     }
 
+    // 添加Instant命令
+    public synchronized boolean addInstantCommand(IBleCallback dataOpCallback) {
+        return ((commandExecutor != null) && commandExecutor.addInstantCommand(dataOpCallback));
+    }
+
     // 登记设备状态观察者
     public void registerDeviceStateObserver(IBleDeviceStateObserver observer) {
         if(!deviceStateObserverList.contains(observer)) {

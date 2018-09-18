@@ -190,6 +190,13 @@ public class BleGattCommandExecutor {
         return addCommandToList(command);
     }
 
+    // 添加Instant命令
+    public boolean addInstantCommand(IBleCallback dataOpCallback) {
+        BleGattCommand command = BleGattCommand.createInstantCommand(dataOpCallback);
+        if(command == null) return false;
+        return addCommandToList(command);
+    }
+
     private synchronized boolean addCommandToList(BleGattCommand command) {
         boolean flag = commandList.offer(command);
 
@@ -229,15 +236,15 @@ public class BleGattCommandExecutor {
             wait();
         }
 
-
         // 取出一条命令执行
         currentCommand = commandList.poll();
-        if(currentCommand != null) currentCommand.execute();
+        currentCommand.execute();
 
         ViseLog.i("Executing command: " + currentCommand);
 
         // 设置未完成标记
-        currentCommandDone = false;
+        if(!currentCommand.isInstantCommand())
+            currentCommandDone = false;
     }
 
     // 停止执行命令

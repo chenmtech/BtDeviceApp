@@ -20,8 +20,6 @@ public class BleGattElement {
     private final int TYPE_CHARACTERISTIC = 2;      // characteristic element类型
     private final int TYPE_DESCRIPTOR = 3;          // descriptor element类型
 
-    // null element
-    private static final BleGattElement NULLELEMENT = new BleGattElement((UUID)null, null, null);
 
     // 服务UUID
     private final UUID serviceUuid;
@@ -34,6 +32,10 @@ public class BleGattElement {
 
     // element的描述
     private final String description;
+
+
+    // null element
+    //public static final BleGattElement NULLELEMENT = new BleGattElement((UUID)null, null, null);
 
     // 用短的字符串构建Element
     public BleGattElement(String serviceShortString, String characteristicShortString, String descriptorShortString) {

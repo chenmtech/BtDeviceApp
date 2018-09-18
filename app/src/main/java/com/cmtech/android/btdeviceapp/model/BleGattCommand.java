@@ -34,8 +34,22 @@ public class BleGattCommand {
         return channel.getPropertyType();
     }
 
+    // 创建即时命令，即时命令在执行的时候会立刻执行dataOpCallback.onSuccess()
+    public static BleGattCommand createInstantCommand(IBleCallback dataOpCallback) {
+        return new BleGattCommand(null, null, dataOpCallback, null, null);
+    }
+
+    public boolean isInstantCommand() {
+        return (deviceMirror == null && channel == null && dataOpCallback != null);
+    }
+
     // 执行命令
     public synchronized boolean execute() {
+        if(isInstantCommand()) {
+            dataOpCallback.onSuccess(null, null, null);
+            return true;
+        }
+
         if(deviceMirror == null || channel == null) return false;
 
         switch (channel.getPropertyType()) {
@@ -75,6 +89,8 @@ public class BleGattCommand {
 
     @Override
     public String toString() {
+        if(isInstantCommand()) return "BleInstantCommand";
+
         BleGattElement element =
                 new BleGattElement(channel.getServiceUUID(), channel.getCharacteristicUUID(),channel.getDescriptorUUID());
         return "BleGattCommand{" + channel.getPropertyType() +
@@ -83,7 +99,11 @@ public class BleGattCommand {
     }
 
     // 获取Gatt信息key
-    public String getGattInfoKey() { return channel.getGattInfoKey(); }
+    public String getGattInfoKey() {
+        if(isInstantCommand()) return "";
+
+        return channel.getGattInfoKey();
+    }
 
     public static class Builder {
         private BleGattElement element;

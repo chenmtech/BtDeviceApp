@@ -97,6 +97,9 @@ public class TempHumidDevice extends BleDevice {
     // 当前温湿度数据观察者列表
     private final List<ITempHumidDataObserver> tempHumidDataObserverList = new LinkedList<>();
 
+    // 是否正在更新历史数据，防止多次更新数据导致数据重复
+    private boolean isUpdatingHistoryData = false;
+
 
     // 获取当前温湿度值
     public TempHumidData getCurTempHumid() {
@@ -125,6 +128,8 @@ public class TempHumidDevice extends BleDevice {
 
         historyDataList.clear();
         timeLastUpdated = null;
+
+        isUpdatingHistoryData = false;
 
         // 从数据库中读取设备历史数据
         readHistoryDataFromDb();
@@ -193,8 +198,13 @@ public class TempHumidDevice extends BleDevice {
 
     // 更新历史数据
     public synchronized void updateHistoryData() {
+        if(isUpdatingHistoryData) return;
+
+        isUpdatingHistoryData = true;
+
         if(hasTimerService)
             readTimerServiceValue();
+
     }
 
     // 读取当前温湿度值
@@ -324,6 +334,19 @@ public class TempHumidDevice extends BleDevice {
         } else {
             startTimerService();                // 没有开启定时服务（比如刚换电池），就先开启定时服务
         }
+
+        // 添加更新历史数据完毕的命令
+        addInstantCommand(new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                isUpdatingHistoryData = false;
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
         return true;
     }
 
