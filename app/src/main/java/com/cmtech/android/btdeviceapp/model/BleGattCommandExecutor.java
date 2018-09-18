@@ -14,10 +14,10 @@ import java.util.Queue;
 
 /**
  * Created by bme on 2018/3/2.
- * Gatt数据操作命令的串行执行器
+ * Ble Gatt命令执行器
  */
 
-public class GattCommandSerialExecutor {
+public class BleGattCommandExecutor {
     private final int CMD_ERROR_RETRY_TIMES = 3;      // Gatt命令执行错误可重复的次数
 
     // 指定的设备镜像
@@ -49,7 +49,7 @@ public class GattCommandSerialExecutor {
 
         @Override
         public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-            synchronized(GattCommandSerialExecutor.this) {
+            synchronized(BleGattCommandExecutor.this) {
                 // 清除当前命令的数据操作IBleCallback，否则会出现多次执行该回调.
                 // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
                 if(currentCommand != null && deviceMirror != null) {
@@ -65,7 +65,7 @@ public class GattCommandSerialExecutor {
                 // 命令错误次数归零
                 cmdErrorTimes = 0;
                 // 通知执行线程执行下一条
-                GattCommandSerialExecutor.this.notifyAll();
+                BleGattCommandExecutor.this.notifyAll();
 
                 ViseLog.i("The returned data is " + HexUtil.encodeHexStr(data));
             }
@@ -73,7 +73,7 @@ public class GattCommandSerialExecutor {
 
         @Override
         public void onFailure(BleException exception) {
-            synchronized(GattCommandSerialExecutor.this) {
+            synchronized(BleGattCommandExecutor.this) {
                 // 清除当前命令的数据操作IBleCallback，否则会出现多次执行该回调.
                 // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
                 if(currentCommand != null) {
@@ -99,13 +99,13 @@ public class GattCommandSerialExecutor {
                         bleCallback.onFailure(exception);
 
                 }
-                ViseLog.i("GattCommandSerialExecutor Wrong: " + exception);
+                ViseLog.i("BleGattCommandExecutor Wrong: " + exception);
             }
         }
     }
 
     // 构造器：指定设备镜像
-    public GattCommandSerialExecutor(DeviceMirror deviceMirror) {
+    public BleGattCommandExecutor(DeviceMirror deviceMirror) {
         this.deviceMirror = deviceMirror;
     }
 

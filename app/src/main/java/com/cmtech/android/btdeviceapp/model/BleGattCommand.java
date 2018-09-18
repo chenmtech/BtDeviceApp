@@ -118,7 +118,6 @@ public class BleGattCommand {
 
         public Builder setData(byte[] data) {
             this.data = data;
-            //this.data = Arrays.copyOf(data, data.length);
             return this;
         }
 
