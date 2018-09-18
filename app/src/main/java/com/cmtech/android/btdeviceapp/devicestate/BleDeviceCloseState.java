@@ -6,7 +6,7 @@ import com.cmtech.android.btdeviceapp.model.BleDevice;
 import com.vise.log.ViseLog;
 
 public class BleDeviceCloseState implements IBleDeviceState {
-    BleDevice device;
+    private BleDevice device;
 
     public BleDeviceCloseState(BleDevice device) {
         this.device = device;

@@ -7,6 +7,11 @@ import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratedState;
+import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratingState;
+import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.EcgMonitorInitialState;
+import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.EcgMonitorSamplingState;
+import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.model.BleDevice;
 import com.cmtech.android.btdeviceapp.model.BleDeviceBasicInfo;
@@ -86,10 +91,37 @@ public class EcgMonitorDevice extends BleDevice {
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
+    private final EcgMonitorInitialState initialState = new EcgMonitorInitialState(this);
+    private final EcgMonitorCalibratingState calibratingState = new EcgMonitorCalibratingState(this);
+    private final EcgMonitorCalibratedState calibratedState = new EcgMonitorCalibratedState(this);
+    private final EcgMonitorSamplingState samplingState = new EcgMonitorSamplingState(this);
+
+    private IEcgMonitorState state = initialState;
+
 
 
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
+    }
+
+    public EcgMonitorInitialState getInitialState() {
+        return initialState;
+    }
+
+    public EcgMonitorCalibratingState getCalibratingState() {
+        return calibratingState;
+    }
+
+    public EcgMonitorCalibratedState getCalibratedState() {
+        return calibratedState;
+    }
+
+    public EcgMonitorSamplingState getSamplingState() {
+        return samplingState;
+    }
+
+    public void setState(IEcgMonitorState state) {
+        this.state = state;
     }
 
     @Override
@@ -139,7 +171,7 @@ public class EcgMonitorDevice extends BleDevice {
             }
         };
 
-        // enable ECG 数据notify
+        // enable ECG data notification
         addNotifyCommand(ECGMONITORDATACCC, true, null, notifyCallback);
 
 
@@ -263,6 +295,10 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
+    public synchronized void start() {
+        state.start();
+    }
+
     public synchronized void setEcgRecord(boolean isRecord) {
         if(this.isRecord != isRecord) {
 
@@ -301,7 +337,7 @@ public class EcgMonitorDevice extends BleDevice {
             //btnEcgStartandStop.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
             isStartSampleEcg = true;
         } else {
-            stopSampleEcg();
+            stopSampleData();
             //btnEcgStartandStop.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
             isStartSampleEcg = false;
         }
@@ -323,31 +359,22 @@ public class EcgMonitorDevice extends BleDevice {
         return true;
     }
 
-    // 启动ECG数据采集
-    private void startSampleEcg() {
-        addWriteCommand(ECGMONITORCTRL, (byte)0x01, new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                //ecgView.clearView();
-                isCalibrating = false;
-            }
+    // 启动ECG信号采集
+    public void startSampleEcg() {
+        addWriteCommand(ECGMONITORCTRL, (byte)0x01, null);
+    }
 
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        });
+    // 启动1mV信号采集
+    public void startSample1mV() {
+        addWriteCommand(ECGMONITORCTRL, (byte)0x02, null);
     }
 
     // 停止ECG数据采集
-    private void stopSampleEcg() {
+    public void stopSampleData() {
         addWriteCommand(ECGMONITORCTRL, (byte)0x00, null);
     }
 
-    // 启动1mV数据采集
-    private void startSample1mV() {
-        addWriteCommand(ECGMONITORCTRL, (byte)0x02, null);
-    }
+
 
     private int calculateCalibration(ArrayList<Integer> data) {
         Integer[] arr = data.toArray(new Integer[0]);
