@@ -48,23 +48,20 @@ public class BleDeviceConnectingState implements IBleDeviceState {
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-        device.processConnectSuccess(mirror);
-
         device.setState(device.getConnectedState());
+        device.processConnectSuccess(mirror);
     }
 
     @Override
     public void onDeviceConnectFailure() {
-        device.processConnectFailure();
-
         device.setState(device.getOpenState());
+        device.processConnectFailure();
     }
 
     @Override
     public void onDeviceConnectTimeout() {
-        device.processConnectFailure();
-
         device.setState(device.getOpenState());
+        device.processConnectFailure();
     }
 
     @Override

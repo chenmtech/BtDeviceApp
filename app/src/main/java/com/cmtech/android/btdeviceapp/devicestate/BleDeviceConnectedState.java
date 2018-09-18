@@ -64,22 +64,22 @@ public class BleDeviceConnectedState implements IBleDeviceState {
     @Override
     public void onDeviceConnectFailure() {
         device.getHandler().removeCallbacksAndMessages(null);
-        device.processConnectFailure();
         device.setState(device.getOpenState());
+        device.processConnectFailure();
     }
 
     @Override
     public void onDeviceConnectTimeout() {
         device.getHandler().removeCallbacksAndMessages(null);
-        device.processConnectFailure();
         device.setState(device.getOpenState());
+        device.processConnectFailure();
     }
 
     @Override
     public void onDeviceDisconnect() {
         device.getHandler().removeCallbacksAndMessages(null);
-        device.processDisconnect();
         device.setState(device.getOpenState());
+        device.processDisconnect();
     }
 
     @Override

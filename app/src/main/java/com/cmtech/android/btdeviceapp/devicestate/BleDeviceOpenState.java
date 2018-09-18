@@ -50,9 +50,8 @@ public class BleDeviceOpenState implements IBleDeviceState {
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-        device.processConnectSuccess(mirror);
-
         device.setState(device.getConnectedState());
+        device.processConnectSuccess(mirror);
     }
 
     @Override

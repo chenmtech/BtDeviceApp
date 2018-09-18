@@ -225,7 +225,7 @@ public abstract class BleDevice {
 
     // 是否已连接
     public synchronized boolean isConnected() {
-        return (state instanceof BleDeviceConnectedState);
+        return (state == connectedState);
     }
 
     // 是否可执行命令

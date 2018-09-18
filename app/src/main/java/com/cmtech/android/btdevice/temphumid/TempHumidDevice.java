@@ -151,6 +151,7 @@ public class TempHumidDevice extends BleDevice {
         startTempHumidService(period);
 
         // 更新历史数据
+        isUpdatingHistoryData = false;
         updateHistoryData();
     }
 
@@ -198,7 +199,8 @@ public class TempHumidDevice extends BleDevice {
 
     // 更新历史数据
     public synchronized void updateHistoryData() {
-        if(isUpdatingHistoryData) return;
+        if(!isConnected() || isUpdatingHistoryData) return;
+        ViseLog.i("正在更新历史数据");
 
         isUpdatingHistoryData = true;
 
