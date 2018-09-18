@@ -41,7 +41,7 @@ public abstract class BleDevice {
     private BluetoothLeDevice bluetoothLeDevice = null;
 
     // GATT命令串行执行器
-    private GattCommandSerialExecutor commandExecutor;
+    private BleGattCommandExecutor commandExecutor;
 
     // 设备状态观察者列表
     private final List<IBleDeviceStateObserver> deviceStateObserverList = new LinkedList<>();
@@ -317,7 +317,7 @@ public abstract class BleDevice {
         DeviceMirror deviceMirror = deviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
         if(deviceMirror == null) return false;
 
-        commandExecutor = new GattCommandSerialExecutor(deviceMirror);
+        commandExecutor = new BleGattCommandExecutor(deviceMirror);
         commandExecutor.start();
         return true;
     }
