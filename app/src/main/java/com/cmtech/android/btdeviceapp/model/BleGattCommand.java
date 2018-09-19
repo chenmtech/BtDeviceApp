@@ -157,7 +157,7 @@ public class BleGattCommand {
 
             if(propertyType == PropertyType.PROPERTY_NOTIFY
                     || propertyType == PropertyType.PROPERTY_INDICATE) {
-                if(notifyOpCallback == null) return null;
+                if(data[0] == 1 && notifyOpCallback == null) return null;
             }
 
             BluetoothGattChannel.Builder builder = new BluetoothGattChannel.Builder();

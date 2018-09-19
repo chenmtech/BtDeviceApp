@@ -2,6 +2,8 @@ package com.cmtech.android.btdevice.ecgmonitor;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +16,6 @@ import android.widget.TextView;
 import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
-import com.vise.log.ViseLog;
 
 /**
  * Created by bme on 2018/3/13.
@@ -75,14 +76,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         cbEcgRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorDeviceController)controller).isRecordEcg(b);
+                ((EcgMonitorDeviceController)controller).setEcgRecord(b);
             }
         });
 
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorDeviceController)controller).isFilterEcg(b);
+                ((EcgMonitorDeviceController)controller).setEcgFilter(b);
             }
         });
     }
@@ -101,7 +102,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateSampleRate(int sampleRate) {
+    public void updateSampleRate(final int sampleRate) {
         tvEcgSampleRate.setText(""+sampleRate);
     }
 
@@ -124,13 +125,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateRecordCheckBox(boolean isChecked, boolean clickable) {
+    public void updateRecordCheckBox(final boolean isChecked, final boolean clickable) {
         cbEcgRecord.setChecked(isChecked);
         cbEcgRecord.setClickable(clickable);
     }
 
     @Override
-    public void updateFilterCheckBox(boolean isChecked, boolean clickable) {
+    public void updateFilterCheckBox(final boolean isChecked, final boolean clickable) {
         cbEcgFilter.setChecked(isChecked);
         cbEcgFilter.setClickable(clickable);
     }

@@ -29,6 +29,7 @@ import com.cmtech.dsp.filter.IIRFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
 import com.cmtech.dsp.filter.design.NotchDesigner;
 import com.cmtech.dsp.filter.structure.StructType;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
@@ -132,6 +133,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     public void setState(IEcgMonitorState state) {
         this.state = state;
+        ViseLog.i("The device state is set as " + state.getClass().getSimpleName());
         updateEcgMonitorState();
     }
 
@@ -141,8 +143,17 @@ public class EcgMonitorDevice extends BleDevice {
 
     @Override
     public void executeAfterConnectSuccess() {
+        isRecord = false;
+        updateRecordCheckBox(false, false);
+        isFilter = false;
+        updateFilterCheckBox(false, false);
+
+        updateSampleRate(0);
+        updateLeadType(EcgLeadType.LEAD_I);
+        updateCalibrationValue(0);
 
         if(!checkBasicEcgMonitorService()) return;
+
 
         // 读采样率命令
         addReadCommand(ECGMONITORSAMPLERATE, new IBleCallback() {
@@ -170,37 +181,20 @@ public class EcgMonitorDevice extends BleDevice {
             }
         });
 
-        IBleCallback notifyCallback = new IBleCallback() {
-            @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendGattCallbackMessage(MSG_ECGDATA, data);
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        };
-
-        // enable ECG data notification
-        addNotifyCommand(ECGMONITORDATACCC, true, null, notifyCallback);
-
-        updateRecordCheckBox(false, false);
-        updateFilterCheckBox(false, false);
-
         // 启动1mV数据采集
         setState(initialState);
         state.start();
+        ViseLog.i("hi");
     }
 
     @Override
     public void executeAfterDisconnect() {
-
+        setEcgRecord(false);
     }
 
     @Override
     public void executeAfterConnectFailure() {
-
+        setEcgRecord(false);
     }
 
     @Override
@@ -343,17 +337,50 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 启动ECG信号采集
     public void startSampleEcg() {
+        IBleCallback notifyCallback = new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                sendGattCallbackMessage(MSG_ECGDATA, data);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        };
+
+        // enable ECG data notification
+        addNotifyCommand(ECGMONITORDATACCC, true, null, notifyCallback);
+
         addWriteCommand(ECGMONITORCTRL, (byte)0x01, null);
     }
 
     // 启动1mV信号采集
     public void startSample1mV() {
+        IBleCallback notifyCallback = new IBleCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+                sendGattCallbackMessage(MSG_ECGDATA, data);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        };
+
+        // enable ECG data notification
+        addNotifyCommand(ECGMONITORDATACCC, true, null, notifyCallback);
+
         addWriteCommand(ECGMONITORCTRL, (byte)0x02, null);
     }
 
     // 停止ECG数据采集
     public void stopSampleData() {
         addWriteCommand(ECGMONITORCTRL, (byte)0x00, null);
+
+        // disable ECG data notification
+        addNotifyCommand(ECGMONITORDATACCC, false, null, null);
     }
 
     // 登记心电监护仪观察者
@@ -378,39 +405,69 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    private void updateSampleRate(int sampleRate) {
+    private void updateSampleRate(final int sampleRate) {
         if(observer != null) {
-            observer.updateSampleRate(sampleRate);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateSampleRate(sampleRate);
+                }
+            });
         }
     }
 
-    private void updateLeadType(EcgLeadType leadType) {
+    private void updateLeadType(final EcgLeadType leadType) {
         if(observer != null) {
-            observer.updateLeadType(leadType);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateLeadType(leadType);
+                }
+            });
         }
     }
 
-    private void updateCalibrationValue(int calibrationValue) {
+    private void updateCalibrationValue(final int calibrationValue) {
         if(observer != null) {
-            observer.updateCalibrationValue(calibrationValue);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateCalibrationValue(calibrationValue);
+                }
+            });
         }
     }
 
-    private void updateEcgView(int xRes, float yRes, int viewGridWidth) {
+    private void updateEcgView(final int xRes, final float yRes, final int viewGridWidth) {
         if(observer != null) {
-            observer.updateEcgView(xRes, yRes, viewGridWidth);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateEcgView(xRes, yRes, viewGridWidth);
+                }
+            });
         }
     }
 
-    private void updateRecordCheckBox(boolean isChecked, boolean clickable) {
+    private void updateRecordCheckBox(final boolean isChecked, final boolean clickable) {
         if(observer != null) {
-            observer.updateRecordCheckBox(isChecked, clickable);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateRecordCheckBox(isChecked, clickable);
+                }
+            });
         }
     }
 
-    private void updateFilterCheckBox(boolean isChecked, boolean clickable) {
+    private void updateFilterCheckBox(final boolean isChecked, final boolean clickable) {
         if(observer != null) {
-            observer.updateFilterCheckBox(isChecked, clickable);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateFilterCheckBox(isChecked, clickable);
+                }
+            });
         }
     }
 

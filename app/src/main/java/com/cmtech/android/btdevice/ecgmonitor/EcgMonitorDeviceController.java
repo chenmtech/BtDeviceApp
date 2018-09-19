@@ -13,11 +13,11 @@ public class EcgMonitorDeviceController extends BleDeviceController {
         this.fragment = (EcgMonitorFragment) getFragment();
     }
 
-    public void isRecordEcg(boolean isRecord) {
+    public void setEcgRecord(boolean isRecord) {
         device.setEcgRecord(isRecord);
     }
 
-    public void isFilterEcg(boolean isFilter) {
+    public void setEcgFilter(boolean isFilter) {
         device.setEcgFilter(isFilter);
     }
 
