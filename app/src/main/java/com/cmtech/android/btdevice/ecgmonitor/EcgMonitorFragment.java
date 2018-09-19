@@ -61,8 +61,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ecgView = (WaveView)view.findViewById(R.id.ecg_view);
         btnSwitchSampleEcg = view.findViewById(R.id.btn_ecg_startandstop);
         cbEcgRecord = view.findViewById(R.id.cb_ecg_record);
+        cbEcgRecord.setChecked(false);
         cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
-
+        cbEcgFilter.setChecked(false);
 
         btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,6 +121,18 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ecgView.setGridWidth(viewGridWidth);
         ecgView.setZeroLocation(0.5);
         ecgView.startShow();
+    }
+
+    @Override
+    public void updateRecordCheckBox(boolean isChecked, boolean clickable) {
+        cbEcgRecord.setChecked(isChecked);
+        cbEcgRecord.setClickable(clickable);
+    }
+
+    @Override
+    public void updateFilterCheckBox(boolean isChecked, boolean clickable) {
+        cbEcgFilter.setChecked(isChecked);
+        cbEcgFilter.setClickable(clickable);
     }
 
     @Override

@@ -185,6 +185,9 @@ public class EcgMonitorDevice extends BleDevice {
         // enable ECG data notification
         addNotifyCommand(ECGMONITORDATACCC, true, null, notifyCallback);
 
+        updateRecordCheckBox(false, false);
+        updateFilterCheckBox(false, false);
+
         // 启动1mV数据采集
         setState(initialState);
         state.start();
@@ -209,6 +212,8 @@ public class EcgMonitorDevice extends BleDevice {
                 if(msg.obj != null) {
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
+                    initializeFilter();
+                    updateFilterCheckBox(false, true);
                 }
                 break;
 
@@ -218,6 +223,8 @@ public class EcgMonitorDevice extends BleDevice {
                     Number num = (Number)msg.obj;
                     leadType = EcgLeadType.getFromCode(num.intValue());
                     updateLeadType(leadType);
+                    initializeEcgFile();
+                    updateRecordCheckBox(false, true);
                 }
                 break;
 
@@ -260,7 +267,6 @@ public class EcgMonitorDevice extends BleDevice {
             }
 
             this.isRecord = isRecord;
-
         }
     }
 
@@ -298,7 +304,7 @@ public class EcgMonitorDevice extends BleDevice {
 
 
 
-    public void initializeEcgFile() {
+    private void initializeEcgFile() {
         // 准备记录心电信号的文件头
         try {
             ecgFileHead = BmeFileHeadFactory.create(BmeFileHead10.VER);
@@ -311,7 +317,7 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    public void initializeFilter() {
+    private void initializeFilter() {
         // 准备隔直滤波器
         dcBlock = DCBlockDesigner.design(0.06, sampleRate);   // 设计隔直滤波器
         dcBlock.createStructure(StructType.IIR_DCBLOCK);            // 创建隔直滤波器专用结构
@@ -393,6 +399,18 @@ public class EcgMonitorDevice extends BleDevice {
     private void updateEcgView(int xRes, float yRes, int viewGridWidth) {
         if(observer != null) {
             observer.updateEcgView(xRes, yRes, viewGridWidth);
+        }
+    }
+
+    private void updateRecordCheckBox(boolean isChecked, boolean clickable) {
+        if(observer != null) {
+            observer.updateRecordCheckBox(isChecked, clickable);
+        }
+    }
+
+    private void updateFilterCheckBox(boolean isChecked, boolean clickable) {
+        if(observer != null) {
+            observer.updateFilterCheckBox(isChecked, clickable);
         }
     }
 

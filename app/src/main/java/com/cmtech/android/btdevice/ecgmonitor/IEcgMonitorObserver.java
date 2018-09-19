@@ -8,5 +8,7 @@ public interface IEcgMonitorObserver {
     void updateLeadType(EcgLeadType leadType);
     void updateCalibrationValue(int calibrationValue);
     void updateEcgView(int xRes, float yRes, int viewGridWidth);
+    void updateRecordCheckBox(boolean isCheck, boolean clickable);
+    void updateFilterCheckBox(boolean isCheck, boolean clickable);
     void updateEcgData(int ecgData);
 }

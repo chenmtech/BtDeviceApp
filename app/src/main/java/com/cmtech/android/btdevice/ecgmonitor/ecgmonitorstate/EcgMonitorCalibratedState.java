@@ -21,9 +21,9 @@ public class EcgMonitorCalibratedState implements IEcgMonitorState {
 
     @Override
     public void start() {
-        device.initializeEcgFile();
+        //device.initializeEcgFile();
 
-        device.initializeFilter();
+        //device.initializeFilter();
 
         //btnEcgStartandStop.setClickable(true);
         //cbEcgRecord.setClickable(true);
