@@ -1,5 +1,7 @@
 package com.cmtech.android.btdevice.ecgmonitor;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -81,12 +83,9 @@ public class EcgMonitorDevice extends BleDevice {
 
     public void setValue1mV(int value1mV) {
         this.value1mV = value1mV;
+        updateCalibrationValue(value1mV);
     }
 
-    //private boolean isCalibrating = true;                  // 是否处于1mV标定阶段
-    //private ArrayList<Integer> calibrationData = new ArrayList<Integer>(250);   // 用于保存标定用的数据
-
-    //private boolean isStartSampleEcg = false;        // 是否开始采样心电信号
     private boolean isRecord = false;                // 是否记录心电信号
     private boolean isFilter = false;                // 是否对信号滤波
 
@@ -109,7 +108,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     private IEcgMonitorState state = initialState;
 
-
+    private IEcgMonitorObserver observer;
 
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
@@ -133,6 +132,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     public void setState(IEcgMonitorState state) {
         this.state = state;
+        updateEcgMonitorState();
     }
 
     @Override
@@ -185,7 +185,6 @@ public class EcgMonitorDevice extends BleDevice {
         // enable ECG data notification
         addNotifyCommand(ECGMONITORDATACCC, true, null, notifyCallback);
 
-
         // 启动1mV数据采集
         setState(initialState);
         state.start();
@@ -205,27 +204,28 @@ public class EcgMonitorDevice extends BleDevice {
     public synchronized void processGattCallbackMessage(Message msg)
     {
         switch (msg.what) {
-            // 接收到信号数据
-            case MSG_ECGDATA:
-                if(msg.obj != null) {
-                    byte[] data = (byte[]) msg.obj;
-                    state.onProcessData(data);
-                }
-                break;
-
             // 接收到采样率数据
             case MSG_READSAMPLERATE:
                 if(msg.obj != null) {
                     sampleRate = (Integer) msg.obj;
-                    //tvEcgSampleRate.setText(""+sampleRate);
+                    updateSampleRate(sampleRate);
                 }
                 break;
 
             // 接收到导联类型数据
             case MSG_READLEADTYPE:
                 if(msg.obj != null) {
-                    leadType = EcgLeadType.getFromCode((Integer) msg.obj);
-                    //tvEcgLeadType.setText(leadType.getDescription());
+                    Number num = (Number)msg.obj;
+                    leadType = EcgLeadType.getFromCode(num.intValue());
+                    updateLeadType(leadType);
+                }
+                break;
+
+            // 接收到信号数据
+            case MSG_ECGDATA:
+                if(msg.obj != null) {
+                    byte[] data = (byte[]) msg.obj;
+                    state.onProcessData(data);
                 }
                 break;
 
@@ -240,7 +240,6 @@ public class EcgMonitorDevice extends BleDevice {
 
     public synchronized void setEcgRecord(boolean isRecord) {
         if(this.isRecord != isRecord) {
-
             if (isRecord) {
                 File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), "chenm.bme");
                 try {
@@ -291,16 +290,13 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     public void initializeEcgView() {
-        //tvEcg1mV.setText("" + value1mV);
-
         // 启动ECG View
         int xRes = Math.round(viewGridWidth / (viewXGridTime * sampleRate));   // 计算横向分辨率
         float yRes = value1mV * viewYGridmV / viewGridWidth;                     // 计算纵向分辨率
-        //ecgView.setRes(xRes, yRes);
-        //ecgView.setGridWidth(viewGridWidth);
-        //ecgView.setZeroLocation(0.5);
-        //ecgView.startShow();
+        updateEcgView(xRes, yRes, viewGridWidth);
     }
+
+
 
     public void initializeEcgFile() {
         // 准备记录心电信号的文件头
@@ -328,7 +324,6 @@ public class EcgMonitorDevice extends BleDevice {
         if(isFilter)
             ecgData = (int)notch.filter(dcBlock.filter(ecgData));
 
-        //ecgView.addData(tmpData);
         if(isRecord) {
             try {
                 ecgFile.writeData(ecgData);
@@ -336,6 +331,8 @@ public class EcgMonitorDevice extends BleDevice {
                 e.printStackTrace();
             }
         }
+
+        updateEcgData(ecgData);
     }
 
     // 启动ECG信号采集
@@ -353,7 +350,55 @@ public class EcgMonitorDevice extends BleDevice {
         addWriteCommand(ECGMONITORCTRL, (byte)0x00, null);
     }
 
+    // 登记心电监护仪观察者
+    public void registerEcgMonitorObserver(IEcgMonitorObserver observer) {
+        this.observer = observer;
+    }
 
+    // 删除心电监护仪观察者
+    public void removeEcgMonitorObserver() {
+        observer = null;
+    }
 
+    private void updateEcgMonitorState() {
+        if(observer != null) {
+            // 保证在主线程更新连接状态
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateState(state);
+                }
+            });
+        }
+    }
 
+    private void updateSampleRate(int sampleRate) {
+        if(observer != null) {
+            observer.updateSampleRate(sampleRate);
+        }
+    }
+
+    private void updateLeadType(EcgLeadType leadType) {
+        if(observer != null) {
+            observer.updateLeadType(leadType);
+        }
+    }
+
+    private void updateCalibrationValue(int calibrationValue) {
+        if(observer != null) {
+            observer.updateCalibrationValue(calibrationValue);
+        }
+    }
+
+    private void updateEcgView(int xRes, float yRes, int viewGridWidth) {
+        if(observer != null) {
+            observer.updateEcgView(xRes, yRes, viewGridWidth);
+        }
+    }
+
+    private void updateEcgData(int ecgData) {
+        if(observer != null) {
+            observer.updateEcgData(ecgData);
+        }
+    }
 }

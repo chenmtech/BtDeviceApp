@@ -11,14 +11,16 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.btdeviceapp.R;
 import com.cmtech.android.btdeviceapp.model.BleDeviceFragment;
+import com.vise.log.ViseLog;
 
 /**
  * Created by bme on 2018/3/13.
  */
 
-public class EcgMonitorFragment extends BleDeviceFragment {
+public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitorObserver{
     private TextView tvEcgSampleRate;
     private TextView tvEcgLeadType;
     private TextView tvEcg1mV;
@@ -40,7 +42,7 @@ public class EcgMonitorFragment extends BleDeviceFragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        //((EcgMonitorDevice)device).registerTempHumidDataObserver(this);
+        ((EcgMonitorDevice)device).registerEcgMonitorObserver(this);
     }
 
     @Nullable
@@ -84,8 +86,44 @@ public class EcgMonitorFragment extends BleDeviceFragment {
         });
     }
 
+    @Override
+    public void updateState(IEcgMonitorState state) {
+        if(state.canStart()) {
+            btnSwitchSampleEcg.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
+            btnSwitchSampleEcg.setClickable(true);
+        } else if(state.canStop()) {
+            btnSwitchSampleEcg.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
+            btnSwitchSampleEcg.setClickable(true);
+        } else {
+            btnSwitchSampleEcg.setClickable(false);
+        }
+    }
 
+    @Override
+    public void updateSampleRate(int sampleRate) {
+        tvEcgSampleRate.setText(""+sampleRate);
+    }
 
+    @Override
+    public void updateLeadType(EcgLeadType leadType) {
+        tvEcgLeadType.setText(leadType.getDescription());
+    }
 
+    @Override
+    public void updateCalibrationValue(int calibrationValue) {
+        tvEcg1mV.setText("" + calibrationValue);
+    }
 
+    @Override
+    public void updateEcgView(int xRes, float yRes, int viewGridWidth) {
+        ecgView.setRes(xRes, yRes);
+        ecgView.setGridWidth(viewGridWidth);
+        ecgView.setZeroLocation(0.5);
+        ecgView.startShow();
+    }
+
+    @Override
+    public void updateEcgData(int ecgData) {
+        ecgView.addData(ecgData);
+    }
 }

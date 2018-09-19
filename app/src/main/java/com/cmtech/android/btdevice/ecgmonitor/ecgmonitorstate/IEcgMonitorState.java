@@ -7,4 +7,6 @@ public interface IEcgMonitorState {
     void onCalibrateSuccess();
     void onCalibrateFailure();
     void onProcessData(byte[] data);
+    boolean canStart();
+    boolean canStop();
 }

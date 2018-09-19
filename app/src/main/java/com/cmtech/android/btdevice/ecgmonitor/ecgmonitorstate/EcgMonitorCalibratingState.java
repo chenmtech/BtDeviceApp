@@ -70,6 +70,16 @@ public class EcgMonitorCalibratingState implements IEcgMonitorState {
         }
     }
 
+    @Override
+    public boolean canStart() {
+        return false;
+    }
+
+    @Override
+    public boolean canStop() {
+        return false;
+    }
+
 
     private int calculateCalibration(ArrayList<Integer> data) {
         Integer[] arr = data.toArray(new Integer[0]);

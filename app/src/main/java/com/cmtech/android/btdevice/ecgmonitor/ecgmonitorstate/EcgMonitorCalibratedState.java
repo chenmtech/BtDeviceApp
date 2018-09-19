@@ -58,4 +58,14 @@ public class EcgMonitorCalibratedState implements IEcgMonitorState {
     public void onProcessData(byte[] data) {
         ViseLog.i("ecgmonitor state action wrong");
     }
+
+    @Override
+    public boolean canStart() {
+        return true;
+    }
+
+    @Override
+    public boolean canStop() {
+        return false;
+    }
 }

@@ -53,4 +53,14 @@ public class EcgMonitorSamplingState implements IEcgMonitorState {
             device.processOneEcgData(tmpData);
         }
     }
+
+    @Override
+    public boolean canStart() {
+        return false;
+    }
+
+    @Override
+    public boolean canStop() {
+        return true;
+    }
 }
