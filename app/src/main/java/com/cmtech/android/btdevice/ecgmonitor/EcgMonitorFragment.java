@@ -65,7 +65,7 @@ public class EcgMonitorFragment extends BleDeviceFragment {
         btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((EcgMonitorDeviceController)controller).switchSampleEcg();
+                ((EcgMonitorDeviceController)controller).switchSampleState();
             }
         });
 

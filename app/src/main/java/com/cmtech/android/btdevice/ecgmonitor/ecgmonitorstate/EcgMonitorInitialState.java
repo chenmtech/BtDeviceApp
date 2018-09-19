@@ -22,12 +22,22 @@ public class EcgMonitorInitialState implements IEcgMonitorState {
     }
 
     @Override
+    public void switchState() {
+        start();
+    }
+
+    @Override
     public void onCalibrateSuccess() {
         ViseLog.i("ecgmonitor state action wrong");
     }
 
     @Override
     public void onCalibrateFailure() {
+        ViseLog.i("ecgmonitor state action wrong");
+    }
+
+    @Override
+    public void onProcessData(byte[] data) {
         ViseLog.i("ecgmonitor state action wrong");
     }
 }

@@ -21,7 +21,7 @@ public class EcgMonitorDeviceController extends BleDeviceController {
         device.setEcgFilter(isFilter);
     }
 
-    public void switchSampleEcg() {
-        device.switchSampleEcg();
+    public void switchSampleState() {
+        device.switchSampleState();
     }
 }
