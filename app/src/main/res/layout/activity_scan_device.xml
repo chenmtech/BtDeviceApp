@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.cmtech.android.btdeviceapp.activity.ScanDeviceActivity">
+    tools:context="com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id = "@+id/rvScanedDevices"

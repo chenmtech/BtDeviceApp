@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.cmtech.android.btdevice.temphumid.TempHumidFragment">
+    tools:context="com.cmtech.android.bledevice.temphumid.TempHumidFragment">
 
     <LinearLayout
         android:layout_width="match_parent"

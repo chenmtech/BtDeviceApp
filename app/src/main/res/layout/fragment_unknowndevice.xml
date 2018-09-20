@@ -4,12 +4,12 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context = "com.cmtech.android.btdevice.thermo.ThermoFragment">
+    tools:context = "com.cmtech.android.bledevice.thermo.ThermoFragment">
 
-    <com.cmtech.android.btdeviceapp.activity.DeviceFragTitleLayout
+    <com.cmtech.android.bledeviceapp.activity.DeviceFragTitleLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    </com.cmtech.android.btdeviceapp.activity.DeviceFragTitleLayout>
+    </com.cmtech.android.bledeviceapp.activity.DeviceFragTitleLayout>
 
     <TextView
         android:layout_width="wrap_content"
