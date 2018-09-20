@@ -121,6 +121,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ecgView.setRes(xRes, yRes);
         ecgView.setGridWidth(viewGridWidth);
         ecgView.setZeroLocation(0.5);
+        ecgView.clearView();
         ecgView.startShow();
     }
 

@@ -9,10 +9,10 @@ import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibrateState;
 import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratedState;
-import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratingState;
 import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.EcgMonitorInitialState;
-import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.EcgMonitorSamplingState;
+import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.EcgMonitorSampleState;
 import com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.btdeviceapp.MyApplication;
 import com.cmtech.android.btdeviceapp.model.BleDevice;
@@ -33,20 +33,23 @@ import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
+
+/**
+ * 心电监护仪类
+ * Created by bme on 2018/9/20.
+ */
 
 public class EcgMonitorDevice extends BleDevice {
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;           // 缺省ECG信号采样率,Hz
+    private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
+    private static final int DEFAULT_CALIBRATIONVALUE = 2600;       // 缺省1mV定标值
 
     // 消息常量
-    private static final int MSG_ECGDATA = 1;           // ECG数据
+    private static final int MSG_ECGDATA = 1;            // ECG数据
     private static final int MSG_READSAMPLERATE = 2;    // 读采样率
     private static final int MSG_READLEADTYPE = 3;      // 读导联类型
-    private static final int MSG_STARTSAMPLEECG = 4;    // 启动采样
 
     /////////////////   心电监护仪Service UUID常量////////////////
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
@@ -78,9 +81,9 @@ public class EcgMonitorDevice extends BleDevice {
         return sampleRate;
     }
 
-    private EcgLeadType leadType = EcgLeadType.LEAD_I;      // 导联类型
+    private EcgLeadType leadType = DEFAULT_LEADTYPE;      // 导联类型
 
-    private int value1mV = 2000;                // 1mV定标值
+    private int value1mV = DEFAULT_CALIBRATIONVALUE;                // 1mV定标值
 
     public void setValue1mV(int value1mV) {
         this.value1mV = value1mV;
@@ -103,9 +106,9 @@ public class EcgMonitorDevice extends BleDevice {
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
     private final EcgMonitorInitialState initialState = new EcgMonitorInitialState(this);
-    private final EcgMonitorCalibratingState calibratingState = new EcgMonitorCalibratingState(this);
+    private final EcgMonitorCalibrateState calibratingState = new EcgMonitorCalibrateState(this);
     private final EcgMonitorCalibratedState calibratedState = new EcgMonitorCalibratedState(this);
-    private final EcgMonitorSamplingState samplingState = new EcgMonitorSamplingState(this);
+    private final EcgMonitorSampleState samplingState = new EcgMonitorSampleState(this);
 
     private IEcgMonitorState state = initialState;
 
@@ -119,7 +122,7 @@ public class EcgMonitorDevice extends BleDevice {
         return initialState;
     }
 
-    public EcgMonitorCalibratingState getCalibratingState() {
+    public EcgMonitorCalibrateState getCalibratingState() {
         return calibratingState;
     }
 
@@ -127,7 +130,7 @@ public class EcgMonitorDevice extends BleDevice {
         return calibratedState;
     }
 
-    public EcgMonitorSamplingState getSamplingState() {
+    public EcgMonitorSampleState getSamplingState() {
         return samplingState;
     }
 
@@ -145,12 +148,12 @@ public class EcgMonitorDevice extends BleDevice {
     public void executeAfterConnectSuccess() {
         isRecord = false;
         updateRecordCheckBox(false, false);
-        isFilter = false;
-        updateFilterCheckBox(false, false);
 
-        updateSampleRate(0);
-        updateLeadType(EcgLeadType.LEAD_I);
-        updateCalibrationValue(0);
+        updateFilterCheckBox(isFilter, false);
+
+        updateSampleRate(DEFAULT_SAMPLERATE);
+        updateLeadType(DEFAULT_LEADTYPE);
+        updateCalibrationValue(DEFAULT_CALIBRATIONVALUE);
 
         if(!checkBasicEcgMonitorService()) return;
 
@@ -184,7 +187,6 @@ public class EcgMonitorDevice extends BleDevice {
         // 启动1mV数据采集
         setState(initialState);
         state.start();
-        ViseLog.i("hi");
     }
 
     @Override
@@ -207,7 +209,7 @@ public class EcgMonitorDevice extends BleDevice {
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
                     initializeFilter();
-                    updateFilterCheckBox(false, true);
+                    updateFilterCheckBox(isFilter, true);
                 }
                 break;
 
@@ -381,6 +383,7 @@ public class EcgMonitorDevice extends BleDevice {
 
         // disable ECG data notification
         addNotifyCommand(ECGMONITORDATACCC, false, null, null);
+
     }
 
     // 登记心电监护仪观察者

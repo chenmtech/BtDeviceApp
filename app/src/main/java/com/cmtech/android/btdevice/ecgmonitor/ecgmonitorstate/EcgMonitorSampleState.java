@@ -1,18 +1,15 @@
 package com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate;
 
-import android.os.Message;
-
 import com.cmtech.android.btdevice.ecgmonitor.EcgMonitorDevice;
-import com.cmtech.dsp.exception.FileException;
 import com.vise.log.ViseLog;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class EcgMonitorSamplingState implements IEcgMonitorState {
+public class EcgMonitorSampleState implements IEcgMonitorState {
     private EcgMonitorDevice device;
 
-    public EcgMonitorSamplingState(EcgMonitorDevice device) {
+    public EcgMonitorSampleState(EcgMonitorDevice device) {
         this.device = device;
     }
 
@@ -24,6 +21,15 @@ public class EcgMonitorSamplingState implements IEcgMonitorState {
     @Override
     public void stop() {
         device.stopSampleData();
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        device.getHandler().removeCallbacksAndMessages(null);
+
         device.setState(device.getCalibratedState());
     }
 

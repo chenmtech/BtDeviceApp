@@ -1,7 +1,5 @@
 package com.cmtech.android.btdevice.ecgmonitor.ecgmonitorstate;
 
-import android.os.Message;
-
 import com.cmtech.android.btdevice.ecgmonitor.EcgMonitorDevice;
 import com.vise.log.ViseLog;
 
@@ -10,11 +8,11 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class EcgMonitorCalibratingState implements IEcgMonitorState {
+public class EcgMonitorCalibrateState implements IEcgMonitorState {
     private EcgMonitorDevice device;
     private ArrayList<Integer> calibrationData = new ArrayList<Integer>(250);   // 用于保存标定用的数据
 
-    public EcgMonitorCalibratingState(EcgMonitorDevice device) {
+    public EcgMonitorCalibrateState(EcgMonitorDevice device) {
         this.device = device;
     }
 
