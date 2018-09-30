@@ -11,4 +11,5 @@ public interface IEcgMonitorObserver {
     void updateRecordCheckBox(boolean isCheck, boolean clickable);
     void updateFilterCheckBox(boolean isCheck, boolean clickable);
     void updateEcgData(int ecgData);
+    void updateEcgHr(int hr);
 }

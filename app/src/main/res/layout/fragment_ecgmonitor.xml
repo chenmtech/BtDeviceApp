@@ -60,6 +60,26 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="30sp"
+            android:text="当前心率："/>
+
+        <TextView
+            android:id="@+id/tv_ecg_hr"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="30sp"
+            android:text="0"/>
+
+    </LinearLayout>
+
     <com.cmtech.android.bledevice.ecgmonitor.WaveView
         android:id="@+id/ecg_view"
         android:layout_width="match_parent"
@@ -68,6 +88,8 @@
         cmtech:background_color="#fff"
         cmtech:grid_color="#f00"
         cmtech:ecg_color="#000"/>
+
+
 
     <RelativeLayout
         android:layout_width="match_parent"

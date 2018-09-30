@@ -23,6 +23,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private TextView tvEcgSampleRate;
     private TextView tvEcgLeadType;
     private TextView tvEcg1mV;
+    private TextView tvEcgHr;
     private WaveView ecgView;
     private ImageButton btnSwitchSampleEcg;
     private CheckBox cbEcgRecord;
@@ -54,10 +55,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvEcgSampleRate = (TextView)view.findViewById(R.id.tv_ecg_samplerate);
-        tvEcgLeadType = (TextView)view.findViewById(R.id.tv_ecg_leadtype);
-        tvEcg1mV = (TextView)view.findViewById(R.id.tv_ecg_1mv);
-        ecgView = (WaveView)view.findViewById(R.id.ecg_view);
+        tvEcgSampleRate = view.findViewById(R.id.tv_ecg_samplerate);
+        tvEcgLeadType = view.findViewById(R.id.tv_ecg_leadtype);
+        tvEcg1mV = view.findViewById(R.id.tv_ecg_1mv);
+        tvEcgHr = view.findViewById(R.id.tv_ecg_hr);
+        ecgView = view.findViewById(R.id.ecg_view);
         btnSwitchSampleEcg = view.findViewById(R.id.btn_ecg_startandstop);
         cbEcgRecord = view.findViewById(R.id.cb_ecg_record);
         cbEcgRecord.setChecked(false);
@@ -138,5 +140,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     @Override
     public void updateEcgData(int ecgData) {
         ecgView.addData(ecgData);
+    }
+
+    @Override
+    public void updateEcgHr(int hr) {
+        tvEcgHr.setText("" + hr);
     }
 }

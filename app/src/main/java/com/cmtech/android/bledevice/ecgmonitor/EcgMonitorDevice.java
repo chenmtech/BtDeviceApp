@@ -347,6 +347,7 @@ public class EcgMonitorDevice extends BleDevice {
         int hr = qrsDetector.outputHR(ecgData);
         if(hr != 0) {
             ViseLog.i("current HR is " + hr);
+            updateEcgHr(hr);
         }
     }
 
@@ -490,6 +491,12 @@ public class EcgMonitorDevice extends BleDevice {
     private void updateEcgData(int ecgData) {
         if(observer != null) {
             observer.updateEcgData(ecgData);
+        }
+    }
+
+    private void updateEcgHr(int hr) {
+        if(observer != null) {
+            observer.updateEcgHr(hr);
         }
     }
 }
