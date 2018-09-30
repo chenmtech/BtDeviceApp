@@ -29,6 +29,7 @@ import com.cmtech.dsp.filter.IIRFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
 import com.cmtech.dsp.filter.design.NotchDesigner;
 import com.cmtech.dsp.filter.structure.StructType;
+import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -87,6 +88,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     public void setValue1mV(int value1mV) {
         this.value1mV = value1mV;
+        initializeQrsDetector();
         updateCalibrationValue(value1mV);
     }
 
@@ -98,6 +100,8 @@ public class EcgMonitorDevice extends BleDevice {
 
     private IIRFilter dcBlock = null;               // 隔直滤波器
     private IIRFilter notch = null;                 // 50Hz陷波器
+
+    private QrsDetector qrsDetector = null;         // QRS波检测器
 
     // 用于设置EcgWaveView的参数
     private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
@@ -322,6 +326,10 @@ public class EcgMonitorDevice extends BleDevice {
         notch.createStructure(StructType.IIR_NOTCH);
     }
 
+    private void initializeQrsDetector() {
+        qrsDetector = new QrsDetector(sampleRate, value1mV);
+    }
+
     public void processOneEcgData(int ecgData) {
         if(isFilter)
             ecgData = (int)notch.filter(dcBlock.filter(ecgData));
@@ -335,6 +343,11 @@ public class EcgMonitorDevice extends BleDevice {
         }
 
         updateEcgData(ecgData);
+
+        int hr = qrsDetector.outputHR(ecgData);
+        if(hr != 0) {
+            ViseLog.i("current HR is " + hr);
+        }
     }
 
     // 启动ECG信号采集
