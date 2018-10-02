@@ -48,6 +48,24 @@ public class ThermoDevice extends BleDevice {
         return curTemp;
     }
 
+    public void setCurTemp(double curTemp) {
+        this.curTemp = curTemp;
+        if(updateHighestTemp && curTemp > highestTemp) {
+            highestTemp = curTemp;
+        }
+        notifyObserverThermoDataChanged();
+    }
+
+    private double highestTemp = 0.0;
+
+    public double getHighestTemp() { return highestTemp; }
+
+    private boolean updateHighestTemp = false;
+
+    public synchronized void setUpdateHighestTemp(boolean updateHighestTemp) {
+        this.updateHighestTemp = updateHighestTemp;
+    }
+
     public ThermoDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
         initializeAfterConstruction();
@@ -78,6 +96,7 @@ public class ThermoDevice extends BleDevice {
 
         startThermometer((byte)0x01);
 
+        setUpdateHighestTemp(true);
     }
 
     @Override
@@ -97,11 +116,17 @@ public class ThermoDevice extends BleDevice {
         if (msg.what == MSG_THERMODATA) {
             if (msg.obj != null) {
                 byte[] data = (byte[]) msg.obj;
-                curTemp = ByteUtil.getShort(data)/100.0;
-                notifyObserverThermoDataChanged();
+                setCurTemp(ByteUtil.getShort(data)/100.0);
+                /*curTemp = ByteUtil.getShort(data)/100.0;
+                if(updateHighestTemp && curTemp > highestTemp) {
+                    highestTemp = curTemp;
+                }
+                notifyObserverThermoDataChanged();*/
             }
         }
     }
+
+
 
     // 检测基本温湿度服务是否正常
     private boolean checkBasicThermoService() {
@@ -118,6 +143,10 @@ public class ThermoDevice extends BleDevice {
         return true;
     }
 
+    /*
+    启动体温计，设置采样周期
+    period: 采样周期，单位：秒
+     */
     private void startThermometer(byte period) {
         // 设置采样周期
         addWriteCommand(THERMOPERIOD, period, null);
