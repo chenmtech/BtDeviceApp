@@ -35,6 +35,10 @@ import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.nio.ByteOrder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * 心电监护仪类
@@ -248,9 +252,11 @@ public class EcgMonitorDevice extends BleDevice {
     public synchronized void setEcgRecord(boolean isRecord) {
         if(this.isRecord != isRecord) {
             if (isRecord) {
-                File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), "chenm.bme");
+                DateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+                String fileName = getMacAddress()+" "+format.format(new Date())+".bme";
+                File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), fileName);
                 try {
-                    String fileName = toFile.getCanonicalPath();
+                    fileName = toFile.getCanonicalPath();
                     ecgFile = BmeFile.createBmeFile(fileName, ecgFileHead);
                 } catch (Exception e) {
                     e.printStackTrace();
