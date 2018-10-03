@@ -50,7 +50,7 @@ public class ThermoDevice extends BleDevice {
 
     public void setCurTemp(double curTemp) {
         this.curTemp = curTemp;
-        if(updateHighestTemp && curTemp > highestTemp) {
+        if(curTemp > highestTemp) {
             highestTemp = curTemp;
         }
         notifyObserverThermoDataChanged();
@@ -60,11 +60,7 @@ public class ThermoDevice extends BleDevice {
 
     public double getHighestTemp() { return highestTemp; }
 
-    private boolean updateHighestTemp = false;
-
-    public synchronized void setUpdateHighestTemp(boolean updateHighestTemp) {
-        this.updateHighestTemp = updateHighestTemp;
-    }
+    public void resetHighestTemp() { highestTemp = 0.0; }
 
     public ThermoDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
@@ -81,6 +77,8 @@ public class ThermoDevice extends BleDevice {
         // 检查是否有正常的温湿度服务和特征值
         if(!checkBasicThermoService()) return;
 
+        resetHighestTemp();
+
         // 读温度数据
         addReadCommand(THERMODATA, new IBleCallback() {
             @Override
@@ -96,7 +94,6 @@ public class ThermoDevice extends BleDevice {
 
         startThermometer((byte)0x01);
 
-        setUpdateHighestTemp(true);
     }
 
     @Override
