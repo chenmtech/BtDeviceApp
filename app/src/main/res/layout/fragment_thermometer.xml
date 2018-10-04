@@ -20,14 +20,14 @@
             android:gravity="center_horizontal|bottom"
             android:textSize="30dp"
             android:textColor="#ff0000"
-            android:text="体温值"/>
+            android:text="最高温度"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="2">
+            android:layout_weight="3">
             <TextView
-                android:id="@+id/tv_thermo_data"
+                android:id="@+id/tv_thermo_highesttempvalue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
@@ -38,12 +38,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/tv_thermo_data"
-                android:layout_alignTop="@+id/tv_thermo_data"
+                android:layout_toRightOf="@id/tv_thermo_highesttempvalue"
+                android:layout_alignTop="@+id/tv_thermo_highesttempvalue"
                 android:textSize="30dp"
                 android:textColor="#ff0000"
                 android:text="℃"/>
+
         </RelativeLayout>
+
 
         <TextView
             android:id="@+id/tv_thermo_status"
@@ -54,12 +56,51 @@
             android:textSize="30dp"
             android:textColor="#ff0000"
             android:text="正常"/>
+
+        <Button
+            android:id="@+id/btn_thermo_resethighesttemp"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            android:text="重置" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:text="当前温度"
+                android:textColor="#ff0000"
+                android:textSize="30dp" />
+
+            <TextView
+                android:id="@+id/tv_thermo_currenttempvalue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:text="00.00"
+                android:textColor="#ff0000"
+                android:textSize="50dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/tv_thermo_currenttempvalue"
+                android:layout_alignTop="@+id/tv_thermo_currenttempvalue"
+                android:textSize="30dp"
+                android:textColor="#ff0000"
+                android:text="℃"/>
+
+        </RelativeLayout>
+
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_thermo_resethighesttemp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="重新开始"/>
 
 </LinearLayout>

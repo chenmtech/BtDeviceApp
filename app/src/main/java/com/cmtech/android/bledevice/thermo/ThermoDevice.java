@@ -50,17 +50,19 @@ public class ThermoDevice extends BleDevice {
 
     public void setCurTemp(double curTemp) {
         this.curTemp = curTemp;
-        if(curTemp > highestTemp) {
-            highestTemp = curTemp;
-        }
-        notifyObserverThermoDataChanged();
     }
 
     private double highestTemp = 0.0;
 
     public double getHighestTemp() { return highestTemp; }
 
-    public void resetHighestTemp() { highestTemp = 0.0; }
+    public void setHighestTemp(double highestTemp) {
+        this.highestTemp = highestTemp;
+    }
+
+    public void resetHighestTemp() {
+        highestTemp = curTemp;
+    }
 
     public ThermoDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
@@ -113,12 +115,14 @@ public class ThermoDevice extends BleDevice {
         if (msg.what == MSG_THERMODATA) {
             if (msg.obj != null) {
                 byte[] data = (byte[]) msg.obj;
-                setCurTemp(ByteUtil.getShort(data)/100.0);
-                /*curTemp = ByteUtil.getShort(data)/100.0;
-                if(updateHighestTemp && curTemp > highestTemp) {
-                    highestTemp = curTemp;
+                double temp = ByteUtil.getShort(data)/100.0;
+                setCurTemp(temp);
+
+                if(temp > highestTemp) {
+                    setHighestTemp(temp);
                 }
-                notifyObserverThermoDataChanged();*/
+
+                notifyObserverThermoDataChanged();
             }
         }
     }

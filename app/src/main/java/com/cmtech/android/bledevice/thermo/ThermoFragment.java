@@ -20,7 +20,8 @@ import com.cmtech.android.bledeviceapp.model.BleDeviceFragment;
 public class ThermoFragment extends BleDeviceFragment implements IThermoDataObserver{
 
 
-    private TextView tvThermoData;
+    private TextView tvThermoCurrentTemp;
+    private TextView tvThermoHightestTemp;
     private TextView tvThermoStatus;
     private Button btnThermoResetHighestTemp;
 
@@ -52,7 +53,8 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvThermoData = (TextView)view.findViewById(R.id.tv_thermo_data);
+        tvThermoCurrentTemp = view.findViewById(R.id.tv_thermo_currenttempvalue);
+        tvThermoHightestTemp = view.findViewById(R.id.tv_thermo_highesttempvalue);
         tvThermoStatus = view.findViewById(R.id.tv_thermo_status);
         btnThermoResetHighestTemp = view.findViewById(R.id.btn_thermo_resethighesttemp);
 
@@ -71,20 +73,31 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
 
     @Override
     public void updateThermoData() {
-        double temp = ((ThermoDevice)device).getHighestTemp();
+        double curTemp = ((ThermoDevice)device).getCurTemp();
+        double highestTemp = ((ThermoDevice)device).getHighestTemp();
 
-        if(temp < 34.00) {
-            tvThermoData.setText("<34.0");
+        if(curTemp < 34.00) {
+            tvThermoCurrentTemp.setText("<34.0");
         }
         else {
-            String str = String.format("%.2f", temp);
-            tvThermoData.setText(str);
+            String str = String.format("%.2f", curTemp);
+            tvThermoCurrentTemp.setText(str);
         }
-        if(temp < 37.0) {
+
+        if(highestTemp < 34.00) {
+            tvThermoHightestTemp.setText("<34.0");
+        }
+        else {
+            String str = String.format("%.2f", highestTemp);
+            tvThermoHightestTemp.setText(str);
+        }
+
+
+        if(highestTemp < 37.0) {
             tvThermoStatus.setText("正常");
-        } else if(temp < 38.0) {
+        } else if(highestTemp < 38.0) {
             tvThermoStatus.setText("低烧，请注意休息！");
-        } else if(temp < 38.5) {
+        } else if(highestTemp < 38.5) {
             tvThermoStatus.setText("体温异常，请注意降温！");
         } else {
             tvThermoStatus.setText("高烧，请及时就医！");
