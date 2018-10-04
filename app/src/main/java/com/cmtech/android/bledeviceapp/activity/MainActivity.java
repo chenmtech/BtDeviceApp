@@ -1,10 +1,13 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -24,8 +27,10 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
@@ -50,6 +55,10 @@ import java.util.List;
  *  Created by bme on 2018/2/19.
  */
 public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver {
+    private final static int RC_REGISTERDEVICE = 1;     // 登记设备返回码
+    private final static int RC_MODIFYDEVICE = 2;       // 修改设备返回码
+    private final static int RC_ENABLEBLUETOOTH = 3;           // 使能蓝牙
+
     // 已登记的设备列表
     private final List<BleDevice> registeredDeviceList = new ArrayList<>();
 
@@ -110,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_registerdevice:
-                        startScanDevice();
+                        registerNewDevice();
                         return true;
                     case R.id.nav_exit:
                         finish();
@@ -140,15 +149,36 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 更新主界面
         updateMainLayoutVisibility();
 
+        // 检查蓝牙权限，并使能蓝牙
+        checkBluetoothPermissionAndEnableBT();
+
         // 初始化设备
         initializeBleDevice();
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                // 同意获得所需权限
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    enableBluetooth();
+                } else {
+                    // 不同意获得蓝牙权限
+                    Toast.makeText(this, "没有蓝牙权限，程序无法运行", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                return;
+            }
+        }
+    }
+
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case 1:
+            case RC_REGISTERDEVICE:
                 // 登记设备返回
                 if(resultCode == RESULT_OK) {
                     String nickName = data.getStringExtra("device_nickname");
@@ -171,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                     }
                 }
                 break;
-            case 2:
+            case RC_MODIFYDEVICE:
                 // 修改设备信息返回
                 if ( resultCode == RESULT_OK) {
                     String deviceNickname = data.getStringExtra("device_nickname");
@@ -196,6 +226,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                         basicInfo.save();
                         deviceListAdapter.notifyDataSetChanged();
                     }
+                }
+                break;
+            case RC_ENABLEBLUETOOTH:
+                if (resultCode == RESULT_OK) {
+                    enableBluetooth();
+                } else if (resultCode == RESULT_CANCELED) { // 不同意
+                    Toast.makeText(this, "蓝牙未打开，程序无法运行", Toast.LENGTH_SHORT).show();
+                    finish();
                 }
                 break;
         }
@@ -350,7 +388,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         intent.putExtra("device_imagepath", device.getImagePath());
         intent.putExtra("device_isautoconnect", device.autoConnect());
 
-        startActivityForResult(intent, 2);
+        startActivityForResult(intent, RC_MODIFYDEVICE);
     }
 
 
@@ -422,6 +460,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         return deviceMacList;
     }
 
+    // 登记新设备
+    private void registerNewDevice() {
+        startScanDevice();
+    }
+
     // 开始扫描设备
     private void startScanDevice() {
         List<String> deviceMacList = getRegisteredDeviceMacAddressList();
@@ -433,7 +476,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
         intent.putExtra("device_list", (Serializable) registeredDeviceMacList);
 
-        startActivityForResult(intent, 1);
+        startActivityForResult(intent, RC_REGISTERDEVICE);
+
     }
 
     // 从deviceControllerList中寻找Fragment对应的控制器
@@ -521,5 +565,29 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             toolbar.setTitleTextColor(Color.RED);
         else
             toolbar.setTitleTextColor(Color.GRAY);*/
+    }
+
+    /**
+     * 检查蓝牙权限,并使能蓝牙
+     */
+    private void checkBluetoothPermissionAndEnableBT() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //校验是否已具有模糊定位权限
+            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+            }
+            else{
+                enableBluetooth();
+            }
+        } else {
+            enableBluetooth();
+        }
+    }
+
+    // 使能蓝牙
+    private void enableBluetooth() {
+        if (!BleUtil.isBleEnable(this)) {
+            BleUtil.enableBluetooth(this, RC_ENABLEBLUETOOTH);
+        }
     }
 }

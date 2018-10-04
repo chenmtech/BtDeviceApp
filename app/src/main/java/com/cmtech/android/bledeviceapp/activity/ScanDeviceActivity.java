@@ -38,11 +38,11 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
     // 用于实现扫描设备的显示
     private ScanDeviceAdapter scanDeviceAdapter;
-    private RecyclerView rvScanedDevices;
-    private List<BluetoothLeDevice> scanedDeviceList = new ArrayList<>();
+    private RecyclerView rvScanDevice;
+    private List<BluetoothLeDevice> foundDeviceList = new ArrayList<>();
 
-    // 当前已经登记过的设备列表
-    private List<String> deviceMacList = new ArrayList<>();
+    // 已经登记过的设备Mac地址列表
+    private List<String> registeredDeviceMacList = new ArrayList<>();
 
     private Button btnCancel;
     private Button btnOk;
@@ -52,21 +52,21 @@ public class ScanDeviceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_device);
 
-        // 获取已配置过的设备Mac列表
-        deviceMacList =  (ArrayList<String>) getIntent()
+        // 获取已登记过的设备Mac列表
+        registeredDeviceMacList =  (ArrayList<String>) getIntent()
                 .getSerializableExtra("device_list");
 
 
-        rvScanedDevices = (RecyclerView)findViewById(R.id.rvScanedDevices);
+        rvScanDevice = findViewById(R.id.rvScanDevice);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        rvScanedDevices.setLayoutManager(layoutManager);
-        rvScanedDevices.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        scanDeviceAdapter = new ScanDeviceAdapter(scanedDeviceList);
-        rvScanedDevices.setAdapter(scanDeviceAdapter);
+        rvScanDevice.setLayoutManager(layoutManager);
+        rvScanDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        scanDeviceAdapter = new ScanDeviceAdapter(foundDeviceList);
+        rvScanDevice.setAdapter(scanDeviceAdapter);
 
 
-        btnCancel = (Button)findViewById(R.id.device_register_cancel_btn);
-        btnOk = (Button)findViewById(R.id.device_register_ok_btn);
+        btnCancel = findViewById(R.id.device_register_cancel_btn);
+        btnOk = findViewById(R.id.device_register_ok_btn);
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,10 +80,12 @@ public class ScanDeviceActivity extends AppCompatActivity {
             public void onClick(View view) {
                 int which = scanDeviceAdapter.getSelectItem();
                 if(which != -1) {
-                    if(hasConfigured(scanedDeviceList.get(which))) {
-                        Toast.makeText(ScanDeviceActivity.this, "此设备之前已配置！", Toast.LENGTH_LONG).show();
+                    BluetoothLeDevice device = foundDeviceList.get(which);
+
+                    if(hasRegistered(device)) {
+                        Toast.makeText(ScanDeviceActivity.this, "此设备之前已登记！", Toast.LENGTH_LONG).show();
                     } else {
-                        addToRegisteredDevices(scanDeviceAdapter.getSelectItem());
+                        addDevice(device);
                     }
                 }
             }
@@ -91,8 +93,17 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
     }
 
-    private boolean hasConfigured(BluetoothLeDevice device) {
-        for(String ele : deviceMacList) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Log.d(TAG, "start to scan now.");
+        viseBle.startScan(new DevNameFilterScanCallback(new ScanDeviceCallback(this)).setDeviceName(DEFAULT_DEVICE_NAME));
+    }
+
+    // 此设备是否已经登记过
+    private boolean hasRegistered(BluetoothLeDevice device) {
+        for(String ele : registeredDeviceMacList) {
             if(ele.equalsIgnoreCase(device.getAddress())) {
                 return true;
             }
@@ -100,15 +111,14 @@ public class ScanDeviceActivity extends AppCompatActivity {
         return false;
     }
 
-    private void addToRegisteredDevices(final int which) {
-        String macAddress = scanedDeviceList.get(which).getAddress();
+    private void addDevice(final BluetoothLeDevice device) {
+        String macAddress = device.getAddress();
 
         // 获取设备广播数据中的UUID的短串
-        AdRecord record = scanedDeviceList.get(which)
-                .getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
+        AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(record == null) return;
+
         String uuidShortString = Uuid.longToShortString(Uuid.byteArrayToUuid(record.getData()).toString());
-        Log.v(TAG, uuidShortString);
 
         Intent intent = new Intent(ScanDeviceActivity.this, DeviceBasicInfoActivity.class);
         intent.putExtra("device_nickname", "");
@@ -117,92 +127,35 @@ public class ScanDeviceActivity extends AppCompatActivity {
         intent.putExtra("device_imagepath", "");
         intent.putExtra("device_isautoconnect", false);
 
-        startActivityForResult(intent, 2);
+        startActivityForResult(intent, 1);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // 检测权限，并使能蓝牙
-        checkBluetoothPermission();
 
-        Log.d(TAG, "start to scan now.");
-        viseBle.startScan(new DevNameFilterScanCallback(new ScanDeviceCallback(this)).setDeviceName(DEFAULT_DEVICE_NAME));
-    }
 
     // 将扫描到的一个设备添加到扫描设备列表中
     public boolean addToScanedDevice(BluetoothLeDevice device) {
         if(device == null) return false;
 
         boolean canAdd = true;
-        for(BluetoothLeDevice dv : scanedDeviceList) {
+        for(BluetoothLeDevice dv : foundDeviceList) {
             if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
                 canAdd = false;
                 break;
             }
         }
         if(canAdd) {
-            scanedDeviceList.add(device);
-            scanDeviceAdapter.notifyItemInserted(scanedDeviceList.size()-1);
-            rvScanedDevices.scrollToPosition(scanedDeviceList.size()-1);
+            foundDeviceList.add(device);
+            scanDeviceAdapter.notifyItemInserted(foundDeviceList.size()-1);
+            rvScanDevice.scrollToPosition(foundDeviceList.size()-1);
         }
         return canAdd;
-    }
-
-    /**
-     * 检查蓝牙权限
-     */
-    private void checkBluetoothPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            //校验是否已具有模糊定位权限
-            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-            }
-            else{
-                enableBluetooth();
-            }
-        } else {
-            enableBluetooth();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                // 同意获得所需权限
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    enableBluetooth();
-                } else {
-                    // 不同意获得权限
-                    Toast.makeText(this, "没有蓝牙权限，程序无法运行", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                return;
-            }
-        }
-    }
-
-    private void enableBluetooth() {
-        if (!BleUtil.isBleEnable(this)) {
-            BleUtil.enableBluetooth(this, 1);
-        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            // 请求蓝牙结果
-            case 1:
-                if (resultCode == RESULT_OK) {
-                    enableBluetooth();
-                } else if (resultCode == RESULT_CANCELED) { // 不同意
-                    Toast.makeText(this, "蓝牙未打开，程序无法运行", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                break;
             // 配置设备信息结果
-            case 2:
+            case 1:
                 if ( resultCode == RESULT_OK) {
                     /*String deviceNickname = data.getStringExtra("device_nickname");
                     String macAddress = data.getStringExtra("device_macaddress");
