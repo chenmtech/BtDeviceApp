@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.thermo;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -191,7 +193,12 @@ public class ThermoDevice extends BleDevice {
     public void notifyObserverThermoDataChanged() {
         for(final IThermoDataObserver observer : thermoDataObserverList) {
             if(observer != null) {
-                observer.updateThermoData();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        observer.updateThermoData();
+                    }
+                });
             }
         }
     }
