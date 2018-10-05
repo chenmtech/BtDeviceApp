@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private FragmentAndTabLayoutManager fragmentManager;
 
     private MenuItem menuConnect;
+    private MenuItem menuConfigure;
     private MenuItem menuClose;
 
     private Toolbar toolbar;
@@ -243,6 +244,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
         menuConnect = menu.findItem(R.id.toolbar_connectswitch);
+        menuConfigure = menu.findItem(R.id.toolbar_configure);
         menuClose = menu.findItem(R.id.toolbar_close);
         return true;
     }
@@ -257,8 +259,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
             case R.id.toolbar_connectswitch:
                 fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
-                if(fragment != null && fragment.getDevice() != null) {
-                        fragment.getDevice().switchState();
+                if(fragment != null) {
+                    fragment.switchState();
+                }
+                break;
+
+            case R.id.toolbar_configure:
+                fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
+                if(fragment != null) {
+                    fragment.configureDevice();
                 }
                 break;
 
@@ -405,10 +414,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             setTitle("物联网蓝牙终端App");
             toolbar.setLogo(null);
             if(menuConnect != null) menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
+            if(menuConfigure != null) menuConfigure.setEnabled(false);
 
         } else {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
             mMainLayout.setVisibility(View.VISIBLE);
+            if(menuConfigure != null) menuConfigure.setEnabled(true);
         }
     }
 

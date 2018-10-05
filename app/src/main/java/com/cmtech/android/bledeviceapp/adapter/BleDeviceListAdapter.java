@@ -96,7 +96,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
                 view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                        MenuItem config = menu.add(Menu.NONE, 1, 0, "修改");
+                        MenuItem config = menu.add(Menu.NONE, 1, 0, "修改基本信息");
                         MenuItem delete = menu.add(Menu.NONE, 2, 0, "删除");
                         config.setOnMenuItemClickListener(listener);            //响应点击事件
                         delete.setOnMenuItemClickListener(listener);

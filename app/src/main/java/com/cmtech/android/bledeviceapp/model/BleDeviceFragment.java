@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -22,15 +23,6 @@ public abstract class BleDeviceFragment extends Fragment{
 
     // 对应的设备接口
     protected BleDevice device;
-
-    // 设备连接状态tv
-    //protected TextView tvConnectState;
-
-    // 切换设备连接状态开关
-    //protected ImageButton btnSwitchConnectState;
-
-    // 关闭设备开关
-    //protected ImageButton btnClose;
 
     public BleDeviceFragment() {
 
@@ -127,6 +119,12 @@ public abstract class BleDeviceFragment extends Fragment{
     // 切换设备状态
     public void switchState() {
         controller.switchState();
+    }
+
+    // 配置设备
+    public void configureDevice() {
+        controller.configureDevice();
+        Toast.makeText(activity, "配置设备", Toast.LENGTH_LONG).show();
     }
 
     // 更新设备连接状态

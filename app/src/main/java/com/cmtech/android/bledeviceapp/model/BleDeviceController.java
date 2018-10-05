@@ -40,6 +40,13 @@ public class BleDeviceController {
         device.switchState();
     }
 
+    public void configureDevice() {
+        // device.getConfigureParameters();
+        // openConfigureActivity();
+        // device.setConfigureParameters();
+
+    }
+
     public BleDevice getDevice() {
         return device;
     }
