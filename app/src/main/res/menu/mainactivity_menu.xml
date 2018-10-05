@@ -11,8 +11,8 @@
     <item
         android:id="@+id/toolbar_close"
         android:icon="@mipmap/ic_close_24px"
-        android:title="关闭"
         android:orderInCategory="1"
-        app:showAsAction="ifRoom" />
+        android:title="关闭"
+        app:showAsAction="never" />
 
 </menu>

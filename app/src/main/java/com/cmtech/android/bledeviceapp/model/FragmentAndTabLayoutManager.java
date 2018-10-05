@@ -135,12 +135,6 @@ public class FragmentAndTabLayoutManager {
         int index = fragManager.fragments.indexOf(fragment);
         fragManager.removeFragment(fragment);
         tabLayout.removeTab(tabLayout.getTabAt(index));
-
-        // 回到第一个Fragment
-        /*int size = fragManager.size();
-        if(size > 0) {
-            tabLayout.getTabAt(0).select();
-        }*/
     }
 
     // 显示Fragment
