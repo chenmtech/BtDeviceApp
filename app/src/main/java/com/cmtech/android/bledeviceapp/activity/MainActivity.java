@@ -293,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             finish();
     }
 
-    // IBLEDeviceStateObserver接口函数，更新设备状态
+    // IBleDeviceStateObserver接口函数，更新设备状态
     @Override
     public void updateDeviceState(BleDevice device) {
         // 更新设备列表
@@ -404,6 +404,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             toolbar.setTitleTextColor(Color.BLACK);
             setTitle("物联网蓝牙终端App");
             toolbar.setLogo(null);
+            if(menuConnect != null) menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
 
         } else {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
@@ -532,13 +533,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(device.canDisconnect()) {
             menuConnect.setEnabled(true);
             menuConnect.setTitle("断开");
+            menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connect_24px));
         }
         else if(device.canConnect()) {
             menuConnect.setEnabled(true);
             menuConnect.setTitle("连接");
+            menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_disconnect_24px));
         }
         else {
             menuConnect.setEnabled(false);
+            menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
         }
 
         // 更新工具条关闭菜单
