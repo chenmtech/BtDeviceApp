@@ -12,6 +12,7 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.util.Uuid;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ import java.util.List;
 
 public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.ViewHolder> {
     private List<BluetoothLeDevice> mDeviceList;
+    private List<Boolean> mDeviceStatus;
 
     private int selectItem = -1;
 
@@ -31,6 +33,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         TextView deviceName;
         TextView deviceAddress;
         TextView deviceSupportedUUID;
+        TextView deviceStatus;
 
 
         public ViewHolder(View itemView) {
@@ -39,11 +42,13 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
             deviceName = deviceView.findViewById(R.id.scaned_device_name);
             deviceAddress = deviceView.findViewById(R.id.scaned_device_address);
             deviceSupportedUUID = deviceView.findViewById(R.id.scaned_device_supporteduuid);
+            deviceStatus = deviceView.findViewById(R.id.scaned_device_status);
         }
     }
 
-    public ScanDeviceAdapter(List<BluetoothLeDevice> deviceList) {
+    public ScanDeviceAdapter(List<BluetoothLeDevice> deviceList, List<Boolean> deviceStatus) {
         mDeviceList = deviceList;
+        mDeviceStatus = deviceStatus;
     }
 
 
@@ -68,12 +73,19 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
 
     @Override
     public void onBindViewHolder(ScanDeviceAdapter.ViewHolder holder, final int position) {
-        BluetoothLeDevice device = (BluetoothLeDevice)mDeviceList.get(position);
+        BluetoothLeDevice device = mDeviceList.get(position);
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
-        String supportedUUID = HexUtil.encodeHexStr(recordUUID.getData());
+        String supportedUUID = Uuid.longToShortString(Uuid.byteArrayToUuid(recordUUID.getData()).toString());
+        //String supportedUUID = Uuid.longToShortString(HexUtil.encodeHexStr(recordUUID.getData()));
         holder.deviceName.setText("设备名："+device.getName());
         holder.deviceAddress.setText("蓝牙地址："+device.getAddress());
         holder.deviceSupportedUUID.setText("支持的UUID："+supportedUUID);
+
+        Boolean status = mDeviceStatus.get(position);
+        if(status)
+            holder.deviceStatus.setText("已登记");
+        else
+            holder.deviceStatus.setText("未登记");
 
         if(selectItem == position) {
             holder.deviceView.setBackgroundColor(Color.BLUE);

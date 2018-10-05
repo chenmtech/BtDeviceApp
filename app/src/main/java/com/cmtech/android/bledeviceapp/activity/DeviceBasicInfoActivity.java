@@ -51,7 +51,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
     private String macAddress = "";
     private String deviceUuid = "";
     private String imagePath = "";
-    private boolean isAutoconnect = false;
+    private boolean isAutoconnect = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,15 +64,15 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             macAddress = intent.getStringExtra("device_macaddress");
             deviceUuid = intent.getStringExtra("device_uuid");
             imagePath = intent.getStringExtra("device_imagepath");
-            isAutoconnect = intent.getBooleanExtra("device_isautoconnect", false);
+            isAutoconnect = intent.getBooleanExtra("device_isautoconnect", true);
         }
 
         setTitle("设备:"+macAddress);
 
-        etName = (EditText)findViewById(R.id.cfg_device_nickname);
+        etName = findViewById(R.id.cfg_device_nickname);
         etName.setText("".equals(deviceNickname) ? BleDeviceType.fromUuid(deviceUuid).getName() : deviceNickname);
 
-        ivImage = (ImageView)findViewById(R.id.cfg_device_image);
+        ivImage = findViewById(R.id.cfg_device_image);
 
         if(imagePath != null && !"".equals(imagePath)) {
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
@@ -94,11 +94,11 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             }
         });
 
-        cbIsAutoconnect = (CheckBox) findViewById(R.id.cfg_device_isautoconnect);
+        cbIsAutoconnect = findViewById(R.id.cfg_device_isautoconnect);
         cbIsAutoconnect.setChecked(isAutoconnect);
 
-        btnCancel = (Button)findViewById(R.id.register_device_cancel_btn);
-        btnOk = (Button)findViewById(R.id.register_device_ok_btn);
+        btnCancel = findViewById(R.id.register_device_cancel_btn);
+        btnOk = findViewById(R.id.register_device_ok_btn);
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override

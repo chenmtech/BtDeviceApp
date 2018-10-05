@@ -19,7 +19,7 @@ public class ScanDeviceCallback implements IScanCallback {
     @Override
     public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
         if(activity != null && bluetoothLeDevice != null) {
-            activity.addToScanedDevice(bluetoothLeDevice);
+            activity.addOneNewDeviceToFoundDeviceList(bluetoothLeDevice);
         }
     }
 

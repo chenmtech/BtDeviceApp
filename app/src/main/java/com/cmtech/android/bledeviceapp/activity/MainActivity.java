@@ -474,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 启动扫描设备Activity
     private void startScanActivity(List<String> registeredDeviceMacList) {
         Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
-        intent.putExtra("device_list", (Serializable) registeredDeviceMacList);
+        intent.putExtra("registered_device_list", (Serializable) registeredDeviceMacList);
 
         startActivityForResult(intent, RC_REGISTERDEVICE);
 
