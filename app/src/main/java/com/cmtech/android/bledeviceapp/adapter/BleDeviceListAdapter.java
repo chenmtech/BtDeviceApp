@@ -43,10 +43,10 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         public ViewHolder(View itemView) {
             super(itemView);
             deviceView = itemView;
-            deviceImage = deviceView.findViewById(R.id.configured_device_image);
-            deviceName = deviceView.findViewById(R.id.configured_device_nickname);
-            deviceAddress = deviceView.findViewById(R.id.configured_device_address);
-            deviceStatus = deviceView.findViewById(R.id.configured_device_status);
+            deviceImage = deviceView.findViewById(R.id.registered_device_image);
+            deviceName = deviceView.findViewById(R.id.registered_device_nickname);
+            deviceAddress = deviceView.findViewById(R.id.registered_device_address);
+            deviceStatus = deviceView.findViewById(R.id.registered_device_status);
 
         }
     }
@@ -61,7 +61,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
     @Override
     public BleDeviceListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_configured_device, parent, false);
+                .inflate(R.layout.recycle_item_registered_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
 
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
@@ -111,7 +111,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
 
     @Override
     public void onBindViewHolder(BleDeviceListAdapter.ViewHolder holder, final int position) {
-        BleDevice device = (BleDevice)mDeviceList.get(position);
+        BleDevice device = mDeviceList.get(position);
 
         String imagePath = device.getImagePath();
         if(imagePath != null && !"".equals(imagePath)) {

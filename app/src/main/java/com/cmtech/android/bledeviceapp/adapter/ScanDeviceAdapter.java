@@ -76,7 +76,6 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         BluetoothLeDevice device = mDeviceList.get(position);
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         String supportedUUID = Uuid.longToShortString(Uuid.byteArrayToUuid(recordUUID.getData()).toString());
-        //String supportedUUID = Uuid.longToShortString(HexUtil.encodeHexStr(recordUUID.getData()));
         holder.deviceName.setText("设备名："+device.getName());
         holder.deviceAddress.setText("蓝牙地址："+device.getAddress());
         holder.deviceSupportedUUID.setText("支持的UUID："+supportedUUID);

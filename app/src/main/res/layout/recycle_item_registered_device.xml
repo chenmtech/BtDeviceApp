@@ -5,7 +5,7 @@
     android:layout_height="80dp">
 
     <ImageView
-        android:id="@+id/configured_device_image"
+        android:id="@+id/registered_device_image"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -16,24 +16,28 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"
+        android:layout_gravity="center_vertical"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/configured_device_nickname"
+            android:id="@+id/registered_device_nickname"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:textSize="20sp" />
+            android:gravity="center_vertical|right"/>
         <TextView
-            android:id="@+id/configured_device_address"
+            android:id="@+id/registered_device_address"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical|right"/>
 
         <TextView
-            android:id="@+id/configured_device_status"
+            android:id="@+id/registered_device_status"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical|right"/>
     </LinearLayout>
 
 
