@@ -11,6 +11,9 @@ public class BleDeviceController {
     private final BleDeviceFragment fragment;
 
 
+    protected Class configureActivityClass;
+
+
     public BleDeviceController(BleDevice device) {
         if(device == null) {
             throw new IllegalStateException();
@@ -40,12 +43,7 @@ public class BleDeviceController {
         device.switchState();
     }
 
-    public void configureDevice() {
-        // device.getConfigureParameters();
-        // openConfigureActivity();
-        // device.setConfigureParameters();
 
-    }
 
     public BleDevice getDevice() {
         return device;
@@ -53,6 +51,10 @@ public class BleDeviceController {
 
     public BleDeviceFragment getFragment() {
         return fragment;
+    }
+
+    public Class getConfigureActivityClass() {
+        return configureActivityClass;
     }
 
     private BleDeviceFragment createFragment(BleDevice device) {

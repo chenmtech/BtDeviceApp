@@ -69,21 +69,21 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((EcgMonitorDeviceController)controller).switchSampleState();
+                ((EcgMonitorController)controller).switchSampleState();
             }
         });
 
         cbEcgRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorDeviceController)controller).setEcgRecord(b);
+                ((EcgMonitorController)controller).setEcgRecord(b);
             }
         });
 
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorDeviceController)controller).setEcgFilter(b);
+                ((EcgMonitorController)controller).setEcgFilter(b);
             }
         });
     }

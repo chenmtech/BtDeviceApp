@@ -14,7 +14,7 @@ public class EcgMonitorDeviceFactory extends BleDeviceAbstractFactory {
 
     @Override
     public BleDeviceController createController(BleDevice device) {
-        return new EcgMonitorDeviceController(device);
+        return new EcgMonitorController(device);
     }
 
     @Override

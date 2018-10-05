@@ -29,6 +29,13 @@
         <activity android:name=".activity.DeviceBasicInfoActivity"
             android:theme="@style/Theme.AppCompat.Light.Dialog"
             android:label="设置设备信息"></activity>
+
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConfigureActivity"/>
+
+        <activity android:name="com.cmtech.android.bledevice.temphumid.TempHumidConfigureActivity"/>
+
+        <activity android:name="com.cmtech.android.bledevice.thermo.ThermoConfigureActivity"/>
+
     </application>
 
 </manifest>

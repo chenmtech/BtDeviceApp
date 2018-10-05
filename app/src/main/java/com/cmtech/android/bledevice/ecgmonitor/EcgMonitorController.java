@@ -1,16 +1,18 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
+import com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledeviceapp.model.BleDeviceController;
 
-public class EcgMonitorDeviceController extends BleDeviceController {
+public class EcgMonitorController extends BleDeviceController {
     private final EcgMonitorDevice device;
     private final EcgMonitorFragment fragment;
 
-    public EcgMonitorDeviceController(BleDevice device) {
+    public EcgMonitorController(BleDevice device) {
         super(device);
         this.device = (EcgMonitorDevice) device;
         this.fragment = (EcgMonitorFragment) getFragment();
+        configureActivityClass = EcgMonitorConfigureActivity.class;
     }
 
     // 转换采样状态

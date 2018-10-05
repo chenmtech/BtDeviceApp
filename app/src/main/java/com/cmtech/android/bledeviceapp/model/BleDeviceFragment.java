@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -123,8 +124,14 @@ public abstract class BleDeviceFragment extends Fragment{
 
     // 配置设备
     public void configureDevice() {
-        controller.configureDevice();
-        Toast.makeText(activity, "配置设备", Toast.LENGTH_LONG).show();
+        Class configureActivityClass = controller.getConfigureActivityClass();
+        if(configureActivityClass != null) {
+            Intent intent = new Intent(activity, configureActivityClass);
+            startActivity(intent);
+        }
+        // device.getConfigureParameters();
+        // openConfigureActivity();
+        // device.setConfigureParameters();
     }
 
     // 更新设备连接状态

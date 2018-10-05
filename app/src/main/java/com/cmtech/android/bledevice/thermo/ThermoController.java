@@ -5,6 +5,9 @@ import com.cmtech.android.bledeviceapp.model.BleDeviceController;
 
 public class ThermoController extends BleDeviceController {
     public ThermoController(BleDevice device) {
+
         super(device);
+
+        configureActivityClass = ThermoConfigureActivity.class;
     }
 }
