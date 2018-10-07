@@ -55,9 +55,10 @@ import java.util.List;
  *  Created by bme on 2018/2/19.
  */
 public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver {
-    private final static int RC_REGISTERDEVICE = 1;     // 登记设备返回码
-    private final static int RC_MODIFYDEVICE = 2;       // 修改设备返回码
-    private final static int RC_ENABLEBLUETOOTH = 3;           // 使能蓝牙
+    private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
+    private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
+    private final static int REQUESTCODE_ENABLEBLUETOOTH = 3;    // 使能蓝牙
+    private final static int REQUESTCODE_CONFIGUREDEVICE = 4;    // 配置设备返回码
 
     // 已登记的设备列表
     private final List<BleDevice> registeredDeviceList = new ArrayList<>();
@@ -179,7 +180,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case RC_REGISTERDEVICE:
+            case REQUESTCODE_REGISTERDEVICE:
                 // 登记设备返回
                 if(resultCode == RESULT_OK) {
                     String nickName = data.getStringExtra("device_nickname");
@@ -202,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                     }
                 }
                 break;
-            case RC_MODIFYDEVICE:
+            case REQUESTCODE_MODIFYDEVICE:
                 // 修改设备信息返回
                 if ( resultCode == RESULT_OK) {
                     String deviceNickname = data.getStringExtra("device_nickname");
@@ -229,13 +230,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                     }
                 }
                 break;
-            case RC_ENABLEBLUETOOTH:
+            case REQUESTCODE_ENABLEBLUETOOTH:
                 if (resultCode == RESULT_OK) {
                     enableBluetooth();
                 } else if (resultCode == RESULT_CANCELED) { // 不同意
                     Toast.makeText(this, "蓝牙未打开，程序无法运行", Toast.LENGTH_SHORT).show();
                     finish();
                 }
+                break;
+
+            case REQUESTCODE_CONFIGUREDEVICE:
                 break;
         }
     }
@@ -267,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             case R.id.toolbar_configure:
                 fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
                 if(fragment != null) {
-                    fragment.configureDevice();
+                    configureDevice(fragment.getDevice());
                 }
                 break;
 
@@ -397,11 +401,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         intent.putExtra("device_imagepath", device.getImagePath());
         intent.putExtra("device_isautoconnect", device.autoConnect());
 
-        startActivityForResult(intent, RC_MODIFYDEVICE);
+        startActivityForResult(intent, REQUESTCODE_MODIFYDEVICE);
     }
 
-
-
+    // 配置设备
+    public void configureDevice(final BleDevice device) {
+        if(device == null || getController(device) == null) return;
+        getController(device).configureDevice(this, REQUESTCODE_CONFIGUREDEVICE);
+    }
 
 
     // 更新主Layout的可视性
@@ -488,7 +495,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
         intent.putExtra("registered_device_list", (Serializable) registeredDeviceMacList);
 
-        startActivityForResult(intent, RC_REGISTERDEVICE);
+        startActivityForResult(intent, REQUESTCODE_REGISTERDEVICE);
 
     }
 
@@ -602,7 +609,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 使能蓝牙
     private void enableBluetooth() {
         if (!BleUtil.isBleEnable(this)) {
-            BleUtil.enableBluetooth(this, RC_ENABLEBLUETOOTH);
+            BleUtil.enableBluetooth(this, REQUESTCODE_ENABLEBLUETOOTH);
         }
     }
 }

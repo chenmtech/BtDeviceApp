@@ -1,5 +1,10 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.interfa.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 
@@ -43,7 +48,17 @@ public class BleDeviceController {
         device.switchState();
     }
 
-
+    // 配置设备
+    public void configureDevice(Activity activity, int requestCode) {
+        if(configureActivityClass != null) {
+            Intent intent = new Intent(activity, configureActivityClass);
+            device.pushConfigurationIntoIntent(intent);
+            activity.startActivityForResult(intent, requestCode);
+        }
+        // device.getConfigureParameters();
+        // openConfigureActivity();
+        // device.setConfigureParameters();
+    }
 
     public BleDevice getDevice() {
         return device;
@@ -51,10 +66,6 @@ public class BleDeviceController {
 
     public BleDeviceFragment getFragment() {
         return fragment;
-    }
-
-    public Class getConfigureActivityClass() {
-        return configureActivityClass;
     }
 
     private BleDeviceFragment createFragment(BleDevice device) {

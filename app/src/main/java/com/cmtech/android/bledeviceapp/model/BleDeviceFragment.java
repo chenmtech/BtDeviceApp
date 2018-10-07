@@ -123,15 +123,10 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     // 配置设备
-    public void configureDevice() {
-        Class configureActivityClass = controller.getConfigureActivityClass();
-        if(configureActivityClass != null) {
-            Intent intent = new Intent(activity, configureActivityClass);
-            startActivity(intent);
+    public void configureDevice(int requestCode) {
+        if(controller != null) {
+            controller.configureDevice(activity, requestCode);
         }
-        // device.getConfigureParameters();
-        // openConfigureActivity();
-        // device.setConfigureParameters();
     }
 
     // 更新设备连接状态
