@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.thermo;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -129,7 +130,10 @@ public class ThermoDevice extends BleDevice {
         }
     }
 
-
+    @Override
+    public Bundle bundleConfigure() {
+        return null;
+    }
 
     // 检测基本温湿度服务是否正常
     private boolean checkBasicThermoService() {

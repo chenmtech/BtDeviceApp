@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.temphumid;
 
+import android.os.Bundle;
 import android.os.Message;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -195,6 +196,11 @@ public class TempHumidDevice extends BleDevice {
                     break;
 
         }
+    }
+
+    @Override
+    public Bundle bundleConfigure() {
+        return null;
     }
 
     // 更新历史数据

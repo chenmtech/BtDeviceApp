@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.model;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.interfa.BleDeviceAbstractFactory;
@@ -52,7 +53,9 @@ public class BleDeviceController {
     public void configureDevice(Activity activity, int requestCode) {
         if(configureActivityClass != null) {
             Intent intent = new Intent(activity, configureActivityClass);
-            device.pushConfigurationIntoIntent(intent);
+            Bundle bundle = device.bundleConfigure();
+            intent.putExtras(bundle);
+            //device.pushConfigurationIntoIntent(intent);
             activity.startActivityForResult(intent, requestCode);
         }
         // device.getConfigureParameters();

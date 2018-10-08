@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -242,6 +243,11 @@ public class EcgMonitorDevice extends BleDevice {
             default:
                 break;
         }
+    }
+
+    @Override
+    public Bundle bundleConfigure() {
+        return null;
     }
 
     public synchronized void start() {

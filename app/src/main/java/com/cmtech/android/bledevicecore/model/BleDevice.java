@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevicecore.model;
 
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -23,6 +24,7 @@ import com.cmtech.android.bledevicecore.interfa.IBleDeviceStateObserver;
 import com.vise.log.ViseLog;
 
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,7 +32,7 @@ import java.util.List;
  * Created by bme on 2018/2/19.
  */
 
-public abstract class BleDevice {
+public abstract class BleDevice implements Serializable{
     // 设备镜像池
     private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
@@ -311,6 +313,8 @@ public abstract class BleDevice {
     // 处理Gatt回调消息函数
     public abstract void processGattCallbackMessage(Message msg);
 
+    // 打包配置信息
+    public abstract Bundle bundleConfigure();
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
