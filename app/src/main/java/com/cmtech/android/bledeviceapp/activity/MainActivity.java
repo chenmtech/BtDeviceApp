@@ -433,7 +433,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 从数据库中获取已登记的设备基本信息列表
     private void initializeBleDevice() {
         // 从数据库获取设备信息，并构造相应的BLEDevice
-        List<BleDeviceBasicInfo> basicInfoList = LitePal.findAll(BleDeviceBasicInfo.class);
+        //List<BleDeviceBasicInfo> basicInfoList = LitePal.findAll(BleDeviceBasicInfo.class);
+        List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
         if(basicInfoList != null && !basicInfoList.isEmpty()) {
             for(BleDeviceBasicInfo basicInfo : basicInfoList) {
                 createBleDeviceUsingBasicInfo(basicInfo);

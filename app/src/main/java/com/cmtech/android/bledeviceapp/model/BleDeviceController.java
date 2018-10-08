@@ -54,7 +54,8 @@ public class BleDeviceController {
         if(configureActivityClass != null) {
             Intent intent = new Intent(activity, configureActivityClass);
             Bundle bundle = device.bundleConfigure();
-            intent.putExtras(bundle);
+            if(bundle != null)
+                intent.putExtras(bundle);
             //device.pushConfigurationIntoIntent(intent);
             activity.startActivityForResult(intent, requestCode);
         }

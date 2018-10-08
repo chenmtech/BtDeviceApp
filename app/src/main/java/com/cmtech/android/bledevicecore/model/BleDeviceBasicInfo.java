@@ -1,17 +1,24 @@
 package com.cmtech.android.bledevicecore.model;
 
 
-import org.litepal.crud.LitePalSupport;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import com.cmtech.android.bledeviceapp.MyApplication;
+import com.vise.log.ViseLog;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  *  BleDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库中
  *  Created by bme on 2018/6/27.
  */
 
-public class BleDeviceBasicInfo extends LitePalSupport {
-    // 数据库保存的字段
-    // id
-    private int id;
+public class BleDeviceBasicInfo {
+    private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
     // mac地址
     private String macAddress;
@@ -25,7 +32,7 @@ public class BleDeviceBasicInfo extends LitePalSupport {
     // 是否自动连接
     private boolean autoConnect;
 
-    // 图标
+    // 图标路径
     private String imagePath;
 
     public BleDeviceBasicInfo() {
@@ -33,21 +40,11 @@ public class BleDeviceBasicInfo extends LitePalSupport {
     }
 
     public BleDeviceBasicInfo(BleDeviceBasicInfo basicInfo) {
-        id = basicInfo.id;
         macAddress = basicInfo.macAddress;
         nickName = basicInfo.nickName;
         uuidString = basicInfo.uuidString;
         autoConnect = basicInfo.autoConnect;
         imagePath = basicInfo.imagePath;
-    }
-
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getMacAddress() {
@@ -88,5 +85,80 @@ public class BleDeviceBasicInfo extends LitePalSupport {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public boolean save() {
+        if(macAddress == null || macAddress == "") return false;
+
+        SharedPreferences.Editor editor = pref.edit();
+
+        Set<String> addressSet = new HashSet<>();
+        addressSet = pref.getStringSet("addressSet", addressSet);
+        if(addressSet.isEmpty() || !addressSet.contains(macAddress)) {
+            addressSet.add(macAddress);
+            editor.putStringSet("addressSet", addressSet);
+        }
+
+        editor.putString(macAddress+"_macAddress", macAddress);
+        editor.putString(macAddress+"_nickName", nickName);
+        editor.putString(macAddress+"_uuidString", uuidString);
+        editor.putBoolean(macAddress+"_autoConnect", autoConnect);
+        editor.putString(macAddress+"_imagePath", imagePath);
+
+        ViseLog.i("save the basic info.");
+
+        return editor.commit();
+    }
+
+    public boolean delete() {
+        if(macAddress == null || macAddress == "") return false;
+
+        SharedPreferences.Editor editor = pref.edit();
+
+        Set<String> addressSet = new HashSet<>();
+        addressSet = pref.getStringSet("addressSet", addressSet);
+        if(addressSet.contains(macAddress)) {
+            addressSet.remove(macAddress);
+            editor.putStringSet("addressSet", addressSet);
+        }
+
+        editor.remove(macAddress+"_macAddress");
+        editor.remove(macAddress+"_nickName");
+        editor.remove(macAddress+"_uuidString");
+        editor.remove(macAddress+"_autoConnect");
+        editor.remove(macAddress+"_imagePath");
+        return editor.commit();
+    }
+
+    public static BleDeviceBasicInfo createFromPreference(String macAddress) {
+        if(macAddress == null || macAddress == "") return null;
+
+        String address = pref.getString(macAddress+"_macAddress", "");
+        if("".equals(address)) return null;
+
+        BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo();
+        basicInfo.setMacAddress(address);
+        basicInfo.setNickName(pref.getString(macAddress+"_nickName", ""));
+        basicInfo.setUuidString(pref.getString(macAddress+"_uuidString", ""));
+        basicInfo.setAutoConnect(pref.getBoolean(macAddress+"_autoConnect", false));
+        basicInfo.setImagePath(pref.getString(macAddress+"_imagePath", ""));
+        return basicInfo;
+    }
+
+    public static List<BleDeviceBasicInfo> findAllFromPreference() {
+        Set<String> addressSet = new HashSet<>();
+        addressSet = pref.getStringSet("addressSet", addressSet);
+        if(addressSet.isEmpty()) {
+            ViseLog.i("addressSet is empty.");
+            return null;
+        }
+
+        List<BleDeviceBasicInfo> infoList = new ArrayList<>();
+        for(String macAddress : addressSet) {
+            BleDeviceBasicInfo basicInfo = createFromPreference(macAddress);
+            if(basicInfo != null)
+                infoList.add(basicInfo);
+        }
+        return infoList;
     }
 }

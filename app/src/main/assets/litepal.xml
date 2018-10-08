@@ -6,7 +6,6 @@
     <version value="1"></version>
 
     <list>
-        <mapping class="com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo"></mapping>
         <mapping class="com.cmtech.android.bledevice.temphumid.TempHumidHistoryData"></mapping>
 
     </list>
