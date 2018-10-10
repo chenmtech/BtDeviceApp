@@ -69,7 +69,6 @@ public class ThermoDevice extends BleDevice {
 
     public ThermoDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
-        initializeAfterConstruction();
     }
 
     @Override
@@ -128,11 +127,6 @@ public class ThermoDevice extends BleDevice {
                 notifyObserverThermoDataChanged();
             }
         }
-    }
-
-    @Override
-    public Bundle bundleConfigure() {
-        return null;
     }
 
     // 检测基本温湿度服务是否正常

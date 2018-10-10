@@ -114,6 +114,7 @@ public abstract class BleDevice implements Serializable{
     // 构造器
     public BleDevice(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
+        initializeAfterConstruction();
     }
 
     public String getMacAddress() {
@@ -314,11 +315,9 @@ public abstract class BleDevice implements Serializable{
     // 断开连接后执行的操作
     public abstract void executeAfterDisconnect();
 
-    // 处理Gatt回调消息函数
+    // 处理Gatt命令回调消息函数
     public abstract void processGattCallbackMessage(Message msg);
 
-    // 打包配置信息
-    public abstract Bundle bundleConfigure();
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////

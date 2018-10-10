@@ -245,11 +245,6 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    @Override
-    public Bundle bundleConfigure() {
-        return null;
-    }
-
     public synchronized void start() {
         state.start();
     }

@@ -117,7 +117,6 @@ public class TempHumidDevice extends BleDevice {
     // 构造器
     public TempHumidDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
-        initializeAfterConstruction();
     }
 
     @Override
@@ -196,11 +195,6 @@ public class TempHumidDevice extends BleDevice {
                     break;
 
         }
-    }
-
-    @Override
-    public Bundle bundleConfigure() {
-        return null;
     }
 
     // 更新历史数据
