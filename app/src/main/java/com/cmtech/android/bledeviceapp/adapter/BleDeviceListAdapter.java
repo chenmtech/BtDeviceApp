@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +19,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceType;
+import com.vise.log.ViseLog;
 
 import java.util.List;
 
@@ -32,6 +34,10 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
 
     // MainActivity
     MainActivity activity;
+
+    private int selectItem = 0;
+
+    Drawable defaultBackground;
 
     class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView;
@@ -63,12 +69,15 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_registered_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
+        defaultBackground = holder.deviceView.getBackground();
 
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 BleDevice device = mDeviceList.get(holder.getAdapterPosition());
                 activity.openDevice(device);
+                selectItem = holder.getAdapterPosition();
+                notifyDataSetChanged();
             }
         });
 
@@ -125,6 +134,11 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         holder.deviceAddress.setText(device.getMacAddress());
         holder.deviceStatus.setText(device.getStateDescription());
 
+        if(selectItem == position) {
+            holder.deviceView.setBackgroundColor(Color.parseColor("#00a0e9"));
+        } else {
+            holder.deviceView.setBackground(defaultBackground);
+        }
     }
 
     @Override

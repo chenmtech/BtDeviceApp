@@ -24,7 +24,8 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center_vertical|right"/>
+            android:gravity="center_vertical|right"
+            android:textColor="#000"/>
         <TextView
             android:id="@+id/registered_device_address"
             android:layout_width="match_parent"
