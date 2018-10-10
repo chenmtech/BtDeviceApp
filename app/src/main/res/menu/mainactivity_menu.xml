@@ -9,17 +9,10 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/toolbar_configure"
-        android:icon="@mipmap/ic_configure_24px"
-        android:orderInCategory="1"
-        android:title="配置"
-        app:showAsAction="never" />
-
-    <item
         android:id="@+id/toolbar_close"
         android:icon="@mipmap/ic_close_24px"
         android:orderInCategory="2"
         android:title="关闭"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
 
 </menu>

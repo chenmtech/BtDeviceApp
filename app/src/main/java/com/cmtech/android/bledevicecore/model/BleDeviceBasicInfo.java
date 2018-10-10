@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,34 +18,42 @@ import java.util.Set;
  *  Created by bme on 2018/6/27.
  */
 
-public class BleDeviceBasicInfo {
+public class BleDeviceBasicInfo implements Serializable{
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
     // mac地址
-    private String macAddress;
+    private String macAddress = "";
 
     // 设备昵称
-    private String nickName;
+    private String nickName = "";
 
     // 设备广播Uuid Short String
-    private String uuidString;
-
-    // 是否自动连接
-    private boolean autoConnect;
+    private String uuidString = "";
 
     // 图标路径
-    private String imagePath;
+    private String imagePath = "";
 
-    public BleDeviceBasicInfo() {
+    // 是否自动连接
+    private boolean autoConnect = true;
 
+    public BleDeviceBasicInfo(String macAddress, String nickName, String uuidString, String imagePath, boolean autoConnect) {
+        this.macAddress = macAddress;
+        this.nickName = nickName;
+        this.uuidString = uuidString;
+        this.imagePath = imagePath;
+        this.autoConnect = autoConnect;
     }
 
     public BleDeviceBasicInfo(BleDeviceBasicInfo basicInfo) {
         macAddress = basicInfo.macAddress;
         nickName = basicInfo.nickName;
         uuidString = basicInfo.uuidString;
-        autoConnect = basicInfo.autoConnect;
         imagePath = basicInfo.imagePath;
+        autoConnect = basicInfo.autoConnect;
+    }
+
+    public BleDeviceBasicInfo(BleDevice device) {
+        this(device.getBasicInfo());
     }
 
     public String getMacAddress() {
@@ -71,20 +80,20 @@ public class BleDeviceBasicInfo {
         this.uuidString = uuidString;
     }
 
-    public boolean autoConnect() {
-        return autoConnect;
-    }
-
-    public void setAutoConnect(boolean autoConnect) {
-        this.autoConnect = autoConnect;
-    }
-
     public String getImagePath() {
         return imagePath;
     }
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public boolean autoConnect() {
+        return autoConnect;
+    }
+
+    public void setAutoConnect(boolean autoConnect) {
+        this.autoConnect = autoConnect;
     }
 
     public boolean save() {
@@ -102,8 +111,8 @@ public class BleDeviceBasicInfo {
         editor.putString(macAddress+"_macAddress", macAddress);
         editor.putString(macAddress+"_nickName", nickName);
         editor.putString(macAddress+"_uuidString", uuidString);
-        editor.putBoolean(macAddress+"_autoConnect", autoConnect);
         editor.putString(macAddress+"_imagePath", imagePath);
+        editor.putBoolean(macAddress+"_autoConnect", autoConnect);
 
         ViseLog.i("save the basic info.");
 
@@ -125,8 +134,9 @@ public class BleDeviceBasicInfo {
         editor.remove(macAddress+"_macAddress");
         editor.remove(macAddress+"_nickName");
         editor.remove(macAddress+"_uuidString");
-        editor.remove(macAddress+"_autoConnect");
         editor.remove(macAddress+"_imagePath");
+        editor.remove(macAddress+"_autoConnect");
+
         return editor.commit();
     }
 
@@ -135,14 +145,11 @@ public class BleDeviceBasicInfo {
 
         String address = pref.getString(macAddress+"_macAddress", "");
         if("".equals(address)) return null;
-
-        BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo();
-        basicInfo.setMacAddress(address);
-        basicInfo.setNickName(pref.getString(macAddress+"_nickName", ""));
-        basicInfo.setUuidString(pref.getString(macAddress+"_uuidString", ""));
-        basicInfo.setAutoConnect(pref.getBoolean(macAddress+"_autoConnect", false));
-        basicInfo.setImagePath(pref.getString(macAddress+"_imagePath", ""));
-        return basicInfo;
+        String nickName = pref.getString(macAddress+"_nickName", "");
+        String uuidString = pref.getString(macAddress+"_uuidString", "");
+        String imagePath = pref.getString(macAddress+"_imagePath", "");
+        boolean autoConnect = pref.getBoolean(macAddress+"_autoConnect", false);
+        return new BleDeviceBasicInfo(address, nickName, uuidString, imagePath, autoConnect);
     }
 
     public static List<BleDeviceBasicInfo> findAllFromPreference() {

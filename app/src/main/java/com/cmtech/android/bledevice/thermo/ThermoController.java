@@ -7,7 +7,5 @@ public class ThermoController extends BleDeviceController {
     public ThermoController(BleDevice device) {
 
         super(device);
-
-        configureActivityClass = ThermoConfigureActivity.class;
     }
 }

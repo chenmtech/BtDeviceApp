@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceType;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
@@ -47,11 +48,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
     private ImageView ivImage;
     private CheckBox cbIsAutoconnect;
 
-    private String deviceNickname = "CM1.0";
-    private String macAddress = "";
-    private String deviceUuid = "";
-    private String imagePath = "";
-    private boolean isAutoconnect = true;
+    private BleDeviceBasicInfo basicInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,25 +57,22 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent != null) {
-            deviceNickname = intent.getStringExtra("device_nickname");
-            macAddress = intent.getStringExtra("device_macaddress");
-            deviceUuid = intent.getStringExtra("device_uuid");
-            imagePath = intent.getStringExtra("device_imagepath");
-            isAutoconnect = intent.getBooleanExtra("device_isautoconnect", true);
+            basicInfo = (BleDeviceBasicInfo) intent.getSerializableExtra("devicebasicinfo");
         }
 
-        setTitle("设备:"+macAddress);
+        setTitle("设备:" + basicInfo.getMacAddress());
 
         etName = findViewById(R.id.cfg_device_nickname);
-        etName.setText("".equals(deviceNickname) ? BleDeviceType.fromUuid(deviceUuid).getName() : deviceNickname);
+        etName.setText("".equals(basicInfo.getNickName()) ? BleDeviceType.fromUuid(basicInfo.getUuidString()).getName() : basicInfo.getNickName());
 
         ivImage = findViewById(R.id.cfg_device_image);
 
+        String imagePath = basicInfo.getImagePath();
         if(imagePath != null && !"".equals(imagePath)) {
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             ivImage.setImageDrawable(drawable);
         } else {
-            Glide.with(this).load(BleDeviceType.fromUuid(deviceUuid).getImage()).into(ivImage);
+            Glide.with(this).load(BleDeviceType.fromUuid(basicInfo.getUuidString()).getImage()).into(ivImage);
         }
 
         ivImage.setOnClickListener(new View.OnClickListener() {
@@ -95,7 +89,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         });
 
         cbIsAutoconnect = findViewById(R.id.cfg_device_isautoconnect);
-        cbIsAutoconnect.setChecked(isAutoconnect);
+        cbIsAutoconnect.setChecked(basicInfo.autoConnect());
 
         btnCancel = findViewById(R.id.register_device_cancel_btn);
         btnOk = findViewById(R.id.register_device_ok_btn);
@@ -111,24 +105,21 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deviceNickname = etName.getText().toString();
+                basicInfo.setNickName(etName.getText().toString());
 
                 // 把图像缩小，保存为macAddress.jpg文件
+                String imagePath = basicInfo.getImagePath();
                 if(imagePath != null && !"".equals(imagePath)) {
                     Bitmap bitmap = BitmapUtil.getSmallBitmap(imagePath, 100, 100);
-                    File toFile = FileUtil.getFile(getExternalFilesDir("images"), macAddress + ".jpg");
+                    File toFile = FileUtil.getFile(getExternalFilesDir("images"), basicInfo.getMacAddress() + ".jpg");
                     BitmapUtil.saveBitmap(bitmap, toFile);
-                    imagePath = toFile.getAbsolutePath();
+                    basicInfo.setImagePath(toFile.getAbsolutePath());
                 }
 
-                isAutoconnect = cbIsAutoconnect.isChecked();
+                basicInfo.setAutoConnect(cbIsAutoconnect.isChecked());
 
                 Intent intent = new Intent();
-                intent.putExtra("device_nickname", deviceNickname);
-                intent.putExtra("device_macaddress", macAddress);
-                intent.putExtra("device_uuid", deviceUuid);
-                intent.putExtra("device_imagepath", imagePath);
-                intent.putExtra("device_isautoconnect", isAutoconnect);
+                intent.putExtra("devicebasicinfo", basicInfo);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -163,9 +154,9 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             case 1:
                 if(resultCode == RESULT_OK) {
                     if(Build.VERSION.SDK_INT >= 19) {
-                        imagePath = handleImageOnKitKat(data);
+                        basicInfo.setImagePath(handleImageOnKitKat(data));
                     } else {
-                        imagePath = handleImageBeforeKitKat(data);
+                        basicInfo.setImagePath(handleImageBeforeKitKat(data));
                     }
                 }
                 break;

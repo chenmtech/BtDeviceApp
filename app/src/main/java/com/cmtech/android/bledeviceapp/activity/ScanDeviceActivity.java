@@ -20,6 +20,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledeviceapp.callback.ScanDeviceCallback;
 import com.cmtech.android.bledeviceapp.util.Uuid;
+import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -156,11 +157,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
         String uuidShortString = Uuid.longToShortString(Uuid.byteArrayToUuid(record.getData()).toString());
 
         Intent intent = new Intent(ScanDeviceActivity.this, DeviceBasicInfoActivity.class);
-        intent.putExtra("device_nickname", "");
-        intent.putExtra("device_macaddress", macAddress);
-        intent.putExtra("device_uuid", uuidShortString);
-        intent.putExtra("device_imagepath", "");
-        intent.putExtra("device_isautoconnect", true);
+        BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo(macAddress, "", uuidShortString, "", true);
+        intent.putExtra("devicebasicinfo", basicInfo);
 
         startActivityForResult(intent, 1);
     }

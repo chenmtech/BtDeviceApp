@@ -37,7 +37,7 @@ public abstract class BleDevice implements Serializable{
     private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
     // 设备基本信息
-    private final BleDeviceBasicInfo basicInfo;
+    private BleDeviceBasicInfo basicInfo;
 
     // ViseBle内部设备
     private BluetoothLeDevice bluetoothLeDevice = null;
@@ -138,6 +138,10 @@ public abstract class BleDevice implements Serializable{
 
     public BleDeviceBasicInfo getBasicInfo() {
         return basicInfo;
+    }
+
+    public void setBasicInfo(BleDeviceBasicInfo basicInfo) {
+        this.basicInfo = basicInfo;
     }
 
     public BluetoothLeDevice getBluetoothLeDevice() {

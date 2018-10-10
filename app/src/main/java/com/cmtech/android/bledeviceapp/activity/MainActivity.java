@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
     private final static int REQUESTCODE_ENABLEBLUETOOTH = 3;    // 使能蓝牙
-    private final static int REQUESTCODE_CONFIGUREDEVICE = 4;    // 配置设备返回码
 
     // 已登记的设备列表
     private final List<BleDevice> registeredDeviceList = new ArrayList<>();
@@ -71,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private RecyclerView deviceListRecycView;
 
     // 登记设备按钮
-    private Button btnRegister;
+    //private Button btnRegister;
 
     // 侧滑界面
     private DrawerLayout mDrawerLayout;
@@ -89,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private FragmentAndTabLayoutManager fragmentManager;
 
     private MenuItem menuConnect;
-    private MenuItem menuConfigure;
     private MenuItem menuClose;
 
     private Toolbar toolbar;
@@ -183,22 +181,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             case REQUESTCODE_REGISTERDEVICE:
                 // 登记设备返回
                 if(resultCode == RESULT_OK) {
-                    String nickName = data.getStringExtra("device_nickname");
-                    String macAddress = data.getStringExtra("device_macaddress");
-                    String deviceUuid = data.getStringExtra("device_uuid");
-                    String imagePath = data.getStringExtra("device_imagepath");
-                    boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
-
-                    BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo();
-                    basicInfo.setNickName(nickName);
-                    basicInfo.setMacAddress(macAddress);
-                    basicInfo.setUuidString(deviceUuid);
-                    basicInfo.setImagePath(imagePath);
-                    basicInfo.setAutoConnect(isAutoConnect);
-
+                    BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra("devicebasicinfo");
                     // 用基本信息创建BleDevice
                     if(createBleDeviceUsingBasicInfo(basicInfo)) {
-                        // 创建成功后，将设备基本信息保存到数据库
+                        // 创建成功后，将设备基本信息保存到数据库中
                         basicInfo.save();
                     }
                 }
@@ -206,11 +192,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             case REQUESTCODE_MODIFYDEVICE:
                 // 修改设备信息返回
                 if ( resultCode == RESULT_OK) {
-                    String deviceNickname = data.getStringExtra("device_nickname");
-                    String macAddress = data.getStringExtra("device_macaddress");
-                    String deviceUuid = data.getStringExtra("device_uuid");
-                    String imagePath = data.getStringExtra("device_imagepath");
-                    Boolean isAutoConnect = data.getBooleanExtra("device_isautoconnect", false);
+                    BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra("devicebasicinfo");
+                    String macAddress = basicInfo.getMacAddress();
                     BleDevice device = null;
                     for(BleDevice ele : registeredDeviceList) {
                         if(macAddress.equalsIgnoreCase(ele.getMacAddress())) {
@@ -219,13 +202,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                         }
                     }
                     if(device != null) {
-                        BleDeviceBasicInfo basicInfo = device.getBasicInfo();
-                        basicInfo.setNickName(deviceNickname);
-                        basicInfo.setMacAddress(macAddress);
-                        basicInfo.setUuidString(deviceUuid);
-                        basicInfo.setImagePath(imagePath);
-                        basicInfo.setAutoConnect(isAutoConnect);
                         basicInfo.save();
+                        device.setBasicInfo(basicInfo);
                         deviceListAdapter.notifyDataSetChanged();
                     }
                 }
@@ -239,8 +217,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 }
                 break;
 
-            case REQUESTCODE_CONFIGUREDEVICE:
-                break;
         }
     }
 
@@ -248,7 +224,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
         menuConnect = menu.findItem(R.id.toolbar_connectswitch);
-        menuConfigure = menu.findItem(R.id.toolbar_configure);
         menuClose = menu.findItem(R.id.toolbar_close);
         return true;
     }
@@ -265,13 +240,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.switchState();
-                }
-                break;
-
-            case R.id.toolbar_configure:
-                fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
-                if(fragment != null) {
-                    configureDevice(fragment.getDevice());
                 }
                 break;
 
@@ -335,7 +303,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
         openedControllerList.remove(controller);
         deleteFragment(fragment);
-        //MyApplication.getViseBle().clear();
     }
 
     // 从deviceControllerList中寻找Fragment对应的控制器
@@ -395,21 +362,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 修改设备基本信息 
     public void modifyDeviceBasicInfo(final BleDevice device) {
         Intent intent = new Intent(this, DeviceBasicInfoActivity.class);
-        intent.putExtra("device_nickname", device.getNickName());
-        intent.putExtra("device_macaddress", device.getMacAddress());
-        intent.putExtra("device_uuid", device.getUuidString());
-        intent.putExtra("device_imagepath", device.getImagePath());
-        intent.putExtra("device_isautoconnect", device.autoConnect());
+        intent.putExtra("devicebasicinfo", device.getBasicInfo());
 
         startActivityForResult(intent, REQUESTCODE_MODIFYDEVICE);
     }
-
-    // 配置设备
-    public void configureDevice(final BleDevice device) {
-        if(device == null || getController(device) == null) return;
-        getController(device).configureDevice(this, REQUESTCODE_CONFIGUREDEVICE);
-    }
-
 
     // 更新主Layout的可视性
     private void updateMainLayoutVisibility() {
@@ -421,19 +377,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             setTitle("物联网蓝牙终端App");
             toolbar.setLogo(null);
             if(menuConnect != null) menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
-            if(menuConfigure != null) menuConfigure.setEnabled(false);
 
         } else {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
             mMainLayout.setVisibility(View.VISIBLE);
-            if(menuConfigure != null) menuConfigure.setEnabled(true);
         }
     }
 
     // 从数据库中获取已登记的设备基本信息列表
     private void initializeBleDevice() {
         // 从数据库获取设备信息，并构造相应的BLEDevice
-        //List<BleDeviceBasicInfo> basicInfoList = LitePal.findAll(BleDeviceBasicInfo.class);
         List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
         if(basicInfoList != null && !basicInfoList.isEmpty()) {
             for(BleDeviceBasicInfo basicInfo : basicInfoList) {

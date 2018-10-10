@@ -17,9 +17,6 @@ public class BleDeviceController {
     private final BleDeviceFragment fragment;
 
 
-    protected Class configureActivityClass;
-
-
     public BleDeviceController(BleDevice device) {
         if(device == null) {
             throw new IllegalStateException();
@@ -47,21 +44,6 @@ public class BleDeviceController {
 
     public void switchState() {
         device.switchState();
-    }
-
-    // 配置设备
-    public void configureDevice(Activity activity, int requestCode) {
-        if(configureActivityClass != null) {
-            Intent intent = new Intent(activity, configureActivityClass);
-            Bundle bundle = device.bundleConfigure();
-            if(bundle != null)
-                intent.putExtras(bundle);
-            //device.pushConfigurationIntoIntent(intent);
-            activity.startActivityForResult(intent, requestCode);
-        }
-        // device.getConfigureParameters();
-        // openConfigureActivity();
-        // device.setConfigureParameters();
     }
 
     public BleDevice getDevice() {

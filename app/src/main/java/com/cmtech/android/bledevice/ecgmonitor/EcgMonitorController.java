@@ -12,7 +12,6 @@ public class EcgMonitorController extends BleDeviceController {
         super(device);
         this.device = (EcgMonitorDevice) device;
         this.fragment = (EcgMonitorFragment) getFragment();
-        configureActivityClass = EcgMonitorConfigureActivity.class;
     }
 
     // 转换采样状态
