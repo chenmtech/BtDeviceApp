@@ -24,34 +24,24 @@ public class BleDeviceType {
     private static final String NAME_TEMPHUMID = "温湿度计";
     private static final String NAME_UNKNOWN = "未知设备";
 
-    // 支持的设备类型的Fragment类名
-    private static final String FRAGNAME_SIMPLE128GATTPROFILE = "";
-    private static final String FRAGNAME_HEIGHTSCALE = "";
-    private static final String FRAGNAME_THERMOMETER = "com.cmtech.android.btdevice.thermo.ThermoFragment";
-    private static final String FRAGNAME_ECGMONITOR = "com.cmtech.android.btdevice.ecgmonitor.EcgMonitorFragment";
-    private static final String FRAGNAME_SIGGENERATOR = "";
-    private static final String FRAGNAME_TEMPHUMID = "com.cmtech.android.btdevice.temphumid.TempHumidFragment";
-    private static final String FRAGNAME_UNKNOWN = "com.cmtech.android.btdevice.unknown.UnknownDeviceFragment";
 
     private static final BleDeviceType DEVTYPE_THERMOMETER =
-            new BleDeviceType(UUID_THERMOMETER, R.drawable.thermo_image, NAME_THERMOMETER, FRAGNAME_THERMOMETER);
+            new BleDeviceType(UUID_THERMOMETER, R.drawable.thermo_image, NAME_THERMOMETER);
     private static final BleDeviceType DEVTYPE_ECGMONITOR =
-            new BleDeviceType(UUID_ECGMONITOR, R.drawable.ecgmonitor_image, NAME_ECGMONITOR, FRAGNAME_ECGMONITOR);
+            new BleDeviceType(UUID_ECGMONITOR, R.drawable.ecgmonitor_image, NAME_ECGMONITOR);
     private static final BleDeviceType DEVTYPE_TEMPHUMID =
-            new BleDeviceType(UUID_TEMPHUMID, R.drawable.temphumid_image, NAME_TEMPHUMID, FRAGNAME_TEMPHUMID);
+            new BleDeviceType(UUID_TEMPHUMID, R.drawable.temphumid_image, NAME_TEMPHUMID);
     private static final BleDeviceType DEVTYPE_UNKNOWN =
-            new BleDeviceType(UUID_UNKNOWN, R.mipmap.ic_unknown_128px, NAME_UNKNOWN, FRAGNAME_UNKNOWN);
+            new BleDeviceType(UUID_UNKNOWN, R.mipmap.ic_unknown_128px, NAME_UNKNOWN);
 
     private String uuid;        // 设备16位UUID字符串
     private Integer image;      // 缺省图标
     private String name;        // 缺省设备名
-    private String fragName;    // 设备Fragment类名
 
-    private BleDeviceType(String uuid, Integer image, String name, String fragName) {
+    private BleDeviceType(String uuid, Integer image, String name) {
         this.uuid = uuid;
         this.image = image;
         this.name = name;
-        this.fragName = fragName;
     }
 
     public String getUuid() {
@@ -76,14 +66,6 @@ public class BleDeviceType {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getFragName() {
-        return fragName;
-    }
-
-    public void setFragName(String fragName) {
-        this.fragName = fragName;
     }
 
     public static BleDeviceType fromUuid(String uuid) {

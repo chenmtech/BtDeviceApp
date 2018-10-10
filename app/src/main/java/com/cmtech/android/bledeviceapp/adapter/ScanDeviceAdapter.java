@@ -13,6 +13,7 @@ import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.Uuid;
+import com.cmtech.android.bledevicecore.model.BleDeviceType;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         View deviceView;
         TextView deviceName;
         TextView deviceAddress;
-        TextView deviceSupportedUUID;
+        TextView deviceTypeName;
         TextView deviceStatus;
 
 
@@ -41,7 +42,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
             deviceView = itemView;
             deviceName = deviceView.findViewById(R.id.scaned_device_name);
             deviceAddress = deviceView.findViewById(R.id.scaned_device_address);
-            deviceSupportedUUID = deviceView.findViewById(R.id.scaned_device_supporteduuid);
+            deviceTypeName = deviceView.findViewById(R.id.scaned_device_typename);
             deviceStatus = deviceView.findViewById(R.id.scaned_device_status);
         }
     }
@@ -77,8 +78,8 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         String supportedUUID = Uuid.longToShortString(Uuid.byteArrayToUuid(recordUUID.getData()).toString());
         holder.deviceName.setText("设备名："+device.getName());
+        holder.deviceTypeName.setText("设备类型："+ BleDeviceType.fromUuid(supportedUUID).getName());
         holder.deviceAddress.setText("蓝牙地址："+device.getAddress());
-        holder.deviceSupportedUUID.setText("支持的UUID："+supportedUUID);
 
         Boolean status = mDeviceStatus.get(position);
         if(status)
