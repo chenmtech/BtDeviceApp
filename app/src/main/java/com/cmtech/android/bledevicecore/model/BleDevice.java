@@ -303,6 +303,10 @@ public abstract class BleDevice implements Serializable{
     }
 
 
+    /*
+     * 抽象方法
+     */
+
     // 构造之后的初始化操作
     public abstract void initializeAfterConstruction();
 
@@ -317,6 +321,10 @@ public abstract class BleDevice implements Serializable{
 
     // 处理Gatt命令回调消息函数
     public abstract void processGattCallbackMessage(Message msg);
+
+    /*
+     * 抽象方法结束
+     */
 
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -351,7 +359,7 @@ public abstract class BleDevice implements Serializable{
         return element.retrieveGattObject(deviceMirror);
     }
 
-    // 发送Gatt回调后的消息
+    // 发送Gatt命令执行后回调的消息
     protected void sendGattCallbackMessage(int what, Object obj) {
         Message msg = new Message();
         msg.what = what;

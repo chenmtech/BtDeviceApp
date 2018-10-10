@@ -29,6 +29,7 @@ public class BleDeviceConnectedState implements IBleDeviceState {
 
     @Override
     public void disconnect() {
+        // 防止接收不到断开连接的回调，而无法执行onDeviceDisconnect()，所以5秒后自动执行。
         device.getHandler().postDelayed(new Runnable() {
             @Override
             public void run() {
