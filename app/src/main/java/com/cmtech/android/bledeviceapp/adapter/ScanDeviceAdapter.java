@@ -88,7 +88,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
             holder.deviceStatus.setText("未登记");
 
         if(selectItem == position) {
-            holder.deviceView.setBackgroundColor(Color.BLUE);
+            holder.deviceView.setBackgroundColor(Color.parseColor("#00a0e9"));
         } else {
             holder.deviceView.setBackground(defaultBackground);
         }

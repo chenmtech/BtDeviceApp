@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.content.Intent;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
+import com.cmtech.android.ble.callback.scan.FilterScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -21,6 +23,7 @@ import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledeviceapp.callback.ScanDeviceCallback;
 import com.cmtech.android.bledeviceapp.util.Uuid;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +32,14 @@ import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128
 
 public class ScanDeviceActivity extends AppCompatActivity {
     private static final String TAG = "ScanDeviceActivity";
-    private static final String DEFAULT_DEVICE_NAME = "CM1.0";
+    private static final String DEFAULT_DEVICE_NAME = "CM1.0";      // 只获取广播时设备名为CM1.0的设备
 
-    private ViseBle viseBle = MyApplication.getViseBle();
+    private static final ViseBle viseBle = MyApplication.getViseBle();
+
+    private final FilterScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback(this)).setDeviceName(DEFAULT_DEVICE_NAME);
 
     // 用于实现扫描设备的显示
+    private SwipeRefreshLayout srlScanDevice;
     private ScanDeviceAdapter scanDeviceAdapter;
     private RecyclerView rvScanDevice;
     private List<BluetoothLeDevice> foundDeviceList = new ArrayList<>();    // 扫描到的设备列表
@@ -62,6 +68,22 @@ public class ScanDeviceActivity extends AppCompatActivity {
         scanDeviceAdapter = new ScanDeviceAdapter(foundDeviceList, foundDeviceStatus);
         rvScanDevice.setAdapter(scanDeviceAdapter);
 
+        srlScanDevice = findViewById(R.id.srlScanDevice);
+        srlScanDevice.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if(!scanCallback.isScanning()) {
+                    Toast.makeText(ScanDeviceActivity.this, "开始扫描", Toast.LENGTH_SHORT).show();
+                    foundDeviceList.clear();
+                    foundDeviceStatus.clear();
+                    scanDeviceAdapter.notifyDataSetChanged();
+                    viseBle.startScan(scanCallback);
+                } else {
+                    Toast.makeText(ScanDeviceActivity.this, "扫描中", Toast.LENGTH_SHORT).show();
+                }
+                srlScanDevice.setRefreshing(false);
+            }
+        });
 
         btnCancel = findViewById(R.id.device_register_cancel_btn);
         btnOk = findViewById(R.id.device_register_ok_btn);
@@ -89,16 +111,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
             }
         });
 
+        viseBle.startScan(scanCallback);
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        Log.d(TAG, "start to scan now.");
-        viseBle.startScan(new DevNameFilterScanCallback(new ScanDeviceCallback(this)).setDeviceName(DEFAULT_DEVICE_NAME));
-    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
