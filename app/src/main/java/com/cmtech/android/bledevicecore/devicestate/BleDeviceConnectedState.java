@@ -19,7 +19,8 @@ public class BleDeviceConnectedState implements IBleDeviceState {
 
     @Override
     public void close() {
-        ViseLog.i("action wrong");
+        device.forceClose();
+        device.setState(device.getCloseState());
     }
 
     @Override
@@ -100,6 +101,6 @@ public class BleDeviceConnectedState implements IBleDeviceState {
 
     @Override
     public boolean canClose() {
-        return false;
+        return true;
     }
 }

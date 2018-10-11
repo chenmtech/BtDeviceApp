@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevicecore.devicestate;
 
 import com.cmtech.android.ble.core.DeviceMirror;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.vise.log.ViseLog;
 
@@ -18,7 +19,8 @@ public class BleDeviceConnectingState implements IBleDeviceState {
 
     @Override
     public void close() {
-        ViseLog.i("action wrong");
+        device.forceClose();
+        device.setState(device.getCloseState());
     }
 
     @Override
@@ -86,6 +88,6 @@ public class BleDeviceConnectingState implements IBleDeviceState {
 
     @Override
     public boolean canClose() {
-        return false;
+        return true;
     }
 }

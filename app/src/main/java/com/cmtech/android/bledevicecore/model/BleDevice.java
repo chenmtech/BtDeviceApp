@@ -216,6 +216,7 @@ public abstract class BleDevice implements Serializable{
 
     // 关闭设备
     public synchronized void close() {
+        handler.removeCallbacksAndMessages(null);
         state.close();
     }
 
@@ -440,6 +441,10 @@ public abstract class BleDevice implements Serializable{
         executeAfterDisconnect();
     }
 
+    public void forceClose() {
+        deviceMirrorPool.disconnect(getBluetoothLeDevice());
+        processDisconnect();
+    }
 
     @Override
     public boolean equals(Object o) {

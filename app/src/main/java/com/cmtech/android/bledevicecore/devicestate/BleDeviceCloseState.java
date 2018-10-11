@@ -39,34 +39,34 @@ public class BleDeviceCloseState implements IBleDeviceState {
 
     @Override
     public void onDeviceScanSuccess() {
-        ViseLog.i("callback wrong");
+        ViseLog.i("have closed!");
     }
 
     @Override
     public void onDeviceScanFailure() {
-        ViseLog.i("callback wrong");
+        ViseLog.i("have closed!");
     }
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-        ViseLog.i("callback wrong");
+        ViseLog.i("have closed!");
         if(mirror != null)
             MyApplication.getViseBle().getDeviceMirrorPool().disconnect(mirror.getBluetoothLeDevice());
     }
 
     @Override
     public void onDeviceConnectFailure() {
-        ViseLog.i("callback wrong");
+        ViseLog.i("have closed!");
     }
 
     @Override
     public void onDeviceConnectTimeout() {
-        ViseLog.i("callback wrong");
+        ViseLog.i("have closed!");
     }
 
     @Override
     public void onDeviceDisconnect() {
-        ViseLog.i("callback wrong");
+        ViseLog.i("have closed!");
     }
 
     @Override
