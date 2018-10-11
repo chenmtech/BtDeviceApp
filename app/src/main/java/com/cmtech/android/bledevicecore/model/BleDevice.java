@@ -37,13 +37,13 @@ public abstract class BleDevice implements Serializable{
     private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
     // 重连延时，毫秒
-    private final static int RECONNECT_DELAY = 1000;
+    private final static int RECONNECT_DELAY = 5000;
 
     // 设备基本信息
     private BleDeviceBasicInfo basicInfo;
 
     // 当前重连次数
-    private int reconnectTimes = 0;
+    private int curReconnectTimes = 0;
 
     // ViseBle内部设备
     private BluetoothLeDevice bluetoothLeDevice = null;
@@ -120,7 +120,7 @@ public abstract class BleDevice implements Serializable{
     // 构造器
     public BleDevice(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
-        reconnectTimes = 0;
+        curReconnectTimes = 0;
     }
 
     public String getMacAddress() {
@@ -185,15 +185,15 @@ public abstract class BleDevice implements Serializable{
 
     private void reconnect(final int delay) {
         int canReconnectTimes = getReconnectTimes();
-        if(reconnectTimes < canReconnectTimes || canReconnectTimes == -1) {
+        if(curReconnectTimes < canReconnectTimes || canReconnectTimes == -1) {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     scan();
                 }
             }, delay);
-            if(reconnectTimes < canReconnectTimes)
-                reconnectTimes++;
+            if(curReconnectTimes < canReconnectTimes)
+                curReconnectTimes++;
         }
     }
 
@@ -207,7 +207,8 @@ public abstract class BleDevice implements Serializable{
 
     // 打开设备
     public synchronized void open() {
-        reconnectTimes = 0;
+        handler.removeCallbacksAndMessages(null);
+        curReconnectTimes = 0;
         state.open();
         if(autoConnect())
             state.scan();
@@ -230,7 +231,8 @@ public abstract class BleDevice implements Serializable{
 
     // 转换设备状态
     public synchronized void switchState() {
-        reconnectTimes = 0;
+        handler.removeCallbacksAndMessages(null);
+        curReconnectTimes = 0;
         state.switchState();
     }
 
@@ -402,7 +404,7 @@ public abstract class BleDevice implements Serializable{
     public void processConnectSuccess(DeviceMirror mirror) {
         bluetoothLeDevice = mirror.getBluetoothLeDevice();
 
-        reconnectTimes = 0;
+        curReconnectTimes = 0;
 
         ViseLog.i("onConnectSuccess");
 
