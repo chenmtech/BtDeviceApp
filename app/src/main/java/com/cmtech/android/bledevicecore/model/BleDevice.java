@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevicecore.model;
 
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -16,7 +15,7 @@ import com.cmtech.android.bledevicecore.devicestate.BleDeviceCloseState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceConnectedState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceConnectingState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceDisconnectingState;
-import com.cmtech.android.bledevicecore.devicestate.BleDeviceOpenState;
+import com.cmtech.android.bledevicecore.devicestate.BleDeviceDisconnectState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceScanState;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.devicestate.IBleDeviceState;
@@ -59,7 +58,7 @@ public abstract class BleDevice implements Serializable{
 
     // 几个设备状态
     private final BleDeviceCloseState closeState = new BleDeviceCloseState(this);       // 关闭状态
-    private final BleDeviceOpenState openState = new BleDeviceOpenState(this);          // 打开状态
+    private final BleDeviceDisconnectState disconnectState = new BleDeviceDisconnectState(this);          // 连接断开状态
     private final BleDeviceScanState scanState = new BleDeviceScanState(this);          // 扫描状态
     private final BleDeviceConnectingState connectingState = new BleDeviceConnectingState(this);        // 连接中状态
     private final BleDeviceConnectedState connectedState = new BleDeviceConnectedState(this);           // 连接状态
@@ -161,8 +160,8 @@ public abstract class BleDevice implements Serializable{
     public BleDeviceCloseState getCloseState() {
         return closeState;
     }
-    public BleDeviceOpenState getOpenState() {
-        return openState;
+    public BleDeviceDisconnectState getDisconnectState() {
+        return disconnectState;
     }
     public BleDeviceScanState getScanState() {
         return scanState;

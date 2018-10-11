@@ -5,10 +5,10 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.vise.log.ViseLog;
 
-public class BleDeviceOpenState implements IBleDeviceState {
+public class BleDeviceDisconnectState implements IBleDeviceState {
     private BleDevice device;
 
-    public BleDeviceOpenState(BleDevice device) {
+    public BleDeviceDisconnectState(BleDevice device) {
         this.device = device;
     }
 

@@ -14,7 +14,7 @@ public class BleDeviceCloseState implements IBleDeviceState {
 
     @Override
     public void open() {
-        device.setState(device.getOpenState());
+        device.setState(device.getDisconnectState());
     }
 
     @Override

@@ -498,10 +498,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private void updateToolBar(BleDeviceFragment fragment) {
         if(fragment == null || fragment.getDevice() == null) return;
 
-        BleDevice device = (BleDevice) fragment.getDevice();
+        BleDevice device = fragment.getDevice();
         if(device == null) return;
 
-        // 更新工具条连接菜单
+        // 更新连接菜单
         if(device.canDisconnect()) {
             menuConnect.setEnabled(true);
             menuConnect.setTitle("断开");
@@ -517,14 +517,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
         }
 
-        // 更新工具条关闭菜单
-        if(device.canClose()) {
-            menuClose.setEnabled(true);
-        } else {
-            menuClose.setEnabled(false);
-        }
+        // 更新关闭菜单
+        menuClose.setEnabled(device.canClose());
 
-        // 更新Activity的工具条图标
+        // 更新工具条图标
         Drawable drawable = null;
 
         String imagePath = device.getImagePath();
@@ -535,6 +531,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         }
         toolbar.setLogo(drawable);
 
+        // 更新工具条title
         toolbar.setTitle(device.getStateDescription());
 
         /*if(device.getDeviceConnectState() == CONNECT_SUCCESS)

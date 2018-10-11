@@ -41,7 +41,7 @@ public class BleDeviceConnectedState implements IBleDeviceState {
             @Override
             public void run() {
                 device.processDisconnect();
-                device.setState(device.getOpenState());
+                device.setState(device.getDisconnectState());
             }
         }, 1000);
 
@@ -72,21 +72,21 @@ public class BleDeviceConnectedState implements IBleDeviceState {
     @Override
     public void onDeviceConnectFailure() {
         device.getHandler().removeCallbacksAndMessages(null);
-        device.setState(device.getOpenState());
+        device.setState(device.getDisconnectState());
         device.processConnectFailure();
     }
 
     @Override
     public void onDeviceConnectTimeout() {
         device.getHandler().removeCallbacksAndMessages(null);
-        device.setState(device.getOpenState());
+        device.setState(device.getDisconnectState());
         device.processConnectFailure();
     }
 
     @Override
     public void onDeviceDisconnect() {
         device.getHandler().removeCallbacksAndMessages(null);
-        device.setState(device.getOpenState());
+        device.setState(device.getDisconnectState());
         device.processDisconnect();
     }
 

@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevicecore.devicestate;
 
 import com.cmtech.android.ble.core.DeviceMirror;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.vise.log.ViseLog;
 
@@ -65,7 +64,7 @@ public class BleDeviceDisconnectingState implements IBleDeviceState {
     @Override
     public void onDeviceDisconnect() {
         device.getHandler().removeCallbacksAndMessages(null);
-        device.setState(device.getOpenState());
+        device.setState(device.getDisconnectState());
         device.processDisconnect();
     }
 
