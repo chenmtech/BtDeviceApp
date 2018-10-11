@@ -19,8 +19,14 @@ public class BleDeviceConnectedState implements IBleDeviceState {
 
     @Override
     public void close() {
-        device.forceClose();
-        device.setState(device.getCloseState());
+        MyApplication.getViseBle().getDeviceMirrorPool().disconnect(device.getBluetoothLeDevice());
+        device.getHandler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                device.processDisconnect();
+                device.setState(device.getCloseState());
+            }
+        }, 1000);
     }
 
     @Override
@@ -30,14 +36,14 @@ public class BleDeviceConnectedState implements IBleDeviceState {
 
     @Override
     public void disconnect() {
-        // 防止接收不到断开连接的回调，而无法执行onDeviceDisconnect()，所以5秒后自动执行。
+        // 防止接收不到断开连接的回调，而无法执行onDeviceDisconnect()，所以1秒后自动执行。
         device.getHandler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 device.processDisconnect();
                 device.setState(device.getOpenState());
             }
-        }, 5000);
+        }, 1000);
 
         MyApplication.getViseBle().getDeviceMirrorPool().disconnect(device.getBluetoothLeDevice());
         device.setState(device.getDisconnectingState());

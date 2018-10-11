@@ -441,11 +441,6 @@ public abstract class BleDevice implements Serializable{
         executeAfterDisconnect();
     }
 
-    public void forceClose() {
-        deviceMirrorPool.disconnect(getBluetoothLeDevice());
-        processDisconnect();
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

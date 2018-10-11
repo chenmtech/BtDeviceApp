@@ -19,8 +19,7 @@ public class BleDeviceScanState implements IBleDeviceState {
 
     @Override
     public void close() {
-        device.forceClose();
-        device.setState(device.getCloseState());
+        ViseLog.i("action wrong");
     }
 
     @Override
@@ -87,6 +86,6 @@ public class BleDeviceScanState implements IBleDeviceState {
 
     @Override
     public boolean canClose() {
-        return true;
+        return false;
     }
 }
