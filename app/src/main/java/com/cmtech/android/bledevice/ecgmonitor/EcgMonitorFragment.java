@@ -62,9 +62,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ecgView = view.findViewById(R.id.ecg_view);
         btnSwitchSampleEcg = view.findViewById(R.id.btn_ecg_startandstop);
         cbEcgRecord = view.findViewById(R.id.cb_ecg_record);
-        cbEcgRecord.setChecked(false);
+        cbEcgRecord.setChecked(((EcgMonitorDevice)device).isRecord());
         cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
-        cbEcgFilter.setChecked(false);
+        cbEcgFilter.setChecked(((EcgMonitorDevice)device).isEcgFilter());
 
         btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override

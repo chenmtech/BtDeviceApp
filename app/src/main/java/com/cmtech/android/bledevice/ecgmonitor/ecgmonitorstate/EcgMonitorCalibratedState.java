@@ -14,7 +14,7 @@ public class EcgMonitorCalibratedState implements IEcgMonitorState {
     public void start() {
 
         // 启动采样心电信号
-        device.setState(device.getSamplingState());
+        device.setState(device.getSampleState());
         device.startSampleEcg();
     }
 

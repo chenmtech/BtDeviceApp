@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -97,7 +96,10 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     private boolean isRecord = false;                // 是否记录心电信号
-    private boolean isFilter = false;                // 是否对信号滤波
+    public boolean isRecord() { return isRecord; }
+    private boolean isEcgFilter = true;                // 是否对信号滤波
+    public boolean isEcgFilter() { return isEcgFilter; }
+
 
     private BmeFileHead ecgFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead10版本，LITTLE_ENDIAN，数据类型为INT32
     private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
@@ -116,7 +118,7 @@ public class EcgMonitorDevice extends BleDevice {
     private final EcgMonitorInitialState initialState = new EcgMonitorInitialState(this);
     private final EcgMonitorCalibrateState calibratingState = new EcgMonitorCalibrateState(this);
     private final EcgMonitorCalibratedState calibratedState = new EcgMonitorCalibratedState(this);
-    private final EcgMonitorSampleState samplingState = new EcgMonitorSampleState(this);
+    private final EcgMonitorSampleState sampleState = new EcgMonitorSampleState(this);
 
     private IEcgMonitorState state = initialState;
 
@@ -139,8 +141,8 @@ public class EcgMonitorDevice extends BleDevice {
         return calibratedState;
     }
 
-    public EcgMonitorSampleState getSamplingState() {
-        return samplingState;
+    public EcgMonitorSampleState getSampleState() {
+        return sampleState;
     }
 
     public void setState(IEcgMonitorState state) {
@@ -158,14 +160,21 @@ public class EcgMonitorDevice extends BleDevice {
         isRecord = false;
         updateRecordCheckBox(false, false);
 
-        updateFilterCheckBox(isFilter, false);
+        updateFilterCheckBox(isEcgFilter, false);
 
         updateSampleRate(DEFAULT_SAMPLERATE);
         updateLeadType(DEFAULT_LEADTYPE);
         updateCalibrationValue(DEFAULT_CALIBRATIONVALUE);
 
-        if(!checkBasicEcgMonitorService()) return;
-
+        if(!checkBasicEcgMonitorService()) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    disconnect();
+                }
+            }, 500);
+            return;
+        }
 
         // 读采样率命令
         addReadCommand(ECGMONITORSAMPLERATE, new IBleCallback() {
@@ -218,7 +227,7 @@ public class EcgMonitorDevice extends BleDevice {
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
                     initializeFilter();
-                    updateFilterCheckBox(isFilter, true);
+                    updateFilterCheckBox(isEcgFilter, true);
                 }
                 break;
 
@@ -277,8 +286,8 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    public synchronized void setEcgFilter(boolean isFilter) {
-        this.isFilter = isFilter;
+    public synchronized void setEcgFilter(boolean isEcgFilter) {
+        this.isEcgFilter = isEcgFilter;
     }
 
 
@@ -338,7 +347,7 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     public void processOneEcgData(int ecgData) {
-        if(isFilter)
+        if(isEcgFilter)
             ecgData = (int)notch.filter(dcBlock.filter(ecgData));
 
         if(isRecord) {
