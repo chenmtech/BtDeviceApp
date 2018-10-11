@@ -36,6 +36,9 @@ public abstract class BleDevice implements Serializable{
     // 设备镜像池
     private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
+    // 重连延时，毫秒
+    private final static int RECONNECT_DELAY = 1000;
+
     // 设备基本信息
     private BleDeviceBasicInfo basicInfo;
 
@@ -392,7 +395,7 @@ public abstract class BleDevice implements Serializable{
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     public void processScanFailure() {
-        reconnect(1000);
+        reconnect(RECONNECT_DELAY);
     }
 
     public void processConnectSuccess(DeviceMirror mirror) {
@@ -423,7 +426,7 @@ public abstract class BleDevice implements Serializable{
 
         executeAfterConnectFailure();
 
-        reconnect(1000);
+        reconnect(RECONNECT_DELAY);
     }
 
     public void processDisconnect() {
