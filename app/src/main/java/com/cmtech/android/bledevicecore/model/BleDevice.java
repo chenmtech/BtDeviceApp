@@ -207,6 +207,7 @@ public abstract class BleDevice implements Serializable{
 
     // 打开设备
     public synchronized void open() {
+        reconnectTimes = 0;
         state.open();
         if(autoConnect())
             state.scan();
