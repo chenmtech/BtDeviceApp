@@ -36,12 +36,16 @@ public class BleDeviceBasicInfo implements Serializable{
     // 是否自动连接
     private boolean autoConnect = true;
 
-    public BleDeviceBasicInfo(String macAddress, String nickName, String uuidString, String imagePath, boolean autoConnect) {
+    // 连接断开后重连次数
+    private int reconnectTimes = 3;
+
+    public BleDeviceBasicInfo(String macAddress, String nickName, String uuidString, String imagePath, boolean autoConnect, int reconnectTimes) {
         this.macAddress = macAddress;
         this.nickName = nickName;
         this.uuidString = uuidString;
         this.imagePath = imagePath;
         this.autoConnect = autoConnect;
+        this.reconnectTimes = reconnectTimes;
     }
 
     public BleDeviceBasicInfo(BleDeviceBasicInfo basicInfo) {
@@ -50,6 +54,7 @@ public class BleDeviceBasicInfo implements Serializable{
         uuidString = basicInfo.uuidString;
         imagePath = basicInfo.imagePath;
         autoConnect = basicInfo.autoConnect;
+        reconnectTimes = basicInfo.reconnectTimes;
     }
 
     public BleDeviceBasicInfo(BleDevice device) {
@@ -96,6 +101,14 @@ public class BleDeviceBasicInfo implements Serializable{
         this.autoConnect = autoConnect;
     }
 
+    public int getReconnectTimes() {
+        return reconnectTimes;
+    }
+
+    public void setReconnectTimes(int reconnectTimes) {
+        this.reconnectTimes = reconnectTimes;
+    }
+
     public boolean save() {
         if(macAddress == null || macAddress == "") return false;
 
@@ -113,6 +126,7 @@ public class BleDeviceBasicInfo implements Serializable{
         editor.putString(macAddress+"_uuidString", uuidString);
         editor.putString(macAddress+"_imagePath", imagePath);
         editor.putBoolean(macAddress+"_autoConnect", autoConnect);
+        editor.putInt(macAddress+"_reconnectTimes", reconnectTimes);
 
         ViseLog.i("save the basic info.");
 
@@ -136,6 +150,7 @@ public class BleDeviceBasicInfo implements Serializable{
         editor.remove(macAddress+"_uuidString");
         editor.remove(macAddress+"_imagePath");
         editor.remove(macAddress+"_autoConnect");
+        editor.remove(macAddress+"_reconnectTimes");
 
         return editor.commit();
     }
@@ -149,7 +164,8 @@ public class BleDeviceBasicInfo implements Serializable{
         String uuidString = pref.getString(macAddress+"_uuidString", "");
         String imagePath = pref.getString(macAddress+"_imagePath", "");
         boolean autoConnect = pref.getBoolean(macAddress+"_autoConnect", false);
-        return new BleDeviceBasicInfo(address, nickName, uuidString, imagePath, autoConnect);
+        int reconnectTimes = pref.getInt(macAddress+"_reconnectTimes", 3);
+        return new BleDeviceBasicInfo(address, nickName, uuidString, imagePath, autoConnect, reconnectTimes);
     }
 
     public static List<BleDeviceBasicInfo> findAllFromPreference() {

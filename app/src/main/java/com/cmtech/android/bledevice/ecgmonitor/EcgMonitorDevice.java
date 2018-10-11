@@ -124,6 +124,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
+        initializeAfterConstruction();
     }
 
     public EcgMonitorInitialState getInitialState() {

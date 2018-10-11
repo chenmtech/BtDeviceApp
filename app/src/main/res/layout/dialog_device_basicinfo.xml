@@ -38,12 +38,27 @@
             android:src="@mipmap/ic_unknown_128px"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="断开自动重连次数："/>
+        <EditText
+            android:id="@+id/cfg_device_reconnecttimes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
     <CheckBox
         android:id="@+id/cfg_device_isautoconnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="自动连接" />
+        android:text="打开设备后自动连接" />
 
     <LinearLayout
         android:layout_width="match_parent"

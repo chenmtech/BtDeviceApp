@@ -47,6 +47,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
     private EditText etName;
     private ImageView ivImage;
     private CheckBox cbIsAutoconnect;
+    private EditText etReconnectTimes;
 
     private BleDeviceBasicInfo basicInfo;
 
@@ -88,6 +89,10 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             }
         });
 
+        etReconnectTimes = findViewById(R.id.cfg_device_reconnecttimes);
+        etReconnectTimes.setText(""+basicInfo.getReconnectTimes());
+
+
         cbIsAutoconnect = findViewById(R.id.cfg_device_isautoconnect);
         cbIsAutoconnect.setChecked(basicInfo.autoConnect());
 
@@ -117,6 +122,8 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
                 }
 
                 basicInfo.setAutoConnect(cbIsAutoconnect.isChecked());
+
+                basicInfo.setReconnectTimes(Integer.parseInt(etReconnectTimes.getText().toString()));
 
                 Intent intent = new Intent();
                 intent.putExtra("devicebasicinfo", basicInfo);

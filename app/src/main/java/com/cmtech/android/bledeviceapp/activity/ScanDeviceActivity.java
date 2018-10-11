@@ -171,7 +171,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         String uuidShortString = Uuid.longToShortString(Uuid.byteArrayToUuid(record.getData()).toString());
 
         Intent intent = new Intent(ScanDeviceActivity.this, DeviceBasicInfoActivity.class);
-        BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo(macAddress, "", uuidShortString, "", true);
+        BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo(macAddress, "", uuidShortString, "", true, 3);
         intent.putExtra("devicebasicinfo", basicInfo);
 
         startActivityForResult(intent, 1);

@@ -44,6 +44,7 @@ public class BleDeviceScanState implements IBleDeviceState {
     @Override
     public void onDeviceScanFailure() {
         device.setState(device.getOpenState());
+        device.processScanFailure();
     }
 
     @Override

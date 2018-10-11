@@ -117,6 +117,7 @@ public class TempHumidDevice extends BleDevice {
     // 构造器
     public TempHumidDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
+        initializeAfterConstruction();
     }
 
     @Override
