@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -505,7 +506,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(device.canDisconnect()) {
             menuConnect.setEnabled(true);
             menuConnect.setTitle("断开");
-            menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connect_24px));
+            //menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connect_24px));
+            menuConnect.setIcon(getResources().getDrawable(R.mipmap.connecting4));
         }
         else if(device.canConnect()) {
             menuConnect.setEnabled(true);
@@ -514,8 +516,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         }
         else {
             menuConnect.setEnabled(false);
-            //menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
             menuConnect.setIcon(getResources().getDrawable(R.drawable.connectingdrawable));
+            AnimationDrawable animationDrawable = (AnimationDrawable)menuConnect.getIcon();
+            animationDrawable.start();
         }
 
         // 更新关闭菜单
