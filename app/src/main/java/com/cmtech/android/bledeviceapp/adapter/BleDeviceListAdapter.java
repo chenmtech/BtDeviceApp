@@ -102,6 +102,8 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
 
             @Override
             public boolean onLongClick(View view) {
+                selectItem = holder.getAdapterPosition();
+                notifyDataSetChanged();
                 view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {

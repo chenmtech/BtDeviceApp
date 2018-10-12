@@ -40,12 +40,21 @@ public abstract class BleDevice implements Serializable{
 
     // 设备基本信息
     private BleDeviceBasicInfo basicInfo;
+    public BleDeviceBasicInfo getBasicInfo() {
+        return basicInfo;
+    }
+    public void setBasicInfo(BleDeviceBasicInfo basicInfo) {
+        this.basicInfo = basicInfo;
+    }
 
-    // 当前重连次数
+    // 当前已重连次数
     private int curReconnectTimes = 0;
 
-    // ViseBle内部设备
+    // ViseBle包内部设备对象
     private BluetoothLeDevice bluetoothLeDevice = null;
+    public BluetoothLeDevice getBluetoothLeDevice() {
+        return bluetoothLeDevice;
+    }
 
     // GATT命令串行执行器
     private BleGattCommandExecutor commandExecutor;
@@ -55,11 +64,9 @@ public abstract class BleDevice implements Serializable{
 
     // 是否正在关闭
     private boolean isClosing = false;
-
     public boolean isClosing() {
         return isClosing;
     }
-
     public void setClosing(boolean closing) {
         isClosing = closing;
     }
@@ -71,9 +78,33 @@ public abstract class BleDevice implements Serializable{
     private final BleDeviceConnectingState connectingState = new BleDeviceConnectingState(this);        // 连接中状态
     private final BleDeviceConnectedState connectedState = new BleDeviceConnectedState(this);           // 连接状态
     private final BleDeviceDisconnectingState disconnectingState = new BleDeviceDisconnectingState(this);       // 断开中状态
+    // 获取几个设备状态常量
+    public BleDeviceCloseState getCloseState() {
+        return closeState;
+    }
+    public BleDeviceDisconnectState getDisconnectState() {
+        return disconnectState;
+    }
+    public BleDeviceScanState getScanState() {
+        return scanState;
+    }
+    public BleDeviceConnectingState getConnectingState() {
+        return connectingState;
+    }
+    public BleDeviceConnectedState getConnectedState() {
+        return connectedState;
+    }
+    public BleDeviceDisconnectingState getDisconnectingState() {
+        return disconnectingState;
+    }
 
     // 设备状态变量
     private IBleDeviceState state = closeState;
+    // 设置设备状态
+    public void setState(IBleDeviceState state) {
+        this.state = state;
+        notifyDeviceStateObservers();
+    }
 
     // 连接回调
     private final IConnectCallback connectCallback = new IConnectCallback() {
@@ -112,6 +143,9 @@ public abstract class BleDevice implements Serializable{
             }
         }
     };
+    public IConnectCallback getConnectCallback() {
+        return connectCallback;
+    }
 
     // 处理Gatt操作回调消息
     protected final Handler handler = new Handler(Looper.myLooper()) {
@@ -120,6 +154,9 @@ public abstract class BleDevice implements Serializable{
             processGattCallbackMessage(msg);
         }
     };
+    public Handler getHandler() {
+        return handler;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
@@ -128,89 +165,28 @@ public abstract class BleDevice implements Serializable{
     public BleDevice(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
         curReconnectTimes = 0;
+        isClosing = false;
     }
 
+    // 获取设备基本信息
     public String getMacAddress() {
         return basicInfo.getMacAddress();
     }
-
     public String getNickName() {
         return basicInfo.getNickName();
     }
-
     public String getUuidString() {
         return basicInfo.getUuidString();
     }
-
     public boolean autoConnect() {
         return basicInfo.autoConnect();
     }
-
     public String getImagePath() {
         return basicInfo.getImagePath();
     }
-
     public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
 
-    public BleDeviceBasicInfo getBasicInfo() {
-        return basicInfo;
-    }
 
-    public void setBasicInfo(BleDeviceBasicInfo basicInfo) {
-        this.basicInfo = basicInfo;
-    }
-
-    public BluetoothLeDevice getBluetoothLeDevice() {
-        return bluetoothLeDevice;
-    }
-
-    // 获取几个设备状态常量
-    public BleDeviceCloseState getCloseState() {
-        return closeState;
-    }
-    public BleDeviceDisconnectState getDisconnectState() {
-        return disconnectState;
-    }
-    public BleDeviceScanState getScanState() {
-        return scanState;
-    }
-    public BleDeviceConnectingState getConnectingState() {
-        return connectingState;
-    }
-    public BleDeviceConnectedState getConnectedState() {
-        return connectedState;
-    }
-    public BleDeviceDisconnectingState getDisconnectingState() {
-        return disconnectingState;
-    }
-
-    // 设置设备状态
-    public void setState(IBleDeviceState state) {
-        this.state = state;
-        notifyDeviceStateObservers();
-    }
-
-    private void reconnect(final int delay) {
-        int canReconnectTimes = getReconnectTimes();
-        if(curReconnectTimes < canReconnectTimes || canReconnectTimes == -1) {
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    scan();
-                }
-            }, delay);
-            if(curReconnectTimes < canReconnectTimes)
-                curReconnectTimes++;
-        }
-    }
-
-    public Handler getHandler() {
-        return handler;
-    }
-
-    public IConnectCallback getConnectCallback() {
-        return connectCallback;
-    }
 
     // 打开设备
     public synchronized void open() {
@@ -227,8 +203,8 @@ public abstract class BleDevice implements Serializable{
         state.close();
     }
 
-    // 扫描设备，扫描到设备后会自动连接设备
-    public synchronized void scan() {
+    // 连接设备，先执行扫描设备，扫描到之后会自动连接设备
+    public synchronized void connect() {
         state.scan();
     }
 
@@ -338,33 +314,24 @@ public abstract class BleDevice implements Serializable{
 
 
     /*
-     * 抽象方法
+     * 子类需要提供的抽象方法
      */
-
-    // 构造之后的初始化操作
+    // 子类构造之后的初始化操作，需要在子类构造器中执行
     public abstract void initializeAfterConstruction();
-
     // 连接成功后执行的操作
     public abstract void executeAfterConnectSuccess();
-
     // 连接错误后执行的操作
     public abstract void executeAfterConnectFailure();
-
     // 断开连接后执行的操作
     public abstract void executeAfterDisconnect();
-
     // 处理Gatt命令回调消息函数
     public abstract void processGattCallbackMessage(Message msg);
 
-    /*
-     * 抽象方法结束
-     */
-
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
-    // 创建Gatt命令执行器
+    // 创建Gatt命令执行器，并启动执行器
     private boolean createGattCommandExecutor() {
         ViseLog.i("create new command executor.");
         if(isCommandExecutorAlive()) return false;
@@ -401,10 +368,24 @@ public abstract class BleDevice implements Serializable{
         handler.sendMessage(msg);
     }
 
+    private void reconnect(final int delay) {
+        int canReconnectTimes = getReconnectTimes();
+        if(curReconnectTimes < canReconnectTimes || canReconnectTimes == -1) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    connect();
+                }
+            }, delay);
+            if(curReconnectTimes < canReconnectTimes)
+                curReconnectTimes++;
+        }
+    }
 
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
+
+    /*
+     * 给IBleDeviceState提供的函数，执行扫描和连接后的操作
+     */
     public void processScanFailure() {
         reconnect(RECONNECT_DELAY);
     }

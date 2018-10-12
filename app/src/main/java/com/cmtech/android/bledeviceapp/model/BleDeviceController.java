@@ -1,11 +1,5 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.interfa.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 
@@ -30,8 +24,8 @@ public class BleDeviceController {
         device.open();
     }
 
-    public void scanDevice() {
-        device.scan();
+    public void connectDevice() {
+        device.connect();
     }
 
     public void disconnectDevice() {
