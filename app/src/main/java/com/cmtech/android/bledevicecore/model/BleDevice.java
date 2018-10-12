@@ -19,7 +19,6 @@ import com.cmtech.android.bledevicecore.devicestate.BleDeviceDisconnectState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceScanState;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.devicestate.IBleDeviceState;
-import com.cmtech.android.bledevicecore.interfa.IBleDeviceStateObserver;
 import com.vise.log.ViseLog;
 
 

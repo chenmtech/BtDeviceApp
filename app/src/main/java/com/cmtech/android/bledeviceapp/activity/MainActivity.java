@@ -24,7 +24,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,16 +34,14 @@ import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
-import com.cmtech.android.bledevicecore.interfa.BleDeviceAbstractFactory;
-import com.cmtech.android.bledevicecore.interfa.IBleDeviceStateObserver;
+import com.cmtech.android.bledeviceapp.model.BleDeviceAbstractFactory;
+import com.cmtech.android.bledevicecore.model.IBleDeviceStateObserver;
 import com.cmtech.android.bledeviceapp.model.BleDeviceController;
 import com.cmtech.android.bledeviceapp.model.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceType;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
-
-import org.litepal.LitePal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -143,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         fragmentManager.setOnFragmentChangedListener(new FragmentAndTabLayoutManager.OnFragmentChangedListener() {
             @Override
             public void onFragmentchanged() {
-                updateToolBar((BleDeviceFragment) fragmentManager.getCurrentFragment());
+                updateToolBar(((BleDeviceFragment) fragmentManager.getCurrentFragment()).getDevice());
             }
         });
 
@@ -278,18 +275,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // IBleDeviceStateObserver接口函数，更新设备状态
     @Override
     public void updateDeviceState(BleDevice device) {
-        // 更新设备列表
+        // 更新设备列表Adapter
         updateDeviceListAdapter();
 
-        BleDeviceFragment deviceFrag = getFragment(device);
-        BleDeviceFragment currentFrag = (BleDeviceFragment)fragmentManager.getCurrentFragment();
-
         // 更新设备的Fragment
+        BleDeviceFragment deviceFrag = getFragment(device);
         if(deviceFrag != null) deviceFrag.updateDeviceState(device);
 
         // 更新Activity的ToolBar
+        BleDeviceFragment currentFrag = (BleDeviceFragment)fragmentManager.getCurrentFragment();
         if(currentFrag != null && deviceFrag == currentFrag) {
-            updateToolBar(currentFrag);
+            updateToolBar(currentFrag.getDevice());
         }
     }
     ////////////////////////////////////////////////////////////
@@ -326,7 +322,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             showFragment(fragment);
             fragment.openDevice();
         } else {
-            BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo());
+            BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device);
             if(factory == null) return;
 
             BleDeviceController deviceController = factory.createController(device);
@@ -496,10 +492,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     }
 
     // 更新工具条
-    private void updateToolBar(BleDeviceFragment fragment) {
-        if(fragment == null || fragment.getDevice() == null) return;
-
-        BleDevice device = fragment.getDevice();
+    private void updateToolBar(BleDevice device) {
         if(device == null) return;
 
         // 更新连接菜单
@@ -524,8 +517,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         menuClose.setEnabled(device.canClose());
 
         // 更新工具条图标
-        Drawable drawable = null;
-
+        Drawable drawable;
         String imagePath = device.getImagePath();
         if(imagePath != null && !"".equals(imagePath)) {
             drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
@@ -537,10 +529,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 更新工具条title
         toolbar.setTitle(device.getStateDescription());
 
-        /*if(device.getDeviceConnectState() == CONNECT_SUCCESS)
-            toolbar.setTitleTextColor(Color.RED);
-        else
-            toolbar.setTitleTextColor(Color.GRAY);*/
     }
 
     /**

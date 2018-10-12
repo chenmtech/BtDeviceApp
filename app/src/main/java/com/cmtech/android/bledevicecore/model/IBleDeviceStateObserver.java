@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore.interfa;
+package com.cmtech.android.bledevicecore.model;
 
 import com.cmtech.android.bledevicecore.model.BleDevice;
 

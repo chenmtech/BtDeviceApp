@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import com.cmtech.android.bledevicecore.interfa.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 
 public class BleDeviceController {
@@ -49,6 +48,6 @@ public class BleDeviceController {
     }
 
     private BleDeviceFragment createFragment(BleDevice device) {
-        return BleDeviceAbstractFactory.getBLEDeviceFactory(device.getBasicInfo()).createFragment();
+        return BleDeviceAbstractFactory.getBLEDeviceFactory(device).createFragment();
     }
 }
