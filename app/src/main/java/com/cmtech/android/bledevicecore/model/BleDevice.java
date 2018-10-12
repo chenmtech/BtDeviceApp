@@ -36,7 +36,7 @@ public abstract class BleDevice implements Serializable{
     private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
     // 重连延时，毫秒
-    private final static int RECONNECT_DELAY = 5000;
+    private final static int RECONNECT_DELAY = 1000;
 
     // 设备基本信息
     private BleDeviceBasicInfo basicInfo;
@@ -54,7 +54,15 @@ public abstract class BleDevice implements Serializable{
     private final List<IBleDeviceStateObserver> deviceStateObserverList = new LinkedList<>();
 
     // 是否正在关闭
-    //private boolean isClosing = false;
+    private boolean isClosing = false;
+
+    public boolean isClosing() {
+        return isClosing;
+    }
+
+    public void setClosing(boolean closing) {
+        isClosing = closing;
+    }
 
     // 几个设备状态
     private final BleDeviceCloseState closeState = new BleDeviceCloseState(this);       // 关闭状态

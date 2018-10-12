@@ -19,14 +19,8 @@ public class BleDeviceConnectedState implements IBleDeviceState {
 
     @Override
     public void close() {
-        MyApplication.getViseBle().getDeviceMirrorPool().disconnect(device.getBluetoothLeDevice());
-        device.getHandler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                device.processDisconnect();
-                device.setState(device.getCloseState());
-            }
-        }, 1000);
+        device.setClosing(true);
+        disconnect();
     }
 
     @Override
@@ -41,7 +35,12 @@ public class BleDeviceConnectedState implements IBleDeviceState {
             @Override
             public void run() {
                 device.processDisconnect();
-                device.setState(device.getDisconnectState());
+                if(!device.isClosing())
+                    device.setState(device.getDisconnectState());
+                else {
+                    device.setState(device.getCloseState());
+                    device.setClosing(false);
+                }
             }
         }, 1000);
 
@@ -86,7 +85,12 @@ public class BleDeviceConnectedState implements IBleDeviceState {
     @Override
     public void onDeviceDisconnect() {
         device.getHandler().removeCallbacksAndMessages(null);
-        device.setState(device.getDisconnectState());
+        if(!device.isClosing())
+            device.setState(device.getDisconnectState());
+        else {
+            device.setState(device.getCloseState());
+            device.setClosing(false);
+        }
         device.processDisconnect();
     }
 

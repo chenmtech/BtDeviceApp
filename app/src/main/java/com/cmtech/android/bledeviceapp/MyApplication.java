@@ -16,6 +16,9 @@ import org.litepal.LitePal;
  */
 
 public class MyApplication extends Application {
+    private final static int SCAN_TIMEOUT = 6000;           // 扫描超时
+    private final static int CONNECT_TIMEOUT = 20000;       // 连接超时
+
     // 上下文
     private static Context context;
 
@@ -31,7 +34,7 @@ public class MyApplication extends Application {
         // 初始化ViseBle
         viseBle = ViseBle.getInstance();
         viseBle.init(this);
-        BleConfig.getInstance().setScanTimeout(10000).setConnectTimeout(20000).setConnectRetryCount(0).setOperateRetryCount(0);
+        BleConfig.getInstance().setScanTimeout(SCAN_TIMEOUT).setConnectTimeout(CONNECT_TIMEOUT).setConnectRetryCount(0).setOperateRetryCount(0);
 
         // 初始化LitePal
         LitePal.initialize(context);

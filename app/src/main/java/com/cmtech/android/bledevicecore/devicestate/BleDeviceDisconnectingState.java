@@ -64,7 +64,12 @@ public class BleDeviceDisconnectingState implements IBleDeviceState {
     @Override
     public void onDeviceDisconnect() {
         device.getHandler().removeCallbacksAndMessages(null);
-        device.setState(device.getDisconnectState());
+        if(!device.isClosing())
+            device.setState(device.getDisconnectState());
+        else {
+            device.setState(device.getCloseState());
+            device.setClosing(false);
+        }
         device.processDisconnect();
     }
 
