@@ -506,8 +506,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(device.canDisconnect()) {
             menuConnect.setEnabled(true);
             menuConnect.setTitle("断开");
-            //menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connect_24px));
-            menuConnect.setIcon(getResources().getDrawable(R.mipmap.connecting4));
+            menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connect_24px));
         }
         else if(device.canConnect()) {
             menuConnect.setEnabled(true);
