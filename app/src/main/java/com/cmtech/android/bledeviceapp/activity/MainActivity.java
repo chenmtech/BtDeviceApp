@@ -514,7 +514,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         }
         else {
             menuConnect.setEnabled(false);
-            menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
+            //menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
+            menuConnect.setIcon(getResources().getDrawable(R.drawable.connectingdrawable));
         }
 
         // 更新关闭菜单
