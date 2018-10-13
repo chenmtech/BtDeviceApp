@@ -119,7 +119,6 @@ public class TempHumidDevice extends BleDevice {
         initializeAfterConstruction();
     }
 
-    @Override
     public void initializeAfterConstruction() {
         curTempHumid = null;
 

@@ -128,6 +128,8 @@ public class EcgMonitorDevice extends BleDevice {
         super(basicInfo);
         initializeAfterConstruction();
     }
+    public void initializeAfterConstruction() {
+    }
 
     public EcgMonitorInitialState getInitialState() {
         return initialState;
@@ -151,9 +153,6 @@ public class EcgMonitorDevice extends BleDevice {
         updateEcgMonitorState();
     }
 
-    @Override
-    public void initializeAfterConstruction() {
-    }
 
     @Override
     public void executeAfterConnectSuccess() {

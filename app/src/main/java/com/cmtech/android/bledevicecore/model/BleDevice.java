@@ -314,8 +314,6 @@ public abstract class BleDevice implements Serializable{
     /*
      * 子类需要提供的抽象方法
      */
-    // 子类构造之后的初始化操作，需要在子类构造器中执行
-    public abstract void initializeAfterConstruction();
     // 连接成功后执行的操作
     public abstract void executeAfterConnectSuccess();
     // 连接错误后执行的操作
@@ -389,6 +387,8 @@ public abstract class BleDevice implements Serializable{
     }
 
     public void processConnectSuccess(DeviceMirror mirror) {
+        handler.removeCallbacksAndMessages(null);
+
         bluetoothLeDevice = mirror.getBluetoothLeDevice();
 
         curReconnectTimes = 0;
