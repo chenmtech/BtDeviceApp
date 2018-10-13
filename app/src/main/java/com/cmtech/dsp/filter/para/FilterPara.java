@@ -1,8 +1,8 @@
 package com.cmtech.dsp.filter.para;
 
-import java.util.Arrays;
-
 import com.cmtech.dsp.filter.design.FilterType;
+
+import java.util.Arrays;
 
 public abstract class FilterPara {
 	private double[] wp;

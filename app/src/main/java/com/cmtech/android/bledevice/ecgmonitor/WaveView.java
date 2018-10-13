@@ -6,8 +6,6 @@
  */
 package com.cmtech.android.bledevice.ecgmonitor;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -19,6 +17,8 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
+
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class WaveView extends View {

@@ -1,5 +1,14 @@
 package com.cmtech.dsp.filter.design;
 
+import com.cmtech.dsp.filter.IIRFilter;
+import com.cmtech.dsp.filter.para.IIRPara;
+import com.cmtech.dsp.filter.structure.StructType;
+import com.cmtech.dsp.seq.RealSeq;
+import com.cmtech.dsp.util.ZT;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.cos;
@@ -7,15 +16,6 @@ import static java.lang.Math.log10;
 import static java.lang.Math.pow;
 import static java.lang.Math.sin;
 import static java.lang.Math.tan;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import com.cmtech.dsp.filter.IIRFilter;
-import com.cmtech.dsp.filter.para.IIRPara;
-import com.cmtech.dsp.filter.structure.StructType;
-import com.cmtech.dsp.seq.RealSeq;
-import com.cmtech.dsp.util.ZT;
 
 public class IIRDesigner {
 	private IIRDesigner() {

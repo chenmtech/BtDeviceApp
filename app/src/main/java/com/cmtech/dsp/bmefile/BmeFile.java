@@ -8,6 +8,9 @@
  */
 package com.cmtech.dsp.bmefile;
 
+import com.cmtech.dsp.exception.FileException;
+import com.cmtech.dsp.util.FormatTransfer;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -23,9 +26,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import com.cmtech.dsp.exception.FileException;
-import com.cmtech.dsp.util.FormatTransfer;
 
 /**
  * ClassName: BmeFile

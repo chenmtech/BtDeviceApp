@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
-import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.Uuid;
 import com.cmtech.android.bledevicecore.model.BleDeviceType;

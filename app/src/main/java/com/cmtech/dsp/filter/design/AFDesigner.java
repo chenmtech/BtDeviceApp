@@ -8,15 +8,15 @@
  */
 package com.cmtech.dsp.filter.design;
 
-import static java.lang.Math.abs;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import com.cmtech.dsp.filter.AnalogFilter;
 import com.cmtech.dsp.filter.para.AFPara;
 import com.cmtech.dsp.seq.RealSeq;
 import com.cmtech.dsp.util.ZT;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.lang.Math.abs;
 
 /**
  * ClassName: AFDesigner

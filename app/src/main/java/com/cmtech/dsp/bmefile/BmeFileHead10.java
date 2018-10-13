@@ -8,14 +8,14 @@
  */
 package com.cmtech.dsp.bmefile;
 
+import com.cmtech.dsp.exception.FileException;
+import com.cmtech.dsp.util.FormatTransfer;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-
-import com.cmtech.dsp.exception.FileException;
-import com.cmtech.dsp.util.FormatTransfer;
 
 /**
  * ClassName: BmeFileHead10

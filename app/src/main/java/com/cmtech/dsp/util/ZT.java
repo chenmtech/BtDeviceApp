@@ -8,10 +8,10 @@
  */
 package com.cmtech.dsp.util;
 
+import com.cmtech.dsp.seq.RealSeq;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import com.cmtech.dsp.seq.RealSeq;
 
 /**
  * ClassName: ZT

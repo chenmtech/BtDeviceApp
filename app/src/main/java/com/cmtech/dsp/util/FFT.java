@@ -8,15 +8,15 @@
  */
 package com.cmtech.dsp.util;
 
+import com.cmtech.dsp.seq.ComplexSeq;
+import com.cmtech.dsp.seq.ISeq;
+import com.cmtech.dsp.seq.RealSeq;
+import com.cmtech.dsp.seq.Seq;
+
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.pow;
 import static java.lang.Math.sin;
-
-import com.cmtech.dsp.seq.Seq;
-import com.cmtech.dsp.seq.ComplexSeq;
-import com.cmtech.dsp.seq.ISeq;
-import com.cmtech.dsp.seq.RealSeq;
 
 
 /**

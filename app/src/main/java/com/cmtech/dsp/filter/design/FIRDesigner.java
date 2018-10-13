@@ -1,18 +1,18 @@
 package com.cmtech.dsp.filter.design;
 
-import static java.lang.Math.PI;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import com.cmtech.dsp.filter.FIRFilter;
 import com.cmtech.dsp.filter.para.FIRPara;
 import com.cmtech.dsp.filter.para.KaiserPara;
 import com.cmtech.dsp.filter.structure.StructType;
 import com.cmtech.dsp.seq.RealSeq;
 import com.cmtech.dsp.util.SeqUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 
 
 public class FIRDesigner {

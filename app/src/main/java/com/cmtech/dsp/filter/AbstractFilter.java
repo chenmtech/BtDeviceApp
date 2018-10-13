@@ -1,9 +1,9 @@
 package com.cmtech.dsp.filter;
 
-import java.util.Arrays;
-
 import com.cmtech.dsp.filter.para.FilterPara;
 import com.cmtech.dsp.seq.RealSeq;
+
+import java.util.Arrays;
 
 public abstract class AbstractFilter implements IFilter {
 	protected double[] b;

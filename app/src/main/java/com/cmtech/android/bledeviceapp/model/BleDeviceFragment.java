@@ -1,15 +1,13 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.Toast;
 
-import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.cmtech.android.bledevicecore.model.BleDevice;
 
 /**
  * Created by bme on 2018/2/27.

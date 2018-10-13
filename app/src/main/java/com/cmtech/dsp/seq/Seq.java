@@ -8,11 +8,11 @@
  */
 package com.cmtech.dsp.seq;
 
+import com.cmtech.dsp.util.FFT;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.cmtech.dsp.util.FFT;
 
 /**
  * ClassName: AbstractSeq

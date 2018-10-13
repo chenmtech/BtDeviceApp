@@ -8,13 +8,13 @@
  */
 package com.cmtech.dsp.seq;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileHead;
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.util.SeqUtil;
+
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * ClassName: RealSeq1

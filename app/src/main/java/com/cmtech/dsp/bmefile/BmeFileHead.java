@@ -8,11 +8,11 @@
  */
 package com.cmtech.dsp.bmefile;
 
+import com.cmtech.dsp.exception.FileException;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.nio.ByteOrder;
-
-import com.cmtech.dsp.exception.FileException;
 
 /**
  * ClassName: BmeFileCore

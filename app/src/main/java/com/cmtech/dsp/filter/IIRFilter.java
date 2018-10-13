@@ -1,7 +1,5 @@
 package com.cmtech.dsp.filter;
 
-import java.util.Map;
-
 import com.cmtech.dsp.filter.structure.IIRDCBlockStructure;
 import com.cmtech.dsp.filter.structure.IIRDF1Structure;
 import com.cmtech.dsp.filter.structure.IIRDF2Structure;
@@ -12,6 +10,8 @@ import com.cmtech.dsp.seq.ComplexSeq;
 import com.cmtech.dsp.seq.RealSeq;
 import com.cmtech.dsp.util.SeqUtil;
 import com.cmtech.dsp.util.ZT;
+
+import java.util.Map;
 
 public class IIRFilter extends DigitalFilter {
 	

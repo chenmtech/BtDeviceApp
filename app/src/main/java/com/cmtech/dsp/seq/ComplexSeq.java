@@ -8,10 +8,10 @@
  */
 package com.cmtech.dsp.seq;
 
-import java.util.Collection;
-
 import com.cmtech.dsp.util.Complex;
 import com.cmtech.dsp.util.SeqUtil;
+
+import java.util.Collection;
 
 /**
  * ClassName: ComplexSeq1

@@ -1,9 +1,9 @@
 package com.cmtech.dsp.filter.para;
 
-import java.util.Arrays;
-
 import com.cmtech.dsp.filter.design.FilterType;
 import com.cmtech.dsp.filter.design.WinType;
+
+import java.util.Arrays;
 
 public class FIRPara extends DFPara {
 	private int N = 0;	// h(n)的长度

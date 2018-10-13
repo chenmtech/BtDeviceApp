@@ -35,13 +35,13 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.bledeviceapp.model.BleDeviceAbstractFactory;
-import com.cmtech.android.bledevicecore.model.IBleDeviceStateObserver;
 import com.cmtech.android.bledeviceapp.model.BleDeviceController;
 import com.cmtech.android.bledeviceapp.model.BleDeviceFragment;
+import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceType;
-import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
+import com.cmtech.android.bledevicecore.model.IBleDeviceStateObserver;
 
 import java.io.Serializable;
 import java.util.ArrayList;

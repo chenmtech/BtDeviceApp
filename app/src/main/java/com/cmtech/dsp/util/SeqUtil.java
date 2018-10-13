@@ -1,10 +1,10 @@
 package com.cmtech.dsp.util;
 
-import com.cmtech.dsp.seq.Seq;
 import com.cmtech.dsp.seq.ComplexSeq;
 import com.cmtech.dsp.seq.ISeq;
 import com.cmtech.dsp.seq.ISeqBaseOperator;
 import com.cmtech.dsp.seq.RealSeq;
+import com.cmtech.dsp.seq.Seq;
 
 /**
  * 

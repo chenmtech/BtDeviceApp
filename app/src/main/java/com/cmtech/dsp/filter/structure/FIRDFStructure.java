@@ -8,9 +8,9 @@
  */
 package com.cmtech.dsp.filter.structure;
 
-import java.util.Arrays;
-
 import com.cmtech.dsp.filter.FIRFilter;
+
+import java.util.Arrays;
 
 /**
  * ClassName: FIRDFStructure

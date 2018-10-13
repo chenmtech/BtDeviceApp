@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevicecore.model;
 
-import com.cmtech.android.bledevicecore.model.BleDevice;
-
 /**
  * IBleDeviceStateObserver: 设备状态观察者接口
  * Created by bme on 2018/3/12.

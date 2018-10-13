@@ -1,16 +1,15 @@
 package com.cmtech.android.bledevice.temphumid;
 
-import android.os.Bundle;
 import android.os.Message;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.bledeviceapp.util.Uuid;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
-import com.cmtech.android.bledeviceapp.util.Uuid;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;

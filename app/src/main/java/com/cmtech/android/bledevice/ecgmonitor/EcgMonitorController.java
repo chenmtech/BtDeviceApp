@@ -1,8 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
-import com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity;
-import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledeviceapp.model.BleDeviceController;
+import com.cmtech.android.bledevicecore.model.BleDevice;
 
 public class EcgMonitorController extends BleDeviceController {
     private final EcgMonitorDevice device;

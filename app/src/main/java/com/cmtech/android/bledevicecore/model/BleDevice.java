@@ -11,16 +11,15 @@ import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceCloseState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceConnectedState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceConnectingState;
-import com.cmtech.android.bledevicecore.devicestate.BleDeviceDisconnectingState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceDisconnectState;
+import com.cmtech.android.bledevicecore.devicestate.BleDeviceDisconnectingState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceScanState;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.devicestate.IBleDeviceState;
 import com.vise.log.ViseLog;
-
 
 import java.io.Serializable;
 import java.util.LinkedList;

@@ -8,9 +8,9 @@
  */
 package com.cmtech.dsp.bmefile;
 
-import java.util.Arrays;
-
 import com.cmtech.dsp.exception.FileException;
+
+import java.util.Arrays;
 
 /**
  * ClassName: BmeFileHeadFactory

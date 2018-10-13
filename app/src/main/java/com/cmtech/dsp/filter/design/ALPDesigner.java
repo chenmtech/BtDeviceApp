@@ -1,5 +1,11 @@
 package com.cmtech.dsp.filter.design;
 
+import com.cmtech.dsp.seq.RealSeq;
+import com.cmtech.dsp.util.SeqUtil;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.cos;
@@ -10,13 +16,6 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sin;
 import static java.lang.Math.sinh;
 import static java.lang.Math.sqrt;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import com.cmtech.dsp.seq.RealSeq;
-import com.cmtech.dsp.util.SeqUtil;
-import com.cmtech.dsp.util.TwoTuple;
 
 public class ALPDesigner {
 	//最小数值 
