@@ -1,8 +1,6 @@
-package com.cmtech.android.bledeviceapp.model;
+package com.cmtech.android.bledevicecore.model;
 
-import com.cmtech.android.bledevicecore.model.BleDevice;
-
-public class BleDeviceController {
+public abstract class BleDeviceController {
     // 设备
     private final BleDevice device;
 

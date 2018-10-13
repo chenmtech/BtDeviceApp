@@ -34,13 +34,14 @@ import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
-import com.cmtech.android.bledeviceapp.model.BleDeviceAbstractFactory;
-import com.cmtech.android.bledeviceapp.model.BleDeviceController;
-import com.cmtech.android.bledeviceapp.model.BleDeviceFragment;
+import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
+import com.cmtech.android.bledevicecore.model.BleDeviceController;
+import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceType;
+import com.cmtech.android.bledevicecore.model.IBleDeviceActivity;
 import com.cmtech.android.bledevicecore.model.IBleDeviceStateObserver;
 
 import java.io.Serializable;
@@ -52,7 +53,7 @@ import java.util.List;
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
-public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver {
+public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceActivity {
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
     private final static int REQUESTCODE_ENABLEBLUETOOTH = 3;    // 使能蓝牙
@@ -288,10 +289,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             updateToolBar(currentFrag.getDevice());
         }
     }
-    ////////////////////////////////////////////////////////////
-
 
     // 关闭设备
+    @Override
     public void closeDevice(BleDeviceFragment fragment) {
         if(fragment == null) return;
 
@@ -303,6 +303,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     }
 
     // 从deviceControllerList中寻找Fragment对应的控制器
+    @Override
     public BleDeviceController getController(BleDeviceFragment fragment) {
         for(BleDeviceController controller : openedControllerList) {
             if(controller.getFragment().equals(fragment)) {
@@ -311,6 +312,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         }
         return null;
     }
+
+    ////////////////////////////////////////////////////////////
 
     // 启动一个BLE设备：为设备创建控制器和Fragment，并自动连接
     public void openDevice(BleDevice device) {
@@ -522,7 +525,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(imagePath != null && !"".equals(imagePath)) {
             drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
         } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(BleDeviceType.fromUuid(device.getUuidString()).getImage());
+            drawable = MyApplication.getContext().getResources().getDrawable(BleDeviceType.fromUuid(device.getUuidString()).getDefaultImage());
         }
         toolbar.setLogo(drawable);
 

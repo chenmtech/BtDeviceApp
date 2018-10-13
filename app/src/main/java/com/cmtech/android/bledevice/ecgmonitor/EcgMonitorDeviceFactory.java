@@ -1,8 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
-import com.cmtech.android.bledeviceapp.model.BleDeviceAbstractFactory;
-import com.cmtech.android.bledeviceapp.model.BleDeviceController;
-import com.cmtech.android.bledeviceapp.model.BleDeviceFragment;
+import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
+import com.cmtech.android.bledevicecore.model.BleDeviceController;
+import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 

@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.BleDeviceFragment;
+import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
 
 /**

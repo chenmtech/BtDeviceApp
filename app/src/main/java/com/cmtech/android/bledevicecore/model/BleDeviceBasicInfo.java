@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- *  BleDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库中
+ *  BleDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库或SharePreference中
  *  Created by bme on 2018/6/27.
  */
 

@@ -1,26 +1,18 @@
-package com.cmtech.android.bledeviceapp.model;
+package com.cmtech.android.bledevicecore.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDeviceFactory;
 import com.cmtech.android.bledevice.temphumid.TempHumidDeviceFactory;
 import com.cmtech.android.bledevice.thermo.ThermoDeviceFactory;
-import com.cmtech.android.bledevicecore.model.BleDevice;
-import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
+
+import static com.cmtech.android.bledevicecore.model.BleDeviceType.DEVTYPE_ECGMONITOR;
+import static com.cmtech.android.bledevicecore.model.BleDeviceType.DEVTYPE_TEMPHUMID;
+import static com.cmtech.android.bledevicecore.model.BleDeviceType.DEVTYPE_THERMOMETER;
 
 /*
  * BleDeviceAbstractFactory：Ble设备抽象工厂
  * Created by bme on 2018/10/13.
  */
 public abstract class BleDeviceAbstractFactory {
-    // 支持的设备类型的16位UUID的字符串
-    private static final String UUID_SIMPLE128GATTPROFILE   = "aa10";
-    private static final String UUID_HEIGHTSCALE            = "aa20";       // 高度计
-    private static final String UUID_THERMOMETER            = "aa30";       // 体温计
-    private static final String UUID_ECGMONITOR             = "aa40";       // 心电监护仪
-    private static final String UUID_SIGGENERATOR           = "aa50";       // 信号发生器
-    private static final String UUID_TEMPHUMID              = "aa60";       // 温湿度计
-    private static final String UUID_UNKNOWN                = "0000";       // 未知设备
-
-
     // 获取BleDevice的抽象工厂
     public static BleDeviceAbstractFactory getBLEDeviceFactory(BleDevice device) {
         return (device == null) ? null : getBLEDeviceFactory(device.getBasicInfo());
@@ -31,11 +23,15 @@ public abstract class BleDeviceAbstractFactory {
     }
 
     public static BleDeviceAbstractFactory getBLEDeviceFactory(String uuidString) {
-        if(UUID_TEMPHUMID.equalsIgnoreCase(uuidString))
+        return getBLEDeviceFactory(BleDeviceType.fromUuid(uuidString));
+    }
+
+    public static BleDeviceAbstractFactory getBLEDeviceFactory(BleDeviceType deviceType) {
+        if(DEVTYPE_TEMPHUMID == deviceType)
             return new TempHumidDeviceFactory();
-        else if(UUID_ECGMONITOR.equalsIgnoreCase(uuidString))
+        else if(DEVTYPE_ECGMONITOR == deviceType)
             return new EcgMonitorDeviceFactory();
-        else if(UUID_THERMOMETER.equalsIgnoreCase(uuidString))
+        else if(DEVTYPE_THERMOMETER == deviceType)
             return new ThermoDeviceFactory();
         else
             return null;

@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.BleDeviceFragment;
+import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
 /**
  * Created by bme on 2018/3/13.

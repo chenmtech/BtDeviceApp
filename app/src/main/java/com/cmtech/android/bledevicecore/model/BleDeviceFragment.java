@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.model;
+package com.cmtech.android.bledevicecore.model;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -7,15 +7,14 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
-import com.cmtech.android.bledevicecore.model.BleDevice;
 
 /**
  * Created by bme on 2018/2/27.
  */
 
 public abstract class BleDeviceFragment extends Fragment{
-    // MainActivity
-    protected MainActivity activity;
+    // IBleDeviceActivity，包含Fragment的Activity
+    protected IBleDeviceActivity activity;
 
     // 对应的控制器接口
     protected BleDeviceController controller;
@@ -37,12 +36,12 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(!(context instanceof MainActivity)) {
-            throw new IllegalStateException("context不是MainActivity");
+        if(!(context instanceof IBleDeviceActivity)) {
+            throw new IllegalStateException("context不是IBleDeviceActivity");
         }
 
         // 获得Activity
-        activity = (MainActivity) context;
+        activity = (IBleDeviceActivity) context;
 
         // 获取controller
         controller = activity.getController(this);

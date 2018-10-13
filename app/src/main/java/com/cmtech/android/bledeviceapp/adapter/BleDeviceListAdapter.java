@@ -128,7 +128,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             holder.deviceImage.setImageDrawable(drawable);
         } else {
-            Glide.with(MyApplication.getContext()).load(BleDeviceType.fromUuid(device.getUuidString()).getImage()).into(holder.deviceImage);
+            Glide.with(MyApplication.getContext()).load(BleDeviceType.fromUuid(device.getUuidString()).getDefaultImage()).into(holder.deviceImage);
         }
 
         holder.deviceName.setText(device.getNickName());

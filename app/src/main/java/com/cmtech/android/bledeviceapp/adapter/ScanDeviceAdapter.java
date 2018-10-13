@@ -77,7 +77,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         String supportedUUID = Uuid.longToShortString(Uuid.byteArrayToUuid(recordUUID.getData()).toString());
         holder.deviceName.setText("设备名："+device.getName());
-        holder.deviceTypeName.setText("设备类型："+ BleDeviceType.fromUuid(supportedUUID).getName());
+        holder.deviceTypeName.setText("设备类型："+ BleDeviceType.fromUuid(supportedUUID).getDefaultNickname());
         holder.deviceAddress.setText("蓝牙地址："+device.getAddress());
 
         Boolean status = mDeviceStatus.get(position);

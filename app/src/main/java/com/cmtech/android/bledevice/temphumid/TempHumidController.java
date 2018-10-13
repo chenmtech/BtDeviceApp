@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.temphumid;
 
-import com.cmtech.android.bledeviceapp.model.BleDeviceController;
+import com.cmtech.android.bledevicecore.model.BleDeviceController;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 
 public class TempHumidController extends BleDeviceController {

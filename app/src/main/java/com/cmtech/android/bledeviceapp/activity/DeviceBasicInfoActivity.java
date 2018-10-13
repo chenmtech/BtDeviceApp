@@ -64,7 +64,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         setTitle("设备:" + basicInfo.getMacAddress());
 
         etName = findViewById(R.id.cfg_device_nickname);
-        etName.setText("".equals(basicInfo.getNickName()) ? BleDeviceType.fromUuid(basicInfo.getUuidString()).getName() : basicInfo.getNickName());
+        etName.setText("".equals(basicInfo.getNickName()) ? BleDeviceType.fromUuid(basicInfo.getUuidString()).getDefaultNickname() : basicInfo.getNickName());
 
         ivImage = findViewById(R.id.cfg_device_image);
 
@@ -73,7 +73,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             ivImage.setImageDrawable(drawable);
         } else {
-            Glide.with(this).load(BleDeviceType.fromUuid(basicInfo.getUuidString()).getImage()).into(ivImage);
+            Glide.with(this).load(BleDeviceType.fromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
         }
 
         ivImage.setOnClickListener(new View.OnClickListener() {
