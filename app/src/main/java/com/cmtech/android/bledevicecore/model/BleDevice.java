@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevicecore.model;
 
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
@@ -146,7 +147,7 @@ public abstract class BleDevice implements Serializable{
     }
 
     // 处理Gatt操作回调消息
-    protected final Handler handler = new Handler(Looper.myLooper()) {
+    /*protected final Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             processGattCallbackMessage(msg);
@@ -154,7 +155,22 @@ public abstract class BleDevice implements Serializable{
     };
     public Handler getHandler() {
         return handler;
+    }*/
+
+
+
+    private final Handler createThreadHandler() {
+        HandlerThread thread = new HandlerThread("BleDevice Work Thread");
+        thread.start();
+        return new Handler(thread.getLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                processGattCallbackMessage(msg);
+            }
+        };
     }
+    protected final Handler handler = createThreadHandler();
+    public Handler getHandler() { return handler; }
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
@@ -164,6 +180,10 @@ public abstract class BleDevice implements Serializable{
         this.basicInfo = basicInfo;
         curReconnectTimes = 0;
         isClosing = false;
+
+        ViseLog.i(getNickName()+": Looper is " + Looper.myLooper());
+        ViseLog.i(getNickName()+ ": Handler is " + handler);
+        ViseLog.i(getNickName() + ": MainLooper is " + Looper.getMainLooper());
     }
 
     // 获取设备基本信息

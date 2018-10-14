@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.temphumid;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -451,7 +453,12 @@ public class TempHumidDevice extends BleDevice {
     public void notifyObserverCurrentTempHumidDataChanged() {
         for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
             if(observer != null) {
-                observer.updateCurrentTempHumidData();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        observer.updateCurrentTempHumidData();
+                    }
+                });
             }
         }
     }
@@ -460,7 +467,12 @@ public class TempHumidDevice extends BleDevice {
     public void notifyObserverHistoryTempHumidDataChanged() {
         for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
             if(observer != null) {
-                observer.updateHistoryTempHumidData();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        observer.updateHistoryTempHumidData();
+                    }
+                });
             }
         }
     }

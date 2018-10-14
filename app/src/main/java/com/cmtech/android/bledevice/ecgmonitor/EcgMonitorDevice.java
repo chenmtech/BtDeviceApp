@@ -509,9 +509,14 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    private void updateEcgHr(int hr) {
+    private void updateEcgHr(final int hr) {
         if(observer != null) {
-            observer.updateEcgHr(hr);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateEcgHr(hr);
+                }
+            });
         }
     }
 }
