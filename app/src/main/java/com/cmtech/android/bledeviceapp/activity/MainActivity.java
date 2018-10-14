@@ -313,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         return null;
     }
 
+
     ////////////////////////////////////////////////////////////
 
     // 启动一个BLE设备：为设备创建控制器和Fragment，并自动连接

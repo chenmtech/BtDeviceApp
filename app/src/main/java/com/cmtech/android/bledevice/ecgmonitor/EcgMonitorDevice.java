@@ -166,7 +166,7 @@ public class EcgMonitorDevice extends BleDevice {
         updateCalibrationValue(DEFAULT_CALIBRATIONVALUE);
 
         if(!checkBasicEcgMonitorService()) {
-            handler.postDelayed(new Runnable() {
+            getHandler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     disconnect();

@@ -34,7 +34,7 @@ public abstract class BleDevice implements Serializable{
     // 设备镜像池
     private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
-    // 重连延时，毫秒
+    // 连接断开后重连之间的延时，毫秒
     private final static int RECONNECT_DELAY = 1000;
 
     // 设备基本信息
@@ -61,7 +61,7 @@ public abstract class BleDevice implements Serializable{
     // 设备状态观察者列表
     private final List<IBleDeviceStateObserver> deviceStateObserverList = new LinkedList<>();
 
-    // 是否正在关闭
+    // 是否正在关闭。当断开连接时，根据这个标志判断是否应该退回到close状态
     private boolean isClosing = false;
     public boolean isClosing() {
         return isClosing;
@@ -71,13 +71,13 @@ public abstract class BleDevice implements Serializable{
     }
 
     // 几个设备状态
-    private final BleDeviceCloseState closeState = new BleDeviceCloseState(this);       // 关闭状态
-    private final BleDeviceDisconnectState disconnectState = new BleDeviceDisconnectState(this);          // 连接断开状态
-    private final BleDeviceScanState scanState = new BleDeviceScanState(this);          // 扫描状态
-    private final BleDeviceConnectingState connectingState = new BleDeviceConnectingState(this);        // 连接中状态
-    private final BleDeviceConnectedState connectedState = new BleDeviceConnectedState(this);           // 连接状态
-    private final BleDeviceDisconnectingState disconnectingState = new BleDeviceDisconnectingState(this);       // 断开中状态
-    // 获取几个设备状态常量
+    private final BleDeviceCloseState closeState = new BleDeviceCloseState(this);                           // 关闭状态
+    private final BleDeviceDisconnectState disconnectState = new BleDeviceDisconnectState(this);            // 连接断开状态
+    private final BleDeviceScanState scanState = new BleDeviceScanState(this);                              // 扫描状态
+    private final BleDeviceConnectingState connectingState = new BleDeviceConnectingState(this);            // 连接中状态
+    private final BleDeviceConnectedState connectedState = new BleDeviceConnectedState(this);               // 已连接状态
+    private final BleDeviceDisconnectingState disconnectingState = new BleDeviceDisconnectingState(this);   // 断开中状态
+    // 获取设备状态常量
     public BleDeviceCloseState getCloseState() {
         return closeState;
     }
@@ -97,7 +97,7 @@ public abstract class BleDevice implements Serializable{
         return disconnectingState;
     }
 
-    // 设备状态变量
+    // 设备状态变量，初始化为关闭状态
     private IBleDeviceState state = closeState;
     // 设置设备状态
     public void setState(IBleDeviceState state) {
@@ -107,13 +107,14 @@ public abstract class BleDevice implements Serializable{
 
     // 连接回调
     private final IConnectCallback connectCallback = new IConnectCallback() {
+        // 连接成功回调
         @Override
         public void onConnectSuccess(DeviceMirror mirror) {
             synchronized (BleDevice.this) {
                 state.onDeviceConnectSuccess(mirror);
             }
         }
-
+        // 连接失败回调
         @Override
         public void onConnectFailure(final BleException exception) {
             synchronized (BleDevice.this) {
@@ -123,13 +124,14 @@ public abstract class BleDevice implements Serializable{
                     state.onDeviceConnectFailure();
             }
         }
+        // 连接断开回调
         @Override
         public void onDisconnect(final boolean isActive) {
             synchronized (BleDevice.this) {
                 state.onDeviceDisconnect();
             }
         }
-
+        // 扫描结束回调
         @Override
         public void onScanFinish(boolean result) {
             synchronized (BleDevice.this) {
@@ -146,20 +148,9 @@ public abstract class BleDevice implements Serializable{
         return connectCallback;
     }
 
-    // 处理Gatt操作回调消息
-    /*protected final Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            processGattCallbackMessage(msg);
-        }
-    };
-    public Handler getHandler() {
-        return handler;
-    }*/
-
-
-
-    private final Handler createThreadHandler() {
+    // 创建消息Handler
+    private final Handler handler = createMessageHandler();
+    private Handler createMessageHandler() {
         HandlerThread thread = new HandlerThread("BleDevice Work Thread");
         thread.start();
         return new Handler(thread.getLooper()) {
@@ -169,8 +160,10 @@ public abstract class BleDevice implements Serializable{
             }
         };
     }
-    protected final Handler handler = createThreadHandler();
-    public Handler getHandler() { return handler; }
+
+    public Handler getHandler() {
+        return handler;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
@@ -180,11 +173,8 @@ public abstract class BleDevice implements Serializable{
         this.basicInfo = basicInfo;
         curReconnectTimes = 0;
         isClosing = false;
-
-        ViseLog.i(getNickName()+": Looper is " + Looper.myLooper());
-        ViseLog.i(getNickName()+ ": Handler is " + handler);
-        ViseLog.i(getNickName() + ": MainLooper is " + Looper.getMainLooper());
     }
+
 
     // 获取设备基本信息
     public String getMacAddress() {
@@ -203,8 +193,6 @@ public abstract class BleDevice implements Serializable{
         return basicInfo.getImagePath();
     }
     public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
-
-
 
     // 打开设备
     public synchronized void open() {
@@ -238,36 +226,33 @@ public abstract class BleDevice implements Serializable{
         state.switchState();
     }
 
-    // 获取设备描述信息
+    // 获取设备状态描述信息
     public synchronized String getStateDescription() {
         return state.getStateDescription();
     }
 
-    // 是否可连接
+    // 设备是否可连接
     public synchronized boolean canConnect() {
         return state.canConnect();
     }
 
-    // 是否可断开
+    // 设备是否可断开
     public synchronized boolean canDisconnect() {
         return state.canDisconnect();
     }
 
-    // 是否可关闭
+    // 设备是否可关闭
     public synchronized boolean canClose() {
         return state.canClose();
     }
 
-    // 是否已连接
+    // 设备是否已连接
     public synchronized boolean isConnected() {
         return (state == connectedState);
     }
 
-    // 是否可执行命令
-    /*public synchronized boolean canExecuteCommand() {
-        return (isConnected() && isCommandExecutorAlive());
-    }*/
 
+    // 添加Gatt操作命令
     // 添加读取命令
     public synchronized boolean addReadCommand(BleGattElement element, IBleCallback dataOpCallback) {
         return ((commandExecutor != null) && commandExecutor.addReadCommand(element, dataOpCallback));
