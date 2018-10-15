@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
@@ -64,7 +65,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         setTitle("设备:" + basicInfo.getMacAddress());
 
         etName = findViewById(R.id.cfg_device_nickname);
-        etName.setText("".equals(basicInfo.getNickName()) ? BleDeviceType.fromUuid(basicInfo.getUuidString()).getDefaultNickname() : basicInfo.getNickName());
+        etName.setText("".equals(basicInfo.getNickName()) ? SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname() : basicInfo.getNickName());
 
         ivImage = findViewById(R.id.cfg_device_image);
 
@@ -73,7 +74,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             ivImage.setImageDrawable(drawable);
         } else {
-            Glide.with(this).load(BleDeviceType.fromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
+            Glide.with(this).load(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
         }
 
         ivImage.setOnClickListener(new View.OnClickListener() {

@@ -1,12 +1,6 @@
 package com.cmtech.android.bledevicecore.model;
 
-import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDeviceFactory;
-import com.cmtech.android.bledevice.temphumid.TempHumidDeviceFactory;
-import com.cmtech.android.bledevice.thermo.ThermoDeviceFactory;
-
-import static com.cmtech.android.bledevicecore.model.BleDeviceType.DEVTYPE_ECGMONITOR;
-import static com.cmtech.android.bledevicecore.model.BleDeviceType.DEVTYPE_TEMPHUMID;
-import static com.cmtech.android.bledevicecore.model.BleDeviceType.DEVTYPE_THERMOMETER;
+import com.cmtech.android.bledevice.SupportedDeviceType;
 
 /*
  * BleDeviceAbstractFactory：Ble设备抽象工厂
@@ -23,18 +17,11 @@ public abstract class BleDeviceAbstractFactory {
     }
 
     public static BleDeviceAbstractFactory getBLEDeviceFactory(String uuidString) {
-        return getBLEDeviceFactory(BleDeviceType.fromUuid(uuidString));
+        return getBLEDeviceFactory(SupportedDeviceType.getDeviceTypeFromUuid(uuidString));
     }
 
     public static BleDeviceAbstractFactory getBLEDeviceFactory(BleDeviceType deviceType) {
-        if(DEVTYPE_TEMPHUMID == deviceType)
-            return new TempHumidDeviceFactory();
-        else if(DEVTYPE_ECGMONITOR == deviceType)
-            return new EcgMonitorDeviceFactory();
-        else if(DEVTYPE_THERMOMETER == deviceType)
-            return new ThermoDeviceFactory();
-        else
-            return null;
+        return deviceType.createDeviceFactory();
     }
 
     // 创建BleDevice

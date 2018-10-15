@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.ble.utils.BleUtil;
+import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
@@ -536,7 +537,7 @@ public class MainActivity extends BleDeviceActivity implements IBleDeviceStateOb
         if(imagePath != null && !"".equals(imagePath)) {
             drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
         } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(BleDeviceType.fromUuid(device.getUuidString()).getDefaultImage());
+            drawable = MyApplication.getContext().getResources().getDrawable(SupportedDeviceType.getDeviceTypeFromUuid(device.getUuidString()).getDefaultImage());
         }
         toolbar.setLogo(drawable);
 

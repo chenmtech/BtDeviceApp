@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.util;
+package com.cmtech.android.bledevicecore.model;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;
@@ -8,7 +8,10 @@ import java.util.UUID;
  */
 
 public class Uuid {
+    // 基础UUID
     public static final String BASEUUID = "0a20XXXX-cce5-4025-a156-38ea833f6ef8";
+
+    // CCC UUID
     public static final String CCCUUID = "00002902-0000-1000-8000-00805f9b34fb";
 
     private Uuid() {
@@ -34,6 +37,7 @@ public class Uuid {
         return BASEUUID.replaceFirst(sub, shortString);
     }
 
+    // 长字符串转换为短字符串
     public static String longToShortString(String longString) {
         return longString.substring(4, 8);
     }

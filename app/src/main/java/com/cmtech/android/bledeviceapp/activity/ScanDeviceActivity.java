@@ -14,13 +14,14 @@ import android.widget.Toast;
 import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
 import com.cmtech.android.ble.callback.scan.FilterScanCallback;
+import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
-import com.cmtech.android.bledeviceapp.callback.ScanDeviceCallback;
-import com.cmtech.android.bledeviceapp.util.Uuid;
+import com.cmtech.android.bledevicecore.model.Uuid;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 
 import java.util.ArrayList;
@@ -34,7 +35,30 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
     private static final ViseBle viseBle = MyApplication.getViseBle();
 
-    private final FilterScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback(this)).setDeviceName(DEFAULT_DEVICE_NAME);
+    private class ScanDeviceCallback implements IScanCallback {
+        public ScanDeviceCallback() {
+
+        }
+
+        @Override
+        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
+            if(bluetoothLeDevice != null) {
+                addDeviceToDeviceList(bluetoothLeDevice);
+            }
+        }
+
+        @Override
+        public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
+
+        }
+
+        @Override
+        public void onScanTimeout() {
+
+        }
+    }
+
+    private final FilterScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(DEFAULT_DEVICE_NAME);
 
     // 用于实现扫描设备的显示
     private SwipeRefreshLayout srlScanDevice;
@@ -128,7 +152,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     // 添加一个新设备到发现的设备列表中
-    public void addOneNewDeviceToFoundDeviceList(BluetoothLeDevice device) {
+    public void addDeviceToDeviceList(BluetoothLeDevice device) {
         if(device == null) return;
 
         boolean canAdd = true;

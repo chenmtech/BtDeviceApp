@@ -15,7 +15,7 @@ import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorInitial
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorSampleState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledeviceapp.util.Uuid;
+import com.cmtech.android.bledevicecore.model.Uuid;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;

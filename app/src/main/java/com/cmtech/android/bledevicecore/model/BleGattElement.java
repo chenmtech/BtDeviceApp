@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 
 import com.cmtech.android.ble.core.DeviceMirror;
-import com.cmtech.android.bledeviceapp.util.Uuid;
 
 import java.util.UUID;
 

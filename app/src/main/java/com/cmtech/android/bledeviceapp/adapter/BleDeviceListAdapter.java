@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -128,7 +129,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             holder.deviceImage.setImageDrawable(drawable);
         } else {
-            Glide.with(MyApplication.getContext()).load(BleDeviceType.fromUuid(device.getUuidString()).getDefaultImage()).into(holder.deviceImage);
+            Glide.with(MyApplication.getContext()).load(SupportedDeviceType.getDeviceTypeFromUuid(device.getUuidString()).getDefaultImage()).into(holder.deviceImage);
         }
 
         holder.deviceName.setText(device.getNickName());
