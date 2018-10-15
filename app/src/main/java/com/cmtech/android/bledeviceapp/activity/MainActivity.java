@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -101,7 +102,7 @@ public class MainActivity extends BleDeviceActivity implements IBleDeviceStateOb
         setSupportActionBar(toolbar);
 
         // 设置设备信息RecycleView
-        deviceListRecycView = (RecyclerView)findViewById(R.id.rvDevices);
+        deviceListRecycView = findViewById(R.id.rvDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         deviceListRecycView.setLayoutManager(layoutManager);
         deviceListRecycView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -387,7 +388,7 @@ public class MainActivity extends BleDeviceActivity implements IBleDeviceStateOb
             toolbar.setTitleTextColor(Color.BLACK);
             setTitle("物联网蓝牙终端App");
             toolbar.setLogo(null);
-            if(menuConnect != null) menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
+            if(menuConnect != null) menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_disconnect_24px));
 
         } else {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
@@ -522,10 +523,11 @@ public class MainActivity extends BleDeviceActivity implements IBleDeviceStateOb
         }
         else {
             menuConnect.setEnabled(false);
-            menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
-            //menuConnect.setIcon(getResources().getDrawable(R.drawable.connectingdrawable));
-            //AnimationDrawable animationDrawable = (AnimationDrawable)menuConnect.getIcon();
-            //animationDrawable.start();
+            //menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
+            menuConnect.setIcon(getResources().getDrawable(R.drawable.connectingdrawable));
+            AnimationDrawable connectingDrawable = (AnimationDrawable) menuConnect.getIcon();
+            if(!connectingDrawable.isRunning())
+                connectingDrawable.start();
         }
 
         // 更新关闭菜单
