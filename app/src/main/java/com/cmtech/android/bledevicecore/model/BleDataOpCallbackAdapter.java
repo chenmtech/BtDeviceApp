@@ -9,16 +9,20 @@ public class BleDataOpCallbackAdapter implements IBleCallback {
     private IBleDataOpCallback dataOpCallback;
 
     public BleDataOpCallbackAdapter(IBleDataOpCallback dataOpCallback) {
+        if(dataOpCallback == null) {
+            throw new IllegalArgumentException();
+        }
+
         this.dataOpCallback = dataOpCallback;
     }
 
     @Override
     public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-        if(dataOpCallback != null) dataOpCallback.onSuccess(data);
+        dataOpCallback.onSuccess(data);
     }
 
     @Override
     public void onFailure(BleException exception) {
-        if(dataOpCallback != null) dataOpCallback.onFailure(new BleDataOpException(exception));
+        dataOpCallback.onFailure(new BleDataOpException(exception));
     }
 }

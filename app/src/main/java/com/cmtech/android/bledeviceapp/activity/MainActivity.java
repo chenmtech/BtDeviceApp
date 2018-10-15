@@ -30,7 +30,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -41,6 +40,7 @@ import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceController;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
+import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.IBleDeviceActivity;
 import com.cmtech.android.bledevicecore.model.IBleDeviceStateObserver;
 
@@ -567,8 +567,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     // 使能蓝牙
     private void enableBluetooth() {
-        if (!BleUtil.isBleEnable(this)) {
-            BleUtil.enableBluetooth(this, REQUESTCODE_ENABLEBLUETOOTH);
+        if (!BleDeviceUtil.isBleEnable(this)) {
+            BleDeviceUtil.enableBluetooth(this, REQUESTCODE_ENABLEBLUETOOTH);
         }
     }
 }
