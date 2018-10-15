@@ -2,13 +2,11 @@ package com.cmtech.android.bledevice.temphumid;
 
 import android.os.Message;
 
-import com.cmtech.android.ble.callback.IBleCallback;
-import com.cmtech.android.ble.core.BluetoothGattChannel;
-import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.bledevicecore.model.BleDataOpException;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
+import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.android.bledevicecore.model.Uuid;
 import com.vise.log.ViseLog;
 
@@ -212,14 +210,14 @@ public class TempHumidDevice extends BleDevice {
 
     // 读取当前温湿度值
     private void readCurrentTempHumid() {
-        addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
+        addReadCommand(TEMPHUMIDDATA, new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
 
             }
         });
@@ -233,14 +231,14 @@ public class TempHumidDevice extends BleDevice {
         addWriteCommand(TEMPHUMIDCTRL, (byte)0x01, null);
 
         // enable 温湿度采集的notification
-        IBleCallback notifyCallback = new IBleCallback() {
+        IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
                 ViseLog.i("onFailure");
             }
         };
@@ -311,14 +309,14 @@ public class TempHumidDevice extends BleDevice {
 
     // 读取定时器服务特征值
     private void readTimerServiceValue() {
-        addReadCommand(TIMERVALUE, new IBleCallback() {
+        addReadCommand(TIMERVALUE, new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TIMERVALUE, data);
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
 
             }
         });
@@ -339,14 +337,14 @@ public class TempHumidDevice extends BleDevice {
         }
 
         // 添加更新历史数据完毕的命令
-        addInstantCommand(new IBleCallback() {
+        addInstantCommand(new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 isUpdatingHistoryData = false;
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
 
             }
         });
@@ -378,14 +376,14 @@ public class TempHumidDevice extends BleDevice {
         addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, null);
 
         // 读取历史数据
-        addReadCommand(TEMPHUMIDHISTORYDATA, new IBleCallback() {
+        addReadCommand(TEMPHUMIDHISTORYDATA, new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
 
             }
         });

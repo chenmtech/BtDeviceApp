@@ -252,35 +252,43 @@ public abstract class BleDevice implements Serializable{
 
     // 添加Gatt操作命令
     // 添加读取命令
-    public synchronized boolean addReadCommand(BleGattElement element, IBleCallback dataOpCallback) {
-        return ((commandExecutor != null) && commandExecutor.addReadCommand(element, dataOpCallback));
+    public synchronized boolean addReadCommand(BleGattElement element, IBleDataOpCallback dataOpCallback) {
+        IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        return ((commandExecutor != null) && commandExecutor.addReadCommand(element, callback));
     }
 
     // 添加写入多字节命令
-    public synchronized boolean addWriteCommand(BleGattElement element, byte[] data, IBleCallback dataOpCallback) {
-        return ((commandExecutor != null) && commandExecutor.addWriteCommand(element, data, dataOpCallback));
+    public synchronized boolean addWriteCommand(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
+        IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        return ((commandExecutor != null) && commandExecutor.addWriteCommand(element, data, callback));
     }
 
     // 添加写入单字节命令
-    public synchronized boolean addWriteCommand(BleGattElement element, byte data, IBleCallback dataOpCallback) {
-        return ((commandExecutor != null) && commandExecutor.addWriteCommand(element, data, dataOpCallback));
+    public synchronized boolean addWriteCommand(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
+        IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        return ((commandExecutor != null) && commandExecutor.addWriteCommand(element, data, callback));
     }
 
     // 添加Notify命令
     public synchronized boolean addNotifyCommand(BleGattElement element, boolean enable
-            , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
-        return ((commandExecutor != null) && commandExecutor.addNotifyCommand(element, enable, dataOpCallback, notifyOpCallback));
+            , IBleDataOpCallback dataOpCallback, IBleDataOpCallback notifyOpCallback) {
+        IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        IBleCallback notifyCallback = (notifyOpCallback == null) ? null : new BleDataOpCallbackAdapter(notifyOpCallback);
+        return ((commandExecutor != null) && commandExecutor.addNotifyCommand(element, enable, dataCallback, notifyCallback));
     }
 
     // 添加Indicate命令
     public synchronized boolean addIndicateCommand(BleGattElement element, boolean enable
-            , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
-        return ((commandExecutor != null) && commandExecutor.addIndicateCommand(element, enable, dataOpCallback, indicateOpCallback));
+            , IBleDataOpCallback dataOpCallback, IBleDataOpCallback indicateOpCallback) {
+        IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        IBleCallback indicateCallback = (indicateOpCallback == null) ? null : new BleDataOpCallbackAdapter(indicateOpCallback);
+        return ((commandExecutor != null) && commandExecutor.addIndicateCommand(element, enable, dataCallback, indicateCallback));
     }
 
     // 添加Instant命令
-    public synchronized boolean addInstantCommand(IBleCallback dataOpCallback) {
-        return ((commandExecutor != null) && commandExecutor.addInstantCommand(dataOpCallback));
+    public synchronized boolean addInstantCommand(IBleDataOpCallback dataOpCallback) {
+        IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        return ((commandExecutor != null) && commandExecutor.addInstantCommand(dataCallback));
     }
 
     // 登记设备状态观察者

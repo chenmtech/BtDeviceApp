@@ -3,19 +3,17 @@ package com.cmtech.android.bledevice.ecgmonitor;
 import android.os.Message;
 import android.util.Log;
 
-import com.cmtech.android.ble.callback.IBleCallback;
-import com.cmtech.android.ble.core.BluetoothGattChannel;
-import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibrateState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratedState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorInitialState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorSampleState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledevicecore.model.BleDataOpException;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
+import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.android.bledevicecore.model.Uuid;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileDataType;
@@ -163,27 +161,27 @@ public class EcgMonitorDevice extends BleDevice {
         }
 
         // 读采样率命令
-        addReadCommand(ECGMONITORSAMPLERATE, new IBleCallback() {
+        addReadCommand(ECGMONITORSAMPLERATE, new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_READSAMPLERATE, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
 
             }
         });
 
         // 读导联类型命令
-        addReadCommand(ECGMONITORLEADTYPE, new IBleCallback() {
+        addReadCommand(ECGMONITORLEADTYPE, new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_READLEADTYPE, data[0]);
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
 
             }
         });
@@ -355,14 +353,14 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 启动ECG信号采集
     public void startSampleEcg() {
-        IBleCallback notifyCallback = new IBleCallback() {
+        IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_ECGDATA, data);
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
 
             }
         };
@@ -375,14 +373,14 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 启动1mV信号采集
     public void startSample1mV() {
-        IBleCallback notifyCallback = new IBleCallback() {
+        IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_ECGDATA, data);
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
 
             }
         };

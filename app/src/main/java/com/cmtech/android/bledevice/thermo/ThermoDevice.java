@@ -3,14 +3,12 @@ package com.cmtech.android.bledevice.thermo;
 import android.os.Message;
 import android.util.Log;
 
-import com.cmtech.android.ble.callback.IBleCallback;
-import com.cmtech.android.ble.core.BluetoothGattChannel;
-import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.cmtech.android.bledevicecore.model.BleDataOpException;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
+import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.android.bledevicecore.model.Uuid;
 
 import java.util.LinkedList;
@@ -82,15 +80,15 @@ public class ThermoDevice extends BleDevice {
         resetHighestTemp();
 
         // 读温度数据
-        addReadCommand(THERMODATA, new IBleCallback() {
+        addReadCommand(THERMODATA, new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 //Log.d("THERMOPERIOD", "first write period: " + HexUtil.encodeHexStr(data));
                 sendGattMessage(MSG_THERMODATA, data);
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
             }
         });
 
@@ -150,14 +148,14 @@ public class ThermoDevice extends BleDevice {
         // 设置采样周期
         addWriteCommand(THERMOPERIOD, period, null);
 
-        IBleCallback notifyCallback = new IBleCallback() {
+        IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_THERMODATA, data);
             }
 
             @Override
-            public void onFailure(BleException exception) {
+            public void onFailure(BleDataOpException exception) {
 
             }
         };
