@@ -44,7 +44,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        ((TempHumidDevice)device).registerTempHumidDataObserver(this);
+        ((TempHumidDevice)getDevice()).registerTempHumidDataObserver(this);
     }
 
     @Nullable
@@ -67,7 +67,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
         LinearLayoutManager layoutManager = new LinearLayoutManager(MyApplication.getContext());
         rvHistoryData.setLayoutManager(layoutManager);
         rvHistoryData.addItemDecoration(new DividerItemDecoration(MyApplication.getContext(), DividerItemDecoration.VERTICAL));
-        historyDataAdapter = new TempHumidHistoryDataAdapter(((TempHumidDevice)device).getHistoryDataList());
+        historyDataAdapter = new TempHumidHistoryDataAdapter(((TempHumidDevice)getDevice()).getHistoryDataList());
         rvHistoryData.setAdapter(historyDataAdapter);
         rvHistoryData.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -77,7 +77,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
                     int lastVisiblePosition = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
                     if(lastVisiblePosition == recyclerView.getLayoutManager().getItemCount()-1) {
                         //Toast.makeText(MyApplication.getContext(), "更新历史数据", Toast.LENGTH_SHORT).show();
-                        ((TempHumidDevice)device).updateHistoryData();
+                        ((TempHumidDevice)getDevice()).updateHistoryData();
                     }
                 }
             }
@@ -91,7 +91,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
 
     @Override
     public void updateCurrentTempHumidData() {
-        TempHumidData data = ((TempHumidDevice)device).getCurTempHumid();
+        TempHumidData data = ((TempHumidDevice)getDevice()).getCurTempHumid();
 
         tvHumidData.setText( ""+data.getHumid() );
 

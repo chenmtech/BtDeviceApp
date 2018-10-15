@@ -42,7 +42,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        ((EcgMonitorDevice)device).registerEcgMonitorObserver(this);
+        ((EcgMonitorDevice)getDevice()).registerEcgMonitorObserver(this);
     }
 
     @Nullable
@@ -62,28 +62,28 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ecgView = view.findViewById(R.id.ecg_view);
         btnSwitchSampleEcg = view.findViewById(R.id.btn_ecg_startandstop);
         cbEcgRecord = view.findViewById(R.id.cb_ecg_record);
-        cbEcgRecord.setChecked(((EcgMonitorDevice)device).isRecord());
+        cbEcgRecord.setChecked(((EcgMonitorDevice)getDevice()).isRecord());
         cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
-        cbEcgFilter.setChecked(((EcgMonitorDevice)device).isEcgFilter());
+        cbEcgFilter.setChecked(((EcgMonitorDevice)getDevice()).isEcgFilter());
 
         btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((EcgMonitorController)controller).switchSampleState();
+                ((EcgMonitorController)getController()).switchSampleState();
             }
         });
 
         cbEcgRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorController)controller).setEcgRecord(b);
+                ((EcgMonitorController)getController()).setEcgRecord(b);
             }
         });
 
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorController)controller).setEcgFilter(b);
+                ((EcgMonitorController)getController()).setEcgFilter(b);
             }
         });
     }

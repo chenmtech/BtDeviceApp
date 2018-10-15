@@ -38,7 +38,7 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        ((ThermoDevice)device).registerThermoDataObserver(this);
+        ((ThermoDevice)getDevice()).registerThermoDataObserver(this);
     }
 
 
@@ -67,14 +67,14 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
     }
 
     private void resetHighestTemp() {
-        ((ThermoDevice)device).resetHighestTemp();
+        ((ThermoDevice)getDevice()).resetHighestTemp();
     }
 
 
     @Override
     public void updateThermoData() {
-        double curTemp = ((ThermoDevice)device).getCurTemp();
-        double highestTemp = ((ThermoDevice)device).getHighestTemp();
+        double curTemp = ((ThermoDevice)getDevice()).getCurTemp();
+        double highestTemp = ((ThermoDevice)getDevice()).getHighestTemp();
 
         if(curTemp < 34.00) {
             tvThermoCurrentTemp.setText("<34.0");

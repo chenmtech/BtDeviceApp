@@ -6,21 +6,25 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
-
 /**
  * Created by bme on 2018/2/27.
  */
 
 public abstract class BleDeviceFragment extends Fragment{
-    // IBleDeviceActivity，包含Fragment的Activity
-    protected IBleDeviceActivity activity;
+    // BleDeviceActivity，包含Fragment的Activity
+    private BleDeviceActivity activity;
 
-    // 对应的控制器接口
-    protected BleDeviceController controller;
+    // 对应的控制器
+    private BleDeviceController controller;
+    public BleDeviceController getController() {
+        return controller;
+    }
 
-    // 对应的设备接口
-    protected BleDevice device;
+    // 对应的设备
+    private BleDevice device;
+    public BleDevice getDevice() {
+        return device;
+    }
 
     public BleDeviceFragment() {
 
@@ -36,19 +40,19 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(!(context instanceof IBleDeviceActivity)) {
-            throw new IllegalStateException("context不是IBleDeviceActivity");
+        if(!(context instanceof BleDeviceActivity)) {
+            throw new IllegalStateException("context不是BleDeviceActivity");
         }
 
         // 获得Activity
-        activity = (IBleDeviceActivity) context;
+        activity = (BleDeviceActivity) context;
 
         // 获取controller
         controller = activity.getController(this);
 
         // 获取device
         if(controller != null) {
-            device = (BleDevice) controller.getDevice();
+            device = controller.getDevice();
         }
 
         if(device == null || controller == null) {
@@ -90,20 +94,10 @@ public abstract class BleDeviceFragment extends Fragment{
         super.onDetach();
     }
 
-    // 获取设备
-    public BleDevice getDevice() {
-        return device;
-    }
-
     // 打开设备
     public void openDevice() {
         controller.openDevice();
     }
-
-    /*// 断开设备
-    public void disconnectDevice() {
-        controller.disconnectDevice();
-    }*/
 
     // 关闭设备
     // 为什么这里不是调用controller.closeDevice()，而是调用activity.closeDevice(fragment)???
@@ -119,11 +113,21 @@ public abstract class BleDeviceFragment extends Fragment{
         controller.switchState();
     }
 
+    /*// 断开设备
+    public void disconnectDevice() {
+        controller.disconnectDevice();
+    }*/
+
     // 更新设备连接状态
     public void updateDeviceState(final BleDevice device) {
         // isAdded()用来判断Fragment是否与Activity关联，如果关联了，才能更新状态信息
         if(device == this.device && isAdded()) {
-            updateDeviceState();
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    updateDeviceState();
+                }
+            });
         }
     }
 
