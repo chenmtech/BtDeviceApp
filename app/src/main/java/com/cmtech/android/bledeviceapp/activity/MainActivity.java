@@ -16,6 +16,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,8 +41,7 @@ import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.model.BleDeviceType;
-import com.cmtech.android.bledevicecore.model.BleDeviceActivity;
+import com.cmtech.android.bledevicecore.model.IBleDeviceActivity;
 import com.cmtech.android.bledevicecore.model.IBleDeviceStateObserver;
 
 import java.io.Serializable;
@@ -53,7 +53,7 @@ import java.util.List;
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
-public class MainActivity extends BleDeviceActivity implements IBleDeviceStateObserver {
+public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceActivity {
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
     private final static int REQUESTCODE_ENABLEBLUETOOTH = 3;    // 使能蓝牙

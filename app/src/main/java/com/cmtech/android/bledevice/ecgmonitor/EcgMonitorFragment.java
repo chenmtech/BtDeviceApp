@@ -89,52 +89,95 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateState(IEcgMonitorState state) {
-        if(state.canStart()) {
-            btnSwitchSampleEcg.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
-            btnSwitchSampleEcg.setClickable(true);
-        } else if(state.canStop()) {
-            btnSwitchSampleEcg.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
-            btnSwitchSampleEcg.setClickable(true);
-        } else {
-            btnSwitchSampleEcg.setClickable(false);
-        }
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(getDevice() != null)
+            ((EcgMonitorDevice)getDevice()).removeEcgMonitorObserver();
+    }
+
+    @Override
+    public void updateState(final IEcgMonitorState state) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(state.canStart()) {
+                    btnSwitchSampleEcg.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
+                    btnSwitchSampleEcg.setClickable(true);
+                } else if(state.canStop()) {
+                    btnSwitchSampleEcg.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
+                    btnSwitchSampleEcg.setClickable(true);
+                } else {
+                    btnSwitchSampleEcg.setClickable(false);
+                }
+            }
+        });
     }
 
     @Override
     public void updateSampleRate(final int sampleRate) {
-        tvEcgSampleRate.setText(""+sampleRate);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvEcgSampleRate.setText(""+sampleRate);
+            }
+        });
     }
 
     @Override
-    public void updateLeadType(EcgLeadType leadType) {
-        tvEcgLeadType.setText(leadType.getDescription());
+    public void updateLeadType(final EcgLeadType leadType) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvEcgLeadType.setText(leadType.getDescription());
+            }
+        });
     }
 
     @Override
-    public void updateCalibrationValue(int calibrationValue) {
-        tvEcg1mV.setText("" + calibrationValue);
+    public void updateCalibrationValue(final int calibrationValue) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvEcg1mV.setText("" + calibrationValue);
+            }
+        });
     }
 
     @Override
-    public void updateEcgView(int xRes, float yRes, int viewGridWidth) {
-        ecgView.setRes(xRes, yRes);
-        ecgView.setGridWidth(viewGridWidth);
-        ecgView.setZeroLocation(0.5);
-        ecgView.clearView();
-        ecgView.startShow();
+    public void updateEcgView(final int xRes, final float yRes, final int viewGridWidth) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ecgView.setRes(xRes, yRes);
+                ecgView.setGridWidth(viewGridWidth);
+                ecgView.setZeroLocation(0.5);
+                ecgView.clearView();
+                ecgView.startShow();
+            }
+        });
     }
 
     @Override
     public void updateRecordCheckBox(final boolean isChecked, final boolean clickable) {
-        cbEcgRecord.setChecked(isChecked);
-        cbEcgRecord.setClickable(clickable);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                cbEcgRecord.setChecked(isChecked);
+                cbEcgRecord.setClickable(clickable);
+            }
+        });
     }
 
     @Override
     public void updateFilterCheckBox(final boolean isChecked, final boolean clickable) {
-        cbEcgFilter.setChecked(isChecked);
-        cbEcgFilter.setClickable(clickable);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                cbEcgFilter.setChecked(isChecked);
+                cbEcgFilter.setClickable(clickable);
+            }
+        });
     }
 
     @Override
@@ -143,7 +186,12 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateEcgHr(int hr) {
-        tvEcgHr.setText("" + hr);
+    public void updateEcgHr(final int hr) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvEcgHr.setText("" + hr);
+            }
+        });
     }
 }

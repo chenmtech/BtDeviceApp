@@ -19,7 +19,6 @@ import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
 public class ThermoFragment extends BleDeviceFragment implements IThermoDataObserver{
 
-
     private TextView tvThermoCurrentTemp;
     private TextView tvThermoHightestTemp;
     private TextView tvThermoStatus;
@@ -66,6 +65,15 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
         });
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(getDevice() != null) {
+            ((ThermoDevice)getDevice()).removeThermoDataObserver(this);
+        }
+    }
+
     private void resetHighestTemp() {
         ((ThermoDevice)getDevice()).resetHighestTemp();
     }
@@ -73,34 +81,38 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
 
     @Override
     public void updateThermoData() {
-        double curTemp = ((ThermoDevice)getDevice()).getCurTemp();
-        double highestTemp = ((ThermoDevice)getDevice()).getHighestTemp();
+        final double curTemp = ((ThermoDevice)getDevice()).getCurTemp();
+        final double highestTemp = ((ThermoDevice)getDevice()).getHighestTemp();
 
-        if(curTemp < 34.00) {
-            tvThermoCurrentTemp.setText("<34.0");
-        }
-        else {
-            String str = String.format("%.2f", curTemp);
-            tvThermoCurrentTemp.setText(str);
-        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(curTemp < 34.00) {
+                    tvThermoCurrentTemp.setText("<34.0");
+                }
+                else {
+                    String str = String.format("%.2f", curTemp);
+                    tvThermoCurrentTemp.setText(str);
+                }
 
-        if(highestTemp < 34.00) {
-            tvThermoHightestTemp.setText("<34.0");
-        }
-        else {
-            String str = String.format("%.2f", highestTemp);
-            tvThermoHightestTemp.setText(str);
-        }
+                if(highestTemp < 34.00) {
+                    tvThermoHightestTemp.setText("<34.0");
+                }
+                else {
+                    String str = String.format("%.2f", highestTemp);
+                    tvThermoHightestTemp.setText(str);
+                }
 
-
-        if(highestTemp < 37.0) {
-            tvThermoStatus.setText("正常");
-        } else if(highestTemp < 38.0) {
-            tvThermoStatus.setText("低烧，请注意休息！");
-        } else if(highestTemp < 38.5) {
-            tvThermoStatus.setText("体温异常，请注意降温！");
-        } else {
-            tvThermoStatus.setText("高烧，请及时就医！");
-        }
+                if(highestTemp < 37.0) {
+                    tvThermoStatus.setText("正常");
+                } else if(highestTemp < 38.0) {
+                    tvThermoStatus.setText("低烧，请注意休息！");
+                } else if(highestTemp < 38.5) {
+                    tvThermoStatus.setText("体温异常，请注意降温！");
+                } else {
+                    tvThermoStatus.setText("高烧，请及时就医！");
+                }
+            }
+        });
     }
 }

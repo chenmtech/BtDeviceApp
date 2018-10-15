@@ -11,8 +11,8 @@ import android.view.View;
  */
 
 public abstract class BleDeviceFragment extends Fragment{
-    // BleDeviceActivity，包含Fragment的Activity
-    private BleDeviceActivity activity;
+    // IBleDeviceActivity，包含Fragment的Activity
+    private IBleDeviceActivity activity;
 
     // 对应的控制器
     private BleDeviceController controller;
@@ -40,12 +40,12 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(!(context instanceof BleDeviceActivity)) {
+        if(!(context instanceof IBleDeviceActivity)) {
             throw new IllegalStateException("context不是BleDeviceActivity");
         }
 
         // 获得Activity
-        activity = (BleDeviceActivity) context;
+        activity = (IBleDeviceActivity) context;
 
         // 获取controller
         controller = activity.getController(this);
@@ -122,7 +122,7 @@ public abstract class BleDeviceFragment extends Fragment{
     public void updateDeviceState(final BleDevice device) {
         // isAdded()用来判断Fragment是否与Activity关联，如果关联了，才能更新状态信息
         if(device == this.device && isAdded()) {
-            activity.runOnUiThread(new Runnable() {
+            getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     updateDeviceState();

@@ -71,7 +71,7 @@ public class ThermoDevice extends BleDevice {
         initializeAfterConstruction();
     }
 
-    public void initializeAfterConstruction() {
+    private void initializeAfterConstruction() {
     }
 
     @Override
@@ -190,12 +190,7 @@ public class ThermoDevice extends BleDevice {
     public void notifyObserverThermoDataChanged() {
         for(final IThermoDataObserver observer : thermoDataObserverList) {
             if(observer != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        observer.updateThermoData();
-                    }
-                });
+                observer.updateThermoData();
             }
         }
     }

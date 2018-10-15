@@ -121,7 +121,7 @@ public class TempHumidDevice extends BleDevice {
         initializeAfterConstruction();
     }
 
-    public void initializeAfterConstruction() {
+    private void initializeAfterConstruction() {
         curTempHumid = null;
 
         hasTimerService = false;
@@ -330,7 +330,7 @@ public class TempHumidDevice extends BleDevice {
     private synchronized boolean processTimerServiceValue(byte[] data) {
         if(data.length != 4) return false;
 
-        timerServiceStarted = (data[3] == 1) ? true : false;
+        timerServiceStarted = (data[3] == 1);
 
         if (timerServiceStarted) {
             deviceTimerPeriod = data[2];                // 保存设备的定时周期值
@@ -455,12 +455,7 @@ public class TempHumidDevice extends BleDevice {
     public void notifyObserverCurrentTempHumidDataChanged() {
         for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
             if(observer != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        observer.updateCurrentTempHumidData();
-                    }
-                });
+                observer.updateCurrentTempHumidData();
             }
         }
     }
@@ -469,12 +464,7 @@ public class TempHumidDevice extends BleDevice {
     public void notifyObserverHistoryTempHumidDataChanged() {
         for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
             if(observer != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        observer.updateHistoryTempHumidData();
-                    }
-                });
+                observer.updateHistoryTempHumidData();
             }
         }
     }

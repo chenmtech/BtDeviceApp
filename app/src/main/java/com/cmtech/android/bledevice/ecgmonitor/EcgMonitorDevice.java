@@ -50,7 +50,7 @@ public class EcgMonitorDevice extends BleDevice {
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
     private static final int DEFAULT_CALIBRATIONVALUE = 2600;       // 缺省1mV定标值
 
-    // 消息常量
+    // GATT消息常量
     private static final int MSG_ECGDATA = 1;            // ECG数据
     private static final int MSG_READSAMPLERATE = 2;    // 读采样率
     private static final int MSG_READLEADTYPE = 3;      // 读导联类型
@@ -62,7 +62,7 @@ public class EcgMonitorDevice extends BleDevice {
     private static final String ecgMonitorSampleRateUuid    = "aa44";           // 采样率UUID:aa44
     private static final String ecgMonitorLeadTypeUuid      = "aa45";           // 导联类型UUID:aa45
 
-    // 一些Gatt Element常量
+    // 心电监护仪Gatt Element常量
     public static final BleGattElement ECGMONITORDATA =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null);
 
@@ -88,7 +88,6 @@ public class EcgMonitorDevice extends BleDevice {
     private EcgLeadType leadType = DEFAULT_LEADTYPE;      // 导联类型
 
     private int value1mV = DEFAULT_CALIBRATIONVALUE;                // 1mV定标值
-
     public void setValue1mV(int value1mV) {
         this.value1mV = value1mV;
         initializeQrsDetector();
@@ -106,7 +105,6 @@ public class EcgMonitorDevice extends BleDevice {
 
     private IIRFilter dcBlock = null;               // 隔直滤波器
     private IIRFilter notch = null;                 // 50Hz陷波器
-
     private QrsDetector qrsDetector = null;         // QRS波检测器
 
     // 用于设置EcgWaveView的参数
@@ -115,44 +113,41 @@ public class EcgMonitorDevice extends BleDevice {
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
+    // 设备状态
     private final EcgMonitorInitialState initialState = new EcgMonitorInitialState(this);
     private final EcgMonitorCalibrateState calibratingState = new EcgMonitorCalibrateState(this);
     private final EcgMonitorCalibratedState calibratedState = new EcgMonitorCalibratedState(this);
     private final EcgMonitorSampleState sampleState = new EcgMonitorSampleState(this);
-
-    private IEcgMonitorState state = initialState;
-
-    private IEcgMonitorObserver observer;
-
-    public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
-        super(basicInfo);
-        initializeAfterConstruction();
-    }
-    public void initializeAfterConstruction() {
-    }
-
     public EcgMonitorInitialState getInitialState() {
         return initialState;
     }
-
     public EcgMonitorCalibrateState getCalibratingState() {
         return calibratingState;
     }
-
     public EcgMonitorCalibratedState getCalibratedState() {
         return calibratedState;
     }
-
     public EcgMonitorSampleState getSampleState() {
         return sampleState;
     }
-
+    private IEcgMonitorState state = initialState;
     public void setState(IEcgMonitorState state) {
         this.state = state;
         ViseLog.i("The device state is set as " + state.getClass().getSimpleName());
         updateEcgMonitorState();
     }
 
+    // 设备观察者
+    private IEcgMonitorObserver observer;
+
+
+    public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
+        super(basicInfo);
+        initializeAfterConstruction();
+    }
+
+    private void initializeAfterConstruction() {
+    }
 
     @Override
     public boolean executeAfterConnectSuccess() {
@@ -313,8 +308,6 @@ public class EcgMonitorDevice extends BleDevice {
         updateEcgView(xRes, yRes, viewGridWidth);
     }
 
-
-
     private void initializeEcgFile() {
         // 准备记录心电信号的文件头
         try {
@@ -423,79 +416,43 @@ public class EcgMonitorDevice extends BleDevice {
 
     private void updateEcgMonitorState() {
         if(observer != null) {
-            // 保证在主线程更新连接状态
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    observer.updateState(state);
-                }
-            });
+            observer.updateState(state);
         }
     }
 
     private void updateSampleRate(final int sampleRate) {
         if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    observer.updateSampleRate(sampleRate);
-                }
-            });
+            observer.updateSampleRate(sampleRate);
         }
     }
 
     private void updateLeadType(final EcgLeadType leadType) {
         if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    observer.updateLeadType(leadType);
-                }
-            });
+            observer.updateLeadType(leadType);
         }
     }
 
     private void updateCalibrationValue(final int calibrationValue) {
         if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    observer.updateCalibrationValue(calibrationValue);
-                }
-            });
+            observer.updateCalibrationValue(calibrationValue);
         }
     }
 
     private void updateEcgView(final int xRes, final float yRes, final int viewGridWidth) {
         if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    observer.updateEcgView(xRes, yRes, viewGridWidth);
-                }
-            });
+            observer.updateEcgView(xRes, yRes, viewGridWidth);
         }
     }
 
     private void updateRecordCheckBox(final boolean isChecked, final boolean clickable) {
         if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    observer.updateRecordCheckBox(isChecked, clickable);
-                }
-            });
+            observer.updateRecordCheckBox(isChecked, clickable);
         }
     }
 
     private void updateFilterCheckBox(final boolean isChecked, final boolean clickable) {
         if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    observer.updateFilterCheckBox(isChecked, clickable);
-                }
-            });
+            observer.updateFilterCheckBox(isChecked, clickable);
         }
     }
 
@@ -507,12 +464,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     private void updateEcgHr(final int hr) {
         if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    observer.updateEcgHr(hr);
-                }
-            });
+            observer.updateEcgHr(hr);
         }
     }
 }

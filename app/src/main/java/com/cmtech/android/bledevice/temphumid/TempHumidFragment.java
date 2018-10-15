@@ -30,8 +30,6 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     private RecyclerView rvHistoryData;
     private TempHumidHistoryDataAdapter historyDataAdapter;
 
-    private View rootView;
-
     public TempHumidFragment() {
 
     }
@@ -51,8 +49,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d("TempHumidFragment", "onCreateView");
-        rootView = inflater.inflate(R.layout.fragment_temphumid, container, false);
-        return rootView;
+        return inflater.inflate(R.layout.fragment_temphumid, container, false);
     }
 
     @Override
@@ -90,19 +87,38 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(getDevice() != null)
+            ((TempHumidDevice)getDevice()).removeTempHumidDataObserver(this);
+    }
+
+    @Override
     public void updateCurrentTempHumidData() {
-        TempHumidData data = ((TempHumidDevice)getDevice()).getCurTempHumid();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TempHumidData data = ((TempHumidDevice)getDevice()).getCurTempHumid();
 
-        tvHumidData.setText( ""+data.getHumid() );
+                tvHumidData.setText( ""+data.getHumid() );
 
-        tvTempData.setText(String.format("%.1f", data.getTemp()));
+                tvTempData.setText(String.format("%.1f", data.getTemp()));
 
-        float heatindex = data.computeHeatIndex();
-        tvHeadIndex.setText(String.format("%.1f", heatindex));
+                float heatindex = data.computeHeatIndex();
+                tvHeadIndex.setText(String.format("%.1f", heatindex));
+            }
+        });
+
     }
 
     @Override
     public void updateHistoryTempHumidData() {
-        historyDataAdapter.notifyDataSetChanged();
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                historyDataAdapter.notifyDataSetChanged();
+            }
+        });
     }
 }
