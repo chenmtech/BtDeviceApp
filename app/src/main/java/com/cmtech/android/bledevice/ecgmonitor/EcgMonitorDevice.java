@@ -155,7 +155,7 @@ public class EcgMonitorDevice extends BleDevice {
 
 
     @Override
-    public void executeAfterConnectSuccess() {
+    public boolean executeAfterConnectSuccess() {
         isRecord = false;
         updateRecordCheckBox(false, false);
 
@@ -166,20 +166,14 @@ public class EcgMonitorDevice extends BleDevice {
         updateCalibrationValue(DEFAULT_CALIBRATIONVALUE);
 
         if(!checkBasicEcgMonitorService()) {
-            getHandler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    disconnect();
-                }
-            }, 500);
-            return;
+            return false;
         }
 
         // 读采样率命令
         addReadCommand(ECGMONITORSAMPLERATE, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendGattCallbackMessage(MSG_READSAMPLERATE, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
+                sendGattMessage(MSG_READSAMPLERATE, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
             }
 
             @Override
@@ -192,7 +186,7 @@ public class EcgMonitorDevice extends BleDevice {
         addReadCommand(ECGMONITORLEADTYPE, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendGattCallbackMessage(MSG_READLEADTYPE, data[0]);
+                sendGattMessage(MSG_READLEADTYPE, data[0]);
             }
 
             @Override
@@ -204,6 +198,8 @@ public class EcgMonitorDevice extends BleDevice {
         // 启动1mV数据采集
         setState(initialState);
         state.start();
+
+        return true;
     }
 
     @Override
@@ -217,7 +213,7 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     @Override
-    public synchronized void processGattCallbackMessage(Message msg)
+    public synchronized void processGattMessage(Message msg)
     {
         switch (msg.what) {
             // 接收到采样率数据
@@ -371,7 +367,7 @@ public class EcgMonitorDevice extends BleDevice {
         IBleCallback notifyCallback = new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendGattCallbackMessage(MSG_ECGDATA, data);
+                sendGattMessage(MSG_ECGDATA, data);
             }
 
             @Override
@@ -391,7 +387,7 @@ public class EcgMonitorDevice extends BleDevice {
         IBleCallback notifyCallback = new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendGattCallbackMessage(MSG_ECGDATA, data);
+                sendGattMessage(MSG_ECGDATA, data);
             }
 
             @Override

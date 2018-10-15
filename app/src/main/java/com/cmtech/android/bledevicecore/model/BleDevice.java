@@ -2,7 +2,6 @@ package com.cmtech.android.bledevicecore.model;
 
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -156,11 +155,10 @@ public abstract class BleDevice implements Serializable{
         return new Handler(thread.getLooper()) {
             @Override
             public void handleMessage(Message msg) {
-                processGattCallbackMessage(msg);
+                processGattMessage(msg);
             }
         };
     }
-
     public Handler getHandler() {
         return handler;
     }
@@ -209,22 +207,22 @@ public abstract class BleDevice implements Serializable{
         state.close();
     }
 
-    // 连接设备，先执行扫描设备，扫描到之后会自动连接设备
-    public synchronized void connect() {
-        state.scan();
-    }
-
-    // 断开设备
-    public synchronized void disconnect() {
-        state.disconnect();
-    }
-
     // 转换设备状态
     public synchronized void switchState() {
         handler.removeCallbacksAndMessages(null);
         curReconnectTimes = 0;
         state.switchState();
     }
+
+    /*// 连接设备，先执行扫描设备，扫描到之后会自动连接设备
+    public synchronized void connect() {
+        state.scan();
+    }*/
+
+    /*// 断开设备
+    public synchronized void disconnect() {
+        state.disconnect();
+    }*/
 
     // 获取设备状态描述信息
     public synchronized String getStateDescription() {
@@ -304,29 +302,22 @@ public abstract class BleDevice implements Serializable{
     public void notifyDeviceStateObservers() {
         for(final IBleDeviceStateObserver observer : deviceStateObserverList) {
             if(observer != null) {
-                // 保证在主线程更新连接状态
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        observer.updateDeviceState(BleDevice.this);
-                    }
-                });
+                observer.updateDeviceState(BleDevice.this);
             }
         }
     }
-
 
     /*
      * 子类需要提供的抽象方法
      */
     // 连接成功后执行的操作
-    public abstract void executeAfterConnectSuccess();
+    public abstract boolean executeAfterConnectSuccess();
     // 连接错误后执行的操作
     public abstract void executeAfterConnectFailure();
     // 断开连接后执行的操作
     public abstract void executeAfterDisconnect();
     // 处理Gatt命令回调消息函数
-    public abstract void processGattCallbackMessage(Message msg);
+    public abstract void processGattMessage(Message msg);
 
 
     ///////////////////////////////////////////////////////////////////////////////////
@@ -361,8 +352,8 @@ public abstract class BleDevice implements Serializable{
         return element.retrieveGattObject(deviceMirror);
     }
 
-    // 发送Gatt命令执行后回调的消息
-    protected void sendGattCallbackMessage(int what, Object obj) {
+    // 发送Gatt命令执行后回调处理消息
+    protected void sendGattMessage(int what, Object obj) {
         Message msg = new Message();
         msg.what = what;
         msg.obj = obj;
@@ -375,7 +366,7 @@ public abstract class BleDevice implements Serializable{
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    connect();
+                    state.scan();
                 }
             }, delay);
             if(curReconnectTimes < canReconnectTimes)
@@ -393,22 +384,19 @@ public abstract class BleDevice implements Serializable{
 
     public void processConnectSuccess(DeviceMirror mirror) {
         handler.removeCallbacksAndMessages(null);
+        curReconnectTimes = 0;
 
         bluetoothLeDevice = mirror.getBluetoothLeDevice();
-
-        curReconnectTimes = 0;
 
         ViseLog.i("onConnectSuccess");
 
         // 创建Gatt串行命令执行器
-        if(createGattCommandExecutor()) {
-            executeAfterConnectSuccess();
-        } else {
+        if(!createGattCommandExecutor() || !executeAfterConnectSuccess()) {
             // 创建失败，断开连接
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    disconnect();
+                    state.disconnect();
                 }
             }, 500);
         }
@@ -416,19 +404,14 @@ public abstract class BleDevice implements Serializable{
 
     public void processConnectFailure() {
         stopCommandExecutor();
-
         bluetoothLeDevice = null;
-
         executeAfterConnectFailure();
-
         reconnect(RECONNECT_DELAY);
     }
 
     public void processDisconnect() {
         stopCommandExecutor();
-
         bluetoothLeDevice = null;
-
         executeAfterDisconnect();
     }
 

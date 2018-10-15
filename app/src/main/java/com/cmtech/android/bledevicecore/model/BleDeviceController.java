@@ -21,13 +21,13 @@ public abstract class BleDeviceController {
         device.open();
     }
 
-    public void connectDevice() {
+    /*public void connectDevice() {
         device.connect();
-    }
+    }*/
 
-    public void disconnectDevice() {
+    /*public void disconnectDevice() {
         device.disconnect();
-    }
+    }*/
 
     public void closeDevice() {
         device.close();

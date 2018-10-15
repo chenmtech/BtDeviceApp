@@ -248,16 +248,17 @@ public class BleGattCommandExecutor {
     }
 
     // 停止执行命令
-    public synchronized void stop() {
-        if(isAlive()) executeThread.interrupt();
-
-        /*try {
-            executeThread.interrupt();
-            executeThread.join();
-            executeThread = null;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
+    public void stop() {
+        synchronized (executeThread) {
+            if(executeThread.isAlive()) {
+                try {
+                    executeThread.interrupt();
+                    executeThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public synchronized boolean isAlive() {

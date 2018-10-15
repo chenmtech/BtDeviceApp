@@ -258,6 +258,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     protected void onDestroy() {
         super.onDestroy();
 
+        for(BleDevice device : registeredDeviceList) {
+            if(device != null)
+                device.removeDeviceStateObserver(this);
+        }
+
         MyApplication.getViseBle().disconnect();
         MyApplication.getViseBle().clear();
         android.os.Process.killProcess(android.os.Process.myPid());
@@ -275,19 +280,25 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     // IBleDeviceStateObserver接口函数，更新设备状态
     @Override
-    public void updateDeviceState(BleDevice device) {
-        // 更新设备列表Adapter
-        updateDeviceListAdapter();
+    public void updateDeviceState(final BleDevice device) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // 更新设备列表Adapter
+                updateDeviceListAdapter();
 
-        // 更新设备的Fragment
-        BleDeviceFragment deviceFrag = getFragment(device);
-        if(deviceFrag != null) deviceFrag.updateDeviceState(device);
+                // 更新设备的Fragment
+                BleDeviceFragment deviceFrag = getFragment(device);
+                if(deviceFrag != null) deviceFrag.updateDeviceState(device);
 
-        // 更新Activity的ToolBar
-        BleDeviceFragment currentFrag = (BleDeviceFragment)fragmentManager.getCurrentFragment();
-        if(currentFrag != null && deviceFrag == currentFrag) {
-            updateToolBar(currentFrag.getDevice());
-        }
+                // 更新Activity的ToolBar
+                BleDeviceFragment currentFrag = (BleDeviceFragment)fragmentManager.getCurrentFragment();
+                if(currentFrag != null && deviceFrag == currentFrag) {
+                    updateToolBar(currentFrag.getDevice());
+                }
+            }
+        });
+
     }
 
     // 关闭设备

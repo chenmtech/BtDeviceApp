@@ -95,15 +95,15 @@ public abstract class BleDeviceFragment extends Fragment{
         return device;
     }
 
-    // 连接设备
+    // 打开设备
     public void openDevice() {
         controller.openDevice();
     }
 
-    // 断开设备
+    /*// 断开设备
     public void disconnectDevice() {
         controller.disconnectDevice();
-    }
+    }*/
 
     // 关闭设备
     // 为什么这里不是调用controller.closeDevice()，而是调用activity.closeDevice(fragment)???
@@ -114,7 +114,7 @@ public abstract class BleDeviceFragment extends Fragment{
         activity.closeDevice(this);
     }
 
-    // 切换设备状态
+    // 切换设备状态，根据设备的当前状态实现状态切换
     public void switchState() {
         controller.switchState();
     }

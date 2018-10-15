@@ -8,5 +8,5 @@ package com.cmtech.android.bledevicecore.model;
 public interface IBleDeviceStateObserver {
 
     // 更新设备状态
-    void updateDeviceState(BleDevice device);
+    void updateDeviceState(final BleDevice device);
 }

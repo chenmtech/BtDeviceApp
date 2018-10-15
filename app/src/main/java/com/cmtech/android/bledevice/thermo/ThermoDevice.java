@@ -75,10 +75,10 @@ public class ThermoDevice extends BleDevice {
     }
 
     @Override
-    public void executeAfterConnectSuccess() {
+    public boolean executeAfterConnectSuccess() {
 
         // 检查是否有正常的温湿度服务和特征值
-        if(!checkBasicThermoService()) return;
+        if(!checkBasicThermoService()) return false;
 
         resetHighestTemp();
 
@@ -87,7 +87,7 @@ public class ThermoDevice extends BleDevice {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 //Log.d("THERMOPERIOD", "first write period: " + HexUtil.encodeHexStr(data));
-                sendGattCallbackMessage(MSG_THERMODATA, data);
+                sendGattMessage(MSG_THERMODATA, data);
             }
 
             @Override
@@ -96,7 +96,7 @@ public class ThermoDevice extends BleDevice {
         });
 
         startThermometer((byte)0x01);
-
+        return true;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class ThermoDevice extends BleDevice {
 
 
     @Override
-    public synchronized void processGattCallbackMessage(Message msg)
+    public synchronized void processGattMessage(Message msg)
     {
         if (msg.what == MSG_THERMODATA) {
             if (msg.obj != null) {
@@ -154,7 +154,7 @@ public class ThermoDevice extends BleDevice {
         IBleCallback notifyCallback = new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendGattCallbackMessage(MSG_THERMODATA, data);
+                sendGattMessage(MSG_THERMODATA, data);
             }
 
             @Override

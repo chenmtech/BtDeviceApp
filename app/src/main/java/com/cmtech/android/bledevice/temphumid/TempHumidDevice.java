@@ -137,10 +137,10 @@ public class TempHumidDevice extends BleDevice {
     }
 
     @Override
-    public void executeAfterConnectSuccess() {
+    public boolean executeAfterConnectSuccess() {
 
         // 检查是否有正常的温湿度服务和特征值
-        if(!checkBasicTempHumidService()) return;
+        if(!checkBasicTempHumidService()) return false;
 
         hasTimerService = existTimerService();
 
@@ -154,6 +154,8 @@ public class TempHumidDevice extends BleDevice {
         // 更新历史数据
         isUpdatingHistoryData = false;
         updateHistoryData();
+
+        return true;
     }
 
     @Override
@@ -167,7 +169,7 @@ public class TempHumidDevice extends BleDevice {
     }
 
     @Override
-    public synchronized void processGattCallbackMessage(Message msg)
+    public synchronized void processGattMessage(Message msg)
     {
         switch (msg.what) {
             // 获取到当前温湿度值
@@ -215,7 +217,7 @@ public class TempHumidDevice extends BleDevice {
         addReadCommand(TEMPHUMIDDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendGattCallbackMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
+                sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
             @Override
@@ -236,7 +238,7 @@ public class TempHumidDevice extends BleDevice {
         IBleCallback notifyCallback = new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendGattCallbackMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
+                sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
             @Override
@@ -314,7 +316,7 @@ public class TempHumidDevice extends BleDevice {
         addReadCommand(TIMERVALUE, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendGattCallbackMessage(MSG_TIMERVALUE, data);
+                sendGattMessage(MSG_TIMERVALUE, data);
             }
 
             @Override
@@ -381,7 +383,7 @@ public class TempHumidDevice extends BleDevice {
         addReadCommand(TEMPHUMIDHISTORYDATA, new IBleCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-                sendGattCallbackMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
+                sendGattMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
             }
 
             @Override
