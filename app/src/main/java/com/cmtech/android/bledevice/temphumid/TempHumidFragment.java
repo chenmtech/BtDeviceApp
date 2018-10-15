@@ -56,11 +56,11 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvTempData = (TextView)view.findViewById(R.id.tv_temp_data);
-        tvHumidData = (TextView)view.findViewById(R.id.tv_humid_data);
-        tvHeadIndex = (TextView)view.findViewById(R.id.tv_heat_index);
+        tvTempData = view.findViewById(R.id.tv_temp_data);
+        tvHumidData = view.findViewById(R.id.tv_humid_data);
+        tvHeadIndex = view.findViewById(R.id.tv_heat_index);
 
-        rvHistoryData = (RecyclerView)view.findViewById(R.id.rv_history_temphumid);
+        rvHistoryData = view.findViewById(R.id.rv_history_temphumid);
         LinearLayoutManager layoutManager = new LinearLayoutManager(MyApplication.getContext());
         rvHistoryData.setLayoutManager(layoutManager);
         rvHistoryData.addItemDecoration(new DividerItemDecoration(MyApplication.getContext(), DividerItemDecoration.VERTICAL));
@@ -73,8 +73,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     int lastVisiblePosition = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
                     if(lastVisiblePosition == recyclerView.getLayoutManager().getItemCount()-1) {
-                        //Toast.makeText(MyApplication.getContext(), "更新历史数据", Toast.LENGTH_SHORT).show();
-                        ((TempHumidDevice)getDevice()).updateHistoryData();
+                        ((TempHumidController)getController()).updateHistoryData();
                     }
                 }
             }

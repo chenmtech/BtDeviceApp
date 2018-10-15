@@ -74,8 +74,8 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
         }
     }
 
-    private void resetHighestTemp() {
-        ((ThermoDevice)getDevice()).resetHighestTemp();
+    private synchronized void resetHighestTemp() {
+        ((ThermoController)getController()).resetHighestTemp();
     }
 
 

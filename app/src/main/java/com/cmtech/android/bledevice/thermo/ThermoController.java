@@ -8,4 +8,8 @@ public class ThermoController extends BleDeviceController {
 
         super(device);
     }
+
+    public void resetHighestTemp() {
+        ((ThermoDevice)getDevice()).resetHighestTemp();
+    }
 }

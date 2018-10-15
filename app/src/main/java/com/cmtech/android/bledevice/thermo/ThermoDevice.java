@@ -62,6 +62,7 @@ public class ThermoDevice extends BleDevice {
 
     public void resetHighestTemp() {
         highestTemp = curTemp;
+        notifyObserverThermoDataChanged();
     }
 
     public ThermoDevice(BleDeviceBasicInfo basicInfo) {
