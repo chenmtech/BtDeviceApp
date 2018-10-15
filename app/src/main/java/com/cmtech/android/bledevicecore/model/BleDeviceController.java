@@ -17,6 +17,7 @@ public abstract class BleDeviceController {
         fragment = createFragment(device);
     }
 
+    // 打开设备
     public void openDevice() {
         device.open();
     }
@@ -29,10 +30,12 @@ public abstract class BleDeviceController {
         device.disconnect();
     }*/
 
+    // 关闭设备
     public void closeDevice() {
         device.close();
     }
 
+    // 切换设备状态
     public void switchState() {
         device.switchState();
     }
@@ -45,6 +48,7 @@ public abstract class BleDeviceController {
         return fragment;
     }
 
+    // 为设备创建Fragment
     private BleDeviceFragment createFragment(BleDevice device) {
         return BleDeviceAbstractFactory.getBLEDeviceFactory(device).createFragment();
     }
