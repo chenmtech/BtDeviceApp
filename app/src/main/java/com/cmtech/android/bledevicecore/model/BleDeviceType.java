@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevicecore.model;
 
-import com.cmtech.android.bledeviceapp.R;
-
 /**
  * BleDeviceType：Ble设备类型
  * Created by bme on 2018/10/13.

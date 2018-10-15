@@ -21,8 +21,8 @@ import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
-import com.cmtech.android.bledevicecore.model.Uuid;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.model.Uuid;
 
 import java.util.ArrayList;
 import java.util.List;

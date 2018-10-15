@@ -1,10 +1,10 @@
 package com.cmtech.android.bledevice.temphumid;
 
+import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
+import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceController;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
-import com.cmtech.android.bledevicecore.model.BleDevice;
-import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 
 public class TempHumidDeviceFactory extends BleDeviceAbstractFactory {
     @Override

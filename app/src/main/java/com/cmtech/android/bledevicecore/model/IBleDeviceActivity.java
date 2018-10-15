@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevicecore.model;
 
-import android.support.v7.app.AppCompatActivity;
-
 public interface IBleDeviceActivity {
     // 由Fragment获取相应的控制器
     BleDeviceController getController(BleDeviceFragment fragment);

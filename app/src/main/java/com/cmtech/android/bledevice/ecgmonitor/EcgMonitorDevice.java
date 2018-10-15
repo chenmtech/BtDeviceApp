@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -15,10 +13,10 @@ import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorInitial
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorSampleState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledevicecore.model.Uuid;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
+import com.cmtech.android.bledevicecore.model.Uuid;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileDataType;
 import com.cmtech.dsp.bmefile.BmeFileHead;

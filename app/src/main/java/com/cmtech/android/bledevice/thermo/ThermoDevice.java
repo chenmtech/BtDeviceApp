@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.thermo;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -10,10 +8,10 @@ import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.cmtech.android.bledevicecore.model.Uuid;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
+import com.cmtech.android.bledevicecore.model.Uuid;
 
 import java.util.LinkedList;
 import java.util.List;
