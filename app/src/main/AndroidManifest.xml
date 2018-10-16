@@ -16,7 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".activity.MainActivity">
+        <activity android:name=".activity.MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,7 +25,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.ScanDeviceActivity" />
+        <activity android:name=".activity.ScanDeviceActivity" android:screenOrientation="portrait"/>
 
         <activity android:name=".activity.DeviceBasicInfoActivity"
             android:theme="@style/Theme.AppCompat.Light.Dialog"
