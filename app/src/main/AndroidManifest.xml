@@ -17,7 +17,8 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".activity.MainActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,11 +26,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.ScanDeviceActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".activity.ScanDeviceActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|screenSize"/>
 
         <activity android:name=".activity.DeviceBasicInfoActivity"
             android:theme="@style/Theme.AppCompat.Light.Dialog"
-            android:label="设置设备信息"></activity>
+            android:label="设置设备信息"/>
 
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConfigureActivity"/>
 
