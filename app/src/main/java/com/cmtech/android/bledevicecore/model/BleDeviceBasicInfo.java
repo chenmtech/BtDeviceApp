@@ -19,6 +19,8 @@ import java.util.Set;
  */
 
 public class BleDeviceBasicInfo implements Serializable{
+    private final static long serialVersionUID = 1L;
+
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
     // mac地址
