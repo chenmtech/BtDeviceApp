@@ -24,7 +24,10 @@ public class BleDeviceDisconnectState implements IBleDeviceState {
 
     @Override
     public void scan() {
-        MyApplication.getViseBle().disconnect(device.getBluetoothLeDevice());
+        device.getHandler().removeCallbacksAndMessages(null);
+        DeviceMirror deviceMirror = MyApplication.getViseBle().getDeviceMirror(device.getBluetoothLeDevice());
+        if(deviceMirror != null)
+            deviceMirror.clear();
         MyApplication.getViseBle().connectByMac(device.getMacAddress(), device.getConnectCallback());
         device.setState(device.getScanState());
     }
@@ -58,6 +61,7 @@ public class BleDeviceDisconnectState implements IBleDeviceState {
     @Override
     public void onDeviceConnectFailure() {
         ViseLog.i("callback wrong");
+        device.processConnectFailure();
     }
 
     @Override

@@ -345,7 +345,8 @@ public abstract class BleDevice implements Serializable{
 
     // 停止Gatt命令执行器
     private void stopCommandExecutor() {
-        if(isCommandExecutorAlive()) commandExecutor.stop();
+        //if(isCommandExecutorAlive()) commandExecutor.stop();
+        if(commandExecutor != null) commandExecutor.stop();
     }
 
     // Gatt命令执行器是否Alive
@@ -410,6 +411,7 @@ public abstract class BleDevice implements Serializable{
                 }
             }, 500);
             */
+            //stopCommandExecutor();
             state.disconnect();
         }
     }
