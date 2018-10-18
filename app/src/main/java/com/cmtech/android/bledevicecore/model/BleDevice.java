@@ -362,10 +362,12 @@ public abstract class BleDevice implements Serializable{
 
     // 发送Gatt命令执行后回调处理消息
     protected void sendGattMessage(int what, Object obj) {
-        Message msg = new Message();
-        msg.what = what;
-        msg.obj = obj;
-        handler.sendMessage(msg);
+        Message msg = Message.obtain(handler, what, obj);
+        msg.sendToTarget();
+        //Message msg = new Message();
+        //msg.what = what;
+        //msg.obj = obj;
+        //handler.sendMessage(msg);
     }
 
     private void reconnect(final int delay) {
@@ -401,12 +403,14 @@ public abstract class BleDevice implements Serializable{
         // 创建Gatt串行命令执行器
         if(!createGattCommandExecutor() || !executeAfterConnectSuccess()) {
             // 创建失败，断开连接
-            handler.postDelayed(new Runnable() {
+            /*handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     state.disconnect();
                 }
             }, 500);
+            */
+            state.disconnect();
         }
     }
 
