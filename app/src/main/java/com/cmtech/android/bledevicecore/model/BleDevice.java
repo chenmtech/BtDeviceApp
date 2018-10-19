@@ -52,12 +52,6 @@ public abstract class BleDevice implements Serializable{
     // 当前已重连次数
     private int curReconnectTimes = 0;
 
-    // ViseBle包内部设备对象
-    private BluetoothLeDevice bluetoothLeDevice = null;
-    public BluetoothLeDevice getBluetoothLeDevice() {
-        return bluetoothLeDevice;
-    }
-
     // GATT命令串行执行器
     private BleGattCommandExecutor commandExecutor;
 
@@ -219,6 +213,25 @@ public abstract class BleDevice implements Serializable{
     }
     public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
 
+
+    // ViseBle包内部BluetoothLeDevice对象
+    public BluetoothLeDevice getBluetoothLeDevice() {
+        List<BluetoothLeDevice> bluetoothLeDeviceList = deviceMirrorPool.getDeviceList();
+        BluetoothLeDevice bluetoothLeDevice = null;
+        for(BluetoothLeDevice device : bluetoothLeDeviceList) {
+            if(getMacAddress().equalsIgnoreCase(device.getAddress())) {
+                bluetoothLeDevice = device;
+                break;
+            }
+        }
+        return bluetoothLeDevice;
+    }
+
+    // ViseBle包内部DeviceMirror对象
+    public DeviceMirror getDeviceMirror() {
+        return deviceMirrorPool.getDeviceMirror(getBluetoothLeDevice());
+    }
+
     // 打开设备
     public synchronized void open() {
         handler.removeCallbacksAndMessages(null);
@@ -362,7 +375,7 @@ public abstract class BleDevice implements Serializable{
     private boolean createGattCommandExecutor() {
         ViseLog.i("create new command executor.");
         if(isCommandExecutorAlive()) return false;
-        DeviceMirror deviceMirror = deviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
+        DeviceMirror deviceMirror = getDeviceMirror();
         if(deviceMirror == null) return false;
 
         commandExecutor = new BleGattCommandExecutor(deviceMirror);
@@ -372,8 +385,7 @@ public abstract class BleDevice implements Serializable{
 
     // 停止Gatt命令执行器
     private void stopCommandExecutor() {
-        //if(isCommandExecutorAlive()) commandExecutor.stop();
-        if(commandExecutor != null) commandExecutor.stop();
+        if(isCommandExecutorAlive()) commandExecutor.stop();
     }
 
     // Gatt命令执行器是否Alive
@@ -383,19 +395,13 @@ public abstract class BleDevice implements Serializable{
 
     // 获取设备上element对应的Gatt Object
     protected Object getGattObject(BleGattElement element) {
-        DeviceMirror deviceMirror = deviceMirrorPool.getDeviceMirror(bluetoothLeDevice);
-        if(deviceMirror == null || element == null) return null;
-        return element.retrieveGattObject(deviceMirror);
+        return (element == null) ? null : element.retrieveGattObject(this);
     }
 
     // 发送Gatt命令执行后回调处理消息
     protected void sendGattMessage(int what, Object obj) {
         Message msg = Message.obtain(handler, what, obj);
         msg.sendToTarget();
-        //Message msg = new Message();
-        //msg.what = what;
-        //msg.obj = obj;
-        //handler.sendMessage(msg);
     }
 
     private void reconnect(final int delay) {
@@ -430,36 +436,24 @@ public abstract class BleDevice implements Serializable{
         //handler.removeCallbacksAndMessages(null);
         curReconnectTimes = 0;
 
-        bluetoothLeDevice = mirror.getBluetoothLeDevice();
-
         ViseLog.i("onConnectSuccess");
 
         // 创建Gatt串行命令执行器
         if(!createGattCommandExecutor() || !executeAfterConnectSuccess()) {
-            // 创建失败，断开连接
-            /*handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    state.disconnect();
-                }
-            }, 500);
-            */
-            //stopCommandExecutor();
             state.disconnect();
         }
     }
 
     public void processConnectFailure() {
         stopCommandExecutor();
-        bluetoothLeDevice = null;
         executeAfterConnectFailure();
         reconnect(RECONNECT_DELAY);
     }
 
     public void processDisconnect() {
         stopCommandExecutor();
-        bluetoothLeDevice = null;
         executeAfterDisconnect();
+        handler.removeCallbacksAndMessages(null);
         ViseLog.e("processDisconnect");
     }
 
