@@ -1,5 +1,9 @@
 package com.cmtech.android.bledevicecore.devicestate;
 
+import android.os.Handler;
+import android.os.Looper;
+
+import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.model.BleDevice;

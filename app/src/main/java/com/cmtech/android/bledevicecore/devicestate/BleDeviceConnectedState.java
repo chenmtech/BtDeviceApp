@@ -70,21 +70,21 @@ public class BleDeviceConnectedState implements IBleDeviceState {
 
     @Override
     public void onDeviceConnectFailure() {
-        device.getHandler().removeCallbacksAndMessages(null);
+        //device.getHandler().removeCallbacksAndMessages(null);
         device.setState(device.getDisconnectState());
         device.processConnectFailure();
     }
 
     @Override
     public void onDeviceConnectTimeout() {
-        device.getHandler().removeCallbacksAndMessages(null);
+        //device.getHandler().removeCallbacksAndMessages(null);
         device.setState(device.getDisconnectState());
         device.processConnectFailure();
     }
 
     @Override
     public void onDeviceDisconnect() {
-        device.getHandler().removeCallbacksAndMessages(null);
+        //device.getHandler().removeCallbacksAndMessages(null);
         if(!device.isClosing())
             device.setState(device.getDisconnectState());
         else {

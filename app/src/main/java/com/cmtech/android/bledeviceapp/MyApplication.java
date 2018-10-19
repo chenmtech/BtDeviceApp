@@ -16,7 +16,7 @@ import org.litepal.LitePal;
  */
 
 public class MyApplication extends Application {
-    private final static int SCAN_TIMEOUT = 6000;           // 扫描超时
+    private final static int SCAN_TIMEOUT = 10000;           // 扫描超时，不能太短，否则会导致扫描频繁scanning too frequently
     private final static int CONNECT_TIMEOUT = 20000;       // 连接超时
 
     // 上下文

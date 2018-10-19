@@ -24,11 +24,11 @@ public class BleDeviceDisconnectState implements IBleDeviceState {
 
     @Override
     public void scan() {
-        device.getHandler().removeCallbacksAndMessages(null);
+        /*//device.getHandler().removeCallbacksAndMessages(null);
         DeviceMirror deviceMirror = MyApplication.getViseBle().getDeviceMirror(device.getBluetoothLeDevice());
         if(deviceMirror != null)
-            deviceMirror.clear();
-        MyApplication.getViseBle().connectByMac(device.getMacAddress(), device.getConnectCallback());
+            deviceMirror.clear();*/
+        device.startScan();
         device.setState(device.getScanState());
     }
 

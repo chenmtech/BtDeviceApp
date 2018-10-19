@@ -2,15 +2,19 @@ package com.cmtech.android.bledevicecore.model;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
+import com.cmtech.android.ble.callback.scan.IScanCallback;
+import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceCloseState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceConnectedState;
@@ -34,7 +38,7 @@ public abstract class BleDevice implements Serializable{
     private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
     // 连接断开后重连之间的延时，毫秒
-    private final static int RECONNECT_DELAY = 1000;
+    private final static int RECONNECT_DELAY = 10000;
 
     // 设备基本信息
     private BleDeviceBasicInfo basicInfo;
@@ -103,6 +107,29 @@ public abstract class BleDevice implements Serializable{
         this.state = state;
         notifyDeviceStateObservers();
     }
+
+    // 扫描回调
+    private final IScanCallback scanCallback = new IScanCallback() {
+        @Override
+        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
+
+        }
+
+        @Override
+        public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
+            if (bluetoothLeDeviceStore.getDeviceList().size() > 0) {
+                connectCallback.onScanFinish(true);
+                MyApplication.getViseBle().connect(bluetoothLeDeviceStore.getDeviceList().get(0), connectCallback);
+            } else {
+                connectCallback.onScanFinish(false);
+            }
+        }
+
+        @Override
+        public void onScanTimeout() {
+            connectCallback.onScanFinish(false);
+        }
+    };
 
     // 连接回调
     private final IConnectCallback connectCallback = new IConnectCallback() {
@@ -389,12 +416,18 @@ public abstract class BleDevice implements Serializable{
     /*
      * 给IBleDeviceState提供的函数，执行扫描和连接后的操作
      */
+    // 开始扫描
+    public void startScan() {
+        ViseLog.e("startScan");
+        new SingleFilterScanCallback(scanCallback).setDeviceMac(getMacAddress()).setScan(true).scan();
+    }
+
     public void processScanFailure() {
         reconnect(RECONNECT_DELAY);
     }
 
     public void processConnectSuccess(DeviceMirror mirror) {
-        handler.removeCallbacksAndMessages(null);
+        //handler.removeCallbacksAndMessages(null);
         curReconnectTimes = 0;
 
         bluetoothLeDevice = mirror.getBluetoothLeDevice();
@@ -427,6 +460,7 @@ public abstract class BleDevice implements Serializable{
         stopCommandExecutor();
         bluetoothLeDevice = null;
         executeAfterDisconnect();
+        ViseLog.e("processDisconnect");
     }
 
     @Override
