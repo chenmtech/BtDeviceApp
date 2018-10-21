@@ -14,84 +14,39 @@ public class BleDeviceConnectedState implements IBleDeviceState {
 
     @Override
     public void open() {
-        ViseLog.i("action wrong");
+        ViseLog.e(this + " : action wrong");
     }
 
     @Override
     public void close() {
-        device.setClosing(true);
-        disconnect();
-    }
-
-    @Override
-    public void scan() {
-        ViseLog.i("action wrong");
-    }
-
-    @Override
-    public void disconnect() {
-        // 防止接收不到断开连接的回调，而无法执行onDeviceDisconnect()，所以1秒后自动执行。
-        device.getHandler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                device.processDisconnect();
-                if(!device.isClosing())
-                    device.setState(device.getDisconnectState());
-                else {
-                    device.setState(device.getCloseState());
-                    device.setClosing(false);
-                }
-            }
-        }, 1000);
-
-        MyApplication.getViseBle().getDeviceMirrorPool().disconnect(device.getBluetoothLeDevice());
-        device.setState(device.getDisconnectingState());
+        device.disconnect();
     }
 
     @Override
     public void switchState() {
-        disconnect();
+        device.disconnect();
     }
 
     @Override
-    public void onDeviceScanSuccess() {
-        ViseLog.i("callback wrong");
-    }
-
-    @Override
-    public void onDeviceScanFailure() {
-        ViseLog.i("callback wrong");
+    public void onDeviceScanFinish(boolean result) {
+        ViseLog.e(this + " : callback wrong");
     }
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-        ViseLog.i("callback wrong");
+        ViseLog.e(this + " : callback wrong");
+        // 重复多次成功连接，需要把后一次移除。
+        MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(mirror);
     }
 
     @Override
     public void onDeviceConnectFailure() {
-        //device.getHandler().removeCallbacksAndMessages(null);
-        device.setState(device.getDisconnectState());
         device.processConnectFailure();
     }
 
     @Override
-    public void onDeviceConnectTimeout() {
-        //device.getHandler().removeCallbacksAndMessages(null);
-        device.setState(device.getDisconnectState());
-        device.processConnectFailure();
-    }
-
-    @Override
-    public void onDeviceDisconnect() {
-        //device.getHandler().removeCallbacksAndMessages(null);
-        if(!device.isClosing())
-            device.setState(device.getDisconnectState());
-        else {
-            device.setState(device.getCloseState());
-            device.setClosing(false);
-        }
-        device.processDisconnect();
+    public void onDeviceDisconnect(boolean isActive) {
+        device.processDisconnect(isActive);
     }
 
     @Override

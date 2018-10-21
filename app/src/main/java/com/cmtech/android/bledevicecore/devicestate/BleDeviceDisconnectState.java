@@ -14,7 +14,7 @@ public class BleDeviceDisconnectState implements IBleDeviceState {
 
     @Override
     public void open() {
-        ViseLog.i("action wrong");
+        ViseLog.e(this + " : action wrong");
     }
 
     @Override
@@ -23,55 +23,28 @@ public class BleDeviceDisconnectState implements IBleDeviceState {
     }
 
     @Override
-    public void scan() {
-        /*//device.getHandler().removeCallbacksAndMessages(null);
-        DeviceMirror deviceMirror = MyApplication.getViseBle().getDeviceMirror(device.getBluetoothLeDevice());
-        if(deviceMirror != null)
-            deviceMirror.clear();*/
-        device.startScan();
-        device.setState(device.getScanState());
-    }
-
-    @Override
-    public void disconnect() {
-        ViseLog.i("action wrong");
-    }
-
-    @Override
     public void switchState() {
-        scan();
+        device.startScan();
     }
 
     @Override
-    public void onDeviceScanSuccess() {
-        ViseLog.i("callback wrong");
-    }
-
-    @Override
-    public void onDeviceScanFailure() {
-        ViseLog.i("callback wrong");
+    public void onDeviceScanFinish(boolean result) {
+        ViseLog.e(this + " : callback wrong");
     }
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-        device.setState(device.getConnectedState());
         device.processConnectSuccess(mirror);
     }
 
     @Override
     public void onDeviceConnectFailure() {
-        ViseLog.i("callback wrong");
         device.processConnectFailure();
     }
 
     @Override
-    public void onDeviceConnectTimeout() {
-        ViseLog.i("callback wrong");
-    }
-
-    @Override
-    public void onDeviceDisconnect() {
-        ViseLog.i("callback wrong");
+    public void onDeviceDisconnect(boolean isActive) {
+        ViseLog.e(this + " : callback wrong");
     }
 
     @Override

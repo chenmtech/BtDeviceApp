@@ -19,55 +19,34 @@ public class BleDeviceCloseState implements IBleDeviceState {
 
     @Override
     public void close() {
-        ViseLog.i("action wrong");
-    }
-
-    @Override
-    public void scan() {
-        ViseLog.i("action wrong");
-    }
-
-    @Override
-    public void disconnect() {
-        ViseLog.i("action wrong");
+        ViseLog.e(this + " : action wrong");
     }
 
     @Override
     public void switchState() {
-        ViseLog.i("action wrong");
+        ViseLog.e(this + " : action wrong");
     }
 
     @Override
-    public void onDeviceScanSuccess() {
-        ViseLog.i("have closed!");
-    }
-
-    @Override
-    public void onDeviceScanFailure() {
-        ViseLog.i("have closed!");
+    public void onDeviceScanFinish(boolean result) {
+        ViseLog.e(this + " : have closed!");
     }
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-        ViseLog.i("have closed!");
-        if(mirror != null)
-            MyApplication.getViseBle().getDeviceMirrorPool().disconnect(mirror.getBluetoothLeDevice());
+        ViseLog.e(this + " : have closed!");
+        MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(mirror);
     }
 
     @Override
     public void onDeviceConnectFailure() {
-        ViseLog.i("have closed!");
+        ViseLog.e(this + " : have closed!");
     }
 
     @Override
-    public void onDeviceConnectTimeout() {
-        ViseLog.i("have closed!");
-    }
-
-    @Override
-    public void onDeviceDisconnect() {
-        ViseLog.i("have closed!");
-        device.processDisconnect();
+    public void onDeviceDisconnect(boolean isActive) {
+        ViseLog.e(this + " : have closed!");
+        device.processDisconnect(isActive);
     }
 
     @Override

@@ -40,7 +40,7 @@ public abstract class BleDevice implements Serializable{
     // 连接断开后重连之间的延时，毫秒
     private final static int RECONNECT_DELAY = 10000;
 
-    // 设备基本信息
+    // 获取设备基本信息
     private BleDeviceBasicInfo basicInfo;
     public BleDeviceBasicInfo getBasicInfo() {
         return basicInfo;
@@ -48,6 +48,22 @@ public abstract class BleDevice implements Serializable{
     public void setBasicInfo(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
     }
+    public String getMacAddress() {
+        return basicInfo.getMacAddress();
+    }
+    public String getNickName() {
+        return basicInfo.getNickName();
+    }
+    public String getUuidString() {
+        return basicInfo.getUuidString();
+    }
+    public boolean autoConnect() {
+        return basicInfo.autoConnect();
+    }
+    public String getImagePath() {
+        return basicInfo.getImagePath();
+    }
+    public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
 
     // 当前已重连次数
     private int curReconnectTimes = 0;
@@ -60,12 +76,6 @@ public abstract class BleDevice implements Serializable{
 
     // 是否正在关闭。当断开连接时，根据这个标志判断是否应该退回到close状态
     private boolean isClosing = false;
-    public boolean isClosing() {
-        return isClosing;
-    }
-    public void setClosing(boolean closing) {
-        isClosing = closing;
-    }
 
     // 几个设备状态
     private final BleDeviceCloseState closeState = new BleDeviceCloseState(this);                           // 关闭状态
@@ -111,17 +121,21 @@ public abstract class BleDevice implements Serializable{
 
         @Override
         public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
-            if (bluetoothLeDeviceStore.getDeviceList().size() > 0) {
-                connectCallback.onScanFinish(true);
-                MyApplication.getViseBle().connect(bluetoothLeDeviceStore.getDeviceList().get(0), connectCallback);
-            } else {
-                connectCallback.onScanFinish(false);
+            synchronized (BleDevice.this) {
+                if (bluetoothLeDeviceStore.getDeviceList().size() > 0) {
+                    connectCallback.onScanFinish(true);
+                    MyApplication.getViseBle().connect(bluetoothLeDeviceStore.getDeviceList().get(0), connectCallback);
+                } else {
+                    connectCallback.onScanFinish(false);
+                }
             }
         }
 
         @Override
         public void onScanTimeout() {
-            connectCallback.onScanFinish(false);
+            synchronized (BleDevice.this) {
+                connectCallback.onScanFinish(false);
+            }
         }
     };
 
@@ -138,37 +152,27 @@ public abstract class BleDevice implements Serializable{
         @Override
         public void onConnectFailure(final BleException exception) {
             synchronized (BleDevice.this) {
-                if (exception instanceof TimeoutException)
-                    state.onDeviceConnectTimeout();
-                else
-                    state.onDeviceConnectFailure();
+                state.onDeviceConnectFailure();
             }
         }
         // 连接断开回调
         @Override
         public void onDisconnect(final boolean isActive) {
             synchronized (BleDevice.this) {
-                state.onDeviceDisconnect();
+                state.onDeviceDisconnect(isActive);
             }
         }
         // 扫描结束回调
         @Override
         public void onScanFinish(boolean result) {
             synchronized (BleDevice.this) {
-                if (result) {
-                    state.onDeviceScanSuccess();
-                }
-                else {
-                    state.onDeviceScanFailure();
-                }
+                state.onDeviceScanFinish(result);
             }
         }
     };
-    public IConnectCallback getConnectCallback() {
-        return connectCallback;
-    }
 
-    // 创建消息Handler
+
+    // 创建HandlerThread及其消息Handler
     private final Handler handler = createMessageHandler();
     private Handler createMessageHandler() {
         HandlerThread thread = new HandlerThread("BleDevice Work Thread");
@@ -190,31 +194,11 @@ public abstract class BleDevice implements Serializable{
     // 构造器
     public BleDevice(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
-        curReconnectTimes = 0;
-        isClosing = false;
     }
 
 
-    // 获取设备基本信息
-    public String getMacAddress() {
-        return basicInfo.getMacAddress();
-    }
-    public String getNickName() {
-        return basicInfo.getNickName();
-    }
-    public String getUuidString() {
-        return basicInfo.getUuidString();
-    }
-    public boolean autoConnect() {
-        return basicInfo.autoConnect();
-    }
-    public String getImagePath() {
-        return basicInfo.getImagePath();
-    }
-    public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
 
-
-    // ViseBle包内部BluetoothLeDevice对象
+    // 获取ViseBle包内部BluetoothLeDevice对象
     public BluetoothLeDevice getBluetoothLeDevice() {
         List<BluetoothLeDevice> bluetoothLeDeviceList = deviceMirrorPool.getDeviceList();
         BluetoothLeDevice bluetoothLeDevice = null;
@@ -227,7 +211,7 @@ public abstract class BleDevice implements Serializable{
         return bluetoothLeDevice;
     }
 
-    // ViseBle包内部DeviceMirror对象
+    // 获取ViseBle包内部DeviceMirror对象
     public DeviceMirror getDeviceMirror() {
         return deviceMirrorPool.getDeviceMirror(getBluetoothLeDevice());
     }
@@ -236,14 +220,16 @@ public abstract class BleDevice implements Serializable{
     public synchronized void open() {
         handler.removeCallbacksAndMessages(null);
         curReconnectTimes = 0;
+        isClosing = false;
         state.open();
         if(autoConnect())
-            state.scan();
+            state.switchState();
     }
 
     // 关闭设备
     public synchronized void close() {
         handler.removeCallbacksAndMessages(null);
+        isClosing = true;
         state.close();
     }
 
@@ -410,7 +396,7 @@ public abstract class BleDevice implements Serializable{
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    state.scan();
+                    state.switchState();
                 }
             }, delay);
             if(curReconnectTimes < canReconnectTimes)
@@ -424,37 +410,64 @@ public abstract class BleDevice implements Serializable{
      */
     // 开始扫描
     public void startScan() {
-        ViseLog.e("startScan");
+        ViseLog.i("startScan");
+        handler.removeCallbacksAndMessages(null);
         new SingleFilterScanCallback(scanCallback).setDeviceMac(getMacAddress()).setScan(true).scan();
+        setState(getScanState());
+    }
+
+    public void disconnect() {
+        ViseLog.i("disconnect");
+        handler.removeCallbacksAndMessages(null);
+        // 防止接收不到断开连接的回调，而无法执行onDeviceDisconnect()，所以1秒后自动执行。
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                processDisconnect(true);
+            }
+        }, 1000);
+
+        MyApplication.getViseBle().getDeviceMirrorPool().disconnect(getBluetoothLeDevice());
+        setState(getDisconnectingState());
     }
 
     public void processScanFailure() {
+        ViseLog.i("processScanFailure");
+        handler.removeCallbacksAndMessages(null);
+        setState(getDisconnectState());
         reconnect(RECONNECT_DELAY);
     }
 
     public void processConnectSuccess(DeviceMirror mirror) {
-        //handler.removeCallbacksAndMessages(null);
+        ViseLog.i("processConnectSuccess");
+        handler.removeCallbacksAndMessages(null);
         curReconnectTimes = 0;
-
-        ViseLog.i("onConnectSuccess");
-
+        setState(getConnectedState());
         // 创建Gatt串行命令执行器
         if(!createGattCommandExecutor() || !executeAfterConnectSuccess()) {
-            state.disconnect();
+            disconnect();
         }
     }
 
     public void processConnectFailure() {
+        ViseLog.i("processConnectFailure");
+        handler.removeCallbacksAndMessages(null);
         stopCommandExecutor();
         executeAfterConnectFailure();
+        setState(getDisconnectState());
         reconnect(RECONNECT_DELAY);
     }
 
-    public void processDisconnect() {
+    public void processDisconnect(boolean isActive) {
+        ViseLog.i("processDisconnect");
+        handler.removeCallbacksAndMessages(null);
         stopCommandExecutor();
         executeAfterDisconnect();
-        handler.removeCallbacksAndMessages(null);
-        ViseLog.e("processDisconnect");
+        if(!isClosing)
+            setState(getDisconnectState());
+        else {
+            setState(getCloseState());
+        }
     }
 
     @Override
