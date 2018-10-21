@@ -2,7 +2,6 @@ package com.cmtech.android.bledevicecore.model;
 
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -12,7 +11,6 @@ import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -404,7 +402,6 @@ public abstract class BleDevice implements Serializable{
         }
     }
 
-
     /*
      * 给IBleDeviceState提供的函数，执行扫描和连接后的操作
      */
@@ -423,7 +420,7 @@ public abstract class BleDevice implements Serializable{
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                processDisconnect(true);
+                onStateDisconnect(true);
             }
         }, 1000);
 
@@ -431,15 +428,15 @@ public abstract class BleDevice implements Serializable{
         setState(getDisconnectingState());
     }
 
-    public void processScanFailure() {
-        ViseLog.i("processScanFailure");
+    public void onStateScanFailure() {
+        ViseLog.i("onStateScanFailure");
         handler.removeCallbacksAndMessages(null);
         setState(getDisconnectState());
         reconnect(RECONNECT_DELAY);
     }
 
-    public void processConnectSuccess(DeviceMirror mirror) {
-        ViseLog.i("processConnectSuccess");
+    public void onStateConnectSuccess(DeviceMirror mirror) {
+        ViseLog.i("onStateConnectSuccess");
         handler.removeCallbacksAndMessages(null);
         curReconnectTimes = 0;
         setState(getConnectedState());
@@ -449,8 +446,8 @@ public abstract class BleDevice implements Serializable{
         }
     }
 
-    public void processConnectFailure() {
-        ViseLog.i("processConnectFailure");
+    public void onStateConnectFailure() {
+        ViseLog.i("onStateConnectFailure");
         handler.removeCallbacksAndMessages(null);
         stopCommandExecutor();
         executeAfterConnectFailure();
@@ -458,8 +455,8 @@ public abstract class BleDevice implements Serializable{
         reconnect(RECONNECT_DELAY);
     }
 
-    public void processDisconnect(boolean isActive) {
-        ViseLog.i("processDisconnect");
+    public void onStateDisconnect(boolean isActive) {
+        ViseLog.i("onStateDisconnect");
         handler.removeCallbacksAndMessages(null);
         stopCommandExecutor();
         executeAfterDisconnect();

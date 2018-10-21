@@ -41,12 +41,12 @@ public class BleDeviceConnectedState implements IBleDeviceState {
 
     @Override
     public void onDeviceConnectFailure() {
-        device.processConnectFailure();
+        device.onStateConnectFailure();
     }
 
     @Override
     public void onDeviceDisconnect(boolean isActive) {
-        device.processDisconnect(isActive);
+        device.onStateDisconnect(isActive);
     }
 
     @Override

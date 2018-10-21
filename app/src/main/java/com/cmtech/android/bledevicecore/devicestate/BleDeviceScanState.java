@@ -1,11 +1,6 @@
 package com.cmtech.android.bledevicecore.devicestate;
 
-import android.os.Handler;
-import android.os.Looper;
-
-import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.vise.log.ViseLog;
 
@@ -36,13 +31,13 @@ public class BleDeviceScanState implements IBleDeviceState {
         if(result) {
             device.setState(device.getConnectingState());
         } else {
-            device.processScanFailure();
+            device.onStateScanFailure();
         }
     }
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-        device.processConnectSuccess(mirror);
+        device.onStateConnectSuccess(mirror);
     }
 
     @Override

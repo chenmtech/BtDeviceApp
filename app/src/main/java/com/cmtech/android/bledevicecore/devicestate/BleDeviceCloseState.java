@@ -46,7 +46,7 @@ public class BleDeviceCloseState implements IBleDeviceState {
     @Override
     public void onDeviceDisconnect(boolean isActive) {
         ViseLog.e(this + " : have closed!");
-        device.processDisconnect(isActive);
+        device.onStateDisconnect(isActive);
     }
 
     @Override

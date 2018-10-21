@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevicecore.devicestate;
 
 import com.cmtech.android.ble.core.DeviceMirror;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.vise.log.ViseLog;
 
@@ -34,12 +33,12 @@ public class BleDeviceConnectingState implements IBleDeviceState {
 
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
-        device.processConnectSuccess(mirror);
+        device.onStateConnectSuccess(mirror);
     }
 
     @Override
     public void onDeviceConnectFailure() {
-        device.processConnectFailure();
+        device.onStateConnectFailure();
     }
 
     @Override
