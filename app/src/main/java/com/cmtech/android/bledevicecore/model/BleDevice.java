@@ -36,7 +36,7 @@ public abstract class BleDevice implements Serializable{
     private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
     // 连接断开后重连之间的延时，毫秒
-    private final static int RECONNECT_DELAY = 10000;
+    private final static int RECONNECT_DELAY = 6000;
 
     // 获取设备基本信息
     private BleDeviceBasicInfo basicInfo;

@@ -41,7 +41,7 @@ public abstract class BleDeviceFragment extends Fragment{
         super.onAttach(context);
 
         if(!(context instanceof IBleDeviceActivity)) {
-            throw new IllegalStateException("context不是BleDeviceActivity");
+            throw new IllegalStateException("context不是IBleDeviceActivity");
         }
 
         // 获得Activity
