@@ -9,10 +9,13 @@ import java.util.UUID;
 
 public class Uuid {
     // 基础UUID
-    public static final String BASEUUID = "0a20XXXX-cce5-4025-a156-38ea833f6ef8";
+    //public static final String MY_BASE_UUID = "0a20XXXX-cce5-4025-a156-38ea833f6ef8";
+
+    //
+    //public static final String BT_BASE_UUID = "0000XXXX-0000-1000-8000-00805F9B34FB";
 
     // CCC UUID
-    public static final String CCCUUID = "00002902-0000-1000-8000-00805f9b34fb";
+    //public static final String CCCUUID = "00002902-0000-1000-8000-00805f9b34fb";
 
     private Uuid() {
 
@@ -29,12 +32,12 @@ public class Uuid {
     }
 
     // 短字符串转换为长字符串
-    public static String shortToLongString(String shortString) {
+    public static String shortToLongString(String shortString, String baseUuid) {
         if(shortString == null || shortString.length() != 4) return null;
 
-        String sub = BASEUUID.substring(4, 8);
+        String sub = baseUuid.substring(4, 8);
 
-        return BASEUUID.replaceFirst(sub, shortString);
+        return baseUuid.replaceFirst(sub, shortString);
     }
 
     // 长字符串转换为短字符串
@@ -43,8 +46,9 @@ public class Uuid {
     }
 
     // 短字符串转换为UUID
-    public static UUID shortStringToUuid(String shortString) {
-        String uuid = shortToLongString(shortString);
+    public static UUID shortStringToUuid(String shortString, String baseUuid) {
+        String uuid = shortToLongString(shortString, baseUuid);
         return (uuid == null) ? null : UUID.fromString(uuid);
     }
+
 }

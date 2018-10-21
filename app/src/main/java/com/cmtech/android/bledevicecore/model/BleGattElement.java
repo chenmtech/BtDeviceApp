@@ -9,15 +9,17 @@ import com.cmtech.android.ble.core.DeviceMirror;
 
 import java.util.UUID;
 
+import static com.cmtech.android.bledevicecore.model.BleDeviceUtil.BASE_UUID;
+
 /**
  * Created by bme on 2018/3/1.
  */
 
 public class BleGattElement {
-    private final int TYPE_NULL = 0;                // 空ELement 类型
-    private final int TYPE_SERVICE = 1;             // service element类型
-    private final int TYPE_CHARACTERISTIC = 2;      // characteristic element类型
-    private final int TYPE_DESCRIPTOR = 3;          // descriptor element类型
+    private static final int TYPE_NULL = 0;                // 空ELement 类型
+    private static final int TYPE_SERVICE = 1;             // service element类型
+    private static final int TYPE_CHARACTERISTIC = 2;      // characteristic element类型
+    private static final int TYPE_DESCRIPTOR = 3;          // descriptor element类型
 
 
     // 服务UUID
@@ -33,12 +35,11 @@ public class BleGattElement {
     private final String description;
 
 
-    // null element
-    //public static final BleGattElement NULLELEMENT = new BleGattElement((UUID)null, null, null);
-
     // 用短的字符串构建Element
     public BleGattElement(String serviceShortString, String characteristicShortString, String descriptorShortString) {
-        this(Uuid.shortStringToUuid(serviceShortString), Uuid.shortStringToUuid(characteristicShortString), Uuid.shortStringToUuid(descriptorShortString));
+        this(Uuid.shortStringToUuid(serviceShortString, BASE_UUID),
+                Uuid.shortStringToUuid(characteristicShortString, BASE_UUID),
+                Uuid.shortStringToUuid(descriptorShortString, BASE_UUID));
         }
 
     // 用UUID构建Element
@@ -49,9 +50,9 @@ public class BleGattElement {
         String servStr = (serviceUuid == null) ? null : Uuid.longToShortString(serviceUuid.toString());
         String charaStr = (characteristicUuid == null) ? null : Uuid.longToShortString(characteristicUuid.toString());
         String descStr = (descriptorUuid == null) ? null : Uuid.longToShortString(descriptorUuid.toString());
-        description = "[service= " + servStr
+        description = "BleGattElement[ service= " + servStr
                 + ",characteristic= " + charaStr
-                + ",descriptor= " + descStr + "]";
+                + ",descriptor= " + descStr + " ]";
     }
 
     public UUID getServiceUuid() {
@@ -66,10 +67,12 @@ public class BleGattElement {
         return descriptorUuid;
     }
 
-    // 从设备镜像中搜寻此element的Gatt Object.可用于验证Element是否存在于DeviceMirror中
+    // 从设备中搜寻element对应的Gatt Object，可用于验证Element是否存在于设备中
     public Object retrieveGattObject(BleDevice device) {
+        if(device == null) return null;
         DeviceMirror deviceMirror = device.getDeviceMirror();
         if(deviceMirror == null || deviceMirror.getBluetoothGatt() == null) return null;
+
         BluetoothGatt gatt = deviceMirror.getBluetoothGatt();
         BluetoothGattService service;
         BluetoothGattCharacteristic characteristic;

@@ -18,6 +18,8 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.cmtech.android.bledevicecore.model.BleDeviceUtil.CCCUUID;
+
 public class TempHumidDevice extends BleDevice {
     private static final String TAG = "TempHumidDevice";
 
@@ -47,7 +49,7 @@ public class TempHumidDevice extends BleDevice {
             new BleGattElement(tempHumidServiceUuid, tempHumidPeriodUuid, null);
 
     public static final BleGattElement TEMPHUMIDDATACCC =
-            new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, Uuid.CCCUUID);
+            new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, CCCUUID);
 
     public static final BleGattElement TEMPHUMIDHISTORYTIME =
             new BleGattElement(tempHumidServiceUuid, tempHumidHistoryTimeUuid, null);

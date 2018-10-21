@@ -35,6 +35,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.cmtech.android.bledevicecore.model.BleDeviceUtil.CCCUUID;
+
 /**
  * 心电监护仪类
  * Created by bme on 2018/9/20.
@@ -63,7 +65,7 @@ public class EcgMonitorDevice extends BleDevice {
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null);
 
     public static final BleGattElement ECGMONITORDATACCC =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, Uuid.CCCUUID);
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, CCCUUID);
 
     public static final BleGattElement ECGMONITORCTRL =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null);

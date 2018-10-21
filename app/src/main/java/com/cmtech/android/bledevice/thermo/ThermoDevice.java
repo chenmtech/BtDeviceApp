@@ -14,6 +14,8 @@ import com.cmtech.android.bledevicecore.model.Uuid;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.cmtech.android.bledevicecore.model.BleDeviceUtil.CCCUUID;
+
 public class ThermoDevice extends BleDevice {
     private static final int MSG_THERMODATA = 1;
 
@@ -33,7 +35,7 @@ public class ThermoDevice extends BleDevice {
             new BleGattElement(thermoServiceUuid, thermoPeriodUuid, null);
 
     public static final BleGattElement THERMODATACCC =
-            new BleGattElement(thermoServiceUuid, thermoDataUuid, Uuid.CCCUUID);
+            new BleGattElement(thermoServiceUuid, thermoDataUuid, CCCUUID);
     ///////////////////////////////////////////////////////
 
     // 当前体温数据观察者列表
