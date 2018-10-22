@@ -14,7 +14,6 @@ import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
 import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
-import com.cmtech.android.bledevicecore.model.Uuid;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileDataType;
 import com.cmtech.dsp.bmefile.BmeFileHead;
@@ -36,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
+
 
 /**
  * 心电监护仪类
