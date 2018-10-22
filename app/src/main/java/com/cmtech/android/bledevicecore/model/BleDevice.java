@@ -35,9 +35,6 @@ public abstract class BleDevice implements Serializable{
     // 设备镜像池
     private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
 
-    // 连接断开后重连之间的延时，毫秒
-    private final static int RECONNECT_DELAY = 6000;
-
     // 获取设备基本信息
     private BleDeviceBasicInfo basicInfo;
     public BleDeviceBasicInfo getBasicInfo() {
@@ -432,7 +429,7 @@ public abstract class BleDevice implements Serializable{
         ViseLog.i("onStateScanFailure");
         handler.removeCallbacksAndMessages(null);
         setState(getDisconnectState());
-        reconnect(RECONNECT_DELAY);
+        reconnect(BleDeviceConfig.getInstance().getReconnectInterval());
     }
 
     public void onStateConnectSuccess(DeviceMirror mirror) {
@@ -452,7 +449,7 @@ public abstract class BleDevice implements Serializable{
         stopCommandExecutor();
         executeAfterConnectFailure();
         setState(getDisconnectState());
-        reconnect(RECONNECT_DELAY);
+        reconnect(BleDeviceConfig.getInstance().getReconnectInterval());
     }
 
     public void onStateDisconnect(boolean isActive) {

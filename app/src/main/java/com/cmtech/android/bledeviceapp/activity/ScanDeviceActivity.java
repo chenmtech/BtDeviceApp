@@ -22,6 +22,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.model.BleDeviceConfig;
 import com.cmtech.android.bledevicecore.model.Uuid;
 
 import java.util.ArrayList;
@@ -31,7 +32,6 @@ import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128
 
 public class ScanDeviceActivity extends AppCompatActivity {
     private static final String TAG = "ScanDeviceActivity";
-    private static final String DEFAULT_DEVICE_NAME = "CM1.0";      // 只获取广播时设备名为CM1.0的设备
 
     private static final ViseBle viseBle = MyApplication.getViseBle();
 
@@ -58,7 +58,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private final FilterScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(DEFAULT_DEVICE_NAME);
+    private final FilterScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(BleDeviceConfig.getInstance().getScanDeviceName());
 
     // 用于实现扫描设备的显示
     private SwipeRefreshLayout srlScanDevice;

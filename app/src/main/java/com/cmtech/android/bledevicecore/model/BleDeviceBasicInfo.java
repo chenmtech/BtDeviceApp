@@ -9,6 +9,8 @@ import com.vise.log.ViseLog;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -177,13 +179,17 @@ public class BleDeviceBasicInfo implements Serializable{
             ViseLog.i("addressSet is empty.");
             return null;
         }
+        // 转为数组排序
+        String[] addressArr = (String[]) addressSet.toArray(new String[addressSet.size()]);
+        Arrays.sort(addressArr);
 
         List<BleDeviceBasicInfo> infoList = new ArrayList<>();
-        for(String macAddress : addressSet) {
+        for(String macAddress : addressArr) {
             BleDeviceBasicInfo basicInfo = createFromPreference(macAddress);
             if(basicInfo != null)
                 infoList.add(basicInfo);
         }
+
         return infoList;
     }
 }

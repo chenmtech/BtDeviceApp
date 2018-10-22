@@ -5,25 +5,27 @@ import android.content.Context;
 import android.util.Log;
 
 import com.cmtech.android.ble.ViseBle;
-import com.cmtech.android.ble.common.BleConfig;
+import com.cmtech.android.bledevicecore.model.BleDeviceConfig;
+import com.cmtech.android.bledevicecore.model.BleDeviceConstant;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
+
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CONNECT_TIMEOUT;
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.RECONNECT_INTERVAL;
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.SCAN_DEVICE_NAME;
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.SCAN_TIMEOUT;
 
 /**
  * Created by bme on 2018/2/19.
  */
 
 public class MyApplication extends Application {
-    private final static int SCAN_TIMEOUT = 12000;           // 扫描超时，不能太短，否则会导致扫描频繁scanning too frequently
-    private final static int CONNECT_TIMEOUT = 18000;       // 连接超时
-
     // 上下文
     private static Context context;
 
-    // ViseBle单件实例
-    private static ViseBle viseBle;
+    private static BleDeviceConfig deviceConfig;
 
     @Override
     public void onCreate() {
@@ -31,10 +33,11 @@ public class MyApplication extends Application {
 
         context = getApplicationContext();
 
-        // 初始化ViseBle
-        viseBle = ViseBle.getInstance();
-        viseBle.init(this);
-        BleConfig.getInstance().setScanTimeout(SCAN_TIMEOUT).setConnectTimeout(CONNECT_TIMEOUT).setConnectRetryCount(0).setOperateRetryCount(0);
+        // 初始化BleDeviceConfig
+        deviceConfig = BleDeviceConfig.getInstance();
+        deviceConfig.setBaseUuid(BleDeviceConstant.MY_BASE_UUID);
+        deviceConfig.setScanTimeout(SCAN_TIMEOUT).setConnectTimeout(CONNECT_TIMEOUT).setReconnectInterval(RECONNECT_INTERVAL);
+        deviceConfig.setScanDeviceName(SCAN_DEVICE_NAME);
 
         // 初始化LitePal
         LitePal.initialize(context);
@@ -54,5 +57,5 @@ public class MyApplication extends Application {
         return context;
     }
 
-    public static ViseBle getViseBle() {return viseBle;}
+    public static ViseBle getViseBle() {return deviceConfig.getViseBle();}
 }

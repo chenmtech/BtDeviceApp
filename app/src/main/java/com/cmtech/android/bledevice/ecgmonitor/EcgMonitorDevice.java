@@ -35,7 +35,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.cmtech.android.bledevicecore.model.BleDeviceUtil.CCCUUID;
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
 
 /**
  * 心电监护仪类

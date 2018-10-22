@@ -7,7 +7,6 @@ import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
 import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
-import com.cmtech.android.bledevicecore.model.Uuid;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -18,7 +17,7 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledevicecore.model.BleDeviceUtil.CCCUUID;
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
 
 public class TempHumidDevice extends BleDevice {
     private static final String TAG = "TempHumidDevice";

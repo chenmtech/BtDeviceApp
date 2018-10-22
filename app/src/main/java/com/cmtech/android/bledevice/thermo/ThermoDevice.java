@@ -14,7 +14,7 @@ import com.cmtech.android.bledevicecore.model.Uuid;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledevicecore.model.BleDeviceUtil.CCCUUID;
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
 
 public class ThermoDevice extends BleDevice {
     private static final int MSG_THERMODATA = 1;

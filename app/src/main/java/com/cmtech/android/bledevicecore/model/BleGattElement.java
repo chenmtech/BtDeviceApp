@@ -9,7 +9,6 @@ import com.cmtech.android.ble.core.DeviceMirror;
 
 import java.util.UUID;
 
-import static com.cmtech.android.bledevicecore.model.BleDeviceUtil.BASE_UUID;
 
 /**
  * Created by bme on 2018/3/1.
@@ -37,10 +36,10 @@ public class BleGattElement {
 
     // 用短的字符串构建Element
     public BleGattElement(String serviceShortString, String characteristicShortString, String descriptorShortString) {
-        this(Uuid.shortStringToUuid(serviceShortString, BASE_UUID),
-                Uuid.shortStringToUuid(characteristicShortString, BASE_UUID),
-                Uuid.shortStringToUuid(descriptorShortString, BASE_UUID));
-        }
+        this(Uuid.shortStringToUuid(serviceShortString, BleDeviceConfig.getInstance().getBaseUuid()),
+                Uuid.shortStringToUuid(characteristicShortString, BleDeviceConfig.getInstance().getBaseUuid()),
+                Uuid.shortStringToUuid(descriptorShortString, BleDeviceConfig.getInstance().getBaseUuid()));
+    }
 
     // 用UUID构建Element
     public BleGattElement(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid) {
