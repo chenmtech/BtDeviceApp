@@ -11,18 +11,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
 import com.cmtech.android.ble.callback.scan.FilterScanCallback;
 import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceConfig;
+import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.Uuid;
 
 import java.util.ArrayList;
@@ -32,8 +31,6 @@ import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128
 
 public class ScanDeviceActivity extends AppCompatActivity {
     private static final String TAG = "ScanDeviceActivity";
-
-    private static final ViseBle viseBle = MyApplication.getViseBle();
 
     private class ScanDeviceCallback implements IScanCallback {
         public ScanDeviceCallback() {
@@ -99,7 +96,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
                     foundDeviceList.clear();
                     foundDeviceStatus.clear();
                     scanDeviceAdapter.notifyDataSetChanged();
-                    viseBle.startScan(scanCallback);
+                    //viseBle.startScan(scanCallback);
+                    BleDeviceUtil.startScan(scanCallback);
                 } else {
                     Toast.makeText(ScanDeviceActivity.this, "扫描中", Toast.LENGTH_SHORT).show();
                 }
@@ -133,7 +131,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
             }
         });
 
-        viseBle.startScan(scanCallback);
+        //viseBle.startScan(scanCallback);
+        BleDeviceUtil.startScan(scanCallback);
     }
 
     @Override

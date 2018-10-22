@@ -32,9 +32,6 @@ import java.util.List;
  */
 
 public abstract class BleDevice implements Serializable{
-    // 设备镜像池
-    private final static DeviceMirrorPool deviceMirrorPool = MyApplication.getViseBle().getDeviceMirrorPool();
-
     // 获取设备基本信息
     private BleDeviceBasicInfo basicInfo;
     public BleDeviceBasicInfo getBasicInfo() {
@@ -119,7 +116,8 @@ public abstract class BleDevice implements Serializable{
             synchronized (BleDevice.this) {
                 if (bluetoothLeDeviceStore.getDeviceList().size() > 0) {
                     connectCallback.onScanFinish(true);
-                    MyApplication.getViseBle().connect(bluetoothLeDeviceStore.getDeviceList().get(0), connectCallback);
+                    //MyApplication.getViseBle().connect(bluetoothLeDeviceStore.getDeviceList().get(0), connectCallback);
+                    BleDeviceUtil.connect(bluetoothLeDeviceStore.getDeviceList().get(0), connectCallback);
                 } else {
                     connectCallback.onScanFinish(false);
                 }
@@ -195,7 +193,7 @@ public abstract class BleDevice implements Serializable{
 
     // 获取ViseBle包内部BluetoothLeDevice对象
     public BluetoothLeDevice getBluetoothLeDevice() {
-        List<BluetoothLeDevice> bluetoothLeDeviceList = deviceMirrorPool.getDeviceList();
+        List<BluetoothLeDevice> bluetoothLeDeviceList = BleDeviceUtil.getDeviceList();
         BluetoothLeDevice bluetoothLeDevice = null;
         for(BluetoothLeDevice device : bluetoothLeDeviceList) {
             if(getMacAddress().equalsIgnoreCase(device.getAddress())) {
@@ -208,7 +206,7 @@ public abstract class BleDevice implements Serializable{
 
     // 获取ViseBle包内部DeviceMirror对象
     public DeviceMirror getDeviceMirror() {
-        return deviceMirrorPool.getDeviceMirror(getBluetoothLeDevice());
+        return BleDeviceUtil.getDeviceMirror(this);
     }
 
     // 打开设备
@@ -421,7 +419,7 @@ public abstract class BleDevice implements Serializable{
             }
         }, 1000);
 
-        MyApplication.getViseBle().getDeviceMirrorPool().disconnect(getBluetoothLeDevice());
+        BleDeviceUtil.disconnect(this);
         setState(getDisconnectingState());
     }
 

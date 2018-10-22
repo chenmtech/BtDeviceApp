@@ -3,6 +3,7 @@ package com.cmtech.android.bledevicecore.devicestate;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.model.BleDevice;
+import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.vise.log.ViseLog;
 
 public class BleDeviceConnectedState implements IBleDeviceState {
@@ -36,7 +37,8 @@ public class BleDeviceConnectedState implements IBleDeviceState {
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
         ViseLog.e(this + " : callback wrong");
         // 重复多次成功连接，需要把后一次移除。
-        MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(mirror);
+        //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(mirror);
+        BleDeviceUtil.removeDeviceMirror(mirror);
     }
 
     @Override

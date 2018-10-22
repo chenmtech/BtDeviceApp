@@ -263,8 +263,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 device.removeDeviceStateObserver(this);
         }
 
-        MyApplication.getViseBle().disconnect();
-        MyApplication.getViseBle().clear();
+        BleDeviceUtil.disconnectAllDevice();
+        BleDeviceUtil.clearAllDevice();
+        //MyApplication.getViseBle().disconnect();
+        //MyApplication.getViseBle().clear();
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 

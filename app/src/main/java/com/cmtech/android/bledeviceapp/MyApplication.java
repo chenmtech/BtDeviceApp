@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.bledevicecore.model.BleDeviceConfig;
 import com.cmtech.android.bledevicecore.model.BleDeviceConstant;
 import com.vise.log.ViseLog;
@@ -56,6 +55,4 @@ public class MyApplication extends Application {
     public static Context getContext() {
         return context;
     }
-
-    public static ViseBle getViseBle() {return deviceConfig.getViseBle();}
 }

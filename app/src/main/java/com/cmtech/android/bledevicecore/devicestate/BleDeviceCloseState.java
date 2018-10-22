@@ -3,6 +3,7 @@ package com.cmtech.android.bledevicecore.devicestate;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.model.BleDevice;
+import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.vise.log.ViseLog;
 
 public class BleDeviceCloseState implements IBleDeviceState {
@@ -35,7 +36,8 @@ public class BleDeviceCloseState implements IBleDeviceState {
     @Override
     public void onDeviceConnectSuccess(DeviceMirror mirror) {
         ViseLog.e(this + " : have closed!");
-        MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(mirror);
+        //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(mirror);
+        BleDeviceUtil.removeDeviceMirror(mirror);
     }
 
     @Override
