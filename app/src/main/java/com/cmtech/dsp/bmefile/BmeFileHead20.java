@@ -56,7 +56,7 @@ public class BmeFileHead20 extends BmeFileHead {
 	
 	@Override
 	public byte[] getVersion() {
-		return VER;
+		return BmeFileHead20.VER;
 	}
 	
 	/**

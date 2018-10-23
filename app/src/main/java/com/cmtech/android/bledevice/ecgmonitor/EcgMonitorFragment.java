@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -28,6 +29,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ImageButton btnSwitchSampleEcg;
     private CheckBox cbEcgRecord;
     private CheckBox cbEcgFilter;
+    private Button btnReplay;
 
 
     public EcgMonitorFragment() {
@@ -65,6 +67,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         cbEcgRecord.setChecked(((EcgMonitorDevice)getDevice()).isRecord());
         cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
         cbEcgFilter.setChecked(((EcgMonitorDevice)getDevice()).isEcgFilter());
+        btnReplay = view.findViewById(R.id.btn_ecg_replay);
 
         btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +87,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 ((EcgMonitorController)getController()).setEcgFilter(b);
+            }
+        });
+
+        btnReplay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((EcgMonitorController)getController()).replay();
             }
         });
     }

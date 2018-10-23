@@ -27,7 +27,9 @@ public class BmeFileHeadFactory {
 		if(Arrays.equals(ver, BmeFileHead10.VER)) {
 			return new BmeFileHead10();
 		} else if(Arrays.equals(ver, BmeFileHead20.VER)) {
-			return new BmeFileHead20();
+            return new BmeFileHead20();
+        } else if(Arrays.equals(ver, BmeFileHead30.VER)) {
+		    return new BmeFileHead30();
 		} else {
 			throw new FileException(Arrays.toString(ver), "不支持此文件版本");
 		}

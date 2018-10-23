@@ -145,6 +145,32 @@ public class BmeFile {
 		}
 		return data;
 	}
+
+    public int readData() throws FileException{
+        if(in == null || fileHead == null) {
+            throw new FileException("", "请先打开文件");
+        }
+
+        if(fileHead.getDataType() != BmeFileDataType.INT32) {
+            throw new FileException(file.getName(), "读取数据类型错误");
+        }
+
+        int data = 0;
+        byte[] buf = new byte[4];
+        ByteBuffer big = ByteBuffer.wrap(buf).order(ByteOrder.BIG_ENDIAN);
+        ByteBuffer little = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
+        try {
+            if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
+                data = in.readInt();
+            } else {
+                little.putInt(0, in.readInt());
+                data = big.getInt(0);
+            }
+        } catch(IOException ioe) {
+            throw new FileException(file.getName(), "读数据错误");
+        }
+        return data;
+    }
 	
 	public int[] readData(int[] d) throws FileException{
 		if(in == null || fileHead == null) {

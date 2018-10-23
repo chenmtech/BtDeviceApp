@@ -41,6 +41,8 @@
 
         <activity android:name="com.cmtech.android.bledevice.thermo.ThermoConfigureActivity"/>
 
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.EcgReplayActivity"/>
+
     </application>
 
 </manifest>

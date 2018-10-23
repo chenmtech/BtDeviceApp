@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:cmtech= "http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context = "com.cmtech.android.bledevice.ecgmonitor.EcgMonitorFragment">
+    xmlns:cmtech="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.RecyclerView
+        android:id = "@+id/rvEcgFileList"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginBottom="10dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -69,7 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textSize="30sp"
-            android:text="心率(bmp)："/>
+            android:text="当前心率："/>
 
         <TextView
             android:id="@+id/tv_ecg_hr"
@@ -77,13 +81,6 @@
             android:layout_height="match_parent"
             android:textSize="30sp"
             android:text="0"/>
-
-        <Button
-            android:id="@+id/btn_ecg_replay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="回放"/>
 
     </LinearLayout>
 
@@ -129,28 +126,5 @@
                 android:layout_weight="1"
                 android:text="纵向：0.1mV/格"/>
         </LinearLayout>
-
-        <CheckBox
-            android:id="@+id/cb_ecg_record"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/btn_ecg_startandstop"
-            android:layout_centerVertical="true"
-            android:checked="false"
-            android:clickable="false"
-            android:text="记录"/>
-
-        <CheckBox
-            android:id="@+id/cb_ecg_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/cb_ecg_record"
-            android:layout_centerVertical="true"
-            android:checked="false"
-            android:clickable="false"
-            android:text="滤波"/>
-
-
     </RelativeLayout>
-
 </LinearLayout>

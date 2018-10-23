@@ -17,7 +17,7 @@ import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileDataType;
 import com.cmtech.dsp.bmefile.BmeFileHead;
-import com.cmtech.dsp.bmefile.BmeFileHead10;
+import com.cmtech.dsp.bmefile.BmeFileHead30;
 import com.cmtech.dsp.bmefile.BmeFileHeadFactory;
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.filter.IIRFilter;
@@ -43,6 +43,7 @@ import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
  */
 
 public class EcgMonitorDevice extends BleDevice {
+    public static final File ECGFILEDIR = MyApplication.getContext().getExternalFilesDir("ecgSignal");
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;           // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
@@ -78,7 +79,6 @@ public class EcgMonitorDevice extends BleDevice {
     ////////////////////////////////////////////////////////
 
     private int sampleRate = DEFAULT_SAMPLERATE;            // 采样率
-
     public int getSampleRate() {
         return sampleRate;
     }
@@ -98,7 +98,7 @@ public class EcgMonitorDevice extends BleDevice {
     public boolean isEcgFilter() { return isEcgFilter; }
 
 
-    private BmeFileHead ecgFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead10版本，LITTLE_ENDIAN，数据类型为INT32
+    private BmeFileHead30 ecgFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead10版本，LITTLE_ENDIAN，数据类型为INT32
     private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
 
     private IIRFilter dcBlock = null;               // 隔直滤波器
@@ -225,8 +225,6 @@ public class EcgMonitorDevice extends BleDevice {
                     Number num = (Number)msg.obj;
                     leadType = EcgLeadType.getFromCode(num.intValue());
                     updateLeadType(leadType);
-                    initializeEcgFile();
-                    updateRecordCheckBox(false, true);
                 }
                 break;
 
@@ -252,10 +250,11 @@ public class EcgMonitorDevice extends BleDevice {
             if (isRecord) {
                 DateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
                 String fileName = getMacAddress()+" "+format.format(new Date())+".bme";
-                File toFile = FileUtil.getFile(MyApplication.getContext().getExternalFilesDir("ecgSignal"), fileName);
+                File toFile = FileUtil.getFile(ECGFILEDIR, fileName);
                 try {
                     fileName = toFile.getCanonicalPath();
                     ecgFile = BmeFile.createBmeFile(fileName, ecgFileHead);
+                    ViseLog.e(ecgFileHead.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -308,15 +307,12 @@ public class EcgMonitorDevice extends BleDevice {
 
     private void initializeEcgFile() {
         // 准备记录心电信号的文件头
-        try {
-            ecgFileHead = BmeFileHeadFactory.create(BmeFileHead10.VER);
-            ecgFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-            ecgFileHead.setDataType(BmeFileDataType.INT32);
-            ecgFileHead.setFs(sampleRate);
-            ecgFileHead.setInfo("Ecg Lead " + leadType.getDescription());
-        } catch (FileException e) {
-            e.printStackTrace();
-        }
+        ecgFileHead = new BmeFileHead30();
+        ecgFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        ecgFileHead.setDataType(BmeFileDataType.INT32);
+        ecgFileHead.setFs(sampleRate);
+        ecgFileHead.setInfo("Ecg Lead " + leadType.getDescription());
+        ((BmeFileHead30)ecgFileHead).setValue1mV(DEFAULT_CALIBRATIONVALUE);
     }
 
     private void initializeFilter() {
@@ -355,6 +351,10 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 启动ECG信号采集
     public void startSampleEcg() {
+        initializeEcgFile();
+
+        updateRecordCheckBox(false, true);
+
         IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
