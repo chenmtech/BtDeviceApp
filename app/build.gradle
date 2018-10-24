@@ -34,4 +34,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation files('libs/qrsdetbyhamilton-1.0.0.jar')
+    implementation files('libs/MobCommons-2018.1011.1129.jar')
+    implementation files('libs/MobTools-2018.1009.1056.jar')
 }

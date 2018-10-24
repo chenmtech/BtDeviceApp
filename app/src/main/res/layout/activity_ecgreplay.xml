@@ -126,5 +126,13 @@
                 android:layout_weight="1"
                 android:text="纵向：0.1mV/格"/>
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_ecg_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="分享"/>
     </RelativeLayout>
 </LinearLayout>

@@ -6,10 +6,13 @@ import android.util.Log;
 
 import com.cmtech.android.bledevicecore.model.BleDeviceConfig;
 import com.cmtech.android.bledevicecore.model.BleDeviceConstant;
+import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
+
+import cn.sharesdk.framework.ShareSDK;
 
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CONNECT_TIMEOUT;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.RECONNECT_INTERVAL;
@@ -41,6 +44,8 @@ public class MyApplication extends Application {
         // 初始化LitePal
         LitePal.initialize(context);
         LitePal.getDatabase();
+
+        MobSDK.init(context);
 
         // 初始化ViseLog
         ViseLog.getLogConfig()

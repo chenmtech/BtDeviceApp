@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.Button;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
@@ -25,6 +27,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import cn.sharesdk.onekeyshare.OnekeyShare;
+
 public class EcgReplayActivity extends AppCompatActivity {
     private static final String TAG = "EcgReplayActivity";
 
@@ -37,6 +41,8 @@ public class EcgReplayActivity extends AppCompatActivity {
     private BmeFile selectedFile;
 
     private WaveView ecgView;
+
+    private Button btnEcgShare;
 
     // 用于设置EcgWaveView的参数
     private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
@@ -89,6 +95,14 @@ public class EcgReplayActivity extends AppCompatActivity {
         fileAdapter = new EcgFileAdapter(fileList, this);
         rvFileList.setAdapter(fileAdapter);
 
+        btnEcgShare = findViewById(R.id.btn_ecg_share);
+        btnEcgShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showShare();
+            }
+        });
+
         ecgView = findViewById(R.id.ecg_view);
 
         showThread.start();
@@ -138,5 +152,33 @@ public class EcgReplayActivity extends AppCompatActivity {
         if(showThread != null && showThread.isAlive()) {
             showThread.interrupt();
         }
+    }
+
+    private void showShare() {
+        OnekeyShare oks = new OnekeyShare();
+
+        //关闭sso授权
+        oks.disableSSOWhenAuthorize();
+
+        // title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间等使用
+        oks.setTitle("标题");
+        // titleUrl是标题的网络链接，QQ和QQ空间等使用
+        oks.setTitleUrl("http://sharesdk.cn");
+        // text是分享文本，所有平台都需要这个字段
+        oks.setText("我是分享文本");
+        // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
+        //oks.setImagePath("/sdcard/test.jpg");
+        // 确保SDcard下面存在此张图片
+        // url仅在微信（包括好友和朋友圈）中使用
+        oks.setUrl("http://sharesdk.cn");
+        // comment是我对这条分享的评论，仅在人人网和QQ空间使用
+        oks.setComment("我是测试评论文本");
+        // site是分享此内容的网站名称，仅在QQ空间使用
+        oks.setSite(getString(R.string.app_name));
+        // siteUrl是分享此内容的网站地址，仅在QQ空间使用
+        oks.setSiteUrl("http://sharesdk.cn");
+
+        // 启动分享GUI
+        oks.show(this);
     }
 }
