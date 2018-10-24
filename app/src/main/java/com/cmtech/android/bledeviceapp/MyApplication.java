@@ -45,7 +45,8 @@ public class MyApplication extends Application {
         LitePal.initialize(context);
         LitePal.getDatabase();
 
-        MobSDK.init(context);
+        // 初始化ShareSDK
+        MobSDK.init(context, "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");
 
         // 初始化ViseLog
         ViseLog.getLogConfig()

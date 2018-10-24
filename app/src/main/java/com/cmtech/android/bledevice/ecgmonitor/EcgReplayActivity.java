@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -19,6 +22,8 @@ import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileHead;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
 import com.cmtech.dsp.exception.FileException;
+import com.mob.MobSDK;
+import com.mob.commons.SHARESDK;
 import com.vise.log.ViseLog;
 
 import java.io.File;
@@ -26,10 +31,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.onekeyshare.OnekeyShare;
+import cn.sharesdk.tencent.qq.QQ;
 
 public class EcgReplayActivity extends AppCompatActivity {
     private static final String TAG = "EcgReplayActivity";
@@ -101,6 +110,7 @@ public class EcgReplayActivity extends AppCompatActivity {
         btnEcgShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //shareNoUseOneKeyShare();
                 showShare();
             }
         });
@@ -167,25 +177,75 @@ public class EcgReplayActivity extends AppCompatActivity {
         oks.disableSSOWhenAuthorize();
 
         // title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间等使用
-        //oks.setTitle("广医蓝牙心电采集信号");
+        oks.setTitle("广医蓝牙心电采集信号");
         // titleUrl是标题的网络链接，QQ和QQ空间等使用
         //oks.setTitleUrl("http://sharesdk.cn");
         // text是分享文本，所有平台都需要这个字段
         oks.setText(selectedFile.getFileName());
         // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
-        //oks.setImagePath("/sdcard/test.jpg");
+
+        oks.setImagePath("/sdcard/Pictures/1526709706592.jpg");
+        //oks.setImageUrl("http://img.67.com/thumbs/upload/images/2018/01/30/bHdqMTUxNzI3MjY0NA==_w570_t.jpg");
+        //Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_ecg_play_48px);
+        //oks.setImageData(bmp);
+        //Bitmap bitmap = getResources().getDrawable(R.mipmap.ic_ecg_play_48px);
         // 确保SDcard下面存在此张图片
         // url仅在微信（包括好友和朋友圈）中使用
-        //oks.setUrl("http://sharesdk.cn");
+        //oks.setUrl("http://img.67.com/thumbs/upload/images/2018/01/30/bHdqMTUxNzI3MjY0NA==_w570_t.jpg");
         // comment是我对这条分享的评论，仅在人人网和QQ空间使用
         //oks.setComment("我是测试评论文本");
         // site是分享此内容的网站名称，仅在QQ空间使用
         //oks.setSite(getString(R.string.app_name));
         // siteUrl是分享此内容的网站地址，仅在QQ空间使用
         //oks.setSiteUrl("http://sharesdk.cn");
+        /*oks.setCallback(new PlatformActionListener() {
+            @Override
+            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
+                Toast.makeText(EcgReplayActivity.this, "分享成功", Toast.LENGTH_SHORT).show();
+            }
 
+            @Override
+            public void onError(Platform platform, int i, Throwable throwable) {
+                Toast.makeText(EcgReplayActivity.this, "分享失败", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancel(Platform platform, int i) {
+
+            }
+        });*/
 
         // 启动分享GUI
         oks.show(this);
+    }
+
+    private void shareNoUseOneKeyShare() {
+        Platform.ShareParams sp = new Platform.ShareParams();
+        sp.setTitle("测试分享的标题");
+        sp.setTitleUrl("http://sharesdk.cn");// 标题的超链接
+        sp.setText("测试分享的文本");
+        sp.setImageUrl("http://firicon.fir.im/baa18a6d779c597888d685f1159070df5b4f2912");
+        //sp.setImageUrl(selectedFile.getFileName());
+        //sp.setSite("发布分享的网站名称");
+        //sp.setSiteUrl("发布分享网站的地址");
+
+        Platform qq = ShareSDK.getPlatform (QQ.NAME);
+        //Platformqzone = ShareSDK.getPlatform (QZone.NAME);
+
+        // 设置分享事件回调（注：回调放在不能保证在主线程调用，不可以在里面直接处理UI操作）
+        qq.setPlatformActionListener(new PlatformActionListener() {
+            public void onError(Platform arg0, int arg1,Throwable arg2) {
+                //失败的回调，arg:平台对象，arg1:表示当前的动作，arg2:异常信息
+            }
+            public void onComplete(Platform arg0, int arg1, HashMap<String, Object> arg2) {
+                //分享成功的回调
+            }
+            public void onCancel(Platform arg0, int arg1){
+                //取消分享的回调
+            }
+        });
+
+        // 执行图文分享
+        qq.share(sp);
     }
 }

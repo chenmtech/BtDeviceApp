@@ -85,6 +85,7 @@
             android:exported="true"
             android:screenOrientation="portrait" />
 
+        <!--QQ分享回调 -->
         <activity
             android:name="cn.sharesdk.tencent.qq.ReceiveActivity"
             android:launchMode="singleTask"
