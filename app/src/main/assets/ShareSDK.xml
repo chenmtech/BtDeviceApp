@@ -94,7 +94,7 @@
 		AppSecret="64020361b8ec4c99936c0e3999a9f249"
 		UserName="gh_b0c6a9ca668a"
 		Path="pages/index/index?id=mob"
-        BypassApproval="false"
+        BypassApproval="true"
 		WithShareTicket = "true"
 		MiniprogramType = "2"
         Enable="true" />
@@ -119,9 +119,9 @@
 	<QQ
         Id="7"
         SortId="7"
-        AppId="100371282"
-        AppKey="aed9b0303e3ed1e27bae87c33761161d"
-		BypassApproval="false"
+        AppId="1107924034"
+        AppKey="1wAFEvLNrzptzWhJ"
+		BypassApproval="true"
         ShareByAppClient="true"
         Enable="true" />
 
