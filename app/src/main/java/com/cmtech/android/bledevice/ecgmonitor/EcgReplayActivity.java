@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
@@ -169,7 +171,7 @@ public class EcgReplayActivity extends AppCompatActivity {
     }
 
     private void showShare() {
-        if(selectedFile == null) return;
+        //if(selectedFile == null) return;
 
         OnekeyShare oks = new OnekeyShare();
 
@@ -177,15 +179,17 @@ public class EcgReplayActivity extends AppCompatActivity {
         oks.disableSSOWhenAuthorize();
 
         // title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间等使用
-        oks.setTitle("广医蓝牙心电采集信号");
+        oks.setTitle("测试分享功能");
         // titleUrl是标题的网络链接，QQ和QQ空间等使用
         //oks.setTitleUrl("http://sharesdk.cn");
         // text是分享文本，所有平台都需要这个字段
-        oks.setText(selectedFile.getFileName());
+        oks.setText("此消息用来测试分享功能。");
         // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
-
-        oks.setImagePath("/sdcard/Pictures/1526709706592.jpg");
-        //oks.setImageUrl("http://img.67.com/thumbs/upload/images/2018/01/30/bHdqMTUxNzI3MjY0NA==_w570_t.jpg");
+        //Environment.getExternalStorageDirectory().getPath()+"/Pictures/1526709706592.jpg";
+        //String imagePath = MyApplication.getContext().getExternalFilesDir("image")+"1.jpg";
+        //oks.setText(imagePath);
+        //oks.setImagePath(imagePath);
+        oks.setImageUrl("http://img.67.com/thumbs/upload/images/2018/01/30/bHdqMTUxNzI3MjY0NA==_w570_t.jpg");
         //Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_ecg_play_48px);
         //oks.setImageData(bmp);
         //Bitmap bitmap = getResources().getDrawable(R.mipmap.ic_ecg_play_48px);

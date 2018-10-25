@@ -5,10 +5,17 @@
     xmlns:cmtech="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="心电记录"/>
+
     <android.support.v7.widget.RecyclerView
         android:id = "@+id/rvEcgFileList"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_marginBottom="10dp"/>
 
     <LinearLayout
@@ -88,7 +95,7 @@
         android:id="@+id/ecg_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         cmtech:background_color="#fff"
         cmtech:grid_color="#f00"
         cmtech:ecg_color="#000"/>

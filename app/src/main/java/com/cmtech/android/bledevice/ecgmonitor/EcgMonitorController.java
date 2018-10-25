@@ -33,7 +33,7 @@ public class EcgMonitorController extends BleDeviceController {
     }
 
     public void replay() {
-        device.disconnect();
+        //device.disconnect();
         Intent intent = new Intent(fragment.getActivity(), EcgReplayActivity.class);
         fragment.getActivity().startActivity(intent);
     }
