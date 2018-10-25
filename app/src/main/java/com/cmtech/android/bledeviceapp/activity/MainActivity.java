@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -44,6 +45,7 @@ import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.IBleDeviceActivity;
 import com.cmtech.android.bledevicecore.model.IBleDeviceStateObserver;
+import com.vise.log.ViseLog;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -157,6 +159,23 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
         // 初始化设备
         initializeBleDevice();
+
+        processIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        processIntent(intent);
+    }
+
+    private void processIntent(Intent intent) {
+        if(intent != null) {
+            Uri uri = intent.getData();
+            if(uri != null) {
+                ViseLog.e(intent.getData().getPath());
+                ecgReplay(intent.getData().getPath());
+            }
+        }
     }
 
     @Override
@@ -459,6 +478,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 心电信号回放
     private void ecgReplay() {
         Intent intent = new Intent(MainActivity.this, EcgReplayActivity.class);
+        startActivity(intent);
+    }
+
+    private void ecgReplay(String fileName) {
+        Intent intent = new Intent(MainActivity.this, EcgReplayActivity.class);
+        intent.putExtra("fileName", fileName);
         startActivity(intent);
     }
 

@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -120,6 +121,26 @@ public class EcgReplayActivity extends AppCompatActivity {
         ecgView = findViewById(R.id.ecg_view);
 
         showThread.start();
+
+        Intent intent = getIntent();
+        if(intent != null && intent.getStringExtra("fileName") != null) {
+            ViseLog.e(intent.getStringExtra("fileName"));
+            // 这里需要把文件复制到本应用的文件目录中
+            final File file = new File(intent.getStringExtra("fileName"));
+            ViseLog.e(file.toString());
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    replayEcgFile(file);
+                }
+            }, 1000);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
     }
 
     public synchronized void replayEcgFile(File file) {
@@ -128,6 +149,7 @@ public class EcgReplayActivity extends AppCompatActivity {
                 selectedFile.close();
             }
             selectedFile = BmeFile.openBmeFile(file.getCanonicalPath());
+            ViseLog.e(file.getCanonicalPath());
             interval = 1000/selectedFile.getFs();
             initialEcgView();
         } catch (FileException e) {
@@ -135,7 +157,6 @@ public class EcgReplayActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     private void initialEcgView() {
