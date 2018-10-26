@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -32,6 +34,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.bledevice.SupportedDeviceType;
+import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.EcgReplayActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -46,9 +49,14 @@ import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.IBleDeviceActivity;
 import com.cmtech.android.bledevicecore.model.IBleDeviceStateObserver;
 import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -157,6 +165,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 检查蓝牙权限，并使能蓝牙
         checkBluetoothPermissionAndEnableBT();
 
+        // 请求外部存储的读写功能
+        checkExternalStoragePermission();
+
         // 初始化设备
         initializeBleDevice();
 
@@ -173,9 +184,23 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             Uri uri = intent.getData();
             if(uri != null) {
                 ViseLog.e(intent.getData().getPath());
-                ecgReplay(intent.getData().getPath());
+                String desFileName = importEcgFile(intent.getData().getPath());
+                ecgReplay(desFileName);
             }
         }
+    }
+
+    private String importEcgFile(String srcFileName) {
+        File srcFile = new File(srcFileName);
+        String desFileName = EcgMonitorDevice.ECGFILEDIR + "/imported_" + String.valueOf(Calendar.getInstance().getTimeInMillis() + ".bme");
+        File desFile = new File(desFileName);
+        try {
+            FileUtil.copyFile(srcFile, desFile, true);
+        } catch (IOException e) {
+            e.printStackTrace();
+            ViseLog.e("copy file wrong." + e);
+        }
+        return desFileName;
     }
 
     @Override
@@ -192,9 +217,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 }
                 return;
             }
+
+            case 2: {
+                if(grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    finish();
+                }
+                return;
+            }
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -606,6 +637,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private void enableBluetooth() {
         if (!BleDeviceUtil.isBleEnable(this)) {
             BleDeviceUtil.enableBluetooth(this, REQUESTCODE_ENABLEBLUETOOTH);
+        }
+    }
+
+    private void checkExternalStoragePermission() {
+        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
         }
     }
 }
