@@ -149,7 +149,6 @@ public class EcgReplayActivity extends AppCompatActivity {
                 selectedFile.close();
             }
             selectedFile = BmeFile.openBmeFile(file.getCanonicalPath());
-            ViseLog.e(file.getCanonicalPath());
             interval = 1000/selectedFile.getFs();
             initialEcgView();
         } catch (FileException e) {

@@ -12,12 +12,12 @@
         android:layout_centerInParent="true"/>
 
     <TextView
-        android:id="@+id/mail"
+        android:id="@+id/accountname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="chenm@163.com"
+        android:text="未登录"
         android:textColor="#f00"
         android:textSize="20sp"/>
 </RelativeLayout>

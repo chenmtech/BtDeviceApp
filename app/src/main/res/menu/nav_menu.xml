@@ -11,6 +11,10 @@
             android:title="心电回放"/>
 
         <item
+            android:id="@+id/nav_changeuser"
+            android:title="切换用户"/>
+
+        <item
             android:id="@+id/nav_exit"
             android:title="退出"/>
     </group>

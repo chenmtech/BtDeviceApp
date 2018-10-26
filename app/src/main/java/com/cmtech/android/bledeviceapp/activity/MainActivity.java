@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
@@ -11,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -24,12 +26,14 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Layout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -40,6 +44,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
+import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
@@ -68,6 +73,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
     private final static int REQUESTCODE_ENABLEBLUETOOTH = 3;    // 使能蓝牙
+
+    // 当前用户
+    private static UserAccount user;
+    public static void setUserAccount(UserAccount userAccount) {
+        user = userAccount;
+    }
+    public static boolean hasSignin() {
+        return (user != null);
+    }
 
     // 已登记的设备列表
     private final List<BleDevice> registeredDeviceList = new ArrayList<>();
@@ -102,6 +116,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     private Toolbar toolbar;
 
+    private TextView accountName;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +150,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                     case R.id.nav_ecgreplay:
                         ecgReplay();
                         return true;
+                    case R.id.nav_changeuser:
+                        changeUser();
+                        return true;
                     case R.id.nav_exit:
                         finish();
                         return true;
@@ -141,6 +160,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 return false;
             }
         });
+
+        View headerView = navView.getHeaderView(0);
+        accountName = headerView.findViewById(R.id.accountname);
+        if(user != null) {
+            accountName.setText(user.getName());
+        }
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mWelcomeLayout = findViewById(R.id.welecome_layout);
@@ -510,6 +535,18 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private void ecgReplay() {
         Intent intent = new Intent(MainActivity.this, EcgReplayActivity.class);
         startActivity(intent);
+    }
+
+    // 切换用户
+    private void changeUser() {
+        user = null;
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean("auto_signin", false);
+        editor.apply();
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+        //finish();
     }
 
     private void ecgReplay(String fileName) {

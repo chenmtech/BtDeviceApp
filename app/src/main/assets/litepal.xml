@@ -3,10 +3,10 @@
 <litepal>
     <dbname value = "BtDeviceApp"></dbname>
 
-    <version value="1"></version>
+    <version value="2"></version>
 
     <list>
         <mapping class="com.cmtech.android.bledevice.temphumid.TempHumidHistoryData"></mapping>
-
+        <mapping class="com.cmtech.android.bledeviceapp.model.UserAccount"></mapping>
     </list>
 </litepal>
