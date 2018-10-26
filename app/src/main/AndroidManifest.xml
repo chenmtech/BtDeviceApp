@@ -68,7 +68,9 @@
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.temphumid.TempHumidConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.thermo.ThermoConfigureActivity" />
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.EcgReplayActivity" />
+        <activity
+            android:name="com.cmtech.android.bledevice.ecgmonitor.EcgReplayActivity"
+            android:launchMode="singleTask"/>
 
         <!-- ShareSDK的activity -->
         <activity

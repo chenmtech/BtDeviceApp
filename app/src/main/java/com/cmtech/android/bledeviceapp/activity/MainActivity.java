@@ -72,7 +72,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceActivity {
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
-    private final static int REQUESTCODE_ENABLEBLUETOOTH = 3;    // 使能蓝牙
 
     // 当前用户
     private static UserAccount user;
@@ -187,12 +186,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 更新主界面
         updateMainLayoutVisibility();
 
-        // 检查蓝牙权限，并使能蓝牙
-        checkBluetoothPermissionAndEnableBT();
-
-        // 请求外部存储的读写功能
-        checkExternalStoragePermission();
-
         // 初始化设备
         initializeBleDevice();
 
@@ -229,30 +222,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                // 同意获得所需权限
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    enableBluetooth();
-                } else {
-                    // 不同意获得蓝牙权限
-                    Toast.makeText(this, "没有蓝牙权限，程序无法运行", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                return;
-            }
-
-            case 2: {
-                if(grantResults.length <= 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    finish();
-                }
-                return;
-            }
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
@@ -284,14 +253,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                         device.setBasicInfo(basicInfo);
                         deviceListAdapter.notifyDataSetChanged();
                     }
-                }
-                break;
-            case REQUESTCODE_ENABLEBLUETOOTH:
-                if (resultCode == RESULT_OK) {
-                    enableBluetooth();
-                } else if (resultCode == RESULT_CANCELED) { // 不同意
-                    Toast.makeText(this, "蓝牙未打开，程序无法运行", Toast.LENGTH_SHORT).show();
-                    finish();
                 }
                 break;
 
@@ -338,15 +299,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         super.onDestroy();
 
         for(BleDevice device : registeredDeviceList) {
-            if(device != null)
+            if(device != null) {
                 device.removeDeviceStateObserver(this);
+            }
         }
 
         BleDeviceUtil.disconnectAllDevice();
         BleDeviceUtil.clearAllDevice();
         //MyApplication.getViseBle().disconnect();
         //MyApplication.getViseBle().clear();
-        android.os.Process.killProcess(android.os.Process.myPid());
+        //android.os.Process.killProcess(android.os.Process.myPid());
     }
 
 
@@ -546,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         editor.apply();
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
-        //finish();
+        finish();
     }
 
     private void ecgReplay(String fileName) {
@@ -651,37 +613,5 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 更新工具条title
         toolbar.setTitle(device.getStateDescription());
 
-    }
-
-    /**
-     * 检查蓝牙权限,并使能蓝牙
-     */
-    private void checkBluetoothPermissionAndEnableBT() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            //校验是否已具有模糊定位权限
-            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-            }
-            else{
-                enableBluetooth();
-            }
-        } else {
-            enableBluetooth();
-        }
-    }
-
-    // 使能蓝牙
-    private void enableBluetooth() {
-        if (!BleDeviceUtil.isBleEnable(this)) {
-            BleDeviceUtil.enableBluetooth(this, REQUESTCODE_ENABLEBLUETOOTH);
-        }
-    }
-
-    private void checkExternalStoragePermission() {
-        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
-        }
     }
 }
