@@ -28,6 +28,11 @@ import java.util.List;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
+/**
+ *  LoginActivity: 登录界面
+ *  Created by bme on 2018/10/27.
+ */
+
 public class LoginActivity extends AppCompatActivity {
 
     private final static int REQUESTCODE_ENABLEBLUETOOTH = 1;    // 使能蓝牙

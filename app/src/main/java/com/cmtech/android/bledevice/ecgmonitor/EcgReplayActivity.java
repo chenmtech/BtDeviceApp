@@ -205,11 +205,11 @@ public class EcgReplayActivity extends AppCompatActivity {
         // text是分享文本，所有平台都需要这个字段
         oks.setText("此消息用来测试分享功能。");
         // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
-        //Environment.getExternalStorageDirectory().getPath()+"/Pictures/1526709706592.jpg";
+        String imagePath = Environment.getExternalStorageDirectory().getPath()+"/Pictures/1526709706592.jpg";
         //String imagePath = MyApplication.getContext().getExternalFilesDir("image")+"1.jpg";
         //oks.setText(imagePath);
-        //oks.setImagePath(imagePath);
-        oks.setImageUrl("http://img.67.com/thumbs/upload/images/2018/01/30/bHdqMTUxNzI3MjY0NA==_w570_t.jpg");
+        oks.setImagePath(imagePath);
+        //oks.setImageUrl("http://img.67.com/thumbs/upload/images/2018/01/30/bHdqMTUxNzI3MjY0NA==_w570_t.jpg");
         //Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_ecg_play_48px);
         //oks.setImageData(bmp);
         //Bitmap bitmap = getResources().getDrawable(R.mipmap.ic_ecg_play_48px);
