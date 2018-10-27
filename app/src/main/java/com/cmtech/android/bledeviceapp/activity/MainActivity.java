@@ -45,6 +45,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
 import com.cmtech.android.bledeviceapp.model.UserAccount;
+import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
@@ -72,15 +73,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceActivity {
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
-
-    // 当前用户
-    private static UserAccount user;
-    public static void setUserAccount(UserAccount userAccount) {
-        user = userAccount;
-    }
-    public static boolean hasSignin() {
-        return (user != null);
-    }
 
     // 已登记的设备列表
     private final List<BleDevice> registeredDeviceList = new ArrayList<>();
@@ -162,8 +154,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
         View headerView = navView.getHeaderView(0);
         accountName = headerView.findViewById(R.id.accountname);
-        if(user != null) {
-            accountName.setText(user.getName());
+        if(UserAccountManager.getInstance().isSignIn()) {
+            accountName.setText(UserAccountManager.getInstance().getUserAccount().getName());
         }
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -309,6 +301,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         //MyApplication.getViseBle().disconnect();
         //MyApplication.getViseBle().clear();
         //android.os.Process.killProcess(android.os.Process.myPid());
+
+        UserAccountManager.getInstance().signOut();
     }
 
 
@@ -501,7 +495,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     // 切换用户
     private void changeUser() {
-        user = null;
+        UserAccountManager.getInstance().signOut();
+
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = pref.edit();
         editor.putBoolean("auto_signin", false);

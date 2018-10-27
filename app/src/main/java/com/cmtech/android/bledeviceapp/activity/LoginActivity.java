@@ -18,10 +18,8 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserAccount;
+import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
-
-import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +54,7 @@ public class LoginActivity extends AppCompatActivity {
         checkPermissions();
 
 
-        if(MainActivity.hasSignin()) {
+        if(UserAccountManager.getInstance().isSignIn()) {
             startMainActivity();
             finish();
         }
@@ -72,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String account = etAccount.getText().toString();
                 String password = etPassword.getText().toString();
-                signin(account, password);
+                signIn(account, password);
             }
         });
 
@@ -82,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String account = etAccount.getText().toString();
                 String password = etPassword.getText().toString();
-                signup(account, password);
+                signUp(account, password);
             }
         });
 
@@ -104,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
         if(autoSignin) {
             String account = etAccount.getText().toString();
             String password = etPassword.getText().toString();
-            signin(account, password);
+            signIn(account, password);
             cbAutoSignin.setChecked(true);
         } else {
             cbAutoSignin.setChecked(false);
@@ -155,27 +153,18 @@ public class LoginActivity extends AppCompatActivity {
         saveLoginSetup();
     }
 
-    private void signup(String account, String password) {
-        List<UserAccount> find = LitePal.where("name = ?", account).find(UserAccount.class);
-        if(find != null && find.size() > 0) {
+    private void signUp(String account, String password) {
+        boolean result = UserAccountManager.getInstance().signUp(account, password);
+        if(!result) {
             Toast.makeText(LoginActivity.this, "账户已存在。", Toast.LENGTH_SHORT).show();
         } else {
-            UserAccount user = new UserAccount();
-            user.setName(account);
-            user.setPassword(password);
-            user.save();
-            Toast.makeText(LoginActivity.this, "账户注册成功。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, "注册成功。", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void signin(String account, String password) {
-        List<UserAccount> find = LitePal.where("name = ? and password = ?", account, password).find(UserAccount.class);
-        if(find != null && find.size() == 1) {
-            UserAccount user = new UserAccount();
-            user.setName(account);
-            user.setPassword(password);
-            MainActivity.setUserAccount(user);
-
+    private void signIn(String account, String password) {
+        boolean result = UserAccountManager.getInstance().signIn(account, password);
+        if(result) {
             startMainActivity();
             finish();
         } else {
