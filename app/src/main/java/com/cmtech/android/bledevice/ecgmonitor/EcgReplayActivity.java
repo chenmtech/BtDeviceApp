@@ -41,6 +41,7 @@ import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.onekeyshare.OnekeyShare;
+import cn.sharesdk.system.email.Email;
 import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
 
@@ -197,6 +198,19 @@ public class EcgReplayActivity extends AppCompatActivity {
 
     private void showShare() {
         //if(selectedFile == null) return;
+        /*String fileName = "";
+
+        try {
+            selectedFile = BmeFile.openBmeFile(fileList.get(0).getCanonicalPath());
+            fileName = selectedFile.getFileName();
+            selectedFile.close();
+        } catch (FileException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+
+
 
         OnekeyShare oks = new OnekeyShare();
 
@@ -211,13 +225,12 @@ public class EcgReplayActivity extends AppCompatActivity {
         oks.setText("此消息用来测试分享功能。");
         // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
         String imagePath = Environment.getExternalStorageDirectory().getPath()+"/Pictures/1526709706592.jpg";
-        //String imagePath = MyApplication.getContext().getExternalFilesDir("image")+"1.jpg";
-        //oks.setText(imagePath);
+        //String fileName = "/storage/emulated/0/Android/data/com.cmtech.android.bledeviceapp/files/ecgSignal/18:93:D7:77:EA:E3 20181027210551.bme";
         oks.setImagePath(imagePath);
         //oks.setImageUrl("http://img.67.com/thumbs/upload/images/2018/01/30/bHdqMTUxNzI3MjY0NA==_w570_t.jpg");
-        //Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_ecg_play_48px);
+        //Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_cmiot_16);
         //oks.setImageData(bmp);
-        //Bitmap bitmap = getResources().getDrawable(R.mipmap.ic_ecg_play_48px);
+        //oks.setFilePath(selectedFile.getFileName());
         // 确保SDcard下面存在此张图片
         // url仅在微信（包括好友和朋友圈）中使用
         //oks.setUrl("http://img.67.com/thumbs/upload/images/2018/01/30/bHdqMTUxNzI3MjY0NA==_w570_t.jpg");
@@ -227,22 +240,6 @@ public class EcgReplayActivity extends AppCompatActivity {
         //oks.setSite(getString(R.string.app_name));
         // siteUrl是分享此内容的网站地址，仅在QQ空间使用
         //oks.setSiteUrl("http://sharesdk.cn");
-        /*oks.setCallback(new PlatformActionListener() {
-            @Override
-            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                Toast.makeText(EcgReplayActivity.this, "分享成功", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(Platform platform, int i, Throwable throwable) {
-                Toast.makeText(EcgReplayActivity.this, "分享失败", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onCancel(Platform platform, int i) {
-
-            }
-        });*/
 
         // 启动分享GUI
         oks.show(this);
@@ -253,30 +250,18 @@ public class EcgReplayActivity extends AppCompatActivity {
 
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
-        sp.setTitle("分享BME文件");
+        sp.setTitle(selectedFile.getFileName());
         sp.setText(selectedFile.getFileName());
-        Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_ecg_play_48px);
+        Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_cmiot_16);
         sp.setImageData(bmp);
         sp.setFilePath(selectedFile.getFileName());
 
-        Platform qq = ShareSDK.getPlatform (Wechat.NAME);
+        //Platform platform = ShareSDK.getPlatform (QQ.NAME);
+        //Platform platform = ShareSDK.getPlatform (Wechat.NAME);
+        Platform platform = ShareSDK.getPlatform (Email.NAME);
 
-        /*// 设置分享事件回调（注：回调放在不能保证在主线程调用，不可以在里面直接处理UI操作）
-        qq.setPlatformActionListener(new PlatformActionListener() {
-            public void onError(Platform arg0, int arg1,Throwable arg2) {
-                //失败的回调，arg:平台对象，arg1:表示当前的动作，arg2:异常信息
-            }
-            public void onComplete(Platform arg0, int arg1, HashMap<String, Object> arg2) {
-                //分享成功的回调
-            }
-            public void onCancel(Platform arg0, int arg1){
-                //取消分享的回调
-            }
-        });*/
-
-        // 执行图文分享
-        qq.share(sp);
-
+        // 执行分享
+        platform.share(sp);
     }
 
     private void shareNoUseOneKeyShare() {
