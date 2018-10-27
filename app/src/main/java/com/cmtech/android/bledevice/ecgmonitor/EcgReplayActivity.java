@@ -42,6 +42,10 @@ import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.onekeyshare.OnekeyShare;
 import cn.sharesdk.tencent.qq.QQ;
+import cn.sharesdk.wechat.friends.Wechat;
+
+import static cn.sharesdk.framework.Platform.SHARE_FILE;
+import static cn.sharesdk.wechat.friends.Wechat.NAME;
 
 public class EcgReplayActivity extends AppCompatActivity {
     private static final String TAG = "EcgReplayActivity";
@@ -114,7 +118,8 @@ public class EcgReplayActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //shareNoUseOneKeyShare();
-                showShare();
+                //showShare();
+                showShareBmeFile();
             }
         });
 
@@ -241,6 +246,37 @@ public class EcgReplayActivity extends AppCompatActivity {
 
         // 启动分享GUI
         oks.show(this);
+    }
+
+    private void showShareBmeFile() {
+        if(selectedFile == null) return;
+
+        Platform.ShareParams sp = new Platform.ShareParams();
+        sp.setShareType(SHARE_FILE);
+        sp.setTitle("分享BME文件");
+        sp.setText(selectedFile.getFileName());
+        Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_ecg_play_48px);
+        sp.setImageData(bmp);
+        sp.setFilePath(selectedFile.getFileName());
+
+        Platform qq = ShareSDK.getPlatform (Wechat.NAME);
+
+        /*// 设置分享事件回调（注：回调放在不能保证在主线程调用，不可以在里面直接处理UI操作）
+        qq.setPlatformActionListener(new PlatformActionListener() {
+            public void onError(Platform arg0, int arg1,Throwable arg2) {
+                //失败的回调，arg:平台对象，arg1:表示当前的动作，arg2:异常信息
+            }
+            public void onComplete(Platform arg0, int arg1, HashMap<String, Object> arg2) {
+                //分享成功的回调
+            }
+            public void onCancel(Platform arg0, int arg1){
+                //取消分享的回调
+            }
+        });*/
+
+        // 执行图文分享
+        qq.share(sp);
+
     }
 
     private void shareNoUseOneKeyShare() {
