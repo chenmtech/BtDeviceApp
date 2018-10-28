@@ -248,8 +248,7 @@ public class EcgMonitorDevice extends BleDevice {
     public synchronized void setEcgRecord(boolean isRecord) {
         if(this.isRecord != isRecord) {
             if (isRecord) {
-                DateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-                String fileName = getMacAddress()+" "+format.format(new Date())+".bme";
+                String fileName = EcgMonitorUtil.createFileName(getMacAddress());
                 File toFile = FileUtil.getFile(ECGFILEDIR, fileName);
                 try {
                     fileName = toFile.getCanonicalPath();

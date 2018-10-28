@@ -11,6 +11,8 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.List;
 
 public class BleDeviceUtil {
@@ -62,5 +64,14 @@ public class BleDeviceUtil {
 
     public static void clearAllDevice() {
         ViseBle.getInstance().clear();
+    }
+
+    public static File[] listDirBmeFiles(File fileDir) {
+        return fileDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File file, String s) {
+                return s.endsWith(".bme");
+            }
+        });
     }
 }

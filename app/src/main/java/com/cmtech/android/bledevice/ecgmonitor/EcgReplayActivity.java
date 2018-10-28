@@ -21,6 +21,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
+import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileHead;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
@@ -28,8 +29,10 @@ import com.cmtech.dsp.exception.FileException;
 import com.mob.MobSDK;
 import com.mob.commons.SHARESDK;
 import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,6 +65,8 @@ public class EcgReplayActivity extends AppCompatActivity {
     private WaveView ecgView;
 
     private Button btnEcgShare;
+
+    private Button btnImportFromWX;
 
     // 用于设置EcgWaveView的参数
     private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
@@ -96,16 +101,19 @@ public class EcgReplayActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ecgreplay);
 
-        if(EcgMonitorDevice.ECGFILEDIR.exists()) {
-            File[] files = EcgMonitorDevice.ECGFILEDIR.listFiles();
-            Arrays.sort(files, new Comparator<File>() {
-                @Override
-                public int compare(File file, File t1) {
-                    return file.getName().compareTo(t1.getName());
-                }
-            });
-            fileList = Arrays.asList(files);
+        if(!EcgMonitorDevice.ECGFILEDIR.exists()) {
+            EcgMonitorDevice.ECGFILEDIR.mkdir();
         }
+
+        File[] files = BleDeviceUtil.listDirBmeFiles(EcgMonitorDevice.ECGFILEDIR);
+        Arrays.sort(files, new Comparator<File>() {
+            @Override
+            public int compare(File file, File t1) {
+                return file.getName().compareTo(t1.getName());
+            }
+        });
+        fileList = new ArrayList<>(Arrays.asList(files));
+
 
         rvFileList = findViewById(R.id.rvEcgFileList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -113,6 +121,7 @@ public class EcgReplayActivity extends AppCompatActivity {
         rvFileList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         fileAdapter = new EcgFileAdapter(fileList, this);
         rvFileList.setAdapter(fileAdapter);
+        fileAdapter.notifyDataSetChanged();
 
         btnEcgShare = findViewById(R.id.btn_ecg_share);
         btnEcgShare.setOnClickListener(new View.OnClickListener() {
@@ -124,9 +133,29 @@ public class EcgReplayActivity extends AppCompatActivity {
             }
         });
 
+        btnImportFromWX = findViewById(R.id.btn_ecgreplay_import);
+        btnImportFromWX.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                File wxFileDir = new File(Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download");
+                try {
+                    File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
+                    for(File file : wxFileList) {
+                        FileUtil.moveFileToDirectory(file, EcgMonitorDevice.ECGFILEDIR, false);
+                        fileList.add(file);
+                        fileAdapter.notifyDataSetChanged();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         ecgView = findViewById(R.id.ecg_view);
 
         showThread.start();
+
+
 
         Intent intent = getIntent();
         if(intent != null && intent.getStringExtra("fileName") != null) {
@@ -141,6 +170,8 @@ public class EcgReplayActivity extends AppCompatActivity {
                 }
             }, 1000);
         }
+
+
     }
 
     @Override
