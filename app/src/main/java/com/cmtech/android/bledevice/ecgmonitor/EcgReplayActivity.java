@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
@@ -59,31 +61,20 @@ public class EcgReplayActivity extends AppCompatActivity {
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
-    private class ShowThread extends Thread {
-        public ShowThread(final int interval) {
-            super(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (!Thread.currentThread().isInterrupted()) {
-                            synchronized (EcgReplayActivity.this) {
-                                if (selectedFile != null) {
-                                    ecgView.addData(selectedFile.readData());
-                                }
-                            }
-                            Thread.sleep(interval);
-                        }
-                    } catch (FileException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+    private class ShowTask extends TimerTask {
+        @Override
+        public void run() {
+            synchronized (EcgReplayActivity.this) {
+                try {
+                    ecgView.addData(selectedFile.readData());
+                } catch (FileException e) {
+                    e.printStackTrace();
                 }
-            });
+            }
         }
     }
+    private Timer showTimer;
 
-    private ShowThread showThread;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -116,7 +107,7 @@ public class EcgReplayActivity extends AppCompatActivity {
         btnEcgShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                shareBmeFileToWechat();
+                shareBmeFileThroughWechat();
             }
         });
 
@@ -124,21 +115,7 @@ public class EcgReplayActivity extends AppCompatActivity {
         btnImportFromWX.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(selectedFile != null) {
-                    try {
-                        selectedFile.close();
-                        selectedFile = null;
-                        if (showThread != null && showThread.isAlive()) {
-                            showThread.interrupt();
-                            showThread.join();
-                            ecgView.clearView();
-                        }
-                    } catch (FileException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+                deselectFile();
                 File wxFileDir = new File(Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download");
                 try {
                     File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
@@ -170,23 +147,14 @@ public class EcgReplayActivity extends AppCompatActivity {
             public void onClick(View view) {
                 try {
                     if (selectedFile != null) {
-                        selectedFile.close();
+                        BmeFile tmpFile = selectedFile;
 
-                        if (showThread != null && showThread.isAlive()) {
-                            showThread.interrupt();
-                            showThread.join();
-                            ecgView.clearView();
-                        }
+                        deselectFile();
 
-                        FileUtil.deleteFile(selectedFile.getFile());
+                        FileUtil.deleteFile(tmpFile.getFile());
                         fileList.remove(fileAdapter.getSelectItem());
                         fileAdapter.notifyDataSetChanged();
-                        selectedFile = null;
                     }
-                } catch (FileException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -218,26 +186,20 @@ public class EcgReplayActivity extends AppCompatActivity {
 
     public synchronized void replayEcgFile(File file) {
         try {
-            if (selectedFile != null) {
-                selectedFile.close();
-            }
-            if(showThread != null && showThread.isAlive()) {
-                showThread.interrupt();
-                showThread.join();
-            }
+            deselectFile();
+
             selectedFile = BmeFile.openBmeFile(file.getCanonicalPath());
             int interval = 1000/selectedFile.getFs();
             //int dataLength = selectedFile.availableData();
             //Toast.makeText(EcgReplayActivity.this, "dataLength = "+dataLength, Toast.LENGTH_LONG).show();
             initialEcgView();
 
-            showThread = new ShowThread(interval);
-            showThread.start();
+            showTimer = new Timer();
+            showTimer.scheduleAtFixedRate(new ShowTask(), interval, interval);
+
         } catch (FileException e) {
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -259,27 +221,12 @@ public class EcgReplayActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if(selectedFile != null) {
-            try {
-                selectedFile.close();
-                selectedFile = null;
-            } catch (FileException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if(showThread != null && showThread.isAlive()) {
-            try {
-                showThread.interrupt();
-                showThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        deselectFile();
 
     }
 
-    private void shareBmeFileToWechat() {
+    // 用微信分享BME文件
+    private void shareBmeFileThroughWechat() {
         if(selectedFile == null) return;
 
         Platform.ShareParams sp = new Platform.ShareParams();
@@ -308,6 +255,21 @@ public class EcgReplayActivity extends AppCompatActivity {
         });
         // 执行分享
         wxPlatform.share(sp);
+    }
+
+    private void deselectFile() {
+        if(selectedFile != null) {
+            try {
+                selectedFile.close();
+                selectedFile = null;
+                if(showTimer != null) {
+                    showTimer.cancel();
+                }
+                ecgView.clearView();
+            } catch (FileException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

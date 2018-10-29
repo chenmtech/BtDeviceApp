@@ -104,25 +104,6 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="30sp"
-            android:text="当前心率："/>
-
-        <TextView
-            android:id="@+id/tv_ecg_hr"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="30sp"
-            android:text="0"/>
-
-    </LinearLayout>
 
     <com.cmtech.android.bledevice.ecgmonitor.WaveView
         android:id="@+id/ecg_view"
@@ -165,6 +146,36 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:text="纵向：0.1mV/格"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:text="心率："/>
+
+            <TextView
+                android:id="@+id/tv_ecg_hr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:text="00"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textSize="20sp"
+                android:text="BPM"/>
+
         </LinearLayout>
 
     </RelativeLayout>
