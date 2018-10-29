@@ -69,6 +69,7 @@ public class EcgReplayActivity extends AppCompatActivity {
                     ecgView.addData(selectedFile.readData());
                 } catch (FileException e) {
                     e.printStackTrace();
+                    cancel();
                 }
             }
         }

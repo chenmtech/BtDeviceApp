@@ -229,13 +229,14 @@ public class WaveView extends View {
 		else	//画线
 		{
 			curX += xRes;
+			mainPaint.setColor(ecgColor);
 			foreCanvas.drawLine(preX, preY, curX, curY, mainPaint);
 
 			//抹去前面一个宽度为2的矩形区域
 			mainPaint.setColor(backgroundColor);
 			foreCanvas.drawRect(curX +1, 0, curX +3, viewHeight, mainPaint);
 		}
-		mainPaint.setColor(ecgColor);
+		//mainPaint.setColor(ecgColor);
 
 		preX = curX;
 		preY = curY;
