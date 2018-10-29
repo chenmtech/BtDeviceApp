@@ -382,7 +382,10 @@ public class BmeFile {
         }
 	}
 	
-	
+	public File getFile() {
+	    return file;
+    }
+
 	public String getFileName() {
 		if(file == null) return "";
 		return file.toString();

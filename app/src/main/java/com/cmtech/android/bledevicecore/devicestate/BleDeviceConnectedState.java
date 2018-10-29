@@ -38,7 +38,8 @@ public class BleDeviceConnectedState implements IBleDeviceState {
         ViseLog.e(this + " : callback wrong");
         // 重复多次成功连接，需要把后一次移除。
         //MyApplication.getViseBle().getDeviceMirrorPool().removeDeviceMirror(mirror);
-        BleDeviceUtil.removeDeviceMirror(mirror);
+        //BleDeviceUtil.removeDeviceMirror(mirror);
+        device.onStateConnectSuccess(mirror);
     }
 
     @Override

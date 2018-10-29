@@ -137,11 +137,21 @@ public class EcgReplayActivity extends AppCompatActivity {
         btnImportFromWX.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(selectedFile != null) {
+                    try {
+                        selectedFile.close();
+                        selectedFile = null;
+                    } catch (FileException e) {
+                        e.printStackTrace();
+                    }
+                }
                 File wxFileDir = new File(Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download");
                 try {
                     File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
                     for(File file : wxFileList) {
-                        FileUtil.moveFileToDirectory(file, EcgMonitorDevice.ECGFILEDIR, false);
+                        File toFile = FileUtil.getFile(EcgMonitorDevice.ECGFILEDIR, file.getName());
+                        if(toFile.exists()) toFile.delete();
+                        FileUtil.moveFile(file, toFile);
                         fileList.add(file);
                         fileAdapter.notifyDataSetChanged();
                     }
@@ -281,15 +291,12 @@ public class EcgReplayActivity extends AppCompatActivity {
 
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
-        sp.setTitle(selectedFile.getFileName());
-        sp.setText(selectedFile.getFileName());
+        sp.setTitle(selectedFile.getFile().getName());
+        sp.setText(selectedFile.getFile().getName());
         Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_cmiot_16);
         sp.setImageData(bmp);
         sp.setFilePath(selectedFile.getFileName());
-
-        //Platform platform = ShareSDK.getPlatform (QQ.NAME);
-        //Platform platform = ShareSDK.getPlatform (Wechat.NAME);
-        Platform platform = ShareSDK.getPlatform (Email.NAME);
+        Platform platform = ShareSDK.getPlatform (Wechat.NAME);
 
         // 执行分享
         platform.share(sp);

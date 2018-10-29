@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -38,9 +39,15 @@ public class ScanDeviceActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
+        public void onDeviceFound(final BluetoothLeDevice bluetoothLeDevice) {
             if(bluetoothLeDevice != null) {
-                addDeviceToDeviceList(bluetoothLeDevice);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        addDeviceToDeviceList(bluetoothLeDevice);
+                    }
+                });
+
             }
         }
 
@@ -151,7 +158,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     // 添加一个新设备到发现的设备列表中
-    public void addDeviceToDeviceList(BluetoothLeDevice device) {
+    public void addDeviceToDeviceList(final BluetoothLeDevice device) {
         if(device == null) return;
 
         boolean canAdd = true;
@@ -165,6 +172,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
             foundDeviceList.add(device);
             foundDeviceStatus.add(hasRegistered(device));
             scanDeviceAdapter.notifyItemInserted(foundDeviceList.size()-1);
+            //scanDeviceAdapter.notifyDataSetChanged();
             rvScanDevice.scrollToPosition(foundDeviceList.size()-1);
         }
         return;
