@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -17,22 +16,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
-import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.dsp.bmefile.BmeFile;
-import com.cmtech.dsp.bmefile.BmeFileHead;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
 import com.cmtech.dsp.exception.FileException;
-import com.mob.MobSDK;
-import com.mob.commons.SHARESDK;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,19 +35,12 @@ import java.util.List;
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
-import cn.sharesdk.onekeyshare.OnekeyShare;
-import cn.sharesdk.system.email.Email;
-import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
-import static cn.sharesdk.wechat.friends.Wechat.NAME;
 
 public class EcgReplayActivity extends AppCompatActivity {
     private static final String TAG = "EcgReplayActivity";
-
-    private static final int MSG_START_REPLAY = 0;
-    private static final int MSG_SHOW_DATA = 1;
 
     private List<File> fileList = new ArrayList<>();
     private EcgFileAdapter fileAdapter;
@@ -65,8 +50,8 @@ public class EcgReplayActivity extends AppCompatActivity {
     private WaveView ecgView;
 
     private Button btnEcgShare;
-
     private Button btnImportFromWX;
+    private Button btnEcgDelete;
 
     // 用于设置EcgWaveView的参数
     private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
@@ -74,27 +59,35 @@ public class EcgReplayActivity extends AppCompatActivity {
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
-    private int interval = 10;
+    //private int interval = 10;
 
-    private Thread showThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    synchronized (EcgReplayActivity.this) {
-                        if (selectedFile != null) {
-                            ecgView.addData(selectedFile.readData());
+    private class ShowThread extends Thread {
+        public ShowThread(final int interval) {
+            super(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (!Thread.currentThread().isInterrupted()) {
+                            synchronized (EcgReplayActivity.this) {
+                                if (selectedFile != null) {
+                                    ecgView.addData(selectedFile.readData());
+                                }
+                            }
+                            Thread.sleep(interval);
                         }
+                    } catch (FileException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                    Thread.sleep(interval);
-                } catch (FileException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
-            }
+            });
         }
-    });
+
+
+    }
+
+    private ShowThread showThread;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -123,13 +116,11 @@ public class EcgReplayActivity extends AppCompatActivity {
         rvFileList.setAdapter(fileAdapter);
         fileAdapter.notifyDataSetChanged();
 
-        btnEcgShare = findViewById(R.id.btn_ecg_share);
+        btnEcgShare = findViewById(R.id.btn_ecgreplay_share);
         btnEcgShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //shareNoUseOneKeyShare();
-                //showShare();
-                showShareBmeFile();
+                shareBmeFileToWechat();
             }
         });
 
@@ -161,11 +152,36 @@ public class EcgReplayActivity extends AppCompatActivity {
             }
         });
 
+        btnEcgDelete = findViewById(R.id.btn_ecgreplay_delete);
+        btnEcgDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    if (selectedFile != null) {
+                        selectedFile.close();
+
+                        if (showThread != null && showThread.isAlive()) {
+                            showThread.interrupt();
+                            showThread.join();
+                            ecgView.clearView();
+                        }
+
+                        FileUtil.deleteFile(selectedFile.getFile());
+                        fileList.remove(fileAdapter.getSelectItem());
+                        fileAdapter.notifyDataSetChanged();
+                        selectedFile = null;
+                    }
+                } catch (FileException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
         ecgView = findViewById(R.id.ecg_view);
-
-        showThread.start();
-
-
 
         Intent intent = getIntent();
         if(intent != null && intent.getStringExtra("fileName") != null) {
@@ -180,8 +196,6 @@ public class EcgReplayActivity extends AppCompatActivity {
                 }
             }, 1000);
         }
-
-
     }
 
     @Override
@@ -195,17 +209,26 @@ public class EcgReplayActivity extends AppCompatActivity {
             if (selectedFile != null) {
                 selectedFile.close();
             }
+            if(showThread != null && showThread.isAlive()) {
+                showThread.interrupt();
+                showThread.join();
+            }
             selectedFile = BmeFile.openBmeFile(file.getCanonicalPath());
-            interval = 1000/selectedFile.getFs();
+            int interval = 1000/selectedFile.getFs();
             initialEcgView();
+
+            showThread = new ShowThread(interval);
+            showThread.start();
         } catch (FileException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
-    private void initialEcgView() {
+    private synchronized void initialEcgView() {
         if(selectedFile == null) return;
         int sampleRate = selectedFile.getFs();
         int value1mV = ((BmeFileHead30)selectedFile.getBmeFileHead()).getValue1mV();
@@ -222,71 +245,27 @@ public class EcgReplayActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-
         if(selectedFile != null) {
             try {
                 selectedFile.close();
+                selectedFile = null;
             } catch (FileException e) {
                 e.printStackTrace();
             }
         }
 
         if(showThread != null && showThread.isAlive()) {
-            showThread.interrupt();
+            try {
+                showThread.interrupt();
+                showThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
     }
 
-    private void showShare() {
-        //if(selectedFile == null) return;
-        /*String fileName = "";
-
-        try {
-            selectedFile = BmeFile.openBmeFile(fileList.get(0).getCanonicalPath());
-            fileName = selectedFile.getFileName();
-            selectedFile.close();
-        } catch (FileException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
-
-
-        OnekeyShare oks = new OnekeyShare();
-
-        //关闭sso授权
-        oks.disableSSOWhenAuthorize();
-
-        // title标题，印象笔记、邮箱、信息、微信、人人网和QQ空间等使用
-        oks.setTitle("测试分享功能");
-        // titleUrl是标题的网络链接，QQ和QQ空间等使用
-        //oks.setTitleUrl("http://sharesdk.cn");
-        // text是分享文本，所有平台都需要这个字段
-        oks.setText("此消息用来测试分享功能。");
-        // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
-        String imagePath = Environment.getExternalStorageDirectory().getPath()+"/Pictures/1526709706592.jpg";
-        //String fileName = "/storage/emulated/0/Android/data/com.cmtech.android.bledeviceapp/files/ecgSignal/18:93:D7:77:EA:E3 20181027210551.bme";
-        oks.setImagePath(imagePath);
-        //oks.setImageUrl("http://img.67.com/thumbs/upload/images/2018/01/30/bHdqMTUxNzI3MjY0NA==_w570_t.jpg");
-        //Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_cmiot_16);
-        //oks.setImageData(bmp);
-        //oks.setFilePath(selectedFile.getFileName());
-        // 确保SDcard下面存在此张图片
-        // url仅在微信（包括好友和朋友圈）中使用
-        //oks.setUrl("http://img.67.com/thumbs/upload/images/2018/01/30/bHdqMTUxNzI3MjY0NA==_w570_t.jpg");
-        // comment是我对这条分享的评论，仅在人人网和QQ空间使用
-        //oks.setComment("我是测试评论文本");
-        // site是分享此内容的网站名称，仅在QQ空间使用
-        //oks.setSite(getString(R.string.app_name));
-        // siteUrl是分享此内容的网站地址，仅在QQ空间使用
-        //oks.setSiteUrl("http://sharesdk.cn");
-
-        // 启动分享GUI
-        oks.show(this);
-    }
-
-    private void showShareBmeFile() {
+    private void shareBmeFileToWechat() {
         if(selectedFile == null) return;
 
         Platform.ShareParams sp = new Platform.ShareParams();
@@ -296,39 +275,25 @@ public class EcgReplayActivity extends AppCompatActivity {
         Bitmap bmp= BitmapFactory.decodeResource(getResources(), R.mipmap.ic_cmiot_16);
         sp.setImageData(bmp);
         sp.setFilePath(selectedFile.getFileName());
-        Platform platform = ShareSDK.getPlatform (Wechat.NAME);
-
-        // 执行分享
-        platform.share(sp);
-    }
-
-    private void shareNoUseOneKeyShare() {
-        Platform.ShareParams sp = new Platform.ShareParams();
-        sp.setTitle("测试分享的标题");
-        sp.setTitleUrl("http://sharesdk.cn");// 标题的超链接
-        sp.setText("测试分享的文本");
-        sp.setImageUrl("http://firicon.fir.im/baa18a6d779c597888d685f1159070df5b4f2912");
-        //sp.setImageUrl(selectedFile.getFileName());
-        //sp.setSite("发布分享的网站名称");
-        //sp.setSiteUrl("发布分享网站的地址");
-
-        Platform qq = ShareSDK.getPlatform (QQ.NAME);
-        //Platformqzone = ShareSDK.getPlatform (QZone.NAME);
-
-        // 设置分享事件回调（注：回调放在不能保证在主线程调用，不可以在里面直接处理UI操作）
-        qq.setPlatformActionListener(new PlatformActionListener() {
-            public void onError(Platform arg0, int arg1,Throwable arg2) {
-                //失败的回调，arg:平台对象，arg1:表示当前的动作，arg2:异常信息
+        Platform wxPlatform = ShareSDK.getPlatform (Wechat.NAME);
+        wxPlatform.setPlatformActionListener(new PlatformActionListener() {
+            @Override
+            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
+                Toast.makeText(EcgReplayActivity.this, "分享成功", Toast.LENGTH_SHORT).show();
             }
-            public void onComplete(Platform arg0, int arg1, HashMap<String, Object> arg2) {
-                //分享成功的回调
+
+            @Override
+            public void onError(Platform platform, int i, Throwable throwable) {
+                Toast.makeText(EcgReplayActivity.this, "分享错误", Toast.LENGTH_SHORT).show();
             }
-            public void onCancel(Platform arg0, int arg1){
-                //取消分享的回调
+
+            @Override
+            public void onCancel(Platform platform, int i) {
+                Toast.makeText(EcgReplayActivity.this, "分享取消", Toast.LENGTH_SHORT).show();
             }
         });
-
-        // 执行图文分享
-        qq.share(sp);
+        // 执行分享
+        wxPlatform.share(sp);
     }
+
 }

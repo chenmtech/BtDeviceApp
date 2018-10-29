@@ -29,6 +29,7 @@ import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.ByteOrder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -44,6 +45,7 @@ import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
 
 public class EcgMonitorDevice extends BleDevice {
     public static final File ECGFILEDIR = MyApplication.getContext().getExternalFilesDir("ecgSignal");
+
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;           // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
@@ -249,7 +251,7 @@ public class EcgMonitorDevice extends BleDevice {
         if(this.isRecord != isRecord) {
             if (isRecord) {
                 String fileName = EcgMonitorUtil.createFileName(getMacAddress());
-                File toFile = FileUtil.getFile(ECGFILEDIR, fileName);
+                File toFile = FileUtil.getFile(CACHEDIR, fileName);
                 try {
                     fileName = toFile.getCanonicalPath();
                     ecgFile = BmeFile.createBmeFile(fileName, ecgFileHead);
@@ -261,6 +263,12 @@ public class EcgMonitorDevice extends BleDevice {
                 if (ecgFile != null) {
                     try {
                         ecgFile.close();
+                        File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
+                        try {
+                            FileUtil.moveFile(ecgFile.getFile(), toFile);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         ecgFile = null;
                     } catch (FileException e) {
                         e.printStackTrace();

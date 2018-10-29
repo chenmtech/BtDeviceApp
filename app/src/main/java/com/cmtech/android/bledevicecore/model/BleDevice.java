@@ -23,6 +23,7 @@ import com.cmtech.android.bledevicecore.devicestate.BleDeviceScanState;
 import com.cmtech.android.bledevicecore.devicestate.IBleDeviceState;
 import com.vise.log.ViseLog;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +33,8 @@ import java.util.List;
  */
 
 public abstract class BleDevice implements Serializable{
+    public static final File CACHEDIR = MyApplication.getContext().getExternalCacheDir();
+
     // 获取设备基本信息
     private BleDeviceBasicInfo basicInfo;
     public BleDeviceBasicInfo getBasicInfo() {
