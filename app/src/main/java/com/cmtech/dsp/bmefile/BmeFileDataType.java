@@ -34,5 +34,16 @@ public enum BmeFileDataType {
         return this.code;
     }
     
-    
+    public int getByteNum() {
+        switch (code) {
+            case 0:
+                return 4;
+            case 1:
+                return 1;
+            case 5:
+                return 8;
+            default:
+                return -1;
+        }
+    }
 }

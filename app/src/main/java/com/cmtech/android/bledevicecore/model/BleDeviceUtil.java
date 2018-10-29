@@ -35,6 +35,10 @@ public class BleDeviceUtil {
         ViseBle.getInstance().startScan(scanCallback);
     }
 
+    public static void stopScan(FilterScanCallback scanCallback) {
+        ViseBle.getInstance().stopScan(scanCallback);
+    }
+
     public static void connect(BluetoothLeDevice bluetoothLeDevice, IConnectCallback connectCallback) {
         ViseBle.getInstance().connect(bluetoothLeDevice, connectCallback);
     }

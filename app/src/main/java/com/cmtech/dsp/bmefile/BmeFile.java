@@ -110,6 +110,17 @@ public class BmeFile {
 		}
 		return fileHead;
 	}
+
+	public int availableData() {
+	    if(in != null) {
+            try {
+                return in.available()/fileHead.getDataType().getByteNum();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return -1;
+    }
 	
 	public double[] readData(double[] d) throws FileException{
 		if(in == null || fileHead == null) {

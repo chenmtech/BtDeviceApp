@@ -59,8 +59,6 @@ public class EcgReplayActivity extends AppCompatActivity {
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
-    //private int interval = 10;
-
     private class ShowThread extends Thread {
         public ShowThread(final int interval) {
             super(new Runnable() {
@@ -83,8 +81,6 @@ public class EcgReplayActivity extends AppCompatActivity {
                 }
             });
         }
-
-
     }
 
     private ShowThread showThread;
@@ -132,7 +128,14 @@ public class EcgReplayActivity extends AppCompatActivity {
                     try {
                         selectedFile.close();
                         selectedFile = null;
+                        if (showThread != null && showThread.isAlive()) {
+                            showThread.interrupt();
+                            showThread.join();
+                            ecgView.clearView();
+                        }
                     } catch (FileException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
@@ -141,9 +144,18 @@ public class EcgReplayActivity extends AppCompatActivity {
                     File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
                     for(File file : wxFileList) {
                         File toFile = FileUtil.getFile(EcgMonitorDevice.ECGFILEDIR, file.getName());
+
+                        for(File file1 : fileList) {
+                            if(file1.getName().equalsIgnoreCase(toFile.getName())) {
+                                fileList.remove(file1);
+                            }
+                        }
+
                         if(toFile.exists()) toFile.delete();
+
                         FileUtil.moveFile(file, toFile);
-                        fileList.add(file);
+                        fileList.add(toFile);
+                        fileAdapter.setSelectItem(-1);
                         fileAdapter.notifyDataSetChanged();
                     }
                 } catch (IOException e) {
@@ -215,6 +227,8 @@ public class EcgReplayActivity extends AppCompatActivity {
             }
             selectedFile = BmeFile.openBmeFile(file.getCanonicalPath());
             int interval = 1000/selectedFile.getFs();
+            //int dataLength = selectedFile.availableData();
+            //Toast.makeText(EcgReplayActivity.this, "dataLength = "+dataLength, Toast.LENGTH_LONG).show();
             initialEcgView();
 
             showThread = new ShowThread(interval);

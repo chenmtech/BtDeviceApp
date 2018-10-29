@@ -6,6 +6,13 @@
     android:orientation="vertical"
     tools:context="com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="搜寻到的设备"
+        android:textSize="18sp"/>
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/srlScanDevice"
         android:layout_width="match_parent"

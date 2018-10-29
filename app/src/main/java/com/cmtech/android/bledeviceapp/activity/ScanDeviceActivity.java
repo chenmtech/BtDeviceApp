@@ -157,8 +157,17 @@ public class ScanDeviceActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if(scanCallback != null) {
+            BleDeviceUtil.stopScan(scanCallback);
+        }
+    }
+
     // 添加一个新设备到发现的设备列表中
-    public void addDeviceToDeviceList(final BluetoothLeDevice device) {
+    private void addDeviceToDeviceList(final BluetoothLeDevice device) {
         if(device == null) return;
 
         boolean canAdd = true;
@@ -169,13 +178,13 @@ public class ScanDeviceActivity extends AppCompatActivity {
             }
         }
         if(canAdd) {
+            Toast.makeText(ScanDeviceActivity.this, "添加一个设备", Toast.LENGTH_SHORT).show();
             foundDeviceList.add(device);
             foundDeviceStatus.add(hasRegistered(device));
             scanDeviceAdapter.notifyItemInserted(foundDeviceList.size()-1);
-            //scanDeviceAdapter.notifyDataSetChanged();
+            scanDeviceAdapter.notifyDataSetChanged();
             rvScanDevice.scrollToPosition(foundDeviceList.size()-1);
         }
-        return;
     }
 
 
