@@ -99,16 +99,14 @@ public class LoginActivity extends AppCompatActivity {
 
         cbAutoSignin = findViewById(R.id.cb_auto_signin);
         boolean autoSignin = pref.getBoolean("auto_signin", false);
-        if(autoSignin) {
+        cbAutoSignin.setChecked(autoSignin);
+
+        if(autoSignin && BleDeviceUtil.isBleEnable(MyApplication.getContext())) {
             String account = etAccount.getText().toString();
             String password = etPassword.getText().toString();
             signIn(account, password);
-            cbAutoSignin.setChecked(true);
-        } else {
-            cbAutoSignin.setChecked(false);
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -117,6 +115,14 @@ public class LoginActivity extends AppCompatActivity {
             case REQUESTCODE_ENABLEBLUETOOTH:
                 if (resultCode == RESULT_OK) {
                     enableBluetooth();
+
+                    boolean autoSignin = pref.getBoolean("auto_signin", false);
+                    if(autoSignin) {
+                        String account = etAccount.getText().toString();
+                        String password = etPassword.getText().toString();
+                        signIn(account, password);
+                    }
+
                 } else if (resultCode == RESULT_CANCELED) { // 不同意
                     Toast.makeText(this, "蓝牙不打开，程序无法运行", Toast.LENGTH_SHORT).show();
                     finish();
