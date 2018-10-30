@@ -13,6 +13,9 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -42,8 +45,10 @@ public class NewWaveView extends View {
     private int curX, curY;				    //画线的当前点坐标
 
     private Paint mainPaint = new Paint();
-    private Bitmap backBitmap, foreBitmap;	//背景和前景bitmap
-    private Canvas foreCanvas;					//前景画布
+    private Bitmap backBitmap;  //背景bitmap
+    private Canvas backCanvas;  //背景canvas
+    private Bitmap foreBitmap;	//前景bitmap
+    private Canvas foreCanvas;	//前景canvas
 
     private final int backgroundColor;
     private final int gridColor;
@@ -80,7 +85,6 @@ public class NewWaveView extends View {
     {
         this.zeroLocation = zeroLocation;
         initY = (int)(viewHeight * this.zeroLocation);
-        if(!isFirstDraw) updateBackBitmap();
     }
 
     public NewWaveView(Context context) {
@@ -124,8 +128,47 @@ public class NewWaveView extends View {
         zeroLocation = DEFAULT_ZERO_LOCATION;
     }
 
+    @Override
+    protected void onDraw(Canvas canvas) {
+
+        super.onDraw(canvas);
+
+        canvas.drawColor(backgroundColor);
+
+        if(isFirstDraw)
+        {
+            isFirstDraw = false;
+
+            initWhenFirstDraw();
+        }
+
+        canvas.drawBitmap(backBitmap, 0, 0, null);
+
+        Paint paint = new Paint();
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER));
+
+        canvas.drawBitmap(foreBitmap, 0, 0, paint);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        setMeasuredDimension(calculateMeasure(widthMeasureSpec), calculateMeasure(heightMeasureSpec));
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        viewWidth = getWidth();
+        viewHeight = getHeight();
+    }
+
     public void addData(Integer data) {
         viewData.offer(data);
+
+        drawPointOnForeCanvas();
 
         postInvalidate();
     }
@@ -135,39 +178,13 @@ public class NewWaveView extends View {
 
     }
 
-    public void clearView()
+    public void initView()
     {
         viewData.clear();
+
         isFirstDraw = true;
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-
-        super.onDraw(canvas);
-
-        //canvas.drawColor(backgroundColor);
-
-        if(isFirstDraw)
-        {
-            isFirstDraw = false;
-
-            initWhenFirstDraw();
-        }
-        if (drawPoint(canvas)) {
-            canvas.drawBitmap(foreBitmap, 0, 0, null);
-        }
-        canvas.drawBitmap(foreBitmap, 0, 0, null);
-
-        //canvas.drawBitmap(backBitmap, 0, 0, null);
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-        setMeasuredDimension(calculateMeasure(widthMeasureSpec), calculateMeasure(heightMeasureSpec));
-    }
 
     private int calculateMeasure(int measureSpec)
     {
@@ -186,7 +203,7 @@ public class NewWaveView extends View {
         return size;
     }
 
-    private boolean drawPoint(Canvas canvas)
+    private boolean drawPointOnForeCanvas()
     {
         Integer value = 0;
 
@@ -202,19 +219,18 @@ public class NewWaveView extends View {
         {
             curX = initX;
             mainPaint.setColor(backgroundColor);
-            canvas.drawRect(initX, 0, initX +2, viewHeight, mainPaint);
+            foreCanvas.drawRect(initX, 0, initX +2, viewHeight, mainPaint);
         }
         else	//画线
         {
             curX += xRes;
             mainPaint.setColor(waveColor);
-            canvas.drawLine(preX, preY, curX, curY, mainPaint);
+            foreCanvas.drawLine(preX, preY, curX, curY, mainPaint);
 
             //抹去前面一个宽度为2的矩形区域
             mainPaint.setColor(backgroundColor);
-            canvas.drawRect(curX +1, 0, curX +3, viewHeight, mainPaint);
+            foreCanvas.drawRect(curX +1, 0, curX +3, viewHeight, mainPaint);
         }
-        //mainPaint.setColor(ecgColor);
 
         preX = curX;
         preY = curY;
@@ -224,23 +240,16 @@ public class NewWaveView extends View {
 
     private void initWhenFirstDraw()
     {
-        viewWidth = getWidth();
-        viewHeight = getHeight();
-
         //创建背景Bitmap
         createBackBitmap();
 
-        //创建前景画布，底色透明
-        //foreBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
-        //foreCanvas = new Canvas(foreBitmap);
+        //将背景bitmap复制为前景bitmap
+        //foreBitmap = backBitmap.copy(Bitmap.Config.ARGB_8888,true);
+        foreBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Bitmap.Config.ARGB_8888);
+        foreCanvas = new Canvas(foreBitmap);
 
         preX = curX = initX;
         preY = curY = initY;
-    }
-
-    private void updateBackBitmap()
-    {
-        createBackBitmap();
     }
 
     private void createBackBitmap()
@@ -250,46 +259,56 @@ public class NewWaveView extends View {
 
         //创建背景Bitmap
         backBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
-        Canvas c = new Canvas(backBitmap);
-        mainPaint.setColor(gridColor);
+        backCanvas = new Canvas(backBitmap);
+        Paint paint = new Paint();
+        paint.setColor(gridColor);
 
         // 画零位线
-        mainPaint.setStrokeWidth(2);
-        c.drawLine(initX, initY, initX + viewWidth, initY, mainPaint);
+        paint.setStrokeWidth(4);
+        backCanvas.drawLine(initX, initY, initX + viewWidth, initY, paint);
 
-        mainPaint.setStrokeWidth(1);
+        paint.setStrokeWidth(1);
 
         // 画水平线
         int vCoordinate = initY - gridWidth;
         int i = 1;
         while(vCoordinate > 0) {
-            c.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, mainPaint);
+            backCanvas.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, paint);
             vCoordinate -= gridWidth;
             if(++i == 5) {
-                mainPaint.setStrokeWidth(2); i = 0;}
-            else mainPaint.setStrokeWidth(1);
+                paint.setStrokeWidth(2);
+                i = 0;
+            }
+            else
+                paint.setStrokeWidth(1);
         }
-        mainPaint.setStrokeWidth(1);
+        paint.setStrokeWidth(1);
         vCoordinate = initY + gridWidth;
         i = 1;
         while(vCoordinate < viewHeight) {
-            c.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, mainPaint);
+            backCanvas.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, paint);
             vCoordinate += gridWidth;
             if(++i == 5) {
-                mainPaint.setStrokeWidth(2); i = 0;}
-            else mainPaint.setStrokeWidth(1);
+                paint.setStrokeWidth(2);
+                i = 0;
+            }
+            else
+                paint.setStrokeWidth(1);
         }
 
         // 画垂直线
-        mainPaint.setStrokeWidth(1);
+        paint.setStrokeWidth(1);
         int hCoordinate = initX + gridWidth;
         i = 1;
         while(hCoordinate < viewWidth) {
-            c.drawLine(hCoordinate, 0, hCoordinate, viewHeight, mainPaint);
+            backCanvas.drawLine(hCoordinate, 0, hCoordinate, viewHeight, paint);
             hCoordinate += gridWidth;
             if(++i == 5) {
-                mainPaint.setStrokeWidth(2); i = 0;}
-            else mainPaint.setStrokeWidth(1);
+                paint.setStrokeWidth(2);
+                i = 0;
+            }
+            else
+                paint.setStrokeWidth(1);
         }
 
         // 画定标脉冲
@@ -301,9 +320,7 @@ public class NewWaveView extends View {
         c.drawLine(7*gridWidth, initY-10*gridWidth, 7*gridWidth, initY, mainPaint);
         c.drawLine(7*gridWidth, initY, 10*gridWidth, initY, mainPaint);*/
 
-        mainPaint.setColor(waveColor);
-        mainPaint.setStrokeWidth(2);
-
-        foreBitmap = Bitmap.createBitmap(backBitmap);
+        //mainPaint.setColor(waveColor);
+        //mainPaint.setStrokeWidth(2);
     }
 }

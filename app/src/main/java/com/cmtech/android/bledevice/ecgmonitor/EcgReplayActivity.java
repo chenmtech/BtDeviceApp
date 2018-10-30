@@ -214,7 +214,7 @@ public class EcgReplayActivity extends AppCompatActivity {
         ecgView.setRes(xRes, yRes);
         ecgView.setGridWidth(viewGridWidth);
         ecgView.setZeroLocation(0.5);
-        ecgView.clearView();
+        ecgView.initView();
         ecgView.startShow();
     }
 
@@ -266,7 +266,7 @@ public class EcgReplayActivity extends AppCompatActivity {
                 if(showTimer != null) {
                     showTimer.cancel();
                 }
-                ecgView.clearView();
+                ecgView.initView();
             } catch (FileException e) {
                 e.printStackTrace();
             }
