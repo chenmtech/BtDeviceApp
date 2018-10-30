@@ -8,7 +8,7 @@
         <!--声明我们的属性，名称为default_size,取值类型为尺寸类型（dp,px等）-->
         <attr name="background_color" format="color" />
         <attr name="grid_color" format="color"/>
-        <attr name="ecg_color" format="color"/>
+        <attr name="wave_color" format="color"/>
     </declare-styleable>
 
 </resources>

@@ -112,7 +112,7 @@
         android:layout_weight="2"
         cmtech:background_color="#fff"
         cmtech:grid_color="#f00"
-        cmtech:ecg_color="#000"/>
+        cmtech:wave_color="#000"/>
 
 
 

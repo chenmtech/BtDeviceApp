@@ -31,7 +31,7 @@ public class WaveView extends View {
 
 	private static final int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
 	private static final int DEFAULT_GRID_COLOR = Color.RED;
-	private static final int DEFAULT_ECG_COLOR = Color.BLACK;
+	private static final int DEFAULT_WAVE_COLOR = Color.BLACK;
 	
 	private boolean canShow = false;
 	private boolean isFirstDraw = true;
@@ -48,7 +48,7 @@ public class WaveView extends View {
 
 	private final int backgroundColor;
 	private final int gridColor;
-	private final int ecgColor;
+	private final int waveColor;
 
 
 	private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
@@ -67,7 +67,7 @@ public class WaveView extends View {
 
 		backgroundColor = DEFAULT_BACKGROUND_COLOR;
 		gridColor = DEFAULT_GRID_COLOR;
-		ecgColor = DEFAULT_ECG_COLOR;
+        waveColor = DEFAULT_WAVE_COLOR;
 
 		initialize();
 	}
@@ -82,7 +82,7 @@ public class WaveView extends View {
 		//第二个参数为，如果没有设置这个属性，则设置的默认的值
 		backgroundColor = a.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
 		gridColor = a.getColor(R.styleable.WaveView_grid_color, DEFAULT_GRID_COLOR);
-		ecgColor = a.getColor(R.styleable.WaveView_ecg_color, DEFAULT_ECG_COLOR);
+        waveColor = a.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
 
 		//最后记得将TypedArray对象回收
 		a.recycle();
@@ -229,7 +229,7 @@ public class WaveView extends View {
 		else	//画线
 		{
 			curX += xRes;
-			mainPaint.setColor(ecgColor);
+			mainPaint.setColor(waveColor);
 			foreCanvas.drawLine(preX, preY, curX, curY, mainPaint);
 
 			//抹去前面一个宽度为2的矩形区域
@@ -323,7 +323,7 @@ public class WaveView extends View {
         c.drawLine(7*gridWidth, initY-10*gridWidth, 7*gridWidth, initY, mainPaint);
         c.drawLine(7*gridWidth, initY, 10*gridWidth, initY, mainPaint);*/
 
-        mainPaint.setColor(ecgColor);
+        mainPaint.setColor(waveColor);
         mainPaint.setStrokeWidth(2);
     }
 }
