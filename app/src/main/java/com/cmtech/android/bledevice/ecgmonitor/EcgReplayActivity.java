@@ -205,7 +205,7 @@ public class EcgReplayActivity extends AppCompatActivity {
         }
     }
 
-    private synchronized void initialEcgView() {
+    private void initialEcgView() {
         if(selectedFile == null) return;
         int sampleRate = selectedFile.getFs();
         int value1mV = ((BmeFileHead30)selectedFile.getBmeFileHead()).getValue1mV();

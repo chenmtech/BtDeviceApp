@@ -33,7 +33,6 @@ public class NewWaveView extends View {
     private static final int DEFAULT_GRID_COLOR = Color.RED;
     private static final int DEFAULT_WAVE_COLOR = Color.BLACK;
 
-    private boolean canShow = false;
     private boolean isFirstDraw = true;
 
     private int viewWidth;					//视图宽度
@@ -52,15 +51,37 @@ public class NewWaveView extends View {
 
 
     private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
-    private Thread showThread;
 
     // View初始化主要需要设置下面4个参数
     private int gridWidth;                // 栅格像素宽度
+    public void setGridWidth(int gridWidth) {
+        this.gridWidth = gridWidth;
+    }
+
     private int xRes;						//X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
     private float yRes;					//Y方向分辨率，表示屏幕Y方向每个像素代表的信号值的变化，DeltaSignal/pixel
+    public int getXRes()
+    {
+        return xRes;
+    }
+    public float getYRes()
+    {
+        return yRes;
+    }
+    public void setRes(int xRes, float yRes)
+    {
+        if((xRes < 1) || (yRes < 0)) return;
+        this.xRes = xRes;
+        this.yRes = yRes;
+    }
+
     private double zeroLocation;			//表示零值位置占视图高度的百分比
-
-
+    public void setZeroLocation(double zeroLocation)
+    {
+        this.zeroLocation = zeroLocation;
+        initY = (int)(viewHeight * this.zeroLocation);
+        if(!isFirstDraw) updateBackBitmap();
+    }
 
     public NewWaveView(Context context) {
         super(context);
@@ -101,61 +122,17 @@ public class NewWaveView extends View {
 
         //初始化零值位置占视图高度的百分比
         zeroLocation = DEFAULT_ZERO_LOCATION;
-
-        //创建显示线程
-        showThread = new Thread(new Runnable(){
-            public void run()
-            {
-                while(canShow)
-                {
-                    // 先画点，再刷新
-                    if(drawPoint())
-                    {
-                        postInvalidate();
-                    }
-                }
-            }
-        });
     }
 
     public void addData(Integer data) {
         viewData.offer(data);
-    }
 
-    public void setRes(int xRes, float yRes)
-    {
-        if((xRes < 1) || (yRes < 0)) return;
-        this.xRes = xRes;
-        this.yRes = yRes;
-    }
-
-    public int getXRes()
-    {
-        return xRes;
-    }
-
-    public float getYRes()
-    {
-        return yRes;
-    }
-
-    public void setGridWidth(int gridWidth) {
-        this.gridWidth = gridWidth;}
-
-    public void setZeroLocation(double zeroLocation)
-    {
-        this.zeroLocation = zeroLocation;
-        initY = (int)(viewHeight * this.zeroLocation);
-        if(!isFirstDraw) updateBackBitmap();
+        postInvalidate();
     }
 
     public void startShow()
     {
-        if((showThread != null) && !showThread.isAlive())
-        {
-            canShow = true;
-            showThread.start();
-        }
+
     }
 
     public void clearView()
@@ -169,7 +146,7 @@ public class NewWaveView extends View {
 
         super.onDraw(canvas);
 
-        canvas.drawColor(backgroundColor);
+        //canvas.drawColor(backgroundColor);
 
         if(isFirstDraw)
         {
@@ -177,10 +154,12 @@ public class NewWaveView extends View {
 
             initWhenFirstDraw();
         }
+        if (drawPoint(canvas)) {
+            canvas.drawBitmap(foreBitmap, 0, 0, null);
+        }
+        canvas.drawBitmap(foreBitmap, 0, 0, null);
 
-        canvas.drawBitmap(foreBitmap, 0, 0, mainPaint);
-
-        canvas.drawBitmap(backBitmap, 0, 0, null);
+        //canvas.drawBitmap(backBitmap, 0, 0, null);
     }
 
     @Override
@@ -207,14 +186,13 @@ public class NewWaveView extends View {
         return size;
     }
 
-    private boolean drawPoint()
+    private boolean drawPoint(Canvas canvas)
     {
         Integer value = 0;
 
         try {
             value = viewData.take();
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -224,17 +202,17 @@ public class NewWaveView extends View {
         {
             curX = initX;
             mainPaint.setColor(backgroundColor);
-            foreCanvas.drawRect(initX, 0, initX +2, viewHeight, mainPaint);
+            canvas.drawRect(initX, 0, initX +2, viewHeight, mainPaint);
         }
         else	//画线
         {
             curX += xRes;
             mainPaint.setColor(waveColor);
-            foreCanvas.drawLine(preX, preY, curX, curY, mainPaint);
+            canvas.drawLine(preX, preY, curX, curY, mainPaint);
 
             //抹去前面一个宽度为2的矩形区域
             mainPaint.setColor(backgroundColor);
-            foreCanvas.drawRect(curX +1, 0, curX +3, viewHeight, mainPaint);
+            canvas.drawRect(curX +1, 0, curX +3, viewHeight, mainPaint);
         }
         //mainPaint.setColor(ecgColor);
 
@@ -253,8 +231,8 @@ public class NewWaveView extends View {
         createBackBitmap();
 
         //创建前景画布，底色透明
-        foreBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
-        foreCanvas = new Canvas(foreBitmap);
+        //foreBitmap = Bitmap.createBitmap(viewWidth, viewHeight, Config.ARGB_8888);
+        //foreCanvas = new Canvas(foreBitmap);
 
         preX = curX = initX;
         preY = curY = initY;
@@ -325,5 +303,7 @@ public class NewWaveView extends View {
 
         mainPaint.setColor(waveColor);
         mainPaint.setStrokeWidth(2);
+
+        foreBitmap = Bitmap.createBitmap(backBitmap);
     }
 }
