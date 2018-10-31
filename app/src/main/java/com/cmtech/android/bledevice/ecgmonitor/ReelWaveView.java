@@ -13,16 +13,23 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 
 public class ReelWaveView extends View {
@@ -41,21 +48,18 @@ public class ReelWaveView extends View {
     private int viewHeight;				    //视图高度
     private int initX, initY;			        //画图起始位置
     private int preX, preY;				    //画线的前一个点坐标
-    private int curX, curY;				    //画线的当前点坐标
 
     private final Paint bmpPaint = new Paint();
     private Bitmap backBitmap;  //背景bitmap
     private Bitmap foreBitmap;	//前景bitmap
     private Canvas foreCanvas;	//前景canvas
-    private PorterDuffXfermode srcOverMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
-    private PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
-    private Rect deleteRect = new Rect();
 
     private final int backgroundColor;
     private final int gridColor;
     private final int waveColor;
 
-    private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
+    //private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
+    private List<Integer> viewData = new ArrayList<>();
 
     // View初始化主要需要设置下面4个参数
     private int gridWidth = DEFAULT_GRID_WIDTH;                // 栅格像素宽度
@@ -125,7 +129,7 @@ public class ReelWaveView extends View {
 
         super.onDraw(canvas);
 
-        canvas.drawColor(backgroundColor);
+        //canvas.drawColor(backgroundColor);
 
         canvas.drawBitmap(foreBitmap, 0, 0, null);
 
@@ -149,9 +153,10 @@ public class ReelWaveView extends View {
     }
 
     private void initPaint() {
-        bmpPaint.setXfermode(srcOverMode);
         bmpPaint.setAlpha(255);
+        bmpPaint.setStyle(Paint.Style.STROKE);
         bmpPaint.setStrokeWidth(2);
+        bmpPaint.setColor(waveColor);
     }
 
     public void initView()
@@ -167,14 +172,14 @@ public class ReelWaveView extends View {
         foreCanvas = new Canvas(foreBitmap);
 
         // 初始化画图起始位置
-        preX = curX = initX;
-        preY = curY = initY;
+        preX = initX;
+        preY = initY;
     }
 
-    public void showData(Integer data) {
-        viewData.offer(data);
+    public synchronized void showData(Integer data) {
+        viewData.add(data);
 
-        if(++updateNum == 5) {
+        if(++updateNum == 4) {
 
             drawDataOnForeCanvas();
 
@@ -208,32 +213,34 @@ public class ReelWaveView extends View {
 
     private boolean drawDataOnForeCanvas()
     {
-        bmpPaint.setXfermode(srcInMode);
-        foreCanvas.drawBitmap(backBitmap, 0,0,bmpPaint);
-        bmpPaint.setXfermode(srcOverMode);
+        foreCanvas.drawBitmap(backBitmap, 0, 0, bmpPaint);
 
         Integer[] data = viewData.toArray(new Integer[0]);
-        int datanum = data.length;
-        if(datanum <= 0) return true;
+        int dataNum = data.length;
+        if(dataNum <= 1) return true;
 
-        int needNum = viewWidth/xRes;
-        if(datanum < needNum) {
-            needNum = datanum;
+        int needDrawNum = viewWidth/xRes+1;
+        if(dataNum < needDrawNum) {
+            needDrawNum = dataNum;
         }
 
-        int begin = datanum - needNum;
+        int begin = dataNum - needDrawNum;
 
-        bmpPaint.setColor(waveColor);
-        preX = curX = initX;
-        preY = curY = initY;
-        for(int i = begin; i < datanum-1; i++) {
-            curY = initY - Math.round(data[i]/yRes);
-            curX += xRes;
-            foreCanvas.drawLine(preX, preY, curX, curY, bmpPaint);
-
-            preX = curX;
-            preY = curY;
+        viewData.clear();
+        viewData.add(data[begin]);
+        preX = initX;
+        preY = initY - Math.round(data[begin]/yRes);
+        Path path = new Path();
+        path.moveTo(preX, preY);
+        for(int i = begin+1; i < dataNum; i++) {
+            viewData.add(data[i]);
+            preX += xRes;
+            preY = initY - Math.round(data[i]/yRes);
+            path.lineTo(preX, preY);
         }
+
+        foreCanvas.drawPath(path, bmpPaint);
+
         return true;
     }
 
@@ -248,6 +255,8 @@ public class ReelWaveView extends View {
         if(!showGridLine) return;
 
         Canvas backCanvas = new Canvas(backBitmap);
+        backCanvas.drawColor(backgroundColor);
+
         Paint paint = new Paint();
         paint.setColor(gridColor);
 

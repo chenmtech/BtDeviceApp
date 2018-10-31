@@ -168,7 +168,7 @@ public class ScanWaveView extends View {
         preY = curY = initY;
     }
 
-    public void showData(Integer data) {
+    public synchronized void showData(Integer data) {
         viewData.offer(data);
 
         drawPointOnForeCanvas();
