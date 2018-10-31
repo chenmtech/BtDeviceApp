@@ -49,7 +49,7 @@ public class EcgReplayActivity extends AppCompatActivity {
     private RecyclerView rvFileList;
     private BmeFile selectedFile;
 
-    private ScanWaveView ecgView;
+    private ReelWaveView ecgView;
 
     private Button btnEcgShare;
     private Button btnImportFromWX;
