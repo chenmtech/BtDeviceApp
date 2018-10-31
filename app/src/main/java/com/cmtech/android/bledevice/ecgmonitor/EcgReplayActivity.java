@@ -14,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
@@ -55,11 +56,15 @@ public class EcgReplayActivity extends AppCompatActivity {
     private Button btnImportFromWX;
     private Button btnEcgDelete;
 
+    private ImageButton btnSwitchReplayState;
+
     // 用于设置EcgWaveView的参数
     private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
     // 下面两个参数可用来计算View中的xRes和yRes
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
+
+    private boolean replaying = false;
 
     private class ShowTask extends TimerTask {
         @Override
@@ -163,6 +168,22 @@ public class EcgReplayActivity extends AppCompatActivity {
         });
 
         ecgView = findViewById(R.id.ecg_view);
+
+        btnSwitchReplayState = findViewById(R.id.btn_ecg_startandstop);
+        btnSwitchReplayState.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(selectedFile == null) return;
+
+                if(replaying) {
+                    btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
+                } else {
+                    btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
+                }
+                replaying = !replaying;
+            }
+        });
+
 
         Intent intent = getIntent();
         if(intent != null && intent.getStringExtra("fileName") != null) {
