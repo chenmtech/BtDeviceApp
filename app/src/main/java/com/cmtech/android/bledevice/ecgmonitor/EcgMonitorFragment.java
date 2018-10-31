@@ -25,7 +25,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private TextView tvEcgLeadType;
     private TextView tvEcg1mV;
     private TextView tvEcgHr;
-    private WaveView ecgView;
+    private ScanWaveView ecgView;
     private ImageButton btnSwitchSampleEcg;
     private CheckBox cbEcgRecord;
     private CheckBox cbEcgFilter;
@@ -162,7 +162,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 ecgView.setRes(xRes, yRes);
                 ecgView.setGridWidth(viewGridWidth);
                 ecgView.setZeroLocation(0.5);
-                ecgView.clearView();
+                ecgView.initView();
                 ecgView.startShow();
             }
         });
@@ -192,7 +192,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateEcgData(int ecgData) {
-        ecgView.addData(ecgData);
+        ecgView.showData(ecgData);
     }
 
     @Override

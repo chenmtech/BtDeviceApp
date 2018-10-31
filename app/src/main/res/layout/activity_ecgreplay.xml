@@ -105,14 +105,15 @@
     </LinearLayout>
 
 
-    <com.cmtech.android.bledevice.ecgmonitor.NewWaveView
+    <com.cmtech.android.bledevice.ecgmonitor.ScanWaveView
         android:id="@+id/ecg_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        cmtech:background_color="#fff"
+        cmtech:background_color="#666"
         cmtech:grid_color="#f00"
-        cmtech:wave_color="#000"/>
+        cmtech:wave_color="#ff0"
+        cmtech:show_gridline="true"/>
 
 
 

@@ -49,7 +49,7 @@ public class EcgReplayActivity extends AppCompatActivity {
     private RecyclerView rvFileList;
     private BmeFile selectedFile;
 
-    private NewWaveView ecgView;
+    private ScanWaveView ecgView;
 
     private Button btnEcgShare;
     private Button btnImportFromWX;
@@ -66,7 +66,7 @@ public class EcgReplayActivity extends AppCompatActivity {
         public void run() {
             synchronized (EcgReplayActivity.this) {
                 try {
-                    ecgView.addData(selectedFile.readData());
+                    ecgView.showData(selectedFile.readData());
                 } catch (FileException e) {
                     e.printStackTrace();
                     cancel();

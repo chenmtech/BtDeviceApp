@@ -9,6 +9,7 @@
         <attr name="background_color" format="color" />
         <attr name="grid_color" format="color"/>
         <attr name="wave_color" format="color"/>
+        <attr name="show_gridline" format="boolean"/>
     </declare-styleable>
 
 </resources>
