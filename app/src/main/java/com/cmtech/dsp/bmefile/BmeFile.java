@@ -49,15 +49,24 @@ public class BmeFile {
 	private DataOutputStream out;
 	
 	private final BmeFileHead fileHead;
-	
+
+	private int dataNum = 0;
+    public int getDataNum() {
+        return dataNum;
+    }
+
+    // 为已存在文件创建BmeFile
 	private BmeFile(String fileName) throws FileException{
 		checkFile(fileName);
 		fileHead = open();
+		dataNum = availableData();
 	}
-	
+
+	// 为不存在的文件创建BmeFile
 	private BmeFile(String fileName, BmeFileHead head) throws FileException{
 		checkFile(fileName);
 		fileHead = createUsingHead(head);
+		dataNum = 0;
 	}
 	
     // 打开已有文件
@@ -111,7 +120,7 @@ public class BmeFile {
 		return fileHead;
 	}
 
-	public int availableData() {
+	private int availableData() {
 	    if(in != null) {
             try {
                 return in.available()/fileHead.getDataType().getByteNum();
@@ -132,7 +141,7 @@ public class BmeFile {
 		}
 		
 		List<Double> lst = new ArrayList<Double>();
-		double[] data = new double[0];
+		double[] data;
 		byte[] buf = new byte[8];
 		ByteBuffer big = ByteBuffer.wrap(buf).order(ByteOrder.BIG_ENDIAN);
 		ByteBuffer little = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
@@ -281,10 +290,12 @@ public class BmeFile {
 			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
 				for(int i = 0; i < data.length; i++) {
 					out.writeDouble(data[i]);
+					dataNum++;
 				}				
 			} else {
 				for(int i = 0; i < data.length; i++) {
 					out.write(FormatTransfer.toLH(data[i]));
+					dataNum++;
 				}
 			}
 		} catch(IOException ioe) {
@@ -300,6 +311,7 @@ public class BmeFile {
 			} else {
 				out.write(FormatTransfer.toLH(data));
 			}
+			dataNum++;
 		} catch(IOException ioe) {
 			throw new FileException(file.getName(), "写数据错误");
 		}
@@ -319,10 +331,12 @@ public class BmeFile {
 			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
 				for(int i = 0; i < data.length; i++) {
 					out.writeInt(data[i]);
+					dataNum++;
 				}				
 			} else {
 				for(int i = 0; i < data.length; i++) {
 					out.write(FormatTransfer.toLH(data[i]));
+					dataNum++;
 				}
 			}
 		} catch(IOException ioe) {
@@ -338,6 +352,7 @@ public class BmeFile {
 			} else {
 				out.write(FormatTransfer.toLH(data));
 			}
+			dataNum++;
 		} catch(IOException ioe) {
 			throw new FileException(file.getName(), "写数据错误");
 		}
@@ -356,6 +371,7 @@ public class BmeFile {
 		try {
 			for(int i = 0; i < data.length; i++) {
 				out.writeByte(data[i]);
+				dataNum++;
 			}
 		} catch(IOException ioe) {
 			throw new FileException(file.getName(), "写数据错误");
@@ -366,6 +382,7 @@ public class BmeFile {
 	public BmeFile writeData(byte data) throws FileException{
 		try {
 			out.writeByte(data);
+			dataNum++;
 		} catch(IOException ioe) {
 			throw new FileException(file.getName(), "写数据错误");
 		}
