@@ -27,7 +27,7 @@ public class StreamBmeFile extends BmeFile {
 
     // 用缺省文件头创建新的文件
     public static StreamBmeFile createBmeFile(String fileName) throws FileException{
-        return new StreamBmeFile(fileName, DEFAULT_FILE_HEAD);
+        return new StreamBmeFile(fileName, DEFAULT_BMEFILE_HEAD);
     }
 
     // 用指定的文件头创建新的文件

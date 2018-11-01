@@ -43,7 +43,7 @@ import java.util.Set;
  */
 public abstract class BmeFile {
 	protected static Set<String> fileInOperation = new HashSet<>();
-	protected static final BmeFileHead DEFAULT_FILE_HEAD = BmeFileHeadFactory.createDefault();
+	protected static final BmeFileHead DEFAULT_BMEFILE_HEAD = BmeFileHeadFactory.createDefault();
 	
 	public static final byte[] BME = {'B', 'M', 'E'};
 	
@@ -54,7 +54,7 @@ public abstract class BmeFile {
 	
 	protected final BmeFileHead fileHead;
 
-	private int dataNum = 0;
+	private int dataNum;
     public int getDataNum() {
         return dataNum;
     }

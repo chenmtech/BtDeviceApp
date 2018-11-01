@@ -3,6 +3,8 @@ package com.cmtech.android.bledevice.ecgmonitor;
 import android.os.Message;
 import android.util.Log;
 
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibrateState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratedState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorInitialState;
@@ -17,7 +19,6 @@ import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileDataType;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
-import com.cmtech.dsp.bmefile.StreamBmeFile;
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.filter.IIRFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
@@ -30,6 +31,7 @@ import com.vise.utils.file.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.util.Date;
 
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
 
@@ -96,7 +98,7 @@ public class EcgMonitorDevice extends BleDevice {
     public boolean isEcgFilter() { return isEcgFilter; }
 
 
-    private BmeFileHead30 ecgFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead10版本，LITTLE_ENDIAN，数据类型为INT32
+    private BmeFileHead30 bmeFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead10版本，LITTLE_ENDIAN，数据类型为INT32
     private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
 
     private IIRFilter dcBlock = null;               // 隔直滤波器
@@ -246,11 +248,14 @@ public class EcgMonitorDevice extends BleDevice {
     public synchronized void setEcgRecord(boolean isRecord) {
         if(this.isRecord != isRecord) {
             if (isRecord) {
-                String fileName = EcgMonitorUtil.createFileName(getMacAddress());
+                String simpleMacAddress = EcgMonitorUtil.simpleMacAddress(getMacAddress());
+                long timeInMillis = new Date().getTime();
+                String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
                 File toFile = FileUtil.getFile(CACHEDIR, fileName);
                 try {
                     fileName = toFile.getCanonicalPath();
-                    ecgFile = StreamBmeFile.createBmeFile(fileName, ecgFileHead);
+                    EcgFileHead ecgFileHead = new EcgFileHead(simpleMacAddress, timeInMillis);
+                    ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
                     ViseLog.e(ecgFileHead.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -310,12 +315,12 @@ public class EcgMonitorDevice extends BleDevice {
 
     private void initializeEcgFile() {
         // 准备记录心电信号的文件头
-        ecgFileHead = new BmeFileHead30();
-        ecgFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-        ecgFileHead.setDataType(BmeFileDataType.INT32);
-        ecgFileHead.setFs(sampleRate);
-        ecgFileHead.setInfo("Ecg Lead " + leadType.getDescription());
-        ((BmeFileHead30)ecgFileHead).setCalibrationValue(DEFAULT_CALIBRATIONVALUE);
+        bmeFileHead = new BmeFileHead30();
+        bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        bmeFileHead.setDataType(BmeFileDataType.INT32);
+        bmeFileHead.setFs(sampleRate);
+        bmeFileHead.setInfo("Ecg Lead " + leadType.getDescription());
+        ((BmeFileHead30) bmeFileHead).setCalibrationValue(DEFAULT_CALIBRATIONVALUE);
     }
 
     private void initializeFilter() {

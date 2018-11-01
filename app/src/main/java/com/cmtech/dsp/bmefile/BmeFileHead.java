@@ -80,12 +80,8 @@ public abstract class BmeFileHead {
 	
 	public abstract ByteOrder getByteOrder();
 	public abstract BmeFileHead setByteOrder(ByteOrder byteOrder);
-	
-	
 
 	
 	public abstract void readFromStream(DataInput in) throws FileException;
-    //public abstract void readWithRandowAccess(RandomAccess ra) throws FileException;
 	public abstract void writeToStream(DataOutput out) throws FileException;
-    //public abstract void writeWithRandowAccess(RandomAccess ra) throws FileException;
 }
