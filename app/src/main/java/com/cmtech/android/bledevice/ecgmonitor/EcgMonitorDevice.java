@@ -4,6 +4,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileComment;
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibrateState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratedState;
@@ -255,6 +256,7 @@ public class EcgMonitorDevice extends BleDevice {
                 try {
                     fileName = toFile.getCanonicalPath();
                     EcgFileHead ecgFileHead = new EcgFileHead(simpleMacAddress, timeInMillis);
+                    ecgFileHead.addComment(new EcgFileComment());
                     ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
                     ViseLog.e(ecgFileHead.toString());
                 } catch (Exception e) {

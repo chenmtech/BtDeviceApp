@@ -3,21 +3,33 @@ package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 import com.cmtech.dsp.bmefile.BmeFileHead;
 import com.cmtech.dsp.bmefile.RandomAccessBmeFile;
 import com.cmtech.dsp.exception.FileException;
+import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 public class EcgFile extends RandomAccessBmeFile {
     private EcgFileHead ecgFileHead = new EcgFileHead();
+    private long ecgFileHeadPointer;
 
     private EcgFile(String fileName) throws FileException {
         super(fileName);
+        try {
+            ecgFileHeadPointer = raf.getFilePointer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         ecgFileHead.readFromStream(raf);
         setDataBeginPointer();
     }
 
     private EcgFile(String fileName, BmeFileHead head, EcgFileHead ecgFileHead) throws FileException {
         super(fileName, head);
+        try {
+            ecgFileHeadPointer = raf.getFilePointer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.ecgFileHead = ecgFileHead;
         ecgFileHead.writeToStream(raf);
         setDataBeginPointer();
@@ -54,28 +66,29 @@ public class EcgFile extends RandomAccessBmeFile {
     public void addComment(EcgFileComment comment) {
         try {
             long rafPos = raf.getFilePointer();
-            raf.seek(dataBeginPointer-ecgFileHead.getCommentsLength());
-
-            raf.writeInt(ecgFileHead.getCommentsNum()+1);
 
             raf.setLength(raf.length() + EcgFileComment.getLength());
-            raf.seek(dataBeginPointer);
+            //raf.seek(dataBeginPointer);
 
-            byte[] cache = new byte[EcgFileComment.getLength()];
-            int byteRead = raf.read(cache);
-            raf.skipBytes(-byteRead);
-            comment.writeToStream(raf);
-            do {
+            //byte[] cache = new byte[EcgFileComment.getLength()];
+            //int byteRead = raf.read(cache);
+            //raf.skipBytes(-byteRead);
+            //comment.writeToStream(raf);
+            /*do {
                 byte[] tmpCache = Arrays.copyOf(cache, byteRead);
                 byteRead = raf.read(cache);
                 if(byteRead == -1) break;
-                raf.skipBytes(byteRead);
+                raf.skipBytes(-byteRead);
                 raf.write(tmpCache);
-            }while(true);
+            }while(true);*/
 
-            dataBeginPointer += EcgFileComment.getLength();
-            raf.seek(rafPos+EcgFileComment.getLength());
             ecgFileHead.addComment(comment);
+            raf.seek(ecgFileHeadPointer);
+            ecgFileHead.writeToStream(raf);
+
+            dataBeginPointer = raf.getFilePointer();
+            //raf.seek(rafPos+EcgFileComment.getLength());
+            //ecgFileHead.addComment(comment);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -87,5 +100,11 @@ public class EcgFile extends RandomAccessBmeFile {
     @Override
     public String toString() {
         return super.toString() + "; 数据个数：" + getDataNum() + ";" + ecgFileHead;
+        /*try {
+            return ""+raf.length()+";"+ecgFileHeadPointer+";"+dataBeginPointer+";"+ecgFileHead.getCommentsNum();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";*/
     }
 }

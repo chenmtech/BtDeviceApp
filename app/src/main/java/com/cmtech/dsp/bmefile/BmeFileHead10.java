@@ -86,7 +86,7 @@ public class BmeFileHead10 extends BmeFileHead {
     @Override
 	public void writeToStream(DataOutput out) throws FileException {
 		try {
-			int infoLen = getInfo().length();
+			int infoLen = getInfo().getBytes().length;
 			// ver1.0要写为LSB字节序
 			out.write(FormatTransfer.toLH(infoLen));
 			out.write(getInfo().getBytes());

@@ -17,6 +17,8 @@ public class EcgFileHead {
 
     private List<EcgFileComment> commentList = new ArrayList<>();
 
+
+
     public String getMacAddress() {
         return macAddress;
     }
@@ -77,7 +79,8 @@ public class EcgFileHead {
         return "[心电文件头信息："
                 + "设备地址：" + macAddress + ";"
                 + "创建时间：" + fileCreatedTime + ";"
-                + "评论：" + Arrays.toString(commentList.toArray()) + "]";
+                + "评论数：" + commentList.size() + "]";
+                //+ "评论：" + Arrays.toString(commentList.toArray()) + "]";
     }
 
     // 所有评论占用的字节数，包括一个int的commentNum
@@ -91,5 +94,9 @@ public class EcgFileHead {
 
     public int getCommentsNum() {
         return commentList.size();
+    }
+
+    public int getLength() {
+        return MAC_ADDRESS_LEN*2 + 8 + getCommentsLength();
     }
 }

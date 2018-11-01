@@ -13,13 +13,13 @@ public class RandomAccessBmeFile extends BmeFile {
     protected RandomAccessBmeFile(String fileName) throws FileException {
         super(fileName);
 
-        setDataBeginPointer();
+        //setDataBeginPointer();
     }
 
     protected RandomAccessBmeFile(String fileName, BmeFileHead head) throws FileException{
         super(fileName, head);
 
-        setDataBeginPointer();
+        //setDataBeginPointer();
     }
 
     protected void setDataBeginPointer() throws FileException {

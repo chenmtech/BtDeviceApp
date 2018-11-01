@@ -52,7 +52,7 @@ public class EcgReplayActivity extends AppCompatActivity {
     private List<File> fileList = new ArrayList<>();
     private EcgFileAdapter fileAdapter;
     private RecyclerView rvFileList;
-    private BmeFile selectedFile;
+    private EcgFile selectedFile;
 
     private ReelWaveView ecgView;
 
@@ -78,8 +78,7 @@ public class EcgReplayActivity extends AppCompatActivity {
                     ecgView.showData(selectedFile.readData());
                 } catch (FileException e) {
                     e.printStackTrace();
-                    ((EcgFile)selectedFile).addComment(new EcgFileComment());
-                    ViseLog.e(selectedFile);
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -164,11 +163,11 @@ public class EcgReplayActivity extends AppCompatActivity {
             public void onClick(View view) {
                 try {
                     if (selectedFile != null) {
-                        BmeFile tmpFile = selectedFile;
+                        File tmpFile = selectedFile.getFile();
 
                         deselectFile();
 
-                        FileUtil.deleteFile(tmpFile.getFile());
+                        FileUtil.deleteFile(tmpFile);
                         fileList.remove(fileAdapter.getSelectItem());
                         fileAdapter.notifyDataSetChanged();
                     }
@@ -222,7 +221,7 @@ public class EcgReplayActivity extends AppCompatActivity {
             deselectFile();
 
             selectedFile = EcgFile.openBmeFile(file.getCanonicalPath());
-            ViseLog.e(((EcgFile)selectedFile).toString());
+            ViseLog.e(selectedFile);
             int interval = 1000/selectedFile.getFs();
             initialEcgView();
 
@@ -268,6 +267,9 @@ public class EcgReplayActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        ((EcgFile)selectedFile).addComment(new EcgFileComment("陈明", 0L, "一切正常"));
+        ViseLog.e(selectedFile);
 
         deselectFile();
 

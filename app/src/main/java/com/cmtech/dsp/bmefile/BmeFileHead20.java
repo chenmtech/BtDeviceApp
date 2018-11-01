@@ -79,9 +79,9 @@ public class BmeFileHead20 extends BmeFileHead {
 	@Override
 	public void readFromStream(DataInput in) throws FileException {
 		try {
-			int infoLen;
 			byte order = in.readByte();
-			if(order == MSB) {
+            int infoLen;
+            if(order == MSB) {
 				infoLen = in.readInt();
 				byteOrder = ByteOrder.BIG_ENDIAN;
 			} else {
@@ -112,7 +112,7 @@ public class BmeFileHead20 extends BmeFileHead {
 	@Override
 	public void writeToStream(DataOutput out) throws FileException {
 		try {
-			int infoLen = getInfo().length();
+			int infoLen = getInfo().getBytes().length;
 			if(byteOrder == ByteOrder.BIG_ENDIAN) {
 				out.writeByte(MSB);
 				out.writeInt(infoLen);
@@ -142,4 +142,8 @@ public class BmeFileHead20 extends BmeFileHead {
 				+ getDataType() + ";"
 				+ getFs() + "]";
 	}
+
+    public int getLength() {
+        return super.getLength() + 1;
+    }
 }

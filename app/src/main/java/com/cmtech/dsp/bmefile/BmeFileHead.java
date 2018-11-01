@@ -77,6 +77,10 @@ public abstract class BmeFileHead {
 		this.fs = fs;
 		return this;
 	}
+
+	public int getLength() {
+	    return 4 + info.getBytes().length + 1 + 4;
+    }
 	
 	public abstract ByteOrder getByteOrder();
 	public abstract BmeFileHead setByteOrder(ByteOrder byteOrder);

@@ -8,7 +8,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class EcgFileComment {
-    public static final int COMMENTATOR_LEN = 20;
+    public static final int COMMENTATOR_LEN = 10;
     public static final int COMMENT_LEN = 100;
 
     private String commentator = "匿名";
@@ -65,7 +65,7 @@ public class EcgFileComment {
     }
 
     public static int getLength() {
-        return COMMENTATOR_LEN + 8 + COMMENT_LEN;
+        return  8 + 2*(COMMENTATOR_LEN +COMMENT_LEN);
     }
 
     @Override
