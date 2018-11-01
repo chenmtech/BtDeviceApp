@@ -7,24 +7,24 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class RandomAccessBmeFile extends BmeFile {
-    private long dataBeginMark = 0;
+    protected long dataBeginPointer = 0;
     protected RandomAccessFile raf;
 
     protected RandomAccessBmeFile(String fileName) throws FileException {
         super(fileName);
 
-        setDataBeginMark();
+        setDataBeginPointer();
     }
 
     protected RandomAccessBmeFile(String fileName, BmeFileHead head) throws FileException{
         super(fileName, head);
 
-        setDataBeginMark();
+        setDataBeginPointer();
     }
 
-    protected void setDataBeginMark() throws FileException {
+    protected void setDataBeginPointer() throws FileException {
         try {
-            dataBeginMark = raf.getFilePointer();
+            dataBeginPointer = raf.getFilePointer();
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileException(getFileName(), "构造文件失败");

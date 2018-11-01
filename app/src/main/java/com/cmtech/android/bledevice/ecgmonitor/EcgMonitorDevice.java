@@ -320,7 +320,7 @@ public class EcgMonitorDevice extends BleDevice {
         bmeFileHead.setDataType(BmeFileDataType.INT32);
         bmeFileHead.setFs(sampleRate);
         bmeFileHead.setInfo("Ecg Lead " + leadType.getDescription());
-        ((BmeFileHead30) bmeFileHead).setCalibrationValue(DEFAULT_CALIBRATIONVALUE);
+        bmeFileHead.setCalibrationValue(DEFAULT_CALIBRATIONVALUE);
     }
 
     private void initializeFilter() {

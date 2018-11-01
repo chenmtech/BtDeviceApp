@@ -6,12 +6,16 @@ import com.cmtech.dsp.exception.FileException;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class EcgFileHead {
     public static final int MAC_ADDRESS_LEN = 12;
     private String macAddress = "";
-    private long timeInMillis;
+    private long fileCreatedTime;
+
+    private List<EcgFileComment> commentList = new ArrayList<>();
 
     public String getMacAddress() {
         return macAddress;
@@ -21,27 +25,33 @@ public class EcgFileHead {
         this.macAddress = macAddress;
     }
 
-    public long getTimeInMillis() {
-        return timeInMillis;
+    public long getFileCreatedTime() {
+        return fileCreatedTime;
     }
 
-    public void setTimeInMillis(long timeInMillis) {
-        this.timeInMillis = timeInMillis;
+    public void setFileCreatedTime(long fileCreatedTime) {
+        this.fileCreatedTime = fileCreatedTime;
     }
 
     public EcgFileHead() {
 
     }
 
-    public EcgFileHead(String macAddress, long timeInMillis) {
+    public EcgFileHead(String macAddress, long fileCreatedTime) {
         this.macAddress = macAddress;
-        this.timeInMillis = timeInMillis;
+        this.fileCreatedTime = fileCreatedTime;
     }
 
     public void readFromStream(DataInput in) throws FileException {
         try {
             macAddress = DataIOUtil.readFixedString(MAC_ADDRESS_LEN, in);
-            timeInMillis = in.readLong();
+            fileCreatedTime = in.readLong();
+            int commentNum = in.readInt();
+            for(int i = 0; i < commentNum; i++) {
+                EcgFileComment comment = new EcgFileComment();
+                comment.readFromStream(in);
+                commentList.add(comment);
+            }
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileException("", "读心电文件头错误");
@@ -51,7 +61,11 @@ public class EcgFileHead {
     public void writeToStream(DataOutput out) throws FileException {
         try {
             DataIOUtil.writeFixedString(macAddress, MAC_ADDRESS_LEN, out);
-            out.writeLong(timeInMillis);
+            out.writeLong(fileCreatedTime);
+            out.writeInt(commentList.size());
+            for(int i = 0; i < commentList.size(); i++) {
+                commentList.get(i).writeToStream(out);
+            }
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileException("", "写心电文件头错误");
@@ -62,6 +76,20 @@ public class EcgFileHead {
     public String toString() {
         return "[心电文件头信息："
                 + "设备地址：" + macAddress + ";"
-                + "创建时间：" + timeInMillis + "]";
+                + "创建时间：" + fileCreatedTime + ";"
+                + "评论：" + Arrays.toString(commentList.toArray()) + "]";
+    }
+
+    // 所有评论占用的字节数，包括一个int的commentNum
+    public int getCommentsLength() {
+        return 4 + commentList.size()*EcgFileComment.getLength();
+    }
+
+    public void addComment(EcgFileComment aComment) {
+        commentList.add(aComment);
+    }
+
+    public int getCommentsNum() {
+        return commentList.size();
     }
 }

@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileComment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.dsp.bmefile.BmeFile;
@@ -77,6 +78,8 @@ public class EcgReplayActivity extends AppCompatActivity {
                     ecgView.showData(selectedFile.readData());
                 } catch (FileException e) {
                     e.printStackTrace();
+                    ((EcgFile)selectedFile).addComment(new EcgFileComment());
+                    ViseLog.e(selectedFile);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -219,7 +222,7 @@ public class EcgReplayActivity extends AppCompatActivity {
             deselectFile();
 
             selectedFile = EcgFile.openBmeFile(file.getCanonicalPath());
-            ViseLog.e(((EcgFile)selectedFile).getEcgFileHead().toString());
+            ViseLog.e(((EcgFile)selectedFile).toString());
             int interval = 1000/selectedFile.getFs();
             initialEcgView();
 
