@@ -16,9 +16,8 @@ import com.cmtech.android.bledevicecore.model.BleGattElement;
 import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileDataType;
-import com.cmtech.dsp.bmefile.BmeFileHead;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
-import com.cmtech.dsp.bmefile.BmeFileHeadFactory;
+import com.cmtech.dsp.bmefile.StreamBmeFile;
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.filter.IIRFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
@@ -31,9 +30,6 @@ import com.vise.utils.file.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
 
@@ -254,7 +250,7 @@ public class EcgMonitorDevice extends BleDevice {
                 File toFile = FileUtil.getFile(CACHEDIR, fileName);
                 try {
                     fileName = toFile.getCanonicalPath();
-                    ecgFile = BmeFile.createBmeFile(fileName, ecgFileHead);
+                    ecgFile = StreamBmeFile.createBmeFile(fileName, ecgFileHead);
                     ViseLog.e(ecgFileHead.toString());
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -319,7 +315,7 @@ public class EcgMonitorDevice extends BleDevice {
         ecgFileHead.setDataType(BmeFileDataType.INT32);
         ecgFileHead.setFs(sampleRate);
         ecgFileHead.setInfo("Ecg Lead " + leadType.getDescription());
-        ((BmeFileHead30)ecgFileHead).setValue1mV(DEFAULT_CALIBRATIONVALUE);
+        ((BmeFileHead30)ecgFileHead).setCalibrationValue(DEFAULT_CALIBRATIONVALUE);
     }
 
     private void initializeFilter() {

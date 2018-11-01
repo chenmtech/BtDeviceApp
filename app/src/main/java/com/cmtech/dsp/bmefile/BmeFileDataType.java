@@ -34,7 +34,7 @@ public enum BmeFileDataType {
         return this.code;
     }
     
-    public int getByteNum() {
+    public int getTypeLength() {
         switch (code) {
             case 0:
                 return 4;

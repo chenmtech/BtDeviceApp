@@ -13,10 +13,13 @@ import com.cmtech.dsp.util.FormatTransfer;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.RandomAccess;
 import java.util.Set;
 
 /**
@@ -37,18 +41,18 @@ import java.util.Set;
  * @version 
  * @since JDK 1.6
  */
-public class BmeFile {
-	private static Set<String> fileInOperation = new HashSet<>();
-	private static final BmeFileHead DEFAULT_FILE_HEAD = BmeFileHeadFactory.createDefault();
+public abstract class BmeFile {
+	protected static Set<String> fileInOperation = new HashSet<>();
+	protected static final BmeFileHead DEFAULT_FILE_HEAD = BmeFileHeadFactory.createDefault();
 	
 	public static final byte[] BME = {'B', 'M', 'E'};
 	
-	private File file;
+	protected File file;
 	
-	private DataInputStream in;
-	private DataOutputStream out;
+	protected DataInput in;
+	protected DataOutput out;
 	
-	private final BmeFileHead fileHead;
+	protected final BmeFileHead fileHead;
 
 	private int dataNum = 0;
     public int getDataNum() {
@@ -56,32 +60,17 @@ public class BmeFile {
     }
 
     // 为已存在文件创建BmeFile
-	private BmeFile(String fileName) throws FileException{
+	protected BmeFile(String fileName) throws FileException{
 		checkFile(fileName);
 		fileHead = open();
 		dataNum = availableData();
 	}
 
 	// 为不存在的文件创建BmeFile
-	private BmeFile(String fileName, BmeFileHead head) throws FileException{
+	protected BmeFile(String fileName, BmeFileHead head) throws FileException{
 		checkFile(fileName);
 		fileHead = createUsingHead(head);
 		dataNum = 0;
-	}
-	
-    // 打开已有文件
-	public static BmeFile openBmeFile(String fileName) throws FileException{
-		return new BmeFile(fileName);
-	}
-
-	// 用缺省文件头创建新的文件
-	public static BmeFile createBmeFile(String fileName) throws FileException{
-		return new BmeFile(fileName, DEFAULT_FILE_HEAD);
-	}
-
-	// 用指定的文件头创建新的文件
-	public static BmeFile createBmeFile(String fileName, BmeFileHead head) throws FileException{
-		return new BmeFile(fileName, head);
 	}
 	
 	private void checkFile(String fileName) throws FileException{
@@ -104,14 +93,12 @@ public class BmeFile {
 			throw new FileException(file.getName(), "文件已经打开，需要关闭后重新打开");
 		
 		try	{
-			in = new DataInputStream(
-					new BufferedInputStream(
-							new FileInputStream(file)));
+            createInputStream();
 			byte[] bme = new byte[3];
-			in.read(bme);
+			in.readFully(bme);
 			if(!Arrays.equals(bme, BME)) throw new FileException(file.getName(), "文件格式不对");
 			byte[] ver = new byte[2];
-			in.read(ver);
+			in.readFully(ver);
 			fileHead = BmeFileHeadFactory.create(ver);
 			fileHead.readFromStream(in);
 		} catch (IOException e) {
@@ -120,16 +107,34 @@ public class BmeFile {
 		return fileHead;
 	}
 
-	private int availableData() {
-	    if(in != null) {
-            try {
-                return in.available()/fileHead.getDataType().getByteNum();
-            } catch (IOException e) {
-                e.printStackTrace();
+	public abstract void createInputStream() throws FileNotFoundException;
+
+    private BmeFileHead createUsingHead(BmeFileHead head) throws FileException{
+        if(file == null)
+            throw new FileException("", "文件路径设置错误");
+        if(head == null)
+            throw new FileException("file head", "文件头错误");
+        if(in != null || out != null)
+            throw new FileException(file.getName(), "文件已经打开，需要关闭后重新打开");
+
+        try {
+            if(file.exists()) {
+                file.delete();
             }
+            file.createNewFile();
+            createOutputStream();
+            out.write(BME);
+            out.write(head.getVersion());
+            head.writeToStream(out);
+        } catch(IOException ioe) {
+            throw new FileException(file.getName(), "创建文件错误");
         }
-        return -1;
+        return head;
     }
+
+    public abstract void createOutputStream() throws FileNotFoundException;
+
+	public abstract int availableData();
 	
 	public double[] readData(double[] d) throws FileException{
 		if(in == null || fileHead == null) {
@@ -147,10 +152,10 @@ public class BmeFile {
 		ByteBuffer little = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
 		try {
 			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-				while(in.available() > 0) 
+				while(!isEof())
 					lst.add(in.readDouble());				
 			} else {
-				while(in.available() > 0) {
+				while(!isEof()) {
 					little.putDouble(0, in.readDouble());
 					lst.add(big.getDouble(0));
 				}
@@ -208,10 +213,10 @@ public class BmeFile {
 		ByteBuffer little = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
 		try {
 			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-				while(in.available() > 0) 
+				while(!isEof())
 					lst.add(in.readInt());				
 			} else {
-				while(in.available() > 0) {
+				while(isEof()) {
 					little.putInt(0, in.readInt());
 					lst.add(big.getInt(0));
 				}
@@ -239,7 +244,7 @@ public class BmeFile {
 		List<Byte> lst = new ArrayList<>();
 		byte[] data = new byte[0];
 		try {
-			while(in.available() > 0) 
+			while(!isEof())
 				lst.add(in.readByte());
 			
 			data = new byte[lst.size()];
@@ -250,31 +255,6 @@ public class BmeFile {
 			throw new FileException(file.getName(), "读数据错误");
 		}
 		return data;
-	}
-	
-	private BmeFileHead createUsingHead(BmeFileHead head) throws FileException{
-		if(file == null) 
-			throw new FileException("", "文件路径设置错误");
-		if(head == null)
-			throw new FileException("file head", "文件头错误");
-		if(in != null || out != null)
-			throw new FileException(file.getName(), "文件已经打开，需要关闭后重新打开");
-		
-		try {
-		    if(file.exists()) {
-                file.delete();
-            }
-            file.createNewFile();
-			out = new DataOutputStream(
-					new BufferedOutputStream(
-							new FileOutputStream(file)));
-			out.write(BME);
-			out.write(head.getVersion());
-			head.writeToStream(out);
-		} catch(IOException ioe) {
-			throw new FileException(file.getName(), "创建文件错误");
-		}
-		return head;
 	}
 	
 	public BmeFile writeData(double[] data) throws FileException{
@@ -388,27 +368,9 @@ public class BmeFile {
 		}
 		return this;
 	}
-	
-	public void close() throws FileException{
-		try {
-			if(in != null) {
-				in.close();
-				in = null;
-			}
-			if(out != null) {
-				out.close();
-				out = null;
-			}
-		} catch(IOException ioe) {
-			throw new FileException(file.getName(), "关闭文件操作错误");
-		} finally {
-            try {
-                fileInOperation.remove(file.getCanonicalPath());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-	}
+
+	public abstract boolean isEof() throws IOException;
+	public abstract void close() throws FileException;
 	
 	public File getFile() {
 	    return file;

@@ -21,6 +21,8 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
+//import com.cmtech.dsp.bmefile.StreamBmeFile;
+import com.cmtech.dsp.bmefile.StreamBmeFile;
 import com.cmtech.dsp.exception.FileException;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -74,7 +76,12 @@ public class EcgReplayActivity extends AppCompatActivity {
                     ecgView.showData(selectedFile.readData());
                 } catch (FileException e) {
                     e.printStackTrace();
-                    cancel();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            stopShow();
+                        }
+                    });
                 }
             }
         }
@@ -176,11 +183,11 @@ public class EcgReplayActivity extends AppCompatActivity {
                 if(selectedFile == null) return;
 
                 if(replaying) {
-                    btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
+                    stopShow();
                 } else {
-                    btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
+                    int interval = 1000/selectedFile.getFs();
+                    startShow(interval);
                 }
-                replaying = !replaying;
             }
         });
 
@@ -210,14 +217,12 @@ public class EcgReplayActivity extends AppCompatActivity {
         try {
             deselectFile();
 
-            selectedFile = BmeFile.openBmeFile(file.getCanonicalPath());
+            selectedFile = StreamBmeFile.openBmeFile(file.getCanonicalPath());
+            ViseLog.e("dataNum = " + selectedFile.getDataNum());
             int interval = 1000/selectedFile.getFs();
-            //int dataLength = selectedFile.availableData();
-            //Toast.makeText(EcgReplayActivity.this, "dataLength = "+dataLength, Toast.LENGTH_LONG).show();
             initialEcgView();
 
-            showTimer = new Timer();
-            showTimer.scheduleAtFixedRate(new ShowTask(), interval, interval);
+            startShow(interval);
 
         } catch (FileException e) {
             e.printStackTrace();
@@ -226,17 +231,34 @@ public class EcgReplayActivity extends AppCompatActivity {
         }
     }
 
+    private void startShow(int interval) {
+        if(!replaying) {
+            showTimer = new Timer();
+            showTimer.scheduleAtFixedRate(new ShowTask(), interval, interval);
+            btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
+            replaying = true;
+        }
+    }
+
+    private void stopShow() {
+        if(replaying) {
+            showTimer.cancel();
+            showTimer = null;
+            btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
+            replaying = false;
+        }
+    }
+
     private void initialEcgView() {
         if(selectedFile == null) return;
         int sampleRate = selectedFile.getFs();
-        int value1mV = ((BmeFileHead30)selectedFile.getBmeFileHead()).getValue1mV();
+        int value1mV = ((BmeFileHead30)selectedFile.getBmeFileHead()).getCalibrationValue();
         int xRes = Math.round(viewGridWidth / (viewXGridTime * sampleRate));   // 计算横向分辨率
         float yRes = value1mV * viewYGridmV / viewGridWidth;                     // 计算纵向分辨率
         ecgView.setRes(xRes, yRes);
         ecgView.setGridWidth(viewGridWidth);
         ecgView.setZeroLocation(0.5);
         ecgView.initView();
-        ecgView.startShow();
     }
 
     @Override
@@ -282,11 +304,12 @@ public class EcgReplayActivity extends AppCompatActivity {
     private void deselectFile() {
         if(selectedFile != null) {
             try {
+                if(replaying)
+                    stopShow();
+
                 selectedFile.close();
                 selectedFile = null;
-                if(showTimer != null) {
-                    showTimer.cancel();
-                }
+
                 ecgView.initView();
             } catch (FileException e) {
                 e.printStackTrace();

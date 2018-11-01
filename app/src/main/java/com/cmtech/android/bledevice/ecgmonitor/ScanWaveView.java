@@ -176,11 +176,6 @@ public class ScanWaveView extends View {
         postInvalidate();
     }
 
-    public void startShow()
-    {
-
-    }
-
     private int calculateMeasure(int measureSpec)
     {
         int size = (int)(DEFAULT_SIZE * getResources().getDisplayMetrics().density);

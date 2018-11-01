@@ -10,9 +10,14 @@ package com.cmtech.dsp.bmefile;
 
 import com.cmtech.dsp.exception.FileException;
 
+import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
+import java.util.RandomAccess;
 
 /**
  * ClassName: BmeFileCore
@@ -61,7 +66,7 @@ public abstract class BmeFileHead {
 	
 	public BmeFileHead setDataType(BmeFileDataType dataType) {
 		this.dataType = dataType;
-		return this;
+        return this;
 	}
 	
 	public int getFs() {
@@ -79,8 +84,8 @@ public abstract class BmeFileHead {
 	
 
 	
-	public abstract void readFromStream(DataInputStream in) throws FileException;
-	
-	public abstract void writeToStream(DataOutputStream out) throws FileException;
-
+	public abstract void readFromStream(DataInput in) throws FileException;
+    //public abstract void readWithRandowAccess(RandomAccess ra) throws FileException;
+	public abstract void writeToStream(DataOutput out) throws FileException;
+    //public abstract void writeWithRandowAccess(RandomAccess ra) throws FileException;
 }

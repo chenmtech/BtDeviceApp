@@ -126,7 +126,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:clickable="false"
+            android:clickable="true"
             android:src="@mipmap/ic_ecg_play_48px"
             android:text="开始"/>
 

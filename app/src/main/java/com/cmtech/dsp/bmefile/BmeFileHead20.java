@@ -11,7 +11,9 @@ package com.cmtech.dsp.bmefile;
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.util.FormatTransfer;
 
+import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -74,12 +76,8 @@ public class BmeFileHead20 extends BmeFileHead {
 		return this;
 	}
 
-	/**
-	 * TODO 简单描述该方法的实现功能（可选）.
-	 * @see com.cmtech.dsp.bmefile.BmeFileHead#readFromStream(java.io.DataInputStream)
-	 */
 	@Override
-	public void readFromStream(DataInputStream in) throws FileException {
+	public void readFromStream(DataInput in) throws FileException {
 		try {
 			int infoLen;
 			byte order = in.readByte();
@@ -91,7 +89,7 @@ public class BmeFileHead20 extends BmeFileHead {
 				byteOrder = ByteOrder.LITTLE_ENDIAN;
 			}
 			byte[] str = new byte[infoLen];
-			in.read(str);
+			in.readFully(str);
 			setInfo(new String(str));
 			int dType = in.readByte();
 			setDataType(BmeFileDataType.UNKNOWN);
@@ -111,12 +109,8 @@ public class BmeFileHead20 extends BmeFileHead {
 		}
 	}
 
-	/**
-	 * TODO 简单描述该方法的实现功能（可选）.
-	 * @see com.cmtech.dsp.bmefile.BmeFileHead#writeToStream(java.io.DataOutputStream)
-	 */
 	@Override
-	public void writeToStream(DataOutputStream out) throws FileException {
+	public void writeToStream(DataOutput out) throws FileException {
 		try {
 			int infoLen = getInfo().length();
 			if(byteOrder == ByteOrder.BIG_ENDIAN) {

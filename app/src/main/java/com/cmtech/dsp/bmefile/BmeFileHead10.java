@@ -11,11 +11,14 @@ package com.cmtech.dsp.bmefile;
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.util.FormatTransfer;
 
+import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.RandomAccess;
 
 /**
  * ClassName: BmeFileHead10
@@ -59,12 +62,12 @@ public class BmeFileHead10 extends BmeFileHead {
 	}
 	
 	@Override
-	public void readFromStream(DataInputStream in) throws FileException{
+	public void readFromStream(DataInput in) throws FileException{
 		try {
 			// ver1.0内部数据字节序为LSB，要反过来变为MSB
 			int infoLen = FormatTransfer.reverseInt(in.readInt());
 			byte[] str = new byte[infoLen];
-			in.read(str);
+			in.readFully(str);
 			setInfo(new String(str));
 			int dType = in.readByte();
 			setDataType(BmeFileDataType.UNKNOWN);
@@ -79,9 +82,9 @@ public class BmeFileHead10 extends BmeFileHead {
 			throw new FileException("文件头", "读入错误");
 		}
 	}
-	
-	@Override
-	public void writeToStream(DataOutputStream out) throws FileException {
+
+    @Override
+	public void writeToStream(DataOutput out) throws FileException {
 		try {
 			int infoLen = getInfo().length();
 			// ver1.0要写为LSB字节序

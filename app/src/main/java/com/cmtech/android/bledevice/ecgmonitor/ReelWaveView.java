@@ -189,11 +189,6 @@ public class ReelWaveView extends View {
         }
     }
 
-    public void startShow()
-    {
-
-    }
-
     private int calculateMeasure(int measureSpec)
     {
         int size = (int)(DEFAULT_SIZE * getResources().getDisplayMetrics().density);
