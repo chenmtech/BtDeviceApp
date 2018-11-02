@@ -40,6 +40,7 @@ import com.bumptech.glide.Glide;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.EcgReplayActivity;
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileExplorerActivty;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
@@ -489,7 +490,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     // 心电信号回放
     private void ecgReplay() {
-        Intent intent = new Intent(MainActivity.this, EcgReplayActivity.class);
+        Intent intent = new Intent(MainActivity.this, EcgFileExplorerActivty.class);
         startActivity(intent);
     }
 

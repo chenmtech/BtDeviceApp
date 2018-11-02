@@ -50,7 +50,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             public void onClick(View view) {
                 selectItem = holder.getAdapterPosition();
                 notifyDataSetChanged();
-                if(selectItem != -1)
+                if(selectItem != -1 && activity != null)
                     activity.replayEcgFile(fileList.get(selectItem));
             }
         });

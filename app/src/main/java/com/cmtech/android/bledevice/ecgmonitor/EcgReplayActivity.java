@@ -55,16 +55,14 @@ import static cn.sharesdk.framework.Platform.SHARE_FILE;
 public class EcgReplayActivity extends AppCompatActivity {
     private static final String TAG = "EcgReplayActivity";
 
-    private List<File> fileList = new ArrayList<>();
-    private EcgFileAdapter fileAdapter;
-    private RecyclerView rvFileList;
+    //private List<File> fileList = new ArrayList<>();
+    //private EcgFileAdapter fileAdapter;
+    //private RecyclerView rvFileList;
     private EcgFile selectedFile;
 
     private ReelWaveView ecgView;
 
     private Button btnEcgShare;
-    private Button btnImportFromWX;
-    private Button btnEcgDelete;
     private Button btnEcgAddComment;
 
     private ImageButton btnSwitchReplayState;
@@ -106,88 +104,16 @@ public class EcgReplayActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
         //        WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ecgreplay);
-
-        if(!EcgMonitorDevice.ECGFILEDIR.exists()) {
-            EcgMonitorDevice.ECGFILEDIR.mkdir();
-        }
-
-        File[] files = BleDeviceUtil.listDirBmeFiles(EcgMonitorDevice.ECGFILEDIR);
-        Arrays.sort(files, new Comparator<File>() {
-            @Override
-            public int compare(File file, File t1) {
-                return file.getName().compareTo(t1.getName());
-            }
-        });
-        fileList = new ArrayList<>(Arrays.asList(files));
-
-
-        rvFileList = findViewById(R.id.rvEcgFileList);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        rvFileList.setLayoutManager(layoutManager);
-        rvFileList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        fileAdapter = new EcgFileAdapter(fileList, this);
-        rvFileList.setAdapter(fileAdapter);
-        fileAdapter.notifyDataSetChanged();
 
         btnEcgShare = findViewById(R.id.btn_ecgreplay_share);
         btnEcgShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 shareBmeFileThroughWechat();
-            }
-        });
-
-        btnImportFromWX = findViewById(R.id.btn_ecgreplay_import);
-        btnImportFromWX.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                deselectFile();
-                File wxFileDir = new File(Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download");
-                try {
-                    File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
-                    for(File file : wxFileList) {
-                        File toFile = FileUtil.getFile(EcgMonitorDevice.ECGFILEDIR, file.getName());
-
-                        for(File file1 : fileList) {
-                            if(file1.getName().equalsIgnoreCase(toFile.getName())) {
-                                fileList.remove(file1);
-                            }
-                        }
-
-                        if(toFile.exists()) toFile.delete();
-
-                        FileUtil.moveFile(file, toFile);
-                        fileList.add(toFile);
-                        fileAdapter.setSelectItem(-1);
-                        fileAdapter.notifyDataSetChanged();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        btnEcgDelete = findViewById(R.id.btn_ecgreplay_delete);
-        btnEcgDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    if (selectedFile != null) {
-                        File tmpFile = selectedFile.getFile();
-
-                        deselectFile();
-
-                        FileUtil.deleteFile(tmpFile);
-                        fileList.remove(fileAdapter.getSelectItem());
-                        fileAdapter.notifyDataSetChanged();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         });
 
@@ -300,9 +226,6 @@ public class EcgReplayActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        //((EcgFile)selectedFile).addComment(new EcgFileComment("陈明", 0L, "一切正常"));
-        //ViseLog.e(selectedFile);
 
         deselectFile();
 

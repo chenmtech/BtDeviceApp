@@ -25,52 +25,46 @@
         android:roundIcon="@mipmap/ic_cmiot"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
-        <activity android:name=".activity.LoginActivity"
+        <activity
+            android:name=".activity.LoginActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data
                     android:host="*"
                     android:pathPattern=".*"
                     android:scheme="file" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait">
-
-
-        </activity>
-
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".activity.ScanDeviceActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".activity.DeviceBasicInfoActivity"
             android:label="设置设备信息"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
-
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.temphumid.TempHumidConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.thermo.ThermoConfigureActivity" />
         <activity
             android:name="com.cmtech.android.bledevice.ecgmonitor.EcgReplayActivity"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask" />
 
         <!-- ShareSDK的activity -->
         <activity
@@ -127,6 +121,7 @@
                 <data android:scheme="tencent1107924092" />
             </intent-filter>
         </activity>
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileExplorerActivty"></activity>
     </application>
 
 </manifest>
