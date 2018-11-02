@@ -68,6 +68,7 @@ public class BmeFileHead30 extends BmeFileHead10 {
                 + getCalibrationValue() + "]";
     }
 
+    // super.getLength() + calibrationValue(4字节)
     public int getLength() {
         return super.getLength() + 4;
     }

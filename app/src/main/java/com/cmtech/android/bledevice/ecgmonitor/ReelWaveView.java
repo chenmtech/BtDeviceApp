@@ -150,6 +150,8 @@ public class ReelWaveView extends View {
         viewHeight = getHeight();
 
         initView();
+
+        drawDataOnForeCanvas();
     }
 
     private void initPaint() {
@@ -162,7 +164,7 @@ public class ReelWaveView extends View {
     public void initView()
     {
         // 清除缓存区
-        viewData.clear();
+        //viewData.clear();
 
         //创建背景Bitmap
         createBackBitmap();
@@ -174,6 +176,10 @@ public class ReelWaveView extends View {
         // 初始化画图起始位置
         preX = initX;
         preY = initY;
+    }
+
+    public void clearData() {
+        viewData.clear();
     }
 
     public synchronized void showData(Integer data) {

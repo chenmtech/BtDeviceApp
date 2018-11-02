@@ -143,6 +143,7 @@ public class BmeFileHead20 extends BmeFileHead {
 				+ getFs() + "]";
 	}
 
+	// super.getLength() + byteOrder(1字节)
     public int getLength() {
         return super.getLength() + 1;
     }

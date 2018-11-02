@@ -78,6 +78,7 @@ public abstract class BmeFileHead {
 		return this;
 	}
 
+	// infoLen(4字节) + info + dataType(1字节) + fs(4字节)
 	public int getLength() {
 	    return 4 + info.getBytes().length + 1 + 4;
     }

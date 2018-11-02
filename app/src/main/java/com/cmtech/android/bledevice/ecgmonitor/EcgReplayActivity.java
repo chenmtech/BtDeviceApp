@@ -13,13 +13,18 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileComment;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
@@ -34,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -59,8 +65,12 @@ public class EcgReplayActivity extends AppCompatActivity {
     private Button btnEcgShare;
     private Button btnImportFromWX;
     private Button btnEcgDelete;
+    private Button btnEcgAddComment;
 
     private ImageButton btnSwitchReplayState;
+
+    private EditText etComment;
+    private TextView tvCurComment;
 
     // 用于设置EcgWaveView的参数
     private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
@@ -95,6 +105,10 @@ public class EcgReplayActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+        //        WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_ecgreplay);
 
         if(!EcgMonitorDevice.ECGFILEDIR.exists()) {
@@ -194,6 +208,23 @@ public class EcgReplayActivity extends AppCompatActivity {
             }
         });
 
+        tvCurComment = findViewById(R.id.tv_replay_curComment);
+        etComment = findViewById(R.id.et_replay_comment);
+        btnEcgAddComment = findViewById(R.id.btn_ecgreplay_addcomment);
+        btnEcgAddComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(selectedFile != null) {
+                    String commentator = UserAccountManager.getInstance().getUserAccount().getName();
+                    long timeCreated = new Date().getTime();
+                    String comment = etComment.getText().toString();
+                    selectedFile.addComment(new EcgFileComment(commentator, timeCreated, comment));
+                    ViseLog.e(selectedFile);
+                    etComment.setText("");
+                }
+            }
+        });
+
 
         Intent intent = getIntent();
         if(intent != null && intent.getStringExtra("fileName") != null) {
@@ -222,6 +253,7 @@ public class EcgReplayActivity extends AppCompatActivity {
 
             selectedFile = EcgFile.openBmeFile(file.getCanonicalPath());
             ViseLog.e(selectedFile);
+            tvCurComment.setText(selectedFile.getCommentString());
             int interval = 1000/selectedFile.getFs();
             initialEcgView();
 
@@ -261,6 +293,7 @@ public class EcgReplayActivity extends AppCompatActivity {
         ecgView.setRes(xRes, yRes);
         ecgView.setGridWidth(viewGridWidth);
         ecgView.setZeroLocation(0.5);
+        ecgView.clearData();
         ecgView.initView();
     }
 
@@ -268,8 +301,8 @@ public class EcgReplayActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        ((EcgFile)selectedFile).addComment(new EcgFileComment("陈明", 0L, "一切正常"));
-        ViseLog.e(selectedFile);
+        //((EcgFile)selectedFile).addComment(new EcgFileComment("陈明", 0L, "一切正常"));
+        //ViseLog.e(selectedFile);
 
         deselectFile();
 
@@ -316,6 +349,7 @@ public class EcgReplayActivity extends AppCompatActivity {
                 selectedFile.close();
                 selectedFile = null;
 
+                ecgView.clearData();
                 ecgView.initView();
             } catch (FileException e) {
                 e.printStackTrace();

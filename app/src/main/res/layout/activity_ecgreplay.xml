@@ -26,6 +26,11 @@
         android:layout_weight="1"
         android:layout_marginBottom="10dp"/>
 
+    <TextView
+        android:id="@+id/tv_replay_curComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="现有评论"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -35,11 +40,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:minHeight="0dp"
             android:text="微信导入"/>
         <Button
             android:id="@+id/btn_ecgreplay_share"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:minHeight="0dp"
             android:layout_weight="1"
             android:text="微信分享"/>
 
@@ -47,75 +54,20 @@
             android:id="@+id/btn_ecgreplay_delete"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:minHeight="0dp"
             android:layout_weight="1"
             android:text="删除"/>
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="采样率："/>
-
-        <TextView
-            android:id="@+id/tv_ecg_samplerate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="未知"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginRight="10dp"
-            android:text="Hz"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="导联类型："/>
-
-        <TextView
-            android:id="@+id/tv_ecg_leadtype"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:text="未知"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="1mV定标值："/>
-
-        <TextView
-            android:id="@+id/tv_ecg_1mv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:text="未知"/>
-
-
-    </LinearLayout>
-
 
     <com.cmtech.android.bledevice.ecgmonitor.ReelWaveView
         android:id="@+id/ecg_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="3"
         cmtech:background_color="#666"
         cmtech:grid_color="#f00"
         cmtech:wave_color="#ff0"
         cmtech:show_gridline="true"/>
-
-
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -128,7 +80,8 @@
             android:layout_centerInParent="true"
             android:clickable="true"
             android:src="@mipmap/ic_ecg_play_48px"
-            android:text="开始"/>
+            android:text="开始"
+            android:minHeight="0dp"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -180,4 +133,22 @@
         </LinearLayout>
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/et_replay_comment"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:hint="写点什么"/>
+        <Button
+            android:id="@+id/btn_ecgreplay_addcomment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            android:text="添加评论"/>
+    </LinearLayout>
 </LinearLayout>

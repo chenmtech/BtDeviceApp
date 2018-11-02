@@ -256,7 +256,6 @@ public class EcgMonitorDevice extends BleDevice {
                 try {
                     fileName = toFile.getCanonicalPath();
                     EcgFileHead ecgFileHead = new EcgFileHead(simpleMacAddress, timeInMillis);
-                    ecgFileHead.addComment(new EcgFileComment());
                     ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
                     ViseLog.e(ecgFileHead.toString());
                 } catch (Exception e) {

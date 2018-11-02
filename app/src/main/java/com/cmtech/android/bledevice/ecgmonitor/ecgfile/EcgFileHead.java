@@ -2,16 +2,18 @@ package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.dsp.exception.FileException;
+import com.vise.log.ViseLog;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class EcgFileHead {
-    public static final int MAC_ADDRESS_LEN = 12;
+    public static final int MACADDRESS_CHAR_NUM = 12;
     private String macAddress = "";
     private long fileCreatedTime;
 
@@ -46,7 +48,7 @@ public class EcgFileHead {
 
     public void readFromStream(DataInput in) throws FileException {
         try {
-            macAddress = DataIOUtil.readFixedString(MAC_ADDRESS_LEN, in);
+            macAddress = DataIOUtil.readFixedString(MACADDRESS_CHAR_NUM, in);
             fileCreatedTime = in.readLong();
             int commentNum = in.readInt();
             for(int i = 0; i < commentNum; i++) {
@@ -62,7 +64,7 @@ public class EcgFileHead {
 
     public void writeToStream(DataOutput out) throws FileException {
         try {
-            DataIOUtil.writeFixedString(macAddress, MAC_ADDRESS_LEN, out);
+            DataIOUtil.writeFixedString(macAddress, MACADDRESS_CHAR_NUM, out);
             out.writeLong(fileCreatedTime);
             out.writeInt(commentList.size());
             for(int i = 0; i < commentList.size(); i++) {
@@ -79,8 +81,8 @@ public class EcgFileHead {
         return "[心电文件头信息："
                 + "设备地址：" + macAddress + ";"
                 + "创建时间：" + fileCreatedTime + ";"
-                + "评论数：" + commentList.size() + "]";
-                //+ "评论：" + Arrays.toString(commentList.toArray()) + "]";
+                //+ "评论数：" + commentList.size() + "]";
+                + "评论：" + Arrays.toString(commentList.toArray()) + "]";
     }
 
     // 所有评论占用的字节数，包括一个int的commentNum
@@ -96,7 +98,11 @@ public class EcgFileHead {
         return commentList.size();
     }
 
+    public List<EcgFileComment> getCommentList() {
+        return commentList;
+    }
+
     public int getLength() {
-        return MAC_ADDRESS_LEN*2 + 8 + getCommentsLength();
+        return MACADDRESS_CHAR_NUM *2 + 8 + getCommentsLength();
     }
 }

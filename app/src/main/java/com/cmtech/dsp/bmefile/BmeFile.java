@@ -10,6 +10,7 @@ package com.cmtech.dsp.bmefile;
 
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.util.FormatTransfer;
+import com.vise.log.ViseLog;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -22,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -412,6 +414,6 @@ public abstract class BmeFile {
 
 	@Override
 	public String toString() {
-		return "[文件名：" + getFileName() + ":"+ fileHead + "]";
+		return "[文件名：" + getFileName() + ":"+ fileHead + "; 数据个数：" + getDataNum() + "]";
 	}
 }

@@ -6,6 +6,8 @@ import com.cmtech.dsp.exception.FileException;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class EcgFileComment {
     public static final int COMMENTATOR_LEN = 10;
@@ -70,10 +72,13 @@ public class EcgFileComment {
 
     @Override
     public String toString() {
-        return "EcgFileComment{" +
+        return commentator +
+                "在" + new SimpleDateFormat("yyyy年MM月dd日HH时mm分ss秒").format(new Date(commentTime)) +
+                "说：" + comment + '\n';
+        /*return "EcgFileComment{" +
                 "commentator='" + commentator + '\'' +
                 ", commentTime=" + commentTime +
                 ", comment='" + comment + '\'' +
-                '}';
+                '}';*/
     }
 }
