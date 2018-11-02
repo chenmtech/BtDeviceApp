@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.dsp.exception.FileException;
 
 import java.io.DataInput;
@@ -73,7 +74,7 @@ public class EcgFileComment {
     @Override
     public String toString() {
         return commentator +
-                "在" + new SimpleDateFormat("yyyy年MM月dd日HH时mm分ss秒").format(new Date(commentTime)) +
+                "在" + DateTimeUtil.timeToStringWithSimpleFormat(commentTime) +
                 "说：" + comment + '\n';
         /*return "EcgFileComment{" +
                 "commentator='" + commentator + '\'' +

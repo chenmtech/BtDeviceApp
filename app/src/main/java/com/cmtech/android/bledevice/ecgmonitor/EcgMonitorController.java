@@ -2,8 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor;
 
 import android.content.Intent;
 
-import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileReplayActivity;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceController;
 
@@ -34,7 +33,7 @@ public class EcgMonitorController extends BleDeviceController {
 
     public void replay() {
         //device.disconnect();
-        Intent intent = new Intent(fragment.getActivity(), EcgReplayActivity.class);
+        Intent intent = new Intent(fragment.getActivity(), EcgFileReplayActivity.class);
         fragment.getActivity().startActivity(intent);
     }
 

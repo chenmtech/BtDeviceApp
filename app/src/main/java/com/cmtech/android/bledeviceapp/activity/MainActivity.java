@@ -1,23 +1,18 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -26,7 +21,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,18 +28,16 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.EcgReplayActivity;
-import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileExplorerActivty;
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileReplayActivity;
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
-import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
@@ -63,7 +55,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -490,7 +481,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     // 心电信号回放
     private void ecgReplay() {
-        Intent intent = new Intent(MainActivity.this, EcgFileExplorerActivty.class);
+        Intent intent = new Intent(MainActivity.this, EcgFileExplorerActivity.class);
         startActivity(intent);
     }
 
@@ -508,7 +499,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     }
 
     private void ecgReplay(String fileName) {
-        Intent intent = new Intent(MainActivity.this, EcgReplayActivity.class);
+        Intent intent = new Intent(MainActivity.this, EcgFileReplayActivity.class);
         intent.putExtra("fileName", fileName);
         startActivity(intent);
     }

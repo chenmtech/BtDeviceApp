@@ -4,39 +4,70 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_ecgrecord"
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/btn_ecgfile_import"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="心电记录列表"
-        android:textSize="18sp"/>
+        android:minHeight="0dp"
+        android:text="心电记录列表(点击导入)"/>
 
     <android.support.v7.widget.RecyclerView
-        android:id = "@+id/rvEcgFileList"
+        android:id = "@+id/rv_ecgfile_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:layout_marginBottom="10dp"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:enabled="false"
+        android:minHeight="0dp"
+        android:text="详细信息"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="采集设备："/>
+        <TextView
+            android:id="@+id/tv_ecgfile_macaddress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="采集时间："/>
+        <TextView
+            android:id="@+id/tv_ecgfile_createtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id = "@+id/rv_ecgfile_report"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginBottom="10dp"/>
 
-    <TextView
-        android:id="@+id/tv_replay_curComment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="现有评论"/>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <Button
-            android:id="@+id/btn_ecgreplay_import"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:minHeight="0dp"
-            android:text="微信导入"/>
-        <Button
-            android:id="@+id/btn_ecgreplay_share"
+            android:id="@+id/btn_ecgfile_share"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:minHeight="0dp"
@@ -44,11 +75,12 @@
             android:text="微信分享"/>
 
         <Button
-            android:id="@+id/btn_ecgreplay_delete"
+            android:id="@+id/btn_ecgfile_open"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:minHeight="0dp"
             android:layout_weight="1"
-            android:text="删除"/>
+            android:text="打开"/>
     </LinearLayout>
+
 </LinearLayout>

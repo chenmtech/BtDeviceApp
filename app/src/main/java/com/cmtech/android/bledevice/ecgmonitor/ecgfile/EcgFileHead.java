@@ -19,8 +19,6 @@ public class EcgFileHead {
 
     private List<EcgFileComment> commentList = new ArrayList<>();
 
-
-
     public String getMacAddress() {
         return macAddress;
     }
