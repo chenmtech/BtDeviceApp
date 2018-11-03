@@ -29,53 +29,24 @@
             android:text="开始"
             android:minHeight="0dp"/>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tv_ecgreplay_currenttime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="横向：25格/秒"/>
+            android:gravity="top"
+            android:text="00:00:00"
+            android:textColor="#f00"/>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:text="纵向：0.1mV/格"/>
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
+            android:id="@+id/tv_ecgreplay_totaltime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true">
+            android:gravity="top"
+            android:text="00:00:00"
+            android:textColor="#f00"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:textSize="20sp"
-                android:text="心率："/>
-
-            <TextView
-                android:id="@+id/tv_ecg_hr"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:textSize="20sp"
-                android:text="00"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:textSize="20sp"
-                android:text="BPM"/>
-        </LinearLayout>
     </RelativeLayout>
 
     <android.support.v7.widget.RecyclerView

@@ -11,13 +11,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.R;
 //import com.cmtech.dsp.bmefile.StreamBmeFile;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.dsp.exception.FileException;
 
-public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver{
+public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver {
     private static final String TAG = "EcgFileReplayActivity";
 
     private EcgFileReplayModel replayModel;
@@ -32,6 +34,9 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     private EcgReportAdapter reportAdapter;
     private RecyclerView rvReportList;
+
+    private TextView tvTotalTime;
+    private TextView tvCurrentTime;
 
 
     @Override
@@ -60,6 +65,13 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
         ecgView = findViewById(R.id.ecg_view);
         ecgView.setEcgFile(replayModel.getEcgFile());
+        ecgView.registerEcgFileReelWaveViewObserver(this);
+
+        tvCurrentTime = findViewById(R.id.tv_ecgreplay_currenttime);
+
+        tvTotalTime = findViewById(R.id.tv_ecgreplay_totaltime);
+        int totalTime = replayModel.getEcgFile().getDataNum()/replayModel.getEcgFile().getFs();
+        tvTotalTime.setText(""+DateTimeUtil.secToTime(totalTime));
 
         rvReportList = findViewById(R.id.rv_ecgfile_report);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
@@ -145,12 +157,23 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     public void startReplay() {
         ecgView.startShow();
-        btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
     }
 
     public void stopReplay() {
         ecgView.stopShow();
-        btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
     }
 
+    @Override
+    public void updateShowState(boolean replaying) {
+        if(replaying) {
+            btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
+        } else {
+            btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
+        }
+    }
+
+    @Override
+    public void updateCurrentTime(int second) {
+        tvCurrentTime.setText("" + DateTimeUtil.secToTime(second));
+    }
 }

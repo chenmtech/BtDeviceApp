@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.IEcgFileReplayObserver;
 import com.cmtech.dsp.exception.FileException;
 
 import java.util.Timer;
@@ -15,6 +16,9 @@ public class EcgFileReelWaveView extends ReelWaveView {
     private EcgFile ecgFile;
 
     private boolean replaying = false;
+
+    private int totalNum = 0;
+    private int num = 0;
 
     public boolean isReplaying() {
         return replaying;
@@ -30,6 +34,8 @@ public class EcgFileReelWaveView extends ReelWaveView {
                 public void run() {
                     try {
                         showData(ecgFile.readData());
+                        if(++num == totalNum) stopShow();
+                        if(observer != null) observer.updateCurrentTime(num/ecgFile.getFs());
                     } catch (FileException e) {
                         stopShow();
                     }
@@ -38,6 +44,14 @@ public class EcgFileReelWaveView extends ReelWaveView {
         }
     }
     private Timer showTimer;
+
+    public interface IEcgFileReelWaveViewObserver {
+        void updateShowState(boolean replaying);
+
+        void updateCurrentTime(int second);
+    }
+
+    private IEcgFileReelWaveViewObserver observer;
 
 
     public EcgFileReelWaveView(Context context) {
@@ -52,6 +66,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
         stopShow();
         this.ecgFile = ecgFile;
         interval = 1000/ecgFile.getFs();
+        totalNum = ecgFile.getDataNum();
         ecgFile.seek(0);
     }
 
@@ -60,6 +75,9 @@ public class EcgFileReelWaveView extends ReelWaveView {
             showTimer = new Timer();
             showTimer.scheduleAtFixedRate(new ShowTask(), interval, interval);
             replaying = true;
+            if(observer != null) {
+                observer.updateShowState(replaying);
+            }
         }
     }
 
@@ -68,6 +86,9 @@ public class EcgFileReelWaveView extends ReelWaveView {
             showTimer.cancel();
             showTimer = null;
             replaying = false;
+            if(observer != null) {
+                observer.updateShowState(replaying);
+            }
         }
     }
 
@@ -77,5 +98,15 @@ public class EcgFileReelWaveView extends ReelWaveView {
         } else {
             startShow();
         }
+    }
+
+    // 登记心电回放观察者
+    public void registerEcgFileReelWaveViewObserver(IEcgFileReelWaveViewObserver observer) {
+        this.observer = observer;
+    }
+
+    // 删除心电回放观察者
+    public void removeEcgFileReelWaveViewObserver() {
+        observer = null;
     }
 }
