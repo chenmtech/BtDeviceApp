@@ -87,6 +87,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
         fileAdapter = new EcgFileAdapter(fileList, this);
         rvFileList.setAdapter(fileAdapter);
         fileAdapter.notifyDataSetChanged();
+        if(fileAdapter.getItemCount() > 1)
+            rvFileList.smoothScrollToPosition(fileAdapter.getItemCount()-1);
 
         rvReportList = findViewById(R.id.rv_ecgfile_report);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
@@ -95,6 +97,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
         reportAdapter = new EcgReportAdapter(commentList);
         rvReportList.setAdapter(reportAdapter);
         reportAdapter.notifyDataSetChanged();
+        if(reportAdapter.getItemCount() > 1)
+            rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
 
 
         btnEcgShare = findViewById(R.id.btn_ecgfile_share);

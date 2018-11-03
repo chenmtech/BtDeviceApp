@@ -105,7 +105,8 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         reportAdapter = new EcgReportAdapter(replayModel.getCommentList());
         rvReportList.setAdapter(reportAdapter);
         reportAdapter.notifyDataSetChanged();
-        rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
+        if(reportAdapter.getItemCount() > 1)
+            rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
 
         /*new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
@@ -219,7 +220,8 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     @Override
     public void updateCommentList() {
         reportAdapter.notifyDataSetChanged();
-        rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
+        if(reportAdapter.getItemCount() > 1)
+            rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
         etComment.setText("");
     }
 
