@@ -2,8 +2,6 @@ package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -14,30 +12,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import com.cmtech.android.bledevice.ecgmonitor.ReelWaveView;
+import com.cmtech.android.bledevice.ecgmonitor.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserAccountManager;
-import com.cmtech.dsp.bmefile.BmeFileHead30;
 //import com.cmtech.dsp.bmefile.StreamBmeFile;
 import com.cmtech.dsp.exception.FileException;
-import com.vise.log.ViseLog;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver{
     private static final String TAG = "EcgFileReplayActivity";
 
     private EcgFileReplayModel replayModel;
 
-    private EcgFile selectedFile;
-
-    private ReelWaveView ecgView;
+    private EcgFileReelWaveView ecgView;
 
     private Button btnEcgAddComment;
 
@@ -47,35 +32,6 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     private EcgReportAdapter reportAdapter;
     private RecyclerView rvReportList;
-
-    // 用于设置EcgWaveView的参数
-    private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
-    // 下面两个参数可用来计算View中的xRes和yRes
-    private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
-    private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
-
-    private boolean playStatus = false;
-
-    private class ShowTask extends TimerTask {
-        @Override
-        public void run() {
-            synchronized (EcgFileReplayActivity.this) {
-                try {
-                    ecgView.showData(selectedFile.readData());
-                } catch (FileException e) {
-                    e.printStackTrace();
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            stopShow();
-                        }
-                    });
-                }
-            }
-        }
-    }
-    private Timer showTimer;
 
 
     @Override
@@ -93,10 +49,17 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             finish();
 
         String fileName = intent.getStringExtra("fileName");
-        replayModel = new EcgFileReplayModel(fileName);
+        try {
+            replayModel = new EcgFileReplayModel(fileName);
+        } catch (FileException e) {
+            e.printStackTrace();
+            finish();
+        }
+
         replayModel.registerEcgFileReplayObserver(this);
 
-        selectedFile = replayModel.getEcgFile();
+        ecgView = findViewById(R.id.ecg_view);
+        ecgView.setEcgFile(replayModel.getEcgFile());
 
         rvReportList = findViewById(R.id.rv_ecgfile_report);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
@@ -108,27 +71,15 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         if(reportAdapter.getItemCount() > 1)
             rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
 
-        /*new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                replayEcgFile(selectedFile.getFile());
-            }
-        }, 1000);*/
-
-
-        ecgView = findViewById(R.id.ecg_view);
 
         btnSwitchReplayState = findViewById(R.id.btn_ecg_startandstop);
         btnSwitchReplayState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(selectedFile == null) return;
-
-                if(playStatus) {
-                    stopShow();
+                if(ecgView.isReplaying()) {
+                    stopReplay();
                 } else {
-                    int interval = 1000/selectedFile.getFs();
-                    startShow(interval);
+                    startReplay();
                 }
             }
         });
@@ -143,7 +94,9 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             }
         });
 
-        replay();
+        initReplay();
+
+        startReplay();
     }
 
     @Override
@@ -157,67 +110,20 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     }
 
-
-    public void replay() {
-        replayModel.replay();
+    public void initReplay() {
+        replayModel.initReplay();
     }
 
-    private void startShow(int interval) {
-        if(!playStatus) {
-            showTimer = new Timer();
-            showTimer.scheduleAtFixedRate(new ShowTask(), interval, interval);
-            btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
-            playStatus = true;
-        }
-    }
-
-    private void stopShow() {
-        if(playStatus) {
-            showTimer.cancel();
-            showTimer = null;
-            btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
-            playStatus = false;
-        }
-    }
-
-    private void initialEcgView() {
-        if(selectedFile == null) return;
-        int sampleRate = selectedFile.getFs();
-        int value1mV = ((BmeFileHead30)selectedFile.getBmeFileHead()).getCalibrationValue();
-        int xRes = Math.round(viewGridWidth / (viewXGridTime * sampleRate));   // 计算横向分辨率
-        float yRes = value1mV * viewYGridmV / viewGridWidth;                     // 计算纵向分辨率
-        ecgView.setRes(xRes, yRes);
-        ecgView.setGridWidth(viewGridWidth);
-        ecgView.setZeroLocation(0.5);
-        ecgView.clearData();
-        ecgView.initView();
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
+        stopReplay();
+
         replayModel.removeEcgFileObserver();
 
         replayModel.close();
-
-    }
-
-    private void deselectFile() {
-        if(selectedFile != null) {
-            try {
-                if(playStatus)
-                    stopShow();
-
-                selectedFile.close();
-                selectedFile = null;
-
-                ecgView.clearData();
-                ecgView.initView();
-            } catch (FileException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override
@@ -237,13 +143,14 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         ecgView.initView();
     }
 
-    @Override
-    public void showEcgData(final int data) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ecgView.showData(data);
-            }
-        });
+    public void startReplay() {
+        ecgView.startShow();
+        btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
     }
+
+    public void stopReplay() {
+        ecgView.stopShow();
+        btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
+    }
+
 }

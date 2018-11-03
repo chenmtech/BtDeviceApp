@@ -93,8 +93,6 @@ public class ReelWaveView extends View {
 
     private boolean showGridLine = true;
 
-    private int updateNum = 0;
-
     public ReelWaveView(Context context) {
         super(context);
 
@@ -188,14 +186,9 @@ public class ReelWaveView extends View {
     public synchronized void showData(Integer data) {
         viewData.add(data);
 
-        if(++updateNum == 4) {
+        drawDataOnForeCanvas();
 
-            drawDataOnForeCanvas();
-
-            postInvalidate();
-
-            updateNum = 0;
-        }
+        invalidate();
     }
 
     private int calculateMeasure(int measureSpec)

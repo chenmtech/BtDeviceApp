@@ -5,5 +5,4 @@ public interface IEcgFileReplayObserver {
 
     void initEcgView(int xRes, float yRes, int viewGridWidth, double zerolocation);
 
-    void showEcgData(int data);
 }
