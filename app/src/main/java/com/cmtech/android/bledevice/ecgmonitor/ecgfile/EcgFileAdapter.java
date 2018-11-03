@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevicecore.model.BleDevice;
+import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -69,10 +70,11 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
-                    File file = fileList.get(holder.getAdapterPosition());
+                    File file = fileList.get(selectItem);
                     switch (item.getItemId()){
                         case 1:
                             activity.deleteFile(file);
+                            ViseLog.e(file.getName());
                             return true;
 
                         default:
@@ -85,6 +87,8 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             public boolean onLongClick(View view) {
                 selectItem = holder.getAdapterPosition();
                 notifyDataSetChanged();
+                if(selectItem != -1 && activity != null)
+                    activity.selectFile(fileList.get(selectItem));
                 view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {

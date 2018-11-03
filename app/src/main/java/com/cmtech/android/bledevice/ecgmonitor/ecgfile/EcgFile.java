@@ -76,29 +76,18 @@ public class EcgFile extends RandomAccessBmeFile {
 
     public void addComment(EcgFileComment comment) {
         try {
-            long rafPos = raf.getFilePointer();
+            long rafPos = raf.getFilePointer(); // 记录当前文件位置，操作完成后要回到原来的位置
 
-            raf.setLength(raf.length() + EcgFileComment.getLength());
-            raf.seek(raf.length()-EcgFileComment.getLength());
-            int copyNum = 0;
-            while(raf.getFilePointer() > dataBeginPointer) {
-                if(raf.getFilePointer() - EcgFileComment.getLength() < dataBeginPointer) {
-                    copyNum = (int)(raf.getFilePointer()-dataBeginPointer);
-                } else {
-                    copyNum = EcgFileComment.getLength();
-                }
-                byte[] cache = new byte[copyNum];
-                raf.seek(raf.getFilePointer()-copyNum);
-                raf.readFully(cache);
-                raf.write(cache);
-                raf.seek(raf.getFilePointer()-2*copyNum);
-            }
+            pushFileEndBlockBackToSomeBytes(raf, dataBeginPointer, EcgFileComment.getLength(), 256);
 
             ecgFileHead.addComment(comment);
             raf.seek(ecgFileHeadPointer);
             ecgFileHead.writeToStream(raf);
 
+            // 要修改数据开始指针
             dataBeginPointer = raf.getFilePointer();
+
+            // 还原文件位置
             raf.seek(rafPos+EcgFileComment.getLength());
 
         } catch (IOException e) {
@@ -107,6 +96,34 @@ public class EcgFile extends RandomAccessBmeFile {
             e.printStackTrace();
         }
     }
+
+    /**
+     * 将文件raf的尾块从fromPointer开始，往后推移paddingLength个字节
+     * 推移时分小块小块进行，每次移动blockLengthPerTime个字节
+    */
+    private void pushFileEndBlockBackToSomeBytes(RandomAccessFile raf, long fromPointer, int paddingLength, int blockLengthPerTime) throws IOException{
+        raf.setLength(raf.length() + paddingLength);        // 先增加文件长度
+        raf.seek(raf.length() - paddingLength);      // 移动到文件尾
+        int blockLen = 0;                // 记录每次要移动的块长度，一般都是等于blockLengthPerTime，但是当最后移动时可能小于blockLengthPerTime
+        long blockBeginPointer = 0;      // 记录每次要移动的块开始位置
+        while(raf.getFilePointer() > fromPointer)      // 保证每次要移动的块尾都在fromPointer后面，否则就不需要移动了
+        {
+            if(raf.getFilePointer() - blockLengthPerTime < fromPointer) {       // 如果剩下的块不够blockLengthPerTime
+                blockLen = (int)(raf.getFilePointer() - fromPointer);
+                blockBeginPointer = fromPointer;    // 只需要从fromPointer开始
+            } else {
+                blockLen = blockLengthPerTime;
+                blockBeginPointer = raf.getFilePointer() - blockLengthPerTime;
+            }
+            byte[] buffer = new byte[blockLen];     // 建立长度为blockLen的缓存
+            raf.seek(blockBeginPointer);            // 将文件指针移动到块开始位置
+            raf.readFully(buffer);                  // 读
+            raf.seek(blockBeginPointer + paddingLength);     // 往后移动paddingLength
+            raf.write(buffer);                      // 写
+            raf.seek(blockBeginPointer);            // 定位到块的开始位置，也就是下次块的尾部
+        }
+    }
+
 
     @Override
     public String toString() {

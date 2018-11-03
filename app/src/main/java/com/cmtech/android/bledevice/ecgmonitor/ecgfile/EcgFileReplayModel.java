@@ -5,6 +5,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
 import com.cmtech.dsp.exception.FileException;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -79,6 +80,15 @@ public class EcgFileReplayModel {
         updateCommentList();
     }
 
+    public void close() {
+        stopShow();
+        try {
+            ecgFile.close();
+        } catch (FileException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void startShow(int interval) {
         if(!replayStatus) {
             showTimer = new Timer();
@@ -94,6 +104,8 @@ public class EcgFileReplayModel {
             replayStatus = false;
         }
     }
+
+
 
 
     // 登记心电回放观察者

@@ -157,6 +157,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     }
 
+
     public void replay() {
         replayModel.replay();
     }
@@ -196,7 +197,9 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     protected void onDestroy() {
         super.onDestroy();
 
-        deselectFile();
+        replayModel.removeEcgFileObserver();
+
+        replayModel.close();
 
     }
 
