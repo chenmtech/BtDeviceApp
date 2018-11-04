@@ -21,7 +21,7 @@ import java.util.List;
 public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHolder> {
     private EcgFileExplorerActivity activity;
 
-    private List<File> fileList;
+    private List<EcgFile> fileList;
 
     private int selectItem = -1;
 
@@ -40,7 +40,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         }
     }
 
-    public EcgFileAdapter(List<File> fileList, EcgFileExplorerActivity activity) {
+    public EcgFileAdapter(List<EcgFile> fileList, EcgFileExplorerActivity activity) {
         this.fileList = fileList;
         this.activity = activity;
     }
@@ -55,10 +55,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                selectItem = holder.getAdapterPosition();
-                notifyDataSetChanged();
-                if(selectItem != -1 && activity != null)
-                    activity.selectFile(fileList.get(selectItem));
+                setSelectItem(holder.getAdapterPosition());
             }
         });
 
@@ -66,11 +63,10 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
-                    File file = fileList.get(selectItem);
+                    EcgFile file = fileList.get(selectItem);
                     switch (item.getItemId()){
                         case 1:
                             activity.deleteFile(file);
-                            ViseLog.e(file.getName());
                             return true;
 
                         default:
@@ -81,10 +77,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
             @Override
             public boolean onLongClick(View view) {
-                selectItem = holder.getAdapterPosition();
-                notifyDataSetChanged();
-                if(selectItem != -1 && activity != null)
-                    activity.selectFile(fileList.get(selectItem));
+                setSelectItem(holder.getAdapterPosition());
                 view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -101,9 +94,9 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(EcgFileAdapter.ViewHolder holder, final int position) {
-        File file = fileList.get(position);
-        holder.fileName.setText(file.getName().substring(0, file.getName().length()-4));
-        holder.fileLastModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.lastModified()));
+        EcgFile file = fileList.get(position);
+        holder.fileName.setText(file.getFile().getName().substring(0, file.getFile().getName().length()-4));
+        holder.fileLastModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getFile().lastModified()));
 
         if(selectItem == position) {
             holder.fileView.setBackgroundColor(Color.parseColor("#00a0e9"));
@@ -126,6 +119,9 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             this.selectItem = selectItem;
         else
             this.selectItem = -1;
+        notifyDataSetChanged();
+        if(selectItem != -1 && activity != null)
+            activity.selectFile(fileList.get(selectItem));
     }
 
 }

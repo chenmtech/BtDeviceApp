@@ -70,7 +70,6 @@
             android:id="@+id/btn_ecgfile_share"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minHeight="0dp"
             android:layout_weight="1"
             android:text="微信分享"/>
 
@@ -78,9 +77,8 @@
             android:id="@+id/btn_ecgfile_open"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minHeight="0dp"
             android:layout_weight="1"
-            android:text="打开"/>
+            android:text="回放"/>
     </LinearLayout>
 
 </LinearLayout>

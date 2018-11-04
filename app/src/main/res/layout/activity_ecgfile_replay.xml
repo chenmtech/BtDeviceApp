@@ -61,13 +61,23 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#aaa"
         android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:textColor="#00f"
+            android:text="留言："/>
+
         <EditText
             android:id="@+id/et_replay_comment"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_gravity="bottom"
+            android:background="#ddd"
             android:inputType="textMultiLine"
             android:maxLength="50"
             android:minLines="2"
@@ -79,6 +89,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:textColor="#00f"
             android:text="添加"/>
     </LinearLayout>
 </LinearLayout>

@@ -13,13 +13,13 @@ public class RandomAccessBmeFile extends BmeFile {
     protected RandomAccessBmeFile(String fileName) throws FileException {
         super(fileName);
 
-        //setDataBeginPointer();
+        setDataBeginPointer();
     }
 
     protected RandomAccessBmeFile(String fileName, BmeFileHead head) throws FileException{
         super(fileName, head);
 
-        //setDataBeginPointer();
+        setDataBeginPointer();
     }
 
     protected void setDataBeginPointer() throws FileException {
@@ -56,6 +56,11 @@ public class RandomAccessBmeFile extends BmeFile {
         raf = new RandomAccessFile(file, "rw");
         in = raf;
         out = raf;
+    }
+
+    @Override
+    public int getDataNum() {
+        return (int)((file.length()-dataBeginPointer)/fileHead.getDataType().getTypeLength());
     }
 
     public int availableData() {

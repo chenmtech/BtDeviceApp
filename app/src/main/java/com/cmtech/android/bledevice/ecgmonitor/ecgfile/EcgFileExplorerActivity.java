@@ -40,11 +40,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
     private static final String TAG = "EcgFileExplorerActivity";
     private static final String WXIMPORT_DIR = Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download";
 
-    private List<File> fileList = new ArrayList<>();
+    private List<EcgFile> fileList = new ArrayList<>();
     private EcgFileAdapter fileAdapter;
     private RecyclerView rvFileList;
-
-    private EcgFile selectedFile;
 
     private List<EcgFileComment> commentList = new ArrayList<>();
     private EcgReportAdapter reportAdapter;
@@ -69,6 +67,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
             EcgMonitorDevice.ECGFILEDIR.mkdir();
         }
 
+
         File[] files = BleDeviceUtil.listDirBmeFiles(EcgMonitorDevice.ECGFILEDIR);
         Arrays.sort(files, new Comparator<File>() {
             @Override
@@ -76,7 +75,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
                 return (int)(file.lastModified() - t1.lastModified());
             }
         });
-        fileList = new ArrayList<>(Arrays.asList(files));
+        fileList = createEcgFileList(files);
+
 
         rvFileList = findViewById(R.id.rv_ecgfile_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -85,8 +85,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
         fileAdapter = new EcgFileAdapter(fileList, this);
         rvFileList.setAdapter(fileAdapter);
         fileAdapter.notifyDataSetChanged();
-        if(fileAdapter.getItemCount() > 1)
-            rvFileList.smoothScrollToPosition(fileAdapter.getItemCount()-1);
+
 
         rvReportList = findViewById(R.id.rv_ecgfile_report);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
@@ -95,7 +94,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
         reportAdapter = new EcgReportAdapter(commentList);
         rvReportList.setAdapter(reportAdapter);
         reportAdapter.notifyDataSetChanged();
-        if(reportAdapter.getItemCount() > 1)
+        if(reportAdapter.getItemCount() >= 1)
             rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
 
 
@@ -111,16 +110,20 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
         btnImportFromWX.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                deselectFile();
+                //deselectFile();
 
                 File wxFileDir = new File(WXIMPORT_DIR);
-                try {
-                    File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
-                    for(File wxFile : wxFileList) {
+                File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
+
+                for(File wxFile : wxFileList) {
+                    try {
+                        EcgFile tmpFile = EcgFile.openBmeFile(wxFile.getCanonicalPath());
+                        tmpFile.close();
+
                         File toFile = FileUtil.getFile(EcgMonitorDevice.ECGFILEDIR, wxFile.getName());
 
-                        for(File file : fileList) {
-                            if(file.getName().equalsIgnoreCase(toFile.getName())) {
+                        for(EcgFile file : fileList) {
+                            if(file.getFile().getName().equalsIgnoreCase(toFile.getName())) {
                                 fileList.remove(file);
                             }
                         }
@@ -128,13 +131,19 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
                         if(toFile.exists()) toFile.delete();
 
                         FileUtil.moveFile(wxFile, toFile);
-                        fileList.add(toFile);
-                        fileAdapter.setSelectItem(-1);
-                        fileAdapter.notifyDataSetChanged();
+                        tmpFile = EcgFile.openBmeFile(toFile.getCanonicalPath());
+
+                        fileList.add(tmpFile);
+                        tmpFile.close();
+
+                        fileAdapter.setSelectItem(fileList.size()-1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (FileException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+
             }
         });
 
@@ -142,28 +151,28 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
         btnOpenFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(selectedFile == null) return;
+                if(fileAdapter.getSelectItem() == -1) return;
 
-                String fileName;
-                try {
-                    fileName = selectedFile.getFileName();
-                    selectedFile.close();
-                    Intent intent = new Intent(EcgFileExplorerActivity.this, EcgFileReplayActivity.class);
-                    intent.putExtra("fileName", fileName);
-                    startActivity(intent);
-                } catch (FileException e) {
-                    e.printStackTrace();
-                }
+                String fileName = fileList.get(fileAdapter.getSelectItem()).getFileName();
+                Intent intent = new Intent(EcgFileExplorerActivity.this, EcgFileReplayActivity.class);
+                intent.putExtra("fileName", fileName);
+                startActivity(intent);
             }
         });
 
+
+        if(fileAdapter.getItemCount() >= 1) {
+            rvFileList.smoothScrollToPosition(fileAdapter.getItemCount() - 1);
+            fileAdapter.setSelectItem(fileAdapter.getItemCount() - 1);
+        }
+
     }
 
-    public void deleteFile(File file) {
+    public void deleteFile(EcgFile file) {
         deselectFile();
 
         try {
-            FileUtil.deleteFile(file);
+            FileUtil.deleteFile(file.getFile());
             fileList.remove(file);
             fileAdapter.notifyDataSetChanged();
         } catch (IOException e) {
@@ -173,7 +182,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
 
     // 用微信分享BME文件
     private void shareBmeFileThroughWechat() {
-        if(selectedFile == null) return;
+        if(fileAdapter.getSelectItem() == -1) return;
+
+        EcgFile selectedFile = fileList.get(fileAdapter.getSelectItem());
 
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
@@ -204,38 +215,38 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
     }
 
     private void deselectFile() {
-        if(selectedFile != null) {
+        tvCreatedTime.setText("");
+        tvMacAddress.setText("");
+        commentList.clear();
+        reportAdapter.notifyDataSetChanged();
+    }
+
+    public void selectFile(EcgFile file) {
+        deselectFile();
+
+        tvCreatedTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getEcgFileHead().getFileCreatedTime()));
+        tvMacAddress.setText(file.getEcgFileHead().getMacAddress());
+        commentList.clear();
+        commentList.addAll(file.getEcgFileHead().getCommentList());
+        reportAdapter.notifyDataSetChanged();
+        if(reportAdapter.getItemCount() >= 1)
+            rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
+    }
+
+    private List<EcgFile> createEcgFileList(File[] files) {
+        List<EcgFile> ecgFileList = new ArrayList<>();
+        for(File file : files) {
             try {
-                selectedFile.close();
-                selectedFile = null;
-                tvCreatedTime.setText("");
-                tvMacAddress.setText("");
-                commentList.clear();
-                reportAdapter.notifyDataSetChanged();
+                EcgFile ecgFile = EcgFile.openBmeFile(file.getCanonicalPath());
+                ecgFileList.add(ecgFile);
+                ecgFile.close();
             } catch (FileException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void selectFile(File file) {
-        if(selectedFile != null) {
-            deselectFile();
-        }
-
-        try {
-            selectedFile = EcgFile.openBmeFile(file.getCanonicalPath());
-            tvCreatedTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(selectedFile.getEcgFileHead().getFileCreatedTime()));
-            tvMacAddress.setText(selectedFile.getEcgFileHead().getMacAddress());
-            commentList.addAll(selectedFile.getEcgFileHead().getCommentList());
-            reportAdapter.notifyDataSetChanged();
-            selectedFile.close();
-        } catch (FileException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        return ecgFileList;
     }
 
 }

@@ -55,16 +55,6 @@ public class EcgFile extends RandomAccessBmeFile {
         return ecgFileHead;
     }
 
-    @Override
-    public int getDataNum() {
-        try {
-            return (int)((raf.length()-dataBeginPointer)/fileHead.getDataType().getTypeLength());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
     public String getCommentString() {
         if(ecgFileHead.getCommentsNum()==0) return "";
         StringBuilder builder = new StringBuilder();
