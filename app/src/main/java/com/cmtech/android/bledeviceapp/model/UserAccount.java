@@ -9,9 +9,11 @@ public class UserAccount  extends LitePalSupport implements Serializable{
     // id
     private int id;
 
-    private String name = "";
+    private String accountName = "";
 
     private String password = "";
+
+    private String userName = "匿名";
 
     public int getId() {
         return id;
@@ -21,12 +23,20 @@ public class UserAccount  extends LitePalSupport implements Serializable{
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getAccountName() {
+        return accountName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getPassword() {

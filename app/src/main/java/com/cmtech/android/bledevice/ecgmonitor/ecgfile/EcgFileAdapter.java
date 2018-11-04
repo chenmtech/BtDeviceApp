@@ -13,13 +13,9 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.vise.log.ViseLog;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.List;
 
 public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHolder> {
@@ -107,7 +103,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     public void onBindViewHolder(EcgFileAdapter.ViewHolder holder, final int position) {
         File file = fileList.get(position);
         holder.fileName.setText(file.getName().substring(0, file.getName().length()-4));
-        holder.fileLastModifyTime.setText(DateTimeUtil.timeToStringWithSimpleFormat(file.lastModified()));
+        holder.fileLastModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.lastModified()));
 
         if(selectItem == position) {
             holder.fileView.setBackgroundColor(Color.parseColor("#00a0e9"));

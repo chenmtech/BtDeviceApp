@@ -4,9 +4,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.ecgfile.IEcgFileReplayObserver;
 import com.cmtech.dsp.exception.FileException;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -17,7 +17,6 @@ public class EcgFileReelWaveView extends ReelWaveView {
 
     private boolean replaying = false;
 
-    private int totalNum = 0;
     private int num = 0;
 
     public boolean isReplaying() {
@@ -33,10 +32,15 @@ public class EcgFileReelWaveView extends ReelWaveView {
                 @Override
                 public void run() {
                     try {
+                        if(ecgFile.isEof())
+                            stopShow();
                         showData(ecgFile.readData());
-                        if(++num == totalNum) stopShow();
-                        if(observer != null) observer.updateCurrentTime(num/ecgFile.getFs());
+                        if(observer != null)
+                            observer.updateCurrentTime(++num/ecgFile.getFs());
                     } catch (FileException e) {
+                        stopShow();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                         stopShow();
                     }
                 }
@@ -66,12 +70,19 @@ public class EcgFileReelWaveView extends ReelWaveView {
         stopShow();
         this.ecgFile = ecgFile;
         interval = 1000/ecgFile.getFs();
-        totalNum = ecgFile.getDataNum();
-        ecgFile.seek(0);
+        ecgFile.seekData(0);
     }
 
     public void startShow() {
         if(!replaying) {
+            try {
+                if(ecgFile.isEof()) {
+                    ecgFile.seekData(0);
+                    clearData();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             showTimer = new Timer();
             showTimer.scheduleAtFixedRate(new ShowTask(), interval, interval);
             replaying = true;

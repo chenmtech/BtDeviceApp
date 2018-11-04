@@ -49,12 +49,12 @@ public class UserAccountManager {
 
     // 注册
     public boolean signUp(String account, String password) {
-        List<UserAccount> find = LitePal.where("name = ?", account).find(UserAccount.class);
+        List<UserAccount> find = LitePal.where("accountName = ?", account).find(UserAccount.class);
         if(find != null && find.size() > 0) {
             return false;
         } else {
             UserAccount user = new UserAccount();
-            user.setName(account);
+            user.setAccountName(account);
             user.setPassword(password);
             user.save();
             return true;
@@ -63,10 +63,10 @@ public class UserAccountManager {
 
     // 登录
     public boolean signIn(String account, String password) {
-        List<UserAccount> find = LitePal.where("name = ? and password = ?", account, password).find(UserAccount.class);
+        List<UserAccount> find = LitePal.where("accountName = ? and password = ?", account, password).find(UserAccount.class);
         if(find != null && find.size() == 1) {
             UserAccount user = new UserAccount();
-            user.setName(account);
+            user.setAccountName(account);
             user.setPassword(password);
             setUserAccount(user);
             return true;

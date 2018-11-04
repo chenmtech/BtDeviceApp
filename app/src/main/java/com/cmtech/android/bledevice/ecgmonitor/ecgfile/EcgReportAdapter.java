@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +9,6 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.List;
 
 public class EcgReportAdapter extends RecyclerView.Adapter<EcgReportAdapter.ViewHolder> {
@@ -53,7 +47,7 @@ public class EcgReportAdapter extends RecyclerView.Adapter<EcgReportAdapter.View
     @Override
     public void onBindViewHolder(EcgReportAdapter.ViewHolder holder, final int position) {
         EcgFileComment comment = commentList.get(position);
-        holder.createTime.setText(DateTimeUtil.timeToStringWithShortFormat(comment.getCommentTime()));
+        holder.createTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCommentTime()));
         holder.commentator.setText(comment.getCommentator());
         holder.comment.setText(comment.getComment());
     }

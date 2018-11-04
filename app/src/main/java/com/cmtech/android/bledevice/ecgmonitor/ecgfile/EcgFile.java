@@ -136,7 +136,7 @@ public class EcgFile extends RandomAccessBmeFile {
         return "";*/
     }
 
-    public void seek(int dataNum) {
+    public void seekData(int dataNum) {
         try {
             raf.seek(dataBeginPointer + dataNum * getDataType().getTypeLength());
         } catch (IOException e) {

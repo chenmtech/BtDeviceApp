@@ -38,7 +38,7 @@ public class EcgFileReplayModel {
     }
 
     public void addComment(String comment) {
-        String commentator = UserAccountManager.getInstance().getUserAccount().getName();
+        String commentator = UserAccountManager.getInstance().getUserAccount().getUserName();
         long timeCreated = new Date().getTime();
         ecgFile.addComment(new EcgFileComment(commentator, timeCreated, comment));
         updateCommentList();

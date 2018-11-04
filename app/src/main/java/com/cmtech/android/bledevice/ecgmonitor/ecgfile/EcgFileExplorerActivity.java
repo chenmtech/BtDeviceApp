@@ -19,7 +19,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.dsp.exception.FileException;
-import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
@@ -27,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -227,7 +225,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
 
         try {
             selectedFile = EcgFile.openBmeFile(file.getCanonicalPath());
-            tvCreatedTime.setText(DateTimeUtil.timeToStringWithSimpleFormat(selectedFile.getEcgFileHead().getFileCreatedTime()));
+            tvCreatedTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(selectedFile.getEcgFileHead().getFileCreatedTime()));
             tvMacAddress.setText(selectedFile.getEcgFileHead().getMacAddress());
             commentList.addAll(selectedFile.getEcgFileHead().getCommentList());
             reportAdapter.notifyDataSetChanged();

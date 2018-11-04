@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         View headerView = navView.getHeaderView(0);
         accountName = headerView.findViewById(R.id.accountname);
         if(UserAccountManager.getInstance().isSignIn()) {
-            accountName.setText(UserAccountManager.getInstance().getUserAccount().getName());
+            accountName.setText(UserAccountManager.getInstance().getUserAccount().getAccountName());
         }
 
         mDrawerLayout = findViewById(R.id.drawer_layout);

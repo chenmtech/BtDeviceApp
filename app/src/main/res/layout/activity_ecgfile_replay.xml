@@ -17,13 +17,15 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="#ccc">
 
         <ImageButton
             android:id="@+id/btn_ecg_startandstop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+            android:background="#ccc"
             android:clickable="true"
             android:src="@mipmap/ic_ecg_play_48px"
             android:text="开始"

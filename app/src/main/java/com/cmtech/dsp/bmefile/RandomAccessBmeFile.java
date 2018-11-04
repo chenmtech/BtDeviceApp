@@ -70,6 +70,7 @@ public class RandomAccessBmeFile extends BmeFile {
     }
 
     public boolean isEof() throws IOException {
+        if(raf == null) return true;
         return (raf.length() == raf.getFilePointer());
     }
 
