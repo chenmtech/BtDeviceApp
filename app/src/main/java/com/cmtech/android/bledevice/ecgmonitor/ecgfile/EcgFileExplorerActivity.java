@@ -36,8 +36,11 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 
-public class EcgFileExplorerActivity extends AppCompatActivity {
+public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver{
     private static final String TAG = "EcgFileExplorerActivity";
+
+    private static EcgFileExplorerModel model;
+
     private static final String WXIMPORT_DIR = Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download";
 
     private List<EcgFile> fileList = new ArrayList<>();
@@ -65,6 +68,12 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
 
         if(!EcgMonitorDevice.ECGFILEDIR.exists()) {
             EcgMonitorDevice.ECGFILEDIR.mkdir();
+        }
+
+        try {
+            model = new EcgFileExplorerModel(EcgMonitorDevice.ECGFILEDIR);
+        } catch (IllegalArgumentException e) {
+            finish();
         }
 
 
@@ -102,7 +111,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
         btnEcgShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                shareBmeFileThroughWechat();
+                if(fileAdapter.getSelectItem() == -1) return;
+
+                shareBmeFileThroughWechat(fileAdapter.getSelectItem());
             }
         });
 
@@ -181,10 +192,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
     }
 
     // 用微信分享BME文件
-    private void shareBmeFileThroughWechat() {
-        if(fileAdapter.getSelectItem() == -1) return;
+    private void shareBmeFileThroughWechat(int fileIndex) {
 
-        EcgFile selectedFile = fileList.get(fileAdapter.getSelectItem());
+        EcgFile selectedFile = fileList.get(fileIndex);
 
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
@@ -247,6 +257,11 @@ public class EcgFileExplorerActivity extends AppCompatActivity {
             }
         }
         return ecgFileList;
+    }
+
+    @Override
+    public void updateFileList(int selectItem) {
+        fileAdapter.setSelectItem(selectItem);
     }
 
 }
