@@ -69,14 +69,26 @@ public class EcgFileExplorerModel {
 
     private void initFileList() {
         File[] files = BleDeviceUtil.listDirBmeFiles(EcgMonitorDevice.ECGFILEDIR);
-        // 根据最后修改时间排序
+        /*// 根据最后修改时间排序
         Arrays.sort(files, new Comparator<File>() {
             @Override
             public int compare(File file, File t1) {
                 return (int)(file.lastModified() - t1.lastModified());
             }
-        });
+        });*/
         fileList = createEcgFileList(files);
+        sortFileList();
+    }
+
+    private void sortFileList() {
+        if(fileList.size() <= 1) return;
+
+        fileList.sort(new Comparator<EcgFile>() {
+            @Override
+            public int compare(EcgFile ecgFile, EcgFile t1) {
+                return (int)(ecgFile.getFile().lastModified() - t1.getFile().lastModified());
+            }
+        });
     }
 
     private List<EcgFile> createEcgFileList(File[] files) {
@@ -137,6 +149,9 @@ public class EcgFileExplorerModel {
                     }
                 }
             }
+
+            sortFileList();
+            selectIndex = fileList.size()-1;
 
             if(observer != null) {
                 observer.updateFileList();

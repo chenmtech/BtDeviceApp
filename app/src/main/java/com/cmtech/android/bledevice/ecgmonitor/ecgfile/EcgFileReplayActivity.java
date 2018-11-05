@@ -129,6 +129,11 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         btnEcgAddComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String comment = etComment.getText().toString();
+                if(comment.length() < 3) {
+                    Toast.makeText(EcgFileReplayActivity.this, "你的评论太短，再多写点吧！", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if(ecgView.isReplaying())
                     stopReplay();
                 replayModel.addComment(etComment.getText().toString());
