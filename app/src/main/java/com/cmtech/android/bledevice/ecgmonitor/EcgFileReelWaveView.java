@@ -79,6 +79,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
                 if(ecgFile.isEof()) {
                     ecgFile.seekData(0);
                     clearData();
+                    num = 0;
                 }
             } catch (IOException e) {
                 e.printStackTrace();

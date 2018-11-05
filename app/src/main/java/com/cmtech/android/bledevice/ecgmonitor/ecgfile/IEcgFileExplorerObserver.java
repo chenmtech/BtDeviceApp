@@ -1,5 +1,9 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 public interface IEcgFileExplorerObserver {
-    void updateFileList(int selectItem);
+    void updateFileList();
+
+    void updateSelectFile();
+
+    void openFile(String fileName);
 }

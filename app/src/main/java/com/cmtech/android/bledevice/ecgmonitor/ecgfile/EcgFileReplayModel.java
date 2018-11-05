@@ -4,12 +4,17 @@ package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
 import com.cmtech.dsp.exception.FileException;
+import com.vise.log.ViseLog;
 
 import java.util.Date;
 import java.util.List;
 
 public class EcgFileReplayModel {
     private EcgFile ecgFile;
+
+    private boolean updated = false;
+
+    public boolean isUpdated() { return updated; }
 
     // 设备观察者
     private IEcgFileReplayObserver observer;
@@ -41,6 +46,7 @@ public class EcgFileReplayModel {
         String commentator = UserAccountManager.getInstance().getUserAccount().getUserName();
         long timeCreated = new Date().getTime();
         ecgFile.addComment(new EcgFileComment(commentator, timeCreated, comment));
+        updated = true;
         updateCommentList();
     }
 

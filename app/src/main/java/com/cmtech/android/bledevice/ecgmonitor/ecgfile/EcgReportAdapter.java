@@ -57,5 +57,7 @@ public class EcgReportAdapter extends RecyclerView.Adapter<EcgReportAdapter.View
         return commentList.size();
     }
 
-
+    public void updateCommentList(List<EcgFileComment> commentList) {
+        this.commentList = commentList;
+    }
 }

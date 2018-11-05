@@ -14,8 +14,10 @@ import java.util.List;
 
 public class EcgFileHead {
     public static final int MACADDRESS_CHAR_NUM = 12;
+    public static final int CREATEDPERSON_LEN = 10;
     private String macAddress = "";
     private long fileCreatedTime;
+    private String fileCreatedPerson = "";
 
     private List<EcgFileComment> commentList = new ArrayList<>();
 
@@ -35,17 +37,27 @@ public class EcgFileHead {
         this.fileCreatedTime = fileCreatedTime;
     }
 
+    public String getFileCreatedPerson() {
+        return fileCreatedPerson;
+    }
+
+    public void setFileCreatedPerson(String fileCreatedPerson) {
+        this.fileCreatedPerson = fileCreatedPerson;
+    }
+
     public EcgFileHead() {
 
     }
 
-    public EcgFileHead(String macAddress, long fileCreatedTime) {
+    public EcgFileHead(String fileCreatedPerson, String macAddress, long fileCreatedTime) {
+        this.fileCreatedPerson = fileCreatedPerson;
         this.macAddress = macAddress;
         this.fileCreatedTime = fileCreatedTime;
     }
 
     public void readFromStream(DataInput in) throws FileException {
         try {
+            fileCreatedPerson = DataIOUtil.readFixedString(CREATEDPERSON_LEN, in);
             macAddress = DataIOUtil.readFixedString(MACADDRESS_CHAR_NUM, in);
             fileCreatedTime = in.readLong();
             int commentNum = in.readInt();
@@ -62,6 +74,7 @@ public class EcgFileHead {
 
     public void writeToStream(DataOutput out) throws FileException {
         try {
+            DataIOUtil.writeFixedString(fileCreatedPerson, CREATEDPERSON_LEN, out);
             DataIOUtil.writeFixedString(macAddress, MACADDRESS_CHAR_NUM, out);
             out.writeLong(fileCreatedTime);
             out.writeInt(commentList.size());
@@ -77,6 +90,7 @@ public class EcgFileHead {
     @Override
     public String toString() {
         return "[心电文件头信息："
+                + "采集人：" + fileCreatedPerson + ";"
                 + "设备地址：" + macAddress + ";"
                 + "创建时间：" + fileCreatedTime + ";"
                 //+ "评论数：" + commentList.size() + "]";
@@ -101,6 +115,6 @@ public class EcgFileHead {
     }
 
     public int getLength() {
-        return MACADDRESS_CHAR_NUM *2 + 8 + getCommentsLength();
+        return CREATEDPERSON_LEN*2 + MACADDRESS_CHAR_NUM *2 + 8 + getCommentsLength();
     }
 }

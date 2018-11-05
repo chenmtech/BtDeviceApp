@@ -9,9 +9,12 @@ import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
+import com.cmtech.dsp.exception.FileException;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -33,7 +36,19 @@ public class EcgFileExplorerModel {
 
     private List<EcgFile> fileList = new ArrayList<>();
 
+    private int selectIndex = -1;
+
+    public int getSelectIndex() { return selectIndex; }
+
     public List<EcgFile> getFileList() { return fileList; }
+
+    public List<EcgFileComment> getFileCommentList() {
+        if(fileList.isEmpty() || selectIndex < 0 || selectIndex >= fileList.size()){
+            return new ArrayList<>();
+        } else {
+            return fileList.get(selectIndex).getEcgFileHead().getCommentList();
+        }
+    }
 
     private IEcgFileExplorerObserver observer;
 
@@ -54,6 +69,7 @@ public class EcgFileExplorerModel {
 
     private void initFileList() {
         File[] files = BleDeviceUtil.listDirBmeFiles(EcgMonitorDevice.ECGFILEDIR);
+        // 根据最后修改时间排序
         Arrays.sort(files, new Comparator<File>() {
             @Override
             public int compare(File file, File t1) {
@@ -66,15 +82,82 @@ public class EcgFileExplorerModel {
     private List<EcgFile> createEcgFileList(File[] files) {
         List<EcgFile> ecgFileList = new ArrayList<>();
         for(File file : files) {
+            EcgFile ecgFile = null;
             try {
-                EcgFile ecgFile = EcgFile.openBmeFile(file.getCanonicalPath());
+                ecgFile = EcgFile.openBmeFile(file.getCanonicalPath());
                 ecgFileList.add(ecgFile);
-                ecgFile.close();
             } catch (Exception e) {
+                ecgFileList.remove(ecgFile);
                 continue;
+            } finally {
+                try {
+                    if(ecgFile != null)
+                        ecgFile.close();
+                } catch (FileException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return ecgFileList;
+    }
+
+    public void selectFile(int fileIndex) {
+        selectIndex = fileIndex;
+        if(observer != null) {
+            observer.updateSelectFile();
+        }
+    }
+
+    public void openSelectFile() {
+        if(selectIndex >= 0 && selectIndex < fileList.size()) {
+            String fileName = fileList.get(selectIndex).getFileName();
+
+            if(observer != null) {
+                observer.openFile(fileName);
+            }
+        }
+    }
+
+    public void updateSelectFile() {
+        if(selectIndex >= 0 && selectIndex < fileList.size()) {
+            String fileName = fileList.get(selectIndex).getFileName();
+            EcgFile ecgFile = null;
+            try {
+                ecgFile = EcgFile.openBmeFile(fileName);
+                fileList.set(selectIndex, ecgFile);
+            } catch (FileException e) {
+                e.printStackTrace();
+                return;
+            } finally {
+                if(ecgFile != null) {
+                    try {
+                        ecgFile.close();
+                    } catch (FileException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            if(observer != null) {
+                observer.updateFileList();
+            }
+        }
+    }
+
+    public void deleteSelectFile() {
+        if(selectIndex >= 0 && selectIndex < fileList.size()) {
+            try {
+                FileUtil.deleteFile(fileList.get(selectIndex).getFile());
+                fileList.remove(selectIndex);
+
+                if(++selectIndex > fileList.size()-1) selectIndex = fileList.size()-1;
+                if(observer != null) {
+                    observer.updateFileList();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void importFromWeixin() {
@@ -82,8 +165,9 @@ public class EcgFileExplorerModel {
         File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
 
         for(File wxFile : wxFileList) {
+            EcgFile tmpFile = null;
             try {
-                EcgFile tmpFile = EcgFile.openBmeFile(wxFile.getCanonicalPath());
+                tmpFile = EcgFile.openBmeFile(wxFile.getCanonicalPath());
                 tmpFile.close();
 
                 File toFile = FileUtil.getFile(fileDir, wxFile.getName());
@@ -94,31 +178,42 @@ public class EcgFileExplorerModel {
 
                 FileUtil.moveFile(wxFile, toFile);
                 tmpFile = EcgFile.openBmeFile(toFile.getCanonicalPath());
-                tmpFile.close();
                 fileList.add(tmpFile);
-
-                if(observer != null) {
-                    observer.updateFileList(fileList.size()-1);
-                }
             } catch (Exception e) {
+                fileList.remove(tmpFile);
                 continue;
+            } finally {
+                try {
+                    tmpFile.close();
+                } catch (FileException e) {
+                    e.printStackTrace();
+                }
             }
+        }
+
+        selectIndex = fileList.size()-1;
+
+        if(observer != null) {
+            observer.updateFileList();
         }
     }
 
     // 用微信分享BME文件
-    private void shareThroughWechat(int fileIndex) {
-        EcgFile selectedFile = fileList.get(fileIndex);
+    public void shareSelectFileThroughWechat() {
+        if(selectIndex < 0 || selectIndex >= fileList.size()) return;
+
+        EcgFile sharedFile = fileList.get(selectIndex);
 
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
-        sp.setTitle(selectedFile.getFile().getName());
-        sp.setText(selectedFile.getFile().getName());
+        String fileShortName = sharedFile.getFile().getName();
+        sp.setTitle(fileShortName);
+        sp.setText(fileShortName);
 
         Bitmap bmp= BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_cmiot_16);
         sp.setImageData(bmp);
 
-        sp.setFilePath(selectedFile.getFileName());
+        sp.setFilePath(sharedFile.getFileName());
         Platform wxPlatform = ShareSDK.getPlatform (Wechat.NAME);
         wxPlatform.setPlatformActionListener(new PlatformActionListener() {
             @Override
@@ -140,13 +235,7 @@ public class EcgFileExplorerModel {
         wxPlatform.share(sp);
     }
 
-    public void openFile(int fileIndex) {
-        String fileName = fileList.get(fileIndex).getFileName();
-        EcgFileExplorerActivity activity = (EcgFileExplorerActivity)observer;
-        Intent intent = new Intent(activity, EcgFileReplayActivity.class);
-        intent.putExtra("fileName", fileName);
-        activity.startActivity(intent);
-    }
+
 
     // 登记心电文件浏览器观察者
     public void registerEcgFileExplorerObserver(IEcgFileExplorerObserver observer) {

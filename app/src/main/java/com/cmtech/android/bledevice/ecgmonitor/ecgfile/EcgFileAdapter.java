@@ -13,9 +13,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.vise.log.ViseLog;
 
-import java.io.File;
 import java.util.List;
 
 public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHolder> {
@@ -30,12 +28,16 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     static class ViewHolder extends RecyclerView.ViewHolder {
         View fileView;
         TextView fileName;
+        TextView fileCreatedPerson;
+        TextView fileCreatedTime;
         TextView fileLastModifyTime;
 
         public ViewHolder(View itemView) {
             super(itemView);
             fileView = itemView;
             fileName = fileView.findViewById(R.id.ecgfile_name);
+            fileCreatedPerson = fileView.findViewById(R.id.ecgfile_createperson);
+            fileCreatedTime = fileView.findViewById(R.id.ecgfile_createtime);
             fileLastModifyTime = fileView.findViewById(R.id.ecgfile_lastmodifytime);
         }
     }
@@ -55,7 +57,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setSelectItem(holder.getAdapterPosition());
+                activity.selectFile(holder.getAdapterPosition());
             }
         });
 
@@ -63,10 +65,9 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
-                    EcgFile file = fileList.get(selectItem);
                     switch (item.getItemId()){
                         case 1:
-                            activity.deleteFile(file);
+                            activity.deleteSelectFile();
                             return true;
 
                         default:
@@ -77,7 +78,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
             @Override
             public boolean onLongClick(View view) {
-                setSelectItem(holder.getAdapterPosition());
+                updateSelectItem(holder.getAdapterPosition());
                 view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -96,6 +97,8 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     public void onBindViewHolder(EcgFileAdapter.ViewHolder holder, final int position) {
         EcgFile file = fileList.get(position);
         holder.fileName.setText(file.getFile().getName().substring(0, file.getFile().getName().length()-4));
+        holder.fileCreatedPerson.setText(file.getEcgFileHead().getFileCreatedPerson());
+        holder.fileCreatedTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getEcgFileHead().getFileCreatedTime()));
         holder.fileLastModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getFile().lastModified()));
 
         if(selectItem == position) {
@@ -110,18 +113,19 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         return fileList.size();
     }
 
+    public void updateFileList(List<EcgFile> fileList) {
+        this.fileList = fileList;
+    }
+
     public int getSelectItem() {
         return selectItem;
     }
 
-    public void setSelectItem(int selectItem) {
+    public void updateSelectItem(int selectItem) {
         if(selectItem >= 0 && selectItem < fileList.size())
             this.selectItem = selectItem;
         else
             this.selectItem = -1;
-        notifyDataSetChanged();
-        if(selectItem != -1 && activity != null)
-            activity.selectFile(fileList.get(selectItem));
     }
 
 }

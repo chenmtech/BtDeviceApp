@@ -16,7 +16,7 @@
         android:id = "@+id/rv_ecgfile_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="3"
         android:layout_marginBottom="10dp"/>
 
     <Button
@@ -25,35 +25,7 @@
         android:layout_gravity="center_horizontal"
         android:enabled="false"
         android:minHeight="0dp"
-        android:text="详细信息"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="采集设备："/>
-        <TextView
-            android:id="@+id/tv_ecgfile_macaddress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="采集时间："/>
-        <TextView
-            android:id="@+id/tv_ecgfile_createtime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+        android:text="记录评论"/>
 
     <android.support.v7.widget.RecyclerView
         android:id = "@+id/rv_ecgfile_report"

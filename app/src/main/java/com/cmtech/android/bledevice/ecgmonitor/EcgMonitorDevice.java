@@ -12,6 +12,7 @@ import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorInitial
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorSampleState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDataOpException;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
@@ -255,7 +256,7 @@ public class EcgMonitorDevice extends BleDevice {
                 File toFile = FileUtil.getFile(CACHEDIR, fileName);
                 try {
                     fileName = toFile.getCanonicalPath();
-                    EcgFileHead ecgFileHead = new EcgFileHead(simpleMacAddress, timeInMillis);
+                    EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, timeInMillis);
                     ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
                     ViseLog.e(ecgFileHead.toString());
                 } catch (Exception e) {

@@ -102,6 +102,8 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         btnEcgAddComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(ecgView.isReplaying())
+                    stopReplay();
                 replayModel.addComment(etComment.getText().toString());
             }
         });
@@ -109,11 +111,6 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         initReplay();
 
         startReplay();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -131,11 +128,25 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     protected void onDestroy() {
         super.onDestroy();
 
+        //stopReplay();
+
+        //replayModel.removeEcgFileObserver();
+
+        //replayModel.close();
+    }
+
+    @Override
+    public void onBackPressed() {
         stopReplay();
 
         replayModel.removeEcgFileObserver();
 
         replayModel.close();
+
+        Intent intent = new Intent();
+        intent.putExtra("updated", replayModel.isUpdated());
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     @Override
