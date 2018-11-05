@@ -30,6 +30,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         TextView fileName;
         TextView fileCreatedPerson;
         TextView fileCreatedTime;
+        TextView fileLength;
         TextView fileLastModifyTime;
 
         public ViewHolder(View itemView) {
@@ -38,6 +39,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             fileName = fileView.findViewById(R.id.ecgfile_name);
             fileCreatedPerson = fileView.findViewById(R.id.ecgfile_createperson);
             fileCreatedTime = fileView.findViewById(R.id.ecgfile_createtime);
+            fileLength = fileView.findViewById(R.id.ecgfile_filelength);
             fileLastModifyTime = fileView.findViewById(R.id.ecgfile_lastmodifytime);
         }
     }
@@ -99,6 +101,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.fileName.setText(file.getFile().getName().substring(0, file.getFile().getName().length()-4));
         holder.fileCreatedPerson.setText(file.getEcgFileHead().getFileCreatedPerson());
         holder.fileCreatedTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getEcgFileHead().getFileCreatedTime()));
+        holder.fileLength.setText(DateTimeUtil.secToTime(file.getDataNum()/file.getFs()));
         holder.fileLastModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getFile().lastModified()));
 
         if(selectItem == position) {
