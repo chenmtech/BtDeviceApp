@@ -11,7 +11,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.R;
@@ -37,6 +39,8 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     private TextView tvTotalTime;
     private TextView tvCurrentTime;
+
+    private SeekBar sbEcgReplay;
 
 
     @Override
@@ -72,6 +76,29 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         tvTotalTime = findViewById(R.id.tv_ecgreplay_totaltime);
         int totalTime = replayModel.getEcgFile().getDataNum()/replayModel.getEcgFile().getFs();
         tvTotalTime.setText(""+DateTimeUtil.secToTime(totalTime));
+
+        sbEcgReplay = findViewById(R.id.sb_ecgreplay);
+        sbEcgReplay.setMax(totalTime);
+        sbEcgReplay.setEnabled(false);
+        sbEcgReplay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if(b) {
+                    //Toast.makeText(EcgFileReplayActivity.this, ""+i, Toast.LENGTH_SHORT).show();
+                    ecgView.showAtLocation(i);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         rvReportList = findViewById(R.id.rv_ecgfile_report);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
@@ -178,13 +205,16 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     public void updateShowState(boolean replaying) {
         if(replaying) {
             btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
+            sbEcgReplay.setEnabled(false);
         } else {
             btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
+            sbEcgReplay.setEnabled(true);
         }
     }
 
     @Override
     public void updateCurrentTime(int second) {
         tvCurrentTime.setText("" + DateTimeUtil.secToTime(second));
+        sbEcgReplay.setProgress(second);
     }
 }

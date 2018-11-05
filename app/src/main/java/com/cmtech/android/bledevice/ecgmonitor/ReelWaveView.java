@@ -59,7 +59,7 @@ public class ReelWaveView extends View {
     private final int waveColor;
 
     //private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
-    private List<Integer> viewData = new ArrayList<>();
+    protected List<Integer> viewData = new ArrayList<>();
 
     // View初始化主要需要设置下面4个参数
     private int gridWidth = DEFAULT_GRID_WIDTH;                // 栅格像素宽度
@@ -82,6 +82,8 @@ public class ReelWaveView extends View {
         if((xRes < 1) || (yRes < 0)) return;
         this.xRes = xRes;
         this.yRes = yRes;
+
+        dataNumXDirection = viewWidth/xRes+1;
     }
 
     private double zeroLocation = DEFAULT_ZERO_LOCATION;			//表示零值位置占视图高度的百分比
@@ -92,6 +94,12 @@ public class ReelWaveView extends View {
     }
 
     private boolean showGridLine = true;
+
+    private int dataNumXDirection = viewWidth/xRes+1;
+
+    public int getDataNumXDirection() {
+        return dataNumXDirection;
+    }
 
     public ReelWaveView(Context context) {
         super(context);
@@ -141,6 +149,8 @@ public class ReelWaveView extends View {
 
         viewWidth = getWidth();
         viewHeight = getHeight();
+
+        dataNumXDirection = viewWidth/xRes+1;
     }
 
     @Override
@@ -149,6 +159,8 @@ public class ReelWaveView extends View {
 
         viewWidth = getWidth();
         viewHeight = getHeight();
+
+        dataNumXDirection = viewWidth/xRes+1;
 
         initView();
 
@@ -208,7 +220,7 @@ public class ReelWaveView extends View {
         return size;
     }
 
-    private boolean drawDataOnForeCanvas()
+    protected boolean drawDataOnForeCanvas()
     {
         foreCanvas.drawBitmap(backBitmap, 0, 0, bmpPaint);
 
@@ -216,12 +228,11 @@ public class ReelWaveView extends View {
         int dataNum = data.length;
         if(dataNum <= 1) return true;
 
-        int needDrawNum = viewWidth/xRes+1;
-        if(dataNum < needDrawNum) {
-            needDrawNum = dataNum;
+        //int dataNumXDirection = viewWidth/xRes+1;
+        int begin = dataNum - dataNumXDirection;
+        if(begin < 0) {
+            begin = 0;
         }
-
-        int begin = dataNum - needDrawNum;
 
         viewData.clear();
         viewData.add(data[begin]);

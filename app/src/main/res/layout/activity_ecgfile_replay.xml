@@ -15,6 +15,11 @@
         cmtech:wave_color="#ff0"
         cmtech:show_gridline="true"/>
 
+    <SeekBar
+        android:id="@+id/sb_ecgreplay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

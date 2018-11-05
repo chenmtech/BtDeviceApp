@@ -112,6 +112,38 @@ public class EcgFileReelWaveView extends ReelWaveView {
         }
     }
 
+    public void showAtLocation(int second) {
+        long numAtLocation = second*ecgFile.getFs();
+        if(numAtLocation > ecgFile.getDataNum()) {
+            numAtLocation = ecgFile.getDataNum();
+        }
+        long begin = numAtLocation - getDataNumXDirection();
+        if(begin < 0) {
+            begin = 0;
+        }
+
+        ecgFile.seekData((int)begin);
+        viewData.clear();
+        while(begin++ <= numAtLocation) {
+            try {
+                viewData.add(ecgFile.readData());
+            } catch (FileException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+        drawDataOnForeCanvas();
+
+        invalidate();
+
+        num = (int)numAtLocation;
+
+        if(observer != null) {
+            observer.updateCurrentTime(num/ecgFile.getFs());
+        }
+
+    }
+
     // 登记心电回放观察者
     public void registerEcgFileReelWaveViewObserver(IEcgFileReelWaveViewObserver observer) {
         this.observer = observer;
