@@ -165,7 +165,7 @@ public class EcgFileExplorerModel {
                 FileUtil.deleteFile(fileList.get(selectIndex).getFile());
                 fileList.remove(selectIndex);
 
-                if(++selectIndex > fileList.size()-1) selectIndex = fileList.size()-1;
+                if(selectIndex > fileList.size()-1) selectIndex = fileList.size()-1;
                 if(observer != null) {
                     observer.updateFileList();
                 }

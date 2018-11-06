@@ -28,6 +28,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     private RecyclerView rvReportList;
 
     private Button btnEcgShare;
+    private Button btnEcgDelete;
     private Button btnImportFromWX;
     private Button btnOpenFile;
 
@@ -64,6 +65,21 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         if(reportAdapter.getItemCount() >= 1)
             rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
 
+        btnImportFromWX = findViewById(R.id.btn_ecgfile_import);
+        btnImportFromWX.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                model.importFromWeixin();
+            }
+        });
+
+        btnEcgDelete = findViewById(R.id.btn_ecgfile_delete);
+        btnEcgDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                deleteSelectFile();
+            }
+        });
 
         btnEcgShare = findViewById(R.id.btn_ecgfile_share);
         btnEcgShare.setOnClickListener(new View.OnClickListener() {
@@ -72,14 +88,6 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
                 if(fileAdapter.getSelectItem() == -1) return;
 
                 model.shareSelectFileThroughWechat();
-            }
-        });
-
-        btnImportFromWX = findViewById(R.id.btn_ecgfile_import);
-        btnImportFromWX.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                model.importFromWeixin();
             }
         });
 

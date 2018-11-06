@@ -63,35 +63,6 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             }
         });
 
-        holder.fileView.setOnLongClickListener(new View.OnLongClickListener() {
-            final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
-                    switch (item.getItemId()){
-                        case 1:
-                            activity.deleteSelectFile();
-                            return true;
-
-                        default:
-                            return true;
-                    }
-                }
-            };
-
-            @Override
-            public boolean onLongClick(View view) {
-                updateSelectItem(holder.getAdapterPosition());
-                view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                    @Override
-                    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                        MenuItem delete = menu.add(Menu.NONE, 1, 0, "删除");
-                        delete.setOnMenuItemClickListener(listener);
-                    }
-                });
-                return false;
-            }
-        });
-
         return holder;
     }
 
