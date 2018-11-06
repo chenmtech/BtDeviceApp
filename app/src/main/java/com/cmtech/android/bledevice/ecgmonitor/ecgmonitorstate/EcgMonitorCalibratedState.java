@@ -12,9 +12,7 @@ public class EcgMonitorCalibratedState implements IEcgMonitorState {
 
     @Override
     public void start() {
-
-        // 启动采样心电信号
-        device.setState(device.getSampleState());
+        device.stopSampleData();
         device.startSampleEcg();
     }
 

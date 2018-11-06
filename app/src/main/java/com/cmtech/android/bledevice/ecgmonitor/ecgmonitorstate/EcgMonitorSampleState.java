@@ -22,12 +22,6 @@ public class EcgMonitorSampleState implements IEcgMonitorState {
     public void stop() {
         device.stopSampleData();
 
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         device.getHandler().removeCallbacksAndMessages(null);
 
         device.setState(device.getCalibratedState());

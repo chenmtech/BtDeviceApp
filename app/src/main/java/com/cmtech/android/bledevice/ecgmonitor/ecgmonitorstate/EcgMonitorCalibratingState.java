@@ -8,11 +8,11 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class EcgMonitorCalibrateState implements IEcgMonitorState {
+public class EcgMonitorCalibratingState implements IEcgMonitorState {
     private EcgMonitorDevice device;
     private ArrayList<Integer> calibrationData = new ArrayList<Integer>(250);   // 用于保存标定用的数据
 
-    public EcgMonitorCalibrateState(EcgMonitorDevice device) {
+    public EcgMonitorCalibratingState(EcgMonitorDevice device) {
         this.device = device;
     }
 
@@ -33,7 +33,6 @@ public class EcgMonitorCalibrateState implements IEcgMonitorState {
 
     @Override
     public void onCalibrateSuccess() {
-        //device.stopSampleData();
         device.setState(device.getCalibratedState());
         device.start();
     }

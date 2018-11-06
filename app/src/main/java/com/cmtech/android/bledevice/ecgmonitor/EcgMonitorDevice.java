@@ -4,9 +4,8 @@ import android.os.Message;
 import android.util.Log;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileComment;
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileHead;
-import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibrateState;
+import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratingState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratedState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorInitialState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorSampleState;
@@ -55,6 +54,7 @@ public class EcgMonitorDevice extends BleDevice {
     private static final int MSG_ECGDATA = 1;            // ECG数据
     private static final int MSG_READSAMPLERATE = 2;    // 读采样率
     private static final int MSG_READLEADTYPE = 3;      // 读导联类型
+    private static final int MSG_STARTECGSAMPLE = 4;
 
     /////////////////   心电监护仪Service UUID常量////////////////
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
@@ -115,13 +115,13 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 设备状态
     private final EcgMonitorInitialState initialState = new EcgMonitorInitialState(this);
-    private final EcgMonitorCalibrateState calibratingState = new EcgMonitorCalibrateState(this);
+    private final EcgMonitorCalibratingState calibratingState = new EcgMonitorCalibratingState(this);
     private final EcgMonitorCalibratedState calibratedState = new EcgMonitorCalibratedState(this);
     private final EcgMonitorSampleState sampleState = new EcgMonitorSampleState(this);
     public EcgMonitorInitialState getInitialState() {
         return initialState;
     }
-    public EcgMonitorCalibrateState getCalibratingState() {
+    public EcgMonitorCalibratingState getCalibratingState() {
         return calibratingState;
     }
     public EcgMonitorCalibratedState getCalibratedState() {
@@ -139,7 +139,6 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 设备观察者
     private IEcgMonitorObserver observer;
-
 
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
@@ -238,6 +237,10 @@ public class EcgMonitorDevice extends BleDevice {
                 }
                 break;
 
+            case MSG_STARTECGSAMPLE:
+                setState(getSampleState());
+                break;
+
             default:
                 break;
         }
@@ -322,7 +325,7 @@ public class EcgMonitorDevice extends BleDevice {
         bmeFileHead.setDataType(BmeFileDataType.INT32);
         bmeFileHead.setFs(sampleRate);
         bmeFileHead.setInfo("Ecg Lead " + leadType.getDescription());
-        bmeFileHead.setCalibrationValue(DEFAULT_CALIBRATIONVALUE);
+        bmeFileHead.setCalibrationValue(value1mV);
     }
 
     private void initializeFilter() {
@@ -339,6 +342,8 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     public void processOneEcgData(int ecgData) {
+
+
         if(isEcgFilter)
             ecgData = (int)notch.filter(dcBlock.filter(ecgData));
 
@@ -380,7 +385,18 @@ public class EcgMonitorDevice extends BleDevice {
         // enable ECG data notification
         addNotifyCommand(ECGMONITORDATACCC, true, null, notifyCallback);
 
-        addWriteCommand(ECGMONITORCTRL, (byte)0x01, null);
+        addWriteCommand(ECGMONITORCTRL, (byte) 0x01, new IBleDataOpCallback() {
+            @Override
+            public void onSuccess(byte[] data) {
+                sendGattMessage(MSG_STARTECGSAMPLE, null);
+            }
+
+            @Override
+            public void onFailure(BleDataOpException exception) {
+
+            }
+        });
+
     }
 
     // 启动1mV信号采集
