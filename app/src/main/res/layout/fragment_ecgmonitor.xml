@@ -61,23 +61,26 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
         <ImageView
+            android:id="@+id/iv_ecg_heart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:src="@mipmap/ic_ecg_heart"/>
 
         <TextView
             android:id="@+id/tv_ecg_hr"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/iv_ecg_heart"
+            android:layout_marginLeft="10sp"
             android:textSize="48sp"
             android:text="0"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <com.cmtech.android.bledevice.ecgmonitor.ScanWaveView
         android:id="@+id/ecg_view"
@@ -141,6 +144,8 @@
             android:layout_toLeftOf="@id/btn_ecg_startandstop"
             android:layout_marginRight="20dp"
             android:layout_centerVertical="true"
+            android:background="#ddd"
+            android:textColor="#f00"
             android:text="回放"/>
 
         <CheckBox
@@ -163,6 +168,18 @@
             android:clickable="false"
             android:visibility="gone"
             android:text="滤波"/>
+
+        <ToggleButton
+            android:id="@+id/tb_ecg_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/cb_ecg_filter"
+            android:textOff="记录"
+            android:textOn="记录中"
+            android:checked="false"
+            android:clickable="false"
+            android:background="#ddd"
+            android:textColor="#f00"/>
 
 
     </RelativeLayout>
