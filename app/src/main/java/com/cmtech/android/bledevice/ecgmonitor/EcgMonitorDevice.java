@@ -100,7 +100,7 @@ public class EcgMonitorDevice extends BleDevice {
     public boolean isEcgFilter() { return isEcgFilter; }
 
 
-    private BmeFileHead30 bmeFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead10版本，LITTLE_ENDIAN，数据类型为INT32
+    private BmeFileHead30 bmeFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead30版本，LITTLE_ENDIAN，数据类型为INT32
     private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
 
     private IIRFilter dcBlock = null;               // 隔直滤波器

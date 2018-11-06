@@ -54,7 +54,8 @@ public class ScanWaveView extends View {
     private final int gridColor;
     private final int waveColor;
 
-    private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
+    //private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
+    private int viewData = 0;
 
     // View初始化主要需要设置下面4个参数
     private int gridWidth = DEFAULT_GRID_WIDTH;                // 栅格像素宽度
@@ -154,7 +155,8 @@ public class ScanWaveView extends View {
     public void initView()
     {
         // 清除缓存区
-        viewData.clear();
+        //viewData.clear();
+        viewData = 0;
 
         //创建背景Bitmap
         createBackBitmap();
@@ -169,7 +171,8 @@ public class ScanWaveView extends View {
     }
 
     public synchronized void showData(Integer data) {
-        viewData.offer(data);
+        //viewData.offer(data);
+        viewData = data;
 
         drawPointOnForeCanvas();
 
@@ -197,11 +200,12 @@ public class ScanWaveView extends View {
     {
         Integer value = 0;
 
-        try {
+        /*try {
             value = viewData.take();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
+        value = viewData;
 
         curY = initY - Math.round(value/yRes);
 

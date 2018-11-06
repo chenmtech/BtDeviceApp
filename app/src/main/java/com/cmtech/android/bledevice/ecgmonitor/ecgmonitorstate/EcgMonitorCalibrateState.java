@@ -33,7 +33,7 @@ public class EcgMonitorCalibrateState implements IEcgMonitorState {
 
     @Override
     public void onCalibrateSuccess() {
-        device.stopSampleData();
+        //device.stopSampleData();
         device.setState(device.getCalibratedState());
         device.start();
     }
