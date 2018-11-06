@@ -176,10 +176,19 @@
             android:layout_toRightOf="@id/cb_ecg_filter"
             android:textOff="记录"
             android:textOn="记录中"
+            android:minWidth="0dp"
             android:checked="false"
             android:clickable="false"
             android:background="#ddd"
             android:textColor="#f00"/>
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/tb_ecg_record"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/ic_ecg_saving"/>
 
 
     </RelativeLayout>
