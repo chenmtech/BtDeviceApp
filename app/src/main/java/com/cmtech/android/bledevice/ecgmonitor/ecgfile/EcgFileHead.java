@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class EcgFileHead {
@@ -66,6 +67,12 @@ public class EcgFileHead {
                 comment.readFromStream(in);
                 commentList.add(comment);
             }
+            commentList.sort(new Comparator<EcgFileComment>() {
+                @Override
+                public int compare(EcgFileComment o1, EcgFileComment o2) {
+                    return (int)(o1.getCommentTime() - o2.getCommentTime());
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileException("", "读心电文件头错误");
