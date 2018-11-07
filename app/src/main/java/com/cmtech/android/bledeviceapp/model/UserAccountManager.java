@@ -72,4 +72,12 @@ public class UserAccountManager {
         }
     }
 
+    // 用规则判断账户信息是否有效
+    public boolean isAccountInfoValid(String account, String password) {
+        if(account.length() < 3 || password.length() < 3) {
+            return false;
+        }
+        return true;
+    }
+
 }

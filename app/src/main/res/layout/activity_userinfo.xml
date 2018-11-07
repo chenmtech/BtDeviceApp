@@ -55,7 +55,7 @@
             android:layout_gravity="center_vertical"
             android:gravity="end"
             android:textSize="18sp"
-            android:text="用户名："/>
+            android:text="网络名："/>
         <EditText
             android:id="@+id/et_userinfo_username"
             android:layout_width="0dp"

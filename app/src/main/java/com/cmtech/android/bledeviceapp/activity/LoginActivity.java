@@ -32,8 +32,8 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
  */
 
 public class LoginActivity extends AppCompatActivity {
-
-    private final static int REQUESTCODE_ENABLEBLUETOOTH = 1;    // 使能蓝牙
+    // 使能蓝牙权限返回码
+    private final static int REQUESTCODE_ENABLEBLUETOOTH = 1;
 
     private EditText etAccount;
     private EditText etPassword;
@@ -53,18 +53,39 @@ public class LoginActivity extends AppCompatActivity {
         // 检查权限
         checkPermissions();
 
-
-        if(UserAccountManager.getInstance().isSignIn()) {
-            startMainActivity();
-            finish();
-        }
-
         pref = PreferenceManager.getDefaultSharedPreferences(this);
 
         etAccount = findViewById(R.id.account);
         etPassword = findViewById(R.id.password);
-
         btnSignin = findViewById(R.id.btn_account_signin);
+        btnSignup = findViewById(R.id.btn_account_signup);
+        cbRememberPassword = findViewById(R.id.cb_remember_password);
+        cbAutoSignin = findViewById(R.id.cb_auto_signin);
+
+        // 读账户名
+        String account = pref.getString("account", "");
+        etAccount.setText(account);
+
+        String password = "";
+        // 读是否记住密码，并根据结果决定是否读取密码
+        boolean isRemember = pref.getBoolean("remember_password", false);
+        if(isRemember) {
+            password = pref.getString("password", "");
+        }
+        cbRememberPassword.setChecked(isRemember);
+
+        // 设置密码
+        etPassword.setText(password);
+
+        // 读是否自动登录
+        boolean autoSignin = pref.getBoolean("auto_signin", false);
+        cbAutoSignin.setChecked(autoSignin);
+
+        // 根据是否自动登录及是否已经使能蓝牙，决定是否登录
+        if(autoSignin && BleDeviceUtil.isBleEnable(MyApplication.getContext())) {
+            signIn(account, password);
+        }
+
         btnSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -74,7 +95,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        btnSignup = findViewById(R.id.btn_account_signup);
         btnSignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,29 +103,6 @@ public class LoginActivity extends AppCompatActivity {
                 signUp(account, password);
             }
         });
-
-
-        cbRememberPassword = findViewById(R.id.cb_remember_password);
-        boolean isRemember = pref.getBoolean("remember_password", false);
-        if(isRemember) {
-            String account = pref.getString("account", "");
-            String password = pref.getString("password", "");
-            etAccount.setText(account);
-            etPassword.setText(password);
-            cbRememberPassword.setChecked(true);
-        } else {
-            cbRememberPassword.setChecked(false);
-        }
-
-        cbAutoSignin = findViewById(R.id.cb_auto_signin);
-        boolean autoSignin = pref.getBoolean("auto_signin", false);
-        cbAutoSignin.setChecked(autoSignin);
-
-        if(autoSignin && BleDeviceUtil.isBleEnable(MyApplication.getContext())) {
-            String account = etAccount.getText().toString();
-            String password = etPassword.getText().toString();
-            signIn(account, password);
-        }
     }
 
     @Override
@@ -138,7 +135,7 @@ public class LoginActivity extends AppCompatActivity {
                 for(int i = 0; i < grantResults.length; i++) {
                     if(grantResults[i] != PackageManager.PERMISSION_GRANTED) {
                         // 不同意权限
-                        Toast.makeText(this, "没有权限程序无法运行", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "没有必要的权限，程序无法正常运行", Toast.LENGTH_SHORT).show();
                         finish();
                         break;
                     } else {
@@ -156,10 +153,15 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        saveLoginSetup();
+        saveLoginInfoToPref();
     }
 
+    // 注册账户
     private void signUp(String account, String password) {
+        if(!UserAccountManager.getInstance().isAccountInfoValid(account, password)) {
+            Toast.makeText(LoginActivity.this, "注册的账户信息无效。", Toast.LENGTH_SHORT).show();
+        }
+
         boolean result = UserAccountManager.getInstance().signUp(account, password);
         if(!result) {
             Toast.makeText(LoginActivity.this, "账户已存在。", Toast.LENGTH_SHORT).show();
@@ -168,6 +170,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // 登录
     private void signIn(String account, String password) {
         boolean result = UserAccountManager.getInstance().signIn(account, password);
         if(result) {
@@ -178,6 +181,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    // 启动MainActivity
     private void startMainActivity() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         Intent inputIntent = getIntent();
@@ -187,29 +191,27 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void saveLoginSetup() {
+    // 将登录信息保存到Pref
+    private void saveLoginInfoToPref() {
         String account = etAccount.getText().toString();
         String password = etPassword.getText().toString();
 
         editor = pref.edit();
-        if(cbRememberPassword.isChecked()) {
-            editor.putBoolean("remember_password", true);
-            editor.putString("account", account);
-            editor.putString("password", password);
 
+        editor.putString("account", account);
+
+        if(cbRememberPassword.isChecked()) {
+            editor.putString("password", password);
         } else {
-            editor.remove("remember_password");
-            editor.remove("account");
             editor.remove("password");
         }
 
-        if(cbAutoSignin.isChecked()) {
-            editor.putBoolean("auto_signin", true);
-        } else {
-            editor.remove("auto_signin");
-        }
+        editor.putBoolean("remember_password", cbRememberPassword.isChecked());
+        editor.putBoolean("auto_signin", cbAutoSignin.isChecked());
+
         editor.apply();
     }
+
 
     /**
      * 检查权限
