@@ -28,7 +28,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.bledevice.SupportedDeviceType;
@@ -103,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     private TextView tvAccountName;
     private TextView tvUserName;
+    private ImageView ivAccountImage;
 
 
     @Override
@@ -149,13 +149,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
         View headerView = navView.getHeaderView(0);
         tvAccountName = headerView.findViewById(R.id.accountname);
-        if(UserAccountManager.getInstance().isSignIn()) {
-            tvAccountName.setText(UserAccountManager.getInstance().getUserAccount().getAccountName());
-        }
         tvUserName = headerView.findViewById(R.id.username);
-        if(UserAccountManager.getInstance().isSignIn()) {
-            tvUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
-        }
+        ivAccountImage = headerView.findViewById(R.id.accountimage);
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -163,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 startActivityForResult(intent, REQUESTCODE_MODIFYUSERINFO);
             }
         });
+        setUserInfo();
 
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -256,9 +252,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 break;
 
             case REQUESTCODE_MODIFYUSERINFO:
-                if(UserAccountManager.getInstance().isSignIn()) {
-                    tvUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
-                }
+                setUserInfo();
                 break;
         }
     }
@@ -516,6 +510,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void setUserInfo() {
+        if(UserAccountManager.getInstance().isSignIn()) {
+            tvAccountName.setText(UserAccountManager.getInstance().getUserAccount().getAccountName());
+            tvUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
+            String imagePath = UserAccountManager.getInstance().getUserAccount().getImagePath();
+            if(!"".equals(imagePath))
+                Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivAccountImage);
+        }
     }
 
     private void ecgReplay(String fileName) {

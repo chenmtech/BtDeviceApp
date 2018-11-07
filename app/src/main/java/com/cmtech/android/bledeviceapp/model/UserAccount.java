@@ -15,6 +15,8 @@ public class UserAccount  extends LitePalSupport implements Serializable{
 
     private String userName = "匿名";
 
+    private String imagePath = "";
+
     public int getId() {
         return id;
     }
@@ -31,6 +33,14 @@ public class UserAccount  extends LitePalSupport implements Serializable{
         this.accountName = accountName;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getUserName() {
         return userName;
     }
@@ -39,11 +49,11 @@ public class UserAccount  extends LitePalSupport implements Serializable{
         this.userName = userName;
     }
 
-    public String getPassword() {
-        return password;
+    public String getImagePath() {
+        return imagePath;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }
