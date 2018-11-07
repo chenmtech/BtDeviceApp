@@ -4,18 +4,22 @@
 
         <item
             android:id="@+id/nav_registerdevice"
-            android:title="登记设备"/>
+            android:title="登记设备"
+            android:icon="@mipmap/ic_menu_registerdevice"/>
 
         <item
             android:id="@+id/nav_ecgreplay"
-            android:title="心电回放"/>
+            android:title="心电回放"
+            android:icon="@mipmap/ic_menu_ecgreplay"/>
 
         <item
             android:id="@+id/nav_changeuser"
-            android:title="切换用户"/>
+            android:title="切换用户"
+            android:icon="@mipmap/ic_menu_changeuser"/>
 
         <item
             android:id="@+id/nav_exit"
-            android:title="退出"/>
+            android:title="退出"
+            android:icon="@mipmap/ic_menu_exit"/>
     </group>
 </menu>

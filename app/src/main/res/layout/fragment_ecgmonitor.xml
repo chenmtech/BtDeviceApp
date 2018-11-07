@@ -63,7 +63,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="#ddd">
         <ImageView
             android:id="@+id/iv_ecg_heart"
             android:layout_width="wrap_content"
@@ -152,12 +153,12 @@
 
         <ToggleButton
             android:id="@+id/tb_ecg_record"
-            android:layout_width="55dp"
-            android:layout_height="30dp"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
             android:layout_toRightOf="@id/cb_ecg_filter"
             android:layout_centerVertical="true"
-            android:textOff="记录"
-            android:textOn="记录中"
+            android:textOff="采集"
+            android:textOn="采集中"
             android:checked="false"
             android:clickable="false"
             android:background="#0f0"
@@ -166,9 +167,9 @@
 
         <Button
             android:id="@+id/btn_ecg_replay"
-            android:layout_width="55dp"
-            android:layout_height="30dp"
-            android:layout_toRightOf="@id/tb_ecg_record"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:layout_toLeftOf="@id/btn_ecg_startandstop"
             android:layout_centerVertical="true"
             android:background="#0f0"
             android:textColor="#f00"

@@ -1,7 +1,7 @@
 <resources>
     <!-- Base application theme. -->
     <style name="AppTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimary">@color/royalblue</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
         <item name="android:textColorPrimary">@color/primary_text</item>
@@ -10,5 +10,10 @@
     <style name="MyTabLayoutTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="navigationDrawerStyle" >
+        <item name="android:textSize">16sp</item>
+        <item name="android:actionMenuTextColor">@color/primary_dark</item>
     </style>
 </resources>

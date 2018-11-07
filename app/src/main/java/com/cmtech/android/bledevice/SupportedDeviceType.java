@@ -26,13 +26,13 @@ public class SupportedDeviceType {
     private static final String NAME_UNKNOWN                     = "未知设备";
 
     // 支持的设备类型的缺省图标
-    private static final int IMAGE_SIMPLE128GATTPROFILE       = R.mipmap.ic_unknown_128px;
-    private static final int IMAGE_HEIGHTSCALE                 = R.mipmap.ic_unknown_128px;
-    private static final int IMAGE_THERMOMETER                 = R.drawable.thermo_image;
-    private static final int IMAGE_ECGMONITOR                  = R.drawable.ecgmonitor_image;
-    private static final int IMAGE_SIGGENERATOR                = R.mipmap.ic_unknown_128px;
-    private static final int IMAGE_TEMPHUMID                   = R.drawable.temphumid_image;
-    private static final int IMAGE_UNKNOWN                     = R.mipmap.ic_unknown_128px;
+    private static final int IMAGE_SIMPLE128GATTPROFILE        = R.drawable.ic_unknowndevice_defaultimage;
+    private static final int IMAGE_HEIGHTSCALE                 = R.drawable.ic_unknowndevice_defaultimage;
+    private static final int IMAGE_THERMOMETER                 = R.drawable.ic_thermo_defaultimage;
+    private static final int IMAGE_ECGMONITOR                  = R.drawable.ic_ecgmonitor_defaultimage;
+    private static final int IMAGE_SIGGENERATOR                = R.drawable.ic_unknowndevice_defaultimage;
+    private static final int IMAGE_TEMPHUMID                   = R.drawable.ic_temphumid_defaultimage;
+    private static final int IMAGE_UNKNOWN                     = R.drawable.ic_unknowndevice_defaultimage;
 
     // 支持的设备类型对应的抽象工厂类的完整名称
     private static final String thermoFactory = "com.cmtech.android.bledevice.thermo.ThermoDeviceFactory";
