@@ -30,7 +30,6 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         TextView fileCreatedPerson;
         TextView fileCreatedTime;
         TextView fileLastComment;
-        TextView fileLastCommentTime;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -38,7 +37,6 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             fileCreatedPerson = fileView.findViewById(R.id.ecgfile_createperson);
             fileCreatedTime = fileView.findViewById(R.id.ecgfile_createtime);
             fileLastComment = fileView.findViewById(R.id.ecgfile_lastcomment);
-            fileLastCommentTime = fileView.findViewById(R.id.ecgfile_lastcommenttime);
         }
     }
 
@@ -72,22 +70,25 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
         StringBuilder createTimeSb = new StringBuilder();
         createTimeSb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getEcgFileHead().getFileCreatedTime()));
-        createTimeSb.append('[');
-        createTimeSb.append(file.getDataNum()/file.getFs());
+        createTimeSb.append(" [");
+        createTimeSb.append(DateTimeUtil.secToTime(file.getDataNum()/file.getFs()));
         createTimeSb.append(']');
         holder.fileCreatedTime.setText(createTimeSb.toString());
 
-        if(file.getEcgFileHead().getCommentsNum() > 0) {
-            EcgFileComment comment = file.getEcgFileHead().getCommentList().get(file.getEcgFileHead().getCommentsNum()-1);
-            StringBuilder lastCommentSb = new StringBuilder();
-            lastCommentSb.append(comment.getCommentator());
-            lastCommentSb.append("：");
-            lastCommentSb.append(comment.getComment());
-            holder.fileLastComment.setText(lastCommentSb.toString());
-
-            StringBuilder lastCommentTimeSb = new StringBuilder();
-            lastCommentTimeSb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCommentTime()));
-            holder.fileLastCommentTime.setText(lastCommentTimeSb.toString());
+        int commentNum = file.getEcgFileHead().getCommentsNum();
+        if(commentNum > 0) {
+            EcgFileComment comment = file.getEcgFileHead().getCommentList().get(commentNum - 1);
+            StringBuilder sb = new StringBuilder();
+            sb.append("留言：");
+            sb.append(comment.getCommentator());
+            sb.append(' ');
+            sb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCommentTime()));
+            sb.append(" [");
+            sb.append(comment.getComment());
+            sb.append(']');
+            holder.fileLastComment.setText(sb.toString());
+        } else {
+            holder.fileLastComment.setText("无留言");
         }
 
         if(selectItem == position) {
