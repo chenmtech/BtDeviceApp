@@ -50,7 +50,7 @@
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activity.ScanDeviceActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -121,7 +121,8 @@
                 <data android:scheme="tencent1107924092" />
             </intent-filter>
         </activity>
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileExplorerActivity"></activity>
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileExplorerActivity" />
+        <activity android:name=".activity.UserInfoActivity"></activity>
     </application>
 
 </manifest>

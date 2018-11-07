@@ -65,10 +65,7 @@ public class UserAccountManager {
     public boolean signIn(String account, String password) {
         List<UserAccount> find = LitePal.where("accountName = ? and password = ?", account, password).find(UserAccount.class);
         if(find != null && find.size() == 1) {
-            UserAccount user = new UserAccount();
-            user.setAccountName(account);
-            user.setPassword(password);
-            setUserAccount(user);
+            setUserAccount(find.get(0));
             return true;
         } else {
             return false;

@@ -28,6 +28,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.bledevice.SupportedDeviceType;
@@ -65,6 +66,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceActivity {
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
+    private final static int REQUESTCODE_MODIFYUSERINFO = 3;
 
     // 已登记的设备列表
     private final List<BleDevice> registeredDeviceList = new ArrayList<>();
@@ -99,7 +101,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     private Toolbar toolbar;
 
-    private TextView accountName;
+    private TextView tvAccountName;
+    private TextView tvUserName;
 
 
     @Override
@@ -145,10 +148,22 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         });
 
         View headerView = navView.getHeaderView(0);
-        accountName = headerView.findViewById(R.id.accountname);
+        tvAccountName = headerView.findViewById(R.id.accountname);
         if(UserAccountManager.getInstance().isSignIn()) {
-            accountName.setText(UserAccountManager.getInstance().getUserAccount().getAccountName());
+            tvAccountName.setText(UserAccountManager.getInstance().getUserAccount().getAccountName());
         }
+        tvUserName = headerView.findViewById(R.id.username);
+        if(UserAccountManager.getInstance().isSignIn()) {
+            tvUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
+        }
+        headerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
+                startActivityForResult(intent, REQUESTCODE_MODIFYUSERINFO);
+            }
+        });
+
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
         mWelcomeLayout = findViewById(R.id.welecome_layout);
@@ -240,6 +255,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 }
                 break;
 
+            case REQUESTCODE_MODIFYUSERINFO:
+                if(UserAccountManager.getInstance().isSignIn()) {
+                    tvUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
+                }
+                break;
         }
     }
 

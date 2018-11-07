@@ -9,15 +9,27 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:src="@mipmap/ic_launcher"
-        android:layout_centerInParent="true"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"/>
 
     <TextView
         android:id="@+id/accountname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/icon_image"
         android:layout_centerHorizontal="true"
         android:text="未登录"
         android:textColor="#f00"
-        android:textSize="20sp"/>
+        android:textSize="20sp"
+        android:layout_marginBottom="5dp"/>
+
+    <TextView
+        android:id="@+id/username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/accountname"
+        android:layout_centerHorizontal="true"
+        android:text="匿名"
+        android:textColor="#0f0"
+        android:textSize="25sp"/>
 </RelativeLayout>
