@@ -96,9 +96,12 @@ public class EcgMonitorDevice extends BleDevice {
 
     private boolean isRecord = false;                // 是否记录心电信号
     public boolean isRecord() { return isRecord; }
+
     private boolean isEcgFilter = true;                // 是否对信号滤波
     public boolean isEcgFilter() { return isEcgFilter; }
-
+    public synchronized void setEcgFilter(boolean isEcgFilter) {
+        this.isEcgFilter = isEcgFilter;
+    }
 
     private BmeFileHead30 bmeFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead30版本，LITTLE_ENDIAN，数据类型为INT32
     private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
@@ -151,9 +154,9 @@ public class EcgMonitorDevice extends BleDevice {
     @Override
     public boolean executeAfterConnectSuccess() {
         isRecord = false;
-        updateRecordCheckBox(false, false);
+        updateRecordStatus(false);
 
-        updateFilterCheckBox(isEcgFilter, false);
+        updateFilterStatus(false);
 
         updateSampleRate(DEFAULT_SAMPLERATE);
         updateLeadType(DEFAULT_LEADTYPE);
@@ -216,7 +219,7 @@ public class EcgMonitorDevice extends BleDevice {
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
                     initializeFilter();
-                    updateFilterCheckBox(isEcgFilter, true);
+                    updateFilterStatus(true);
                 }
                 break;
 
@@ -286,9 +289,6 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    public synchronized void setEcgFilter(boolean isEcgFilter) {
-        this.isEcgFilter = isEcgFilter;
-    }
 
 
     public synchronized void switchSampleState() {
@@ -368,7 +368,7 @@ public class EcgMonitorDevice extends BleDevice {
     public void startSampleEcg() {
         initializeEcgFile();
 
-        updateRecordCheckBox(false, true);
+        updateRecordStatus(true);
 
         IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
             @Override
@@ -468,15 +468,15 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    private void updateRecordCheckBox(final boolean isChecked, final boolean clickable) {
+    private void updateRecordStatus(final boolean clickable) {
         if(observer != null) {
-            observer.updateRecordCheckBox(isChecked, clickable);
+            observer.updateRecordStatus(clickable);
         }
     }
 
-    private void updateFilterCheckBox(final boolean isChecked, final boolean clickable) {
+    private void updateFilterStatus(final boolean clickable) {
         if(observer != null) {
-            observer.updateFilterCheckBox(isChecked, clickable);
+            observer.updateFilterStatus(clickable);
         }
     }
 

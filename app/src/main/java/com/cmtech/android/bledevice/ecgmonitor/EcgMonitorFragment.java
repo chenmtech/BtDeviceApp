@@ -29,7 +29,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ScanWaveView ecgView;
     private ImageButton btnSwitchSampleEcg;
 
-    private CheckBox cbEcgRecord;
     private ToggleButton tbEcgRecord;
     private CheckBox cbEcgFilter;
 
@@ -66,19 +65,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvEcg1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvEcgHr = view.findViewById(R.id.tv_ecg_hr);
         ecgView = view.findViewById(R.id.ecg_view);
+
         btnSwitchSampleEcg = view.findViewById(R.id.btn_ecg_startandstop);
-
-        cbEcgRecord = view.findViewById(R.id.cb_ecg_record);
-        cbEcgRecord.setChecked(((EcgMonitorDevice)getDevice()).isRecord());
-
-        tbEcgRecord = view.findViewById(R.id.tb_ecg_record);
-        tbEcgRecord.setChecked(((EcgMonitorDevice)getDevice()).isRecord());
-
-        cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
-        cbEcgFilter.setChecked(((EcgMonitorDevice)getDevice()).isEcgFilter());
-
-        btnReplay = view.findViewById(R.id.btn_ecg_replay);
-
         btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -86,20 +74,18 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        cbEcgRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorController)getController()).setEcgRecord(b);
-            }
-        });
-
+        tbEcgRecord = view.findViewById(R.id.tb_ecg_record);
+        tbEcgRecord.setChecked(((EcgMonitorDevice)getDevice()).isRecord());
         tbEcgRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 ((EcgMonitorController)getController()).setEcgRecord(b);
+                btnReplay.setClickable(!b);
             }
         });
 
+        cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
+        cbEcgFilter.setChecked(((EcgMonitorDevice)getDevice()).isEcgFilter());
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -107,6 +93,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
+        btnReplay = view.findViewById(R.id.btn_ecg_replay);
         btnReplay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -185,25 +172,22 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateRecordCheckBox(final boolean isChecked, final boolean clickable) {
+    public void updateRecordStatus(final boolean clickable) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                cbEcgRecord.setChecked(isChecked);
-                cbEcgRecord.setClickable(clickable);
-
-                tbEcgRecord.setChecked(isChecked);
+                //tbEcgRecord.setChecked(isChecked);
                 tbEcgRecord.setClickable(clickable);
             }
         });
     }
 
     @Override
-    public void updateFilterCheckBox(final boolean isChecked, final boolean clickable) {
+    public void updateFilterStatus(final boolean clickable) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                cbEcgFilter.setChecked(isChecked);
+                //cbEcgFilter.setChecked(isChecked);
                 cbEcgFilter.setClickable(clickable);
             }
         });

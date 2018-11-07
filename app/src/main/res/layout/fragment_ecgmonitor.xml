@@ -124,7 +124,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:background="#ddd">
 
         <ImageButton
@@ -132,37 +132,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:clickable="false"
             android:src="@mipmap/ic_ecg_play_48px"
             android:background="#ddd"
             android:text="开始"/>
 
-        <Button
-            android:id="@+id/btn_ecg_replay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/btn_ecg_startandstop"
-            android:layout_marginRight="20dp"
-            android:layout_centerVertical="true"
-            android:background="#ddd"
-            android:textColor="#f00"
-            android:text="回放"/>
-
-        <CheckBox
-            android:id="@+id/cb_ecg_record"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/btn_ecg_startandstop"
-            android:layout_centerVertical="true"
-            android:checked="false"
-            android:clickable="false"
-            android:text="记录"/>
-
         <CheckBox
             android:id="@+id/cb_ecg_filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/cb_ecg_record"
+            android:layout_toRightOf="@+id/btn_ecg_startandstop"
             android:layout_centerVertical="true"
             android:checked="false"
             android:clickable="false"
@@ -171,25 +152,27 @@
 
         <ToggleButton
             android:id="@+id/tb_ecg_record"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="55dp"
+            android:layout_height="30dp"
             android:layout_toRightOf="@id/cb_ecg_filter"
+            android:layout_centerVertical="true"
             android:textOff="记录"
             android:textOn="记录中"
-            android:minWidth="0dp"
             android:checked="false"
             android:clickable="false"
-            android:background="#ddd"
-            android:textColor="#f00"/>
+            android:background="#0f0"
+            android:textColor="#f00"
+            android:layout_marginRight="20dp"/>
 
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <Button
+            android:id="@+id/btn_ecg_replay"
+            android:layout_width="55dp"
+            android:layout_height="30dp"
             android:layout_toRightOf="@id/tb_ecg_record"
             android:layout_centerVertical="true"
-            android:src="@mipmap/ic_ecg_saving"/>
-
+            android:background="#0f0"
+            android:textColor="#f00"
+            android:text="回放"/>
 
     </RelativeLayout>
 
