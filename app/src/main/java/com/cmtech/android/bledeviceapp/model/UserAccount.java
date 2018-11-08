@@ -13,7 +13,7 @@ public class UserAccount  extends LitePalSupport implements Serializable{
 
     private String password = "";
 
-    private String userName = "匿名";
+    private String userName = "未设置";
 
     private String imagePath = "";
 

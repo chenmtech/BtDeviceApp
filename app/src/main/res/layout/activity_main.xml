@@ -26,24 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <!--  欢迎界面  -->
-            <FrameLayout
-                android:id="@+id/welecome_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="visible">
-                <ImageView
-                    android:id="@+id/welcome_image"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="fitCenter"/>
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:text="欢迎使用\n广医物联网蓝牙终端！"
-                    android:textColor="#0288d1"
-                    android:textSize="35dp"/>
-            </FrameLayout>
+            <include layout = "@layout/welcome_layout"/>
 
             <!--  设备界面  -->
             <LinearLayout

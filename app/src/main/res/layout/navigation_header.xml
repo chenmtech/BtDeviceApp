@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/accountname"
         android:layout_centerHorizontal="true"
-        android:text="匿名"
+        android:text="未设置"
         android:textColor="#0f0"
         android:textSize="25sp"/>
 

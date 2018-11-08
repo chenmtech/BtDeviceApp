@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -84,13 +85,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private DrawerLayout mDrawerLayout;
 
     // 欢迎界面
-    private FrameLayout mWelcomeLayout;
+    private LinearLayout mWelcomeLayout;
 
     // 包含设备Fragment和Tablayout的界面
     private LinearLayout mMainLayout;
-
-    // 欢迎界面中的图像
-    private ImageView welcomeImage;
 
     // 主界面的TabLayout和Fragment管理器
     private FragmentAndTabLayoutManager fragmentManager;
@@ -162,11 +160,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        mWelcomeLayout = findViewById(R.id.welecome_layout);
+        mWelcomeLayout = findViewById(R.id.welcome_layout);
         mMainLayout = findViewById(R.id.main_layout);
 
-        welcomeImage = findViewById(R.id.welcome_image);
-        Glide.with(this).load(R.drawable.welcome_image).into(welcomeImage);
 
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.main_tab_layout);
@@ -429,9 +425,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             mMainLayout.setVisibility(View.INVISIBLE);
 
             toolbar.setTitleTextColor(Color.BLACK);
-            setTitle("物联网蓝牙终端App");
+            setTitle("CM物联");
             toolbar.setLogo(null);
-            if(menuConnect != null) menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_disconnect_24px));
+            if(menuConnect != null) menuConnect.setIcon(R.mipmap.ic_disconnect_24px);
 
         } else {
             mWelcomeLayout.setVisibility(View.INVISIBLE);
@@ -592,17 +588,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(device.canDisconnect()) {
             menuConnect.setEnabled(true);
             menuConnect.setTitle("断开");
-            menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connect_24px));
+            menuConnect.setIcon(R.mipmap.ic_connect_24px);
         }
         else if(device.canConnect()) {
             menuConnect.setEnabled(true);
             menuConnect.setTitle("连接");
-            menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_disconnect_24px));
+            menuConnect.setIcon(R.mipmap.ic_disconnect_24px);
         }
         else {
             menuConnect.setEnabled(false);
-            //menuConnect.setIcon(getResources().getDrawable(R.mipmap.ic_connecting_24px));
-            menuConnect.setIcon(getResources().getDrawable(R.drawable.connectingdrawable));
+            menuConnect.setIcon(R.drawable.connectingdrawable);
             AnimationDrawable connectingDrawable = (AnimationDrawable) menuConnect.getIcon();
             if(!connectingDrawable.isRunning())
                 connectingDrawable.start();
@@ -617,7 +612,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(imagePath != null && !"".equals(imagePath)) {
             drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
         } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(SupportedDeviceType.getDeviceTypeFromUuid(device.getUuidString()).getDefaultImage());
+            drawable = ContextCompat.getDrawable(this, SupportedDeviceType.getDeviceTypeFromUuid(device.getUuidString()).getDefaultImage());
         }
         toolbar.setLogo(drawable);
 
