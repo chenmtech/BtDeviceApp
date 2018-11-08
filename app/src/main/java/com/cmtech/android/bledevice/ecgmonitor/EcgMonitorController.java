@@ -2,10 +2,14 @@ package com.cmtech.android.bledevice.ecgmonitor;
 
 import android.content.Intent;
 
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileComment;
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileExplorerActivity;
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileReplayActivity;
+import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceController;
+
+import java.util.Date;
 
 public class EcgMonitorController extends BleDeviceController {
     private final EcgMonitorDevice device;
@@ -36,6 +40,10 @@ public class EcgMonitorController extends BleDeviceController {
         //device.disconnect();
         Intent intent = new Intent(fragment.getActivity(), EcgFileExplorerActivity.class);
         fragment.getActivity().startActivity(intent);
+    }
+
+    public void addComment(String comment) {
+        device.addComment(comment);
     }
 
 }

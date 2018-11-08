@@ -180,4 +180,40 @@
 
     </RelativeLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="感觉："/>
+
+        <Button
+            android:id="@+id/btn_ecgfeel_0"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="不舒服"/>
+
+        <Button
+            android:id="@+id/btn_ecgfeel_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="心跳快"/>
+
+        <Button
+            android:id="@+id/btn_ecgfeel_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="胸闷"/>
+
+    </LinearLayout>
+
+
 </LinearLayout>

@@ -13,10 +13,14 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgAbnormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by bme on 2018/3/13.
@@ -35,6 +39,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private CheckBox cbEcgFilter;
 
     private Button btnReplay;
+
+    private List<Button> buttonList = new ArrayList<>();
+    int[] feelBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
 
     private long recordNum = 0;
 
@@ -74,6 +81,24 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvEcgRecordTime = view.findViewById(R.id.ecg_recordtime);
 
         btnSwitchSampleEcg = view.findViewById(R.id.btn_ecg_startandstop);
+        tbEcgRecord = view.findViewById(R.id.tb_ecg_record);
+        cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
+        btnReplay = view.findViewById(R.id.btn_ecg_replay);
+
+        for(int i = 0; i < feelBtnId.length; i++) {
+            final int index = i;
+            Button button = view.findViewById(feelBtnId[index]);
+            button.setText(EcgAbnormalComment.getDescriptionFromCode(index));
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String comment = DateTimeUtil.secToTime((int)(recordNum/sampleRate))+"秒时，感觉" + EcgAbnormalComment.getDescriptionFromCode(index);
+                    ((EcgMonitorController)getController()).addComment(comment);
+                }
+            });
+            buttonList.add(button);
+        }
+
         btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,7 +106,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        tbEcgRecord = view.findViewById(R.id.tb_ecg_record);
         tbEcgRecord.setChecked(((EcgMonitorDevice)getDevice()).isRecord());
         tbEcgRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -91,10 +115,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 if(b) {
                     recordNum = 0;
                 }
+
+                for(Button button : buttonList) {
+                    button.setEnabled(b);
+                }
             }
         });
 
-        cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
         cbEcgFilter.setChecked(((EcgMonitorDevice)getDevice()).isEcgFilter());
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -103,13 +130,23 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        btnReplay = view.findViewById(R.id.btn_ecg_replay);
         btnReplay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ((EcgMonitorController)getController()).replay();
             }
         });
+
+        for(int i = 0; i < buttonList.size(); i++) {
+            final int index = i;
+            buttonList.get(i).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String comment = DateTimeUtil.secToTime((int)(recordNum/sampleRate))+"秒时，感觉" + EcgAbnormalComment.getDescriptionFromCode(index);
+                    ((EcgMonitorController)getController()).addComment(comment);
+                }
+            });
+        }
     }
 
     @Override

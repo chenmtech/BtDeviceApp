@@ -377,7 +377,8 @@ public class EcgMonitorDevice extends BleDevice {
         EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, timeInMillis);
 
         // 清空ecg留言
-        commentList.clear();
+        //commentList.clear();
+        //commentList.add(new EcgFileComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeInMillis, "我刚刚创建了一条留言。"));
 
         // 创建ecgFile
         String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
@@ -422,24 +423,32 @@ public class EcgMonitorDevice extends BleDevice {
 
     }
 
+    public synchronized void addComment(String comment) {
+        long timeCreated = new Date().getTime();
+        commentList.add(new EcgFileComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
+    }
 
     private void saveEcgFile() {
         if (ecgFile != null) {
             try {
-                if(!commentList.isEmpty()) {
-                    for(EcgFileComment comment : commentList) {
-                        ecgFile.addComment(comment);
+                if(ecgFile.getDataNum() <= 0) {     // 如果没有数据，删除文件
+                    ecgFile.close();
+                    FileUtil.deleteFile(ecgFile.getFile());
+                } else {    // 如果有数据
+                    if(!commentList.isEmpty()) {
+                        for(EcgFileComment comment : commentList) {
+                            ecgFile.addComment(comment);
+                        }
+                        commentList.clear();
                     }
-                }
-                ecgFile.close();
-                File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
-                try {
+                    ecgFile.close();
+                    File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
                     FileUtil.moveFile(ecgFile.getFile(), toFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
                 ecgFile = null;
             } catch (FileException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
