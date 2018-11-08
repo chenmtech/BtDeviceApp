@@ -4,6 +4,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileComment;
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratingState;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.EcgMonitorCalibratedState;
@@ -33,7 +34,9 @@ import com.vise.utils.file.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
 
@@ -99,7 +102,9 @@ public class EcgMonitorDevice extends BleDevice {
     public boolean isRecord() {return isRecord;}
     private boolean isEcgFilter = true;                // 是否对信号滤波
     public boolean isEcgFilter() {return isEcgFilter;}
-    private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
+
+    private EcgFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
+    private List<EcgFileComment> commentList = new ArrayList<>();
 
     private IIRFilter dcBlock = null;               // 隔直滤波器
     private IIRFilter notch = null;                 // 50Hz陷波器
@@ -371,6 +376,9 @@ public class EcgMonitorDevice extends BleDevice {
         long timeInMillis = new Date().getTime();
         EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, timeInMillis);
 
+        // 清空ecg留言
+        commentList.clear();
+
         // 创建ecgFile
         String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
         File toFile = FileUtil.getFile(CACHEDIR, fileName);
@@ -418,6 +426,11 @@ public class EcgMonitorDevice extends BleDevice {
     private void saveEcgFile() {
         if (ecgFile != null) {
             try {
+                if(!commentList.isEmpty()) {
+                    for(EcgFileComment comment : commentList) {
+                        ecgFile.addComment(comment);
+                    }
+                }
                 ecgFile.close();
                 File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
                 try {
