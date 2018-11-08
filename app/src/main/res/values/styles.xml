@@ -7,7 +7,8 @@
         <item name="android:textColorPrimary">@color/primary_text</item>
     </style>
 
-    <style name="MyTabLayoutTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+    <!-- MainTablayout的文本风格 -->
+    <style name="MainTabLayoutTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">@android:color/white</item>
     </style>

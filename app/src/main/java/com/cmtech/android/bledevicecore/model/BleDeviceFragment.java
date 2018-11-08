@@ -55,6 +55,7 @@ public abstract class BleDeviceFragment extends Fragment{
             device = controller.getDevice();
         }
 
+        /// 这里有时候重启时会导致错误
         if(device == null || controller == null) {
             throw new IllegalStateException();
         }

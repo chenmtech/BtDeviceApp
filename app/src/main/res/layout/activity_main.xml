@@ -53,7 +53,7 @@
                     app:tabPadding="0dp"
                     app:tabSelectedTextColor = "#f00"
                     app:tabTextColor = "#00f"
-                    app:tabTextAppearance="@style/MyTabLayoutTextAppearance"
+                    app:tabTextAppearance="@style/MainTabLayoutTextAppearance"
                     android:background="@color/primary_light"/>
 
             </LinearLayout>
@@ -78,7 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:headerLayout="@layout/navigation_header"
-            app:menu="@menu/nav_menu">
+            app:menu="@menu/navigation_menu">
         </android.support.design.widget.NavigationView>
 
 

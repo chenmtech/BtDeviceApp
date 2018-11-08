@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
+    <group android:checkable="false">
 
         <item
             android:id="@+id/nav_registerdevice"
-            android:title="登记设备"
+            android:title="登记新设备"
             android:icon="@mipmap/ic_menu_registerdevice"/>
 
         <item

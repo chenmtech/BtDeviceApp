@@ -25,7 +25,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -69,35 +68,35 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private final static int REQUESTCODE_MODIFYUSERINFO = 3;
 
     // 已登记的设备列表
-    private final List<BleDevice> registeredDeviceList = new ArrayList<>();
+    private final List<BleDevice> deviceList = new ArrayList<>();
 
     // 已打开的设备控制器列表
     private final List<BleDeviceController> openedControllerList = new LinkedList<>();
 
     // 显示已登记设备列表的Adapter和RecyclerView
     private BleDeviceListAdapter deviceListAdapter;
-    private RecyclerView deviceListRecycView;
+    private RecyclerView rvDeviceList;
 
-    // 登记设备按钮
-    //private Button btnRegister;
+    // 工具条
+    private Toolbar toolbar;
 
     // 侧滑界面
-    private DrawerLayout mDrawerLayout;
+    private DrawerLayout drawerLayout;
 
     // 欢迎界面
-    private LinearLayout mWelcomeLayout;
+    private LinearLayout welcomeLayout;
 
     // 包含设备Fragment和Tablayout的界面
-    private LinearLayout mMainLayout;
+    private LinearLayout mainLayout;
 
     // 主界面的TabLayout和Fragment管理器
-    private FragmentAndTabLayoutManager fragmentManager;
+    private FragmentAndTabLayoutManager fragAndTabManager;
 
+    // 工具条上的连接菜单和关闭菜单
     private MenuItem menuConnect;
     private MenuItem menuClose;
 
-    private Toolbar toolbar;
-
+    // 显示账户名,用户名和头像
     private TextView tvAccountName;
     private TextView tvUserName;
     private ImageView ivAccountImage;
@@ -113,13 +112,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         setSupportActionBar(toolbar);
 
         // 设置设备信息RecycleView
-        deviceListRecycView = findViewById(R.id.rvDevices);
+        rvDeviceList = findViewById(R.id.rvDevices);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        deviceListRecycView.setLayoutManager(layoutManager);
-        deviceListRecycView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        deviceListAdapter = new BleDeviceListAdapter(registeredDeviceList, this);
-        deviceListRecycView.setAdapter(deviceListAdapter);
-
+        rvDeviceList.setLayoutManager(layoutManager);
+        rvDeviceList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        deviceListAdapter = new BleDeviceListAdapter(deviceList, this);
+        rvDeviceList.setAdapter(deviceListAdapter);
 
         // 导航菜单设置
         NavigationView navView = findViewById(R.id.nav_view);
@@ -132,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                         registerNewDevice();
                         return true;
                     case R.id.nav_ecgreplay:
-                        ecgReplay();
+                        replayEcg();
                         return true;
                     case R.id.nav_changeuser:
                         changeUser();
@@ -145,6 +143,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             }
         });
 
+        // 设置导航视图
         View headerView = navView.getHeaderView(0);
         tvAccountName = headerView.findViewById(R.id.accountname);
         tvUserName = headerView.findViewById(R.id.username);
@@ -156,23 +155,25 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 startActivityForResult(intent, REQUESTCODE_MODIFYUSERINFO);
             }
         });
-        setUserInfo();
 
 
-        mDrawerLayout = findViewById(R.id.drawer_layout);
-        mWelcomeLayout = findViewById(R.id.welcome_layout);
-        mMainLayout = findViewById(R.id.main_layout);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        welcomeLayout = findViewById(R.id.welcome_layout);
+        mainLayout = findViewById(R.id.main_layout);
 
 
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.main_tab_layout);
-        fragmentManager = new FragmentAndTabLayoutManager(getSupportFragmentManager(), tabLayout, R.id.main_fragment_layout);
-        fragmentManager.setOnFragmentChangedListener(new FragmentAndTabLayoutManager.OnFragmentChangedListener() {
+        fragAndTabManager = new FragmentAndTabLayoutManager(getSupportFragmentManager(), tabLayout, R.id.main_fragment_layout);
+        fragAndTabManager.setOnFragmentChangedListener(new FragmentAndTabLayoutManager.OnFragmentChangedListener() {
             @Override
             public void onFragmentchanged() {
-                updateToolBar(((BleDeviceFragment) fragmentManager.getCurrentFragment()).getDevice());
+                updateToolBar(((BleDeviceFragment) fragAndTabManager.getCurrentFragment()).getDevice());
             }
         });
+
+        // 更新导航视图
+        updateNavigationViewUsingUserInfo();
 
         // 更新主界面
         updateMainLayoutVisibility();
@@ -180,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 初始化设备
         initializeBleDevice();
 
+        // 处理输入Intent
         processIntent(getIntent());
     }
 
@@ -188,36 +190,27 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         processIntent(intent);
     }
 
+    // 处理输入Intent
     private void processIntent(Intent intent) {
         if(intent != null) {
             Uri uri = intent.getData();
             if(uri != null) {
                 ViseLog.e(intent.getData().getPath());
-                String desFileName = importEcgFile(intent.getData().getPath());
-                ecgReplay(desFileName);
+                String desFileName = intent.getData().getPath();
+                replayEcgFile(desFileName);
             }
         }
     }
 
-    private String importEcgFile(String srcFileName) {
-        File srcFile = new File(srcFileName);
-        String desFileName = EcgMonitorDevice.ECGFILEDIR + "/imported_" + String.valueOf(Calendar.getInstance().getTimeInMillis() + ".bme");
-        File desFile = new File(desFileName);
-        try {
-            FileUtil.copyFile(srcFile, desFile, true);
-        } catch (IOException e) {
-            e.printStackTrace();
-            ViseLog.e("copy file wrong." + e);
-        }
-        return desFileName;
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
+
+            // 登记设备返回
             case REQUESTCODE_REGISTERDEVICE:
-                // 登记设备返回
+
                 if(resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra("devicebasicinfo");
                     // 用基本信息创建BleDevice
@@ -227,18 +220,22 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                     }
                 }
                 break;
+
+
+            // 修改设备信息返回
             case REQUESTCODE_MODIFYDEVICE:
-                // 修改设备信息返回
+
                 if ( resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra("devicebasicinfo");
                     String macAddress = basicInfo.getMacAddress();
                     BleDevice device = null;
-                    for(BleDevice ele : registeredDeviceList) {
+                    for(BleDevice ele : deviceList) {
                         if(macAddress.equalsIgnoreCase(ele.getMacAddress())) {
                             device = ele;
                             break;
                         }
                     }
+
                     if(device != null) {
                         basicInfo.save();
                         device.setBasicInfo(basicInfo);
@@ -247,9 +244,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 }
                 break;
 
+            // 修改用户信息
             case REQUESTCODE_MODIFYUSERINFO:
-                setUserInfo();
+
+                if(resultCode == RESULT_OK) {
+                    boolean isModified = data.getBooleanExtra("ismodified", false);
+                    if(isModified)
+                        updateNavigationViewUsingUserInfo();
+                }
                 break;
+
         }
     }
 
@@ -270,14 +274,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 break;
 
             case R.id.toolbar_connectswitch:
-                fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
+                fragment = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.switchState();
                 }
                 break;
 
             case R.id.toolbar_close:
-                fragment = (BleDeviceFragment)fragmentManager.getCurrentFragment();
+                fragment = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.closeDevice();
                 } else {
@@ -292,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     protected void onDestroy() {
         super.onDestroy();
 
-        for(BleDevice device : registeredDeviceList) {
+        for(BleDevice device : deviceList) {
             if(device != null) {
                 device.removeDeviceStateObserver(this);
             }
@@ -310,14 +314,21 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     @Override
     public void onBackPressed() {
-        // 如果drawerLayout打开，则关闭drawerLayout；否则退出
-        if(mDrawerLayout.isDrawerOpen(GravityCompat.START))
+        // 如果drawerLayout打开，则关闭drawerLayout；如果是关闭，则打开
+        /*if(drawerLayout.isDrawerOpen(GravityCompat.START))
             openDrawer(false);
         else
-            finish();
+            finish();*/
+
+        openDrawer(!drawerLayout.isDrawerOpen(GravityCompat.START));
     }
 
-    // IBleDeviceStateObserver接口函数，更新设备状态
+
+    ////////////////////////////////////////////////////////////
+    // IBleDeviceStateObserver设备状态观察者接口函数
+    ////////////////////////////////////////////////////////////
+
+    // 更新设备状态
     @Override
     public void updateDeviceState(final BleDevice device) {
         runOnUiThread(new Runnable() {
@@ -331,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 if(deviceFrag != null) deviceFrag.updateDeviceState(device);
 
                 // 更新Activity的ToolBar
-                BleDeviceFragment currentFrag = (BleDeviceFragment)fragmentManager.getCurrentFragment();
+                BleDeviceFragment currentFrag = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
                 if(currentFrag != null && deviceFrag == currentFrag) {
                     updateToolBar(currentFrag.getDevice());
                 }
@@ -362,9 +373,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         }
         return null;
     }
-
-
     ////////////////////////////////////////////////////////////
+
 
     // 启动一个BLE设备：为设备创建控制器和Fragment，并自动连接
     public void openDevice(BleDevice device) {
@@ -397,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.getBasicInfo().delete();
-                registeredDeviceList.remove(device);
+                deviceList.remove(device);
                 updateDeviceListAdapter();
             }
         });
@@ -420,9 +430,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     // 更新主Layout的可视性
     private void updateMainLayoutVisibility() {
-        if(fragmentManager.size() == 0) {
-            mWelcomeLayout.setVisibility(View.VISIBLE);
-            mMainLayout.setVisibility(View.INVISIBLE);
+        if(fragAndTabManager.size() == 0) {
+            welcomeLayout.setVisibility(View.VISIBLE);
+            mainLayout.setVisibility(View.INVISIBLE);
 
             toolbar.setTitleTextColor(Color.BLACK);
             setTitle("CM物联");
@@ -430,8 +440,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             if(menuConnect != null) menuConnect.setIcon(R.mipmap.ic_disconnect_24px);
 
         } else {
-            mWelcomeLayout.setVisibility(View.INVISIBLE);
-            mMainLayout.setVisibility(View.VISIBLE);
+            welcomeLayout.setVisibility(View.INVISIBLE);
+            mainLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -456,7 +466,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
         if(device != null) {
             // 将设备添加到设备列表
-            registeredDeviceList.add(device);
+            deviceList.add(device);
             // 添加Activity作为设备状态的观察者
             device.registerDeviceStateObserver(this);
             // 通知观察者
@@ -469,16 +479,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 打开或关闭侧滑菜单
     private void openDrawer(boolean open) {
         if(open) {
-            mDrawerLayout.openDrawer(GravityCompat.START);
+            drawerLayout.openDrawer(GravityCompat.START);
         } else {
-            mDrawerLayout.closeDrawer(GravityCompat.START);
+            drawerLayout.closeDrawer(GravityCompat.START);
         }
     }
 
     // 产生已登记的设备Mac地址字符串列表
     private List<String> getRegisteredDeviceMacAddressList() {
         List<String> deviceMacList = new ArrayList<>();
-        for(BleDevice device : registeredDeviceList) {
+        for(BleDevice device : deviceList) {
             deviceMacList.add(device.getMacAddress());
         }
         return deviceMacList;
@@ -490,8 +500,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     }
 
     // 心电信号回放
-    private void ecgReplay() {
+    private void replayEcg() {
         Intent intent = new Intent(MainActivity.this, EcgFileExplorerActivity.class);
+        startActivity(intent);
+    }
+
+    // 指定心电信号文件的回放
+    private void replayEcgFile(String fileName) {
+        Intent intent = new Intent(MainActivity.this, EcgFileReplayActivity.class);
+        intent.putExtra("fileName", fileName);
         startActivity(intent);
     }
 
@@ -508,7 +525,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         finish();
     }
 
-    private void setUserInfo() {
+    private void updateNavigationViewUsingUserInfo() {
         if(UserAccountManager.getInstance().isSignIn()) {
             tvAccountName.setText(UserAccountManager.getInstance().getUserAccount().getAccountName());
             tvUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
@@ -518,11 +535,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         }
     }
 
-    private void ecgReplay(String fileName) {
-        Intent intent = new Intent(MainActivity.this, EcgFileReplayActivity.class);
-        intent.putExtra("fileName", fileName);
-        startActivity(intent);
-    }
+
 
     // 开始扫描设备
     private void startScanDevice() {
@@ -557,21 +570,21 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     // 打开Fragment：将Fragment加入Manager，并显示
     private void openFragment(BleDeviceFragment fragment, String tabImagePath, String tabText) {
-        mDrawerLayout.closeDrawer(GravityCompat.START);
+        drawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
-        fragmentManager.addFragment(fragment, tabImagePath, tabText);
+        fragAndTabManager.addFragment(fragment, tabImagePath, tabText);
         updateMainLayoutVisibility();
     }
 
     // 显示Fragment
     private void showFragment(BleDeviceFragment fragment) {
         openDrawer(false);
-        fragmentManager.showFragment(fragment);
+        fragAndTabManager.showFragment(fragment);
     }
 
     // 删除Fragment
     private void deleteFragment(BleDeviceFragment fragment) {
-        fragmentManager.deleteFragment(fragment);
+        fragAndTabManager.deleteFragment(fragment);
         updateMainLayoutVisibility();
     }
 

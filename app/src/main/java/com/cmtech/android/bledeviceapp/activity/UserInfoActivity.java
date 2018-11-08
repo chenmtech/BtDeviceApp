@@ -30,6 +30,8 @@ public class UserInfoActivity extends AppCompatActivity {
 
     private String imagePath = "";
 
+    private boolean isModified = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +61,7 @@ public class UserInfoActivity extends AppCompatActivity {
                 account.setUserName(etUserName.getText().toString());
                 account.setImagePath(imagePath);
                 account.save();
+                isModified = true;
             }
         });
 
@@ -85,6 +88,16 @@ public class UserInfoActivity extends AppCompatActivity {
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        Intent intent = new Intent();
+        intent.putExtra("ismodified", isModified);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private void openAlbum() {

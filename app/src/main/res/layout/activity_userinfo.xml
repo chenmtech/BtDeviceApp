@@ -79,7 +79,7 @@
             android:id="@+id/iv_userinfo_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@mipmap/ic_launcher"/>
+            android:src="@mipmap/ic_unknown_user"/>
     </LinearLayout>
 
     <LinearLayout
