@@ -15,6 +15,7 @@ import android.widget.ToggleButton;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
 /**
@@ -26,6 +27,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private TextView tvEcgLeadType;
     private TextView tvEcg1mV;
     private TextView tvEcgHr;
+    private TextView tvEcgRecordTime;
     private ScanWaveView ecgView;
     private ImageButton btnSwitchSampleEcg;
 
@@ -33,6 +35,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private CheckBox cbEcgFilter;
 
     private Button btnReplay;
+
+    private long recordNum = 0;
+
+    private int sampleRate = 0;
 
 
     public EcgMonitorFragment() {
@@ -65,6 +71,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvEcg1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvEcgHr = view.findViewById(R.id.tv_ecg_hr);
         ecgView = view.findViewById(R.id.ecg_view);
+        tvEcgRecordTime = view.findViewById(R.id.ecg_recordtime);
 
         btnSwitchSampleEcg = view.findViewById(R.id.btn_ecg_startandstop);
         btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
@@ -81,6 +88,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 ((EcgMonitorController)getController()).setEcgRecord(b);
                 btnReplay.setClickable(!b);
+                if(b) {
+                    recordNum = 0;
+                }
             }
         });
 
@@ -130,6 +140,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateSampleRate(final int sampleRate) {
+        this.sampleRate = sampleRate;
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -179,6 +190,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     @Override
     public void updateEcgData(int ecgData) {
         ecgView.showData(ecgData);
+        if(tbEcgRecord.isChecked()) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tvEcgRecordTime.setText(DateTimeUtil.secToTime((int) (++recordNum / sampleRate)));
+                }
+            });
+        }
     }
 
     @Override
