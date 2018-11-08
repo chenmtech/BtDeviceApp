@@ -2,6 +2,7 @@ package com.cmtech.android.bledevicecore.model;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -415,7 +416,13 @@ public abstract class BleDevice implements Serializable{
         ViseLog.i("disconnect");
         handler.removeCallbacksAndMessages(null);
         // 防止接收不到断开连接的回调，而无法执行onDeviceDisconnect()，所以1秒后自动执行。
-        handler.postDelayed(new Runnable() {
+        /*handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                onStateDisconnect(true);
+            }
+        }, 1000);*/
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 onStateDisconnect(true);

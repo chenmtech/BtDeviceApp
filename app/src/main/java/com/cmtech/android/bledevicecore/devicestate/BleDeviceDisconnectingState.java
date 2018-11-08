@@ -63,6 +63,6 @@ public class BleDeviceDisconnectingState implements IBleDeviceState {
 
     @Override
     public boolean canClose() {
-        return false;
+        return true;
     }
 }

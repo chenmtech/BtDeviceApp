@@ -146,29 +146,29 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/btn_ecg_startandstop"
             android:layout_centerVertical="true"
-            android:checked="false"
-            android:clickable="false"
+            android:checked="true"
+            android:clickable="true"
             android:visibility="gone"
             android:text="滤波"/>
 
         <ToggleButton
             android:id="@+id/tb_ecg_record"
-            android:layout_width="60dp"
-            android:layout_height="40dp"
+            android:layout_width="65dp"
+            android:layout_height="45dp"
             android:layout_toRightOf="@id/cb_ecg_filter"
             android:layout_centerVertical="true"
-            android:textOff="采集"
+            android:textOff="开始采集"
             android:textOn="采集中"
             android:checked="false"
-            android:clickable="false"
+            android:clickable="true"
             android:background="#0f0"
             android:textColor="#f00"
             android:layout_marginRight="20dp"/>
 
         <Button
             android:id="@+id/btn_ecg_replay"
-            android:layout_width="60dp"
-            android:layout_height="40dp"
+            android:layout_width="65dp"
+            android:layout_height="45dp"
             android:layout_toLeftOf="@id/btn_ecg_startandstop"
             android:layout_centerVertical="true"
             android:background="#0f0"

@@ -19,6 +19,7 @@ import com.cmtech.android.bledevicecore.model.BleGattElement;
 import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.dsp.bmefile.BmeFile;
 import com.cmtech.dsp.bmefile.BmeFileDataType;
+import com.cmtech.dsp.bmefile.BmeFileHead;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
 import com.cmtech.dsp.exception.FileException;
 import com.cmtech.dsp.filter.IIRFilter;
@@ -95,15 +96,9 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     private boolean isRecord = false;                // 是否记录心电信号
-    public boolean isRecord() { return isRecord; }
-
+    public boolean isRecord() {return isRecord;}
     private boolean isEcgFilter = true;                // 是否对信号滤波
-    public boolean isEcgFilter() { return isEcgFilter; }
-    public synchronized void setEcgFilter(boolean isEcgFilter) {
-        this.isEcgFilter = isEcgFilter;
-    }
-
-    private BmeFileHead30 bmeFileHead = null;         // 用于保存心电信号的BmeFile文件头，为了能在Windows下读取文件，使用BmeFileHead30版本，LITTLE_ENDIAN，数据类型为INT32
+    public boolean isEcgFilter() {return isEcgFilter;}
     private BmeFile ecgFile = null;                 // 用于保存心电信号的BmeFile文件对象
 
     private IIRFilter dcBlock = null;               // 隔直滤波器
@@ -153,10 +148,6 @@ public class EcgMonitorDevice extends BleDevice {
 
     @Override
     public boolean executeAfterConnectSuccess() {
-        isRecord = false;
-        updateRecordStatus(false);
-
-        updateFilterStatus(false);
 
         updateSampleRate(DEFAULT_SAMPLERATE);
         updateLeadType(DEFAULT_LEADTYPE);
@@ -201,12 +192,20 @@ public class EcgMonitorDevice extends BleDevice {
 
     @Override
     public void executeAfterDisconnect() {
-        setEcgRecord(false);
+        if(this.isRecord)
+            saveEcgFile();
+        this.isRecord = false;
+        if(observer != null)
+            observer.updateRecordStatus(false);
     }
 
     @Override
     public void executeAfterConnectFailure() {
-        setEcgRecord(false);
+        if(this.isRecord)
+            saveEcgFile();
+        this.isRecord = false;
+        if(observer != null)
+            observer.updateRecordStatus(false);
     }
 
     @Override
@@ -219,7 +218,6 @@ public class EcgMonitorDevice extends BleDevice {
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
                     initializeFilter();
-                    updateFilterStatus(true);
                 }
                 break;
 
@@ -254,42 +252,17 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     public synchronized void setEcgRecord(boolean isRecord) {
-        if(this.isRecord != isRecord) {
-            if (isRecord) {
-                String simpleMacAddress = EcgMonitorUtil.simpleMacAddress(getMacAddress());
-                long timeInMillis = new Date().getTime();
-                String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
-                File toFile = FileUtil.getFile(CACHEDIR, fileName);
-                try {
-                    fileName = toFile.getCanonicalPath();
-                    EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, timeInMillis);
-                    ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
-                    ViseLog.e(ecgFileHead.toString());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                if (ecgFile != null) {
-                    try {
-                        ecgFile.close();
-                        File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
-                        try {
-                            FileUtil.moveFile(ecgFile.getFile(), toFile);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        ecgFile = null;
-                    } catch (FileException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            this.isRecord = isRecord;
+        if(!this.isRecord && isRecord) {
+            initializeEcgFile();
+        } else if(this.isRecord && !isRecord){
+            saveEcgFile();
         }
+        this.isRecord = isRecord;
     }
 
-
+    public synchronized void setEcgFilter(boolean isEcgFilter) {
+        this.isEcgFilter = isEcgFilter;
+    }
 
     public synchronized void switchSampleState() {
         state.switchState();
@@ -318,16 +291,6 @@ public class EcgMonitorDevice extends BleDevice {
         updateEcgView(xRes, yRes, viewGridWidth);
     }
 
-    private void initializeEcgFile() {
-        // 准备记录心电信号的文件头
-        bmeFileHead = new BmeFileHead30();
-        bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-        bmeFileHead.setDataType(BmeFileDataType.INT32);
-        bmeFileHead.setFs(sampleRate);
-        bmeFileHead.setInfo("Ecg Lead " + leadType.getDescription());
-        bmeFileHead.setCalibrationValue(value1mV);
-    }
-
     private void initializeFilter() {
         // 准备隔直滤波器
         dcBlock = DCBlockDesigner.design(0.06, sampleRate);   // 设计隔直滤波器
@@ -342,8 +305,6 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     public void processOneEcgData(int ecgData) {
-
-
         if(isEcgFilter)
             ecgData = (int)notch.filter(dcBlock.filter(ecgData));
 
@@ -366,9 +327,6 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 启动ECG信号采集
     public void startSampleEcg() {
-        initializeEcgFile();
-
-        updateRecordStatus(true);
 
         IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
             @Override
@@ -396,8 +354,35 @@ public class EcgMonitorDevice extends BleDevice {
 
             }
         });
-
     }
+
+
+    private void initializeEcgFile() {
+        // 创建bmeFileHead文件头
+        BmeFileHead30 bmeFileHead = new BmeFileHead30();
+        bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        bmeFileHead.setDataType(BmeFileDataType.INT32);
+        bmeFileHead.setFs(sampleRate);
+        bmeFileHead.setInfo("Ecg Lead " + leadType.getDescription());
+        bmeFileHead.setCalibrationValue(value1mV);
+
+        // 创建ecgFileHead文件头
+        String simpleMacAddress = EcgMonitorUtil.simpleMacAddress(getMacAddress());
+        long timeInMillis = new Date().getTime();
+        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, timeInMillis);
+
+        // 创建ecgFile
+        String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
+        File toFile = FileUtil.getFile(CACHEDIR, fileName);
+        try {
+            fileName = toFile.getCanonicalPath();
+            ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
+            ViseLog.e(ecgFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     // 启动1mV信号采集
     public void startSample1mV() {
@@ -421,11 +406,30 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 停止ECG数据采集
     public void stopSampleData() {
+
         addWriteCommand(ECGMONITORCTRL, (byte)0x00, null);
 
         // disable ECG data notification
         addNotifyCommand(ECGMONITORDATACCC, false, null, null);
 
+    }
+
+
+    private void saveEcgFile() {
+        if (ecgFile != null) {
+            try {
+                ecgFile.close();
+                File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
+                try {
+                    FileUtil.moveFile(ecgFile.getFile(), toFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ecgFile = null;
+            } catch (FileException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     // 登记心电监护仪观察者
@@ -465,18 +469,6 @@ public class EcgMonitorDevice extends BleDevice {
     private void updateEcgView(final int xRes, final float yRes, final int viewGridWidth) {
         if(observer != null) {
             observer.updateEcgView(xRes, yRes, viewGridWidth);
-        }
-    }
-
-    private void updateRecordStatus(final boolean clickable) {
-        if(observer != null) {
-            observer.updateRecordStatus(clickable);
-        }
-    }
-
-    private void updateFilterStatus(final boolean clickable) {
-        if(observer != null) {
-            observer.updateFilterStatus(clickable);
         }
     }
 

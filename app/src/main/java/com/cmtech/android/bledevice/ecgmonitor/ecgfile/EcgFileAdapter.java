@@ -79,13 +79,12 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         if(commentNum > 0) {
             EcgFileComment comment = file.getEcgFileHead().getCommentList().get(commentNum - 1);
             StringBuilder sb = new StringBuilder();
-            sb.append("留言：");
             sb.append(comment.getCommentator());
             sb.append(' ');
             sb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCommentTime()));
-            sb.append(" [");
+            sb.append(" “");
             sb.append(comment.getComment());
-            sb.append(']');
+            sb.append('”');
             holder.fileLastComment.setText(sb.toString());
         } else {
             holder.fileLastComment.setText("无留言");

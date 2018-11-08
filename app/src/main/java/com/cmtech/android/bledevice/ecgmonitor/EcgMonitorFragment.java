@@ -159,6 +159,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
+    public void updateRecordStatus(boolean isRecord) {
+        tbEcgRecord.setChecked(isRecord);
+    }
+
+    @Override
     public void updateEcgView(final int xRes, final float yRes, final int viewGridWidth) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -167,28 +172,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 ecgView.setGridWidth(viewGridWidth);
                 ecgView.setZeroLocation(0.5);
                 ecgView.initView();
-            }
-        });
-    }
-
-    @Override
-    public void updateRecordStatus(final boolean clickable) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //tbEcgRecord.setChecked(isChecked);
-                tbEcgRecord.setClickable(clickable);
-            }
-        });
-    }
-
-    @Override
-    public void updateFilterStatus(final boolean clickable) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //cbEcgFilter.setChecked(isChecked);
-                cbEcgFilter.setClickable(clickable);
             }
         });
     }
