@@ -64,24 +64,23 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ddd">
+        android:background="@color/primary_dark">
 
-        <TextView
-            android:id="@+id/tv_ecg_hr"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_centerInParent="true"
-            android:layout_marginLeft="2sp"
-            android:text="0"
-            android:textSize="48sp" />
         <ImageView
             android:id="@+id/iv_ecg_heart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/tv_ecg_hr"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="5sp"
             android:src="@mipmap/ic_ecg_heart"/>
-
+        <TextView
+            android:id="@+id/tv_ecg_hr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/iv_ecg_heart"
+            android:layout_marginStart="2sp"
+            android:text="0"
+            android:textSize="48sp" />
     </RelativeLayout>
 
     <com.cmtech.android.bledevice.ecgmonitor.ScanWaveView
@@ -98,7 +97,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="#ddd">
+        android:background="@color/primary_dark">
         <TextView
             android:id="@+id/ecg_henxiang"
             android:layout_width="wrap_content"
@@ -110,7 +109,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/ecg_henxiang"
+            android:layout_toEndOf="@id/ecg_henxiang"
             android:textSize="12sp"
             android:textColor="#000"
             android:text=" 纵向：0.1mV/格"/>
@@ -119,7 +118,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="#ddd">
+        android:background="@color/primary_dark">
 
         <ImageButton
             android:id="@+id/btn_ecg_startandstop"
@@ -130,14 +129,14 @@
             android:layout_marginRight="20dp"
             android:clickable="false"
             android:src="@mipmap/ic_ecg_play_48px"
-            android:background="#ddd"
+            android:background="@color/primary_dark"
             android:text="开始"/>
 
         <CheckBox
             android:id="@+id/cb_ecg_filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/btn_ecg_startandstop"
+            android:layout_toEndOf="@+id/btn_ecg_startandstop"
             android:layout_centerVertical="true"
             android:checked="true"
             android:clickable="true"
@@ -146,36 +145,34 @@
 
         <ToggleButton
             android:id="@+id/tb_ecg_record"
-            android:layout_width="65dp"
+            android:layout_width="80dp"
             android:layout_height="45dp"
-            android:layout_toRightOf="@id/cb_ecg_filter"
+            android:layout_toEndOf="@id/cb_ecg_filter"
             android:layout_centerVertical="true"
             android:textOff="开始采集"
             android:textOn="采集中"
             android:checked="false"
             android:clickable="true"
-            android:background="#0f0"
-            android:textColor="#f00"
-            android:layout_marginRight="5dp"/>
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_marginEnd="5dp"/>
 
         <Button
             android:id="@+id/btn_ecg_replay"
             android:layout_width="65dp"
             android:layout_height="45dp"
-            android:layout_toLeftOf="@id/btn_ecg_startandstop"
+            android:layout_toStartOf="@id/btn_ecg_startandstop"
             android:layout_centerVertical="true"
-            android:background="#0f0"
-            android:textColor="#f00"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:text="回放"/>
 
         <TextView
             android:id="@+id/ecg_recordtime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/tb_ecg_record"
+            android:layout_toEndOf="@id/tb_ecg_record"
             android:layout_centerVertical="true"
             android:textColor="#f00"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:text="00:00:00"/>
 
     </RelativeLayout>
@@ -195,6 +192,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:enabled="false"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:text="不舒服"/>
 
         <Button
@@ -203,6 +201,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:enabled="false"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:text="心跳快"/>
 
         <Button
@@ -211,9 +210,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:enabled="false"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:text="胸闷"/>
 
     </LinearLayout>
-
 
 </LinearLayout>

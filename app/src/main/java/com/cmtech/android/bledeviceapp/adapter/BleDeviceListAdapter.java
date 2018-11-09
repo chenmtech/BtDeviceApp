@@ -36,9 +36,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
     // MainActivity
     MainActivity activity;
 
-    private int selectItem = 0;
-
-    Drawable defaultBackground;
+    //private int selectItem = 0;
 
     class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView;
@@ -70,15 +68,14 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_registered_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
-        defaultBackground = holder.deviceView.getBackground();
 
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 BleDevice device = mDeviceList.get(holder.getAdapterPosition());
                 activity.openDevice(device);
-                selectItem = holder.getAdapterPosition();
-                notifyDataSetChanged();
+                //selectItem = holder.getAdapterPosition();
+                //notifyDataSetChanged();
             }
         });
 
@@ -103,8 +100,8 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
 
             @Override
             public boolean onLongClick(View view) {
-                selectItem = holder.getAdapterPosition();
-                notifyDataSetChanged();
+                //selectItem = holder.getAdapterPosition();
+                //notifyDataSetChanged();
                 view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -137,11 +134,6 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         holder.deviceAddress.setText(device.getMacAddress());
         holder.deviceStatus.setText(device.getStateDescription());
 
-        if(selectItem == position) {
-            holder.deviceView.setBackgroundColor(ContextCompat.getColor((Context)activity, R.color.accent));
-        } else {
-            holder.deviceView.setBackground(defaultBackground);
-        }
     }
 
     @Override

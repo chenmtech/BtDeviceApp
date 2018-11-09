@@ -38,7 +38,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:text="点击修改"
-        android:textSize="14sp"/>
+        android:textSize="14sp"
+        android:textColor="@color/accent"/>
 
     <View
         android:layout_width="match_parent"

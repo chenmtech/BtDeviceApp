@@ -376,10 +376,6 @@ public class EcgMonitorDevice extends BleDevice {
         long timeInMillis = new Date().getTime();
         EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, timeInMillis);
 
-        // 清空ecg留言
-        //commentList.clear();
-        //commentList.add(new EcgFileComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeInMillis, "我刚刚创建了一条留言。"));
-
         // 创建ecgFile
         String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
         File toFile = FileUtil.getFile(CACHEDIR, fileName);

@@ -142,7 +142,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             buttonList.get(i).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String comment = DateTimeUtil.secToTime((int)(recordNum/sampleRate))+"秒时，感觉" + EcgAbnormalComment.getDescriptionFromCode(index);
+                    int second = 0;
+                    if(recordNum != 0) second = (int)(recordNum/sampleRate);
+                    String comment = DateTimeUtil.secToTime(second)+"秒时，感觉" + EcgAbnormalComment.getDescriptionFromCode(index);
                     ((EcgMonitorController)getController()).addComment(comment);
                 }
             });
