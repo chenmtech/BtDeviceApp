@@ -1,8 +1,10 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -136,7 +138,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         holder.deviceStatus.setText(device.getStateDescription());
 
         if(selectItem == position) {
-            holder.deviceView.setBackgroundColor(Color.parseColor("#00a0e9"));
+            holder.deviceView.setBackgroundColor(ContextCompat.getColor((Context)activity, R.color.accent));
         } else {
             holder.deviceView.setBackground(defaultBackground);
         }

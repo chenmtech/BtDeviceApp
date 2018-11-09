@@ -36,25 +36,25 @@
                 android:orientation="vertical"
                 android:visibility="invisible">
 
+                <android.support.design.widget.TabLayout
+                    android:id="@+id/main_tab_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    app:tabGravity="fill"
+                    app:tabIndicatorColor="#4169e1"
+                    app:tabMode="fixed"
+                    app:tabPadding="0dp"
+                    app:tabSelectedTextColor="#4169e1"
+                    app:tabTextColor="@color/primary_text"
+                    app:tabTextAppearance="@style/MainTabLayoutTextAppearance"
+                    android:background="@color/primary"/>
+
                 <FrameLayout
                     android:id="@+id/main_fragment_layout"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1">
                 </FrameLayout>
-
-                <android.support.design.widget.TabLayout
-                    android:id="@+id/main_tab_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:tabGravity="fill"
-                    app:tabIndicatorColor="#f00"
-                    app:tabMode="fixed"
-                    app:tabPadding="0dp"
-                    app:tabSelectedTextColor = "#f00"
-                    app:tabTextColor = "#00f"
-                    app:tabTextAppearance="@style/MainTabLayoutTextAppearance"
-                    android:background="@color/primary_light"/>
 
             </LinearLayout>
         </FrameLayout>
