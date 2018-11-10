@@ -2,8 +2,8 @@
 <animation-list
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:oneshot="false">
-    <item android:drawable="@mipmap/connecting1" android:duration="500"></item>
-    <item android:drawable="@mipmap/connecting2" android:duration="500"></item>
-    <item android:drawable="@mipmap/connecting3" android:duration="500"></item>
-    <item android:drawable="@mipmap/connecting4" android:duration="500"></item>
+    <item android:drawable="@mipmap/ic_connect_0" android:duration="500"></item>
+    <item android:drawable="@mipmap/ic_connect_1" android:duration="500"></item>
+    <item android:drawable="@mipmap/ic_connect_2" android:duration="500"></item>
+    <item android:drawable="@mipmap/ic_connect_3" android:duration="500"></item>
 </animation-list>

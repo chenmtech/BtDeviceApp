@@ -2,6 +2,8 @@ package com.cmtech.android.bledevice.ecgmonitor;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -156,7 +158,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateState(final IEcgMonitorState state) {
-        getActivity().runOnUiThread(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 if(state.canStart()) {
@@ -175,7 +177,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     @Override
     public void updateSampleRate(final int sampleRate) {
         this.sampleRate = sampleRate;
-        getActivity().runOnUiThread(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 tvEcgSampleRate.setText(""+sampleRate);
@@ -185,7 +187,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateLeadType(final EcgLeadType leadType) {
-        getActivity().runOnUiThread(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 tvEcgLeadType.setText(leadType.getDescription());
@@ -195,7 +197,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateCalibrationValue(final int calibrationValue) {
-        getActivity().runOnUiThread(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 tvEcg1mV.setText("" + calibrationValue);
@@ -204,16 +206,21 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateRecordStatus(boolean isRecord) {
-        if(isRecord)
-            ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_start));
-        else
-            ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_stop));
+    public void updateRecordStatus(final boolean isRecord) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if (isRecord)
+                    ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_start));
+                else
+                    ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_stop));
+            }
+        });
     }
 
     @Override
     public void updateEcgView(final int xRes, final float yRes, final int viewGridWidth) {
-        getActivity().runOnUiThread(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 ecgView.setRes(xRes, yRes);
@@ -228,7 +235,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     public void updateEcgData(int ecgData) {
         ecgView.showData(ecgData);
         if(isRecord) {
-            getActivity().runOnUiThread(new Runnable() {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     tvEcgRecordTime.setText(DateTimeUtil.secToTime((int) (++recordNum / sampleRate)));
@@ -239,7 +246,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateEcgHr(final int hr) {
-        getActivity().runOnUiThread(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 tvEcgHr.setText("" + hr);

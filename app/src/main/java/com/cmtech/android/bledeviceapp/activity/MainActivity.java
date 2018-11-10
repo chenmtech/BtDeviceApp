@@ -180,6 +180,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         processIntent(getIntent());
     }
 
+
+
     @Override
     protected void onNewIntent(Intent intent) {
         processIntent(intent);
@@ -261,6 +263,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        updateMainMenuVisibility();
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         BleDeviceFragment fragment;
         switch (item.getItemId()) {
@@ -286,6 +295,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         }
         return true;
     }
+
 
     @Override
     protected void onDestroy() {
@@ -429,11 +439,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             welcomeLayout.setVisibility(View.VISIBLE);
             mainLayout.setVisibility(View.INVISIBLE);
 
-            toolbar.setTitleTextColor(Color.BLACK);
+            //toolbar.setTitleTextColor(Color.BLACK);
             setTitle("CM物联");
             toolbar.setLogo(null);
-            if(menuConnect != null) menuConnect.setIcon(R.mipmap.ic_disconnect_24px);
-
         } else {
             welcomeLayout.setVisibility(View.INVISIBLE);
             mainLayout.setVisibility(View.VISIBLE);
@@ -569,6 +577,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 添加设备的Fragment到管理器
         fragAndTabManager.addFragment(fragment, tabImagePath, tabText);
         updateMainLayoutVisibility();
+        updateMainMenuVisibility();
     }
 
     // 显示Fragment
@@ -581,6 +590,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private void deleteFragment(BleDeviceFragment fragment) {
         fragAndTabManager.deleteFragment(fragment);
         updateMainLayoutVisibility();
+        updateMainMenuVisibility();
+    }
+
+    private void updateMainMenuVisibility() {
+        if(fragAndTabManager.size() == 0) {
+            menuConnect.setVisible(false);
+        } else {
+            menuConnect.setVisible(true);
+        }
     }
 
     // 更新设备列表
@@ -595,13 +613,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 更新连接菜单
         if(device.canDisconnect()) {
             menuConnect.setEnabled(true);
-            menuConnect.setTitle("断开");
-            menuConnect.setIcon(R.mipmap.ic_connect_24px);
+            menuConnect.setIcon(R.mipmap.ic_connect_connected);
         }
         else if(device.canConnect()) {
             menuConnect.setEnabled(true);
-            menuConnect.setTitle("连接");
-            menuConnect.setIcon(R.mipmap.ic_disconnect_24px);
+            menuConnect.setIcon(R.mipmap.ic_connect_disconnect);
         }
         else {
             menuConnect.setEnabled(false);
@@ -623,9 +639,5 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             drawable = ContextCompat.getDrawable(this, SupportedDeviceType.getDeviceTypeFromUuid(device.getUuidString()).getDefaultImage());
         }
         toolbar.setLogo(drawable);
-
-        // 更新工具条title
-        toolbar.setTitle(device.getStateDescription());
-
     }
 }
