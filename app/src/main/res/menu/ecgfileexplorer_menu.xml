@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/explorer_update"
+        android:icon="@mipmap/ic_ecgexplorer_update"
+        android:orderInCategory="0"
+        android:title="导入"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/explorer_delete"
+        android:icon="@mipmap/ic_ecgexplorer_delete"
+        android:orderInCategory="1"
+        android:title="删除"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/explorer_share"
+        android:icon="@mipmap/ic_ecgexplorer_share"
+        android:orderInCategory="2"
+        android:title="分享"
+        app:showAsAction="always" />
+</menu>
