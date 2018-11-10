@@ -36,12 +36,6 @@ public class EcgMonitorController extends BleDeviceController {
         device.setEcgFilter(isFilter);
     }
 
-    public void replay() {
-        //device.disconnect();
-        Intent intent = new Intent(fragment.getActivity(), EcgFileExplorerActivity.class);
-        fragment.getActivity().startActivity(intent);
-    }
-
     public void addComment(String comment) {
         device.addComment(comment);
     }

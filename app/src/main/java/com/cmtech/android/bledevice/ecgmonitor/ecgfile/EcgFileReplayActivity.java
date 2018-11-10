@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgFileReelWaveView;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 //import com.cmtech.dsp.bmefile.StreamBmeFile;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -84,7 +86,6 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if(b) {
-                    //Toast.makeText(EcgFileReplayActivity.this, ""+i, Toast.LENGTH_SHORT).show();
                     ecgView.showAtLocation(i);
                 }
             }
@@ -209,10 +210,10 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     @Override
     public void updateShowState(boolean replaying) {
         if(replaying) {
-            btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
+            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_32px));
             sbEcgReplay.setEnabled(false);
         } else {
-            btnSwitchReplayState.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
+            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_32px));
             sbEcgReplay.setEnabled(true);
         }
     }

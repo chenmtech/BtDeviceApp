@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +12,10 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgAbnormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.ecgmonitorstate.IEcgMonitorState;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
@@ -33,12 +34,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private TextView tvEcgHr;
     private TextView tvEcgRecordTime;
     private ScanWaveView ecgView;
-    private ImageButton btnSwitchSampleEcg;
-
-    private ToggleButton tbEcgRecord;
+    private ImageButton ibSwitchSampleEcg;
+    private ImageButton ibRecord;
     private CheckBox cbEcgFilter;
 
-    private Button btnReplay;
 
     private List<Button> buttonList = new ArrayList<>();
     int[] feelBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
@@ -46,6 +45,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private long recordNum = 0;
 
     private int sampleRate = 0;
+
+    private boolean isRecord = false;
 
 
     public EcgMonitorFragment() {
@@ -80,10 +81,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ecgView = view.findViewById(R.id.ecg_view);
         tvEcgRecordTime = view.findViewById(R.id.ecg_recordtime);
 
-        btnSwitchSampleEcg = view.findViewById(R.id.btn_ecg_startandstop);
-        tbEcgRecord = view.findViewById(R.id.tb_ecg_record);
+        ibSwitchSampleEcg = view.findViewById(R.id.btn_ecg_startandstop);
+        ibRecord = view.findViewById(R.id.ib_ecg_record);
         cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
-        btnReplay = view.findViewById(R.id.btn_ecg_replay);
 
         for(int i = 0; i < feelBtnId.length; i++) {
             final int index = i;
@@ -99,25 +99,27 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             buttonList.add(button);
         }
 
-        btnSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
+        ibSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ((EcgMonitorController)getController()).switchSampleState();
             }
         });
 
-        tbEcgRecord.setChecked(((EcgMonitorDevice)getDevice()).isRecord());
-        tbEcgRecord.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+        isRecord = ((EcgMonitorDevice)getDevice()).isRecord();
+        updateRecordStatus(isRecord);
+        ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorController)getController()).setEcgRecord(b);
-                btnReplay.setClickable(!b);
-                if(b) {
+            public void onClick(View view) {
+                isRecord = !isRecord;
+                ((EcgMonitorController)getController()).setEcgRecord(isRecord);
+                if(isRecord) {
                     recordNum = 0;
                 }
 
                 for(Button button : buttonList) {
-                    button.setEnabled(b);
+                    button.setEnabled(isRecord);
                 }
             }
         });
@@ -127,13 +129,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 ((EcgMonitorController)getController()).setEcgFilter(b);
-            }
-        });
-
-        btnReplay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((EcgMonitorController)getController()).replay();
             }
         });
 
@@ -165,13 +160,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void run() {
                 if(state.canStart()) {
-                    btnSwitchSampleEcg.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_play_48px));
-                    btnSwitchSampleEcg.setClickable(true);
+                    ibSwitchSampleEcg.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_48px));
+                    ibSwitchSampleEcg.setClickable(true);
                 } else if(state.canStop()) {
-                    btnSwitchSampleEcg.setImageDrawable(getResources().getDrawable(R.mipmap.ic_ecg_pause_48px));
-                    btnSwitchSampleEcg.setClickable(true);
+                    ibSwitchSampleEcg.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_48px));
+                    ibSwitchSampleEcg.setClickable(true);
                 } else {
-                    btnSwitchSampleEcg.setClickable(false);
+                    ibSwitchSampleEcg.setClickable(false);
                 }
             }
         });
@@ -210,7 +205,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateRecordStatus(boolean isRecord) {
-        tbEcgRecord.setChecked(isRecord);
+        if(isRecord)
+            ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_start));
+        else
+            ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_stop));
     }
 
     @Override
@@ -229,7 +227,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     @Override
     public void updateEcgData(int ecgData) {
         ecgView.showData(ecgData);
-        if(tbEcgRecord.isChecked()) {
+        if(isRecord) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

@@ -263,6 +263,9 @@ public class EcgMonitorDevice extends BleDevice {
             saveEcgFile();
         }
         this.isRecord = isRecord;
+        if(observer != null) {
+            observer.updateRecordStatus(isRecord);
+        }
     }
 
     public synchronized void setEcgFilter(boolean isEcgFilter) {
