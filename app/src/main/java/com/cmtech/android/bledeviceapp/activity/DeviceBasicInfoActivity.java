@@ -40,15 +40,17 @@ import java.io.File;
  */
 
 public class DeviceBasicInfoActivity extends AppCompatActivity {
+    public static final File IMAGEDIR = MyApplication.getContext().getExternalFilesDir("images");
+
     private Button btnCancel;
     private Button btnOk;
-
-
+    private Button btnDefault;
     private EditText etName;
     private ImageView ivImage;
     private CheckBox cbIsAutoconnect;
     private EditText etReconnectTimes;
 
+    // 设备基本信息
     private BleDeviceBasicInfo basicInfo;
 
     @Override
@@ -61,21 +63,34 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             basicInfo = (BleDeviceBasicInfo) intent.getSerializableExtra("devicebasicinfo");
         }
 
-        setTitle("设备:" + basicInfo.getMacAddress());
-
-        etName = findViewById(R.id.cfg_device_nickname);
-        etName.setText("".equals(basicInfo.getNickName()) ? SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname() : basicInfo.getNickName());
-
-        ivImage = findViewById(R.id.cfg_device_image);
-
-        String imagePath = basicInfo.getImagePath();
-        if(imagePath != null && !"".equals(imagePath)) {
-            Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
-            ivImage.setImageDrawable(drawable);
-        } else {
-            Glide.with(this).load(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
+        if(!IMAGEDIR.exists()) {
+            IMAGEDIR.mkdir();
         }
 
+        if(basicInfo == null || !IMAGEDIR.exists()) {
+            finish();
+        }
+
+        // 设置标题为设备地址
+        setTitle("设备："+basicInfo.getMacAddress());
+
+        // 设置设备名
+        etName = findViewById(R.id.cfg_device_nickname);
+        String deviceName = basicInfo.getNickName();
+        if("".equals(deviceName)) {
+            deviceName = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname();
+        }
+        etName.setText(deviceName);
+
+        // 设置设备图像
+        ivImage = findViewById(R.id.cfg_device_image);
+        String imagePath = basicInfo.getImagePath();
+        if("".equals(imagePath)) {
+            Glide.with(this).load(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
+        } else {
+            Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
+            ivImage.setImageDrawable(drawable);
+        }
         ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,16 +98,16 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             }
         });
 
+        // 设置重连次数
         etReconnectTimes = findViewById(R.id.cfg_device_reconnecttimes);
         etReconnectTimes.setText(""+basicInfo.getReconnectTimes());
 
-
+        // 设置打开后是否自动重连
         cbIsAutoconnect = findViewById(R.id.cfg_device_isautoconnect);
         cbIsAutoconnect.setChecked(basicInfo.autoConnect());
 
-        btnCancel = findViewById(R.id.register_device_cancel_btn);
-        btnOk = findViewById(R.id.register_device_ok_btn);
 
+        btnCancel = findViewById(R.id.register_device_cancel_btn);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,6 +116,8 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             }
         });
 
+
+        btnOk = findViewById(R.id.register_device_ok_btn);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -108,9 +125,9 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
                 // 把图像缩小，保存为macAddress.jpg文件
                 String imagePath = basicInfo.getImagePath();
-                if(imagePath != null && !"".equals(imagePath)) {
+                if(!"".equals(imagePath)) {
                     Bitmap bitmap = BitmapUtil.getSmallBitmap(imagePath, 100, 100);
-                    File toFile = FileUtil.getFile(getExternalFilesDir("images"), basicInfo.getMacAddress() + ".jpg");
+                    File toFile = FileUtil.getFile(IMAGEDIR, basicInfo.getMacAddress() + ".jpg");
                     BitmapUtil.saveBitmap(bitmap, toFile);
                     basicInfo.setImagePath(toFile.getAbsolutePath());
                 }
@@ -126,6 +143,13 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             }
         });
 
+        btnDefault = findViewById(R.id.btn_registerdevice_default);
+        btnDefault.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                restoreDefaultSetup();
+            }
+        });
 
     }
 
@@ -154,7 +178,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
     @TargetApi(19)
     private String handleImageOnKitKat(Intent data) {
-        String imagePath = null;
+        String imagePath = "";
         Uri uri = data.getData();
         if(DocumentsContract.isDocumentUri(this, uri)) {
             String docId = DocumentsContract.getDocumentId(uri);
@@ -184,7 +208,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
     }
 
     private String getImagePath(Uri uri, String selection) {
-        String path = null;
+        String path = "";
         Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
         if(cursor != null) {
             if(cursor.moveToFirst()) {
@@ -197,5 +221,14 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
     private void displayImage(String imagePath) {
         Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivImage);
+    }
+
+    private void restoreDefaultSetup() {
+        String deviceName = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname();
+        basicInfo.setNickName(deviceName);
+        etName.setText(deviceName);
+
+        basicInfo.setImagePath("");
+        Glide.with(this).load(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
     }
 }
