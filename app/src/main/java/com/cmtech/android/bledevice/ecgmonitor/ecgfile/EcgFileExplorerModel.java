@@ -8,7 +8,7 @@ import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.exception.FileException;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;

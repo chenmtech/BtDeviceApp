@@ -2,8 +2,8 @@ package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
-import com.cmtech.dsp.bmefile.BmeFileHead30;
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.BmeFileHead30;
+import com.cmtech.bmefile.exception.FileException;
 
 import java.util.Date;
 import java.util.List;

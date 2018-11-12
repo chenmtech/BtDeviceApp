@@ -18,9 +18,9 @@ import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
 import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
-import com.cmtech.dsp.bmefile.BmeFileDataType;
-import com.cmtech.dsp.bmefile.BmeFileHead30;
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.BmeFileDataType;
+import com.cmtech.bmefile.BmeFileHead30;
+import com.cmtech.bmefile.exception.FileException;
 import com.cmtech.dsp.filter.IIRFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
 import com.cmtech.dsp.filter.design.NotchDesigner;
@@ -371,11 +371,12 @@ public class EcgMonitorDevice extends BleDevice {
         bmeFileHead.setFs(sampleRate);
         bmeFileHead.setInfo("Ecg Lead " + leadType.getDescription());
         bmeFileHead.setCalibrationValue(value1mV);
+        long timeInMillis = new Date().getTime();
+        bmeFileHead.setCreatedTime(timeInMillis);
 
         // 创建ecgFileHead文件头
         String simpleMacAddress = EcgMonitorUtil.simpleMacAddress(getMacAddress());
-        long timeInMillis = new Date().getTime();
-        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, timeInMillis);
+        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress);
 
         // 创建ecgFile
         String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);

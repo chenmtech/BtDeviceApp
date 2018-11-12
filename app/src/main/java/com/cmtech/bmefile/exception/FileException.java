@@ -6,7 +6,7 @@
  * Copyright (c) 2018, e_yujunquan@163.com All Rights Reserved.
  *
  */
-package com.cmtech.dsp.bmefile.exception;
+package com.cmtech.bmefile.exception;
 
 import com.cmtech.dsp.exception.DspException;
 import com.cmtech.dsp.exception.DspExceptionCode;

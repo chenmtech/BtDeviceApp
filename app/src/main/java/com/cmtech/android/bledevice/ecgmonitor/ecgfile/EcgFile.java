@@ -1,8 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
-import com.cmtech.dsp.bmefile.BmeFileHead;
-import com.cmtech.dsp.bmefile.RandomAccessBmeFile;
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.BmeFileHead;
+import com.cmtech.bmefile.RandomAccessBmeFile;
+import com.cmtech.bmefile.exception.FileException;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

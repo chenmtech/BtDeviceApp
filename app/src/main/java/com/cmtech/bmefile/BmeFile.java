@@ -1,14 +1,14 @@
 /**
  * Project Name:DSP_JAVA
  * File Name:BmeFile.java
- * Package Name:com.cmtech.dsp.bmefile
+ * Package Name:com.cmtech.bmefile
  * Date:2018年2月11日上午6:23:50
  * Copyright (c) 2018, e_yujunquan@163.com All Rights Reserved.
  *
  */
-package com.cmtech.dsp.bmefile;
+package com.cmtech.bmefile;
 
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.exception.FileException;
 import com.cmtech.dsp.util.FormatTransfer;
 
 import java.io.DataInput;

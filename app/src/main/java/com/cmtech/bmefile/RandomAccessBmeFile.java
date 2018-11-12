@@ -1,6 +1,6 @@
-package com.cmtech.dsp.bmefile;
+package com.cmtech.bmefile;
 
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.exception.FileException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -8,9 +8,9 @@
  */
 package com.cmtech.dsp.seq;
 
-import com.cmtech.dsp.bmefile.BmeFileHead;
-import com.cmtech.dsp.bmefile.StreamBmeFile;
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.BmeFileHead;
+import com.cmtech.bmefile.StreamBmeFile;
+import com.cmtech.bmefile.exception.FileException;
 import com.cmtech.dsp.util.SeqUtil;
 
 import java.util.Collection;

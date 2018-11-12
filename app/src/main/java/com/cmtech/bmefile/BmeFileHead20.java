@@ -6,9 +6,9 @@
  * Copyright (c) 2018, e_yujunquan@163.com All Rights Reserved.
  *
  */
-package com.cmtech.dsp.bmefile;
+package com.cmtech.bmefile;
 
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.exception.FileException;
 import com.cmtech.dsp.util.FormatTransfer;
 
 import java.io.DataInput;
@@ -61,7 +61,7 @@ public class BmeFileHead20 extends BmeFileHead {
 	
 	/**
 	 * TODO 简单描述该方法的实现功能（可选）.
-	 * @see com.cmtech.dsp.bmefile.BmeFileHead#getByteOrder()
+	 * @see com.cmtech.bmefile.BmeFileHead#getByteOrder()
 	 */
 	@Override
 	public ByteOrder getByteOrder() {

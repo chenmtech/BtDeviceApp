@@ -198,9 +198,32 @@ public class FormatTransfer {
 	    s = s + 256 + b[3];  
 	  }  
 	  return s;  
-	}   
-	  
-	/**  
+	}
+
+    /**
+     * 将高字节数组转换为long
+     * @param b byte[]
+     * @return long
+     */
+    public static long hBytesToLong(byte[] b) {
+        long s = 0;
+        for (int i = 0; i < 8; i++) {
+            if (b[i] >= 0) {
+                s = s + b[i];
+            } else {
+                s = s + 256 + b[i];
+            }
+            s = s * 256;
+        }
+        if (b[8] >= 0) {
+            s = s + b[8];
+        } else {
+            s = s + 256 + b[8];
+        }
+        return s;
+    }
+
+    /**
 	  * 将低字节数组转换为int  
 	  * @param b byte[]  
 	  * @return int  
@@ -322,9 +345,19 @@ public class FormatTransfer {
 	    out = out + bb + " ";  
 	  }   
 	  
-	}   
-	  
-	/**  
+	}
+
+    /**
+     * 将long类型的值转换为字节序颠倒过来对应的long值
+     * @param i long
+     * @return long
+     */
+    public static long reverseLong(long i) {
+        long result = FormatTransfer.hBytesToLong(FormatTransfer.toLH(i));
+        return result;
+    }
+
+    /**
 	  * 将int类型的值转换为字节序颠倒过来对应的int值  
 	  * @param i int  
 	  * @return int  

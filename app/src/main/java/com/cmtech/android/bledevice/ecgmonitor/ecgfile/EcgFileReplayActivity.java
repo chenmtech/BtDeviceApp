@@ -18,9 +18,9 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.ecgmonitor.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-//import com.cmtech.dsp.bmefile.StreamBmeFile;
+//import com.cmtech.bmefile.StreamBmeFile;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.exception.FileException;
 
 public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver {
     private static final String TAG = "EcgFileReplayActivity";

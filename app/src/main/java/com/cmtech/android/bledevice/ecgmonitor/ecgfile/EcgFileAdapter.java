@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.bmefile.BmeFileHead30;
 
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.fileCreatedPerson.setText(file.getEcgFileHead().getFileCreatedPerson());
 
         StringBuilder createTimeSb = new StringBuilder();
-        createTimeSb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getEcgFileHead().getFileCreatedTime()));
+        createTimeSb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(((BmeFileHead30)file.getBmeFileHead()).getCreatedTime()));
         createTimeSb.append(" [");
         createTimeSb.append(DateTimeUtil.secToTime(file.getDataNum()/file.getFs()));
         createTimeSb.append(']');

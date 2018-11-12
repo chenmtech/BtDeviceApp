@@ -1,6 +1,6 @@
-package com.cmtech.dsp.bmefile;
+package com.cmtech.bmefile;
 
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.exception.FileException;
 import com.cmtech.dsp.util.FormatTransfer;
 
 import java.io.DataInput;
@@ -14,6 +14,9 @@ public class BmeFileHead30 extends BmeFileHead10 {
     // 1mV定标值
     private int calibrationValue = 1;
 
+    // 文件创建时间
+    private long createdTime = 0;
+
     public int getCalibrationValue() {
         return calibrationValue;
     }
@@ -22,13 +25,22 @@ public class BmeFileHead30 extends BmeFileHead10 {
         this.calibrationValue = calibrationValue;
     }
 
+    public long getCreatedTime() {
+        return createdTime;
+    }
+
+    public void setCreatedTime(long createdTime) {
+        this.createdTime = createdTime;
+    }
+
     public BmeFileHead30() {
         super();
     }
 
-    public BmeFileHead30(int calibrationValue) {
+    public BmeFileHead30(int calibrationValue, long createdTime) {
         super();
         this.calibrationValue = calibrationValue;
+        this.createdTime = createdTime;
     }
 
     @Override
@@ -41,6 +53,7 @@ public class BmeFileHead30 extends BmeFileHead10 {
         super.readFromStream(in);
         try {
             setCalibrationValue(FormatTransfer.reverseInt(in.readInt()));
+            setCreatedTime(FormatTransfer.reverseLong(in.readLong()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -51,6 +64,7 @@ public class BmeFileHead30 extends BmeFileHead10 {
         super.writeToStream(out);
         try {
             out.write(FormatTransfer.toLH(getCalibrationValue()));
+            out.write(FormatTransfer.toLH(getCreatedTime()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,11 +79,12 @@ public class BmeFileHead30 extends BmeFileHead10 {
                 + getInfo() + ";"
                 + getDataType() + ";"
                 + getFs() + ";"
-                + getCalibrationValue() + "]";
+                + getCalibrationValue() + ";"
+                + getCreatedTime() + "]";
     }
 
-    // super.getLength() + calibrationValue(4字节)
+    // super.getLength() + calibrationValue(4字节) + createdTime(8字节)
     public int getLength() {
-        return super.getLength() + 4;
+        return super.getLength() + 12;
     }
 }

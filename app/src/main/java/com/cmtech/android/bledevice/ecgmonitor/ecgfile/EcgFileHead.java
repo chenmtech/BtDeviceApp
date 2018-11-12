@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.exception.FileException;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -15,7 +15,6 @@ public class EcgFileHead {
     public static final int MACADDRESS_CHAR_NUM = 12;
     public static final int CREATEDPERSON_LEN = 10;
     private String macAddress = "";
-    private long fileCreatedTime;
     private String fileCreatedPerson = "";
 
     private List<EcgFileComment> commentList = new ArrayList<>();
@@ -26,14 +25,6 @@ public class EcgFileHead {
 
     public void setMacAddress(String macAddress) {
         this.macAddress = macAddress;
-    }
-
-    public long getFileCreatedTime() {
-        return fileCreatedTime;
-    }
-
-    public void setFileCreatedTime(long fileCreatedTime) {
-        this.fileCreatedTime = fileCreatedTime;
     }
 
     public String getFileCreatedPerson() {
@@ -48,17 +39,15 @@ public class EcgFileHead {
 
     }
 
-    public EcgFileHead(String fileCreatedPerson, String macAddress, long fileCreatedTime) {
+    public EcgFileHead(String fileCreatedPerson, String macAddress) {
         this.fileCreatedPerson = fileCreatedPerson;
         this.macAddress = macAddress;
-        this.fileCreatedTime = fileCreatedTime;
     }
 
     public void readFromStream(DataInput in) throws FileException {
         try {
             fileCreatedPerson = DataIOUtil.readFixedString(CREATEDPERSON_LEN, in);
             macAddress = DataIOUtil.readFixedString(MACADDRESS_CHAR_NUM, in);
-            fileCreatedTime = in.readLong();
             int commentNum = in.readInt();
             for(int i = 0; i < commentNum; i++) {
                 EcgFileComment comment = new EcgFileComment();
@@ -81,7 +70,6 @@ public class EcgFileHead {
         try {
             DataIOUtil.writeFixedString(fileCreatedPerson, CREATEDPERSON_LEN, out);
             DataIOUtil.writeFixedString(macAddress, MACADDRESS_CHAR_NUM, out);
-            out.writeLong(fileCreatedTime);
             out.writeInt(commentList.size());
             for(int i = 0; i < commentList.size(); i++) {
                 commentList.get(i).writeToStream(out);
@@ -97,7 +85,6 @@ public class EcgFileHead {
         return "[心电文件头信息："
                 + "采集人：" + fileCreatedPerson + ";"
                 + "设备地址：" + macAddress + ";"
-                + "创建时间：" + fileCreatedTime + ";"
                 //+ "评论数：" + commentList.size() + "]";
                 + "评论：" + Arrays.toString(commentList.toArray()) + "]";
     }

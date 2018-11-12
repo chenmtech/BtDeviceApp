@@ -1,14 +1,14 @@
 /**
  * Project Name:DSP_JAVA
  * File Name:BmeFileHeadFactory.java
- * Package Name:com.cmtech.dsp.bmefile
+ * Package Name:com.cmtech.bmefile
  * Date:2018年2月17日上午5:33:27
  * Copyright (c) 2018, e_yujunquan@163.com All Rights Reserved.
  *
  */
-package com.cmtech.dsp.bmefile;
+package com.cmtech.bmefile;
 
-import com.cmtech.dsp.bmefile.exception.FileException;
+import com.cmtech.bmefile.exception.FileException;
 
 import java.util.Arrays;
 
