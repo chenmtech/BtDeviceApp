@@ -9,8 +9,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
@@ -30,6 +33,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         TextView fileCreatedPerson;
         TextView fileCreatedTime;
         TextView fileLastComment;
+        ImageButton ibPlay;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -37,6 +41,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             fileCreatedPerson = fileView.findViewById(R.id.ecgfile_createperson);
             fileCreatedTime = fileView.findViewById(R.id.ecgfile_createtime);
             fileLastComment = fileView.findViewById(R.id.ecgfile_lastcomment);
+            ibPlay = fileView.findViewById(R.id.ib_ecgfile_play);
         }
     }
 
@@ -56,6 +61,15 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             @Override
             public void onClick(View view) {
                 activity.selectFile(holder.getAdapterPosition());
+            }
+        });
+
+        holder.ibPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(selectItem == holder.getAdapterPosition()) {
+                    activity.openSelectFile();
+                }
             }
         });
 
@@ -79,10 +93,10 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         if(commentNum > 0) {
             EcgFileComment comment = file.getEcgFileHead().getCommentList().get(commentNum - 1);
             StringBuilder sb = new StringBuilder();
-            sb.append(comment.getCommentator());
-            sb.append(' ');
             sb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCommentTime()));
-            sb.append(" “");
+            sb.append(' ');
+            sb.append(comment.getCommentator());
+            sb.append("说“");
             sb.append(comment.getComment());
             sb.append('”');
             holder.fileLastComment.setText(sb.toString());
@@ -90,10 +104,16 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             holder.fileLastComment.setText("无留言");
         }
 
+        int bgdColor = 0;
         if(selectItem == position) {
-            holder.fileView.setBackgroundColor(Color.parseColor("#00a0e9"));
+            bgdColor = MyApplication.getContext().getColor(R.color.secondary);
+            holder.fileView.setBackgroundColor(bgdColor);
+            holder.ibPlay.setBackgroundColor(bgdColor);
+            holder.ibPlay.setVisibility(View.VISIBLE);
         } else {
             holder.fileView.setBackground(defaultBackground);
+            holder.ibPlay.setBackground(defaultBackground);
+            holder.ibPlay.setVisibility(View.INVISIBLE);
         }
     }
 

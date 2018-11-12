@@ -26,11 +26,6 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     private EcgReportAdapter reportAdapter;
     private RecyclerView rvReportList;
 
-    private Button btnEcgShare;
-    private Button btnEcgDelete;
-    private Button btnImportFromWX;
-    private Button btnOpenFile;
-
     // 工具条
     private Toolbar toolbar;
 
@@ -71,42 +66,6 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         reportAdapter.notifyDataSetChanged();
         if(reportAdapter.getItemCount() >= 1)
             rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
-
-        btnImportFromWX = findViewById(R.id.btn_ecgfile_import);
-        btnImportFromWX.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                model.importFromWeixin();
-            }
-        });
-
-        btnEcgDelete = findViewById(R.id.btn_ecgfile_delete);
-        btnEcgDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                deleteSelectFile();
-            }
-        });
-
-        btnEcgShare = findViewById(R.id.btn_ecgfile_share);
-        btnEcgShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(fileAdapter.getSelectItem() == -1) return;
-
-                model.shareSelectFileThroughWechat();
-            }
-        });
-
-        btnOpenFile = findViewById(R.id.btn_ecgfile_open);
-        btnOpenFile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(fileAdapter.getSelectItem() == -1) return;
-
-                model.openSelectFile();
-            }
-        });
 
         if(model.getFileList().size() > 0) {
             selectFile(model.getFileList().size()-1);
@@ -158,6 +117,12 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         super.onDestroy();
 
         model.removeEcgFileExplorerObserver();
+    }
+
+    public void openSelectFile() {
+        if(fileAdapter.getSelectItem() == -1) return;
+
+        model.openSelectFile();
     }
 
     public void deleteSelectFile() {

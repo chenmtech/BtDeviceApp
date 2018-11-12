@@ -210,10 +210,10 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     @Override
     public void updateShowState(boolean replaying) {
         if(replaying) {
-            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_32px));
+            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_48px));
             sbEcgReplay.setEnabled(false);
         } else {
-            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_32px));
+            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_48px));
             sbEcgReplay.setEnabled(true);
         }
     }

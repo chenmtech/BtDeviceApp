@@ -7,7 +7,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/navigation_view">
+        android:background="@color/secondary">
 
         <ImageView
             android:id="@+id/accountimage"

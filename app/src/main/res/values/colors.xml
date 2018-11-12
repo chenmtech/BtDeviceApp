@@ -3,13 +3,13 @@
 
     <color name="primary">#ffffff</color>
     <color name="primary_dark">#dcdcdc</color>
+    <color name="secondary">#add8e6</color>
     <color name="window_background">#ffffff</color>
     <color name="accent">#4169e1</color>
     <color name="primary_text">#212121</color>
     <color name="secondary_text">#757575</color>
     <color name="icons">#212121</color>
     <color name="divider">#BDBDBD</color>
-    <color name="navigation_view">#add8e6</color>
 
 
     <color name="white">#ffffff</color> <!-- 白色 -->

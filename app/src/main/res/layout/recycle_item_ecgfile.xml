@@ -1,48 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="2dp">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="采集信息："/>
-        <TextView
-            android:id="@+id/ecgfile_createperson"
-            android:layout_width="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_ecgfile_createinfo"
+                android:layout_marginEnd="2dp"/>
+
+            <TextView
+                android:id="@+id/ecgfile_createtime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:layout_gravity="center_vertical"
+                android:text="时间"
+                android:textColor="@color/secondary_text"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/ecgfile_createperson"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="创建人"
+                android:textColor="@color/secondary_text"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="2dp"
-            android:textColor="#000"/>
-        <TextView
-            android:id="@+id/ecgfile_createtime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textColor="#000"/>
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:src="@mipmap/ic_ecgfile_newcomment"
+                android:layout_marginEnd="2dp"/>
+
+            <TextView
+                android:id="@+id/ecgfile_lastcomment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="无"
+                android:textColor="@color/primary_text"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ImageButton
+        android:id="@+id/ib_ecgfile_play"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="最新留言："/>
+        android:layout_gravity="center_vertical"
+        android:src="@mipmap/ic_ecg_play_48px"
+        android:background="@color/primary"
+        android:layout_marginEnd="2dp"/>
 
-        <TextView
-            android:id="@+id/ecgfile_lastcomment"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="无"
-            android:textColor="#f00"/>
-    </LinearLayout>
 
 
 </LinearLayout>

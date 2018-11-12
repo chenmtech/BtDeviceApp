@@ -15,32 +15,6 @@
         toolbar:navigationIcon="@mipmap/ic_ecgexplorer_toolbar"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:enabled="false"
-        android:minHeight="0dp"
-        android:text="留言"/>
-
-    <android.support.v7.widget.RecyclerView
-        android:id = "@+id/rv_ecgfile_report"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginBottom="10dp"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:enabled="false"
-        android:minHeight="0dp"
-        android:text="记录列表"
-        android:textSize="16sp"/>
-
-
-
     <android.support.v7.widget.RecyclerView
         android:id = "@+id/rv_ecgfile_list"
         android:layout_width="match_parent"
@@ -48,36 +22,25 @@
         android:layout_weight="3"
         android:layout_marginBottom="10dp"/>
 
-    <LinearLayout
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:id="@+id/btn_ecgfile_import"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="微信导入"/>
+        android:layout_height="1dp"
+        android:background="@color/divider"/>
 
-        <Button
-            android:id="@+id/btn_ecgfile_delete"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="删除"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:enabled="false"
+        android:minHeight="0dp"
+        android:text="所有留言"
+        android:textColor="@color/secondary_text"/>
 
-        <Button
-            android:id="@+id/btn_ecgfile_share"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="微信分享"/>
-
-        <Button
-            android:id="@+id/btn_ecgfile_open"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="播放"/>
-    </LinearLayout>
+    <android.support.v7.widget.RecyclerView
+        android:id = "@+id/rv_ecgfile_report"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="10dp"/>
 
 </LinearLayout>
