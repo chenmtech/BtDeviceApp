@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -9,14 +8,12 @@ import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
-import com.cmtech.dsp.exception.FileException;
-import com.vise.log.ViseLog;
+import com.cmtech.dsp.bmefile.exception.FileException;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;

@@ -3,8 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.dsp.bmefile.BmeFileHead30;
-import com.cmtech.dsp.exception.FileException;
-import com.vise.log.ViseLog;
+import com.cmtech.dsp.bmefile.exception.FileException;
 
 import java.util.Date;
 import java.util.List;

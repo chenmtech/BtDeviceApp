@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFile;
-import com.cmtech.dsp.exception.FileException;
+import com.cmtech.dsp.bmefile.exception.FileException;
 
 import java.io.IOException;
 import java.util.Timer;

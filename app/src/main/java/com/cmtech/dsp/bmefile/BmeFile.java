@@ -8,29 +8,20 @@
  */
 package com.cmtech.dsp.bmefile;
 
-import com.cmtech.dsp.exception.FileException;
+import com.cmtech.dsp.bmefile.exception.FileException;
 import com.cmtech.dsp.util.FormatTransfer;
-import com.vise.log.ViseLog;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.RandomAccess;
 import java.util.Set;
 
 /**

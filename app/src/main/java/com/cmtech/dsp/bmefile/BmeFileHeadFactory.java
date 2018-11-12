@@ -8,7 +8,7 @@
  */
 package com.cmtech.dsp.bmefile;
 
-import com.cmtech.dsp.exception.FileException;
+import com.cmtech.dsp.bmefile.exception.FileException;
 
 import java.util.Arrays;
 

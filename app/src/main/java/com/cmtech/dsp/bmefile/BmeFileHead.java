@@ -8,16 +8,11 @@
  */
 package com.cmtech.dsp.bmefile;
 
-import com.cmtech.dsp.exception.FileException;
+import com.cmtech.dsp.bmefile.exception.FileException;
 
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
-import java.util.RandomAccess;
 
 /**
  * ClassName: BmeFileCore

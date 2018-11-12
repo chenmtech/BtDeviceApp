@@ -9,8 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDevice;
 import com.cmtech.android.bledeviceapp.R;
@@ -57,7 +55,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             rvFileList.smoothScrollToPosition(fileAdapter.getItemCount()-1);
 
 
-        rvReportList = findViewById(R.id.rv_ecgfile_report);
+        rvReportList = findViewById(R.id.rv_ecgreplay_comment);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvReportList.setLayoutManager(reportLayoutManager);
         rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));

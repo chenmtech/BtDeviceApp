@@ -9,7 +9,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
@@ -21,7 +20,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 //import com.cmtech.dsp.bmefile.StreamBmeFile;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.dsp.exception.FileException;
+import com.cmtech.dsp.bmefile.exception.FileException;
 
 public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver {
     private static final String TAG = "EcgFileReplayActivity";
@@ -30,7 +29,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     private EcgFileReelWaveView ecgView;
 
-    private Button btnEcgAddComment;
+    private ImageButton ibAddComment;
 
     private ImageButton btnSwitchReplayState;
 
@@ -101,7 +100,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             }
         });
 
-        rvReportList = findViewById(R.id.rv_ecgfile_report);
+        rvReportList = findViewById(R.id.rv_ecgreplay_comment);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvReportList.setLayoutManager(reportLayoutManager);
         rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -112,7 +111,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
 
 
-        btnSwitchReplayState = findViewById(R.id.btn_ecg_startandstop);
+        btnSwitchReplayState = findViewById(R.id.ib_ecgreplay_startandstop);
         btnSwitchReplayState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,9 +124,9 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         });
 
 
-        etComment = findViewById(R.id.et_replay_comment);
-        btnEcgAddComment = findViewById(R.id.btn_ecgreplay_addcomment);
-        btnEcgAddComment.setOnClickListener(new View.OnClickListener() {
+        etComment = findViewById(R.id.et_ecgreplay_comment);
+        ibAddComment = findViewById(R.id.ib_ecgreplay_addcomment);
+        ibAddComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String comment = etComment.getText().toString();

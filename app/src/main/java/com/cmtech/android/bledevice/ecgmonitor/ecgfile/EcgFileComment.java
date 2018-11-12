@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.dsp.exception.FileException;
+import com.cmtech.dsp.bmefile.exception.FileException;
 
 import java.io.DataInput;
 import java.io.DataOutput;

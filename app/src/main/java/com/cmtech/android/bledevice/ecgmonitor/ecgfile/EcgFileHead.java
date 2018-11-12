@@ -1,13 +1,11 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
-import com.cmtech.dsp.exception.FileException;
-import com.vise.log.ViseLog;
+import com.cmtech.dsp.bmefile.exception.FileException;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;

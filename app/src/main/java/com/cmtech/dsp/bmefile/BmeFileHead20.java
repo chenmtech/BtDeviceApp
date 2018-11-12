@@ -8,13 +8,11 @@
  */
 package com.cmtech.dsp.bmefile;
 
-import com.cmtech.dsp.exception.FileException;
+import com.cmtech.dsp.bmefile.exception.FileException;
 import com.cmtech.dsp.util.FormatTransfer;
 
 import java.io.DataInput;
-import java.io.DataInputStream;
 import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;

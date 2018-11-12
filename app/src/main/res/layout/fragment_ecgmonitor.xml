@@ -117,7 +117,7 @@
             android:textSize="40sp" />
 
         <ImageButton
-            android:id="@+id/btn_ecg_startandstop"
+            android:id="@+id/ib_ecgreplay_startandstop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -132,7 +132,7 @@
             android:id="@+id/cb_ecg_filter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/btn_ecg_startandstop"
+            android:layout_toEndOf="@+id/ib_ecgreplay_startandstop"
             android:layout_centerVertical="true"
             android:checked="true"
             android:clickable="true"

@@ -2,12 +2,10 @@ package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 import com.cmtech.dsp.bmefile.BmeFileHead;
 import com.cmtech.dsp.bmefile.RandomAccessBmeFile;
-import com.cmtech.dsp.exception.FileException;
-import com.vise.log.ViseLog;
+import com.cmtech.dsp.bmefile.exception.FileException;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.Arrays;
 
 public class EcgFile extends RandomAccessBmeFile {
     private EcgFileHead ecgFileHead = new EcgFileHead();

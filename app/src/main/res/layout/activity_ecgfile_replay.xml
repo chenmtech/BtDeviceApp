@@ -27,6 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
+            android:layout_marginStart="2dp"
             android:gravity="top"
             android:text="00:00:00"
             android:textColor="#f00"/>
@@ -36,6 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:layout_marginEnd="2dp"
             android:gravity="top"
             android:text="00:00:00"
             android:textColor="#f00"/>
@@ -48,7 +50,7 @@
         android:background="@color/primary_dark">
 
         <ImageButton
-            android:id="@+id/btn_ecg_startandstop"
+            android:id="@+id/ib_ecgreplay_startandstop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/primary_dark"
@@ -70,7 +72,7 @@
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:id = "@+id/rv_ecgfile_report"
+        android:id = "@+id/rv_ecgreplay_comment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -85,10 +87,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_marginStart="2dp"
             android:text="评论："/>
 
         <EditText
-            android:id="@+id/et_replay_comment"
+            android:id="@+id/et_ecgreplay_comment"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -97,12 +100,15 @@
             android:maxLength="50"
             android:hint="请输入不超过50字符"/>
 
-        <Button
-            android:id="@+id/btn_ecgreplay_addcomment"
+        <ImageButton
+            android:id="@+id/ib_ecgreplay_addcomment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            style="@style/minWidth0DpButtonStyle"
-            android:text="添加"/>
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:src="@mipmap/ic_ecgreplay_addcomment"
+            android:background="@color/primary"/>
+
     </LinearLayout>
 </LinearLayout>
