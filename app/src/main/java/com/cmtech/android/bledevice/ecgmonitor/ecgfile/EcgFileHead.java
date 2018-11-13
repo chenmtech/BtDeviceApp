@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
+import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.bmefile.exception.FileException;
 
@@ -18,7 +19,7 @@ public class EcgFileHead {
     public static final byte[] ECG = {'E', 'C', 'G'};
 
     private String macAddress = "";
-    private String fileCreatedPerson = "";
+    private String createdPerson = "";
 
     private List<EcgFileComment> commentList = new ArrayList<>();
 
@@ -30,20 +31,20 @@ public class EcgFileHead {
         this.macAddress = macAddress;
     }
 
-    public String getFileCreatedPerson() {
-        return fileCreatedPerson;
+    public String getCreatedPerson() {
+        return createdPerson;
     }
 
-    public void setFileCreatedPerson(String fileCreatedPerson) {
-        this.fileCreatedPerson = fileCreatedPerson;
+    public void setCreatedPerson(String createdPerson) {
+        this.createdPerson = createdPerson;
     }
 
     public EcgFileHead() {
 
     }
 
-    public EcgFileHead(String fileCreatedPerson, String macAddress) {
-        this.fileCreatedPerson = fileCreatedPerson;
+    public EcgFileHead(String createdPerson, String macAddress) {
+        this.createdPerson = createdPerson;
         this.macAddress = macAddress;
     }
 
@@ -55,9 +56,9 @@ public class EcgFileHead {
                 throw new FileException("", "ECG文件格式不对");
             }
 
-            fileCreatedPerson = DataIOUtil.readFixedString(CREATEDPERSON_LEN, in);
+            createdPerson = DataIOUtil.readFixedString(CREATEDPERSON_LEN, in);
             macAddress = DataIOUtil.readFixedString(MACADDRESS_CHAR_NUM, in);
-            int commentNum = in.readInt();
+            int commentNum = ByteUtil.reverseInt(in.readInt());
             for(int i = 0; i < commentNum; i++) {
                 EcgFileComment comment = new EcgFileComment();
                 comment.readFromStream(in);
@@ -78,9 +79,9 @@ public class EcgFileHead {
     public void writeToStream(DataOutput out) throws FileException {
         try {
             out.write(ECG);
-            DataIOUtil.writeFixedString(fileCreatedPerson, CREATEDPERSON_LEN, out);
+            DataIOUtil.writeFixedString(createdPerson, CREATEDPERSON_LEN, out);
             DataIOUtil.writeFixedString(macAddress, MACADDRESS_CHAR_NUM, out);
-            out.writeInt(commentList.size());
+            out.writeInt(ByteUtil.reverseInt(commentList.size()));
             for(int i = 0; i < commentList.size(); i++) {
                 commentList.get(i).writeToStream(out);
             }
@@ -93,7 +94,7 @@ public class EcgFileHead {
     @Override
     public String toString() {
         return "[心电文件头信息："
-                + "采集人：" + fileCreatedPerson + ";"
+                + "采集人：" + createdPerson + ";"
                 + "设备地址：" + macAddress + ";"
                 //+ "评论数：" + commentList.size() + "]";
                 + "评论：" + Arrays.toString(commentList.toArray()) + "]";

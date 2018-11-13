@@ -8,8 +8,8 @@
  */
 package com.cmtech.bmefile;
 
+import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.bmefile.exception.FileException;
-import com.cmtech.dsp.util.FormatTransfer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -62,19 +62,19 @@ public class BmeFileHead10 extends BmeFileHead {
 	public void readFromStream(DataInput in) throws FileException{
 		try {
 			// ver1.0内部数据字节序为LSB，要反过来变为MSB
-			int infoLen = FormatTransfer.reverseInt(in.readInt());
+			int infoLen = ByteUtil.reverseInt(in.readInt());
 			byte[] str = new byte[infoLen];
 			in.readFully(str);
 			setInfo(new String(str));
-			int dType = in.readByte();
+			int dataType = in.readByte();
 			setDataType(BmeFileDataType.UNKNOWN);
 			for(BmeFileDataType type : BmeFileDataType.values()) {
-				if(dType == type.getCode()) {
+				if(dataType == type.getCode()) {
 					setDataType(type);
 					break;
 				}
 			}
-			setFs(FormatTransfer.reverseInt(in.readInt()));
+			setFs(ByteUtil.reverseInt(in.readInt()));
 		} catch(IOException ioe) {
 			throw new FileException("文件头", "读入错误");
 		}
@@ -85,11 +85,10 @@ public class BmeFileHead10 extends BmeFileHead {
 		try {
 			int infoLen = getInfo().getBytes().length;
 			// ver1.0要写为LSB字节序
-			out.write(FormatTransfer.toLH(infoLen));
+			out.writeInt(ByteUtil.reverseInt(infoLen));
 			out.write(getInfo().getBytes());
 			out.writeByte((byte)getDataType().getCode());
-			// ver1.0要写为LSB
-			out.write(FormatTransfer.toLH(getFs()));
+			out.writeInt(ByteUtil.reverseInt(getFs()));
 		} catch(IOException ioe) {
 			throw new FileException("文件头", "写出错误");
 		}

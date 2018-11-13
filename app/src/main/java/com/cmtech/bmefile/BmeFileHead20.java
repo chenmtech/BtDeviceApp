@@ -8,8 +8,8 @@
  */
 package com.cmtech.bmefile;
 
+import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.bmefile.exception.FileException;
-import com.cmtech.dsp.util.FormatTransfer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -58,11 +58,7 @@ public class BmeFileHead20 extends BmeFileHead {
 	public byte[] getVersion() {
 		return BmeFileHead20.VER;
 	}
-	
-	/**
-	 * TODO 简单描述该方法的实现功能（可选）.
-	 * @see com.cmtech.bmefile.BmeFileHead#getByteOrder()
-	 */
+
 	@Override
 	public ByteOrder getByteOrder() {
 		return byteOrder;
@@ -83,16 +79,16 @@ public class BmeFileHead20 extends BmeFileHead {
 				infoLen = in.readInt();
 				byteOrder = ByteOrder.BIG_ENDIAN;
 			} else {
-				infoLen = FormatTransfer.reverseInt(in.readInt());
+				infoLen = ByteUtil.reverseInt(in.readInt());
 				byteOrder = ByteOrder.LITTLE_ENDIAN;
 			}
 			byte[] str = new byte[infoLen];
 			in.readFully(str);
 			setInfo(new String(str));
-			int dType = in.readByte();
+			int dataType = in.readByte();
 			setDataType(BmeFileDataType.UNKNOWN);
 			for(BmeFileDataType type : BmeFileDataType.values()) {
-				if(dType == type.getCode()) {
+				if(dataType == type.getCode()) {
 					setDataType(type);
 					break;
 				}
@@ -100,7 +96,7 @@ public class BmeFileHead20 extends BmeFileHead {
 			if(order == MSB) {
 				setFs(in.readInt());
 			} else {
-				setFs(FormatTransfer.reverseInt(in.readInt()));
+				setFs(ByteUtil.reverseInt(in.readInt()));
 			}
 		} catch(IOException ioe) {
 			throw new FileException("文件头", "读入错误");
@@ -116,14 +112,14 @@ public class BmeFileHead20 extends BmeFileHead {
 				out.writeInt(infoLen);
 			} else {
 				out.writeByte(LSB);
-				out.write(FormatTransfer.toLH(infoLen));
+				out.writeInt(ByteUtil.reverseInt(infoLen));
 			}
 			out.write(getInfo().getBytes());
 			out.writeByte((byte)getDataType().getCode());
 			if(byteOrder == ByteOrder.BIG_ENDIAN) {
 				out.writeInt(getFs());
 			} else {
-				out.write(FormatTransfer.toLH(getFs()));
+				out.writeInt(ByteUtil.reverseInt(getFs()));
 			}
 		} catch(IOException ioe) {
 			throw new FileException("文件头", "写出错误");

@@ -1,15 +1,10 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -81,7 +76,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     public void onBindViewHolder(EcgFileAdapter.ViewHolder holder, final int position) {
         EcgFile file = fileList.get(position);
 
-        holder.fileCreatedPerson.setText(file.getEcgFileHead().getFileCreatedPerson());
+        holder.fileCreatedPerson.setText(file.getEcgFileHead().getCreatedPerson());
 
         StringBuilder createTimeSb = new StringBuilder();
         createTimeSb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(((BmeFileHead30)file.getBmeFileHead()).getCreatedTime()));

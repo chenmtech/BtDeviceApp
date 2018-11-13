@@ -205,7 +205,7 @@ public class FormatTransfer {
      * @param b byte[]
      * @return long
      */
-    public static long hBytesToLong(byte[] b) {
+    /*public static long hBytesToLong(byte[] b) {
         long s = 0;
         for (int i = 0; i < 8; i++) {
             if (b[i] >= 0) {
@@ -221,7 +221,7 @@ public class FormatTransfer {
             s = s + 256 + b[7];
         }
         return s;
-    }
+    }*/
 
     /**
 	  * 将低字节数组转换为int  
@@ -352,10 +352,10 @@ public class FormatTransfer {
      * @param i long
      * @return long
      */
-    public static long reverseLong(long i) {
+    /*public static long reverseLong(long i) {
         long result = FormatTransfer.hBytesToLong(FormatTransfer.toLH(i));
         return result;
-    }
+    }*/
 
     /**
 	  * 将int类型的值转换为字节序颠倒过来对应的int值  

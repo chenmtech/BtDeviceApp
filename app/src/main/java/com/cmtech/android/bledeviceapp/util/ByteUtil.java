@@ -1,6 +1,9 @@
 package com.cmtech.android.bledeviceapp.util;
 
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Java基本数据类型和byte数组相互转化
@@ -90,8 +93,7 @@ public class ByteUtil {
     }
 
     public static double getDouble(byte[] bytes) {
-        long l = getLong(bytes);
-        return Double.longBitsToDouble(l);
+        return Double.longBitsToDouble(getLong(bytes));
     }
 
     public static String getString(byte[] bytes, String charsetName) {
@@ -102,11 +104,41 @@ public class ByteUtil {
         return getString(bytes, "GBK");
     }
 
-    public static byte[] reverse(byte[] bytes) {
-        byte[] result = new byte[bytes.length];
-        for(int i = 0; i < bytes.length; i++) {
-            result[i] = bytes[bytes.length-i-1];
+    public static void reverse(byte[] bytes) {
+        for (int i = 0; i < bytes.length / 2; i++) {
+            byte temp = bytes[i];
+            bytes[i] = bytes[bytes.length - 1 - i];
+            bytes[bytes.length - 1 - i] = temp;
         }
-        return result;
+    }
+
+    public static short reverseShort(short i) {
+        byte[] arr = getBytes(i);
+        reverse(arr);
+        return getShort(arr);
+    }
+
+    public static int reverseInt(int i) {
+        byte[] arr = getBytes(i);
+        reverse(arr);
+        return getInt(arr);
+    }
+
+    public static long reverseLong(long i) {
+        byte[] arr = getBytes(i);
+        reverse(arr);
+        return getLong(arr);
+    }
+
+    public static float reverseFloat(float i) {
+        byte[] arr = getBytes(i);
+        reverse(arr);
+        return getFloat(arr);
+    }
+
+    public static double reverseDouble(double i) {
+        byte[] arr = getBytes(i);
+        reverse(arr);
+        return getDouble(arr);
     }
 }

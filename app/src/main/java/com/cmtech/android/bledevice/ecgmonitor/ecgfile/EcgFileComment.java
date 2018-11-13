@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
+import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.exception.FileException;
@@ -46,7 +47,7 @@ public class EcgFileComment {
     public void readFromStream(DataInput in) throws FileException {
         try {
             commentator = DataIOUtil.readFixedString(COMMENTATOR_LEN, in);
-            commentTime = in.readLong();
+            commentTime = ByteUtil.reverseLong(in.readLong());
             comment = DataIOUtil.readFixedString(COMMENT_LEN, in);
         } catch (IOException e) {
             e.printStackTrace();
@@ -57,7 +58,7 @@ public class EcgFileComment {
     public void writeToStream(DataOutput out) throws FileException {
         try {
             DataIOUtil.writeFixedString(commentator, COMMENTATOR_LEN, out);
-            out.writeLong(commentTime);
+            out.writeLong(ByteUtil.reverseLong(commentTime));
             DataIOUtil.writeFixedString(comment, COMMENT_LEN, out);
         } catch (IOException e) {
             e.printStackTrace();
@@ -74,10 +75,5 @@ public class EcgFileComment {
         return commentator +
                 "在" + DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(commentTime) +
                 "说：" + comment + '\n';
-        /*return "EcgFileComment{" +
-                "commentator='" + commentator + '\'' +
-                ", commentTime=" + commentTime +
-                ", comment='" + comment + '\'' +
-                '}';*/
     }
 }

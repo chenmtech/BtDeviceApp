@@ -34,7 +34,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
                     try {
                         if(ecgFile.isEof())
                             stopShow();
-                        showData(ecgFile.readData());
+                        showData(ecgFile.readInt());
                         if(observer != null)
                             observer.updateCurrentTime(++num/ecgFile.getFs());
                     } catch (FileException e) {
@@ -126,7 +126,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
         viewData.clear();
         while(begin++ <= numAtLocation) {
             try {
-                viewData.add(ecgFile.readData());
+                viewData.add(ecgFile.readInt());
             } catch (FileException e) {
                 e.printStackTrace();
                 return;

@@ -8,20 +8,17 @@
  */
 package com.cmtech.bmefile;
 
+import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.bmefile.exception.FileException;
-import com.cmtech.dsp.util.FormatTransfer;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -129,127 +126,100 @@ public abstract class BmeFile {
 
 	public abstract int availableData();
 	
-	public double[] readData(double[] d) throws FileException{
-		if(in == null || fileHead == null) {
-			throw new FileException("", "请先打开文件");
-		}
-		
-		if(fileHead.getDataType() != BmeFileDataType.DOUBLE) {
-			throw new FileException(file.getName(), "读取数据类型错误");
-		}
-		
-		List<Double> lst = new ArrayList<Double>();
-		double[] data;
-		byte[] buf = new byte[8];
-		ByteBuffer big = ByteBuffer.wrap(buf).order(ByteOrder.BIG_ENDIAN);
-		ByteBuffer little = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
-		try {
-			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-				while(!isEof())
-					lst.add(in.readDouble());				
-			} else {
-				while(!isEof()) {
-					little.putDouble(0, in.readDouble());
-					lst.add(big.getDouble(0));
-				}
-			}
-			
-			data = new double[lst.size()];
-			for(int i = 0; i < lst.size(); i++) {
-				data[i] = lst.get(i);
-			}
-		} catch(IOException ioe) {
-			throw new FileException(file.getName(), "读数据错误");
-		}
-		return data;
-	}
-
-    public int readData() throws FileException{
+	// 读单个int数据
+    public int readInt() throws FileException{
         if(in == null || fileHead == null) {
             throw new FileException("", "请先打开文件");
         }
 
-        if(fileHead.getDataType() != BmeFileDataType.INT32) {
-            throw new FileException(file.getName(), "读取数据类型错误");
-        }
-
         int data = 0;
-        byte[] buf = new byte[4];
-        ByteBuffer big = ByteBuffer.wrap(buf).order(ByteOrder.BIG_ENDIAN);
-        ByteBuffer little = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
         try {
             if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
                 data = in.readInt();
             } else {
-                little.putInt(0, in.readInt());
-                data = big.getInt(0);
+                data = ByteUtil.reverseInt(in.readInt());
             }
         } catch(IOException ioe) {
             throw new FileException(file.getName(), "读数据错误");
         }
         return data;
     }
-	
-	public int[] readData(int[] d) throws FileException{
-		if(in == null || fileHead == null) {
-			throw new FileException("", "请先打开文件");
-		}
-		
-		if(fileHead.getDataType() != BmeFileDataType.INT32) {
-			throw new FileException(file.getName(), "读取数据类型错误");
-		}
-		
-		List<Integer> lst = new ArrayList<Integer>();
-		int[] data = new int[0];
-		byte[] buf = new byte[4];
-		ByteBuffer big = ByteBuffer.wrap(buf).order(ByteOrder.BIG_ENDIAN);
-		ByteBuffer little = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN);
-		try {
-			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-				while(!isEof())
-					lst.add(in.readInt());				
-			} else {
-				while(isEof()) {
-					little.putInt(0, in.readInt());
-					lst.add(big.getInt(0));
-				}
-			}
-			
-			data = new int[lst.size()];
-			for(int i = 0; i < lst.size(); i++) {
-				data[i] = lst.get(i);
-			}
-		} catch(IOException ioe) {
-			throw new FileException(file.getName(), "读数据错误");
-		}
-		return data;
-	}
-	
-	public byte[] readData(byte[] d) throws FileException{
-		if(in == null || fileHead == null) {
-			throw new FileException("", "请先打开文件");
-		}
-		
-		if(fileHead.getDataType() != BmeFileDataType.UINT8) {
-			throw new FileException(file.getName(), "读取数据类型错误");
-		}
-		
-		List<Byte> lst = new ArrayList<>();
-		byte[] data = new byte[0];
-		try {
-			while(!isEof())
-				lst.add(in.readByte());
-			
-			data = new byte[lst.size()];
-			for(int i = 0; i < lst.size(); i++) {
-				data[i] = lst.get(i);
-			}
-		} catch(IOException ioe) {
-			throw new FileException(file.getName(), "读数据错误");
-		}
-		return data;
-	}
-	
+
+    // 读单个byte数据
+    public byte readByte() throws FileException{
+        if(in == null || fileHead == null) {
+            throw new FileException("", "请先打开文件");
+        }
+
+        byte data = 0;
+        try {
+            data = in.readByte();
+        } catch(IOException ioe) {
+            throw new FileException(file.getName(), "读数据错误");
+        }
+        return data;
+    }
+
+    // 读单个double数据
+    public double readDouble() throws FileException{
+        if(in == null || fileHead == null) {
+            throw new FileException("", "请先打开文件");
+        }
+
+        double data = 0;
+        try {
+            if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
+                data = in.readDouble();
+            } else {
+                data = ByteUtil.reverseDouble(in.readDouble());
+            }
+        } catch(IOException ioe) {
+            throw new FileException(file.getName(), "读数据错误");
+        }
+        return data;
+    }
+
+
+    public BmeFile writeData(byte data) throws FileException{
+        try {
+            out.writeByte(data);
+            dataNum++;
+        } catch(IOException ioe) {
+            throw new FileException(file.getName(), "写数据错误");
+        }
+        return this;
+    }
+
+    public BmeFile writeData(int data) throws FileException{
+        try {
+            if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
+                out.writeInt(data);
+            } else {
+                out.writeInt(ByteUtil.reverseInt(data));
+            }
+            dataNum++;
+        } catch(IOException ioe) {
+            throw new FileException(file.getName(), "写数据错误");
+        }
+        return this;
+    }
+
+
+    public BmeFile writeData(double data) throws FileException{
+        try {
+            if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
+                out.writeDouble(data);
+            } else {
+                out.writeDouble(ByteUtil.reverseDouble(data));
+            }
+            dataNum++;
+        } catch(IOException ioe) {
+            throw new FileException(file.getName(), "写数据错误");
+        }
+        return this;
+    }
+
+
 	public BmeFile writeData(double[] data) throws FileException{
 		if(out == null || fileHead == null) {
 			throw new FileException("", "请先创建文件");
@@ -267,7 +237,7 @@ public abstract class BmeFile {
 				}				
 			} else {
 				for(int i = 0; i < data.length; i++) {
-					out.write(FormatTransfer.toLH(data[i]));
+					out.writeDouble(ByteUtil.reverseDouble(data[i]));
 					dataNum++;
 				}
 			}
@@ -276,20 +246,8 @@ public abstract class BmeFile {
 		}
 		return this;
 	}
-	
-	public BmeFile writeData(double data) throws FileException{
-		try {
-			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-				out.writeDouble(data);			
-			} else {
-				out.write(FormatTransfer.toLH(data));
-			}
-			dataNum++;
-		} catch(IOException ioe) {
-			throw new FileException(file.getName(), "写数据错误");
-		}
-		return this;
-	}
+
+
 	
 	public BmeFile writeData(int[] data) throws FileException{
 		if(out == null || fileHead == null) {
@@ -308,7 +266,7 @@ public abstract class BmeFile {
 				}				
 			} else {
 				for(int i = 0; i < data.length; i++) {
-					out.write(FormatTransfer.toLH(data[i]));
+					out.writeInt(ByteUtil.reverseInt(data[i]));
 					dataNum++;
 				}
 			}
@@ -318,19 +276,7 @@ public abstract class BmeFile {
 		return this;
 	}
 	
-	public BmeFile writeData(int data) throws FileException{
-		try {
-			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-				out.writeInt(data);			
-			} else {
-				out.write(FormatTransfer.toLH(data));
-			}
-			dataNum++;
-		} catch(IOException ioe) {
-			throw new FileException(file.getName(), "写数据错误");
-		}
-		return this;
-	}
+
 	
 	public BmeFile writeData(byte[] data) throws FileException{
 		if(out == null || fileHead == null) {
@@ -351,16 +297,7 @@ public abstract class BmeFile {
 		}
 		return this;
 	}
-	
-	public BmeFile writeData(byte data) throws FileException{
-		try {
-			out.writeByte(data);
-			dataNum++;
-		} catch(IOException ioe) {
-			throw new FileException(file.getName(), "写数据错误");
-		}
-		return this;
-	}
+
 
 	public abstract boolean isEof() throws IOException;
 	public abstract void close() throws FileException;

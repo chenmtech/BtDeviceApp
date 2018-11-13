@@ -1,8 +1,7 @@
 package com.cmtech.bmefile;
 
+import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.bmefile.exception.FileException;
-import com.cmtech.dsp.util.FormatTransfer;
-import com.vise.log.ViseLog;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -53,8 +52,8 @@ public class BmeFileHead30 extends BmeFileHead10 {
     public void readFromStream(DataInput in) throws FileException {
         super.readFromStream(in);
         try {
-            setCalibrationValue(FormatTransfer.reverseInt(in.readInt()));
-            setCreatedTime(FormatTransfer.reverseLong(in.readLong()));
+            setCalibrationValue(ByteUtil.reverseInt(in.readInt()));
+            setCreatedTime(ByteUtil.reverseLong(in.readLong()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,8 +63,8 @@ public class BmeFileHead30 extends BmeFileHead10 {
     public void writeToStream(DataOutput out) throws FileException {
         super.writeToStream(out);
         try {
-            out.write(FormatTransfer.toLH(getCalibrationValue()));
-            out.write(FormatTransfer.toLH(getCreatedTime()));
+            out.writeInt(ByteUtil.reverseInt(getCalibrationValue()));
+            out.writeLong(ByteUtil.reverseLong(getCreatedTime()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -84,7 +83,7 @@ public class BmeFileHead30 extends BmeFileHead10 {
                 + getCreatedTime() + "]";
     }
 
-    // super.getLength() + calibrationValue(4字节) + createdTime(8字节)
+    // 长度 = super.getLength() + calibrationValue(4字节) + createdTime(8字节)
     public int getLength() {
         return super.getLength() + 12;
     }
