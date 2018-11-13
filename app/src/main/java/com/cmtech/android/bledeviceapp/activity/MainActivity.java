@@ -389,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(fragment != null) {
             // 已经打开了，只要显示Fragment，并开始连接
             showFragment(fragment);
-            fragment.openDevice();
+            //fragment.openDevice();
         } else {
             BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device);
             if(factory == null) return;
