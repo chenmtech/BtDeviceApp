@@ -38,7 +38,7 @@ public abstract class BmeFile {
 	protected static Set<String> fileInOperation = new HashSet<>();
 	protected static final BmeFileHead DEFAULT_BMEFILE_HEAD = BmeFileHeadFactory.createDefault();
 	
-	public static final byte[] BME = {'B', 'M', 'E'};
+	private static final byte[] BME = {'B', 'M', 'E'};
 	
 	protected File file;
 	

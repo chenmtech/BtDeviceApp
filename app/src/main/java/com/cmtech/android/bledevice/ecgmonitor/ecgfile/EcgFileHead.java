@@ -14,6 +14,9 @@ import java.util.List;
 public class EcgFileHead {
     public static final int MACADDRESS_CHAR_NUM = 12;
     public static final int CREATEDPERSON_LEN = 10;
+
+    public static final byte[] ECG = {'E', 'C', 'G'};
+
     private String macAddress = "";
     private String fileCreatedPerson = "";
 
@@ -46,6 +49,12 @@ public class EcgFileHead {
 
     public void readFromStream(DataInput in) throws FileException {
         try {
+            byte[] ecg = new byte[3];
+            in.readFully(ecg);
+            if(!Arrays.equals(ecg, ECG)) {
+                throw new FileException("", "ECG文件格式不对");
+            }
+
             fileCreatedPerson = DataIOUtil.readFixedString(CREATEDPERSON_LEN, in);
             macAddress = DataIOUtil.readFixedString(MACADDRESS_CHAR_NUM, in);
             int commentNum = in.readInt();
@@ -68,6 +77,7 @@ public class EcgFileHead {
 
     public void writeToStream(DataOutput out) throws FileException {
         try {
+            out.write(ECG);
             DataIOUtil.writeFixedString(fileCreatedPerson, CREATEDPERSON_LEN, out);
             DataIOUtil.writeFixedString(macAddress, MACADDRESS_CHAR_NUM, out);
             out.writeInt(commentList.size());
@@ -106,7 +116,8 @@ public class EcgFileHead {
         return commentList;
     }
 
+    // 3个字节的{E,C,G} + 创建人 + 创建设备MAC + 所有Comments
     public int getLength() {
-        return CREATEDPERSON_LEN*2 + MACADDRESS_CHAR_NUM *2 + 8 + getCommentsLength();
+        return 3 + CREATEDPERSON_LEN*2 + MACADDRESS_CHAR_NUM *2 + getCommentsLength();
     }
 }
