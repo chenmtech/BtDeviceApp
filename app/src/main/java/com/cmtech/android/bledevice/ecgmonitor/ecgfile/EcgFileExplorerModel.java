@@ -9,6 +9,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.bmefile.exception.FileException;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
@@ -66,13 +67,6 @@ public class EcgFileExplorerModel {
 
     private void initFileList() {
         File[] files = BleDeviceUtil.listDirBmeFiles(EcgMonitorDevice.ECGFILEDIR);
-        /*// 根据最后修改时间排序
-        Arrays.sort(files, new Comparator<File>() {
-            @Override
-            public int compare(File file, File t1) {
-                return (int)(file.lastModified() - t1.lastModified());
-            }
-        });*/
         fileList = createEcgFileList(files);
         sortFileList();
     }

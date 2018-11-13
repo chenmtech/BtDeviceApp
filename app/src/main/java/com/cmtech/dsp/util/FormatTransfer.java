@@ -215,10 +215,10 @@ public class FormatTransfer {
             }
             s = s * 256;
         }
-        if (b[8] >= 0) {
-            s = s + b[8];
+        if (b[7] >= 0) {
+            s = s + b[7];
         } else {
-            s = s + 256 + b[8];
+            s = s + 256 + b[7];
         }
         return s;
     }

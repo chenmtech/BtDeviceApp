@@ -2,6 +2,7 @@ package com.cmtech.bmefile;
 
 import com.cmtech.bmefile.exception.FileException;
 import com.cmtech.dsp.util.FormatTransfer;
+import com.vise.log.ViseLog;
 
 import java.io.DataInput;
 import java.io.DataOutput;
