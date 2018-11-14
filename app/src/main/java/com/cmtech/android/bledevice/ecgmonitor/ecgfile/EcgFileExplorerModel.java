@@ -170,37 +170,71 @@ public class EcgFileExplorerModel {
         File wxFileDir = new File(WXIMPORT_DIR);
         File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
 
+        boolean hasUpdated = false;
+
         for(File wxFile : wxFileList) {
-            EcgFile tmpFile = null;
+            EcgFile tmpEcgFile = null;
+            EcgFile toEcgFile = null;
             try {
-                tmpFile = EcgFile.openBmeFile(wxFile.getCanonicalPath());
-                tmpFile.close();
+                tmpEcgFile = EcgFile.openBmeFile(wxFile.getCanonicalPath());
+                tmpEcgFile.close();
 
                 File toFile = FileUtil.getFile(fileDir, wxFile.getName());
-                if(toFile.exists()) {
-                    fileList.remove(toFile);
-                    toFile.delete();
-                }
 
-                FileUtil.moveFile(wxFile, toFile);
-                tmpFile = EcgFile.openBmeFile(toFile.getCanonicalPath());
-                fileList.add(tmpFile);
+                if(toFile.exists()) {
+                    toEcgFile = EcgFile.openBmeFile(toFile.getCanonicalPath());
+                    if(mergeTwoEcgFileComments(tmpEcgFile, toEcgFile))
+                        hasUpdated = true;
+                    wxFile.delete();
+                } else {
+                    FileUtil.moveFile(wxFile, toFile);
+                    toEcgFile = EcgFile.openBmeFile(toFile.getCanonicalPath());
+                    fileList.add(toEcgFile);
+                    hasUpdated = true;
+                }
             } catch (Exception e) {
-                fileList.remove(tmpFile);
-                continue;
+                fileList.remove(toEcgFile);
             } finally {
                 try {
-                    tmpFile.close();
+                    if(tmpEcgFile != null)
+                        tmpEcgFile.close();
+                    if(toEcgFile != null)
+                        toEcgFile.close();
                 } catch (FileException e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        selectIndex = fileList.size()-1;
+        if(hasUpdated) {
+            sortFileList();
 
-        if(observer != null) {
-            observer.updateFileList();
+            selectIndex = fileList.size() - 1;
+
+            if (observer != null) {
+                observer.updateFileList();
+            }
+        }
+    }
+
+    private boolean mergeTwoEcgFileComments(EcgFile srcFile, EcgFile destFile) {
+        List<EcgFileComment> srcComments = srcFile.getEcgFileHead().getCommentList();
+        List<EcgFileComment> destComments = destFile.getEcgFileHead().getCommentList();
+        List<EcgFileComment> needAddComments = new ArrayList<>();
+
+        for(EcgFileComment srcComment : srcComments) {
+            for(EcgFileComment destComment : destComments) {
+                if(!srcComment.equals(destComment)) {
+                    needAddComments.add(srcComment);
+                }
+            }
+        }
+
+        if(needAddComments.isEmpty())
+            return false;
+        else {
+            destFile.addComments(needAddComments);
+            return true;
         }
     }
 

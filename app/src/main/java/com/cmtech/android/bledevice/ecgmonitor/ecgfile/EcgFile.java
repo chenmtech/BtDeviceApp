@@ -6,8 +6,11 @@ import com.cmtech.bmefile.exception.FileException;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.List;
 
 public class EcgFile extends RandomAccessBmeFile {
+    private static final int OP_BLOCK_LEN = 512;        // 添加和删除评论时，每次移动的文件数据块的大小
+
     private EcgFileHead ecgFileHead = new EcgFileHead();
     private long ecgFileHeadPointer;
 
@@ -66,7 +69,7 @@ public class EcgFile extends RandomAccessBmeFile {
         try {
             long rafPos = raf.getFilePointer(); // 记录当前文件位置，操作完成后要回到原来的位置
 
-            pushTerminalBlockBackSomeBytes(raf, dataBeginPointer, EcgFileComment.getLength(), 256);
+            pushTerminalBlockBackSomeBytes(raf, dataBeginPointer, EcgFileComment.getLength(), OP_BLOCK_LEN);
 
             ecgFileHead.addComment(comment);
             raf.seek(ecgFileHeadPointer);
@@ -77,6 +80,31 @@ public class EcgFile extends RandomAccessBmeFile {
 
             // 还原文件位置
             raf.seek(rafPos + EcgFileComment.getLength());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (FileException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addComments(List<EcgFileComment> comments) {
+        try {
+            long rafPos = raf.getFilePointer(); // 记录当前文件位置，操作完成后要回到原来的位置
+
+            pushTerminalBlockBackSomeBytes(raf, dataBeginPointer, EcgFileComment.getLength()*comments.size(), OP_BLOCK_LEN);
+
+            for(EcgFileComment comment : comments) {
+                ecgFileHead.addComment(comment);
+            }
+            raf.seek(ecgFileHeadPointer);
+            ecgFileHead.writeToStream(raf);
+
+            // 要修改数据开始指针
+            dataBeginPointer = raf.getFilePointer();
+
+            // 还原文件位置
+            raf.seek(rafPos + EcgFileComment.getLength()*comments.size());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -96,7 +124,7 @@ public class EcgFile extends RandomAccessBmeFile {
 
                 long newDataBeginPointer = raf.getFilePointer();
 
-                pullTerminalBlockForwardSomeBytes(raf, dataBeginPointer, EcgFileComment.getLength(), 256);
+                pullTerminalBlockForwardSomeBytes(raf, dataBeginPointer, EcgFileComment.getLength(), OP_BLOCK_LEN);
 
                 dataBeginPointer = newDataBeginPointer;
                 raf.seek(rafPos - EcgFileComment.getLength());

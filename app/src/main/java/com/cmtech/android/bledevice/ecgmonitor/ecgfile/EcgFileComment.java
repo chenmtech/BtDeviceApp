@@ -76,4 +76,20 @@ public class EcgFileComment {
                 "在" + DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(commentTime) +
                 "说：" + comment + '\n';
     }
+
+    @Override
+    public boolean equals(Object otherObject) {
+        if(this == otherObject) return true;
+        if(otherObject == null) return false;
+        if(getClass() != otherObject.getClass()) return false;
+
+        EcgFileComment otherComment = (EcgFileComment)otherObject;
+
+        return  (commentator.equals(otherComment.commentator) && (commentTime == otherComment.commentTime));
+    }
+
+    @Override
+    public int hashCode() {
+        return (int)(commentator.hashCode() + commentTime);
+    }
 }
