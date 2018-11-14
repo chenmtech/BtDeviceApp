@@ -49,6 +49,12 @@ public class EcgFileReplayModel {
         updateCommentList();
     }
 
+    public void deleteComment(EcgFileComment comment) {
+        ecgFile.deleteComment(comment);
+        updated = true;
+        updateCommentList();
+    }
+
     public void close() {
         try {
             ecgFile.close();

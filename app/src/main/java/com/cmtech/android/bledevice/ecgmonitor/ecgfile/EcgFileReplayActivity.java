@@ -21,8 +21,9 @@ import com.cmtech.android.bledeviceapp.R;
 //import com.cmtech.bmefile.StreamBmeFile;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.exception.FileException;
+import com.vise.log.ViseLog;
 
-public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver {
+public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, IEcgCommentObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver {
     private static final String TAG = "EcgFileReplayActivity";
 
     private EcgFileReplayModel replayModel;
@@ -35,7 +36,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     private EditText etComment;
 
-    private EcgReportAdapter reportAdapter;
+    private EcgCommentAdapter reportAdapter;
     private RecyclerView rvReportList;
 
     private TextView tvTotalTime;
@@ -104,7 +105,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvReportList.setLayoutManager(reportLayoutManager);
         rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        reportAdapter = new EcgReportAdapter(replayModel.getCommentList());
+        reportAdapter = new EcgCommentAdapter(replayModel.getCommentList(), this);
         rvReportList.setAdapter(reportAdapter);
         reportAdapter.notifyDataSetChanged();
         if(reportAdapter.getItemCount() > 1)
@@ -221,5 +222,13 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     public void updateCurrentTime(int second) {
         tvCurrentTime.setText("" + DateTimeUtil.secToTime(second));
         sbEcgReplay.setProgress(second);
+    }
+
+    @Override
+    public void deleteComment(EcgFileComment comment) {
+        if(ecgView.isReplaying())
+            stopReplay();
+        replayModel.deleteComment(comment);
+        etComment.setText(comment.getComment());
     }
 }

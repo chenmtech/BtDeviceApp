@@ -109,6 +109,10 @@ public class EcgFileHead {
         commentList.add(aComment);
     }
 
+    public void deleteComment(EcgFileComment aComment) {
+        commentList.remove(aComment);
+    }
+
     public int getCommentsNum() {
         return commentList.size();
     }

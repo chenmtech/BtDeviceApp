@@ -21,7 +21,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     private EcgFileAdapter fileAdapter;
     private RecyclerView rvFileList;
 
-    private EcgReportAdapter reportAdapter;
+    private EcgCommentAdapter reportAdapter;
     private RecyclerView rvReportList;
 
     // 工具条
@@ -59,7 +59,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvReportList.setLayoutManager(reportLayoutManager);
         rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        reportAdapter = new EcgReportAdapter(model.getFileCommentList());
+        reportAdapter = new EcgCommentAdapter(model.getFileCommentList(), null);
         rvReportList.setAdapter(reportAdapter);
         reportAdapter.notifyDataSetChanged();
         if(reportAdapter.getItemCount() >= 1)
