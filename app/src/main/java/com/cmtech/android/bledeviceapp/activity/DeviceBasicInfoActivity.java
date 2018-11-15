@@ -101,8 +101,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             ivImage.setImageDrawable(imageDrawable);
         } else {
             try {
-                FileInputStream fis = new FileInputStream(basicInfo.getImagePath());
-                Bitmap bitmap  = BitmapFactory.decodeStream(fis);
+                Bitmap bitmap  = BitmapFactory.decodeStream(new FileInputStream(basicInfo.getImagePath()));
                 ivImage.setImageDrawable(BitmapUtil.bitmapToDrawable(bitmap));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -261,6 +260,6 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         etName.setText(deviceName);
 
         cacheImagePath = "";
-        Glide.with(this).load(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
+        Glide.with(this).load(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage()).centerCrop().into(ivImage);
     }
 }

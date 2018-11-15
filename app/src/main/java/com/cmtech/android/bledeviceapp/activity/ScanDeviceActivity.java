@@ -53,11 +53,18 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
         @Override
         public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(ScanDeviceActivity.this, "扫描结束", Toast.LENGTH_SHORT).show();
+                }
+            });
 
         }
 
         @Override
         public void onScanTimeout() {
+
 
         }
     }
@@ -139,6 +146,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         });
 
         //viseBle.startScan(scanCallback);
+        Toast.makeText(ScanDeviceActivity.this, "开始扫描", Toast.LENGTH_SHORT).show();
         BleDeviceUtil.startScan(scanCallback);
     }
 
@@ -178,7 +186,6 @@ public class ScanDeviceActivity extends AppCompatActivity {
             }
         }
         if(canAdd) {
-            Toast.makeText(ScanDeviceActivity.this, "添加一个设备", Toast.LENGTH_SHORT).show();
             foundDeviceList.add(device);
             foundDeviceStatus.add(hasRegistered(device));
             scanDeviceAdapter.notifyItemInserted(foundDeviceList.size()-1);
