@@ -8,9 +8,9 @@
             android:icon="@mipmap/ic_menu_registerdevice"/>
 
         <item
-            android:id="@+id/nav_exploreecgrecord"
+            android:id="@+id/nav_readecgrecord"
             android:title="浏览心电记录"
-            android:icon="@mipmap/ic_menu_exploreecgrecord"/>
+            android:icon="@mipmap/ic_menu_readecgrecord"/>
 
         <item
             android:id="@+id/nav_changeuser"

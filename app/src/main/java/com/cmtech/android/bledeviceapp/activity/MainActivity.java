@@ -3,7 +3,6 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -132,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                     case R.id.nav_registerdevice:
                         registerNewDevice();
                         return true;
-                    case R.id.nav_exploreecgrecord:
+                    case R.id.nav_readecgrecord:
                         replayEcg();
                         return true;
                     case R.id.nav_changeuser:
