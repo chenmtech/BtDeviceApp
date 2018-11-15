@@ -91,7 +91,6 @@ public class EcgFileExplorerModel {
                 ecgFileList.add(ecgFile);
             } catch (Exception e) {
                 ecgFileList.remove(ecgFile);
-                continue;
             } finally {
                 try {
                     if(ecgFile != null)

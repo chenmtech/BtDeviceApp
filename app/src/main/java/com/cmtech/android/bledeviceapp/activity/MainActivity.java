@@ -102,6 +102,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if(!UserAccountManager.getInstance().isSignIn()) {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         // 创建ToolBar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -529,16 +535,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     }
 
     private void updateNavigationViewUsingUserInfo() {
-        if(UserAccountManager.getInstance().isSignIn()) {
-            tvAccountName.setText(UserAccountManager.getInstance().getUserAccount().getAccountName());
-            tvUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
-            String imagePath = UserAccountManager.getInstance().getUserAccount().getImagePath();
-            if(!"".equals(imagePath))
-                Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivAccountImage);
-        }
+        tvAccountName.setText(UserAccountManager.getInstance().getUserAccount().getAccountName());
+        tvUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
+        String imagePath = UserAccountManager.getInstance().getUserAccount().getImagePath();
+        if(!"".equals(imagePath))
+            Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivAccountImage);
     }
-
-
 
     // 开始扫描设备
     private void startScanDevice() {
