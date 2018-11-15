@@ -375,7 +375,7 @@ public class EcgMonitorDevice extends BleDevice {
         bmeFileHead.setCreatedTime(timeInMillis);
 
         // 创建ecgFileHead文件头
-        String simpleMacAddress = EcgMonitorUtil.simpleMacAddress(getMacAddress());
+        String simpleMacAddress = EcgMonitorUtil.noColonMacAddress(getMacAddress());
         EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress);
 
         // 创建ecgFile

@@ -20,7 +20,7 @@ public class SupportedDeviceType {
     private static final String NAME_SIMPLE128GATTPROFILE       = "简单GATT例程";
     private static final String NAME_HEIGHTSCALE                 = "高度计";
     private static final String NAME_THERMOMETER                 = "体温计";
-    private static final String NAME_ECGMONITOR                  = "心电监护仪";
+    private static final String NAME_ECGMONITOR                  = "心电带";
     private static final String NAME_SIGGENERATOR                = "信号发生器";
     private static final String NAME_TEMPHUMID                   = "温湿度计";
     private static final String NAME_UNKNOWN                     = "未知设备";
