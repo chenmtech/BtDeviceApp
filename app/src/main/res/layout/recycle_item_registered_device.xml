@@ -2,44 +2,55 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="80dp">
+    android:layout_height="65dp">
 
     <ImageView
-        android:id="@+id/registered_device_image"
+        android:id="@+id/iv_registerdevice_image"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:layout_margin="5dp"
-        android:src="@mipmap/ic_unknown_device"/>
+        android:src="@mipmap/ic_unknown_device"
+        android:contentDescription="登记的设备图片"/>
+
+
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"
-        android:layout_gravity="center_vertical"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/registered_device_nickname"
+            android:id="@+id/tv_registerdevice_nickname"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center_vertical|right"
-            android:textColor="#000"/>
-        <TextView
-            android:id="@+id/registered_device_address"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center_vertical|right"/>
+            android:gravity="center_vertical"
+            android:textColor="@color/primary_text"
+            android:textSize="20sp"
+            android:text="未知设备名"/>
 
         <TextView
-            android:id="@+id/registered_device_status"
+            android:id="@+id/tv_registerdevice_address"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center_vertical|right"/>
+            android:layout_height="wrap_content"
+            android:text="设备Mac地址"/>
+
+        <TextView
+            android:id="@+id/tv_registerdevice_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="关闭"/>
+
     </LinearLayout>
+
+
+
+
+
+
+
 
 
 </LinearLayout>

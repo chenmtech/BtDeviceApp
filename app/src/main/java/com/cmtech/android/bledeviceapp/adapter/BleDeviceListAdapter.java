@@ -1,10 +1,7 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
-import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -48,10 +45,10 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         public ViewHolder(View itemView) {
             super(itemView);
             deviceView = itemView;
-            deviceImage = deviceView.findViewById(R.id.registered_device_image);
-            deviceName = deviceView.findViewById(R.id.registered_device_nickname);
-            deviceAddress = deviceView.findViewById(R.id.registered_device_address);
-            deviceStatus = deviceView.findViewById(R.id.registered_device_status);
+            deviceImage = deviceView.findViewById(R.id.iv_registerdevice_image);
+            deviceName = deviceView.findViewById(R.id.tv_registerdevice_nickname);
+            deviceAddress = deviceView.findViewById(R.id.tv_registerdevice_address);
+            deviceStatus = deviceView.findViewById(R.id.tv_registerdevice_status);
 
         }
     }
