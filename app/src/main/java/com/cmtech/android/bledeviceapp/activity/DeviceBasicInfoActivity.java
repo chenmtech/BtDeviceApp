@@ -1,23 +1,15 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -26,21 +18,21 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
-import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import static com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo.DEFAULT_DEVICE_AUTOCONNECT;
+import static com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo.DEFAULT_DEVICE_IMAGEPATH;
+import static com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo.DEFAULT_DEVICE_RECONNECTTIMES;
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.IMAGEDIR;
 
 /**
  *  DeviceBasicInfoActivity: 设备基本信息Activity，可用于修改BleDeviceBasicInfo字段
@@ -48,7 +40,8 @@ import java.io.IOException;
  */
 
 public class DeviceBasicInfoActivity extends AppCompatActivity {
-    public static final File IMAGEDIR = MyApplication.getContext().getExternalFilesDir("images");
+    // intent中devicebasicinfo的键值
+    public static final String DEVICE_BASICINFO = "devicebasicinfo";
 
     private Button btnCancel;
     private Button btnOk;
@@ -71,7 +64,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent != null) {
-            basicInfo = (BleDeviceBasicInfo) intent.getSerializableExtra("devicebasicinfo");
+            basicInfo = (BleDeviceBasicInfo) intent.getSerializableExtra(DEVICE_BASICINFO);
         }
 
         if(!IMAGEDIR.exists()) {
@@ -86,7 +79,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         setTitle("设备："+basicInfo.getMacAddress());
 
         // 设置设备名
-        etName = findViewById(R.id.cfg_device_nickname);
+        etName = findViewById(R.id.et_device_basicinfo_nickname);
         String deviceName = basicInfo.getNickName();
         if("".equals(deviceName)) {
             deviceName = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname();
@@ -94,18 +87,15 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         etName.setText(deviceName);
 
         // 设置设备图像
-        ivImage = findViewById(R.id.cfg_device_image);
-        ViseLog.e(basicInfo.getImagePath());
-        if("".equals(basicInfo.getImagePath())) {
-            Drawable imageDrawable = ContextCompat.getDrawable(this, SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage());
-            ivImage.setImageDrawable(imageDrawable);
+        ivImage = findViewById(R.id.iv_device_basicinfo_image);
+        cacheImagePath = basicInfo.getImagePath();
+        if("".equals(cacheImagePath)) {
+            int defaultImageId = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage();
+            Glide.with(this).load(defaultImageId).into(ivImage);
         } else {
-            try {
-                Bitmap bitmap  = BitmapFactory.decodeStream(new FileInputStream(basicInfo.getImagePath()));
-                ivImage.setImageDrawable(BitmapUtil.bitmapToDrawable(bitmap));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            // 注意不要从缓存显示图像
+            Glide.with(MyApplication.getContext()).load(cacheImagePath)
+                    .skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
         }
         ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,15 +105,15 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         });
 
         // 设置重连次数
-        etReconnectTimes = findViewById(R.id.cfg_device_reconnecttimes);
+        etReconnectTimes = findViewById(R.id.et_device_basicinfo_reconnecttimes);
         etReconnectTimes.setText(""+basicInfo.getReconnectTimes());
 
         // 设置打开后是否自动重连
-        cbIsAutoconnect = findViewById(R.id.cfg_device_isautoconnect);
+        cbIsAutoconnect = findViewById(R.id.cb_device_basicinfo_isautoconnect);
         cbIsAutoconnect.setChecked(basicInfo.autoConnect());
 
 
-        btnCancel = findViewById(R.id.register_device_cancel_btn);
+        btnCancel = findViewById(R.id.btn_device_basicinfo_cancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,7 +123,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         });
 
 
-        btnOk = findViewById(R.id.register_device_ok_btn);
+        btnOk = findViewById(R.id.btn_device_basicinfo_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,20 +137,22 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
                         imageFile.delete();
                     }
 
-                    // 把当前的图像保存，以设备地址为文件名
-                    if(!"".equals(cacheImagePath)) {
+                    // 把当前的ImageView中图像保存，以设备地址为文件名
+                    if("".equals(cacheImagePath)) {
+                        basicInfo.setImagePath("");
+                    } else {
                         ivImage.setDrawingCacheEnabled(true);
                         Bitmap bitmap = ivImage.getDrawingCache();
                         File toFile = FileUtil.getFile(IMAGEDIR, basicInfo.getMacAddress() + ".jpg");
-                        BitmapUtil.saveBitmap(bitmap, toFile);
-                        ivImage.setDrawingCacheEnabled(false);
                         try {
-                            basicInfo.setImagePath(toFile.getCanonicalPath());
+                            String filePath = toFile.getCanonicalPath();
+                            BitmapUtil.saveBitmap(bitmap, toFile);
+                            ivImage.setDrawingCacheEnabled(false);
+                            basicInfo.setImagePath(filePath);
                         } catch (IOException e) {
-                            //basicInfo.setImagePath("");
+                            e.printStackTrace();
+                            basicInfo.setImagePath("");
                         }
-                    } else {
-                        basicInfo.setImagePath("");
                     }
                 }
 
@@ -169,13 +161,13 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
                 basicInfo.setReconnectTimes(Integer.parseInt(etReconnectTimes.getText().toString()));
 
                 Intent intent = new Intent();
-                intent.putExtra("devicebasicinfo", basicInfo);
+                intent.putExtra(DEVICE_BASICINFO, basicInfo);
                 setResult(RESULT_OK, intent);
                 finish();
             }
         });
 
-        btnDefault = findViewById(R.id.btn_registerdevice_default);
+        btnDefault = findViewById(R.id.btn_device_basicinfo_default);
         btnDefault.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -185,27 +177,33 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
     }
 
-    private void openAlbum() {
-        Intent intent = new Intent("android.intent.action.GET_CONTENT");
-        intent.setType("image/*");
-        startActivityForResult(intent, 1);
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case 1:
+                String imagePath = "";
                 if(resultCode == RESULT_OK) {
                     if(Build.VERSION.SDK_INT >= 19) {
-                        cacheImagePath = handleImageOnKitKat(data);
+                        imagePath = handleImageOnKitKat(data);
                     } else {
-                        cacheImagePath = handleImageBeforeKitKat(data);
+                        imagePath = handleImageBeforeKitKat(data);
+                    }
+                    if(!"".equals(imagePath)) {
+                        cacheImagePath = imagePath;
+                        displaySelectedImage(cacheImagePath);
                     }
                 }
                 break;
             default:
                 break;
         }
+    }
+
+    // 打开相册
+    private void openAlbum() {
+        Intent intent = new Intent("android.intent.action.GET_CONTENT");
+        intent.setType("image/*");
+        startActivityForResult(intent, 1);
     }
 
     @TargetApi(19)
@@ -228,14 +226,12 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         } else if("file".equalsIgnoreCase(uri.getScheme())) {
             imagePath = uri.getPath();
         }
-        displayImage(imagePath);
         return imagePath;
     }
 
     private String handleImageBeforeKitKat(Intent data) {
         Uri uri = data.getData();
         String imagePath = getImagePath(uri, null);
-        displayImage(imagePath);
         return imagePath;
     }
 
@@ -251,15 +247,21 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         return path;
     }
 
-    private void displayImage(String imagePath) {
+    // 显示选择的图像，需要做裁剪
+    private void displaySelectedImage(String imagePath) {
         Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivImage);
     }
 
+    // 恢复缺省设置
     private void restoreDefaultSetup() {
         String deviceName = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname();
         etName.setText(deviceName);
 
-        cacheImagePath = "";
-        Glide.with(this).load(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage()).centerCrop().into(ivImage);
+        cacheImagePath = DEFAULT_DEVICE_IMAGEPATH;
+        Glide.with(this).load(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
+
+        cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
+
+        etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECTTIMES));
     }
 }

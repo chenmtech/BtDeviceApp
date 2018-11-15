@@ -21,6 +21,11 @@ import java.util.Set;
  */
 
 public class BleDeviceBasicInfo implements Serializable{
+    public static final String DEFAULT_DEVICE_NICKNAME = "";
+    public static final String DEFAULT_DEVICE_IMAGEPATH = "";
+    public static final boolean DEFAULT_DEVICE_AUTOCONNECT = true;
+    public static final int DEFAULT_DEVICE_RECONNECTTIMES = 3;
+
     private final static long serialVersionUID = 1L;
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
@@ -29,19 +34,19 @@ public class BleDeviceBasicInfo implements Serializable{
     private String macAddress = "";
 
     // 设备昵称
-    private String nickName = "";
+    private String nickName = DEFAULT_DEVICE_NICKNAME;
 
     // 设备广播Uuid Short String
     private String uuidString = "";
 
     // 图标路径
-    private String imagePath = "";
+    private String imagePath = DEFAULT_DEVICE_IMAGEPATH;
 
     // 是否自动连接
-    private boolean autoConnect = true;
+    private boolean autoConnect = DEFAULT_DEVICE_AUTOCONNECT;
 
     // 连接断开后重连次数
-    private int reconnectTimes = 3;
+    private int reconnectTimes = DEFAULT_DEVICE_RECONNECTTIMES;
 
     public BleDeviceBasicInfo(String macAddress, String nickName, String uuidString, String imagePath, boolean autoConnect, int reconnectTimes) {
         this.macAddress = macAddress;

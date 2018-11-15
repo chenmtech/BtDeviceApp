@@ -1,5 +1,9 @@
 package com.cmtech.android.bledevicecore.model;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
+
+import java.io.File;
+
 public class BleDeviceConstant {
     // 基础UUID
     public static final String MY_BASE_UUID = "0a20XXXX-cce5-4025-a156-38ea833f6ef8";
@@ -17,4 +21,7 @@ public class BleDeviceConstant {
 
     // 扫描时只获取广播数据包中设备名为指定名称的设备
     public static final String SCAN_DEVICE_NAME = "CM1.0";
+
+    // 图像文件DIR
+    public static final File IMAGEDIR = MyApplication.getContext().getExternalFilesDir("images");
 }

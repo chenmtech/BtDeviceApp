@@ -53,6 +53,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
+
 /**
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
@@ -215,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             case REQUESTCODE_REGISTERDEVICE:
 
                 if(resultCode == RESULT_OK) {
-                    BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra("devicebasicinfo");
+                    BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
                     // 用基本信息创建BleDevice
                     if(createBleDeviceUsingBasicInfo(basicInfo)) {
                         // 创建成功后，将设备基本信息保存到数据库中
@@ -229,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             case REQUESTCODE_MODIFYDEVICE:
 
                 if ( resultCode == RESULT_OK) {
-                    BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra("devicebasicinfo");
+                    BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
                     String macAddress = basicInfo.getMacAddress();
                     BleDevice device = null;
                     for(BleDevice ele : deviceList) {
@@ -434,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 修改设备基本信息 
     public void modifyDeviceBasicInfo(final BleDevice device) {
         Intent intent = new Intent(this, DeviceBasicInfoActivity.class);
-        intent.putExtra("devicebasicinfo", device.getBasicInfo());
+        intent.putExtra(DEVICE_BASICINFO, device.getBasicInfo());
 
         startActivityForResult(intent, REQUESTCODE_MODIFYDEVICE);
     }

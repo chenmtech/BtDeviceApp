@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
+import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 
 public class ScanDeviceActivity extends AppCompatActivity {
     private static final String TAG = "ScanDeviceActivity";
@@ -217,7 +218,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
         Intent intent = new Intent(ScanDeviceActivity.this, DeviceBasicInfoActivity.class);
         BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo(macAddress, "", uuidShortString, "", true, 3);
-        intent.putExtra("devicebasicinfo", basicInfo);
+        intent.putExtra(DEVICE_BASICINFO, basicInfo);
 
         startActivityForResult(intent, 1);
     }
