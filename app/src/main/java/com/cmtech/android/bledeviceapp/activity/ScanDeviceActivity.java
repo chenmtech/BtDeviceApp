@@ -2,7 +2,6 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -45,7 +44,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        addDeviceToDeviceList(bluetoothLeDevice);
+                        addDevice(bluetoothLeDevice);
                     }
                 });
 
@@ -76,8 +75,10 @@ public class ScanDeviceActivity extends AppCompatActivity {
     private SwipeRefreshLayout srlScanDevice;
     private ScanDeviceAdapter scanDeviceAdapter;
     private RecyclerView rvScanDevice;
-    private List<BluetoothLeDevice> foundDeviceList = new ArrayList<>();    // 扫描到的设备列表
-    private List<Boolean> foundDeviceStatus = new ArrayList<>();            // 扫描到的设备状态列表，是否登记
+
+
+    private List<BluetoothLeDevice> deviceList = new ArrayList<>();    // 设备列表
+    private List<Boolean> deviceStatus = new ArrayList<>();            // 设备状态列表，是否登记
 
     // 已经登记的设备Mac地址列表
     private List<String> registeredDeviceMacList = new ArrayList<>();
@@ -91,15 +92,16 @@ public class ScanDeviceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_scan_device);
 
         // 获取已登记过的设备Mac列表
-        registeredDeviceMacList =  (ArrayList<String>) getIntent()
-                .getSerializableExtra("registered_device_list");
-
+        Intent intent = getIntent();
+        if(intent != null) {
+            registeredDeviceMacList = (List<String>) intent.getSerializableExtra("registered_device_list");
+        }
 
         rvScanDevice = findViewById(R.id.rvScanDevice);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvScanDevice.setLayoutManager(layoutManager);
         rvScanDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        scanDeviceAdapter = new ScanDeviceAdapter(foundDeviceList, foundDeviceStatus);
+        scanDeviceAdapter = new ScanDeviceAdapter(deviceList, deviceStatus);
         rvScanDevice.setAdapter(scanDeviceAdapter);
 
         srlScanDevice = findViewById(R.id.srlScanDevice);
@@ -108,8 +110,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
             public void onRefresh() {
                 if(!scanCallback.isScanning()) {
                     Toast.makeText(ScanDeviceActivity.this, "开始扫描", Toast.LENGTH_SHORT).show();
-                    foundDeviceList.clear();
-                    foundDeviceStatus.clear();
+                    deviceList.clear();
+                    deviceStatus.clear();
                     scanDeviceAdapter.notifyDataSetChanged();
                     //viseBle.startScan(scanCallback);
                     BleDeviceUtil.startScan(scanCallback);
@@ -135,7 +137,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
             public void onClick(View view) {
                 int which = scanDeviceAdapter.getSelectItem();
                 if(which != -1) {
-                    BluetoothLeDevice device = foundDeviceList.get(which);
+                    BluetoothLeDevice device = deviceList.get(which);
 
                     if(hasRegistered(device)) {
                         Toast.makeText(ScanDeviceActivity.this, "此设备已登记！", Toast.LENGTH_LONG).show();
@@ -176,22 +178,22 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     // 添加一个新设备到发现的设备列表中
-    private void addDeviceToDeviceList(final BluetoothLeDevice device) {
+    private void addDevice(final BluetoothLeDevice device) {
         if(device == null) return;
 
         boolean canAdd = true;
-        for(BluetoothLeDevice dv : foundDeviceList) {
+        for(BluetoothLeDevice dv : deviceList) {
             if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
                 canAdd = false;
                 break;
             }
         }
         if(canAdd) {
-            foundDeviceList.add(device);
-            foundDeviceStatus.add(hasRegistered(device));
-            scanDeviceAdapter.notifyItemInserted(foundDeviceList.size()-1);
+            deviceList.add(device);
+            deviceStatus.add(hasRegistered(device));
+            scanDeviceAdapter.notifyItemInserted(deviceList.size()-1);
             scanDeviceAdapter.notifyDataSetChanged();
-            rvScanDevice.scrollToPosition(foundDeviceList.size()-1);
+            rvScanDevice.scrollToPosition(deviceList.size()-1);
         }
     }
 
