@@ -21,12 +21,14 @@ import java.util.Set;
  */
 
 public class BleDeviceBasicInfo implements Serializable{
+    private final static long serialVersionUID = 1L;
+
     public static final String DEFAULT_DEVICE_NICKNAME = "";
     public static final String DEFAULT_DEVICE_IMAGEPATH = "";
     public static final boolean DEFAULT_DEVICE_AUTOCONNECT = true;
     public static final int DEFAULT_DEVICE_RECONNECTTIMES = 3;
 
-    private final static long serialVersionUID = 1L;
+
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 

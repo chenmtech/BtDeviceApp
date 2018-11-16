@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileReplayActivity;
 import com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileExplorerActivity;
@@ -252,9 +253,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             case REQUESTCODE_MODIFYUSERINFO:
 
                 if(resultCode == RESULT_OK) {
-                    boolean isModified = data.getBooleanExtra("ismodified", false);
-                    if(isModified)
-                        updateNavigationViewUsingUserInfo();
+                    updateNavigationViewUsingUserInfo();
                 }
                 break;
 
@@ -540,7 +539,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         tvUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
         String imagePath = UserAccountManager.getInstance().getUserAccount().getImagePath();
         if(!"".equals(imagePath))
-            Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivAccountImage);
+            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
     }
 
     // 开始扫描设备

@@ -4,8 +4,7 @@ import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
@@ -18,19 +17,27 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
+import com.vise.utils.file.FileUtil;
+import com.vise.utils.view.BitmapUtil;
+
+import java.io.File;
+import java.io.IOException;
+
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.IMAGEDIR;
 
 public class UserInfoActivity extends AppCompatActivity {
     private EditText etUserName;
-    private Button btnSave;
+    private EditText etPassword;
+    private Button btnOk;
+    private Button btnCancel;
     private ImageView ivUserImage;
 
-    private String imagePath = "";
-
-    private boolean isModified = false;
+    private String cacheImagePath = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,28 +47,74 @@ public class UserInfoActivity extends AppCompatActivity {
         if(!UserAccountManager.getInstance().isSignIn()) finish();
 
         EditText etAccountName = findViewById(R.id.et_userinfo_accountname);
-        EditText etPassword = findViewById(R.id.et_userinfo_password);
+        etPassword = findViewById(R.id.et_userinfo_password);
         etUserName = findViewById(R.id.et_userinfo_username);
         ivUserImage = findViewById(R.id.iv_userinfo_image);
-        btnSave = findViewById(R.id.btn_userinfo_save);
+        btnOk = findViewById(R.id.btn_userinfo_ok);
+        btnCancel = findViewById(R.id.btn_userinfo_cancel);
 
-        etAccountName.setText(UserAccountManager.getInstance().getUserAccount().getAccountName());
-        etPassword.setText(UserAccountManager.getInstance().getUserAccount().getPassword());
-        etUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
-        imagePath = UserAccountManager.getInstance().getUserAccount().getImagePath();
-        if(!"".equals(imagePath)) {
-            Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
-            ivUserImage.setImageDrawable(drawable);
+        UserAccount account = UserAccountManager.getInstance().getUserAccount();
+        etAccountName.setText(account.getAccountName());
+        etPassword.setText(account.getPassword());
+        etUserName.setText(account.getUserName());
+        cacheImagePath = account.getImagePath();
+        if("".equals(cacheImagePath)) {
+            Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivUserImage);
+        } else {
+            Glide.with(MyApplication.getContext()).load(cacheImagePath)
+                    .skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivUserImage);
         }
 
-        btnSave.setOnClickListener(new View.OnClickListener() {
+        btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 UserAccount account = UserAccountManager.getInstance().getUserAccount();
                 account.setUserName(etUserName.getText().toString());
-                account.setImagePath(imagePath);
+
+                String password = etPassword.getText().toString();
+                if(!account.getPassword().equals(password)) {
+                    modifyPasswordInPref(password);
+                    account.setPassword(password);
+                }
+
+                if(!cacheImagePath.equals(account.getImagePath())) {
+                    // 把原来的图像文件删除
+                    if(!"".equals(account.getImagePath())) {
+                        File imageFile = new File(account.getImagePath());
+                        imageFile.delete();
+                    }
+
+                    // 把当前图像保存，以账户名为文件名
+                    if("".equals(cacheImagePath)) {
+                        account.setImagePath("");
+                    } else {
+                        try {
+                            ivUserImage.setDrawingCacheEnabled(true);
+                            Bitmap bitmap = ivUserImage.getDrawingCache();
+                            File toFile = FileUtil.getFile(IMAGEDIR, account.getAccountName() + ".jpg");
+                            BitmapUtil.saveBitmap(bitmap, toFile);
+                            ivUserImage.setDrawingCacheEnabled(false);
+                            String filePath = toFile.getCanonicalPath();
+                            account.setImagePath(filePath);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            account.setImagePath("");
+                        }
+                    }
+                }
                 account.save();
-                isModified = true;
+                Intent intent = new Intent();
+                setResult(RESULT_OK, intent);
+                finish();
+            }
+        });
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                setResult(RESULT_CANCELED, intent);
+                finish();
             }
         });
 
@@ -79,9 +132,12 @@ public class UserInfoActivity extends AppCompatActivity {
             case 1:
                 if(resultCode == RESULT_OK) {
                     if(Build.VERSION.SDK_INT >= 19) {
-                        imagePath = handleImageOnKitKat(data);
+                        cacheImagePath = handleImageOnKitKat(data);
                     } else {
-                        imagePath = handleImageBeforeKitKat(data);
+                        cacheImagePath = handleImageBeforeKitKat(data);
+                    }
+                    if(!"".equals(cacheImagePath)) {
+                        displaySelectedImage(cacheImagePath);
                     }
                 }
                 break;
@@ -93,8 +149,7 @@ public class UserInfoActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        intent.putExtra("ismodified", isModified);
-        setResult(RESULT_OK, intent);
+        setResult(RESULT_CANCELED, intent);
         finish();
     }
 
@@ -123,15 +178,12 @@ public class UserInfoActivity extends AppCompatActivity {
         } else if("file".equalsIgnoreCase(uri.getScheme())) {
             imagePath = uri.getPath();
         }
-        displayImage(imagePath);
         return imagePath;
     }
 
     private String handleImageBeforeKitKat(Intent data) {
         Uri uri = data.getData();
-        String imagePath = getImagePath(uri, null);
-        displayImage(imagePath);
-        return imagePath;
+        return getImagePath(uri, null);
     }
 
     private String getImagePath(Uri uri, String selection) {
@@ -146,7 +198,11 @@ public class UserInfoActivity extends AppCompatActivity {
         return path;
     }
 
-    private void displayImage(String imagePath) {
+    private void displaySelectedImage(String imagePath) {
         Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivUserImage);
+    }
+
+    private void modifyPasswordInPref(String newPassword) {
+        fsdf
     }
 }
