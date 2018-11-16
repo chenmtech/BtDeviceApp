@@ -61,15 +61,46 @@
 
     </LinearLayout>
 
-    <com.cmtech.android.bledevice.ecgmonitor.ScanWaveView
-        android:id="@+id/ecg_view"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        cmtech:background_color="#666"
-        cmtech:grid_color="#f00"
-        cmtech:wave_color="#ff0"
-        cmtech:show_gridline="true"/>
+        android:layout_weight="1">
+        <com.cmtech.android.bledevice.ecgmonitor.ScanWaveView
+            android:id="@+id/ecg_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            cmtech:background_color="#666"
+            cmtech:grid_color="#f00"
+            cmtech:wave_color="#ff0"
+            cmtech:show_gridline="true"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/iv_ecg_heart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="5sp"
+                android:src="@mipmap/ic_ecg_heart"/>
+            <TextView
+                android:id="@+id/tv_ecg_hr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="2sp"
+                android:text="0"
+                android:textSize="40sp"
+                android:textColor="@color/primary"/>
+
+        </LinearLayout>
+
+
+    </FrameLayout>
+
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -97,24 +128,6 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@color/primary_dark">
-
-        <ImageView
-            android:id="@+id/iv_ecg_heart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="5sp"
-            android:src="@mipmap/ic_ecg_heart"/>
-        <TextView
-            android:id="@+id/tv_ecg_hr"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/iv_ecg_heart"
-            android:layout_marginStart="2sp"
-            android:text="0"
-            android:textSize="40sp" />
 
         <ImageButton
             android:id="@+id/ib_ecgreplay_startandstop"
