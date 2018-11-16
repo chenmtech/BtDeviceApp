@@ -3,10 +3,12 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -203,6 +205,13 @@ public class UserInfoActivity extends AppCompatActivity {
     }
 
     private void modifyPasswordInPref(String newPassword) {
-        fsdf
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean isRememberPassword = pref.getBoolean("remember_password", false);
+
+        if(isRememberPassword) {
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("password", newPassword);
+            editor.apply();
+        }
     }
 }
