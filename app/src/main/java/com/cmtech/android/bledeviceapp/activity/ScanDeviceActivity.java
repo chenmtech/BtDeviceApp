@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -21,6 +22,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceConfig;
+import com.cmtech.android.bledevicecore.model.BleDeviceConstant;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.Uuid;
 
@@ -56,6 +58,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    srlScanDevice.setRefreshing(false);
                     Toast.makeText(ScanDeviceActivity.this, "扫描结束", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -64,8 +67,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
         @Override
         public void onScanTimeout() {
-
-
+            srlScanDevice.setRefreshing(false);
+            Toast.makeText(ScanDeviceActivity.this, "扫描结束", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -105,20 +108,11 @@ public class ScanDeviceActivity extends AppCompatActivity {
         rvScanDevice.setAdapter(scanDeviceAdapter);
 
         srlScanDevice = findViewById(R.id.srlScanDevice);
+        srlScanDevice.setProgressViewOffset(true, 200, 300);
         srlScanDevice.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if(!scanCallback.isScanning()) {
-                    Toast.makeText(ScanDeviceActivity.this, "开始扫描", Toast.LENGTH_SHORT).show();
-                    deviceList.clear();
-                    deviceStatus.clear();
-                    scanDeviceAdapter.notifyDataSetChanged();
-                    //viseBle.startScan(scanCallback);
-                    BleDeviceUtil.startScan(scanCallback);
-                } else {
-                    Toast.makeText(ScanDeviceActivity.this, "扫描中", Toast.LENGTH_SHORT).show();
-                }
-                srlScanDevice.setRefreshing(false);
+                startScan();
             }
         });
 
@@ -148,9 +142,9 @@ public class ScanDeviceActivity extends AppCompatActivity {
             }
         });
 
-        //viseBle.startScan(scanCallback);
-        Toast.makeText(ScanDeviceActivity.this, "开始扫描", Toast.LENGTH_SHORT).show();
-        BleDeviceUtil.startScan(scanCallback);
+        startScan();
+        srlScanDevice.setRefreshing(true);
+
     }
 
     @Override
@@ -172,8 +166,21 @@ public class ScanDeviceActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
+        if(srlScanDevice.isRefreshing())
+            srlScanDevice.setRefreshing(false);
+
         if(scanCallback != null) {
             BleDeviceUtil.stopScan(scanCallback);
+        }
+    }
+
+    private void startScan() {
+        if(!scanCallback.isScanning()) {
+            Toast.makeText(ScanDeviceActivity.this, "开始扫描", Toast.LENGTH_SHORT).show();
+            deviceList.clear();
+            deviceStatus.clear();
+            scanDeviceAdapter.notifyDataSetChanged();
+            BleDeviceUtil.startScan(scanCallback);
         }
     }
 
