@@ -124,6 +124,41 @@
             android:text=" 纵向：0.1mV/格"/>
     </RelativeLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/primary_dark">
+        <ImageButton
+            android:id="@+id/ib_ecgreplay_startandstop1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical|end"
+            android:clickable="false"
+            android:src="@mipmap/ic_ecg_play_48px"
+            android:background="@color/primary_dark"
+            android:text="开始"/>
+
+        <ImageButton
+            android:id="@+id/ib_ecg_record1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical|end"
+            android:background="@color/primary_dark"
+            android:src="@mipmap/ic_ecg_record_stop"/>
+
+        <TextView
+            android:id="@+id/ecg_recordtime1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:textColor="#f00"
+            android:textSize="12sp"
+            android:text="00:00:00"/>
+    </LinearLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
