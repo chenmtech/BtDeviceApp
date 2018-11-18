@@ -2,7 +2,6 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -22,7 +21,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceConfig;
-import com.cmtech.android.bledevicecore.model.BleDeviceConstant;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.Uuid;
 
@@ -59,7 +57,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     srlScanDevice.setRefreshing(false);
-                    Toast.makeText(ScanDeviceActivity.this, "扫描结束", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ScanDeviceActivity.this, "扫描结束。", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -68,7 +66,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         @Override
         public void onScanTimeout() {
             srlScanDevice.setRefreshing(false);
-            Toast.makeText(ScanDeviceActivity.this, "扫描结束", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ScanDeviceActivity.this, "请靠近设备，下拉再次扫描。", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -81,13 +79,10 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
 
     private List<BluetoothLeDevice> deviceList = new ArrayList<>();    // 设备列表
-    private List<Boolean> deviceStatus = new ArrayList<>();            // 设备状态列表，是否登记
 
     // 已经登记的设备Mac地址列表
     private List<String> registeredDeviceMacList = new ArrayList<>();
 
-    private Button btnCancel;
-    private Button btnOk;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,14 +95,14 @@ public class ScanDeviceActivity extends AppCompatActivity {
             registeredDeviceMacList = (List<String>) intent.getSerializableExtra("registered_device_list");
         }
 
-        rvScanDevice = findViewById(R.id.rvScanDevice);
+        rvScanDevice = findViewById(R.id.rv_scandevice);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvScanDevice.setLayoutManager(layoutManager);
         rvScanDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        scanDeviceAdapter = new ScanDeviceAdapter(deviceList, deviceStatus);
+        scanDeviceAdapter = new ScanDeviceAdapter(deviceList, registeredDeviceMacList, this);
         rvScanDevice.setAdapter(scanDeviceAdapter);
 
-        srlScanDevice = findViewById(R.id.srlScanDevice);
+        srlScanDevice = findViewById(R.id.srl_scandevice);
         srlScanDevice.setProgressViewOffset(true, 200, 300);
         srlScanDevice.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -116,35 +111,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
             }
         });
 
-        btnCancel = findViewById(R.id.device_register_cancel_btn);
-        btnOk = findViewById(R.id.device_register_ok_btn);
-
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
-
-        btnOk.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int which = scanDeviceAdapter.getSelectItem();
-                if(which != -1) {
-                    BluetoothLeDevice device = deviceList.get(which);
-
-                    if(hasRegistered(device)) {
-                        Toast.makeText(ScanDeviceActivity.this, "此设备已登记！", Toast.LENGTH_LONG).show();
-                    } else {
-                        registerDevice(device);
-                    }
-                }
-            }
-        });
-
         startScan();
         srlScanDevice.setRefreshing(true);
-
     }
 
     @Override
@@ -176,9 +144,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
     private void startScan() {
         if(!scanCallback.isScanning()) {
-            Toast.makeText(ScanDeviceActivity.this, "开始扫描", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ScanDeviceActivity.this, "开始扫描。", Toast.LENGTH_SHORT).show();
             deviceList.clear();
-            deviceStatus.clear();
             scanDeviceAdapter.notifyDataSetChanged();
             BleDeviceUtil.startScan(scanCallback);
         }
@@ -197,7 +164,6 @@ public class ScanDeviceActivity extends AppCompatActivity {
         }
         if(canAdd) {
             deviceList.add(device);
-            deviceStatus.add(hasRegistered(device));
             scanDeviceAdapter.notifyItemInserted(deviceList.size()-1);
             scanDeviceAdapter.notifyDataSetChanged();
             rvScanDevice.scrollToPosition(deviceList.size()-1);
@@ -205,18 +171,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
 
-    // 设备是否已经登记过
-    private boolean hasRegistered(BluetoothLeDevice device) {
-        for(String ele : registeredDeviceMacList) {
-            if(ele.equalsIgnoreCase(device.getAddress())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     // 登记一个设备
-    private void registerDevice(final BluetoothLeDevice device) {
+    public void registerDevice(final BluetoothLeDevice device) {
         String macAddress = device.getAddress();
 
         // 获取设备广播数据中的UUID的短串

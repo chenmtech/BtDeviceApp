@@ -10,27 +10,38 @@
         android:layout_weight="3"
         android:orientation="vertical">
         <TextView
-            android:id="@+id/scaned_device_name"
+            android:id="@+id/tv_scandevice_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <TextView
-            android:id="@+id/scaned_device_typename"
+            android:id="@+id/tv_scandevice_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
         <TextView
-            android:id="@+id/scaned_device_address"
+            android:id="@+id/tv_scandevice_macaddress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
 
 
     <TextView
-        android:id="@+id/scaned_device_status"
+        android:id="@+id/tv_scandevice_status"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_gravity="center_vertical"
-        android:gravity="right"/>
+        android:gravity="end"
+        android:text="已登记"
+        android:textColor="@color/primary_text"/>
+
+    <ImageButton
+        android:id="@+id/ib_scandevice_register"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        android:src="@mipmap/ic_scandevice_register"
+        android:layout_gravity="center_vertical"/>
+
 </LinearLayout>

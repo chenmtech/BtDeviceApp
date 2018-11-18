@@ -11,36 +11,23 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:text="搜寻到的设备"
-        android:textSize="18sp"/>
+        android:textSize="24sp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"/>
 
     <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/srlScanDevice"
+        android:id="@+id/srl_scandevice"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
         <android.support.v7.widget.RecyclerView
-            android:id = "@+id/rvScanDevice"
+            android:id = "@+id/rv_scandevice"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
     </android.support.v4.widget.SwipeRefreshLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <Button
-            android:id="@+id/device_register_cancel_btn"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="取消"/>
-        <Button
-            android:id="@+id/device_register_ok_btn"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="登记"/>
-
-    </LinearLayout>
 
 
 </LinearLayout>
