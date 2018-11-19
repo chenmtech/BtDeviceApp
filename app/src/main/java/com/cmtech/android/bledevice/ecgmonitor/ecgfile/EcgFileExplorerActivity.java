@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.ecgfile;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
@@ -9,9 +10,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ScrollView;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDevice;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.FullyLinearLayoutManager;
 
 public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver{
     private static final String TAG = "EcgFileExplorerActivity";
@@ -45,15 +49,23 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         model.registerEcgFileExplorerObserver(this);
 
         rvFileList = findViewById(R.id.rv_ecgfile_list);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        rvFileList.setLayoutManager(layoutManager);
+        FullyLinearLayoutManager linearLayoutManager = new FullyLinearLayoutManager(this);
+        rvFileList.setNestedScrollingEnabled(false);
+        rvFileList.setLayoutManager(linearLayoutManager);
         rvFileList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         fileAdapter = new EcgFileAdapter(model.getFileList(), this);
         rvFileList.setAdapter(fileAdapter);
         fileAdapter.notifyDataSetChanged();
-        if(fileAdapter.getItemCount() >= 1)
-            rvFileList.smoothScrollToPosition(fileAdapter.getItemCount()-1);
-
+        if(fileAdapter.getItemCount() >= 1) {
+            rvFileList.smoothScrollToPosition(fileAdapter.getItemCount() - 1);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ScrollView scrollView = findViewById(R.id.sv_ecgfile);
+                    scrollView.fullScroll(View.FOCUS_DOWN);
+                }
+            }, 200);
+        }
 
         rvReportList = findViewById(R.id.rv_ecgreplay_comment);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
