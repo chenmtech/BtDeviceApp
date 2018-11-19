@@ -69,7 +69,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
         replayModel.registerEcgFileReplayObserver(this);
 
-        ecgView = findViewById(R.id.ecg_view);
+        ecgView = findViewById(R.id.rwv_ecgview);
         ecgView.setEcgFile(replayModel.getEcgFile());
         ecgView.registerEcgFileReelWaveViewObserver(this);
 
@@ -101,7 +101,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             }
         });
 
-        rvReportList = findViewById(R.id.rv_ecgreplay_comment);
+        rvReportList = findViewById(R.id.rv_ecgexplorer_comment);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvReportList.setLayoutManager(reportLayoutManager);
         rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));

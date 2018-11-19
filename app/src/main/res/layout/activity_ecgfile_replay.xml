@@ -6,7 +6,7 @@
     android:orientation="vertical">
 
     <com.cmtech.android.bledevice.ecgmonitor.EcgFileReelWaveView
-        android:id="@+id/ecg_view"
+        android:id="@+id/rwv_ecgview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
@@ -72,7 +72,7 @@
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
-        android:id = "@+id/rv_ecgreplay_comment"
+        android:id = "@+id/rv_ecgexplorer_comment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"

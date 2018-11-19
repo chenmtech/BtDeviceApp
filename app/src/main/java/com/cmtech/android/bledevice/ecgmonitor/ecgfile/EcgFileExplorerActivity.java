@@ -38,7 +38,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         setContentView(R.layout.activity_ecgfile_explorer);
 
         // 创建ToolBar
-        toolbar = findViewById(R.id.tb_ecgfile_explorer);
+        toolbar = findViewById(R.id.tb_ecgexplorer);
         setSupportActionBar(toolbar);
 
         try {
@@ -48,7 +48,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         }
         model.registerEcgFileExplorerObserver(this);
 
-        rvFileList = findViewById(R.id.rv_ecgfile_list);
+        rvFileList = findViewById(R.id.rv_ecgexplorer_file);
         FullyLinearLayoutManager linearLayoutManager = new FullyLinearLayoutManager(this);
         rvFileList.setNestedScrollingEnabled(false);
         rvFileList.setLayoutManager(linearLayoutManager);
@@ -61,13 +61,13 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    ScrollView scrollView = findViewById(R.id.sv_ecgfile);
+                    ScrollView scrollView = findViewById(R.id.sv_ecgexplorer);
                     scrollView.fullScroll(View.FOCUS_DOWN);
                 }
             }, 200);
         }
 
-        rvReportList = findViewById(R.id.rv_ecgreplay_comment);
+        rvReportList = findViewById(R.id.rv_ecgexplorer_comment);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvReportList.setLayoutManager(reportLayoutManager);
         rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));

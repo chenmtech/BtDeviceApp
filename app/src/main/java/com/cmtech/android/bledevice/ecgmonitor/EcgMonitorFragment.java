@@ -80,7 +80,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvEcgLeadType = view.findViewById(R.id.tv_ecg_leadtype);
         tvEcg1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvEcgHr = view.findViewById(R.id.tv_ecg_hr);
-        ecgView = view.findViewById(R.id.ecg_view);
+        ecgView = view.findViewById(R.id.rwv_ecgview);
         tvEcgRecordTime = view.findViewById(R.id.tv_ecg_recordtime);
 
         ibSwitchSampleEcg = view.findViewById(R.id.ib_ecgreplay_startandstop);

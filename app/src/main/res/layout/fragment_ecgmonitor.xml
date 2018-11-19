@@ -66,7 +66,7 @@
         android:layout_height="0dp"
         android:layout_weight="1">
         <com.cmtech.android.bledevice.ecgmonitor.ScanWaveView
-            android:id="@+id/ecg_view"
+            android:id="@+id/rwv_ecgview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             cmtech:background_color="#666"
