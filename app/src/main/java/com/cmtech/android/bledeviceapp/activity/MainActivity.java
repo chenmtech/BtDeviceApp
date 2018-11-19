@@ -445,13 +445,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(fragAndTabManager.size() == 0) {
             welcomeLayout.setVisibility(View.VISIBLE);
             mainLayout.setVisibility(View.INVISIBLE);
-
-            //toolbar.setTitleTextColor(Color.BLACK);
-            setTitle("CM物联");
-            toolbar.setLogo(null);
+            setTitle(R.string.app_name);
+            Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.ic_cmiot_16);
+            toolbar.setLogo(drawable);
         } else {
             welcomeLayout.setVisibility(View.INVISIBLE);
             mainLayout.setVisibility(View.VISIBLE);
+            setTitle("");
         }
     }
 
@@ -654,5 +654,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             drawable = ContextCompat.getDrawable(this, SupportedDeviceType.getDeviceTypeFromUuid(device.getUuidString()).getDefaultImage());
         }
         toolbar.setLogo(drawable);
+
+        // 更新工具条Title
+        toolbar.setTitle(device.getNickName());
     }
 }
