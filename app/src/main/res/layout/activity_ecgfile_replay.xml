@@ -88,7 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="2dp"
-            android:text="评论："/>
+            android:text="留言："/>
 
         <EditText
             android:id="@+id/et_ecgreplay_comment"

@@ -56,10 +56,11 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         setContentView(R.layout.activity_ecgfile_replay);
 
         Intent intent = getIntent();
-        if(intent == null || intent.getStringExtra("fileName") == null)
+        String fileName = "";
+        if(intent == null || (fileName = intent.getStringExtra("fileName")) == null ) {
             finish();
+        }
 
-        String fileName = intent.getStringExtra("fileName");
         try {
             replayModel = new EcgFileReplayModel(fileName);
         } catch (FileException e) {
@@ -132,7 +133,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             public void onClick(View view) {
                 String comment = etComment.getText().toString();
                 if(comment.length() < 3) {
-                    Toast.makeText(EcgFileReplayActivity.this, "你的评论太短，再多写点吧！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EcgFileReplayActivity.this, "你的留言太短，再多写点吧！", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if(ecgView.isReplaying())

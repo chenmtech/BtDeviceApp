@@ -57,7 +57,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     srlScanDevice.setRefreshing(false);
-                    Toast.makeText(ScanDeviceActivity.this, "扫描结束。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ScanDeviceActivity.this, "搜索结束。", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -66,7 +66,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         @Override
         public void onScanTimeout() {
             srlScanDevice.setRefreshing(false);
-            Toast.makeText(ScanDeviceActivity.this, "请靠近设备，下拉再次扫描。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ScanDeviceActivity.this, "请靠近设备下拉再次搜索。", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -144,7 +144,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
     private void startScan() {
         if(!scanCallback.isScanning()) {
-            Toast.makeText(ScanDeviceActivity.this, "开始扫描。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ScanDeviceActivity.this, "开始搜索。", Toast.LENGTH_SHORT).show();
             deviceList.clear();
             scanDeviceAdapter.notifyDataSetChanged();
             BleDeviceUtil.startScan(scanCallback);
