@@ -55,11 +55,11 @@
             android:name=".activity.DeviceBasicInfoActivity"
             android:label="设置设备信息"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConfigureActivity" />
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.ui.EcgMonitorConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.temphumid.TempHumidConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.thermo.ThermoConfigureActivity" />
         <activity
-            android:name="com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileReplayActivity"
+            android:name="com.cmtech.android.bledevice.ecgmonitor.ui.EcgFileReplayActivity"
             android:launchMode="singleTask" />
 
         <!-- ShareSDK的activity -->
@@ -117,7 +117,7 @@
                 <data android:scheme="tencent1107924092" />
             </intent-filter>
         </activity>
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.ecgfile.EcgFileExplorerActivity" />
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.ui.EcgFileExplorerActivity" />
         <activity android:name=".activity.UserInfoActivity"></activity>
     </application>
 

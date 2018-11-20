@@ -5,7 +5,7 @@
     xmlns:cmtech="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
-    <com.cmtech.android.bledevice.ecgmonitor.EcgFileReelWaveView
+    <com.cmtech.android.bledevice.ecgmonitor.ui.EcgFileReelWaveView
         android:id="@+id/rwv_ecgview"
         android:layout_width="match_parent"
         android:layout_height="0dp"

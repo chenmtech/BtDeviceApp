@@ -36,7 +36,7 @@ public class SupportedDeviceType {
 
     // 支持的设备类型对应的抽象工厂类的完整名称
     private static final String thermoFactory = "com.cmtech.android.bledevice.thermo.ThermoDeviceFactory";
-    private static final String ecgMonitorFactory = "com.cmtech.android.bledevice.ecgmonitor.EcgMonitorDeviceFactory";
+    private static final String ecgMonitorFactory = "com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceFactory";
     private static final String tempHumidDeviceFactory = "com.cmtech.android.bledevice.temphumid.TempHumidDeviceFactory";
     private static final String unknownDeviceFactory = "";
 
