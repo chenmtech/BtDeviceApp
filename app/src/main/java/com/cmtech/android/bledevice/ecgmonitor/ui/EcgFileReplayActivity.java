@@ -15,7 +15,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgCommentAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.controller.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileReplayModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgCommentObserver;

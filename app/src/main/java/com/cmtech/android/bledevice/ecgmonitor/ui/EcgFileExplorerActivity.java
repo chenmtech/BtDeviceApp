@@ -14,12 +14,14 @@ import android.view.View;
 import android.widget.ScrollView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgCommentAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.controller.EcgCommentAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.controller.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgFileExplorerObserver;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.FullyLinearLayoutManager;
+
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 
 public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver {
     private static final String TAG = "EcgFileExplorerActivity";
@@ -46,15 +48,16 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         setSupportActionBar(toolbar);
 
         try {
-            model = new EcgFileExplorerModel(EcgMonitorDevice.ECGFILEDIR);
+            model = new EcgFileExplorerModel(ECGFILEDIR);
         } catch (IllegalArgumentException e) {
             finish();
         }
         model.registerEcgFileExplorerObserver(this);
 
         rvFileList = findViewById(R.id.rv_ecgexplorer_file);
-        FullyLinearLayoutManager linearLayoutManager = new FullyLinearLayoutManager(this);
-        rvFileList.setNestedScrollingEnabled(false);
+        //FullyLinearLayoutManager linearLayoutManager = new FullyLinearLayoutManager(this);
+        //rvFileList.setNestedScrollingEnabled(false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvFileList.setLayoutManager(linearLayoutManager);
         rvFileList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         fileAdapter = new EcgFileAdapter(model.getFileList(), this);
@@ -62,13 +65,6 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         fileAdapter.notifyDataSetChanged();
         if(fileAdapter.getItemCount() >= 1) {
             rvFileList.smoothScrollToPosition(fileAdapter.getItemCount() - 1);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ScrollView scrollView = findViewById(R.id.sv_ecgexplorer);
-                    scrollView.fullScroll(View.FOCUS_DOWN);
-                }
-            }, 200);
         }
 
         rvReportList = findViewById(R.id.rv_ecgexplorer_comment);

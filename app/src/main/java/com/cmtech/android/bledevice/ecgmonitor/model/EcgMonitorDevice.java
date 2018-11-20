@@ -14,7 +14,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratedS
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorInitialState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorSampleState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDataOpException;
 import com.cmtech.android.bledevicecore.model.BleDevice;
@@ -39,27 +38,26 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
 
 
 /**
- * 心电监护仪类
+ * 心电监护仪设备类
  * Created by bme on 2018/9/20.
  */
 
 public class EcgMonitorDevice extends BleDevice {
-    public static final File ECGFILEDIR = MyApplication.getContext().getExternalFilesDir("ecgSignal");
-
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;           // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
     private static final int DEFAULT_CALIBRATIONVALUE = 2600;       // 缺省1mV定标值
 
     // GATT消息常量
-    private static final int MSG_ECGDATA = 1;            // ECG数据
-    private static final int MSG_READSAMPLERATE = 2;    // 读采样率
-    private static final int MSG_READLEADTYPE = 3;      // 读导联类型
-    private static final int MSG_STARTECGSAMPLE = 4;
+    private static final int MSG_RECEIVEECGDATA = 1;            // 接收一个ECG数据，可以是1mV定标数据，也可以是Ecg信号
+    private static final int MSG_READSAMPLERATE = 2;            // 读采样率
+    private static final int MSG_READLEADTYPE = 3;              // 读导联类型
+    private static final int MSG_STARTSAMPLINGECGSIGNAL = 4;   // 开始采集Ecg信号
 
     /////////////////   心电监护仪Service UUID常量////////////////
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
@@ -69,19 +67,19 @@ public class EcgMonitorDevice extends BleDevice {
     private static final String ecgMonitorLeadTypeUuid      = "aa45";           // 导联类型UUID:aa45
 
     // 心电监护仪Gatt Element常量
-    public static final BleGattElement ECGMONITORDATA =
+    private static final BleGattElement ECGMONITORDATA =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null);
 
-    public static final BleGattElement ECGMONITORDATACCC =
+    private static final BleGattElement ECGMONITORDATACCC =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, CCCUUID);
 
-    public static final BleGattElement ECGMONITORCTRL =
+    private static final BleGattElement ECGMONITORCTRL =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null);
 
-    public static final BleGattElement ECGMONITORSAMPLERATE =
+    private static final BleGattElement ECGMONITORSAMPLERATE =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorSampleRateUuid, null);
 
-    public static final BleGattElement ECGMONITORLEADTYPE =
+    private static final BleGattElement ECGMONITORLEADTYPE =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null);
     ////////////////////////////////////////////////////////
 
@@ -201,8 +199,7 @@ public class EcgMonitorDevice extends BleDevice {
         if(this.isRecord)
             saveEcgFile();
         this.isRecord = false;
-        if(observer != null)
-            observer.updateRecordStatus(false);
+        updateRecordStatus(false);
     }
 
     @Override
@@ -210,8 +207,7 @@ public class EcgMonitorDevice extends BleDevice {
         if(this.isRecord)
             saveEcgFile();
         this.isRecord = false;
-        if(observer != null)
-            observer.updateRecordStatus(false);
+        updateRecordStatus(false);
     }
 
     @Override
@@ -237,14 +233,14 @@ public class EcgMonitorDevice extends BleDevice {
                 break;
 
             // 接收到信号数据
-            case MSG_ECGDATA:
+            case MSG_RECEIVEECGDATA:
                 if(msg.obj != null) {
                     byte[] data = (byte[]) msg.obj;
                     state.onProcessData(data);
                 }
                 break;
 
-            case MSG_STARTECGSAMPLE:
+            case MSG_STARTSAMPLINGECGSIGNAL:
                 setState(getSampleState());
                 break;
 
@@ -264,9 +260,7 @@ public class EcgMonitorDevice extends BleDevice {
             saveEcgFile();
         }
         this.isRecord = isRecord;
-        if(observer != null) {
-            observer.updateRecordStatus(isRecord);
-        }
+        updateRecordStatus(isRecord);
     }
 
     public synchronized void setEcgFilter(boolean isEcgFilter) {
@@ -340,7 +334,7 @@ public class EcgMonitorDevice extends BleDevice {
         IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_ECGDATA, data);
+                sendGattMessage(MSG_RECEIVEECGDATA, data);
             }
 
             @Override
@@ -355,7 +349,7 @@ public class EcgMonitorDevice extends BleDevice {
         addWriteCommand(ECGMONITORCTRL, (byte) 0x01, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_STARTECGSAMPLE, null);
+                sendGattMessage(MSG_STARTSAMPLINGECGSIGNAL, null);
             }
 
             @Override
@@ -399,7 +393,7 @@ public class EcgMonitorDevice extends BleDevice {
         IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_ECGDATA, data);
+                sendGattMessage(MSG_RECEIVEECGDATA, data);
             }
 
             @Override
@@ -509,6 +503,17 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
+    private void updateRecordStatus(final boolean isRecord) {
+        if(observer != null) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateRecordStatus(isRecord);
+                }
+            });
+        }
+    }
+
     private void updateEcgView(final int xRes, final float yRes, final int viewGridWidth) {
         if(observer != null) {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -520,15 +525,25 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    private void updateEcgData(int ecgData) {
+    private void updateEcgData(final int ecgData) {
         if(observer != null) {
-            observer.updateEcgData(ecgData);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateEcgData(ecgData);
+                }
+            });
         }
     }
 
     private void updateEcgHr(final int hr) {
         if(observer != null) {
-            observer.updateEcgHr(hr);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateEcgHr(hr);
+                }
+            });
         }
     }
 }

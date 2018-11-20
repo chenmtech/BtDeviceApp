@@ -2,8 +2,6 @@ package com.cmtech.android.bledevice.ecgmonitor.ui;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -44,34 +42,28 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ImageButton ibSwitchSampleEcg;
     private ImageButton ibRecord;
     private CheckBox cbEcgFilter;
+    // 标记异常留言的Button
+    private List<Button> commentBtnList = new ArrayList<>();
+    int[] commentBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
 
+    // 记录的心电数据个数
+    private long recordDataNum = 0;
 
-    private List<Button> buttonList = new ArrayList<>();
-    int[] feelBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
-
-    private long recordNum = 0;
-
-    private int sampleRate = 0;
-
-    private boolean isRecord = false;
-
+    // 用于缓存采样率
+    private int cacheSampleRate = 0;
 
     public EcgMonitorFragment() {
 
-    }
-
-    public static EcgMonitorFragment newInstance() {
-        return new EcgMonitorFragment();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
 
+        // 注册为设备观察者
         ((EcgMonitorDevice)getDevice()).registerEcgMonitorObserver(this);
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
@@ -92,18 +84,18 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ibRecord = view.findViewById(R.id.ib_ecg_record);
         cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
 
-        for(int i = 0; i < feelBtnId.length; i++) {
-            final int index = i;
-            Button button = view.findViewById(feelBtnId[index]);
-            button.setText(EcgAbnormalComment.getDescriptionFromCode(index));
+        for(int i = 0; i < commentBtnId.length; i++) {
+            Button button = view.findViewById(commentBtnId[i]);
+            final String commentDescription = EcgAbnormalComment.getDescriptionFromCode(i);
+            button.setText(commentDescription);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String comment = DateTimeUtil.secToTime((int)(recordNum/sampleRate))+"秒时，感觉" + EcgAbnormalComment.getDescriptionFromCode(index);
+                    String comment = DateTimeUtil.secToTime((int)(recordDataNum /cacheSampleRate))+"秒时，感觉" + commentDescription;
                     ((EcgMonitorController)getController()).addComment(comment);
                 }
             });
-            buttonList.add(button);
+            commentBtnList.add(button);
         }
 
         ibSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
@@ -113,19 +105,18 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-
-        isRecord = ((EcgMonitorDevice)getDevice()).isRecord();
-        updateRecordStatus(isRecord);
+        // 根据设备的isRecord初始化Record按钮
+        updateRecordStatus(((EcgMonitorDevice)getDevice()).isRecord());
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                isRecord = !isRecord;
+                boolean isRecord = !((EcgMonitorDevice)getDevice()).isRecord();
                 ((EcgMonitorController)getController()).setEcgRecord(isRecord);
                 if(isRecord) {
-                    recordNum = 0;
+                    recordDataNum = 0;
                 }
 
-                for(Button button : buttonList) {
+                for(Button button : commentBtnList) {
                     button.setEnabled(isRecord);
                 }
             }
@@ -139,26 +130,20 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        for(int i = 0; i < buttonList.size(); i++) {
-            final int index = i;
-            buttonList.get(i).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int second = 0;
-                    if(recordNum != 0) second = (int)(recordNum/sampleRate);
-                    String comment = DateTimeUtil.secToTime(second)+"秒时，感觉" + EcgAbnormalComment.getDescriptionFromCode(index);
-                    ((EcgMonitorController)getController()).addComment(comment);
-                }
-            });
-        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
+        // 注销观察者
         if(getDevice() != null)
             ((EcgMonitorDevice)getDevice()).removeEcgMonitorObserver();
+
+        // 关闭时要保存数据，防止丢失数据
+        if(((EcgMonitorDevice)getDevice()).isRecord()) {
+            ((EcgMonitorDevice)getDevice()).setEcgRecord(false);
+        }
     }
 
     @Override
@@ -176,7 +161,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateSampleRate(final int sampleRate) {
-        this.sampleRate = sampleRate;
+        cacheSampleRate = sampleRate;
         tvEcgSampleRate.setText(String.valueOf(sampleRate));
     }
 
@@ -192,15 +177,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateRecordStatus(final boolean isRecord) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if (isRecord)
-                    ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_start));
-                else
-                    ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_stop));
-            }
-        });
+        if (isRecord)
+            ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_start));
+        else
+            ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_stop));
     }
 
     @Override
@@ -212,25 +192,15 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateEcgData(int ecgData) {
+    public void updateEcgData(final int ecgData) {
         ecgView.showData(ecgData);
-        if(isRecord) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    tvEcgRecordTime.setText(DateTimeUtil.secToTime((int) (++recordNum / sampleRate)));
-                }
-            });
+        if(((EcgMonitorDevice)getDevice()).isRecord()) {
+            tvEcgRecordTime.setText(DateTimeUtil.secToTime((int) (++recordDataNum / cacheSampleRate)));
         }
     }
 
     @Override
     public void updateEcgHr(final int hr) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                tvEcgHr.setText(String.valueOf(hr));
-            }
-        });
+        tvEcgHr.setText(String.valueOf(hr));
     }
 }

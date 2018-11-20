@@ -24,6 +24,7 @@ import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 
 public class EcgFileExplorerModel {
 
@@ -65,7 +66,7 @@ public class EcgFileExplorerModel {
     }
 
     private void initFileList() {
-        File[] files = BleDeviceUtil.listDirBmeFiles(EcgMonitorDevice.ECGFILEDIR);
+        File[] files = BleDeviceUtil.listDirBmeFiles(ECGFILEDIR);
         fileList = createEcgFileList(files);
         sortFileList();
     }

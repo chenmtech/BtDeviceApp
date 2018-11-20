@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
+package com.cmtech.android.bledevice.ecgmonitor.controller;
 
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileComment;
 import com.cmtech.android.bledevice.ecgmonitor.ui.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
