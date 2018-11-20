@@ -446,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             welcomeLayout.setVisibility(View.VISIBLE);
             mainLayout.setVisibility(View.INVISIBLE);
             setTitle(R.string.app_name);
-            Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.ic_cmiot_16);
+            Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.ic_kang);
             toolbar.setLogo(drawable);
         } else {
             welcomeLayout.setVisibility(View.INVISIBLE);

@@ -249,7 +249,7 @@ public class EcgFileExplorerModel {
         sp.setTitle(fileShortName);
         sp.setText(fileShortName);
 
-        Bitmap bmp= BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_cmiot_16);
+        Bitmap bmp= BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_kang);
         sp.setImageData(bmp);
 
         sp.setFilePath(sharedFile.getFileName());

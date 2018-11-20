@@ -20,9 +20,9 @@
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_cmiot"
+        android:icon="@mipmap/ic_kang"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_cmiot"
+        android:roundIcon="@mipmap/ic_kang"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
