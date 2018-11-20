@@ -141,10 +141,9 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:clickable="false"
-                android:src="@mipmap/ic_ecg_play_48px"
-                android:contentDescription="startorstop"
                 android:background="@color/primary_dark"
-                android:text="开始"/>
+                android:src="@mipmap/ic_ecg_play_48px"
+                android:contentDescription="startorstop"/>
 
             <ImageButton
                 android:id="@+id/ib_ecg_record"

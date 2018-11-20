@@ -48,9 +48,7 @@ public class EcgMonitorSampleState implements IEcgMonitorState {
         ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
         // 单片机发过来的int是两个字节的short
         for(int i = 0; i < data.length/2; i++) {
-            int tmpData = buffer.getShort();
-
-            device.processOneEcgData(tmpData);
+            device.processEcgSignal(buffer.getShort());
         }
     }
 

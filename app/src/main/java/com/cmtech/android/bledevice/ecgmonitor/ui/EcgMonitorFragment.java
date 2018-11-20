@@ -13,11 +13,11 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.controller.EcgMonitorController;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
 import com.cmtech.android.bledevice.waveview.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -46,11 +46,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private List<Button> commentBtnList = new ArrayList<>();
     int[] commentBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
 
-    // 记录的心电数据个数
-    private long recordDataNum = 0;
 
-    // 用于缓存采样率
-    private int cacheSampleRate = 0;
+    private long recordDataNum = 0;         // 记录的心电数据个数
+    private int cacheSampleRate = 0;        // 用于缓存采样率
+    private EcgMonitorDevice device;        // 保存设备
 
     public EcgMonitorFragment() {
 
@@ -61,7 +60,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         super.onAttach(context);
 
         // 注册为设备观察者
-        ((EcgMonitorDevice)getDevice()).registerEcgMonitorObserver(this);
+        device = (EcgMonitorDevice)getDevice();
+        device.registerEcgMonitorObserver(this);
     }
 
     @Override
@@ -106,11 +106,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         });
 
         // 根据设备的isRecord初始化Record按钮
-        updateRecordStatus(((EcgMonitorDevice)getDevice()).isRecord());
+        updateRecordStatus(device.isRecord());
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean isRecord = !((EcgMonitorDevice)getDevice()).isRecord();
+                boolean isRecord = !device.isRecord();
                 ((EcgMonitorController)getController()).setEcgRecord(isRecord);
                 if(isRecord) {
                     recordDataNum = 0;
@@ -122,7 +122,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        cbEcgFilter.setChecked(((EcgMonitorDevice)getDevice()).isEcgFilter());
+        cbEcgFilter.setChecked(device.isEcgFilter());
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -137,12 +137,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         super.onDestroy();
 
         // 注销观察者
-        if(getDevice() != null)
-            ((EcgMonitorDevice)getDevice()).removeEcgMonitorObserver();
+        if(device != null) {
+            device.removeEcgMonitorObserver();
 
-        // 关闭时要保存数据，防止丢失数据
-        if(((EcgMonitorDevice)getDevice()).isRecord()) {
-            ((EcgMonitorDevice)getDevice()).setEcgRecord(false);
+            // 关闭时要保存数据，防止丢失数据
+            if (device.isRecord()) {
+                device.setEcgRecord(false);
+            }
         }
     }
 
@@ -194,7 +195,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     @Override
     public void updateEcgData(final int ecgData) {
         ecgView.showData(ecgData);
-        if(((EcgMonitorDevice)getDevice()).isRecord()) {
+        if(device.isRecord()) {
             tvEcgRecordTime.setText(DateTimeUtil.secToTime((int) (++recordDataNum / cacheSampleRate)));
         }
     }

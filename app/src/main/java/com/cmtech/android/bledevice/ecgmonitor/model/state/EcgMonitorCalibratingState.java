@@ -57,10 +57,9 @@ public class EcgMonitorCalibratingState implements IEcgMonitorState {
             else {
                 // 计算1mV定标信号值
                 int value1mV = calculateCalibration(calibrationData);
-                device.setValue1mV(value1mV);
                 calibrationData.clear();
 
-                device.initializeEcgView();
+                device.finishCalibration(value1mV);
 
                 onCalibrateSuccess();
             }

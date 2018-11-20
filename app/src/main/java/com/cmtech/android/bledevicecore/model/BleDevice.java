@@ -34,8 +34,6 @@ import java.util.List;
  */
 
 public abstract class BleDevice implements Serializable{
-    public static final File CACHEDIR = MyApplication.getContext().getExternalCacheDir();
-
     // 获取设备基本信息
     private BleDeviceBasicInfo basicInfo;
     public BleDeviceBasicInfo getBasicInfo() {
