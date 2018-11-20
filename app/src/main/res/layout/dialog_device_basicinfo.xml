@@ -19,7 +19,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="给设备取个名字"/>
+            android:hint="给设备取个名字"
+            android:inputType="text"/>
     </LinearLayout>
 
     <LinearLayout
@@ -72,21 +73,21 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            style="@style/Widget.AppCompat.Button.Colored"
+            style="@style/minWidth0DpButtonStyle"
             android:text="取消"/>
         <Button
             android:id="@+id/btn_device_basicinfo_default"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            style="@style/Widget.AppCompat.Button.Colored"
+            style="@style/minWidth0DpButtonStyle"
             android:text="恢复默认"/>
         <Button
             android:id="@+id/btn_device_basicinfo_ok"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            style="@style/Widget.AppCompat.Button.Colored"
+            style="@style/minWidth0DpButtonStyle"
             android:text="确定"/>
 
     </LinearLayout>

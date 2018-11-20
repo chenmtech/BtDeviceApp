@@ -19,6 +19,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/ic_ecgfile_createinfo"
+                android:contentDescription="create info"
                 android:layout_marginStart="2dp"
                 android:layout_marginEnd="2dp"/>
 
@@ -51,7 +52,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:src="@mipmap/ic_ecgfile_newcomment"
+                android:src="@mipmap/ic_ecgfile_lastcomment"
+                android:contentDescription="last comment"
                 android:layout_marginEnd="2dp"/>
 
             <TextView
@@ -72,6 +74,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:src="@mipmap/ic_ecg_play_48px"
+        android:contentDescription="replay ecg file"
         android:background="@color/primary"
         android:layout_marginEnd="2dp"/>
 

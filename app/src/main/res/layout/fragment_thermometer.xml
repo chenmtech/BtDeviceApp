@@ -4,103 +4,96 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/accent"
     tools:context = "com.cmtech.android.bledevice.thermo.ThermoFragment">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:background="#0000ff">
+        android:gravity="center_horizontal|bottom"
+        android:textSize="30sp"
+        android:textColor="#ff0000"
+        android:text="最高温度"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3">
+        <TextView
+            android:id="@+id/tv_thermo_highesttempvalue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textSize="100sp"
+            android:textColor="#ff0000"
+            android:text="00.00"/>
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center_horizontal|bottom"
-            android:textSize="30dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/tv_thermo_highesttempvalue"
+            android:layout_alignTop="@+id/tv_thermo_highesttempvalue"
+            android:textSize="30sp"
             android:textColor="#ff0000"
-            android:text="最高温度"/>
+            android:text="℃"/>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="3">
-            <TextView
-                android:id="@+id/tv_thermo_highesttempvalue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:textSize="100dp"
-                android:textColor="#ff0000"
-                android:text="00.00"/>
+    </RelativeLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/tv_thermo_highesttempvalue"
-                android:layout_alignTop="@+id/tv_thermo_highesttempvalue"
-                android:textSize="30dp"
-                android:textColor="#ff0000"
-                android:text="℃"/>
 
-        </RelativeLayout>
+    <TextView
+        android:id="@+id/tv_thermo_status"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="center_horizontal"
+        android:textSize="30sp"
+        android:textColor="#ff0000"
+        android:text="正常"/>
 
+    <Button
+        android:id="@+id/btn_thermo_resethighesttemp"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="center_horizontal"
+        android:text="重置" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2">
 
         <TextView
-            android:id="@+id/tv_thermo_status"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_gravity="center_horizontal"
-            android:textSize="30dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text="当前温度"
             android:textColor="#ff0000"
-            android:text="正常"/>
+            android:textSize="30sp" />
 
-        <Button
-            android:id="@+id/btn_thermo_resethighesttemp"
+        <TextView
+            android:id="@+id/tv_thermo_currenttempvalue"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_gravity="center_horizontal"
-            android:text="重置" />
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="00.00"
+            android:textColor="#ff0000"
+            android:textSize="50sp" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/tv_thermo_currenttempvalue"
+            android:layout_alignTop="@+id/tv_thermo_currenttempvalue"
+            android:textSize="30sp"
+            android:textColor="#ff0000"
+            android:text="℃"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:text="当前温度"
-                android:textColor="#ff0000"
-                android:textSize="30dp" />
+    </RelativeLayout>
 
-            <TextView
-                android:id="@+id/tv_thermo_currenttempvalue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:text="00.00"
-                android:textColor="#ff0000"
-                android:textSize="50dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/tv_thermo_currenttempvalue"
-                android:layout_alignTop="@+id/tv_thermo_currenttempvalue"
-                android:textSize="30dp"
-                android:textColor="#ff0000"
-                android:text="℃"/>
-
-        </RelativeLayout>
-
-    </LinearLayout>
 
 
 </LinearLayout>

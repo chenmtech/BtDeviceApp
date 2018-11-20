@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="欢迎使用CM物联健康移动应用"
+            android:text="欢迎使用莞健康移动应用"
             android:textSize="20sp"
             android:textColor="#000"/>
 
@@ -27,13 +27,15 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:textSize="18sp"
-                android:text="账户名："/>
+                android:text="账户名："
+                android:labelFor="@+id/account"/>
             <EditText
                 android:id="@+id/account"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_gravity="center_vertical"/>
+                android:layout_gravity="center_vertical"
+                android:inputType="text"/>
         </LinearLayout>
 
         <LinearLayout
@@ -41,6 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp">
             <TextView
+                android:labelFor="@+id/password"
                 android:layout_width="90dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -64,13 +67,15 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="登录"/>
+                android:text="登录"
+                style="@style/minWidth0DpButtonStyle"/>
             <Button
                 android:id="@+id/btn_account_signup"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="注册"/>
+                android:text="注册"
+                style="@style/minWidth0DpButtonStyle"/>
         </LinearLayout>
 
         <LinearLayout

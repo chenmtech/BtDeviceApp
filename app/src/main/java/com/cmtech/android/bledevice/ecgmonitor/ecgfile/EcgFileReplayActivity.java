@@ -101,7 +101,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             }
         });
 
-        rvReportList = findViewById(R.id.rv_ecgexplorer_comment);
+        rvReportList = findViewById(R.id.rv_ecgreplay_comment);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvReportList.setLayoutManager(reportLayoutManager);
         rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));

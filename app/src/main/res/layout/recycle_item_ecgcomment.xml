@@ -53,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:src="@mipmap/ic_ecgreplay_deletecomment"
+        android:contentDescription="delete comment"
         android:background="@color/primary"
         android:visibility="gone"/>
 

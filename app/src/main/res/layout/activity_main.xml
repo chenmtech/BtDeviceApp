@@ -41,10 +41,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
                     app:tabGravity="fill"
-                    app:tabIndicatorColor="#4169e1"
+                    app:tabIndicatorColor="@color/accent"
+                    app:tabIndicatorHeight="3dp"
                     app:tabMode="fixed"
                     app:tabPadding="0dp"
-                    app:tabSelectedTextColor="#4169e1"
+                    app:tabSelectedTextColor="@color/accent"
                     app:tabTextColor="@color/primary_text"
                     app:tabTextAppearance="@style/MainTabLayoutTextAppearance"
                     android:background="@color/primary"/>

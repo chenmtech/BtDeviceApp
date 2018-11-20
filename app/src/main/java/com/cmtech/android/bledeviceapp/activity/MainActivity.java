@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         setSupportActionBar(toolbar);
 
         // 设置设备信息RecycleView
-        rvDeviceList = findViewById(R.id.rvDevices);
+        rvDeviceList = findViewById(R.id.rv_registerdevice);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDeviceList.setLayoutManager(layoutManager);
         rvDeviceList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));

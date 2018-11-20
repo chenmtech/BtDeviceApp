@@ -42,6 +42,7 @@
         android:layout_height="wrap_content"
         android:background="@color/primary"
         android:src="@mipmap/ic_scandevice_register"
+        android:contentDescription="register device"
         android:layout_gravity="center_vertical"/>
 
 </LinearLayout>
