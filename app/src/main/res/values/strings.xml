@@ -3,6 +3,6 @@
 <resources>
     <string name="app_name">康明物联</string>
 
-    <string name="welcome_text">欢迎使用%1$s\n移动应用终端！</string>
+    <string name="welcome_text">欢迎使用%1$s\n安卓应用终端！</string>
 
 </resources>
