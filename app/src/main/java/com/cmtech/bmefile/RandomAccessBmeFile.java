@@ -13,20 +13,19 @@ public class RandomAccessBmeFile extends BmeFile {
     protected RandomAccessBmeFile(String fileName) throws FileException {
         super(fileName);
 
-        setDataBeginPointer();
+        try {
+            dataBeginPointer = raf.getFilePointer();
+        } catch (IOException e) {
+            throw new FileException(getFileName(), "构造文件失败");
+        }
     }
 
     protected RandomAccessBmeFile(String fileName, BmeFileHead head) throws FileException{
         super(fileName, head);
 
-        setDataBeginPointer();
-    }
-
-    protected void setDataBeginPointer() throws FileException {
         try {
             dataBeginPointer = raf.getFilePointer();
         } catch (IOException e) {
-            e.printStackTrace();
             throw new FileException(getFileName(), "构造文件失败");
         }
     }
