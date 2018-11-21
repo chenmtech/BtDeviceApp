@@ -443,6 +443,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 更新主Layout的可视性
     private void updateMainLayoutVisibility() {
         if(fragAndTabManager.size() == 0) {
+
+            // 设置欢迎词
+            String welcomeText = getResources().getString(R.string.welcome_text);
+            welcomeText = String.format(welcomeText, getResources().getString(R.string.app_name));
+            TextView tvWelcomeText = welcomeLayout.findViewById(R.id.tv_welcometext);
+            tvWelcomeText.setText(welcomeText);
+
             welcomeLayout.setVisibility(View.VISIBLE);
             mainLayout.setVisibility(View.INVISIBLE);
             setTitle(R.string.app_name);

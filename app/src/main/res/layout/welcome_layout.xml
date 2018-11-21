@@ -8,10 +8,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:visibility="visible">
     <TextView
+        android:id="@+id/tv_welcometext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="欢迎使用心康联\n移动应用终端！"
+        android:text=""
         android:textSize="38sp"/>
 
     <ImageView
