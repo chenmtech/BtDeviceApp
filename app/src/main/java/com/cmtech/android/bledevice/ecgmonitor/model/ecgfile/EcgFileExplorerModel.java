@@ -39,7 +39,7 @@ public class EcgFileExplorerModel {
 
     public List<EcgFile> getFileList() { return fileList; }
 
-    public List<EcgFileComment> getFileCommentList() {
+    public List<EcgComment> getFileCommentList() {
         if(fileList.isEmpty() || selectIndex < 0 || selectIndex >= fileList.size()){
             return new ArrayList<>();
         } else {
@@ -216,12 +216,12 @@ public class EcgFileExplorerModel {
     }
 
     private boolean mergeTwoEcgFileComments(EcgFile srcFile, EcgFile destFile) {
-        List<EcgFileComment> srcComments = srcFile.getEcgFileHead().getCommentList();
-        List<EcgFileComment> destComments = destFile.getEcgFileHead().getCommentList();
-        List<EcgFileComment> needAddComments = new ArrayList<>();
+        List<EcgComment> srcComments = srcFile.getEcgFileHead().getCommentList();
+        List<EcgComment> destComments = destFile.getEcgFileHead().getCommentList();
+        List<EcgComment> needAddComments = new ArrayList<>();
 
-        for(EcgFileComment srcComment : srcComments) {
-            for(EcgFileComment destComment : destComments) {
+        for(EcgComment srcComment : srcComments) {
+            for(EcgComment destComment : destComments) {
                 if(!srcComment.equals(destComment)) {
                     needAddComments.add(srcComment);
                 }

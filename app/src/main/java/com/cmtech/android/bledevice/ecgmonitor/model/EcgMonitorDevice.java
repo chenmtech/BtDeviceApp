@@ -6,7 +6,7 @@ import android.os.Message;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratedState;
@@ -110,7 +110,7 @@ public class EcgMonitorDevice extends BleDevice {
     public boolean isEcgFilter() {return isEcgFilter;}
 
     private EcgFile ecgFile = null;                                 // 用于保存心电信号的EcgFile文件对象
-    private List<EcgFileComment> commentList = new ArrayList<>();   // 当前信号的留言列表
+    private List<EcgComment> commentList = new ArrayList<>();   // 当前信号的留言列表
 
     private long recordDataNum = 0;                                 // 记录的心电数据个数
     // 获取记录的时间，单位为秒
@@ -298,7 +298,7 @@ public class EcgMonitorDevice extends BleDevice {
     // 添加留言
     public synchronized void addComment(String comment) {
         long timeCreated = new Date().getTime();
-        commentList.add(new EcgFileComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
+        commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
     }
 
     // 检测基本心电监护服务是否正常
@@ -478,7 +478,7 @@ public class EcgMonitorDevice extends BleDevice {
                     FileUtil.deleteFile(ecgFile.getFile());
                 } else {    // 如果有数据
                     if(!commentList.isEmpty()) {
-                        for(EcgFileComment comment : commentList) {
+                        for(EcgComment comment : commentList) {
                             ecgFile.addComment(comment);
                         }
                     }

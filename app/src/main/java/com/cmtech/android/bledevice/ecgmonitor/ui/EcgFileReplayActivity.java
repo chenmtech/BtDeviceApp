@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.controller.EcgCommentAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileReplayModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgCommentObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgFileReplayObserver;
@@ -229,7 +229,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     }
 
     @Override
-    public void deleteComment(EcgFileComment comment) {
+    public void deleteComment(EcgComment comment) {
         if(ecgView.isReplaying())
             stopReplay();
         replayModel.deleteComment(comment);

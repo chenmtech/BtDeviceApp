@@ -1,12 +1,16 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
+/**
+ * EcgAbnormal: 心电异常
+ * Created by bme on 2018/11/21.
+ */
 
-public enum EcgAbnormalComment {
+public enum EcgAbnormal {
     COMMENT_BUSHUFU(0, "不舒服"),
     COMMENT_XIONGMEN(1, "胸闷"),
     COMMENT_XINTIAOKUAI(2, "心跳快");
 
-    EcgAbnormalComment(int code, String description) {
+    EcgAbnormal(int code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -23,7 +27,7 @@ public enum EcgAbnormalComment {
     }
 
     public static String getDescriptionFromCode(int code) {
-        for(EcgAbnormalComment ele : EcgAbnormalComment.values()) {
+        for(EcgAbnormal ele : EcgAbnormal.values()) {
             if(ele.code == code) {
                 return ele.description;
             }
@@ -31,8 +35,8 @@ public enum EcgAbnormalComment {
         return "";
     }
 
-    public static EcgAbnormalComment getFromCode(int code) {
-        for(EcgAbnormalComment ele : EcgAbnormalComment.values()) {
+    public static EcgAbnormal getFromCode(int code) {
+        for(EcgAbnormal ele : EcgAbnormal.values()) {
             if(ele.code == code) {
                 return ele;
             }

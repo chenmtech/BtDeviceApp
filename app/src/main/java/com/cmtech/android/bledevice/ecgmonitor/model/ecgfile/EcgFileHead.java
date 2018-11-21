@@ -30,7 +30,7 @@ public class EcgFileHead {
     private String createdPerson = "";                                  // 创建人
     private String macAddress = "";                                     // 设备地址
     private EcgLeadType leadType = EcgLeadType.LEAD_I;                  // 导联类型
-    private List<EcgFileComment> commentList = new ArrayList<>();       // 留言列表
+    private List<EcgComment> commentList = new ArrayList<>();       // 留言列表
 
     public String getMacAddress() {
         return macAddress;
@@ -56,7 +56,7 @@ public class EcgFileHead {
         this.leadType = leadType;
     }
 
-    public List<EcgFileComment> getCommentList() {
+    public List<EcgComment> getCommentList() {
         return commentList;
     }
 
@@ -87,14 +87,14 @@ public class EcgFileHead {
             int commentNum = ByteUtil.reverseInt(in.readInt());
             // 读留言
             for(int i = 0; i < commentNum; i++) {
-                EcgFileComment comment = new EcgFileComment();
+                EcgComment comment = new EcgComment();
                 comment.readFromStream(in);
                 commentList.add(comment);
             }
             // 按留言时间排序
-            commentList.sort(new Comparator<EcgFileComment>() {
+            commentList.sort(new Comparator<EcgComment>() {
                 @Override
-                public int compare(EcgFileComment o1, EcgFileComment o2) {
+                public int compare(EcgComment o1, EcgComment o2) {
                     return (int)(o1.getCommentTime() - o2.getCommentTime());
                 }
             });
@@ -135,17 +135,17 @@ public class EcgFileHead {
                 + "采集人：" + createdPerson + ";"
                 + "设备地址：" + macAddress + ";"
                 + "导联类型：" + leadType.getDescription() + ";"
-                + "评论数：" + commentList.size() + ";"
-                + "评论：" + Arrays.toString(commentList.toArray()) + "]";
+                + "留言数：" + commentList.size() + ";"
+                + "留言：" + Arrays.toString(commentList.toArray()) + "]";
     }
 
     // 添加留言
-    public void addComment(EcgFileComment aComment) {
+    public void addComment(EcgComment aComment) {
         commentList.add(aComment);
     }
 
     // 删除留言
-    public void deleteComment(EcgFileComment aComment) {
+    public void deleteComment(EcgComment aComment) {
         commentList.remove(aComment);
     }
 
@@ -155,12 +155,12 @@ public class EcgFileHead {
     }
 
     // EcgFileHead字节长度：3个字节的{E,C,G} + 2个字节的版本号 + 创建人 + 创建设备MAC + 导联类型（4字节）+ 所有Comments
-    public int getLength() {
+    public int length() {
         return 3 + 2 + CREATEDPERSON_LEN*2 + MACADDRESS_LEN *2 + 4 + getCommentsLength();
     }
 
     // 所有评论占用的字节数，包括一个int的commentNum
     private int getCommentsLength() {
-        return 4 + commentList.size()*EcgFileComment.getLength();
+        return 4 + commentList.size()* EcgComment.length();
     }
 }

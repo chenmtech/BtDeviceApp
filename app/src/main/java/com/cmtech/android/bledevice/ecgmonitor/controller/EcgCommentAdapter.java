@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgCommentObserver;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.ViewHolder> {
 
-    private List<EcgFileComment> commentList;
+    private List<EcgComment> commentList;
 
     private IEcgCommentObserver observer;
 
@@ -38,7 +38,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         }
     }
 
-    public EcgCommentAdapter(List<EcgFileComment> commentList, IEcgCommentObserver observer) {
+    public EcgCommentAdapter(List<EcgComment> commentList, IEcgCommentObserver observer) {
         this.commentList = commentList;
         this.observer = observer;
     }
@@ -64,7 +64,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
     @Override
     public void onBindViewHolder(EcgCommentAdapter.ViewHolder holder, final int position) {
-        EcgFileComment comment = commentList.get(position);
+        EcgComment comment = commentList.get(position);
         holder.createTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCommentTime()));
         holder.commentator.setText(comment.getCommentator());
         holder.comment.setText(comment.getComment());
@@ -79,7 +79,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         return commentList.size();
     }
 
-    public void updateCommentList(List<EcgFileComment> commentList) {
+    public void updateCommentList(List<EcgComment> commentList) {
         this.commentList = commentList;
     }
 }

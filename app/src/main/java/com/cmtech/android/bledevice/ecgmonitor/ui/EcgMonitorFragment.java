@@ -17,7 +17,7 @@ import com.cmtech.android.bledevice.ecgmonitor.controller.EcgMonitorController;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormalComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
 import com.cmtech.android.bledevice.waveview.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -83,7 +83,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         for(int i = 0; i < commentBtnId.length; i++) {
             Button button = view.findViewById(commentBtnId[i]);
-            final String commentDescription = EcgAbnormalComment.getDescriptionFromCode(i);
+            final String commentDescription = EcgAbnormal.getDescriptionFromCode(i);
             button.setText(commentDescription);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override

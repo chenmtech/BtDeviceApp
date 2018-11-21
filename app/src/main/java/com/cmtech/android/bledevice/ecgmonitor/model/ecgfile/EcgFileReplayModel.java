@@ -33,7 +33,7 @@ public class EcgFileReplayModel {
         return ecgFile;
     }
 
-    public List<EcgFileComment> getCommentList() {
+    public List<EcgComment> getCommentList() {
         return ecgFile.getEcgFileHead().getCommentList();
     }
 
@@ -44,12 +44,12 @@ public class EcgFileReplayModel {
     public void addComment(String comment) {
         String commentator = UserAccountManager.getInstance().getUserAccount().getUserName();
         long timeCreated = new Date().getTime();
-        ecgFile.addComment(new EcgFileComment(commentator, timeCreated, comment));
+        ecgFile.addComment(new EcgComment(commentator, timeCreated, comment));
         updated = true;
         updateCommentList();
     }
 
-    public void deleteComment(EcgFileComment comment) {
+    public void deleteComment(EcgComment comment) {
         ecgFile.deleteComment(comment);
         updated = true;
         updateCommentList();

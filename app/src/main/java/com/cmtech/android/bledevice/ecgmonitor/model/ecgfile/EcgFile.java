@@ -60,17 +60,17 @@ public class EcgFile extends RandomAccessBmeFile {
     public String getCommentString() {
         if(ecgFileHead.getCommentsNum()==0) return "";
         StringBuilder builder = new StringBuilder();
-        for(EcgFileComment comment : ecgFileHead.getCommentList()) {
+        for(EcgComment comment : ecgFileHead.getCommentList()) {
             builder.append(comment.toString());
         }
         return builder.toString();
     }
 
-    public void addComment(EcgFileComment comment) {
+    public void addComment(EcgComment comment) {
         try {
             long rafPos = raf.getFilePointer(); // 记录当前文件位置，操作完成后要回到原来的位置
 
-            pushTerminalBlockBackSomeBytes(raf, dataBeginPointer, EcgFileComment.getLength(), OP_BLOCK_LEN);
+            pushTerminalBlockBackSomeBytes(raf, dataBeginPointer, EcgComment.length(), OP_BLOCK_LEN);
 
             ecgFileHead.addComment(comment);
             raf.seek(ecgFileHeadPointer);
@@ -80,7 +80,7 @@ public class EcgFile extends RandomAccessBmeFile {
             dataBeginPointer = raf.getFilePointer();
 
             // 还原文件位置
-            raf.seek(rafPos + EcgFileComment.getLength());
+            raf.seek(rafPos + EcgComment.length());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,13 +89,13 @@ public class EcgFile extends RandomAccessBmeFile {
         }
     }
 
-    public void addComments(List<EcgFileComment> comments) {
+    public void addComments(List<EcgComment> comments) {
         try {
             long rafPos = raf.getFilePointer(); // 记录当前文件位置，操作完成后要回到原来的位置
 
-            pushTerminalBlockBackSomeBytes(raf, dataBeginPointer, EcgFileComment.getLength()*comments.size(), OP_BLOCK_LEN);
+            pushTerminalBlockBackSomeBytes(raf, dataBeginPointer, EcgComment.length()*comments.size(), OP_BLOCK_LEN);
 
-            for(EcgFileComment comment : comments) {
+            for(EcgComment comment : comments) {
                 ecgFileHead.addComment(comment);
             }
             raf.seek(ecgFileHeadPointer);
@@ -105,7 +105,7 @@ public class EcgFile extends RandomAccessBmeFile {
             dataBeginPointer = raf.getFilePointer();
 
             // 还原文件位置
-            raf.seek(rafPos + EcgFileComment.getLength()*comments.size());
+            raf.seek(rafPos + EcgComment.length()*comments.size());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -114,7 +114,7 @@ public class EcgFile extends RandomAccessBmeFile {
         }
     }
 
-    public void deleteComment(EcgFileComment comment) {
+    public void deleteComment(EcgComment comment) {
         if(ecgFileHead.getCommentList().contains(comment)) {
             try {
                 long rafPos = raf.getFilePointer();
@@ -125,10 +125,10 @@ public class EcgFile extends RandomAccessBmeFile {
 
                 long newDataBeginPointer = raf.getFilePointer();
 
-                pullTerminalBlockForwardSomeBytes(raf, dataBeginPointer, EcgFileComment.getLength(), OP_BLOCK_LEN);
+                pullTerminalBlockForwardSomeBytes(raf, dataBeginPointer, EcgComment.length(), OP_BLOCK_LEN);
 
                 dataBeginPointer = newDataBeginPointer;
-                raf.seek(rafPos - EcgFileComment.getLength());
+                raf.seek(rafPos - EcgComment.length());
 
             } catch (IOException e) {
                 e.printStackTrace();

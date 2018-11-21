@@ -9,7 +9,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.ui.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -90,7 +90,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
         int commentNum = file.getEcgFileHead().getCommentsNum();
         if(commentNum > 0) {
-            EcgFileComment comment = file.getEcgFileHead().getCommentList().get(commentNum - 1);
+            EcgComment comment = file.getEcgFileHead().getCommentList().get(commentNum - 1);
             StringBuilder sb = new StringBuilder();
             sb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCommentTime()));
             sb.append(' ');

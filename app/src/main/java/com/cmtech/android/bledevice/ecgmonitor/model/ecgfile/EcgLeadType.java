@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 /**
+ * EcgLeadType: 心电导联类型
  * Created by bme on 2018/4/21.
  */
 
