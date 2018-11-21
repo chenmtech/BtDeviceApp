@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 /**
  * Created by bme on 2018/4/21.

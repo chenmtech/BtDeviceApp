@@ -8,10 +8,11 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
 
+
 public class EcgFile extends RandomAccessBmeFile {
     private static final int OP_BLOCK_LEN = 512;        // 添加和删除评论时，每次移动的文件数据块的大小
 
-    private EcgFileHead ecgFileHead = new EcgFileHead();
+    private EcgFileHead ecgFileHead = EcgFileHead.createDefaultEcgFileHead();
     private long ecgFileHeadPointer;
 
     private EcgFile(String fileName) throws FileException {
@@ -44,7 +45,7 @@ public class EcgFile extends RandomAccessBmeFile {
 
     // 用缺省文件头创建新的文件
     public static EcgFile createBmeFile(String fileName) throws FileException{
-        return new EcgFile(fileName, DEFAULT_BMEFILE_HEAD, new EcgFileHead());
+        return new EcgFile(fileName, DEFAULT_BMEFILE_HEAD, EcgFileHead.createDefaultEcgFileHead());
     }
 
     // 用指定的文件头创建新的文件

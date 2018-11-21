@@ -8,6 +8,7 @@ import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratedState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratingState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorInitialState;
@@ -444,14 +445,15 @@ public class EcgMonitorDevice extends BleDevice {
         bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
         bmeFileHead.setDataType(BmeFileDataType.INT32);
         bmeFileHead.setFs(sampleRate);
-        bmeFileHead.setInfo("Ecg Lead " + leadType.getDescription());
+        bmeFileHead.setInfo("这是一个心电文件。");
         bmeFileHead.setCalibrationValue(value1mV);
         long timeInMillis = new Date().getTime();
         bmeFileHead.setCreatedTime(timeInMillis);
 
         // 创建ecgFileHead文件头
         String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(getMacAddress());
-        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress);
+        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, leadType);
+        commentList.clear();
 
         // 创建ecgFile
         String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
@@ -479,9 +481,9 @@ public class EcgMonitorDevice extends BleDevice {
                         for(EcgFileComment comment : commentList) {
                             ecgFile.addComment(comment);
                         }
-                        commentList.clear();
                     }
                     ecgFile.close();
+                    ViseLog.e(ecgFile);
                     File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
                     // 将缓存区中的文件移动到ECGFILEDIR目录中
                     FileUtil.moveFile(ecgFile.getFile(), toFile);

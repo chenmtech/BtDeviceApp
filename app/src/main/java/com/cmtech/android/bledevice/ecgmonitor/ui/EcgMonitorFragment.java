@@ -14,7 +14,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.controller.EcgMonitorController;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgLeadType;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormalComment;

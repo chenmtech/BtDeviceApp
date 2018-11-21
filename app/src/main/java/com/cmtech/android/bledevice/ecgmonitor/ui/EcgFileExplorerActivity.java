@@ -87,7 +87,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case 1:
-                // 登记设备返回
+                // 回放心电信号返回
                 if(resultCode == RESULT_OK) {
                     boolean updated = data.getBooleanExtra("updated", false);
                     if(updated) model.updateSelectFile();

@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
 
 public interface IEcgMonitorObserver {
