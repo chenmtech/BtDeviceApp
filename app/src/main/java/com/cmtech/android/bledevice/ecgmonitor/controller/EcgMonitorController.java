@@ -30,6 +30,7 @@ public class EcgMonitorController extends BleDeviceController {
         device.setEcgFilter(isFilter);
     }
 
+    // 添加留言
     public void addComment(String comment) {
         device.addComment(comment);
     }

@@ -46,9 +46,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private List<Button> commentBtnList = new ArrayList<>();
     int[] commentBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
 
-
-    private long recordDataNum = 0;         // 记录的心电数据个数
-    private int cacheSampleRate = 0;        // 用于缓存采样率
     private EcgMonitorDevice device;        // 保存设备
 
     public EcgMonitorFragment() {
@@ -91,7 +88,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String comment = DateTimeUtil.secToTime((int)(recordDataNum /cacheSampleRate))+"秒时，感觉" + commentDescription;
+                    String comment = DateTimeUtil.secToTime(device.getRecordSecond())+"秒时，感觉" + commentDescription;
                     ((EcgMonitorController)getController()).addComment(comment);
                 }
             });
@@ -112,9 +109,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             public void onClick(View view) {
                 boolean isRecord = !device.isRecord();
                 ((EcgMonitorController)getController()).setEcgRecord(isRecord);
-                if(isRecord) {
-                    recordDataNum = 0;
-                }
 
                 for(Button button : commentBtnList) {
                     button.setEnabled(isRecord);
@@ -162,7 +156,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateSampleRate(final int sampleRate) {
-        cacheSampleRate = sampleRate;
         tvEcgSampleRate.setText(String.valueOf(sampleRate));
     }
 
@@ -178,10 +171,12 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateRecordStatus(final boolean isRecord) {
+        int imageId;
         if (isRecord)
-            ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_start));
+            imageId = R.mipmap.ic_ecg_record_start;
         else
-            ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_record_stop));
+            imageId = R.mipmap.ic_ecg_record_stop;
+        ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
     }
 
     @Override
@@ -193,11 +188,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateEcgData(final int ecgData) {
-        ecgView.showData(ecgData);
-        if(device.isRecord()) {
-            tvEcgRecordTime.setText(DateTimeUtil.secToTime((int) (++recordDataNum / cacheSampleRate)));
-        }
+    public void updateEcgSignal(final int ecgSignal) {
+        ecgView.showData(ecgSignal);
+    }
+
+    @Override
+    public void updateRecordSecond(final int second) {
+        tvEcgRecordTime.setText(DateTimeUtil.secToTime(second));
     }
 
     @Override

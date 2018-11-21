@@ -98,7 +98,7 @@ public class EcgMonitorDevice extends BleDevice {
     private EcgLeadType leadType = DEFAULT_LEADTYPE;                // 导联类型
 
     private int value1mV = DEFAULT_CALIBRATIONVALUE;                // 1mV定标值
-    public void setValue1mV(int value1mV) {
+    private void setValue1mV(int value1mV) {
         this.value1mV = value1mV;
         updateCalibrationValue(value1mV);
     }
@@ -110,6 +110,12 @@ public class EcgMonitorDevice extends BleDevice {
 
     private EcgFile ecgFile = null;                                 // 用于保存心电信号的EcgFile文件对象
     private List<EcgFileComment> commentList = new ArrayList<>();   // 当前信号的留言列表
+
+    private long recordDataNum = 0;                                 // 记录的心电数据个数
+    // 获取记录的时间，单位为秒
+    public int getRecordSecond() {
+        return (int)(recordDataNum/sampleRate);
+    }
 
     private IIRFilter dcBlock = null;                               // 隔直滤波器
     private IIRFilter notch = null;                                 // 50Hz陷波器
@@ -210,10 +216,11 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     private void stopSaveEcgFile() {
-        if(this.isRecord)
+        if(this.isRecord) {
             saveEcgFile();
-        this.isRecord = false;
-        updateRecordStatus(false);
+            //this.isRecord = false;
+            //updateRecordStatus(false);
+        }
     }
 
     @Override
@@ -269,7 +276,7 @@ public class EcgMonitorDevice extends BleDevice {
             if(state == calibratedState || state == sampleState)        // 如果已经标定了或者开始采样了
                 initializeEcgFile();                                    // 才可以开始记录心电信号，初始化Ecg文件
             else {
-                                                                        // 否则什么都不做，会在标定后初始化Ecg文件
+                                                                        // 否则什么都不做，会在标定后根据isRecord值初始化Ecg文件
             }
         } else {
             saveEcgFile();              // 停止记录心电信号，保存Ecg文件
@@ -344,21 +351,23 @@ public class EcgMonitorDevice extends BleDevice {
 
 
     // 处理Ecg信号
-    public void processEcgSignal(int ecgData) {
+    public void processEcgSignal(int ecgSignal) {
         if(isEcgFilter)
-            ecgData = (int)notch.filter(dcBlock.filter(ecgData));
+            ecgSignal = (int)notch.filter(dcBlock.filter(ecgSignal));
 
         if(isRecord) {
             try {
-                ecgFile.writeData(ecgData);
+                ecgFile.writeData(ecgSignal);
+                recordDataNum++;
+                updateRecordSecond(getRecordSecond());
             } catch (FileException e) {
                 e.printStackTrace();
             }
         }
 
-        updateEcgData(ecgData);
+        updateEcgSignal(ecgSignal);
 
-        int hr = qrsDetector.outputHR(ecgData);
+        int hr = qrsDetector.outputHR(ecgSignal);
         if(hr != 0) {
             ViseLog.i("current HR is " + hr);
             updateEcgHr(hr);
@@ -450,6 +459,8 @@ public class EcgMonitorDevice extends BleDevice {
         try {
             fileName = toFile.getCanonicalPath();
             ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
+            recordDataNum = 0;
+            updateRecordSecond(0);
             ViseLog.e(ecgFile);
         } catch (Exception e) {
             e.printStackTrace();
@@ -561,12 +572,23 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    private void updateEcgData(final int ecgData) {
+    private void updateEcgSignal(final int ecgSignal) {
         if(observer != null) {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    observer.updateEcgData(ecgData);
+                    observer.updateEcgSignal(ecgSignal);
+                }
+            });
+        }
+    }
+
+    private void updateRecordSecond(final int second) {
+        if(observer != null) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    observer.updateRecordSecond(second);
                 }
             });
         }
