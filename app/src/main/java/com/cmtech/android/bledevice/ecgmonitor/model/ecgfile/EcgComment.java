@@ -16,26 +16,36 @@ import java.io.IOException;
 
 public class EcgComment {
     private static final int COMMENTATOR_LEN = 10;       // 留言人名字符数
-    private static final int COMMENT_LEN = 50;           // 留言内容字符数
+    private static final int CONTENT_LEN = 50;           // 留言内容字符数
 
     private String commentator = "匿名";                  // 留言人
-    private long commentTime;                             // 留言时间
-    private String comment = "无内容";                    // 留言内容
+    private long createdTime;                             // 留言时间
+    private int secondInEcg = -1;                         // 留言时,对应于Ecg信号中的秒数
+    private String content = "无内容";                     // 留言内容
 
     public String getCommentator() {
         return commentator;
     }
 
-    public long getCommentTime() {
-        return commentTime;
+    public long getCreatedTime() {
+        return createdTime;
     }
 
-    public String getComment() {
-        return comment;
+
+    public int getSecondInEcg() {
+        return secondInEcg;
     }
 
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setSecondInEcg(int secondInEcg) {
+        this.secondInEcg = secondInEcg;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
 
@@ -43,10 +53,17 @@ public class EcgComment {
 
     }
 
-    public EcgComment(String commentator, long commentTime, String comment) {
+    public EcgComment(String commentator, long createdTime, String content) {
         this.commentator = commentator;
-        this.commentTime = commentTime;
-        this.comment = comment;
+        this.createdTime = createdTime;
+        this.content = content;
+    }
+
+    public EcgComment(String commentator, long createdTime, int secondInEcg, String content) {
+        this.commentator = commentator;
+        this.createdTime = createdTime;
+        this.secondInEcg = secondInEcg;
+        this.content = content;
     }
 
     public void readFromStream(DataInput in) throws FileException {
@@ -54,9 +71,11 @@ public class EcgComment {
             // 读留言人
             commentator = DataIOUtil.readFixedString(COMMENTATOR_LEN, in);
             // 读留言时间
-            commentTime = ByteUtil.reverseLong(in.readLong());
+            createdTime = ByteUtil.reverseLong(in.readLong());
+            // 读留言秒数
+            secondInEcg = ByteUtil.reverseInt(in.readInt());
             // 读留言内容
-            comment = DataIOUtil.readFixedString(COMMENT_LEN, in);
+            content = DataIOUtil.readFixedString(CONTENT_LEN, in);
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileException("", "读心电文件头错误");
@@ -68,9 +87,11 @@ public class EcgComment {
             // 写留言人
             DataIOUtil.writeFixedString(commentator, COMMENTATOR_LEN, out);
             // 写留言时间
-            out.writeLong(ByteUtil.reverseLong(commentTime));
+            out.writeLong(ByteUtil.reverseLong(createdTime));
+            // 写留言秒数
+            out.writeInt(ByteUtil.reverseInt(secondInEcg));
             // 写留言内容
-            DataIOUtil.writeFixedString(comment, COMMENT_LEN, out);
+            DataIOUtil.writeFixedString(content, CONTENT_LEN, out);
         } catch (IOException e) {
             e.printStackTrace();
             throw new FileException("", "写心电文件头错误");
@@ -78,14 +99,14 @@ public class EcgComment {
     }
 
     public static int length() {
-        return  8 + 2*(COMMENTATOR_LEN +COMMENT_LEN);
+        return  12 + 2*(COMMENTATOR_LEN + CONTENT_LEN);
     }
 
     @Override
     public String toString() {
         return commentator +
-                "在" + DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(commentTime) +
-                "说：" + comment + '\n';
+                "在" + DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(createdTime) +
+                "说：第" + DateTimeUtil.secToTime(secondInEcg) + "秒，" + content + '\n';
     }
 
     @Override
@@ -96,11 +117,11 @@ public class EcgComment {
 
         EcgComment otherComment = (EcgComment)otherObject;
 
-        return  (commentator.equals(otherComment.commentator) && (commentTime == otherComment.commentTime));
+        return  (commentator.equals(otherComment.commentator) && (createdTime == otherComment.createdTime));
     }
 
     @Override
     public int hashCode() {
-        return (int)(commentator.hashCode() + commentTime);
+        return (int)(commentator.hashCode() + createdTime);
     }
 }

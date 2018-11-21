@@ -30,9 +30,14 @@ public class EcgMonitorController extends BleDeviceController {
         device.setEcgFilter(isFilter);
     }
 
-    // 添加留言
+    // 添加没有时间定位的留言
     public void addComment(String comment) {
         device.addComment(comment);
+    }
+
+    // 添加有时间定位的留言
+    public void addComment(int secondInEcg, String comment) {
+        device.addComment(secondInEcg, comment);
     }
 
 }

@@ -295,10 +295,16 @@ public class EcgMonitorDevice extends BleDevice {
         state.switchState();
     }
 
-    // 添加留言
+    // 添加没有时间定位的留言
     public synchronized void addComment(String comment) {
         long timeCreated = new Date().getTime();
         commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
+    }
+
+    // 添加有时间定位的留言
+    public synchronized void addComment(int secondInEcg, String comment) {
+        long timeCreated = new Date().getTime();
+        commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, secondInEcg, comment));
     }
 
     // 检测基本心电监护服务是否正常

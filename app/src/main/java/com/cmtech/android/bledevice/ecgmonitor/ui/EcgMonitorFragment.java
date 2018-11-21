@@ -88,8 +88,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String comment = DateTimeUtil.secToTime(device.getRecordSecond())+"秒时，感觉" + commentDescription;
-                    ((EcgMonitorController)getController()).addComment(comment);
+                    ((EcgMonitorController)getController()).addComment(device.getRecordSecond(), commentDescription);
                 }
             });
             commentBtnList.add(button);

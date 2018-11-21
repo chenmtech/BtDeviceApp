@@ -224,7 +224,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     @Override
     public void updateCurrentTime(int second) {
-        tvCurrentTime.setText("" + DateTimeUtil.secToTime(second));
+        tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
         sbEcgReplay.setProgress(second);
     }
 
@@ -233,6 +233,6 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         if(ecgView.isReplaying())
             stopReplay();
         replayModel.deleteComment(comment);
-        etComment.setText(comment.getComment());
+        etComment.setText(comment.getContent());
     }
 }

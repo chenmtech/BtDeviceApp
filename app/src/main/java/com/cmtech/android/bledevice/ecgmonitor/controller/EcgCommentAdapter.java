@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgCommentObserver;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
@@ -23,17 +24,17 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View commentView;
-        TextView createTime;
+        TextView createdTime;
         TextView commentator;
-        TextView comment;
+        TextView content;
         ImageButton ibDeleteComment;
 
         private ViewHolder(View itemView) {
             super(itemView);
             commentView = itemView;
-            createTime = commentView.findViewById(R.id.tv_ecgreport_time);
+            createdTime = commentView.findViewById(R.id.tv_ecgreport_time);
             commentator = commentView.findViewById(R.id.tv_ecgreport_commentator);
-            comment = commentView.findViewById(R.id.tv_ecgreport_comment);
+            content = commentView.findViewById(R.id.tv_ecgreport_content);
             ibDeleteComment = commentView.findViewById(R.id.ib_ecgcomment_delete);
         }
     }
@@ -65,9 +66,17 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     @Override
     public void onBindViewHolder(EcgCommentAdapter.ViewHolder holder, final int position) {
         EcgComment comment = commentList.get(position);
-        holder.createTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCommentTime()));
+        holder.createdTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreatedTime()));
         holder.commentator.setText(comment.getCommentator());
-        holder.comment.setText(comment.getComment());
+        int secondInEcg = comment.getSecondInEcg();
+        String content;
+        if(secondInEcg != -1) {
+            content = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
+            content = String.format(content, DateTimeUtil.secToTime(comment.getSecondInEcg()), comment.getContent());
+        } else {
+            content = comment.getContent();
+        }
+        holder.content.setText(content);
 
         if(observer != null) {
             holder.ibDeleteComment.setVisibility(View.VISIBLE);

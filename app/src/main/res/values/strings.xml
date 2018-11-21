@@ -5,4 +5,6 @@
 
     <string name="welcome_text">欢迎使用%1$s\n安卓应用终端！</string>
 
+    <string name="comment_with_second">第%1$s秒，%2$s。</string>
+
 </resources>

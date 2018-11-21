@@ -95,7 +95,7 @@ public class EcgFileHead {
             commentList.sort(new Comparator<EcgComment>() {
                 @Override
                 public int compare(EcgComment o1, EcgComment o2) {
-                    return (int)(o1.getCommentTime() - o2.getCommentTime());
+                    return (int)(o1.getCreatedTime() - o2.getCreatedTime());
                 }
             });
         } catch (IOException e) {

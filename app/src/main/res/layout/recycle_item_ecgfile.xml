@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:src="@mipmap/ic_ecgfile_lastcomment"
-                android:contentDescription="last comment"
+                android:contentDescription="last content"
                 android:layout_marginEnd="2dp"/>
 
             <TextView
