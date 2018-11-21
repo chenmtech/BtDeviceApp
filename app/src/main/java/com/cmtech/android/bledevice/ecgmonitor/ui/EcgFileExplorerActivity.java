@@ -1,25 +1,20 @@
 package com.cmtech.android.bledevice.ecgmonitor.ui;
 
 import android.content.Intent;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ScrollView;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.controller.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.controller.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgFileExplorerObserver;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.FullyLinearLayoutManager;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 
@@ -48,15 +43,14 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         setSupportActionBar(toolbar);
 
         try {
-            model = new EcgFileExplorerModel(ECGFILEDIR);
+            if(ECGFILEDIR != null)
+                model = new EcgFileExplorerModel(ECGFILEDIR);
         } catch (IllegalArgumentException e) {
             finish();
         }
         model.registerEcgFileExplorerObserver(this);
 
         rvFileList = findViewById(R.id.rv_ecgexplorer_file);
-        //FullyLinearLayoutManager linearLayoutManager = new FullyLinearLayoutManager(this);
-        //rvFileList.setNestedScrollingEnabled(false);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvFileList.setLayoutManager(linearLayoutManager);
         rvFileList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -90,7 +84,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
                 // 回放心电信号返回
                 if(resultCode == RESULT_OK) {
                     boolean updated = data.getBooleanExtra("updated", false);
-                    if(updated) model.updateSelectFile();
+                    if(updated) model.updateSelectedFile();
                 }
                 break;
         }
@@ -98,7 +92,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.ecgfileexplorer_menu, menu);
+        getMenuInflater().inflate(R.menu.ecgexplorer_menu, menu);
         return true;
     }
 
@@ -106,11 +100,11 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.explorer_update:
-                model.importFromWeixin();
+                importFromWechat();
                 break;
 
             case R.id.explorer_delete:
-                deleteSelectFile();
+                deleteSelectedFile();
                 break;
 
             case R.id.explorer_share:
@@ -129,16 +123,20 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         model.removeEcgFileExplorerObserver();
     }
 
-    public void openSelectFile() {
-        if(fileAdapter.getSelectItem() == -1) return;
-
-        model.openSelectFile();
+    private void importFromWechat() {
+        model.importFromWechat();
     }
 
-    public void deleteSelectFile() {
+    public void openSelectedFile() {
         if(fileAdapter.getSelectItem() == -1) return;
 
-        model.deleteSelectFile();
+        model.openSelectedFile();
+    }
+
+    public void deleteSelectedFile() {
+        if(fileAdapter.getSelectItem() == -1) return;
+
+        model.deleteSelectedFile();
     }
 
     public void selectFile(int selectIndex) {

@@ -6,7 +6,7 @@
         android:icon="@mipmap/ic_ecgexplorer_update"
         android:orderInCategory="0"
         android:title="导入"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/explorer_delete"

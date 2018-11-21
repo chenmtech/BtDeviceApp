@@ -67,7 +67,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             @Override
             public void onClick(View v) {
                 if(selectItem == holder.getAdapterPosition()) {
-                    activity.openSelectFile();
+                    activity.openSelectedFile();
                 }
             }
         });

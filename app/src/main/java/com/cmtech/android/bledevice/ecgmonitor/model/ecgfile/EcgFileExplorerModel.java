@@ -109,7 +109,7 @@ public class EcgFileExplorerModel {
         }
     }
 
-    public void openSelectFile() {
+    public void openSelectedFile() {
         if(selectIndex >= 0 && selectIndex < fileList.size()) {
             String fileName = fileList.get(selectIndex).getFileName();
 
@@ -119,7 +119,7 @@ public class EcgFileExplorerModel {
         }
     }
 
-    public void updateSelectFile() {
+    public void updateSelectedFile() {
         if(selectIndex >= 0 && selectIndex < fileList.size()) {
             String fileName = fileList.get(selectIndex).getFileName();
             EcgFile ecgFile = null;
@@ -148,7 +148,7 @@ public class EcgFileExplorerModel {
         }
     }
 
-    public void deleteSelectFile() {
+    public void deleteSelectedFile() {
         if(selectIndex >= 0 && selectIndex < fileList.size()) {
             try {
                 FileUtil.deleteFile(fileList.get(selectIndex).getFile());
@@ -164,7 +164,7 @@ public class EcgFileExplorerModel {
         }
     }
 
-    public void importFromWeixin() {
+    public void importFromWechat() {
         File wxFileDir = new File(WXIMPORT_DIR);
         File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
 
