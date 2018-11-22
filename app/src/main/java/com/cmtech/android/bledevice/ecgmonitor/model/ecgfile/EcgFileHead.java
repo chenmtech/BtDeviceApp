@@ -9,6 +9,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -92,7 +93,7 @@ public class EcgFileHead {
                 commentList.add(comment);
             }
             // 按留言时间排序
-            commentList.sort(new Comparator<EcgComment>() {
+            Collections.sort(commentList, new Comparator<EcgComment>() {
                 @Override
                 public int compare(EcgComment o1, EcgComment o2) {
                     return (int)(o1.getCreatedTime() - o2.getCreatedTime());

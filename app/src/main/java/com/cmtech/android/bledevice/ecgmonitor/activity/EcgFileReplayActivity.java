@@ -16,10 +16,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileReplayModel;
+import com.cmtech.android.bledevice.ecgmonitor.model.IEcgCommentOperator;
+import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileReplayObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileReplayModel;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgCommentOperator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgFileReplayObserver;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -27,12 +27,12 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.exception.FileException;
 
 
-public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, IEcgCommentOperator, EcgFileReelWaveView.IEcgFileReelWaveViewObserver {
+public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver, IEcgCommentOperator {
     private static final String TAG = "EcgFileReplayActivity";
 
-    private EcgFileReplayModel replayModel;
+    private EcgFileReplayModel replayModel;         // 模型实例
 
-    private EcgFileReelWaveView ecgView;
+    private EcgFileReelWaveView ecgView;            // ecgView
 
     private ImageButton ibAddComment;
 
@@ -52,7 +52,6 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         //requestWindowFeature(Window.FEATURE_NO_TITLE);
         //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -71,7 +70,6 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             e.printStackTrace();
             finish();
         }
-
         replayModel.registerEcgFileReplayObserver(this);
 
         ecgView = findViewById(R.id.rwv_ecgview);
@@ -82,7 +80,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
         tvTotalTime = findViewById(R.id.tv_ecgreplay_totaltime);
         int totalTime = replayModel.getEcgFile().getDataNum()/replayModel.getEcgFile().getFs();
-        tvTotalTime.setText(""+DateTimeUtil.secToTime(totalTime));
+        tvTotalTime.setText(DateTimeUtil.secToTime(totalTime));
 
         sbEcgReplay = findViewById(R.id.sb_ecgreplay);
         sbEcgReplay.setMax(totalTime);
@@ -151,14 +149,16 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         startReplay();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
+    private void initReplay() {
+        replayModel.initReplay();
     }
 
-    public void initReplay() {
-        replayModel.initReplay();
+    private void startReplay() {
+        ecgView.startShow();
+    }
+
+    private void stopReplay() {
+        ecgView.stopShow();
     }
 
 
@@ -177,6 +177,8 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     public void onBackPressed() {
         stopReplay();
 
+        ecgView.removeEcgFileReelWaveViewObserver();
+
         replayModel.removeEcgFileObserver();
 
         replayModel.close();
@@ -187,6 +189,11 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         finish();
     }
 
+
+
+    /**
+     * IEcgFileReplayObserver接口函数
+     */
     @Override
     public void updateCommentList() {
         reportAdapter.notifyDataSetChanged();
@@ -204,14 +211,9 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         ecgView.initView();
     }
 
-    public void startReplay() {
-        ecgView.startShow();
-    }
-
-    public void stopReplay() {
-        ecgView.stopShow();
-    }
-
+    /**
+     * EcgFileReelWaveView.IEcgFileReelWaveViewObserver接口函数
+     */
     @Override
     public void updateShowState(boolean replaying) {
         if(replaying) {
@@ -229,6 +231,9 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         sbEcgReplay.setProgress(second);
     }
 
+    /**
+     * IEcgCommentOperator接口函数
+     */
     @Override
     public void deleteComment(EcgComment comment) {
         if(ecgView.isReplaying())

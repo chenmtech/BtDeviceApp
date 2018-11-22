@@ -31,7 +31,6 @@ public class EcgComment {
         return createdTime;
     }
 
-
     public int getSecondInEcg() {
         return secondInEcg;
     }
@@ -54,9 +53,7 @@ public class EcgComment {
     }
 
     public EcgComment(String commentator, long createdTime, String content) {
-        this.commentator = commentator;
-        this.createdTime = createdTime;
-        this.content = content;
+        this(commentator, createdTime, -1, content);
     }
 
     public EcgComment(String commentator, long createdTime, int secondInEcg, String content) {

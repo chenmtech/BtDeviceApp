@@ -1,6 +1,8 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
+package com.cmtech.android.bledevice.ecgmonitor.model;
 
 
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.exception.FileException;
@@ -9,13 +11,12 @@ import java.util.Date;
 import java.util.List;
 
 public class EcgFileReplayModel {
-    private EcgFile ecgFile;
+    private EcgFile ecgFile;            // 播放的EcgFile
 
-    private boolean updated = false;
-
+    private boolean updated = false;            // 文件是否已更新
     public boolean isUpdated() { return updated; }
 
-    // 设备观察者
+    // 文件播放观察者
     private IEcgFileReplayObserver observer;
 
     // 用于设置EcgWaveView的参数
@@ -34,17 +35,24 @@ public class EcgFileReplayModel {
     }
 
     public List<EcgComment> getCommentList() {
-        return ecgFile.getEcgFileHead().getCommentList();
+        return ecgFile.getCommentList();
     }
 
+    // 播放初始化
     public void initReplay() {
         initEcgView();
     }
 
+    // 添加一个没有时间定位的留言
     public void addComment(String comment) {
+        addComment(-1, comment);
+    }
+
+    // 添加一个有时间定位的留言
+    public void addComment(int secondInEcg, String comment) {
         String commentator = UserAccountManager.getInstance().getUserAccount().getUserName();
         long timeCreated = new Date().getTime();
-        ecgFile.addComment(new EcgComment(commentator, timeCreated, comment));
+        ecgFile.addComment(new EcgComment(commentator, timeCreated, secondInEcg, comment));
         updated = true;
         updateCommentList();
     }
@@ -62,7 +70,6 @@ public class EcgFileReplayModel {
             e.printStackTrace();
         }
     }
-
 
     // 登记心电回放观察者
     public void registerEcgFileReplayObserver(IEcgFileReplayObserver observer) {

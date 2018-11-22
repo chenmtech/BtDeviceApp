@@ -113,6 +113,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
         }
     }
 
+    // 显示指定秒数的信号
     public void showAtLocation(int second) {
         long numAtLocation = second*ecgFile.getFs();
         if(numAtLocation > ecgFile.getDataNum()) {
