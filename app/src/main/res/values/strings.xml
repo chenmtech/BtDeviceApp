@@ -7,4 +7,8 @@
 
     <string name="comment_with_second">第%1$s秒，%2$s。</string>
 
+    <string name="ecgfile_createinfo">%1$s [%2$s]</string>
+
+    <string name="lastecgcomment">%1$s %2$s说“%3$s”</string>
+
 </resources>

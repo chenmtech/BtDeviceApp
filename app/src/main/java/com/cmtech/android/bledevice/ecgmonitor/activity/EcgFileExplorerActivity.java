@@ -18,14 +18,18 @@ import com.cmtech.android.bledeviceapp.R;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 
+
+
 public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver {
     private static final String TAG = "EcgFileExplorerActivity";
 
-    private static EcgFileExplorerModel model;
+    private static EcgFileExplorerModel model;      // 文件浏览模型类实例
 
+    // 文件列表
     private EcgFileAdapter fileAdapter;
     private RecyclerView rvFileList;
 
+    // 留言列表
     private EcgCommentAdapter reportAdapter;
     private RecyclerView rvReportList;
 

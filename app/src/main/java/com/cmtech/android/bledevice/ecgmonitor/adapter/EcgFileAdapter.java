@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.adapter;
 
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +35,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         TextView fileLastComment;
         ImageButton ibPlay;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             fileView = itemView;
             fileCreatedPerson = fileView.findViewById(R.id.ecgfile_createperson);
@@ -49,6 +50,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         this.activity = activity;
     }
 
+    @NonNull
     @Override
     public EcgFileAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -81,31 +83,35 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
         holder.fileCreatedPerson.setText(file.getEcgFileHead().getCreatedPerson());
 
-        StringBuilder createTimeSb = new StringBuilder();
-        createTimeSb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(((BmeFileHead30)file.getBmeFileHead()).getCreatedTime()));
-        createTimeSb.append(" [");
-        createTimeSb.append(DateTimeUtil.secToTime(file.getDataNum()/file.getFs()));
-        createTimeSb.append(']');
-        holder.fileCreatedTime.setText(createTimeSb.toString());
+        String createTimeAndLength = MyApplication.getContext().getResources().getString(R.string.ecgfile_createinfo);
+        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(((BmeFileHead30)file.getBmeFileHead()).getCreatedTime());
+        String createLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
+        createTimeAndLength = String.format(createTimeAndLength, createTime, createLength);
+        holder.fileCreatedTime.setText(createTimeAndLength);
 
         int commentNum = file.getEcgFileHead().getCommentsNum();
         if(commentNum > 0) {
             EcgComment comment = file.getEcgFileHead().getCommentList().get(commentNum - 1);
-            StringBuilder sb = new StringBuilder();
-            sb.append(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreatedTime()));
-            sb.append(' ');
-            sb.append(comment.getCommentator());
-            sb.append("说“");
-            sb.append(comment.getContent());
-            sb.append('”');
-            holder.fileLastComment.setText(sb.toString());
+            String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
+            String createTime1 = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreatedTime());
+            String person = comment.getCommentator();
+            String content;
+            if(comment.getSecondInEcg() == -1) {
+                content = comment.getContent();
+            } else {
+                content = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
+                content = String.format(content, DateTimeUtil.secToTime(comment.getSecondInEcg()), comment.getContent());
+            }
+            lastEcgComment = String.format(lastEcgComment, createTime1, person, content);
+
+            holder.fileLastComment.setText(lastEcgComment);
         } else {
             holder.fileLastComment.setText("无留言");
         }
 
         int bgdColor = 0;
         if(selectItem == position) {
-            bgdColor = MyApplication.getContext().getColor(R.color.secondary);
+            bgdColor = MyApplication.getContext().getResources().getColor(R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
             holder.ibPlay.setBackgroundColor(bgdColor);
             holder.ibPlay.setVisibility(View.VISIBLE);
