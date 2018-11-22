@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.temphumid;
+package com.cmtech.android.bledevice.temphumid.model;
 
 import android.os.Handler;
 import android.os.Looper;

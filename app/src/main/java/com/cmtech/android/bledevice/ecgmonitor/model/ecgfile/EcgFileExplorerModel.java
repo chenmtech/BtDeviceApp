@@ -13,6 +13,7 @@ import com.vise.utils.file.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -73,10 +74,10 @@ public class EcgFileExplorerModel {
     private void sortFileList() {
         if(fileList.size() <= 1) return;
 
-        fileList.sort(new Comparator<EcgFile>() {
+        Collections.sort(fileList, new Comparator<EcgFile>() {
             @Override
-            public int compare(EcgFile ecgFile, EcgFile t1) {
-                return (int)(ecgFile.getFile().lastModified() - t1.getFile().lastModified());
+            public int compare(EcgFile o1, EcgFile o2) {
+                return (int)(o1.getFile().lastModified() - o2.getFile().lastModified());
             }
         });
     }

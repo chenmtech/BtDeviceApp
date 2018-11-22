@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.thermo;
+package com.cmtech.android.bledevice.thermo.model;
 
 import android.os.Message;
 import android.util.Log;
@@ -9,7 +9,6 @@ import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
 import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
-import com.cmtech.android.bledevicecore.model.Uuid;
 
 import java.util.LinkedList;
 import java.util.List;

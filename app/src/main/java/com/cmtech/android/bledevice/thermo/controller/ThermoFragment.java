@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.thermo;
+package com.cmtech.android.bledevice.thermo.controller;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.thermo.model.IThermoDataObserver;
+import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
@@ -17,7 +19,7 @@ import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
  * Created by bme on 2018/2/27.
  */
 
-public class ThermoFragment extends BleDeviceFragment implements IThermoDataObserver{
+public class ThermoFragment extends BleDeviceFragment implements IThermoDataObserver {
 
     private TextView tvThermoCurrentTemp;
     private TextView tvThermoHightestTemp;

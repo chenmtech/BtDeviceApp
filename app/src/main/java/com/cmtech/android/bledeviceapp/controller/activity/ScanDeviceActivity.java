@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.activity;
+package com.cmtech.android.bledeviceapp.controller.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,8 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
@@ -18,7 +16,7 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
+import com.cmtech.android.bledeviceapp.controller.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceConfig;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
@@ -28,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
-import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
+import static com.cmtech.android.bledeviceapp.controller.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 
 public class ScanDeviceActivity extends AppCompatActivity {
     private static final String TAG = "ScanDeviceActivity";

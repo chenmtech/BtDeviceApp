@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.ui;
+package com.cmtech.android.bledevice.ecgmonitor.controller;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

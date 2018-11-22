@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.activity;
+package com.cmtech.android.bledeviceapp.controller.activity;
 
 import android.annotation.TargetApi;
 import android.content.ContentUris;

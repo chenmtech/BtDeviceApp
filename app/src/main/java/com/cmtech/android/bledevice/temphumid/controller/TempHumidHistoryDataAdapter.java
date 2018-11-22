@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.temphumid;
+package com.cmtech.android.bledevice.temphumid.controller;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.text.DateFormat;

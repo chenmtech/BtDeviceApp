@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.ui;
+package com.cmtech.android.bledevice.ecgmonitor.controller;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,8 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.cmtech.android.bledevice.ecgmonitor.controller.EcgCommentAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.controller.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgFileExplorerObserver;
 import com.cmtech.android.bledeviceapp.R;

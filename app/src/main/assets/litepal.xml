@@ -6,7 +6,7 @@
     <version value="4"></version>
 
     <list>
-        <mapping class="com.cmtech.android.bledevice.temphumid.TempHumidHistoryData"></mapping>
+        <mapping class="com.cmtech.android.bledevice.temphumid.model.TempHumidHistoryData"></mapping>
         <mapping class="com.cmtech.android.bledeviceapp.model.UserAccount"></mapping>
     </list>
 </litepal>

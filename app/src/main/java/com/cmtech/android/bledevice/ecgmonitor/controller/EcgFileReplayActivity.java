@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.ui;
+package com.cmtech.android.bledevice.ecgmonitor.controller;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,11 +15,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.controller.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileReplayModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgCommentObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgFileReplayObserver;
+import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;

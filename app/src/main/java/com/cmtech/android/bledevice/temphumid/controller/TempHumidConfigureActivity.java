@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.temphumid;
+package com.cmtech.android.bledevice.temphumid.controller;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

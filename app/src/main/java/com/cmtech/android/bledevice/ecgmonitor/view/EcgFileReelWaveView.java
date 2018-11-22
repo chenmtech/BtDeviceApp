@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.ui;
+package com.cmtech.android.bledevice.ecgmonitor.view;
 
 import android.content.Context;
 import android.util.AttributeSet;

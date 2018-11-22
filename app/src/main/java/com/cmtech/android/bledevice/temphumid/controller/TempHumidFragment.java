@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.temphumid;
+package com.cmtech.android.bledevice.temphumid.controller;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -6,12 +6,14 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.temphumid.model.ITempHumidDataObserver;
+import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
+import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
@@ -21,7 +23,7 @@ import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
  * Created by bme on 2018/2/27.
  */
 
-public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDataObserver{
+public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDataObserver {
 
     private TextView tvTempData;
     private TextView tvHumidData;
