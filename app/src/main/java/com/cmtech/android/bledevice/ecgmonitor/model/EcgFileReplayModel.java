@@ -25,6 +25,25 @@ public class EcgFileReplayModel {
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
+    private int currentSecond = -1;                 // 记录当前播放的Ecg的秒数
+    public void setCurrentSecond(int currentSecond) {
+        this.currentSecond = currentSecond;
+    }
+
+    private int secondNeedAddToComment = -1;        // 需要加入留言中的秒数
+
+    private boolean addSecondToComment = false;       // 是否在留言中加入时间定位
+
+    public boolean isAddSecondToComment() {
+        return addSecondToComment;
+    }
+
+    public void setAddSecondToComment(boolean addSecondToComment) {
+        this.addSecondToComment = addSecondToComment;
+        if(addSecondToComment) {
+            secondNeedAddToComment = currentSecond;
+        }
+    }
 
     public EcgFileReplayModel(String ecgFileName) throws FileException{
         ecgFile = EcgFile.openBmeFile(ecgFileName);
@@ -43,13 +62,16 @@ public class EcgFileReplayModel {
         initEcgView();
     }
 
-    // 添加一个没有时间定位的留言
+    // 添加一个留言
     public void addComment(String comment) {
-        addComment(-1, comment);
+        if(addSecondToComment)
+            addComment(secondNeedAddToComment, comment);
+        else
+            addComment(-1, comment);
     }
 
     // 添加一个有时间定位的留言
-    public void addComment(int secondInEcg, String comment) {
+    private void addComment(int secondInEcg, String comment) {
         String commentator = UserAccountManager.getInstance().getUserAccount().getUserName();
         long timeCreated = new Date().getTime();
         ecgFile.addComment(new EcgComment(commentator, timeCreated, secondInEcg, comment));
@@ -62,6 +84,7 @@ public class EcgFileReplayModel {
         updated = true;
         updateCommentList();
     }
+
 
     public void close() {
         try {

@@ -48,6 +48,8 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     private SeekBar sbEcgReplay;
 
+    private ImageButton ibAddSecondToComment;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -144,6 +146,14 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             }
         });
 
+        ibAddSecondToComment = findViewById(R.id.ib_ecgreplay_addsecondtocomment);
+        ibAddSecondToComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                replayModel.setAddSecondToComment(!replayModel.isAddSecondToComment());
+            }
+        });
+
         initReplay();
 
         startReplay();
@@ -229,6 +239,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     public void updateCurrentTime(int second) {
         tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
         sbEcgReplay.setProgress(second);
+        replayModel.setCurrentSecond(second);
     }
 
     /**
@@ -239,6 +250,6 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         if(ecgView.isReplaying())
             stopReplay();
         replayModel.deleteComment(comment);
-        etComment.setText(comment.getContent());
+        //etComment.setText(comment.getContent());
     }
 }

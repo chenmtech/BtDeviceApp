@@ -83,22 +83,35 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <TextView
+
+        <ImageButton
+            android:id="@+id/ib_ecgreplay_addsecondtocomment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="2dp"
-            android:text="留言："/>
+            android:src="@mipmap/ic_ecgreplay_addsecondtocomment"
+            android:contentDescription="添加时间标签"
+            android:background="@color/primary"/>
 
-        <EditText
-            android:id="@+id/et_ecgreplay_comment"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="bottom"
-            android:inputType="textMultiLine"
-            android:maxLength="50"
-            android:hint="请输入不超过50字符"/>
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="留言时间"/>
+            <EditText
+                android:id="@+id/et_ecgreplay_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:inputType="textMultiLine"
+                android:maxLength="50"
+                android:hint="请输入不超过50字符"/>
+        </LinearLayout>
+
 
         <ImageButton
             android:id="@+id/ib_ecgreplay_addcomment"
