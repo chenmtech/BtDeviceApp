@@ -9,22 +9,15 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.bmefile.BmeFileHead30;
-
-import java.util.List;
 
 public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHolder> {
-    private EcgFileExplorerActivity activity;
-
-    private List<EcgFile> fileList;
-
-    private int selectItem = -1;
+    private EcgFileExplorerModel explorerModel;
 
     private Drawable defaultBackground;
 
@@ -45,9 +38,8 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         }
     }
 
-    public EcgFileAdapter(List<EcgFile> fileList, EcgFileExplorerActivity activity) {
-        this.fileList = fileList;
-        this.activity = activity;
+    public EcgFileAdapter(EcgFileExplorerModel explorerModel) {
+        this.explorerModel = explorerModel;
     }
 
     @NonNull
@@ -61,16 +53,14 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activity.selectFile(holder.getAdapterPosition());
+                explorerModel.select(holder.getAdapterPosition());
             }
         });
 
         holder.ibPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(selectItem == holder.getAdapterPosition()) {
-                    activity.openSelectedFile();
-                }
+                explorerModel.replaySelectedFile();
             }
         });
 
@@ -79,19 +69,19 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(EcgFileAdapter.ViewHolder holder, final int position) {
-        EcgFile file = fileList.get(position);
+        EcgFile file = explorerModel.getFileList().get(position);
 
-        holder.fileCreatedPerson.setText(file.getEcgFileHead().getCreatedPerson());
+        holder.fileCreatedPerson.setText(file.getCreatedPerson());
 
         String createTimeAndLength = MyApplication.getContext().getResources().getString(R.string.ecgfile_createinfo);
-        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(((BmeFileHead30)file.getBmeFileHead()).getCreatedTime());
+        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getCreatedTime());
         String createLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
         createTimeAndLength = String.format(createTimeAndLength, createTime, createLength);
         holder.fileCreatedTime.setText(createTimeAndLength);
 
-        int commentNum = file.getEcgFileHead().getCommentsNum();
+        int commentNum = file.getCommentsNum();
         if(commentNum > 0) {
-            EcgComment comment = file.getEcgFileHead().getCommentList().get(commentNum - 1);
+            EcgComment comment = file.getCommentList().get(commentNum - 1);
             String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
             String createTime1 = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreatedTime());
             String person = comment.getCommentator();
@@ -110,7 +100,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         }
 
         int bgdColor = 0;
-        if(selectItem == position) {
+        if(explorerModel.getSelectIndex() == position) {
             bgdColor = MyApplication.getContext().getResources().getColor(R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
             holder.ibPlay.setBackgroundColor(bgdColor);
@@ -124,22 +114,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return fileList.size();
-    }
-
-    public void updateFileList(List<EcgFile> fileList) {
-        this.fileList = fileList;
-    }
-
-    public int getSelectItem() {
-        return selectItem;
-    }
-
-    public void updateSelectItem(int selectItem) {
-        if(selectItem >= 0 && selectItem < fileList.size())
-            this.selectItem = selectItem;
-        else
-            this.selectItem = -1;
+        return explorerModel.getFileList().size();
     }
 
 }

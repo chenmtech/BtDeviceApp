@@ -18,7 +18,7 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileReplayModel;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgCommentObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgCommentOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgFileReplayObserver;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -27,7 +27,7 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.exception.FileException;
 
 
-public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, IEcgCommentObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver {
+public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, IEcgCommentOperator, EcgFileReelWaveView.IEcgFileReelWaveViewObserver {
     private static final String TAG = "EcgFileReplayActivity";
 
     private EcgFileReplayModel replayModel;

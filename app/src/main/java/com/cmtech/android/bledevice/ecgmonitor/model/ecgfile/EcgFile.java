@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.bmefile.BmeFileHead;
+import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.RandomAccessBmeFile;
 import com.cmtech.bmefile.exception.FileException;
 
@@ -57,6 +58,22 @@ public class EcgFile extends RandomAccessBmeFile {
 
     public EcgFileHead getEcgFileHead() {
         return ecgFileHead;
+    }
+
+    public List<EcgComment> getCommentList() {
+        return ecgFileHead.getCommentList();
+    }
+
+    public String getCreatedPerson() {
+        return ecgFileHead.getCreatedPerson();
+    }
+
+    public long getCreatedTime() {
+        return ((BmeFileHead30)getBmeFileHead()).getCreatedTime();
+    }
+
+    public int getCommentsNum() {
+        return ecgFileHead.getCommentsNum();
     }
 
     // 将文件指针定位到某个数据位置

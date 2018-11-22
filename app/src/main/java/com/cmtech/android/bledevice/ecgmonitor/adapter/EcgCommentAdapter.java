@@ -9,7 +9,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgCommentObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.IEcgCommentOperator;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -20,7 +20,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
     private List<EcgComment> commentList;
 
-    private IEcgCommentObserver observer;
+    private IEcgCommentOperator commentOperator;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View commentView;
@@ -39,9 +39,9 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         }
     }
 
-    public EcgCommentAdapter(List<EcgComment> commentList, IEcgCommentObserver observer) {
+    public EcgCommentAdapter(List<EcgComment> commentList, IEcgCommentOperator commentOperator) {
         this.commentList = commentList;
-        this.observer = observer;
+        this.commentOperator = commentOperator;
     }
 
     @NonNull
@@ -55,8 +55,8 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         holder.ibDeleteComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(observer != null)
-                    observer.deleteComment(commentList.get(holder.getAdapterPosition()));
+                if(commentOperator != null)
+                    commentOperator.deleteComment(commentList.get(holder.getAdapterPosition()));
             }
         });
 
@@ -78,7 +78,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         }
         holder.content.setText(content);
 
-        if(observer != null) {
+        if(commentOperator != null) {
             holder.ibDeleteComment.setVisibility(View.VISIBLE);
         }
     }
@@ -90,5 +90,6 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
     public void updateCommentList(List<EcgComment> commentList) {
         this.commentList = commentList;
+        notifyDataSetChanged();
     }
 }

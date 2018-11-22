@@ -1,8 +1,10 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
+package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
@@ -27,9 +29,6 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILE
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
 
 public class EcgFileExplorerModel {
-
-    //private static final String WECHAT_DOWNLOAD_DIR = Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download";
-
     private final File fileDir;
 
     private List<EcgFile> fileList = new ArrayList<>();
@@ -44,7 +43,7 @@ public class EcgFileExplorerModel {
         if(fileList.isEmpty() || selectIndex < 0 || selectIndex >= fileList.size()){
             return new ArrayList<>();
         } else {
-            return fileList.get(selectIndex).getEcgFileHead().getCommentList();
+            return fileList.get(selectIndex).getCommentList();
         }
     }
 
@@ -71,17 +70,6 @@ public class EcgFileExplorerModel {
         sortFileList();
     }
 
-    private void sortFileList() {
-        if(fileList.size() <= 1) return;
-
-        Collections.sort(fileList, new Comparator<EcgFile>() {
-            @Override
-            public int compare(EcgFile o1, EcgFile o2) {
-                return (int)(o1.getFile().lastModified() - o2.getFile().lastModified());
-            }
-        });
-    }
-
     private List<EcgFile> createEcgFileList(File[] files) {
         List<EcgFile> ecgFileList = new ArrayList<>();
         for(File file : files) {
@@ -103,24 +91,38 @@ public class EcgFileExplorerModel {
         return ecgFileList;
     }
 
-    public void selectFile(int fileIndex) {
-        selectIndex = fileIndex;
+    private void sortFileList() {
+        if(fileList.size() <= 1) return;
+
+        Collections.sort(fileList, new Comparator<EcgFile>() {
+            @Override
+            public int compare(EcgFile o1, EcgFile o2) {
+                return (int)(o1.getFile().lastModified() - o2.getFile().lastModified());
+            }
+        });
+    }
+
+    // 选中一个文件
+    public void select(int index) {
+        selectIndex = index;
         if(observer != null) {
-            observer.updateSelectFile();
+            observer.update();
         }
     }
 
-    public void openSelectedFile() {
+    // 播放选中的文件
+    public void replaySelectedFile() {
         if(selectIndex >= 0 && selectIndex < fileList.size()) {
             String fileName = fileList.get(selectIndex).getFileName();
 
             if(observer != null) {
-                observer.openFile(fileName);
+                observer.replay(fileName);
             }
         }
     }
 
-    public void updateSelectedFile() {
+    // 重新加载所选文件
+    public void reloadSelectedFile() {
         if(selectIndex >= 0 && selectIndex < fileList.size()) {
             String fileName = fileList.get(selectIndex).getFileName();
             EcgFile ecgFile = null;
@@ -144,11 +146,12 @@ public class EcgFileExplorerModel {
             selectIndex = fileList.size()-1;
 
             if(observer != null) {
-                observer.updateFileList();
+                observer.update();
             }
         }
     }
 
+    // 删除所选文件
     public void deleteSelectedFile() {
         if(selectIndex >= 0 && selectIndex < fileList.size()) {
             try {
@@ -157,7 +160,7 @@ public class EcgFileExplorerModel {
 
                 if(selectIndex > fileList.size()-1) selectIndex = fileList.size()-1;
                 if(observer != null) {
-                    observer.updateFileList();
+                    observer.update();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -165,6 +168,7 @@ public class EcgFileExplorerModel {
         }
     }
 
+    // 从微信导入文件
     public void importFromWechat() {
         File wxFileDir = new File(WECHAT_DOWNLOAD_DIR);
         File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
@@ -211,7 +215,7 @@ public class EcgFileExplorerModel {
             selectIndex = fileList.size() - 1;
 
             if (observer != null) {
-                observer.updateFileList();
+                observer.update();
             }
         }
     }
