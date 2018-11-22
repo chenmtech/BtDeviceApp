@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.temphumid.controller;
+package com.cmtech.android.bledevice.temphumid.activity;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.temphumid.adapter.TempHumidHistoryDataAdapter;
 import com.cmtech.android.bledevice.temphumid.model.ITempHumidDataObserver;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;

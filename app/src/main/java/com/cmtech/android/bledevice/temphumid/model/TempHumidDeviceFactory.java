@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
-import com.cmtech.android.bledevice.temphumid.controller.TempHumidFragment;
+import com.cmtech.android.bledevice.temphumid.activity.TempHumidFragment;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;

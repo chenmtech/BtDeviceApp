@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.controller.activity;
+package com.cmtech.android.bledeviceapp.activity;
 
 import android.Manifest;
 import android.content.Intent;

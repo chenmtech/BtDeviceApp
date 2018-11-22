@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.controller;
+package com.cmtech.android.bledevice.ecgmonitor.adapter;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.controller.activity;
+package com.cmtech.android.bledeviceapp.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,11 +31,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
-import com.cmtech.android.bledevice.ecgmonitor.controller.EcgFileReplayActivity;
-import com.cmtech.android.bledevice.ecgmonitor.controller.EcgFileExplorerActivity;
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileReplayActivity;
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.controller.adapter.BleDeviceListAdapter;
+import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDevice;
@@ -55,7 +55,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.controller.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
+import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 
 /**
  *  MainActivity: 主界面

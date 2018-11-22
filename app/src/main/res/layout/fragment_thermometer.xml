@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/accent"
-    tools:context = "com.cmtech.android.bledevice.thermo.controller.ThermoFragment">
+    tools:context = "com.cmtech.android.bledevice.thermo.activity.ThermoFragment">
 
     <TextView
         android:layout_width="match_parent"

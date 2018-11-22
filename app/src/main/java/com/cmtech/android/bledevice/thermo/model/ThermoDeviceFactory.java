@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.thermo.model;
 
-import com.cmtech.android.bledevice.thermo.controller.ThermoFragment;
+import com.cmtech.android.bledevice.thermo.activity.ThermoFragment;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;

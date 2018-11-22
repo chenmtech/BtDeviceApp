@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.controller;
+package com.cmtech.android.bledevice.ecgmonitor.activity;
 
 import android.content.Context;
 import android.os.Bundle;

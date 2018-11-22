@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
+import android.os.Environment;
+
 import com.cmtech.android.bledeviceapp.MyApplication;
 
 import java.io.File;
@@ -15,6 +17,9 @@ public class EcgMonitorConstant {
 
     // 文件缓存目录
     public static final File CACHEDIR = MyApplication.getContext().getExternalCacheDir();
+
+    // 微信的下载存储目录
+    public static final String WECHAT_DOWNLOAD_DIR = Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download";
 
     // Ecg文件数据操作时分块的大小,单位字节
     public static final int ECG_BLOCK_LEN = 512;        // 添加和删除评论时，每次移动的文件数据块的大小

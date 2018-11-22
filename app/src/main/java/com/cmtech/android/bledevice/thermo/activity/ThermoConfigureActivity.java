@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.thermo.controller;
+package com.cmtech.android.bledevice.thermo.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

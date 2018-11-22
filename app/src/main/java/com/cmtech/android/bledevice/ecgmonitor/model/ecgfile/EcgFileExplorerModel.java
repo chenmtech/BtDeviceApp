@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -25,10 +24,11 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
 
 public class EcgFileExplorerModel {
 
-    private static final String WXIMPORT_DIR = Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download";
+    //private static final String WECHAT_DOWNLOAD_DIR = Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download";
 
     private final File fileDir;
 
@@ -166,7 +166,7 @@ public class EcgFileExplorerModel {
     }
 
     public void importFromWechat() {
-        File wxFileDir = new File(WXIMPORT_DIR);
+        File wxFileDir = new File(WECHAT_DOWNLOAD_DIR);
         File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
 
         boolean hasUpdated = false;

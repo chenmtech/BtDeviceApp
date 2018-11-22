@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.controller.adapter;
+package com.cmtech.android.bledeviceapp.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,7 +11,7 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.controller.activity.ScanDeviceActivity;
+import com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity;
 import com.cmtech.android.bledevicecore.model.Uuid;
 
 import java.util.List;
