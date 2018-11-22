@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevicecore.model;
 
-public class BleDeviceController {
+public class DeviceFragmentPair {
     // 设备
     private final BleDevice device;
 
@@ -8,36 +8,13 @@ public class BleDeviceController {
     private final BleDeviceFragment fragment;
 
 
-    public BleDeviceController(BleDevice device) {
+    public DeviceFragmentPair(BleDevice device) {
         if(device == null) {
             throw new IllegalArgumentException();
         }
 
         this.device = device;
         fragment = createFragment(device);
-    }
-
-    // 打开设备
-    public void openDevice() {
-        device.open();
-    }
-
-    /*public void connectDevice() {
-        device.connect();
-    }*/
-
-    /*public void disconnectDevice() {
-        device.disconnect();
-    }*/
-
-    // 关闭设备
-    public void closeDevice() {
-        device.close();
-    }
-
-    // 切换设备状态
-    public void switchState() {
-        device.switchState();
     }
 
     public BleDevice getDevice() {
@@ -48,7 +25,7 @@ public class BleDeviceController {
         return fragment;
     }
 
-    // 为设备创建Fragment
+    // 为设备创建相应的Fragment
     private BleDeviceFragment createFragment(BleDevice device) {
         return BleDeviceAbstractFactory.getBLEDeviceFactory(device).createFragment();
     }

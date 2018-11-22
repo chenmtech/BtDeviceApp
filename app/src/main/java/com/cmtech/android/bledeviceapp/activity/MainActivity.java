@@ -41,7 +41,7 @@ import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.model.BleDeviceController;
+import com.cmtech.android.bledevicecore.model.DeviceFragmentPair;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.IBleDeviceActivity;
@@ -69,8 +69,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 已登记的设备列表
     private final List<BleDevice> deviceList = new ArrayList<>();
 
-    // 已打开的设备控制器列表
-    private final List<BleDeviceController> openedControllerList = new LinkedList<>();
+    // 已打开的设备和Fragment列表
+    private final List<DeviceFragmentPair> devFragList = new LinkedList<>();
 
     // 显示已登记设备列表的Adapter和RecyclerView
     private BleDeviceListAdapter deviceListAdapter;
@@ -368,20 +368,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     @Override
     public void closeDevice(BleDeviceFragment fragment) {
         if(fragment == null) return;
-
-        BleDeviceController controller = getController(fragment);
-        if(controller == null) return;
-
-        openedControllerList.remove(controller);
+        devFragList.remove(getDevFragPair(fragment));
         deleteFragment(fragment);
     }
 
-    // 从deviceControllerList中寻找Fragment对应的控制器
+    // 从devFragList中寻找Fragment对应的项
     @Override
-    public BleDeviceController getController(BleDeviceFragment fragment) {
-        for(BleDeviceController controller : openedControllerList) {
-            if(controller.getFragment().equals(fragment)) {
-                return controller;
+    public DeviceFragmentPair getDevFragPair(BleDeviceFragment fragment) {
+        for(DeviceFragmentPair pair : devFragList) {
+            if(pair.getFragment().equals(fragment)) {
+                return pair;
             }
         }
         return null;
@@ -397,14 +393,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(fragment != null) {
             // 已经打开了，只要显示Fragment，并开始连接
             showFragment(fragment);
-            //fragment.openDevice();
         } else {
             BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device);
             if(factory == null) return;
 
-            BleDeviceController deviceController = new BleDeviceController(device);
-            openedControllerList.add(deviceController);
-            openFragment(deviceController.getFragment(), device.getImagePath(), device.getNickName());
+            DeviceFragmentPair devFragPair = new DeviceFragmentPair(device);
+            devFragList.add(devFragPair);
+            openFragment(devFragPair.getFragment(), device.getImagePath(), device.getNickName());
         }
     }
 
@@ -578,11 +573,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     }
 
-    // 从deviceControllerList中寻找Fragment对应的控制器
-    private BleDeviceController getController(BleDevice device) {
-        for(BleDeviceController controller : openedControllerList) {
-            if(device.equals(controller.getDevice())) {
-                return controller;
+    // 从devFragList中寻找Fragment对应的项目
+    private DeviceFragmentPair getDevFragPair(BleDevice device) {
+        for(DeviceFragmentPair pair : devFragList) {
+            if(device.equals(pair.getDevice())) {
+                return pair;
             }
         }
         return null;
@@ -590,8 +585,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     // 获取设备对应的Fragment
     private BleDeviceFragment getFragment(BleDevice device) {
-        BleDeviceController controller = getController(device);
-        return (controller != null) ? controller.getFragment() : null;
+        DeviceFragmentPair pair = getDevFragPair(device);
+        return (pair != null) ? pair.getFragment() : null;
     }
 
     // 打开Fragment：将Fragment加入Manager，并显示

@@ -3,7 +3,6 @@ package com.cmtech.android.bledevice.thermo;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.model.BleDeviceController;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
 public class ThermoDeviceFactory extends BleDeviceAbstractFactory {

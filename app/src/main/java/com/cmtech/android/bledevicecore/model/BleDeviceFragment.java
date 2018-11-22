@@ -2,6 +2,8 @@ package com.cmtech.android.bledevicecore.model;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
@@ -15,10 +17,7 @@ public abstract class BleDeviceFragment extends Fragment{
     private IBleDeviceActivity activity;
 
     // 对应的控制器
-    private BleDeviceController controller;
-    public BleDeviceController getController() {
-        return controller;
-    }
+    private DeviceFragmentPair controller;
 
     // 对应的设备
     private BleDevice device;
@@ -48,7 +47,7 @@ public abstract class BleDeviceFragment extends Fragment{
         activity = (IBleDeviceActivity) context;
 
         // 获取controller
-        controller = activity.getController(this);
+        controller = activity.getDevFragPair(this);
 
         // 获取device
         if(controller != null) {
@@ -88,7 +87,7 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
 
-        controller.closeDevice();
+        device.close();
     }
 
     @Override
@@ -98,7 +97,7 @@ public abstract class BleDeviceFragment extends Fragment{
 
     // 打开设备
     public void openDevice() {
-        controller.openDevice();
+        device.open();
     }
 
     // 关闭设备
@@ -112,7 +111,7 @@ public abstract class BleDeviceFragment extends Fragment{
 
     // 切换设备状态，根据设备的当前状态实现状态切换
     public void switchState() {
-        controller.switchState();
+        device.switchState();
     }
 
     /*// 断开设备
@@ -124,7 +123,7 @@ public abstract class BleDeviceFragment extends Fragment{
     public void updateDeviceState(final BleDevice device) {
         // isAdded()用来判断Fragment是否与Activity关联，如果关联了，才能更新状态信息
         if(device == this.device && isAdded()) {
-            getActivity().runOnUiThread(new Runnable() {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     updateDeviceState();
@@ -134,7 +133,6 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     private void updateDeviceState() {
-
 
     }
 
