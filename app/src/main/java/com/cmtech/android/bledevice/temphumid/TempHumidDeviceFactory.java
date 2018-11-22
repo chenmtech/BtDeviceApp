@@ -14,11 +14,6 @@ public class TempHumidDeviceFactory extends BleDeviceAbstractFactory {
     }
 
     @Override
-    public BleDeviceController createController(BleDevice device) {
-        return new TempHumidController(device);
-    }
-
-    @Override
     public BleDeviceFragment createFragment() {
         return new TempHumidFragment();
     }

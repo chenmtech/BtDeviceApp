@@ -50,6 +50,7 @@ import com.vise.log.ViseLog;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -401,7 +402,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device);
             if(factory == null) return;
 
-            BleDeviceController deviceController = factory.createController(device);
+            BleDeviceController deviceController = new BleDeviceController(device);
             openedControllerList.add(deviceController);
             openFragment(deviceController.getFragment(), device.getImagePath(), device.getNickName());
         }
@@ -467,7 +468,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 从数据库获取设备信息，并构造相应的BLEDevice
         List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
         if(basicInfoList != null && !basicInfoList.isEmpty()) {
-            basicInfoList.sort(new Comparator<BleDeviceBasicInfo>() {
+            Collections.sort(basicInfoList, new Comparator<BleDeviceBasicInfo>() {
                 @Override
                 public int compare(BleDeviceBasicInfo o1, BleDeviceBasicInfo o2) {
                     return o1.getMacAddress().compareTo(o2.getMacAddress());
@@ -490,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(device != null) {
             // 将设备添加到设备列表
             deviceList.add(device);
-            deviceList.sort(new Comparator<BleDevice>() {
+            Collections.sort(deviceList, new Comparator<BleDevice>() {
                 @Override
                 public int compare(BleDevice o1, BleDevice o2) {
                     return o1.getMacAddress().compareTo(o2.getMacAddress());

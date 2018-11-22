@@ -286,6 +286,11 @@ public class EcgMonitorDevice extends BleDevice {
         updateRecordStatus(isRecord);
     }
 
+    // 停止记录心电信号
+    public synchronized void stopEcgRecord() {
+        setEcgRecord(false);
+    }
+
     public synchronized void setEcgFilter(boolean isEcgFilter) {
         this.isEcgFilter = isEcgFilter;
     }

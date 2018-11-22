@@ -30,6 +30,8 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     private RecyclerView rvHistoryData;
     private TempHumidHistoryDataAdapter historyDataAdapter;
 
+    private TempHumidDevice device;
+
     public TempHumidFragment() {
 
     }
@@ -42,13 +44,15 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        ((TempHumidDevice)getDevice()).registerTempHumidDataObserver(this);
+        device = (TempHumidDevice)getDevice();
+        if(device == null)
+            throw new IllegalArgumentException();
+        device.registerTempHumidDataObserver(this);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d("TempHumidFragment", "onCreateView");
         return inflater.inflate(R.layout.fragment_temphumid, container, false);
     }
 
@@ -73,7 +77,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     int lastVisiblePosition = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
                     if(lastVisiblePosition == recyclerView.getLayoutManager().getItemCount()-1) {
-                        ((TempHumidController)getController()).updateHistoryData();
+                        device.updateHistoryData();
                     }
                 }
             }
@@ -89,35 +93,24 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     public void onDestroy() {
         super.onDestroy();
 
-        if(getDevice() != null)
-            ((TempHumidDevice)getDevice()).removeTempHumidDataObserver(this);
+        if(device != null)
+            device.removeTempHumidDataObserver(this);
     }
 
     @Override
     public void updateCurrentTempHumidData() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TempHumidData data = ((TempHumidDevice)getDevice()).getCurTempHumid();
+        TempHumidData data = ((TempHumidDevice)getDevice()).getCurTempHumid();
 
-                tvHumidData.setText( ""+data.getHumid() );
+        tvHumidData.setText(String.valueOf(data.getHumid()));
 
-                tvTempData.setText(String.format("%.1f", data.getTemp()));
+        tvTempData.setText(String.format("%.1f", data.getTemp()));
 
-                float heatindex = data.computeHeatIndex();
-                tvHeadIndex.setText(String.format("%.1f", heatindex));
-            }
-        });
-
+        float heatindex = data.computeHeatIndex();
+        tvHeadIndex.setText(String.format("%.1f", heatindex));
     }
 
     @Override
     public void updateHistoryTempHumidData() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                historyDataAdapter.notifyDataSetChanged();
-            }
-        });
+        historyDataAdapter.notifyDataSetChanged();
     }
 }

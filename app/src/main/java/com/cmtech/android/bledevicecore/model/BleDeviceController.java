@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevicecore.model;
 
-public abstract class BleDeviceController {
+public class BleDeviceController {
     // 设备
     private final BleDevice device;
 
@@ -10,7 +10,7 @@ public abstract class BleDeviceController {
 
     public BleDeviceController(BleDevice device) {
         if(device == null) {
-            throw new IllegalStateException();
+            throw new IllegalArgumentException();
         }
 
         this.device = device;

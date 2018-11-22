@@ -13,7 +13,6 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.controller.EcgMonitorController;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
@@ -46,7 +45,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private List<Button> commentBtnList = new ArrayList<>();
     int[] commentBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
 
-    private EcgMonitorDevice device;        // 保存设备
+    private EcgMonitorDevice device;                // 保存设备模型
 
     public EcgMonitorFragment() {
 
@@ -58,6 +57,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         // 注册为设备观察者
         device = (EcgMonitorDevice)getDevice();
+        if(device == null)
+            throw new IllegalArgumentException();
         device.registerEcgMonitorObserver(this);
     }
 
@@ -88,7 +89,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    ((EcgMonitorController)getController()).addComment(device.getRecordSecond(), commentDescription);
+                    device.addComment(device.getRecordSecond(), commentDescription);
                 }
             });
             commentBtnList.add(button);
@@ -97,7 +98,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ibSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((EcgMonitorController)getController()).switchSampleState();
+                device.switchSampleState();
             }
         });
 
@@ -107,7 +108,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onClick(View view) {
                 boolean isRecord = !device.isRecord();
-                ((EcgMonitorController)getController()).setEcgRecord(isRecord);
+                device.setEcgRecord(isRecord);
 
                 for(Button button : commentBtnList) {
                     button.setEnabled(isRecord);
@@ -119,7 +120,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                ((EcgMonitorController)getController()).setEcgFilter(b);
+                device.setEcgFilter(b);
             }
         });
 
@@ -134,9 +135,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             device.removeEcgMonitorObserver();
 
             // 关闭时要保存数据，防止丢失数据
-            if (device.isRecord()) {
-                device.setEcgRecord(false);
-            }
+            device.stopEcgRecord();
         }
     }
 

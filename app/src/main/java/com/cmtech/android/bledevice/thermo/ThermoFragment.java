@@ -24,6 +24,7 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
     private TextView tvThermoStatus;
     private Button btnThermoResetHighestTemp;
 
+    private ThermoDevice device;
 
     public ThermoFragment() {
 
@@ -37,14 +38,17 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        ((ThermoDevice)getDevice()).registerThermoDataObserver(this);
+        device = (ThermoDevice)getDevice();
+        if(device == null)
+            throw new IllegalArgumentException();
+
+        device.registerThermoDataObserver(this);
     }
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         return inflater.inflate(R.layout.fragment_thermometer, container, false);
     }
 
@@ -69,13 +73,13 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
     public void onDestroy() {
         super.onDestroy();
 
-        if(getDevice() != null) {
-            ((ThermoDevice)getDevice()).removeThermoDataObserver(this);
+        if(device != null) {
+            device.removeThermoDataObserver(this);
         }
     }
 
     private synchronized void resetHighestTemp() {
-        ((ThermoController)getController()).resetHighestTemp();
+        device.resetHighestTemp();
     }
 
 
