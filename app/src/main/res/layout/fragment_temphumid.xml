@@ -125,7 +125,7 @@
             android:id = "@+id/rv_history_temphumid"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"/>
+            android:visibility="invisible"/>
 
         <com.cmtech.android.bledevice.waveview.ScanWaveView
             android:id="@+id/rwv_ecgview"

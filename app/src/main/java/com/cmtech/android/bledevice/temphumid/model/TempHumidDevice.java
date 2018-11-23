@@ -15,6 +15,7 @@ import org.litepal.LitePal;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -175,7 +176,7 @@ public class TempHumidDevice extends BleDevice {
             case MSG_TEMPHUMIDDATA:
                 if(msg.obj != null) {
                     curTempHumid = (TempHumidData) msg.obj;
-                    notifyObserverCurrentTempHumidDataChanged();
+                    updateCurrentData();
                 }
                 break;
 
@@ -190,18 +191,14 @@ public class TempHumidDevice extends BleDevice {
                 historyDataList.add(data);
                 saveDataToDb(data);
                 timeLastUpdated = (Calendar) data.getTime().clone();
-                notifyObserverHistoryTempHumidDataChanged();
+                addHistoryData(data);
+                ViseLog.e("update history data");
                 break;
 
                 default:
                     break;
 
         }
-    }
-
-    public void initialize() {
-        updateWaveView();
-        notifyObserverHistoryTempHumidDataChanged();
     }
 
     // 更新历史数据
@@ -330,6 +327,8 @@ public class TempHumidDevice extends BleDevice {
     private synchronized boolean processTimerServiceValue(byte[] data) {
         if(data.length != 4) return false;
 
+        ViseLog.e(Arrays.toString(data));
+
         timerServiceStarted = (data[3] == 1);
 
         if (timerServiceStarted) {
@@ -452,13 +451,13 @@ public class TempHumidDevice extends BleDevice {
     }
 
     // 通知连接状态观察者
-    private void notifyObserverCurrentTempHumidDataChanged() {
+    private void updateCurrentData() {
         for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
             if(observer != null) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        observer.updateCurrentTempHumidData();
+                        observer.updateCurrentData();
                     }
                 });
             }
@@ -466,26 +465,13 @@ public class TempHumidDevice extends BleDevice {
     }
 
     // 通知连接状态观察者
-    private void notifyObserverHistoryTempHumidDataChanged() {
+    private void addHistoryData(final TempHumidData data) {
         for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
             if(observer != null) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        observer.updateHistoryTempHumidData();
-                    }
-                });
-            }
-        }
-    }
-
-    private void updateWaveView() {
-        for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
-            if(observer != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        observer.updateWaveView(15, 2.0f, 15);
+                        observer.addHistoryData(data);
                     }
                 });
             }

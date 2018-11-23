@@ -2,6 +2,8 @@ package com.cmtech.android.bledevice.temphumid.activity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -95,9 +97,25 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
 
         waveView = view.findViewById(R.id.rwv_ecgview);
 
-        device.initialize();
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                updateWaveView(15, 2.0f, 15);
+                historyDataAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
+    private void updateWaveView(final int xRes, final float yRes, final int viewGridWidth) {
+        waveView.setRes(xRes, yRes);
+        waveView.setGridWidth(viewGridWidth);
+        waveView.setZeroLocation(0.5);
+        waveView.initView();
+
+        for(TempHumidData data : device.getHistoryDataList()) {
+            waveView.showData((int)((data.getTemp()-20)*100));
+        }
+    }
 
     @Override
     public void onDestroy() {
@@ -108,7 +126,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     }
 
     @Override
-    public void updateCurrentTempHumidData() {
+    public void updateCurrentData() {
         TempHumidData data = device.getCurTempHumid();
 
         tvHumidData.setText(String.valueOf(data.getHumid()));
@@ -120,19 +138,10 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     }
 
     @Override
-    public void updateHistoryTempHumidData() {
+    public void addHistoryData(TempHumidData data) {
         historyDataAdapter.notifyDataSetChanged();
 
-        for(TempHumidData data : device.getHistoryDataList()) {
-            waveView.showData((int)((data.getTemp()-20)*100));
-        }
+        waveView.showData((int)((data.getTemp()-20)*100));
     }
 
-    @Override
-    public void updateWaveView(final int xRes, final float yRes, final int viewGridWidth) {
-        waveView.setRes(xRes, yRes);
-        waveView.setGridWidth(viewGridWidth);
-        waveView.setZeroLocation(0.5);
-        waveView.initView();
-    }
 }
