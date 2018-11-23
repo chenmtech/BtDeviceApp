@@ -14,12 +14,15 @@ import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
+import java.util.Locale;
+
 
 /**
  * Created by bme on 2018/2/27.
  */
 
 public class ThermoFragment extends BleDeviceFragment implements IThermoDataObserver {
+    private static final String LESSTHAN34 = "< 34.0";
 
     private TextView tvThermoCurrentTemp;
     private TextView tvThermoHightestTemp;
@@ -30,10 +33,6 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
 
     public ThermoFragment() {
 
-    }
-
-    public static ThermoFragment newInstance() {
-        return new ThermoFragment();
     }
 
     @Override
@@ -90,35 +89,30 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
         final double curTemp = ((ThermoDevice)getDevice()).getCurTemp();
         final double highestTemp = ((ThermoDevice)getDevice()).getHighestTemp();
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(curTemp < 34.00) {
-                    tvThermoCurrentTemp.setText("<34.0");
-                }
-                else {
-                    String str = String.format("%.2f", curTemp);
-                    tvThermoCurrentTemp.setText(str);
-                }
+        if(curTemp < 34.00) {
+            tvThermoCurrentTemp.setText(LESSTHAN34);
+        }
+        else {
+            String str = String.format(Locale.getDefault(), "%.2f", curTemp);
+            tvThermoCurrentTemp.setText(str);
+        }
 
-                if(highestTemp < 34.00) {
-                    tvThermoHightestTemp.setText("<34.0");
-                }
-                else {
-                    String str = String.format("%.2f", highestTemp);
-                    tvThermoHightestTemp.setText(str);
-                }
+        if(highestTemp < 34.00) {
+            tvThermoHightestTemp.setText(LESSTHAN34);
+        }
+        else {
+            String str = String.format(Locale.getDefault(),"%.2f", highestTemp);
+            tvThermoHightestTemp.setText(str);
+        }
 
-                if(highestTemp < 37.0) {
-                    tvThermoStatus.setText("正常");
-                } else if(highestTemp < 38.0) {
-                    tvThermoStatus.setText("低烧，请注意休息！");
-                } else if(highestTemp < 38.5) {
-                    tvThermoStatus.setText("体温异常，请注意降温！");
-                } else {
-                    tvThermoStatus.setText("高烧，请及时就医！");
-                }
-            }
-        });
+        if(highestTemp < 37.0) {
+            tvThermoStatus.setText("正常");
+        } else if(highestTemp < 38.0) {
+            tvThermoStatus.setText("低烧，请注意休息！");
+        } else if(highestTemp < 38.5) {
+            tvThermoStatus.setText("体温异常，请注意降温！");
+        } else {
+            tvThermoStatus.setText("高烧，请及时就医！");
+        }
     }
 }

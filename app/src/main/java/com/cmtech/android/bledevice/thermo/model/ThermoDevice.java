@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.thermo.model;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -61,7 +63,7 @@ public class ThermoDevice extends BleDevice {
 
     public void resetHighestTemp() {
         highestTemp = curTemp;
-        notifyObserverThermoDataChanged();
+        updateThermoData();
     }
 
     public ThermoDevice(BleDeviceBasicInfo basicInfo) {
@@ -84,7 +86,6 @@ public class ThermoDevice extends BleDevice {
         addReadCommand(THERMODATA, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                //Log.d("THERMOPERIOD", "first write period: " + HexUtil.encodeHexStr(data));
                 sendGattMessage(MSG_THERMODATA, data);
             }
 
@@ -107,7 +108,6 @@ public class ThermoDevice extends BleDevice {
 
     }
 
-
     @Override
     public synchronized void processGattMessage(Message msg)
     {
@@ -121,7 +121,7 @@ public class ThermoDevice extends BleDevice {
                     setHighestTemp(temp);
                 }
 
-                notifyObserverThermoDataChanged();
+                updateThermoData();
             }
         }
     }
@@ -164,7 +164,6 @@ public class ThermoDevice extends BleDevice {
         // enable温度数据notify
         addNotifyCommand(THERMODATACCC, true, null, notifyCallback);
 
-
         // 启动温度采集
         addWriteCommand(THERMOCONTROL, (byte)0x03, null);
     }
@@ -185,10 +184,15 @@ public class ThermoDevice extends BleDevice {
     }
 
     // 通知体温数据观察者
-    public void notifyObserverThermoDataChanged() {
+    private void updateThermoData() {
         for(final IThermoDataObserver observer : thermoDataObserverList) {
             if(observer != null) {
-                observer.updateThermoData();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        observer.updateThermoData();
+                    }
+                });
             }
         }
     }
