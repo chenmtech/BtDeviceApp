@@ -27,6 +27,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         TextView createdTime;
         TextView commentator;
         TextView content;
+        ImageButton ibSecondWhenComment;
         ImageButton ibDeleteComment;
 
         private ViewHolder(View itemView) {
@@ -35,6 +36,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             createdTime = commentView.findViewById(R.id.tv_ecgreport_time);
             commentator = commentView.findViewById(R.id.tv_ecgreport_commentator);
             content = commentView.findViewById(R.id.tv_ecgreport_content);
+            ibSecondWhenComment = commentView.findViewById(R.id.ib_ecgcomment_locate);
             ibDeleteComment = commentView.findViewById(R.id.ib_ecgcomment_delete);
         }
     }
@@ -60,6 +62,14 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             }
         });
 
+        holder.ibSecondWhenComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(commentOperator != null)
+                    commentOperator.locateComment(commentList.get(holder.getAdapterPosition()));
+            }
+        });
+
         return holder;
     }
 
@@ -80,6 +90,11 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
         if(commentOperator != null) {
             holder.ibDeleteComment.setVisibility(View.VISIBLE);
+            if(comment.getSecondInEcg() != -1) {
+                holder.ibSecondWhenComment.setVisibility(View.VISIBLE);
+            } else {
+                holder.ibSecondWhenComment.setVisibility(View.GONE);
+            }
         }
     }
 

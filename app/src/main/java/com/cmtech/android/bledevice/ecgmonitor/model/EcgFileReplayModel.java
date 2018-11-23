@@ -25,28 +25,35 @@ public class EcgFileReplayModel {
     private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
     private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
 
+    private final int totalSecond;                   // 信号总的秒数
+    public int getTotalSecond() {
+        return totalSecond;
+    }
+
     private int currentSecond = -1;                 // 记录当前播放的Ecg的秒数
     public void setCurrentSecond(int currentSecond) {
         this.currentSecond = currentSecond;
     }
 
-    private int secondNeedAddToComment = -1;        // 需要加入留言中的秒数
+    private int secondWhenComment = -1;        // 留言时间
 
-    private boolean addSecondToComment = false;       // 是否在留言中加入时间定位
-
-    public boolean isAddSecondToComment() {
-        return addSecondToComment;
+    private boolean showSecondInComment = false;       // 是否在留言中加入时间定位
+    public boolean isShowSecondInComment() {
+        return showSecondInComment;
     }
-
-    public void setAddSecondToComment(boolean addSecondToComment) {
-        this.addSecondToComment = addSecondToComment;
-        if(addSecondToComment) {
-            secondNeedAddToComment = currentSecond;
+    public void setShowSecondInComment(boolean showSecondInComment) {
+        this.showSecondInComment = showSecondInComment;
+        if(showSecondInComment) {
+            secondWhenComment = currentSecond;
+        }
+        if(observer != null) {
+            observer.updateShowSecondInComment(showSecondInComment, secondWhenComment);
         }
     }
 
     public EcgFileReplayModel(String ecgFileName) throws FileException{
         ecgFile = EcgFile.openBmeFile(ecgFileName);
+        totalSecond = ecgFile.getDataNum()/ecgFile.getFs();
     }
 
     public EcgFile getEcgFile() {
@@ -64,8 +71,13 @@ public class EcgFileReplayModel {
 
     // 添加一个留言
     public void addComment(String comment) {
-        if(addSecondToComment)
-            addComment(secondNeedAddToComment, comment);
+        if(showSecondInComment) {
+            addComment(secondWhenComment, comment);
+            showSecondInComment = false;
+            if(observer != null) {
+                observer.updateShowSecondInComment(false, -1);
+            }
+        }
         else
             addComment(-1, comment);
     }

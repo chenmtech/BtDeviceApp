@@ -48,6 +48,17 @@
     </LinearLayout>
 
     <ImageButton
+        android:id="@+id/ib_ecgcomment_locate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="2dp"
+        android:src="@mipmap/ic_ecgreplay_secondwhencomment"
+        android:contentDescription="locate comment"
+        android:background="@color/primary"
+        android:visibility="gone"/>
+
+    <ImageButton
         android:id="@+id/ib_ecgcomment_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

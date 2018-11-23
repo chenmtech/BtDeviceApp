@@ -89,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:src="@mipmap/ic_ecgreplay_addsecondtocomment"
+            android:src="@mipmap/ic_ecgreplay_secondwhencomment"
             android:contentDescription="添加时间标签"
             android:background="@color/primary"/>
 
@@ -98,10 +98,16 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
+
             <TextView
+                android:id="@+id/tv_ecgreplay_secondwhencomment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="留言时间"/>
+                android:minHeight="0dp"
+                android:layout_gravity="center_horizontal"
+                android:text="第00:00:00秒"
+                android:textColor="#f00"
+                android:visibility="gone"/>
             <EditText
                 android:id="@+id/et_ecgreplay_comment"
                 android:layout_width="match_parent"

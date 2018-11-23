@@ -45,6 +45,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     private TextView tvTotalTime;
     private TextView tvCurrentTime;
+    private TextView tvSecondWhenComment;
 
     private SeekBar sbEcgReplay;
 
@@ -81,11 +82,10 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         tvCurrentTime = findViewById(R.id.tv_ecgreplay_currenttime);
 
         tvTotalTime = findViewById(R.id.tv_ecgreplay_totaltime);
-        int totalTime = replayModel.getEcgFile().getDataNum()/replayModel.getEcgFile().getFs();
-        tvTotalTime.setText(DateTimeUtil.secToTime(totalTime));
+        tvTotalTime.setText(DateTimeUtil.secToTime(replayModel.getTotalSecond()));
 
         sbEcgReplay = findViewById(R.id.sb_ecgreplay);
-        sbEcgReplay.setMax(totalTime);
+        sbEcgReplay.setMax(replayModel.getTotalSecond());
         sbEcgReplay.setEnabled(false);
         sbEcgReplay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -146,11 +146,13 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             }
         });
 
+        tvSecondWhenComment = findViewById(R.id.tv_ecgreplay_secondwhencomment);
+
         ibAddSecondToComment = findViewById(R.id.ib_ecgreplay_addsecondtocomment);
         ibAddSecondToComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                replayModel.setAddSecondToComment(!replayModel.isAddSecondToComment());
+                replayModel.setShowSecondInComment(!replayModel.isShowSecondInComment());
             }
         });
 
@@ -221,6 +223,16 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         ecgView.initView();
     }
 
+    @Override
+    public void updateShowSecondInComment(boolean show, int second) {
+        if(show) {
+            tvSecondWhenComment.setText("第" + DateTimeUtil.secToTime(second) + "秒");
+            tvSecondWhenComment.setVisibility(View.VISIBLE);
+        } else {
+            tvSecondWhenComment.setVisibility(View.GONE);
+        }
+    }
+
     /**
      * EcgFileReelWaveView.IEcgFileReelWaveViewObserver接口函数
      */
@@ -250,6 +262,17 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         if(ecgView.isReplaying())
             stopReplay();
         replayModel.deleteComment(comment);
-        //etComment.setText(comment.getContent());
+    }
+
+    @Override
+    public void locateComment(EcgComment comment) {
+        int second = comment.getSecondInEcg();
+        if(second < 0 || second > replayModel.getTotalSecond())
+            return;
+
+        if(ecgView.isReplaying())
+            stopReplay();
+
+        ecgView.showAtLocation((second-2 < 0) ? 0 : second-2);
     }
 }
