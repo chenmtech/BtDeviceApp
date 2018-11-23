@@ -273,6 +273,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         if(ecgView.isReplaying())
             stopReplay();
 
-        ecgView.showAtLocation((second-2 < 0) ? 0 : second-2);
+        // 特意提前一秒播放
+        ecgView.showAtLocation((second-1 < 0) ? 0 : second-1);
     }
 }
