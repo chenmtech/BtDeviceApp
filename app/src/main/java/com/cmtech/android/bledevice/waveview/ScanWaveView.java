@@ -36,8 +36,8 @@ public class ScanWaveView extends View {
     private static final int DEFAULT_GRID_COLOR = Color.RED;
     private static final int DEFAULT_WAVE_COLOR = Color.BLACK;
 
-    private int viewWidth;					//视图宽度
-    private int viewHeight;				    //视图高度
+    private int viewWidth = 100;					//视图宽度
+    private int viewHeight = 100;				    //视图高度
     private int initX, initY;			        //画图起始位置
     private int preX, preY;				    //画线的前一个点坐标
     private int curX, curY;				    //画线的当前点坐标
@@ -89,6 +89,8 @@ public class ScanWaveView extends View {
 
     private boolean showGridLine = true;
 
+    private boolean isFirstData = false;
+
     public ScanWaveView(Context context) {
         super(context);
 
@@ -134,6 +136,9 @@ public class ScanWaveView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         setMeasuredDimension(calculateMeasure(widthMeasureSpec), calculateMeasure(heightMeasureSpec));
+
+        viewWidth = getWidth();
+        viewHeight = getHeight();
     }
 
     @Override
@@ -168,9 +173,16 @@ public class ScanWaveView extends View {
         // 初始化画图起始位置
         preX = curX = initX;
         preY = curY = initY;
+
+        isFirstData = true;
     }
 
     public synchronized void showData(Integer data) {
+        if(isFirstData) {
+            preY = initY - Math.round(data/yRes);
+            isFirstData = false;
+            return;
+        }
         //viewData.offer(data);
         viewData = data;
 

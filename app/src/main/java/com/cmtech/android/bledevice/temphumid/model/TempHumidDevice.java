@@ -199,10 +199,15 @@ public class TempHumidDevice extends BleDevice {
         }
     }
 
+    public void initialize() {
+        updateWaveView();
+        notifyObserverHistoryTempHumidDataChanged();
+    }
+
     // 更新历史数据
     public synchronized void updateHistoryData() {
+
         if(!isConnected() || isUpdatingHistoryData) return;
-        ViseLog.i("正在更新历史数据");
 
         isUpdatingHistoryData = true;
 
@@ -274,10 +279,6 @@ public class TempHumidDevice extends BleDevice {
             }
             timeLastUpdated = this.historyDataList.get(this.historyDataList.size()-1).getTime();
         }
-
-        //ViseLog.i("historyDataList = " + historyDataList);
-        ViseLog.i("timeLastUpdated = " + timeLastUpdated);
-
     }
 
     // 检测基本温湿度服务是否正常
@@ -451,7 +452,7 @@ public class TempHumidDevice extends BleDevice {
     }
 
     // 通知连接状态观察者
-    public void notifyObserverCurrentTempHumidDataChanged() {
+    private void notifyObserverCurrentTempHumidDataChanged() {
         for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
             if(observer != null) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -465,13 +466,26 @@ public class TempHumidDevice extends BleDevice {
     }
 
     // 通知连接状态观察者
-    public void notifyObserverHistoryTempHumidDataChanged() {
+    private void notifyObserverHistoryTempHumidDataChanged() {
         for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
             if(observer != null) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
                         observer.updateHistoryTempHumidData();
+                    }
+                });
+            }
+        }
+    }
+
+    private void updateWaveView() {
+        for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
+            if(observer != null) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        observer.updateWaveView(15, 2.0f, 15);
                     }
                 });
             }

@@ -15,9 +15,13 @@ import com.cmtech.android.bledevice.temphumid.adapter.TempHumidHistoryDataAdapte
 import com.cmtech.android.bledevice.temphumid.model.ITempHumidDataObserver;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;
+import com.cmtech.android.bledevice.waveview.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
+import com.vise.log.ViseLog;
+
+import java.util.Locale;
 
 
 /**
@@ -33,14 +37,12 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     private RecyclerView rvHistoryData;
     private TempHumidHistoryDataAdapter historyDataAdapter;
 
+    private ScanWaveView waveView;
+
     private TempHumidDevice device;
 
     public TempHumidFragment() {
 
-    }
-
-    public static TempHumidFragment newInstance() {
-        return new TempHumidFragment();
     }
 
     @Override
@@ -71,7 +73,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
         LinearLayoutManager layoutManager = new LinearLayoutManager(MyApplication.getContext());
         rvHistoryData.setLayoutManager(layoutManager);
         rvHistoryData.addItemDecoration(new DividerItemDecoration(MyApplication.getContext(), DividerItemDecoration.VERTICAL));
-        historyDataAdapter = new TempHumidHistoryDataAdapter(((TempHumidDevice)getDevice()).getHistoryDataList());
+        historyDataAdapter = new TempHumidHistoryDataAdapter(device.getHistoryDataList());
         rvHistoryData.setAdapter(historyDataAdapter);
         rvHistoryData.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -90,7 +92,12 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
                 super.onScrolled(recyclerView, dx, dy);
             }
         });
+
+        waveView = view.findViewById(R.id.rwv_ecgview);
+
+        device.initialize();
     }
+
 
     @Override
     public void onDestroy() {
@@ -102,18 +109,30 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
 
     @Override
     public void updateCurrentTempHumidData() {
-        TempHumidData data = ((TempHumidDevice)getDevice()).getCurTempHumid();
+        TempHumidData data = device.getCurTempHumid();
 
         tvHumidData.setText(String.valueOf(data.getHumid()));
 
-        tvTempData.setText(String.format("%.1f", data.getTemp()));
+        tvTempData.setText(String.format(Locale.getDefault(), "%.1f", data.getTemp()));
 
         float heatindex = data.computeHeatIndex();
-        tvHeadIndex.setText(String.format("%.1f", heatindex));
+        tvHeadIndex.setText(String.format(Locale.getDefault(),"%.1f", heatindex));
     }
 
     @Override
     public void updateHistoryTempHumidData() {
         historyDataAdapter.notifyDataSetChanged();
+
+        for(TempHumidData data : device.getHistoryDataList()) {
+            waveView.showData((int)((data.getTemp()-20)*100));
+        }
+    }
+
+    @Override
+    public void updateWaveView(final int xRes, final float yRes, final int viewGridWidth) {
+        waveView.setRes(xRes, yRes);
+        waveView.setGridWidth(viewGridWidth);
+        waveView.setZeroLocation(0.5);
+        waveView.initView();
     }
 }
