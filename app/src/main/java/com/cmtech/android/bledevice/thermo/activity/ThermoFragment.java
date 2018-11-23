@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.thermo.model.IThermoDataObserver;
@@ -27,7 +27,7 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
     private TextView tvThermoCurrentTemp;
     private TextView tvThermoHightestTemp;
     private TextView tvThermoStatus;
-    private Button btnThermoResetHighestTemp;
+    private ImageButton ibThermoResetHighestTemp;
 
     private ThermoDevice device;
 
@@ -60,9 +60,9 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
         tvThermoCurrentTemp = view.findViewById(R.id.tv_thermo_currenttempvalue);
         tvThermoHightestTemp = view.findViewById(R.id.tv_thermo_highesttempvalue);
         tvThermoStatus = view.findViewById(R.id.tv_thermo_status);
-        btnThermoResetHighestTemp = view.findViewById(R.id.btn_thermo_resethighesttemp);
+        ibThermoResetHighestTemp = view.findViewById(R.id.ib_thermo_resethighesttemp);
 
-        btnThermoResetHighestTemp.setOnClickListener(new View.OnClickListener() {
+        ibThermoResetHighestTemp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 resetHighestTemp();
