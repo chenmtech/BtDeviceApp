@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -41,7 +42,6 @@ import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.model.DeviceFragmentPair;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.IBleDeviceActivity;
@@ -52,7 +52,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
@@ -68,9 +67,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     // 已登记的设备列表
     private final List<BleDevice> deviceList = new ArrayList<>();
-
-    // 已打开的设备和Fragment列表
-    private final List<DeviceFragmentPair> devFragList = new LinkedList<>();
 
     // 显示已登记设备列表的Adapter和RecyclerView
     private BleDeviceListAdapter deviceListAdapter;
@@ -371,21 +367,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     @Override
     public void closeDevice(BleDeviceFragment fragment) {
         if(fragment == null) return;
-        devFragList.remove(getDevFragPair(fragment));
         deleteFragment(fragment);
     }
 
-    // 从devFragList中寻找Fragment对应的项
-    @Override
-    public DeviceFragmentPair getDevFragPair(BleDeviceFragment fragment) {
-        for(DeviceFragmentPair pair : devFragList) {
-            if(pair.getFragment().equals(fragment)) {
-                return pair;
-            }
-        }
-        return null;
-    }
-    ////////////////////////////////////////////////////////////
 
 
     // 启动一个BLE设备：为设备创建控制器和Fragment，并自动连接
@@ -400,9 +384,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device);
             if(factory == null) return;
             fragment = factory.createFragment(device);
-
-            //DeviceFragmentPair devFragPair = new DeviceFragmentPair(device);
-            //devFragList.add(devFragPair);
 
             openFragment(fragment, device.getImagePath(), device.getNickName());
         }
@@ -578,20 +559,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     }
 
-    // 从devFragList中寻找Fragment对应的项目
-    private DeviceFragmentPair getDevFragPair(BleDevice device) {
-        for(DeviceFragmentPair pair : devFragList) {
-            if(device.equals(pair.getDevice())) {
-                return pair;
+    // 获取设备对应的Fragment
+    private BleDeviceFragment getFragment(BleDevice device) {
+        List<Fragment> fragmentList = fragAndTabManager.getFragmentList();
+        for(Fragment fragment : fragmentList) {
+            if(device.equals(((BleDeviceFragment)fragment).getDevice())) {
+                return (BleDeviceFragment)fragment;
             }
         }
         return null;
-    }
-
-    // 获取设备对应的Fragment
-    private BleDeviceFragment getFragment(BleDevice device) {
-        DeviceFragmentPair pair = getDevFragPair(device);
-        return (pair != null) ? pair.getFragment() : null;
     }
 
     // 打开Fragment：将Fragment加入Manager，并显示

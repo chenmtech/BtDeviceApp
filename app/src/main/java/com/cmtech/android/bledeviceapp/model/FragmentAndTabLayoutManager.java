@@ -149,6 +149,10 @@ public class FragmentAndTabLayoutManager {
             tab.select();
     }
 
+    public List<Fragment> getFragmentList() {
+        return fragManager.fragments;
+    }
+
     private static class InnerFragmentManager {
 
         private FragmentManager fragmentManager;
