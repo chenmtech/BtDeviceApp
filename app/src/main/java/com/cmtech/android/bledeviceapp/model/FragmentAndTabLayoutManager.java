@@ -134,7 +134,9 @@ public class FragmentAndTabLayoutManager {
 
         int index = fragManager.fragments.indexOf(fragment);
         fragManager.removeFragment(fragment);
-        tabLayout.removeTab(tabLayout.getTabAt(index));
+        TabLayout.Tab tab = tabLayout.getTabAt(index);
+        if(tab != null)
+            tabLayout.removeTab(tab);
     }
 
     // 显示Fragment
@@ -142,7 +144,9 @@ public class FragmentAndTabLayoutManager {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
         int index = fragManager.fragments.indexOf(fragment);
-        tabLayout.getTabAt(index).select();
+        TabLayout.Tab tab = tabLayout.getTabAt(index);
+        if(tab != null)
+            tab.select();
     }
 
     private static class InnerFragmentManager {
@@ -153,7 +157,7 @@ public class FragmentAndTabLayoutManager {
 
         private List<Fragment> fragments;
 
-        public InnerFragmentManager(FragmentManager fragmentManager, int containerId) {
+        InnerFragmentManager(FragmentManager fragmentManager, int containerId) {
             super();
 
             this.containerId = containerId;
@@ -165,7 +169,7 @@ public class FragmentAndTabLayoutManager {
 
         public int size() { return fragments.size(); }
 
-        public void addFragment(Fragment fragment, String tag) {
+        void addFragment(Fragment fragment, String tag) {
             if(fragment != null) {
                 fragments.add(fragment);
 
@@ -175,7 +179,7 @@ public class FragmentAndTabLayoutManager {
             }
         }
 
-        public void removeFragment(Fragment fragment) {
+        void removeFragment(Fragment fragment) {
             if (fragment != null) {
                 ViseLog.i("removeFragment " + fragment);
                 fragments.remove(fragment);
@@ -186,7 +190,7 @@ public class FragmentAndTabLayoutManager {
             }
         }
 
-        public void hideFragment(Fragment fragment) {
+        void hideFragment(Fragment fragment) {
             if (fragment != null) {
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.hide(fragment);
@@ -194,7 +198,7 @@ public class FragmentAndTabLayoutManager {
             }
         }
 
-        public void showFragment(Fragment fragment) {
+        void showFragment(Fragment fragment) {
             ViseLog.i("showFragment " + fragment);
             if (fragment != null) {
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -203,7 +207,7 @@ public class FragmentAndTabLayoutManager {
             }
         }
 
-        public Fragment getFragment(int pos) {
+        Fragment getFragment(int pos) {
             return (pos >= 0 && pos < fragments.size()) ? fragments.get(pos) : null;
         }
     }

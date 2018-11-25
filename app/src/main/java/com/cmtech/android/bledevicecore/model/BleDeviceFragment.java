@@ -16,8 +16,8 @@ public abstract class BleDeviceFragment extends Fragment{
     // IBleDeviceActivity，包含Fragment的Activity
     private IBleDeviceActivity activity;
 
-    // 对应的控制器
-    private DeviceFragmentPair controller;
+    // 对应的devFragPair
+    private DeviceFragmentPair devFragPair;
 
     // 对应的设备
     private BleDevice device;
@@ -47,15 +47,15 @@ public abstract class BleDeviceFragment extends Fragment{
         activity = (IBleDeviceActivity) context;
 
         // 获取controller
-        controller = activity.getDevFragPair(this);
+        devFragPair = activity.getDevFragPair(this);
 
         // 获取device
-        if(controller != null) {
-            device = controller.getDevice();
+        if(devFragPair != null) {
+            device = devFragPair.getDevice();
         }
 
         /// 这里有时候重启时会导致错误
-        if(device == null || controller == null) {
+        if(device == null || devFragPair == null) {
             //throw new IllegalStateException();
             activity.closeDevice(this);
         }
@@ -116,7 +116,7 @@ public abstract class BleDeviceFragment extends Fragment{
 
     /*// 断开设备
     public void disconnectDevice() {
-        controller.disconnectDevice();
+        devFragPair.disconnectDevice();
     }*/
 
     // 更新设备连接状态

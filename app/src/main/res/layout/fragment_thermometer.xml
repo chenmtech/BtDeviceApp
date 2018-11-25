@@ -51,17 +51,9 @@
         android:textColor="@color/accent"
         android:text="正常"/>
 
-    <ImageButton
-        android:id="@+id/ib_thermo_resethighesttemp"
-        android:layout_width="49dp"
-        android:layout_height="44dp"
-        android:layout_below="@id/layout_highesttemp"
-        android:layout_toEndOf="@id/tv_thermo_status"
-        android:background="@color/secondary"
-        android:src="@mipmap/ic_ecgexplorer_update"
-        android:contentDescription="update highest temp"/>
 
     <RelativeLayout
+        android:id="@+id/layout_realtimetemp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_thermo_status"
@@ -96,5 +88,14 @@
     </RelativeLayout>
 
 
+    <ImageButton
+        android:id="@+id/ib_thermo_resethighesttemp"
+        android:layout_width="49dp"
+        android:layout_height="44dp"
+        android:layout_below="@id/layout_realtimetemp"
+        android:layout_centerHorizontal="true"
+        android:background="@color/secondary"
+        android:src="@mipmap/ic_reset_highesttemp"
+        android:contentDescription="reset highest temp"/>
 
 </RelativeLayout>
