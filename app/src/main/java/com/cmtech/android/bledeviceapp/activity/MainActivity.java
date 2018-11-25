@@ -180,6 +180,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 更新导航视图
         updateNavigationViewUsingUserInfo();
 
+        // 初始化主界面
+        initMainLayout();
+
         // 更新主界面
         updateMainLayoutVisibility();
 
@@ -436,16 +439,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         startActivityForResult(intent, REQUESTCODE_MODIFYDEVICE);
     }
 
+    private void initMainLayout() {
+        // 设置欢迎词
+        String welcomeText = getResources().getString(R.string.welcome_text);
+        welcomeText = String.format(welcomeText, getResources().getString(R.string.app_name));
+        TextView tvWelcomeText = welcomeLayout.findViewById(R.id.tv_welcometext);
+        tvWelcomeText.setText(welcomeText);
+    }
+
     // 更新主Layout的可视性
     private void updateMainLayoutVisibility() {
         if(fragAndTabManager.size() == 0) {
-
-            // 设置欢迎词
-            String welcomeText = getResources().getString(R.string.welcome_text);
-            welcomeText = String.format(welcomeText, getResources().getString(R.string.app_name));
-            TextView tvWelcomeText = welcomeLayout.findViewById(R.id.tv_welcometext);
-            tvWelcomeText.setText(welcomeText);
-
             welcomeLayout.setVisibility(View.VISIBLE);
             mainLayout.setVisibility(View.INVISIBLE);
             setTitle(R.string.app_name);
@@ -454,7 +458,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         } else {
             welcomeLayout.setVisibility(View.INVISIBLE);
             mainLayout.setVisibility(View.VISIBLE);
-            setTitle("");
         }
     }
 
@@ -657,6 +660,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             drawable = ContextCompat.getDrawable(this, SupportedDeviceType.getDeviceTypeFromUuid(device.getUuidString()).getDefaultImage());
         }
         toolbar.setLogo(drawable);
+        toolbar.setLogoDescription(device.getNickName());
 
         // 更新工具条Title
         toolbar.setTitle(device.getNickName());
