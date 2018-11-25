@@ -18,10 +18,13 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
+import com.cmtech.android.bledevice.temphumid.activity.TempHumidFragment;
+import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledevice.waveview.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
 import java.util.ArrayList;
@@ -51,19 +54,18 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        // 注册为设备观察者
-        device = (EcgMonitorDevice)getDevice();
-        if(device == null)
-            throw new IllegalArgumentException();
-        device.registerEcgMonitorObserver(this);
+    public static BleDeviceFragment newInstance(BleDevice device) {
+        BleDeviceFragment fragment = new EcgMonitorFragment();
+        return BleDeviceFragment.addDeviceToFragment(fragment, device);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+
+        device = (EcgMonitorDevice) getDevice();
+
+        device.registerEcgMonitorObserver(this);
         return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
     }
 
