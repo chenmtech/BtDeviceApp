@@ -38,15 +38,19 @@ public class SupportedDeviceType {
     private static final String thermoFactory = "com.cmtech.android.bledevice.thermo.model.ThermoDeviceFactory";
     private static final String ecgMonitorFactory = "com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceFactory";
     private static final String tempHumidDeviceFactory = "com.cmtech.android.bledevice.temphumid.model.TempHumidDeviceFactory";
-    private static final String unknownDeviceFactory = "";
+    public  static final String unknownDeviceFactory = "";
 
-    // 支持的设备类型
+    // 支持的设备类型,目前支持三种设备
+    // 体温计
     public static final BleDeviceType DEVTYPE_THERMOMETER =
             new BleDeviceType(UUID_THERMOMETER, IMAGE_THERMOMETER, NAME_THERMOMETER, thermoFactory);
+    // 心电带
     public static final BleDeviceType DEVTYPE_ECGMONITOR =
             new BleDeviceType(UUID_ECGMONITOR, IMAGE_ECGMONITOR, NAME_ECGMONITOR, ecgMonitorFactory);
+    // 温湿度计
     public static final BleDeviceType DEVTYPE_TEMPHUMID =
             new BleDeviceType(UUID_TEMPHUMID, IMAGE_TEMPHUMID, NAME_TEMPHUMID, tempHumidDeviceFactory);
+    // 未知设备
     public static final BleDeviceType DEVTYPE_UNKNOWN =
             new BleDeviceType(UUID_UNKNOWN, IMAGE_UNKNOWN, NAME_UNKNOWN, unknownDeviceFactory);
 

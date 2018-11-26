@@ -39,8 +39,8 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
+import com.cmtech.android.bledevicecore.model.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.model.BleDevice;
-import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
@@ -378,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         return null;
     }
 
-    // 启动一个BLE设备：为设备创建控制器和Fragment，并自动连接
+    // 打开一个设备：为设备创建并打开Fragment
     public void openDevice(BleDevice device) {
         if(device == null) return;
 
@@ -387,9 +387,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             // 已经打开了，只要显示Fragment，并开始连接
             showFragment(fragment);
         } else {
-            BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device);
+            AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
             if(factory == null) return;
-            fragment = factory.createFragment(device);
+            fragment = factory.createFragment();
 
             openFragment(fragment, device.getImagePath(), device.getNickName());
         }
@@ -470,10 +470,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 根据设备基本信息创建一个新的设备，并添加到设备列表中
     private boolean createBleDeviceUsingBasicInfo(BleDeviceBasicInfo basicInfo) {
         // 获取相应的抽象工厂
-        BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(basicInfo);
+        AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(basicInfo);
         if(factory == null) return false;
         // 用工厂创建BleDevice
-        BleDevice device = factory.createBleDevice(basicInfo);
+        BleDevice device = factory.createBleDevice();
 
         if(device != null) {
             // 将设备添加到设备列表

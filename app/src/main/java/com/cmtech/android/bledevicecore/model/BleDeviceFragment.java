@@ -31,10 +31,10 @@ public abstract class BleDeviceFragment extends Fragment{
 
     }
 
-    // 将BleDevice添加到BleDeviceFragment中
-    public static BleDeviceFragment addDeviceToFragment(BleDeviceFragment fragment, BleDevice device) {
+    // 将设备的mac地址添加到Fragment中
+    public static BleDeviceFragment pushMacAddressIntoFragment(String macAddress, BleDeviceFragment fragment) {
         Bundle bundle = new Bundle();
-        bundle.putString("device_mac", device.getMacAddress());
+        bundle.putString("device_mac", macAddress);
         fragment.setArguments(bundle);
         return fragment;
     }

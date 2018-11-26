@@ -54,9 +54,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     }
 
-    public static BleDeviceFragment newInstance(BleDevice device) {
+    public static BleDeviceFragment newInstance(String macAddress) {
         BleDeviceFragment fragment = new EcgMonitorFragment();
-        return BleDeviceFragment.addDeviceToFragment(fragment, device);
+        return BleDeviceFragment.pushMacAddressIntoFragment(macAddress, fragment);
     }
 
     @Override

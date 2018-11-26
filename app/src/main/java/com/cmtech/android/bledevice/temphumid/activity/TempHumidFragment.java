@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.temphumid.activity;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -47,9 +46,9 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
 
     }
 
-    public static BleDeviceFragment newInstance(BleDevice device) {
+    public static BleDeviceFragment newInstance(String macAddress) {
         BleDeviceFragment fragment = new TempHumidFragment();
-        return BleDeviceFragment.addDeviceToFragment(fragment, device);
+        return BleDeviceFragment.pushMacAddressIntoFragment(macAddress, fragment);
     }
 
 

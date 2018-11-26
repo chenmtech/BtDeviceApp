@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.thermo.activity;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorFragment;
 import com.cmtech.android.bledevice.thermo.model.IThermoDataObserver;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
@@ -38,9 +36,9 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
 
     }
 
-    public static BleDeviceFragment newInstance(BleDevice device) {
+    public static BleDeviceFragment newInstance(String macAddress) {
         BleDeviceFragment fragment = new ThermoFragment();
-        return BleDeviceFragment.addDeviceToFragment(fragment, device);
+        return BleDeviceFragment.pushMacAddressIntoFragment(macAddress, fragment);
     }
 
     @Nullable

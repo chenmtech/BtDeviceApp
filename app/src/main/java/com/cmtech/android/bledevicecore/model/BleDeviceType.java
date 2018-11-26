@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevicecore.model;
 
+import com.cmtech.android.bledevice.SupportedDeviceType;
+
 /**
  * BleDeviceType：Ble设备类型
  * Created by bme on 2018/10/13.
@@ -7,9 +9,9 @@ package com.cmtech.android.bledevicecore.model;
 
 public class BleDeviceType {
     private String uuid;                  // 设备16位UUID字符串
-    private int defaultImage;           // 缺省图标
-    private String defaultNickname;     // 缺省设备名
-    private String factoryClassName;    // 设备工厂类名
+    private int defaultImage;             // 缺省图标
+    private String defaultNickname;       // 缺省设备名
+    private String factoryClassName;      // 设备工厂类名
 
     public BleDeviceType(String uuid, int defaultImage, String defaultNickname, String factoryClassName) {
         this.uuid = uuid;
@@ -31,12 +33,12 @@ public class BleDeviceType {
     }
 
     // 创建设备类型对应的抽象工厂
-    public BleDeviceAbstractFactory createDeviceFactory() {
-        if(factoryClassName == null || factoryClassName.equals("")) return null;
+    public AbstractBleDeviceFactory createDeviceFactory() {
+        if(factoryClassName == null || factoryClassName.equals(SupportedDeviceType.unknownDeviceFactory)) return null;
 
-        BleDeviceAbstractFactory factory;
+        AbstractBleDeviceFactory factory;
         try {
-            factory = (BleDeviceAbstractFactory) Class.forName(factoryClassName).newInstance();
+            factory = (AbstractBleDeviceFactory) Class.forName(factoryClassName).newInstance();
         } catch (Exception e) {
             factory = null;
         }
