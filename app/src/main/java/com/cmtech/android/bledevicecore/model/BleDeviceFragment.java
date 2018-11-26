@@ -11,15 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.vise.log.ViseLog;
-
 /**
  * Created by bme on 2018/2/27.
  */
 
 public abstract class BleDeviceFragment extends Fragment{
-    private static final String TAG = "BleDeviceFragment";
-
     // IBleDeviceFragmentContainer，包含Fragment的Activity
     private IBleDeviceFragmentContainer container;
 
@@ -44,16 +40,13 @@ public abstract class BleDeviceFragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViseLog.e(TAG + ":onCreateView");
-
         // 获取BleDevice信息
         Bundle bundle = getArguments();
-        //if(bundle == null) throw new IllegalStateException();
+        if(bundle == null) throw new IllegalStateException();
         device = (BleDevice)bundle.getSerializable("device");
-        //if(device == null) throw new IllegalArgumentException();
+        if(device == null) throw new IllegalArgumentException();
 
-        //return super.onCreateView(inflater, container, savedInstanceState);
-        return null;
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -93,15 +86,7 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     @Override
-    public void onDestroyView() {
-        ViseLog.e(TAG + ":onDestroyView");
-        super.onDestroyView();
-    }
-
-    @Override
     public void onDestroy() {
-        ViseLog.e(TAG + ":onDestroy");
-
         super.onDestroy();
 
         device.close();

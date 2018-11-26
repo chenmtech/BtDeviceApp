@@ -9,7 +9,6 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.HexUtil;
 import com.vise.log.ViseLog;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -18,7 +17,7 @@ import java.util.Queue;
  * Ble Gatt命令执行器
  */
 
-public class BleGattCommandExecutor implements Serializable{
+public class BleGattCommandExecutor {
     private final int CMD_ERROR_RETRY_TIMES = 3;      // Gatt命令执行错误可重复的次数
 
     // 指定的设备镜像
