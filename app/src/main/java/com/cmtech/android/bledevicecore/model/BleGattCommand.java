@@ -11,7 +11,7 @@ import java.io.Serializable;
  * Created by bme on 2018/3/1.
  */
 
-public class BleGattCommand implements Serializable{
+public class BleGattCommand{
     private final DeviceMirror deviceMirror;          // 执行命令的设备镜像
     private final BluetoothGattChannel channel;       // 执行命令的通道
     private final IBleCallback dataOpCallback;        // 数据操作回调

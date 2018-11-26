@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private static final String TAG = "MainActivity";
 
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
-    private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
-    private final static int REQUESTCODE_MODIFYUSERINFO = 3;
+    private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备基本信息返回码
+    private final static int REQUESTCODE_MODIFYUSERINFO = 3;     // 修改用户信息返回码
 
     // 已登记的设备列表
     private final List<BleDevice> deviceList = new ArrayList<>();
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 break;
 
 
-            // 修改设备信息返回
+            // 修改设备基本信息返回
             case REQUESTCODE_MODIFYDEVICE:
 
                 if ( resultCode == RESULT_OK) {
@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 updateDeviceListAdapter();
 
                 // 更新设备的Fragment
-                BleDeviceFragment deviceFrag = getFragment(device);
+                BleDeviceFragment deviceFrag = findOpenedFragment(device);
                 if(deviceFrag != null) deviceFrag.updateDeviceState(device);
 
                 // 更新Activity的ToolBar
@@ -382,16 +382,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     public void openDevice(BleDevice device) {
         if(device == null) return;
 
-        BleDeviceFragment fragment = getFragment(device);
-        if(fragment != null) {
-            // 已经打开了，只要显示Fragment，并开始连接
-            showFragment(fragment);
-        } else {
+        BleDeviceFragment fragment = findOpenedFragment(device);
+        if(fragment == null) {
+            // 如果没有打开，则创建Fragment并打开
             AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
-            if(factory == null) return;
-            fragment = factory.createFragment();
-
-            openFragment(fragment, device.getImagePath(), device.getNickName());
+            if(factory != null) {
+                fragment = factory.createFragment();
+                openFragment(fragment, device.getImagePath(), device.getNickName());
+            }
+        } else {
+            // 已经打开了，只要显示已打开的Fragment
+            showFragment(fragment);
         }
     }
 
@@ -564,8 +565,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         startActivityForResult(intent, REQUESTCODE_REGISTERDEVICE);
     }
 
-    // 获取设备对应的Fragment
-    private BleDeviceFragment getFragment(BleDevice device) {
+    // 在已打开的Fragment中寻找设备对应的Fragment
+    private BleDeviceFragment findOpenedFragment(BleDevice device) {
         List<Fragment> fragmentList = fragAndTabManager.getFragmentList();
         for(Fragment fragment : fragmentList) {
             if(device.equals(((BleDeviceFragment)fragment).getDevice())) {

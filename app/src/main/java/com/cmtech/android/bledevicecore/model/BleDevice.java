@@ -31,7 +31,7 @@ import java.util.List;
  * Created by bme on 2018/2/19.
  */
 
-public abstract class BleDevice implements Serializable{
+public abstract class BleDevice{
     // 获取设备基本信息
     private BleDeviceBasicInfo basicInfo;
     public BleDeviceBasicInfo getBasicInfo() {
