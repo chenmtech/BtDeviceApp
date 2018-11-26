@@ -44,7 +44,7 @@ import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.model.IBleDeviceFragmentContainer;
+import com.cmtech.android.bledevicecore.model.IBleDeviceFragmentActivity;
 import com.cmtech.android.bledevicecore.model.IBleDeviceStateObserver;
 import com.vise.log.ViseLog;
 
@@ -60,7 +60,7 @@ import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.D
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
-public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceFragmentContainer {
+public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceFragmentActivity {
     private static final String TAG = "MainActivity";
 
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
@@ -103,8 +103,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        ViseLog.e(TAG + ":onCreate");
 
         if(!UserAccountManager.getInstance().isSignIn()) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -370,7 +368,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         deleteFragment(fragment);
     }
 
-
+    @Override
+    public BleDevice getDeviceByMac(String mac) {
+        for(BleDevice device : deviceList) {
+            if(device.getMacAddress().equalsIgnoreCase(mac)) {
+                return device;
+            }
+        }
+        return null;
+    }
 
     // 启动一个BLE设备：为设备创建控制器和Fragment，并自动连接
     public void openDevice(BleDevice device) {
@@ -556,7 +562,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         intent.putExtra("registered_device_list", (Serializable) registeredDeviceMacList);
 
         startActivityForResult(intent, REQUESTCODE_REGISTERDEVICE);
-
     }
 
     // 获取设备对应的Fragment

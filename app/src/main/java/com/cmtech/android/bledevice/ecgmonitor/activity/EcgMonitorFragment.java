@@ -64,13 +64,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViseLog.e(TAG + ":onCreateView");
-
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (EcgMonitorDevice) getDevice();
-
         device.registerEcgMonitorObserver(this);
+
         return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
     }
 
@@ -135,8 +133,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void onDestroy() {
-        ViseLog.e(TAG + ":onDestroy");
-
         super.onDestroy();
 
         // 注销观察者

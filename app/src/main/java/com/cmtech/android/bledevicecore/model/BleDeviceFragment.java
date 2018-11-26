@@ -11,8 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.vise.log.ViseLog;
-
 /**
  * Created by bme on 2018/2/27.
  */
@@ -20,8 +18,8 @@ import com.vise.log.ViseLog;
 public abstract class BleDeviceFragment extends Fragment{
     private static final String TAG = "BleDeviceFragment";
 
-    // IBleDeviceFragmentContainer，包含Fragment的Activity
-    private IBleDeviceFragmentContainer container;
+    // IBleDeviceFragmentActivity，包含Fragment的Activity
+    private IBleDeviceFragmentActivity activity;
 
     // 对应的设备
     private BleDevice device;
@@ -36,7 +34,7 @@ public abstract class BleDeviceFragment extends Fragment{
     // 将BleDevice添加到BleDeviceFragment中
     public static BleDeviceFragment addDeviceToFragment(BleDeviceFragment fragment, BleDevice device) {
         Bundle bundle = new Bundle();
-        bundle.putSerializable("device", device);
+        bundle.putString("device_mac", device.getMacAddress());
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -44,15 +42,13 @@ public abstract class BleDeviceFragment extends Fragment{
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViseLog.e(TAG + ":onCreateView");
-
         // 获取BleDevice信息
         Bundle bundle = getArguments();
-        //if(bundle == null) throw new IllegalStateException();
-        device = (BleDevice)bundle.getSerializable("device");
-        //if(device == null) throw new IllegalArgumentException();
+        if(bundle == null) throw new IllegalStateException();
+        String deviceMac = bundle.getString("device_mac");
+        device = activity.getDeviceByMac(deviceMac);
+        if(device == null) throw new IllegalArgumentException();
 
-        //return super.onCreateView(inflater, container, savedInstanceState);
         return null;
     }
 
@@ -60,18 +56,12 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(!(context instanceof IBleDeviceFragmentContainer)) {
+        if(!(context instanceof IBleDeviceFragmentActivity)) {
             throw new IllegalArgumentException();
         }
 
-        // 获得container
-        container = (IBleDeviceFragmentContainer) context;
-
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        // 获得activity
+        activity = (IBleDeviceFragmentActivity) context;
 
     }
 
@@ -87,29 +77,10 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-    }
-
-    @Override
-    public void onDestroyView() {
-        ViseLog.e(TAG + ":onDestroyView");
-        super.onDestroyView();
-    }
-
-    @Override
     public void onDestroy() {
-        ViseLog.e(TAG + ":onDestroy");
-
         super.onDestroy();
 
         device.close();
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
     }
 
     // 打开设备
@@ -123,7 +94,7 @@ public abstract class BleDeviceFragment extends Fragment{
     // 这些动作需要调用activity.closeDevice才能完成
     // 关闭设备的动作会在销毁Fragment时触发onDestroy()，那里会调用controller.closeDevice()来关闭设备
     public void closeDevice() {
-        container.closeDevice(this);
+        activity.closeDevice(this);
     }
 
     // 切换设备状态，根据设备的当前状态实现状态切换
