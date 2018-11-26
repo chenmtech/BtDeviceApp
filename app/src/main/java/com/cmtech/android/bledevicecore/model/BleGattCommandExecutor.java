@@ -14,8 +14,9 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 /**
+ * BleGattCommandExecutor: Ble Gatt命令执行器
  * Created by bme on 2018/3/2.
- * Ble Gatt命令执行器
+ *
  */
 
 public class BleGattCommandExecutor implements Serializable{

@@ -5,8 +5,8 @@ import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratedState;
@@ -44,7 +44,7 @@ import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
 
 
 /**
- * EcgMonitorDevice: 心电监护仪设备类
+ * EcgMonitorDevice: 心电带设备类
  * Created by bme on 2018/9/20.
  */
 

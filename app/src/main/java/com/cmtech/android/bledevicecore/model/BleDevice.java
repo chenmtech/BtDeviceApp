@@ -10,11 +10,9 @@ import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
-import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceCloseState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceConnectedState;
 import com.cmtech.android.bledevicecore.devicestate.BleDeviceConnectingState;
@@ -24,12 +22,12 @@ import com.cmtech.android.bledevicecore.devicestate.BleDeviceScanState;
 import com.cmtech.android.bledevicecore.devicestate.IBleDeviceState;
 import com.vise.log.ViseLog;
 
-import java.io.File;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * BleDevice: 低功耗蓝牙设备类
  * Created by bme on 2018/2/19.
  */
 

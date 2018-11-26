@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -13,25 +12,23 @@ import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
-import com.cmtech.android.bledevice.temphumid.activity.TempHumidFragment;
-import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledevice.waveview.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * EcgMonitorFragment: 心电带设备Fragment
  * Created by bme on 2018/3/13.
  */
 
