@@ -399,10 +399,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         } else {
             BleDeviceAbstractFactory factory = BleDeviceAbstractFactory.getBLEDeviceFactory(device);
             if(factory == null) return;
+            fragment = factory.createFragment(device);
 
-            DeviceFragmentPair devFragPair = new DeviceFragmentPair(device);
-            devFragList.add(devFragPair);
-            openFragment(devFragPair.getFragment(), device.getImagePath(), device.getNickName());
+            //DeviceFragmentPair devFragPair = new DeviceFragmentPair(device);
+            //devFragList.add(devFragPair);
+
+            openFragment(fragment, device.getImagePath(), device.getNickName());
         }
     }
 

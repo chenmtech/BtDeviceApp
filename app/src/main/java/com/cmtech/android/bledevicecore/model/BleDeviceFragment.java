@@ -4,9 +4,12 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * Created by bme on 2018/2/27.
@@ -15,9 +18,6 @@ import android.view.View;
 public abstract class BleDeviceFragment extends Fragment{
     // IBleDeviceActivity，包含Fragment的Activity
     private IBleDeviceActivity activity;
-
-    // 对应的devFragPair
-    private DeviceFragmentPair devFragPair;
 
     // 对应的设备
     private BleDevice device;
@@ -29,10 +29,24 @@ public abstract class BleDeviceFragment extends Fragment{
 
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    // 将BleDevice添加到BleDeviceFragment中
+    public static BleDeviceFragment addDeviceToFragment(BleDeviceFragment fragment, BleDevice device) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("device", device);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
 
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        // 获取BleDevice信息
+        Bundle bundle = getArguments();
+        if(bundle == null) throw new IllegalStateException();
+        device = (BleDevice)bundle.getSerializable("device");
+        if(device == null) throw new IllegalArgumentException();
+
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     @Override
@@ -46,27 +60,12 @@ public abstract class BleDeviceFragment extends Fragment{
         // 获得Activity
         activity = (IBleDeviceActivity) context;
 
-        // 获取controller
-        devFragPair = activity.getDevFragPair(this);
-
-        // 获取device
-        if(devFragPair != null) {
-            device = devFragPair.getDevice();
-        }
-
-        /// 这里有时候重启时会导致错误
-        if(device == null || devFragPair == null) {
-            //throw new IllegalStateException();
-            activity.closeDevice(this);
-        }
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 打开设备
-        openDevice();
     }
 
     @Override
@@ -75,6 +74,9 @@ public abstract class BleDeviceFragment extends Fragment{
 
         // 更新连接状态
         updateDeviceState();
+
+        // 打开设备
+        openDevice();
     }
 
     @Override
@@ -113,11 +115,6 @@ public abstract class BleDeviceFragment extends Fragment{
     public void switchState() {
         device.switchState();
     }
-
-    /*// 断开设备
-    public void disconnectDevice() {
-        devFragPair.disconnectDevice();
-    }*/
 
     // 更新设备连接状态
     public void updateDeviceState(final BleDevice device) {

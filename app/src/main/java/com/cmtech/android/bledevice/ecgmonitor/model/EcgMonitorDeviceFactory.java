@@ -14,7 +14,7 @@ public class EcgMonitorDeviceFactory extends BleDeviceAbstractFactory {
     }
 
     @Override
-    public BleDeviceFragment createFragment() {
-        return new EcgMonitorFragment();
+    public BleDeviceFragment createFragment(BleDevice device) {
+        return EcgMonitorFragment.newInstance(device);
     }
 }
