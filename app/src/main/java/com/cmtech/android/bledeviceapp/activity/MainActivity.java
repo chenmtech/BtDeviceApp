@@ -44,7 +44,7 @@ import com.cmtech.android.bledevicecore.model.BleDeviceAbstractFactory;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.model.IBleDeviceFragmentContainer;
+import com.cmtech.android.bledevicecore.model.IBleDeviceActivity;
 import com.cmtech.android.bledevicecore.model.IBleDeviceStateObserver;
 import com.vise.log.ViseLog;
 
@@ -60,7 +60,7 @@ import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.D
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
-public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceFragmentContainer {
+public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceActivity {
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
     private final static int REQUESTCODE_MODIFYUSERINFO = 3;

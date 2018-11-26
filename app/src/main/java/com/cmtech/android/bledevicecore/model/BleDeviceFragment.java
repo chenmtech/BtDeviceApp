@@ -16,8 +16,8 @@ import android.view.ViewGroup;
  */
 
 public abstract class BleDeviceFragment extends Fragment{
-    // IBleDeviceFragmentContainer，包含Fragment的Activity
-    private IBleDeviceFragmentContainer container;
+    // IBleDeviceActivity，包含Fragment的Activity
+    private IBleDeviceActivity activity;
 
     // 对应的设备
     private BleDevice device;
@@ -53,12 +53,12 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(!(context instanceof IBleDeviceFragmentContainer)) {
-            throw new IllegalArgumentException();
+        if(!(context instanceof IBleDeviceActivity)) {
+            throw new IllegalStateException("context不是IBleDeviceActivity");
         }
 
-        // 获得container
-        container = (IBleDeviceFragmentContainer) context;
+        // 获得Activity
+        activity = (IBleDeviceActivity) context;
 
     }
 
@@ -108,7 +108,7 @@ public abstract class BleDeviceFragment extends Fragment{
     // 这些动作需要调用activity.closeDevice才能完成
     // 关闭设备的动作会在销毁Fragment时触发onDestroy()，那里会调用controller.closeDevice()来关闭设备
     public void closeDevice() {
-        container.closeDevice(this);
+        activity.closeDevice(this);
     }
 
     // 切换设备状态，根据设备的当前状态实现状态切换
