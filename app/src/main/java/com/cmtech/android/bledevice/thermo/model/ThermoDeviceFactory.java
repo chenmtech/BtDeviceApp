@@ -13,7 +13,7 @@ public class ThermoDeviceFactory extends BleDeviceAbstractFactory {
     }
 
     @Override
-    public BleDeviceFragment createFragment(BleDevice device) {
-        return ThermoFragment.newInstance(device);
+    public BleDeviceFragment createFragment() {
+        return new ThermoFragment();
     }
 }

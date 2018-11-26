@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.thermo.activity;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,11 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorFragment;
 import com.cmtech.android.bledevice.thermo.model.IThermoDataObserver;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
 import java.util.Locale;
@@ -38,20 +35,21 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
 
     }
 
-    public static BleDeviceFragment newInstance(BleDevice device) {
-        BleDeviceFragment fragment = new ThermoFragment();
-        return BleDeviceFragment.addDeviceToFragment(fragment, device);
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        device = (ThermoDevice)getDevice();
+        if(device == null)
+            throw new IllegalArgumentException();
+
+        device.registerThermoDataObserver(this);
     }
+
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-
-        device = (ThermoDevice)getDevice();
-
-        device.registerThermoDataObserver(this);
-
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_thermometer, container, false);
     }
 

@@ -27,6 +27,6 @@ public class DeviceFragmentPair {
 
     // 为设备创建相应的Fragment
     private BleDeviceFragment createFragment(BleDevice device) {
-        return BleDeviceAbstractFactory.getBLEDeviceFactory(device).createFragment(device);
+        return BleDeviceAbstractFactory.getBLEDeviceFactory(device).createFragment();
     }
 }

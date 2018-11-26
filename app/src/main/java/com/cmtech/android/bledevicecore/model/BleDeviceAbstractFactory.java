@@ -29,5 +29,5 @@ public abstract class BleDeviceAbstractFactory {
     // 创建控制器
     //public abstract DeviceFragmentPair createController(BleDevice device);
     // 创建Fragment
-    public abstract BleDeviceFragment createFragment(BleDevice device);
+    public abstract BleDeviceFragment createFragment();
 }

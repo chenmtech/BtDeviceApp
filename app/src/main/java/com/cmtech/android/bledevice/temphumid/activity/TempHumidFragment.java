@@ -20,8 +20,8 @@ import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;
 import com.cmtech.android.bledevice.waveview.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
+import com.vise.log.ViseLog;
 
 import java.util.Locale;
 
@@ -47,21 +47,19 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
 
     }
 
-    public static BleDeviceFragment newInstance(BleDevice device) {
-        BleDeviceFragment fragment = new TempHumidFragment();
-        return BleDeviceFragment.addDeviceToFragment(fragment, device);
-    }
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
+        device = (TempHumidDevice)getDevice();
+        if(device == null)
+            throw new IllegalArgumentException();
+        device.registerTempHumidDataObserver(this);
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
-
-        device = (TempHumidDevice) getDevice();
-
-        device.registerTempHumidDataObserver(this);
-
         return inflater.inflate(R.layout.fragment_temphumid, container, false);
     }
 
