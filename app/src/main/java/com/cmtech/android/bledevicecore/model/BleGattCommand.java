@@ -5,11 +5,13 @@ import com.cmtech.android.ble.common.PropertyType;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.core.DeviceMirror;
 
+import java.io.Serializable;
+
 /**
  * Created by bme on 2018/3/1.
  */
 
-public class BleGattCommand {
+public class BleGattCommand implements Serializable{
     private final DeviceMirror deviceMirror;          // 执行命令的设备镜像
     private final BluetoothGattChannel channel;       // 执行命令的通道
     private final IBleCallback dataOpCallback;        // 数据操作回调

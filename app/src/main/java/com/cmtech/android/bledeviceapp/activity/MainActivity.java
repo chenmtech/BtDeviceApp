@@ -61,6 +61,8 @@ import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.D
  *  Created by bme on 2018/2/19.
  */
 public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceFragmentContainer {
+    private static final String TAG = "MainActivity";
+
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备返回码
     private final static int REQUESTCODE_MODIFYUSERINFO = 3;
@@ -101,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ViseLog.e(TAG + ":onCreate");
 
         if(!UserAccountManager.getInstance().isSignIn()) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -306,6 +310,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     @Override
     protected void onDestroy() {
+        ViseLog.e(TAG + ":onDestroy");
+
         super.onDestroy();
 
         for(BleDevice device : deviceList) {
@@ -326,12 +332,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     @Override
     public void onBackPressed() {
-        // 如果drawerLayout打开，则关闭drawerLayout；如果是关闭，则打开
-        /*if(drawerLayout.isDrawerOpen(GravityCompat.START))
-            openDrawer(false);
-        else
-            finish();*/
-
         openDrawer(!drawerLayout.isDrawerOpen(GravityCompat.START));
     }
 

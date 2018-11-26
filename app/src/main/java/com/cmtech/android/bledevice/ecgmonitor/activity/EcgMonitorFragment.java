@@ -26,6 +26,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,8 @@ import java.util.List;
  */
 
 public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitorObserver {
+    private static final String TAG = "EcgMonitorFragment";
+
     private TextView tvEcgSampleRate;
     private TextView tvEcgLeadType;
     private TextView tvEcg1mV;
@@ -61,6 +64,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        ViseLog.e(TAG + ":onCreateView");
+
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (EcgMonitorDevice) getDevice();
@@ -130,6 +135,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void onDestroy() {
+        ViseLog.e(TAG + ":onDestroy");
+
         super.onDestroy();
 
         // 注销观察者
