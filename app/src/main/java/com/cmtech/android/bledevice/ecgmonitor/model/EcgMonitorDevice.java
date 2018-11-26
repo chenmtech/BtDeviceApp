@@ -520,101 +520,92 @@ public class EcgMonitorDevice extends BleDevice {
 
 
     private void updateEcgMonitorState() {
-        if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
                     observer.updateState(state);
-                }
-            });
-        }
+            }
+        });
     }
 
     private void updateSampleRate(final int sampleRate) {
-        if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
                     observer.updateSampleRate(sampleRate);
-                }
-            });
-        }
+            }
+        });
     }
 
     private void updateLeadType(final EcgLeadType leadType) {
-        if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
                     observer.updateLeadType(leadType);
-                }
-            });
-        }
+            }
+        });
     }
 
     private void updateCalibrationValue(final int calibrationValue) {
-        if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
                     observer.updateCalibrationValue(calibrationValue);
-                }
-            });
-        }
+            }
+        });
     }
 
     private void updateRecordStatus(final boolean isRecord) {
-        if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
                     observer.updateRecordStatus(isRecord);
-                }
-            });
-        }
+            }
+        });
     }
 
     private void updateEcgView(final int xRes, final float yRes, final int viewGridWidth) {
-        if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
                     observer.updateEcgView(xRes, yRes, viewGridWidth);
-                }
-            });
-        }
+            }
+        });
     }
 
     private void updateEcgSignal(final int ecgSignal) {
-        if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
                     observer.updateEcgSignal(ecgSignal);
-                }
-            });
-        }
+            }
+        });
     }
 
     private void updateRecordSecond(final int second) {
-        if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
                     observer.updateRecordSecond(second);
-                }
-            });
-        }
+            }
+        });
     }
 
     private void updateEcgHr(final int hr) {
-        if(observer != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
                     observer.updateEcgHr(hr);
-                }
-            });
-        }
+            }
+        });
     }
 }

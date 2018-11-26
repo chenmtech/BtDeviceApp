@@ -453,28 +453,26 @@ public class TempHumidDevice extends BleDevice {
     // 通知连接状态观察者
     private void updateCurrentData() {
         for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
-            if(observer != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if(observer != null)
                         observer.updateCurrentData();
-                    }
-                });
-            }
+                }
+            });
         }
     }
 
     // 通知连接状态观察者
     private void addHistoryData(final TempHumidData data) {
         for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
-            if(observer != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if(observer != null)
                         observer.addHistoryData(data);
-                    }
-                });
-            }
+                }
+            });
         }
     }
 }

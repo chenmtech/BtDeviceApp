@@ -186,14 +186,13 @@ public class ThermoDevice extends BleDevice {
     // 通知体温数据观察者
     private void updateThermoData() {
         for(final IThermoDataObserver observer : thermoDataObserverList) {
-            if(observer != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if(observer != null)
                         observer.updateThermoData();
-                    }
-                });
-            }
+                }
+            });
         }
     }
 
