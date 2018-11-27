@@ -50,15 +50,15 @@ public class EcgFileExplorerModel {
     private IEcgFileExplorerObserver observer;
 
 
-    public EcgFileExplorerModel(File fileDir) throws IllegalArgumentException{
-        this.fileDir = fileDir;
-
-        if(!fileDir.exists()) {
-            fileDir.mkdir();
+    public EcgFileExplorerModel(File fileDir) throws IllegalArgumentException, IOException{
+        if(fileDir == null || !fileDir.isDirectory()) {
+            throw new IllegalArgumentException();
         }
 
-        if(!fileDir.isDirectory() || !fileDir.exists()) {
-            throw new IllegalArgumentException();
+        this.fileDir = fileDir;
+
+        if(!fileDir.exists() && !fileDir.mkdir()) {
+            throw new IOException("磁盘空间不足");
         }
 
         initFileList();

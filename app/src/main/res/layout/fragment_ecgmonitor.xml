@@ -74,36 +74,20 @@
             cmtech:wave_color="#ff0"
             cmtech:show_gridline="true"/>
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tv_ecg_hr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <ImageView
-                android:id="@+id/iv_ecg_heart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start|center_vertical"
-                android:layout_marginStart="5sp"
-                android:src="@mipmap/ic_ecg_heart"
-                android:contentDescription="heart"/>
-            <TextView
-                android:id="@+id/tv_ecg_hr"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="2sp"
-                android:text="0"
-                android:textSize="40sp"
-                android:textColor="@color/primary"/>
-
-        </LinearLayout>
-
-
+            android:layout_gravity="start|top"
+            android:layout_marginStart="5sp"
+            android:drawableStart="@mipmap/ic_ecg_heart"
+            android:text="0"
+            android:textSize="40sp"
+            android:textColor="@color/primary"/>
     </FrameLayout>
 
 
-
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -112,6 +96,7 @@
             android:id="@+id/ecg_henxiang"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="2dp"
             android:textSize="12sp"
             android:textColor="@color/primary_text"
             android:text="横向:25格/秒"/>
@@ -119,22 +104,24 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ecg_henxiang"
             android:textSize="12sp"
             android:textColor="@color/primary_text"
-            android:text="|纵向:10格/1mV"/>
+            android:text="纵向:10格/1mV"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
             android:textSize="12sp"
             android:textColor="@color/primary_text"
-            android:text="|滤波:<0.5Hz基线|50Hz工频|35Hz肌电>"/>
-    </LinearLayout>
+            android:text="滤波:0.5Hz基线|50Hz工频|35Hz肌电"/>
+    </RelativeLayout>
 
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:background="@color/primary_dark"
         android:baselineAligned="false">
 

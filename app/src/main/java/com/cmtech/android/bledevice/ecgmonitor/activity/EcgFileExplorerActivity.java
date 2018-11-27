@@ -16,6 +16,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileExplorerObserver;
 import com.cmtech.android.bledeviceapp.R;
 
+import java.io.IOException;
+
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 
 
@@ -50,6 +52,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             if(ECGFILEDIR != null)
                 model = new EcgFileExplorerModel(ECGFILEDIR);
         } catch (IllegalArgumentException e) {
+            finish();
+        } catch (IOException e) {
+            e.printStackTrace();
             finish();
         }
         model.registerEcgFileExplorerObserver(this);

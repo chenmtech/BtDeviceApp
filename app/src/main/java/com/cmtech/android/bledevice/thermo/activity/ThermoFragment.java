@@ -23,7 +23,7 @@ import java.util.Locale;
  */
 
 public class ThermoFragment extends BleDeviceFragment implements IThermoDataObserver {
-    private static final String LESSTHAN34 = "< 34.0";
+    private static final String LESSTHAN34 = "低于34.0";
 
     private TextView tvThermoCurrentTemp;
     private TextView tvThermoHightestTemp;
