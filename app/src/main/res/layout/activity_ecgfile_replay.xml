@@ -15,7 +15,33 @@
         cmtech:wave_color="#ff0"
         cmtech:show_gridline="true"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/primary_dark">
+        <TextView
+            android:id="@+id/ecg_henxiang"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/primary_text"
+            android:text="横向:25格/秒"/>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/primary_text"
+            android:text="|纵向:10格/1mV"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/primary_text"
+            android:text="|滤波:<0.5Hz基线|50Hz工频|35Hz肌电>"/>
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
