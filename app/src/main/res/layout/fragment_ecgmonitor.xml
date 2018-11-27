@@ -122,7 +122,7 @@
             android:layout_toEndOf="@id/ecg_henxiang"
             android:textSize="12sp"
             android:textColor="@color/primary_text"
-            android:text=" 纵向：0.1mV/格"/>
+            android:text=" 纵向：10格/1mV"/>
     </RelativeLayout>
 
     <LinearLayout

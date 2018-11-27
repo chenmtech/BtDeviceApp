@@ -119,7 +119,8 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     private IIRFilter dcBlock = null;                               // 隔直滤波器
-    private IIRFilter notch = null;                                 // 50Hz陷波器
+    private IIRFilter notch50Hz = null;                             // 50Hz工频干扰陷波器
+    private IIRFilter notch35Hz = null;                             // 35Hz肌电干扰陷波器
     private QrsDetector qrsDetector = null;                         // QRS波检测器
 
     // 用于设置EcgWaveView的参数
@@ -348,12 +349,15 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 初始化滤波器
     private void initializeFilter() {
-        // 准备隔直滤波器
-        dcBlock = DCBlockDesigner.design(0.06, sampleRate);                   // 设计隔直滤波器
+        // 准备0.5Hz基线漂移滤波器
+        dcBlock = DCBlockDesigner.design(0.5, sampleRate);                   // 设计隔直滤波器
         dcBlock.createStructure(StructType.IIR_DCBLOCK);                            // 创建隔直滤波器专用结构
-        // 准备陷波器
-        notch = NotchDesigner.design(50, 0.5, sampleRate);               // 设计陷波器
-        notch.createStructure(StructType.IIR_NOTCH);                                // 创建陷波器专用结构
+        // 准备50Hz陷波器
+        notch50Hz = NotchDesigner.design(50, 0.5, sampleRate);           // 设计陷波器
+        notch50Hz.createStructure(StructType.IIR_NOTCH);                            // 创建陷波器专用结构
+        // 准备35Hz陷波器
+        notch35Hz = NotchDesigner.design(35, 0.5, sampleRate);           // 设计陷波器
+        notch35Hz.createStructure(StructType.IIR_NOTCH);                            // 创建陷波器专用结构
     }
 
     // 初始化QRS波检测器
@@ -365,7 +369,7 @@ public class EcgMonitorDevice extends BleDevice {
     // 处理Ecg信号
     public void processEcgSignal(int ecgSignal) {
         if(isEcgFilter)
-            ecgSignal = (int)notch.filter(dcBlock.filter(ecgSignal));
+            ecgSignal = (int) notch35Hz.filter(notch50Hz.filter(dcBlock.filter(ecgSignal)));
 
         if(isRecord) {
             try {
