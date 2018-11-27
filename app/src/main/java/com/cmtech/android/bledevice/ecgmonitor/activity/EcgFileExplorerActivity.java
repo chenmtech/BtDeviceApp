@@ -1,7 +1,9 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -128,7 +130,24 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     public void deleteSelectedFile() {
-        model.deleteSelectedFile();
+        if(model.getSelectIndex() >= 0 && model.getSelectIndex() < model.getFileList().size()) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("删除Ecg信号");
+            builder.setMessage("确定删除该Ecg信号吗？");
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    model.deleteSelectedFile();
+                }
+            });
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            });
+            builder.show();
+        }
     }
 
     public void shareSelectFileThroughWechat() {
