@@ -8,23 +8,29 @@ import com.cmtech.android.bledevice.waveview.ReelWaveView;
 import com.cmtech.bmefile.exception.FileException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 public class EcgFileReelWaveView extends ReelWaveView {
-    private EcgFile ecgFile;
+    private static final int MIN_SHOW_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
+
+    private EcgFile ecgFile;            // 要播放显示的Ecg文件
 
     private boolean replaying = false;
-
-    private int num = 0;
-
     public boolean isReplaying() {
         return replaying;
     }
 
-    private int interval = 20;
+    private int num = 0;                // 当前读取的文件中的第几个数据
+
+    private int interval = 0;                       // 每次更新显示的时间间隔，为采样间隔的整数倍
+
+    private int dataNumReadEachShow = 1;                            // 每次更新显示时需要读取的数据个数
+    private final List<Integer> cacheData = new ArrayList<>();      // 每次更新显示时需要读取的数据缓存
 
     private class ShowTask extends TimerTask {
         @Override
@@ -33,11 +39,17 @@ public class EcgFileReelWaveView extends ReelWaveView {
                 @Override
                 public void run() {
                     try {
-                        if(ecgFile.isEof())
+                        if(ecgFile.isEof()) {
                             stopShow();
-                        showData(ecgFile.readInt());
+                        }
+                        for(int i = 0; i < dataNumReadEachShow; i++, num++) {
+                            cacheData.add(ecgFile.readInt());
+                            if(ecgFile.isEof()) break;
+                        }
+                        showData(cacheData);
+                        cacheData.clear();
                         if(observer != null)
-                            observer.updateCurrentTime(++num/ecgFile.getFs());
+                            observer.updateCurrentTime(num/ecgFile.getFs());
                     } catch (FileException e) {
                         stopShow();
                     } catch (IOException e) {
@@ -70,7 +82,9 @@ public class EcgFileReelWaveView extends ReelWaveView {
     public void setEcgFile(EcgFile ecgFile) {
         stopShow();
         this.ecgFile = ecgFile;
-        interval = 1000/ecgFile.getFs();
+        int sampleInterval = 1000/ecgFile.getFs();
+        dataNumReadEachShow = (int)(Math.ceil((double) MIN_SHOW_INTERVAL /sampleInterval));
+        interval = dataNumReadEachShow *sampleInterval;
         ecgFile.seekData(0);
     }
 
@@ -89,7 +103,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
             showTimer.scheduleAtFixedRate(new ShowTask(), interval, interval);
             replaying = true;
             if(observer != null) {
-                observer.updateShowState(replaying);
+                observer.updateShowState(true);
             }
         }
     }
@@ -100,7 +114,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
             showTimer = null;
             replaying = false;
             if(observer != null) {
-                observer.updateShowState(replaying);
+                observer.updateShowState(false);
             }
         }
     }

@@ -20,6 +20,7 @@ import android.view.View;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -188,6 +189,14 @@ public class ReelWaveView extends View {
 
     public synchronized void showData(Integer data) {
         viewData.add(data);
+
+        drawDataOnForeCanvas();
+
+        invalidate();
+    }
+
+    public synchronized void showData(List<Integer> data) {
+        viewData.addAll(data);
 
         drawDataOnForeCanvas();
 
