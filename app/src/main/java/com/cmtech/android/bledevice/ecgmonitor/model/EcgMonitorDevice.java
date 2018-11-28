@@ -9,6 +9,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.EcgFilterWith35HzNotch;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.IEcgFilter;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratedState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratingState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorInitialState;
@@ -23,10 +25,6 @@ import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.exception.FileException;
-import com.cmtech.dsp.filter.IIRFilter;
-import com.cmtech.dsp.filter.design.DCBlockDesigner;
-import com.cmtech.dsp.filter.design.NotchDesigner;
-import com.cmtech.dsp.filter.structure.StructType;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -106,8 +104,8 @@ public class EcgMonitorDevice extends BleDevice {
 
     private boolean isRecord = false;                               // 是否记录信号
     public boolean isRecord() {return isRecord;}
-    private boolean isEcgFilter = true;                             // 是否对信号滤波
-    public boolean isEcgFilter() {return isEcgFilter;}
+    private boolean isFilter = true;                             // 是否对信号滤波
+    public boolean isFilter() {return isFilter;}
 
     private EcgFile ecgFile = null;                                 // 用于保存心电信号的EcgFile文件对象
     private List<EcgComment> commentList = new ArrayList<>();   // 当前信号的留言列表
@@ -118,9 +116,11 @@ public class EcgMonitorDevice extends BleDevice {
         return (int)(recordDataNum/sampleRate);
     }
 
-    private IIRFilter dcBlock = null;                               // 隔直滤波器
-    private IIRFilter notch50Hz = null;                             // 50Hz工频干扰陷波器
-    private IIRFilter notch35Hz = null;                             // 35Hz肌电干扰陷波器
+    private IEcgFilter ecgFilter = null;                            // Ecg信号滤波器
+    public void setFilter(IEcgFilter filter) {
+        this.ecgFilter = filter;
+    }
+
     private QrsDetector qrsDetector = null;                         // QRS波检测器
 
     // 用于设置EcgWaveView的参数
@@ -157,10 +157,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
-        initializeAfterConstruction();
-    }
-
-    private void initializeAfterConstruction() {
+        ecgFilter = new EcgFilterWith35HzNotch();
     }
 
     @Override
@@ -292,8 +289,9 @@ public class EcgMonitorDevice extends BleDevice {
         setEcgRecord(false);
     }
 
-    public synchronized void setEcgFilter(boolean isEcgFilter) {
-        this.isEcgFilter = isEcgFilter;
+    // 加载Ecg滤波器
+    public synchronized void hookEcgFilter(boolean isFilter) {
+        this.isFilter = isFilter;
     }
 
     // 触发当前状态的转换
@@ -349,15 +347,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 初始化滤波器
     private void initializeFilter() {
-        // 准备0.5Hz基线漂移滤波器
-        dcBlock = DCBlockDesigner.design(0.5, sampleRate);                   // 设计隔直滤波器
-        dcBlock.createStructure(StructType.IIR_DCBLOCK);                            // 创建隔直滤波器专用结构
-        // 准备50Hz陷波器
-        notch50Hz = NotchDesigner.design(50, 0.5, sampleRate);           // 设计陷波器
-        notch50Hz.createStructure(StructType.IIR_NOTCH);                            // 创建陷波器专用结构
-        // 准备35Hz陷波器
-        notch35Hz = NotchDesigner.design(35, 0.5, sampleRate);           // 设计陷波器
-        notch35Hz.createStructure(StructType.IIR_NOTCH);                            // 创建陷波器专用结构
+        ecgFilter.init(sampleRate);
     }
 
     // 初始化QRS波检测器
@@ -368,8 +358,8 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 处理Ecg信号
     public void processEcgSignal(int ecgSignal) {
-        if(isEcgFilter)
-            ecgSignal = (int) notch35Hz.filter(notch50Hz.filter(dcBlock.filter(ecgSignal)));
+        if(isFilter)
+            ecgSignal = (int) ecgFilter.filter(ecgSignal);
 
         if(isRecord) {
             try {
@@ -420,8 +410,6 @@ public class EcgMonitorDevice extends BleDevice {
             }
         });
     }
-
-
 
     // 启动1mV信号采集
     public void startSample1mV() {

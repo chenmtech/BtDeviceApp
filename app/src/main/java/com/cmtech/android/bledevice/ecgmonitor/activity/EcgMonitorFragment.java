@@ -21,7 +21,6 @@ import com.cmtech.android.bledevice.waveview.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
 import java.util.ArrayList;
@@ -118,11 +117,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        cbEcgFilter.setChecked(device.isEcgFilter());
+        cbEcgFilter.setChecked(device.isFilter());
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                device.setEcgFilter(b);
+                device.hookEcgFilter(b);
             }
         });
 
