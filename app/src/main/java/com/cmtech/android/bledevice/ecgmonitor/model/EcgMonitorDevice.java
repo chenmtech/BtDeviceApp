@@ -11,6 +11,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.EcgFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.IEcgFilter;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgHrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratedState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratingState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorInitialState;
@@ -25,7 +27,6 @@ import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.exception.FileException;
-import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -116,17 +117,12 @@ public class EcgMonitorDevice extends BleDevice {
         return (int)(recordDataNum/sampleRate);
     }
 
-    private IEcgFilter ecgFilter = null;                            // Ecg信号滤波器
+    private IEcgFilter ecgFilter;                            // Ecg信号滤波器
     public void setFilter(IEcgFilter filter) {
         this.ecgFilter = filter;
     }
 
-    private QrsDetector qrsDetector = null;                         // QRS波检测器
-
-    // 用于设置EcgWaveView的参数
-    private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
-    private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
-    private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
+    private IEcgProcessor ecgProcessor;                      // Ecg信号处理器
 
     // 设备状态
     private final EcgMonitorInitialState initialState = new EcgMonitorInitialState(this);               // 初始化
@@ -158,6 +154,7 @@ public class EcgMonitorDevice extends BleDevice {
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
         ecgFilter = new EcgFilterWith35HzNotch();
+        ecgProcessor = new EcgHrProcessor();
     }
 
     @Override
@@ -333,15 +330,19 @@ public class EcgMonitorDevice extends BleDevice {
         if(isRecord) {
             initializeEcgFile();        // 如果需要记录，就初始化Ecg文件
         }
-        initializeQrsDetector();        // 初始化QRS波检测器
+        initializeProcessor();        // 初始化QRS波检测器
         initializeEcgView();            // 初始化EcgView
     }
 
     // 初始化EcgView
     private void initializeEcgView() {
-        // 启动ECG View
-        int xRes = Math.round(viewGridWidth / (viewXGridTime * sampleRate));   // 计算横向分辨率
+        int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
+        float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
+        float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
+        // 计算EcgView分辨率
+        int xRes = Math.round(viewGridWidth / (viewXGridTime * sampleRate));     // 计算横向分辨率
         float yRes = value1mV * viewYGridmV / viewGridWidth;                     // 计算纵向分辨率
+        // 更新EcgView
         updateEcgView(xRes, yRes, viewGridWidth);
     }
 
@@ -351,8 +352,8 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     // 初始化QRS波检测器
-    private void initializeQrsDetector() {
-        qrsDetector = new QrsDetector(sampleRate, value1mV);
+    private void initializeProcessor() {
+        ecgProcessor.init(sampleRate, value1mV);
     }
 
 
@@ -373,9 +374,9 @@ public class EcgMonitorDevice extends BleDevice {
 
         updateEcgSignal(ecgSignal);
 
-        int hr = qrsDetector.outputHR(ecgSignal);
+        ecgProcessor.process(ecgSignal);
+        int hr = ((EcgHrProcessor)ecgProcessor).getHr();
         if(hr != 0) {
-            ViseLog.i("current HR is " + hr);
             updateEcgHr(hr);
         }
     }
