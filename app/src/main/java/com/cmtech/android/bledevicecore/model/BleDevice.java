@@ -6,6 +6,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 
+import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.callback.scan.IScanCallback;
@@ -393,7 +394,7 @@ public abstract class BleDevice{
     private void reconnect(final int delay) {
         int canReconnectTimes = getReconnectTimes();
         if(curReconnectTimes < canReconnectTimes || canReconnectTimes == -1) {
-            handler.postDelayed(new Runnable() {
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     state.switchState();
@@ -450,7 +451,13 @@ public abstract class BleDevice{
         setState(getConnectedState());
         // 创建Gatt串行命令执行器
         if(!createGattCommandExecutor() || !executeAfterConnectSuccess()) {
-            disconnect();
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    disconnect();
+                }
+            }, 500);
+
         }
     }
 
@@ -459,6 +466,7 @@ public abstract class BleDevice{
         handler.removeCallbacksAndMessages(null);
         stopCommandExecutor();
         executeAfterConnectFailure();
+        ViseBle.getInstance().getDeviceMirrorPool().removeDeviceMirror(getBluetoothLeDevice());
         setState(getDisconnectState());
         reconnect(BleDeviceConfig.getInstance().getReconnectInterval());
     }
@@ -468,6 +476,7 @@ public abstract class BleDevice{
         handler.removeCallbacksAndMessages(null);
         stopCommandExecutor();
         executeAfterDisconnect();
+        ViseBle.getInstance().getDeviceMirrorPool().removeDeviceMirror(getBluetoothLeDevice());
         if(!isClosing)
             setState(getDisconnectState());
         else {
