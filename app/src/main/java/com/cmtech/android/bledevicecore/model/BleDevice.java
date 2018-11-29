@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevicecore.model;
 
+import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -117,7 +118,13 @@ public abstract class BleDevice{
                 if (bluetoothLeDeviceStore.getDeviceList().size() > 0) {
                     connectCallback.onScanFinish(true);
                     //MyApplication.getViseBle().connect(bluetoothLeDeviceStore.getDeviceList().get(0), connectCallback);
-                    BleDeviceUtil.connect(bluetoothLeDeviceStore.getDeviceList().get(0), connectCallback);
+                    BluetoothLeDevice leDevice = bluetoothLeDeviceStore.getDeviceList().get(0);
+                    BluetoothDevice device = leDevice.getDevice();
+                    if(device.getBondState() == BluetoothDevice.BOND_NONE) {
+                        device.createBond();
+                    } else if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
+                        BleDeviceUtil.connect(leDevice, connectCallback);
+                    }
                 } else {
                     connectCallback.onScanFinish(false);
                 }

@@ -316,7 +316,7 @@ public class EcgMonitorDevice extends BleDevice {
 
         if(ecgData == null || ecgControl == null || ecgSampleRate == null || ecgLeadType == null || ecgDataCCC == null) {
             ViseLog.e("EcgMonitor Services is wrong!");
-            return true;
+            return false;
         }
 
         return true;
