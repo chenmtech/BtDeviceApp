@@ -10,12 +10,7 @@ public class EcgHrProcessor implements IEcgProcessor {
         return hr;
     }
 
-    public EcgHrProcessor() {
-
-    }
-
-    @Override
-    public void init(int sampleRate, int value1mV) {
+    public EcgHrProcessor(int sampleRate, int value1mV) {
         qrsDetector = new QrsDetector(sampleRate, value1mV);
     }
 

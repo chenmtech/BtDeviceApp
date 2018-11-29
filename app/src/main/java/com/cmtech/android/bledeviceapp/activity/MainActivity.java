@@ -55,6 +55,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
+import static java.lang.Thread.sleep;
 
 /**
  *  MainActivity: 主界面
@@ -320,11 +321,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
         BleDeviceUtil.disconnectAllDevice();
         BleDeviceUtil.clearAllDevice();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         //MyApplication.getViseBle().disconnect();
         //MyApplication.getViseBle().clear();
         //android.os.Process.killProcess(android.os.Process.myPid());
 
         UserAccountManager.getInstance().signOut();
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
 

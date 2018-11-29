@@ -6,8 +6,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter;
  */
 
 public interface IEcgFilter {
-    // Ecg滤波器的初始化
-    void init(int sampleRate);
     // 滤波
     double filter(double ecgSignal);
 }

@@ -9,12 +9,7 @@ public class EcgFilter implements IEcgFilter {
     private IDigitalFilter dcBlock;
     private IDigitalFilter notch50Hz;
 
-    public EcgFilter() {
-
-    }
-
-    @Override
-    public void init(int sampleRate) {
+    public EcgFilter(int sampleRate) {
         // 准备0.5Hz基线漂移滤波器
         dcBlock = DCBlockDesigner.design(0.5, sampleRate);                   // 设计隔直滤波器
         dcBlock.createStructure(StructType.IIR_DCBLOCK);                            // 创建隔直滤波器专用结构

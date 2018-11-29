@@ -153,8 +153,6 @@ public class EcgMonitorDevice extends BleDevice {
 
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
-        ecgFilter = new EcgFilterWith35HzNotch();
-        ecgProcessor = new EcgHrProcessor();
     }
 
     @Override
@@ -318,7 +316,7 @@ public class EcgMonitorDevice extends BleDevice {
 
         if(ecgData == null || ecgControl == null || ecgSampleRate == null || ecgLeadType == null || ecgDataCCC == null) {
             ViseLog.e("EcgMonitor Services is wrong!");
-            return false;
+            return true;
         }
 
         return true;
@@ -348,18 +346,18 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 初始化滤波器
     private void initializeFilter() {
-        ecgFilter.init(sampleRate);
+        ecgFilter = new EcgFilterWith35HzNotch(sampleRate);
     }
 
     // 初始化QRS波检测器
     private void initializeProcessor() {
-        ecgProcessor.init(sampleRate, value1mV);
+        ecgProcessor = new EcgHrProcessor(sampleRate, value1mV);
     }
 
 
     // 处理Ecg信号
     public void processEcgSignal(int ecgSignal) {
-        if(isFilter)
+        if(isFilter && ecgFilter != null)
             ecgSignal = (int) ecgFilter.filter(ecgSignal);
 
         if(isRecord) {
@@ -374,10 +372,12 @@ public class EcgMonitorDevice extends BleDevice {
 
         updateEcgSignal(ecgSignal);
 
-        ecgProcessor.process(ecgSignal);
-        int hr = ((EcgHrProcessor)ecgProcessor).getHr();
-        if(hr != 0) {
-            updateEcgHr(hr);
+        if(ecgProcessor != null) {
+            ecgProcessor.process(ecgSignal);
+            int hr = ((EcgHrProcessor) ecgProcessor).getHr();
+            if (hr != 0) {
+                updateEcgHr(hr);
+            }
         }
     }
 

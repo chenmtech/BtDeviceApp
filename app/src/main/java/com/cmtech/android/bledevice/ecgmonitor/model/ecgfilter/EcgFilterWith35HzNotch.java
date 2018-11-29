@@ -7,13 +7,8 @@ import com.cmtech.dsp.filter.structure.StructType;
 public class EcgFilterWith35HzNotch extends EcgFilter {
     private IDigitalFilter notch35Hz;
 
-    public EcgFilterWith35HzNotch() {
-
-    }
-
-    @Override
-    public void init(int sampleRate) {
-        super.init(sampleRate);
+    public EcgFilterWith35HzNotch(int sampleRate) {
+        super(sampleRate);
 
         // 准备35Hz陷波器
         notch35Hz = NotchDesigner.design(35, 0.5, sampleRate);           // 设计陷波器
