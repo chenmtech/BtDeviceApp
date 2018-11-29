@@ -377,6 +377,9 @@ public class EcgMonitorDevice extends BleDevice {
             int hr = ((EcgHrProcessor) ecgProcessor).getHr();
             if (hr != 0) {
                 updateEcgHr(hr);
+                if(((EcgHrProcessor) ecgProcessor).isHrWarn()) {
+                    notifyHrWarn();
+                }
             }
         }
     }
@@ -598,6 +601,16 @@ public class EcgMonitorDevice extends BleDevice {
             public void run() {
                 if(observer != null)
                     observer.updateEcgHr(hr);
+            }
+        });
+    }
+
+    private void notifyHrWarn() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
+                    observer.notifyHrWarn();
             }
         });
     }

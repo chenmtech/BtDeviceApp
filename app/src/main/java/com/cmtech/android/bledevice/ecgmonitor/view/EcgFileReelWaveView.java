@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.waveview.ReelWaveView;
+import com.cmtech.android.bledevice.view.ReelWaveView;
 import com.cmtech.bmefile.exception.FileException;
 
 import java.io.IOException;

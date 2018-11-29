@@ -31,11 +31,14 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data
                     android:host="*"
                     android:pathPattern=".*"
@@ -118,7 +121,8 @@
             </intent-filter>
         </activity>
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity" />
-        <activity android:name=".activity.UserInfoActivity"></activity>
+        <activity android:name=".activity.UserInfoActivity" />
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgHrHistogramActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -17,11 +20,14 @@ import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
-import com.cmtech.android.bledevice.waveview.ScanWaveView;
+import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
+import com.cmtech.dsp.seq.RealSeq;
+import com.cmtech.dsp.util.SeqUtil;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +54,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     int[] commentBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
 
     private EcgMonitorDevice device;                // 保存设备模型
+
+    private AudioTrack audioTrack;
 
     public EcgMonitorFragment() {
 
@@ -124,7 +132,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 device.hookEcgFilter(b);
             }
         });
-
     }
 
     @Override
@@ -199,5 +206,43 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     @Override
     public void updateEcgHr(final int hr) {
         tvEcgHr.setText(String.valueOf(hr));
+    }
+
+    @Override
+    public void notifyHrWarn() {
+        ViseLog.e("Hr Warn!");
+
+        if(audioTrack == null) {
+            initHrWarnAudioTrack();
+            audioTrack.play();
+        } else {
+            switch(audioTrack.getPlayState()) {
+                case AudioTrack.PLAYSTATE_PAUSED:
+                case AudioTrack.PLAYSTATE_PLAYING:
+                    audioTrack.stop();
+                    audioTrack.reloadStaticData();
+                    audioTrack.play();
+                    break;
+                case AudioTrack.PLAYSTATE_STOPPED:
+                    audioTrack.reloadStaticData();
+                    audioTrack.play();
+                    break;
+            }
+        }
+    }
+
+    private void initHrWarnAudioTrack() {
+        int length = 4000;
+        int fs = 1000;
+        RealSeq sinSeq = SeqUtil.createSinSeq(127.0, fs, 0, 44100, length);
+        byte[] wave = new byte[length];
+        for(int i = 0; i < wave.length; i++) {
+            wave[i] = (byte)(double)sinSeq.get(i);
+        }
+
+        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+                AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, length, AudioTrack.MODE_STATIC);
+        audioTrack.write(wave, 0, wave.length);
+        audioTrack.write(wave, 0, wave.length);
     }
 }

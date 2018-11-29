@@ -16,10 +16,9 @@ import com.cmtech.android.bledevice.temphumid.adapter.TempHumidHistoryDataAdapte
 import com.cmtech.android.bledevice.temphumid.model.ITempHumidDataObserver;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;
-import com.cmtech.android.bledevice.waveview.ScanWaveView;
+import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 
 import java.util.Locale;

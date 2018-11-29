@@ -106,7 +106,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
         // 设置重连次数
         etReconnectTimes = findViewById(R.id.et_device_basicinfo_reconnecttimes);
-        etReconnectTimes.setText(""+basicInfo.getReconnectTimes());
+        etReconnectTimes.setText(String.valueOf(basicInfo.getReconnectTimes()));
 
         // 设置打开后是否自动重连
         cbIsAutoconnect = findViewById(R.id.cb_device_basicinfo_isautoconnect);
