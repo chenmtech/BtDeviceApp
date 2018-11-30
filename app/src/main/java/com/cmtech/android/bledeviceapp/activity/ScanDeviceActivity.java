@@ -10,8 +10,8 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
-import com.cmtech.android.ble.callback.scan.FilterScanCallback;
 import com.cmtech.android.ble.callback.scan.IScanCallback;
+import com.cmtech.android.ble.callback.scan.ScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
@@ -68,7 +68,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private final FilterScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(BleDeviceConfig.getInstance().getScanDeviceName());
+    private final ScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(BleDeviceConfig.getInstance().getScanDeviceName());
 
     // 用于实现扫描设备的显示
     private SwipeRefreshLayout srlScanDevice;

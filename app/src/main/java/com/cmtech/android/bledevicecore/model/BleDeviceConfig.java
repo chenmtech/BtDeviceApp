@@ -7,6 +7,7 @@ import com.vise.log.ViseLog;
 
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.RECONNECT_INTERVAL;
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.RETRY_COUNT;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.SCAN_DEVICE_NAME;
 
 /**
@@ -43,7 +44,7 @@ public class BleDeviceConfig {
     private BleDeviceConfig() {
         viseBle = ViseBle.getInstance();
         viseBle.init(MyApplication.getContext());
-        BleConfig.getInstance().setConnectRetryCount(0).setOperateRetryCount(0);
+        BleConfig.getInstance().setConnectRetryCount(RETRY_COUNT).setOperateRetryCount(RETRY_COUNT);
     }
 
     /**

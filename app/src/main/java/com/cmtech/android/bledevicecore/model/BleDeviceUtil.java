@@ -5,11 +5,10 @@ import android.content.Context;
 
 import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.callback.IConnectCallback;
-import com.cmtech.android.ble.callback.scan.FilterScanCallback;
+import com.cmtech.android.ble.callback.scan.ScanCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.BleUtil;
-import com.cmtech.android.bledeviceapp.MyApplication;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -31,11 +30,11 @@ public class BleDeviceUtil {
         return BleUtil.isBleEnable(context);
     }
 
-    public static void startScan(FilterScanCallback scanCallback) {
+    public static void startScan(ScanCallback scanCallback) {
         ViseBle.getInstance().startScan(scanCallback);
     }
 
-    public static void stopScan(FilterScanCallback scanCallback) {
+    public static void stopScan(ScanCallback scanCallback) {
         ViseBle.getInstance().stopScan(scanCallback);
     }
 

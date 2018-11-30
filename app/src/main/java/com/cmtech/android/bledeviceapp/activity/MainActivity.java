@@ -389,20 +389,19 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     public void openDevice(BleDevice device) {
         if(device == null) return;
 
-        BleDeviceFragment fragment = findOpenedFragment(device);
-        if(fragment == null) {
-            // 如果没有打开，则创建Fragment并打开
+        if(isDeviceOpened(device)) {
+            showFragment( findOpenedFragment(device) );
+        } else {
             AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
             if(factory != null) {
-                fragment = factory.createFragment();
-                openFragment(fragment, device.getImagePath(), device.getNickName());
+                openFragment(factory.createFragment(), device.getImagePath(), device.getNickName());
             }
-        } else {
-            // 已经打开了，只要显示已打开的Fragment
-            showFragment(fragment);
         }
     }
 
+    private boolean isDeviceOpened(BleDevice device) {
+        return (findOpenedFragment(device) != null);
+    }
 
     // 删除一个已登记设备
     public void deleteDeviceFromRegisteredDeviceList(final BleDevice device) {

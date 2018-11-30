@@ -10,6 +10,7 @@ import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.callback.scan.IScanCallback;
+import com.cmtech.android.ble.callback.scan.ScanCallback;
 import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.exception.BleException;
@@ -24,7 +25,6 @@ import com.cmtech.android.bledevicecore.devicestate.BleDeviceScanState;
 import com.cmtech.android.bledevicecore.devicestate.IBleDeviceState;
 import com.vise.log.ViseLog;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -72,7 +72,7 @@ public abstract class BleDevice{
     private BleGattCommandExecutor commandExecutor;
 
     // 设备状态观察者列表
-    private final List<IBleDeviceStateObserver> deviceStateObserverList = new LinkedList<>();
+    private final List<IBleDeviceStateObserver> stateObserverList = new LinkedList<>();
 
     // 是否正在关闭。当断开连接时，根据这个标志判断是否应该退回到close状态
     private boolean isClosing = false;
@@ -185,6 +185,8 @@ public abstract class BleDevice{
     public Handler getHandler() {
         return handler;
     }
+
+    private ScanCallback filterScanCallback = null;
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
@@ -302,22 +304,22 @@ public abstract class BleDevice{
 
     // 登记设备状态观察者
     public void registerDeviceStateObserver(IBleDeviceStateObserver observer) {
-        if(!deviceStateObserverList.contains(observer)) {
-            deviceStateObserverList.add(observer);
+        if(!stateObserverList.contains(observer)) {
+            stateObserverList.add(observer);
         }
     }
 
     // 删除设备状态观察者
     public void removeDeviceStateObserver(IBleDeviceStateObserver observer) {
-        int index = deviceStateObserverList.indexOf(observer);
+        int index = stateObserverList.indexOf(observer);
         if(index >= 0) {
-            deviceStateObserverList.remove(index);
+            stateObserverList.remove(index);
         }
     }
 
     // 通知设备状态观察者
     public void notifyDeviceStateObservers() {
-        for(final IBleDeviceStateObserver observer : deviceStateObserverList) {
+        for(final IBleDeviceStateObserver observer : stateObserverList) {
             if(observer != null) {
                 observer.updateDeviceState(BleDevice.this);
             }
@@ -400,9 +402,18 @@ public abstract class BleDevice{
         handler.removeCallbacksAndMessages(null);
         setState(getScanState());
         if(bluetoothLeDevice == null) {         // 没有扫描到，则启动扫描
-            new SingleFilterScanCallback(scanCallback).setDeviceMac(getMacAddress()).setScan(true).scan();
+            filterScanCallback = new SingleFilterScanCallback(scanCallback).setDeviceMac(getMacAddress()).setScan(true);
+            filterScanCallback.scan();
         } else {        // 否则直接扫描成功，准备连接
             scanFinish(true);
+        }
+    }
+
+    public void stopScan() {
+        ViseLog.i("stopScan");
+        handler.removeCallbacksAndMessages(null);
+        if(filterScanCallback != null) {
+            filterScanCallback.setScan(false).scan();
         }
     }
 
