@@ -10,7 +10,6 @@ import java.io.Serializable;
  */
 
 public interface IBleDeviceState extends Serializable{
-    void open();
     void close();
     void switchState();
 

@@ -13,6 +13,7 @@ import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.callback.scan.ScanCallback;
 import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.core.DeviceMirror;
+import com.cmtech.android.ble.core.DeviceMirrorPool;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
@@ -77,6 +78,8 @@ public abstract class BleDevice{
     // 是否正在关闭。当断开连接时，根据这个标志判断是否应该退回到close状态
     private boolean isClosing = false;
 
+
+    //////////////////////////////////////////////////////////////////////////////////////////
     // 几个设备状态
     private final BleDeviceCloseState closeState = new BleDeviceCloseState(this);                           // 关闭状态
     private final BleDeviceDisconnectState disconnectState = new BleDeviceDisconnectState(this);            // 连接断开状态
@@ -111,6 +114,12 @@ public abstract class BleDevice{
         this.state = state;
         notifyDeviceStateObservers();
     }
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // 新的设备状态
+    private BleDeviceConnectState connectState = BleDeviceConnectState.STOP;
+
+
 
     // 扫描回调
     private final IScanCallback scanCallback = new IScanCallback() {
@@ -201,12 +210,15 @@ public abstract class BleDevice{
         return BleDeviceUtil.getDeviceMirror(this);
     }
 
-    // 打开设备
-    public synchronized void open() {
+    // 启动连接设备
+    public synchronized void startConnect() {
         handler.removeCallbacksAndMessages(null);
         curReconnectTimes = 0;
         isClosing = false;
-        state.open();
+
+        if(state == closeState)
+            setState(getDisconnectState());
+
         if(autoConnect())
             state.switchState();
     }
@@ -237,7 +249,7 @@ public abstract class BleDevice{
 
     // 获取设备状态描述信息
     public synchronized String getStateDescription() {
-        return state.getStateDescription();
+        return connectedState.getStateDescription();
     }
 
     // 设备是否可连接
@@ -257,9 +269,9 @@ public abstract class BleDevice{
 
     // 设备是否已连接
     public synchronized boolean isConnected() {
-        return (state == connectedState);
+        DeviceMirror deviceMirror = (bluetoothLeDevice == null) ? null : ViseBle.getInstance().getDeviceMirror(bluetoothLeDevice);
+        return (deviceMirror != null && deviceMirror.isConnected());
     }
-
 
     // 添加Gatt操作命令
     // 添加读取命令
@@ -393,9 +405,6 @@ public abstract class BleDevice{
         state.onDeviceScanFinish(result);
     }
 
-    /*
-     * 给IBleDeviceState提供的函数，执行扫描和连接后的操作
-     */
     // 开始扫描
     public void startScan() {
         ViseLog.i("startScan");

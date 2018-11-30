@@ -12,11 +12,6 @@ public class BleDeviceDisconnectingState implements IBleDeviceState {
     }
 
     @Override
-    public void open() {
-        ViseLog.e(this + " : action wrong");
-    }
-
-    @Override
     public void close() {
         ViseLog.e(this + " : action wrong");
     }
