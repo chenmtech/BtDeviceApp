@@ -122,7 +122,7 @@ public abstract class BleDevice{
                 if(device.getBondState() == BluetoothDevice.BOND_NONE) {            // 还没有绑定，则启动绑定
                     device.createBond();
                 } else if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    connectCallback.onScanFinish(true);
+                    BleDevice.this.scanFinish(true);
                 }
             }
         }
@@ -135,7 +135,7 @@ public abstract class BleDevice{
         @Override
         public void onScanTimeout() {
             synchronized (BleDevice.this) {
-                connectCallback.onScanFinish(false);
+                BleDevice.this.scanFinish(false);
             }
         }
     };
@@ -161,13 +161,6 @@ public abstract class BleDevice{
         public void onDisconnect(final boolean isActive) {
             synchronized (BleDevice.this) {
                 state.onDeviceDisconnect(isActive);
-            }
-        }
-        // 扫描结束回调
-        @Override
-        public void onScanFinish(boolean result) {
-            synchronized (BleDevice.this) {
-                state.onDeviceScanFinish(result);
             }
         }
     };
@@ -394,6 +387,10 @@ public abstract class BleDevice{
         }
     }
 
+    private void scanFinish(boolean result) {
+        state.onDeviceScanFinish(result);
+    }
+
     /*
      * 给IBleDeviceState提供的函数，执行扫描和连接后的操作
      */
@@ -401,8 +398,12 @@ public abstract class BleDevice{
     public void startScan() {
         ViseLog.i("startScan");
         handler.removeCallbacksAndMessages(null);
-        new SingleFilterScanCallback(scanCallback).setDeviceMac(getMacAddress()).setScan(true).scan();
         setState(getScanState());
+        if(bluetoothLeDevice == null) {         // 没有扫描到，则启动扫描
+            new SingleFilterScanCallback(scanCallback).setDeviceMac(getMacAddress()).setScan(true).scan();
+        } else {        // 否则直接扫描成功，准备连接
+            scanFinish(true);
+        }
     }
 
     public void disconnect() {
