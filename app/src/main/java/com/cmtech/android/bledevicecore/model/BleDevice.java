@@ -110,12 +110,20 @@ public abstract class BleDevice{
     private final IScanCallback scanCallback = new IScanCallback() {
         @Override
         public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
-
+            synchronized (BleDevice.this) {
+                connectCallback.onScanFinish(true);
+                BluetoothDevice device = bluetoothLeDevice.getDevice();
+                if(device.getBondState() == BluetoothDevice.BOND_NONE) {
+                    device.createBond();
+                } else if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
+                    BleDeviceUtil.connect(bluetoothLeDevice, connectCallback);
+                }
+            }
         }
 
         @Override
         public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
-            synchronized (BleDevice.this) {
+            /*synchronized (BleDevice.this) {
                 if (bluetoothLeDeviceStore.getDeviceList().size() > 0) {
                     connectCallback.onScanFinish(true);
                     //MyApplication.getViseBle().connect(bluetoothLeDeviceStore.getDeviceList().get(0), connectCallback);
@@ -129,7 +137,7 @@ public abstract class BleDevice{
                 } else {
                     connectCallback.onScanFinish(false);
                 }
-            }
+            }*/
         }
 
         @Override
