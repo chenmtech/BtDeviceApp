@@ -34,7 +34,7 @@ import java.util.List;
  */
 
 public abstract class BleDevice{
-    // 获取设备基本信息
+    // 设备基本信息
     private BleDeviceBasicInfo basicInfo;
     public BleDeviceBasicInfo getBasicInfo() {
         return basicInfo;
@@ -58,6 +58,12 @@ public abstract class BleDevice{
         return basicInfo.getImagePath();
     }
     public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
+
+    // 设备信息，当扫描到后会赋值
+    private BluetoothLeDevice bluetoothLeDevice = null;
+    public BluetoothLeDevice getBluetoothLeDevice() {
+        return bluetoothLeDevice;
+    }
 
     // 当前已重连次数
     private int curReconnectTimes = 0;
@@ -111,33 +117,19 @@ public abstract class BleDevice{
         @Override
         public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
             synchronized (BleDevice.this) {
-                connectCallback.onScanFinish(true);
+                BleDevice.this.bluetoothLeDevice = bluetoothLeDevice;
                 BluetoothDevice device = bluetoothLeDevice.getDevice();
-                if(device.getBondState() == BluetoothDevice.BOND_NONE) {
+                if(device.getBondState() == BluetoothDevice.BOND_NONE) {            // 还没有绑定，则启动绑定
                     device.createBond();
                 } else if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    BleDeviceUtil.connect(bluetoothLeDevice, connectCallback);
+                    connectCallback.onScanFinish(true);
                 }
             }
         }
 
         @Override
         public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
-            /*synchronized (BleDevice.this) {
-                if (bluetoothLeDeviceStore.getDeviceList().size() > 0) {
-                    connectCallback.onScanFinish(true);
-                    //MyApplication.getViseBle().connect(bluetoothLeDeviceStore.getDeviceList().get(0), connectCallback);
-                    BluetoothLeDevice leDevice = bluetoothLeDeviceStore.getDeviceList().get(0);
-                    BluetoothDevice device = leDevice.getDevice();
-                    if(device.getBondState() == BluetoothDevice.BOND_NONE) {
-                        device.createBond();
-                    } else if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                        BleDeviceUtil.connect(leDevice, connectCallback);
-                    }
-                } else {
-                    connectCallback.onScanFinish(false);
-                }
-            }*/
+
         }
 
         @Override
@@ -180,6 +172,10 @@ public abstract class BleDevice{
         }
     };
 
+    public IConnectCallback getConnectCallback() {
+        return connectCallback;
+    }
+
 
     // 创建HandlerThread及其消息Handler
     private final Handler handler = createMessageHandler();
@@ -203,21 +199,6 @@ public abstract class BleDevice{
     // 构造器
     public BleDevice(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
-    }
-
-
-
-    // 获取ViseBle包内部BluetoothLeDevice对象
-    public BluetoothLeDevice getBluetoothLeDevice() {
-        List<BluetoothLeDevice> bluetoothLeDeviceList = BleDeviceUtil.getDeviceList();
-        BluetoothLeDevice bluetoothLeDevice = null;
-        for(BluetoothLeDevice device : bluetoothLeDeviceList) {
-            if(getMacAddress().equalsIgnoreCase(device.getAddress())) {
-                bluetoothLeDevice = device;
-                break;
-            }
-        }
-        return bluetoothLeDevice;
     }
 
     // 获取ViseBle包内部DeviceMirror对象
@@ -474,7 +455,7 @@ public abstract class BleDevice{
         handler.removeCallbacksAndMessages(null);
         stopCommandExecutor();
         executeAfterConnectFailure();
-        ViseBle.getInstance().getDeviceMirrorPool().removeDeviceMirror(getBluetoothLeDevice());
+        ViseBle.getInstance().getDeviceMirrorPool().removeDeviceMirror(bluetoothLeDevice);
         setState(getDisconnectState());
         reconnect(BleDeviceConfig.getInstance().getReconnectInterval());
     }
@@ -484,7 +465,7 @@ public abstract class BleDevice{
         handler.removeCallbacksAndMessages(null);
         stopCommandExecutor();
         executeAfterDisconnect();
-        ViseBle.getInstance().getDeviceMirrorPool().removeDeviceMirror(getBluetoothLeDevice());
+        ViseBle.getInstance().getDeviceMirrorPool().removeDeviceMirror(bluetoothLeDevice);
         if(!isClosing)
             setState(getDisconnectState());
         else {

@@ -2,6 +2,7 @@ package com.cmtech.android.bledevicecore.devicestate;
 
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.bledevicecore.model.BleDevice;
+import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.vise.log.ViseLog;
 
 public class BleDeviceScanState implements IBleDeviceState {
@@ -29,6 +30,7 @@ public class BleDeviceScanState implements IBleDeviceState {
     @Override
     public void onDeviceScanFinish(boolean result) {
         if(result) {
+            BleDeviceUtil.connect(device.getBluetoothLeDevice(), device.getConnectCallback());
             device.setState(device.getConnectingState());
         } else {
             device.onStateScanFailure();
