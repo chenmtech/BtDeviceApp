@@ -622,24 +622,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(device == null) return;
 
         // 更新连接菜单
-        if(device.canDisconnect()) {
-            menuConnect.setEnabled(true);
-            menuConnect.setIcon(R.mipmap.ic_connect_connected);
-        }
-        else if(device.canConnect()) {
-            menuConnect.setEnabled(true);
-            menuConnect.setIcon(R.mipmap.ic_connect_disconnect);
-        }
-        else {
-            menuConnect.setEnabled(false);
-            menuConnect.setIcon(R.drawable.connectingdrawable);
+        menuConnect.setEnabled(device.isEnableConnect());
+        menuClose.setEnabled(device.isEnableClose());
+        menuConnect.setIcon(device.getStateIcon());
+        if(!device.isEnableConnect()) {         // 不能做连接操作时，显示动画图标
             AnimationDrawable connectingDrawable = (AnimationDrawable) menuConnect.getIcon();
             if(!connectingDrawable.isRunning())
                 connectingDrawable.start();
         }
-
-        // 更新关闭菜单
-        menuClose.setEnabled(device.canClose());
 
         // 更新工具条图标
         Drawable drawable;

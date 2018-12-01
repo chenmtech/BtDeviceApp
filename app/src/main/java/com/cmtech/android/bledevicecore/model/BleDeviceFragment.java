@@ -85,7 +85,7 @@ public abstract class BleDeviceFragment extends Fragment{
 
     // 打开设备
     public void openDevice() {
-        device.startConnect();
+        device.open();
     }
 
     // 关闭设备
