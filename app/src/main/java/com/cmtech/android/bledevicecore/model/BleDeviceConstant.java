@@ -18,8 +18,10 @@ public class BleDeviceConstant {
     public final static int SCAN_TIMEOUT = 12000;
     // 连接超时
     public final static int CONNECT_TIMEOUT = 25000;
-    // 连接重试次数和数据操作重试次数
-    public final static int RETRY_COUNT = 0;
+    // 连接重试次数
+    public final static int CONNECT_RETRY_COUNT = 3;
+    // 数据操作重试次数
+    public final static int OPDATA_RETRY_COUNT = 0;
 
     // 扫描时只获取广播数据包中设备名为指定名称的设备
     public static final String SCAN_DEVICE_NAME = "CM1.0";
