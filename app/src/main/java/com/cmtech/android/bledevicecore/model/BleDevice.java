@@ -51,6 +51,8 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     public String getImagePath() {
         return basicInfo.getImagePath();
     }
+    public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
+
 
     // 设备信息，当扫描到后会赋值
     private BluetoothLeDevice bluetoothLeDevice = null;
@@ -64,7 +66,14 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 设备状态观察者列表
     private final List<IBleDeviceStateObserver> stateObserverList = new LinkedList<>();
 
+    // 标记是否准备关闭设备
     private boolean isClosing = false;
+
+    // 当前的重连次数
+    private int curReconnectTimes = 0;
+
+    // 标记是否刚刚已经执行了onConnectSuccess，为了防止有时候出现连续两次执行的异常情况
+    private boolean hasExecuteConnectSuccess = false;
 
 
     // 设备连接状态
@@ -181,6 +190,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     public synchronized void open() {
         handler.removeCallbacksAndMessages(null);
         isClosing = false;
+        curReconnectTimes = 0;
 
         if(autoConnect())
             scanOrConnect();
@@ -208,6 +218,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
                 break;
 
             default:
+                curReconnectTimes = 0;
                 scanOrConnect();
                 break;
         }
@@ -241,7 +252,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         }
     }
 
-    // 开始连接
+    // 开始连接，有些资料说最好放到UI线程中执行连接
     private synchronized void startConnect() {
         ViseLog.e("startConnect");
         handler.postDelayed(new Runnable() {
@@ -250,7 +261,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
                 BleDeviceUtil.connect(bluetoothLeDevice, connectCallback);
             }
         }, 1000);
-
     }
 
     // 断开连接
@@ -261,6 +271,16 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         handler.removeCallbacksAndMessages(null);
 
         BleDeviceUtil.disconnect(this);
+    }
+
+    // 重新连接
+    private synchronized void reconnect() {
+        int canReconnectTimes = getReconnectTimes();
+        if(curReconnectTimes < canReconnectTimes || canReconnectTimes == -1) {
+            startConnect();
+            if(curReconnectTimes < canReconnectTimes)
+                curReconnectTimes++;
+        }
     }
 
 
@@ -403,44 +423,62 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 连接成功回调
     private void onConnectSuccess(DeviceMirror mirror) {
         ViseLog.i("onConnectSuccess");
+        if(hasExecuteConnectSuccess) {
+            return;
+        }
+
+
         if(isClosing) {
-            disconnect();
+            BleDeviceUtil.disconnect(this);
             return;
         }
 
         handler.removeCallbacksAndMessages(null);
         mirror.registerStateObserver(this);
-        setConnectState(BleDeviceConnectState.CONNECT_SUCCESS);
+        setConnectState(BleDeviceConnectState.getFromCode(mirror.getConnectState().getCode()));
 
         // 创建Gatt串行命令执行器
-        if(!createGattCommandExecutor() || !executeAfterConnectSuccess()) {
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+        createGattCommandExecutor();
+        if(!executeAfterConnectSuccess()) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     disconnect();
                 }
-            }, 500);
+            });
         }
+
+        curReconnectTimes = 0;
+
+        hasExecuteConnectSuccess = true;
     }
 
     // 连接错误回调
     private void onConnectFailure(final BleException bleException) {
-        ViseLog.i("onConnectFailure");
+        ViseLog.i("onConnectFailure " + bleException);
+        hasExecuteConnectSuccess = false;
+
         if(isClosing)
             return;
 
         stopCommandExecutor();
         executeAfterConnectFailure();
         handler.removeCallbacksAndMessages(null);
+
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                reconnect();
+            }
+        });
     }
 
     // 连接断开回调
     private void onDisconnect(boolean isActive) {
         ViseLog.i("onDisconnect");
-        if(isClosing)
-            return;
+        hasExecuteConnectSuccess = false;
 
-        if(!isActive) {
+        if(!isActive && !isClosing) {
             stopCommandExecutor();
             executeAfterConnectFailure();
             handler.removeCallbacksAndMessages(null);
