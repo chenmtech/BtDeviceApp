@@ -3,7 +3,7 @@ package com.cmtech.android.bledevicecore.model;
 import com.cmtech.android.bledeviceapp.R;
 
 /**
- * BleDeviceConnectState: BleDevice连接类型
+ * BleDeviceConnectState: BleDevice连接状态类型，在BLE包基础上增加了扫描和关闭两个状态
  * Created by bme on 2018/4/21.
  */
 
@@ -14,8 +14,9 @@ public enum BleDeviceConnectState {
     CONNECT_FAILURE(0x02, "连接失败", true, true, R.mipmap.ic_connect_disconnect),
     CONNECT_TIMEOUT(0x03, "连接超时", true, true, R.mipmap.ic_connect_disconnect),
     CONNECT_DISCONNECT(0x04, "连接断开", true, true, R.mipmap.ic_connect_disconnect),
-    SCAN_PROCESS(0x05, "扫描中", false, false, R.drawable.connectingdrawable),
-    STOP(0x06, "停止", true, true, R.mipmap.ic_connect_disconnect);
+
+    CONNECT_SCAN(0x05, "扫描中", false, false, R.drawable.connectingdrawable),
+    CONNECT_CLOSED(0x06, "连接关闭", true, true, R.mipmap.ic_connect_disconnect);
 
     BleDeviceConnectState(int code, String description, boolean enableConnect, boolean enableClose, int icon) {
         this.code = code;

@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         }
 
         BleDeviceUtil.disconnectAllDevice();
-        //BleDeviceUtil.clearAllDevice();
+        BleDeviceUtil.clearAllDevice();
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {

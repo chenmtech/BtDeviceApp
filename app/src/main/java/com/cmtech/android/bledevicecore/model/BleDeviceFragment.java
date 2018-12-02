@@ -81,6 +81,13 @@ public abstract class BleDeviceFragment extends Fragment{
         super.onDestroy();
 
         device.close();
+
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+            }
+        }, 2000);
     }
 
     // 打开设备

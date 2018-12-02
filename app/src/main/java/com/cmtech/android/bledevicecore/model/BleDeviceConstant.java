@@ -19,7 +19,7 @@ public class BleDeviceConstant {
     // 连接超时
     public final static int CONNECT_TIMEOUT = 25000;
     // 连接重试次数
-    public final static int CONNECT_RETRY_COUNT = 3;
+    public final static int CONNECT_RETRY_COUNT = 0;
     // 数据操作重试次数
     public final static int OPDATA_RETRY_COUNT = 0;
 
