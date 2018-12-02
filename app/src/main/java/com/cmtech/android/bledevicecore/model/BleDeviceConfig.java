@@ -3,12 +3,8 @@ package com.cmtech.android.bledevicecore.model;
 import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.common.BleConfig;
 import com.cmtech.android.bledeviceapp.MyApplication;
-import com.vise.log.ViseLog;
-
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CONNECT_RETRY_COUNT;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.OPDATA_RETRY_COUNT;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.RECONNECT_INTERVAL;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.SCAN_DEVICE_NAME;
 
 /**
@@ -20,9 +16,6 @@ public class BleDeviceConfig {
 
     // ViseBle单件实例
     private ViseBle viseBle;
-    public ViseBle getViseBle() {
-        return viseBle;
-    }
 
     // 扫描时会过滤的设备名称
     private String scanDeviceName = SCAN_DEVICE_NAME;
@@ -36,16 +29,10 @@ public class BleDeviceConfig {
         return baseUuid;
     }
 
-    // 重连时间间隔
-    private int reconnectInterval = RECONNECT_INTERVAL;
-    public int getReconnectInterval() {
-        return reconnectInterval;
-    }
-
     private BleDeviceConfig() {
         viseBle = ViseBle.getInstance();
         viseBle.init(MyApplication.getContext());
-        BleConfig.getInstance().setConnectRetryCount(CONNECT_RETRY_COUNT).setOperateRetryCount(OPDATA_RETRY_COUNT);
+        BleConfig.getInstance().setOperateRetryCount(OPDATA_RETRY_COUNT);
     }
 
     /**
@@ -84,7 +71,13 @@ public class BleDeviceConfig {
 
     // 配置重连时间间隔
     public BleDeviceConfig setReconnectInterval(int reconnectInterval) {
-        this.reconnectInterval = reconnectInterval;
+        BleConfig.getInstance().setConnectRetryInterval(reconnectInterval);
+        return this;
+    }
+
+    // 配置重连次数
+    public BleDeviceConfig setConnectRetryCount(int connectRetryCount) {
+        BleConfig.getInstance().setConnectRetryCount(connectRetryCount);
         return this;
     }
 

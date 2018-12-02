@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private FragmentAndTabLayoutManager fragAndTabManager;
 
     // 工具条上的连接菜单和关闭菜单
-    private MenuItem menuConnect;
+    private MenuItem menuSwitch;
     private MenuItem menuClose;
 
     // 显示账户名,用户名和头像
@@ -267,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
-        menuConnect = menu.findItem(R.id.toolbar_connectswitch);
+        menuSwitch = menu.findItem(R.id.toolbar_switch);
         menuClose = menu.findItem(R.id.toolbar_close);
         return true;
     }
@@ -287,7 +287,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 openDrawer(true);
                 break;
 
-            case R.id.toolbar_connectswitch:
+            case R.id.toolbar_switch:
                 fragment = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.switchState();
@@ -606,9 +606,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     private void updateMainMenuVisibility() {
         if(fragAndTabManager.size() == 0) {
-            menuConnect.setVisible(false);
+            menuSwitch.setVisible(false);
         } else {
-            menuConnect.setVisible(true);
+            menuSwitch.setVisible(true);
         }
     }
 
@@ -622,11 +622,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         if(device == null) return;
 
         // 更新连接菜单
-        menuConnect.setEnabled(device.isEnableConnect());
+        menuSwitch.setEnabled(device.isEnableSwitch());
         menuClose.setEnabled(device.isEnableClose());
-        menuConnect.setIcon(device.getStateIcon());
-        if(!device.isEnableConnect()) {         // 不能做连接操作时，显示动画图标
-            AnimationDrawable connectingDrawable = (AnimationDrawable) menuConnect.getIcon();
+        menuSwitch.setIcon(device.getStateIcon());
+        if(!device.isEnableSwitch()) {         // 不能做连接操作时，显示动画图标
+            AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
             if(!connectingDrawable.isRunning())
                 connectingDrawable.start();
         }

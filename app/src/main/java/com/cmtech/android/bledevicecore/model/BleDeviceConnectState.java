@@ -18,17 +18,17 @@ public enum BleDeviceConnectState {
     CONNECT_SCAN(0x05, "扫描中", false, false, R.drawable.connectingdrawable),
     CONNECT_CLOSED(0x06, "连接关闭", true, true, R.mipmap.ic_connect_disconnect);
 
-    BleDeviceConnectState(int code, String description, boolean enableConnect, boolean enableClose, int icon) {
+    BleDeviceConnectState(int code, String description, boolean enableSwitch, boolean enableClose, int icon) {
         this.code = code;
         this.description = description;
-        this.enableConnect = enableConnect;
+        this.enableSwitch = enableSwitch;
         this.enableClose = enableClose;
         this.icon = icon;
     }
 
     private int code;
     private String description;
-    boolean enableConnect;
+    boolean enableSwitch;
     boolean enableClose;
     int icon;
 
@@ -40,8 +40,8 @@ public enum BleDeviceConnectState {
         return description;
     }
 
-    public boolean isEnableConnect() {
-        return enableConnect;
+    public boolean isEnableSwitch() {
+        return enableSwitch;
     }
 
     public boolean isEnableClose() {

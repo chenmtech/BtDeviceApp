@@ -14,6 +14,7 @@ import org.litepal.LitePal;
 
 import cn.sharesdk.framework.ShareSDK;
 
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CONNECT_RETRY_COUNT;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CONNECT_TIMEOUT;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.RECONNECT_INTERVAL;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.SCAN_DEVICE_NAME;
@@ -38,7 +39,10 @@ public class MyApplication extends Application {
         // 初始化BleDeviceConfig
         deviceConfig = BleDeviceConfig.getInstance();
         deviceConfig.setBaseUuid(BleDeviceConstant.MY_BASE_UUID);
-        deviceConfig.setScanTimeout(SCAN_TIMEOUT).setConnectTimeout(CONNECT_TIMEOUT).setReconnectInterval(RECONNECT_INTERVAL);
+        deviceConfig.setScanTimeout(SCAN_TIMEOUT);
+        deviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
+        deviceConfig.setReconnectInterval(RECONNECT_INTERVAL);
+        deviceConfig.setConnectRetryCount(CONNECT_RETRY_COUNT);
         deviceConfig.setScanDeviceName(SCAN_DEVICE_NAME);
 
         // 初始化LitePal
