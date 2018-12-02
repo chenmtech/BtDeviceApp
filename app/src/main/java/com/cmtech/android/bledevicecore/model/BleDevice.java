@@ -51,7 +51,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     public String getImagePath() {
         return basicInfo.getImagePath();
     }
-    public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
 
     // 设备信息，当扫描到后会赋值
     private BluetoothLeDevice bluetoothLeDevice = null;
@@ -65,13 +64,17 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 设备状态观察者列表
     private final List<IBleDeviceStateObserver> stateObserverList = new LinkedList<>();
 
+    private boolean isClosing = false;
+
 
     // 设备连接状态
     private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED;
     // 设置设备连接状态
     private void setConnectState(BleDeviceConnectState connectState) {
-        this.connectState = connectState;
-        notifyDeviceStateObservers();
+        if(!isClosing) {
+            this.connectState = connectState;
+            notifyDeviceStateObservers();
+        }
     }
     // 获取设备状态描述信息
     public synchronized String getStateDescription() {
@@ -177,6 +180,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 打开设备
     public synchronized void open() {
         handler.removeCallbacksAndMessages(null);
+        isClosing = false;
 
         if(autoConnect())
             scanOrConnect();
@@ -187,6 +191,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         handler.removeCallbacksAndMessages(null);
 
         setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+        isClosing = true;
 
         if(connectState == BleDeviceConnectState.CONNECT_SCAN)
             stopScan();
@@ -383,7 +388,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 扫描结束回调
     private void onScanFinish(boolean result) {
         ViseLog.i("onScanFinish");
-        if(connectState == BleDeviceConnectState.CONNECT_CLOSED)
+        if(isClosing)
             return;
 
         if(result) {
@@ -398,8 +403,10 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 连接成功回调
     private void onConnectSuccess(DeviceMirror mirror) {
         ViseLog.i("onConnectSuccess");
-        if(connectState == BleDeviceConnectState.CONNECT_CLOSED)
+        if(isClosing) {
+            disconnect();
             return;
+        }
 
         handler.removeCallbacksAndMessages(null);
         mirror.registerStateObserver(this);
@@ -419,7 +426,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 连接错误回调
     private void onConnectFailure(final BleException bleException) {
         ViseLog.i("onConnectFailure");
-        if(connectState == BleDeviceConnectState.CONNECT_CLOSED)
+        if(isClosing)
             return;
 
         stopCommandExecutor();
@@ -430,7 +437,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 连接断开回调
     private void onDisconnect(boolean isActive) {
         ViseLog.i("onDisconnect");
-        if(connectState == BleDeviceConnectState.CONNECT_CLOSED)
+        if(isClosing)
             return;
 
         if(!isActive) {

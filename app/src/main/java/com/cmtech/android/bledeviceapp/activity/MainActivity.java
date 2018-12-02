@@ -389,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     public void openDevice(BleDevice device) {
         if(device == null) return;
 
-        if(isDeviceOpened(device)) {
+        if(isDeviceFragmentOpened(device)) {
             showFragment( findOpenedFragment(device) );
         } else {
             AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
@@ -399,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         }
     }
 
-    private boolean isDeviceOpened(BleDevice device) {
+    private boolean isDeviceFragmentOpened(BleDevice device) {
         return (findOpenedFragment(device) != null);
     }
 
