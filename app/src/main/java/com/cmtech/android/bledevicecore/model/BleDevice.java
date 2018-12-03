@@ -160,9 +160,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         }
     };
 
+    private final Handler handler = createMessageHandler();
 
     // 创建HandlerThread及其消息Handler
-    private final Handler handler = createMessageHandler();
     private Handler createMessageHandler() {
         HandlerThread thread = new HandlerThread("BleDevice Work Thread");
         thread.start();
@@ -173,6 +173,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             }
         };
     }
+
     public Handler getHandler() {
         return handler;
     }
@@ -458,7 +459,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         // 创建Gatt串行命令执行器
         createGattCommandExecutor();
         if(!executeAfterConnectSuccess()) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
+            handler.post(new Runnable() {
                 @Override
                 public void run() {
                     disconnect();
