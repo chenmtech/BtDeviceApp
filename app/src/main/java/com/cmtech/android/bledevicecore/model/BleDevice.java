@@ -22,6 +22,8 @@ import com.vise.log.ViseLog;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.RECONNECT_INTERVAL;
+
 /**
  * BleDevice: 低功耗蓝牙设备类
  * Created by bme on 2018/2/19.
@@ -465,12 +467,12 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         executeAfterConnectFailure();
         handler.removeCallbacksAndMessages(null);
 
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 reconnect();
             }
-        });
+        }, RECONNECT_INTERVAL);
     }
 
     // 连接断开回调

@@ -12,7 +12,7 @@ public class BleDeviceConstant {
     // CCC UUID
     public static final String CCCUUID = "00002902-0000-1000-8000-00805f9b34fb";
 
-    // 重新连接时间间隔
+    // 重新连接时间间隔，注意：反复多次重连会导致系统禁用蓝牙
     public final static int RECONNECT_INTERVAL = 6000;
     // 扫描超时
     public final static int SCAN_TIMEOUT = 12000;
@@ -26,4 +26,6 @@ public class BleDeviceConstant {
     public static final String SCAN_DEVICE_NAME = "CM1.0";
     // 图像文件DIR
     public static final File IMAGEDIR = MyApplication.getContext().getExternalFilesDir("images");
+    // 文件缓存目录
+    public static final File CACHEDIR = MyApplication.getContext().getExternalCacheDir();
 }

@@ -37,8 +37,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.CACHEDIR;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
+import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CACHEDIR;
 import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
 
 

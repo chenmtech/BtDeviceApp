@@ -15,9 +15,6 @@ public class EcgMonitorConstant {
     // Ecg文件存放目录
     public static final File ECGFILEDIR = MyApplication.getContext().getExternalFilesDir("ecgSignal");
 
-    // 文件缓存目录
-    public static final File CACHEDIR = MyApplication.getContext().getExternalCacheDir();
-
     // 微信的下载存储目录
     public static final String WECHAT_DOWNLOAD_DIR = Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download";
 
