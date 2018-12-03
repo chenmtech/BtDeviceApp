@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
+import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -23,6 +24,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.dsp.seq.RealSeq;
@@ -48,6 +50,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ScanWaveView ecgView;
     private ImageButton ibSwitchSampleEcg;
     private ImageButton ibRecord;
+    private ImageButton ibHrStatistics;
     private CheckBox cbEcgFilter;
     // 标记异常留言的Button
     private List<Button> commentBtnList = new ArrayList<>();
@@ -89,6 +92,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         ibSwitchSampleEcg = view.findViewById(R.id.ib_ecgreplay_startandstop);
         ibRecord = view.findViewById(R.id.ib_ecg_record);
+        ibHrStatistics = view.findViewById(R.id.ib_hr_statistics);
         cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
 
         for(int i = 0; i < commentBtnId.length; i++) {
@@ -130,6 +134,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 device.hookEcgFilter(b);
+            }
+        });
+
+        ibHrStatistics.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hrStatistics();
             }
         });
     }
@@ -244,5 +255,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, length, AudioTrack.MODE_STATIC);
         audioTrack.write(wave, 0, wave.length);
         audioTrack.write(wave, 0, wave.length);
+    }
+
+    private void hrStatistics() {
+        int[] hrHistogram = device.getHrStatistics();
+        if(hrHistogram != null) {
+            Intent intent = new Intent(getActivity(), EcgHrHistogramActivity.class);
+            intent.putExtra("hr_histogram", hrHistogram);
+            startActivity(intent);
+        }
     }
 }

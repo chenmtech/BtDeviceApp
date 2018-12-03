@@ -1,58 +1,76 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.LimitLine;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class EcgHrHistogramActivity extends AppCompatActivity {
-    private BarChart hrHistogram;
+    private BarChart hrBarHistogram;
     private YAxis leftAxis;             //左侧Y轴
     private YAxis rightAxis;            //右侧Y轴
     private XAxis xAxis;                //X轴
     private Legend legend;              //图例
-    private LimitLine limitLine;        //限制线
+
+    private TextView tvHrTotal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ecg_hr_histogram);
+        setContentView(R.layout.activity_ecghr_histogram);
 
-        hrHistogram = findViewById(R.id.bc_hr_histogram);
+        Intent intent = getIntent();
+        if(intent == null) { finish(); return;}
+        int[] hrHistogram = intent.getIntArrayExtra("hr_histogram");
+        if(hrHistogram == null) { finish(); return;}
 
-        initBarChart(hrHistogram);
+        hrBarHistogram = findViewById(R.id.bc_hr_histogram);
+
+        initBarChart(hrBarHistogram);
 
         //设置数据和X轴显示字符串
         List<Float> dataList = new ArrayList<>();
         List<String> xStrList = new ArrayList<>();
-        for (int i = 0; i < 21; i++) {
-            dataList.add((float) (Math.random()) * 80);
-            xStrList.add(String.valueOf(i*10) + '-' + String.valueOf((i+1)*10));
+        dataList.add((float)(hrHistogram[0]+hrHistogram[1]+hrHistogram[2]));
+        xStrList.add("30以下");
+        for (int i = 3; i < hrHistogram.length-1; i++) {
+            if(hrHistogram[i] > 5) {
+                dataList.add((float) hrHistogram[i]);
+                xStrList.add(String.valueOf(i * 10) + '-' + String.valueOf((i + 1) * 10));
+            }
         }
+        dataList.add((float)hrHistogram[hrHistogram.length-1]);
+        xStrList.add("200以上");
 
-        showBarChart(hrHistogram, dataList, xStrList, "心率统计值（次数）", getResources().getColor(R.color.blue));
+        showBarChart(hrBarHistogram, dataList, xStrList, "心率统计次数", Color.BLUE, Color.RED);
+
+        int sum = 0;
+        for(int num : hrHistogram) {
+            sum += num;
+        }
+        tvHrTotal = findViewById(R.id.tv_ecghr_totaltimes);
+        tvHrTotal.setText(String.valueOf(sum));
     }
 
     private void initBarChart(BarChart barChart) {
@@ -109,16 +127,16 @@ public class EcgHrHistogramActivity extends AppCompatActivity {
      * 柱状图始化设置 一个BarDataSet 代表一列柱状图
      *
      * @param barDataSet 柱状图
-     * @param color      柱状图颜色
+     * @param barColor      柱状图颜色
      */
-    private void initBarDataSet(BarDataSet barDataSet, int color) {
-        barDataSet.setColor(color);
+    private void initBarDataSet(BarDataSet barDataSet, int barColor, int dataColor) {
+        barDataSet.setColor(barColor);
         barDataSet.setFormLineWidth(1f);
         barDataSet.setFormSize(15.f);
         //不显示柱状图顶部值
         barDataSet.setDrawValues(true);
         barDataSet.setValueTextSize(14f);
-        barDataSet.setValueTextColor(Color.RED);
+        barDataSet.setValueTextColor(dataColor);
         barDataSet.setValueFormatter(new IValueFormatter() {
             @Override
             public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
@@ -127,25 +145,15 @@ public class EcgHrHistogramActivity extends AppCompatActivity {
         });
     }
 
-    public void showBarChart(BarChart barChart, List<Float> dateValueList, final List<String> xStrList, String name, int color) {
+    public void showBarChart(BarChart barChart, List<Float> dateValueList, final List<String> xStrList, String name, int barColor, int dataColor) {
         ArrayList<BarEntry> entries = new ArrayList<>();
         for (int i = 0; i < dateValueList.size(); i++) {
-            /**
-             * 此处还可传入Drawable对象 BarEntry(float x, float y, Drawable icon)
-             * 即可设置柱状图顶部的 icon展示
-             */
             BarEntry barEntry = new BarEntry(i, dateValueList.get(i));
             entries.add(barEntry);
         }
         // 每一个BarDataSet代表一类柱状图
         BarDataSet barDataSet = new BarDataSet(entries, name);
-        initBarDataSet(barDataSet, color);
-
-
-//        // 添加多个BarDataSet时
-//        ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-//        dataSets.add(barDataSet);
-//        BarData data = new BarData(dataSets);
+        initBarDataSet(barDataSet, barColor, dataColor);
 
         //X轴自定义值
         xAxis.setValueFormatter(new IAxisValueFormatter() {
@@ -158,4 +166,5 @@ public class EcgHrHistogramActivity extends AppCompatActivity {
         BarData data = new BarData(barDataSet);
         barChart.setData(data);
     }
+
 }

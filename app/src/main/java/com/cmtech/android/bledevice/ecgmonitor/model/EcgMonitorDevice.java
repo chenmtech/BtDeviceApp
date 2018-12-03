@@ -385,6 +385,13 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
+    public int[] getHrStatistics() {
+        if(ecgProcessor instanceof EcgHrProcessor) {
+            return ((EcgHrProcessor) ecgProcessor).getHrHistgram();
+        }
+        return null;
+    }
+
     // 启动ECG信号采集
     public void startSampleEcg() {
 

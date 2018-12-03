@@ -29,6 +29,10 @@ public class EcgHrProcessor implements IEcgProcessor {
     // 心率从0~200以上，每隔10bpm为一个统计单位，高于200的都统计为200，因此统计直方图需要21个值
     private int[] hrHistgram = new int[21];
 
+    public int[] getHrHistgram() {
+        return hrHistgram;
+    }
+
     public void setHrWarnThreshold(int low, int high) {
         hrLowLimit = low;
         hrHighLimit = high;

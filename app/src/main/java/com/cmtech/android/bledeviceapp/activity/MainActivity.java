@@ -141,9 +141,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                     case R.id.nav_changeuser:
                         changeUser();
                         return true;
-                    case R.id.nav_debugcharts:
-                        debugCharts();
-                        return true;
                     case R.id.nav_exit:
                         finish();
                         return true;
@@ -552,11 +549,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
-    }
-
-    private void debugCharts() {
-        Intent intent = new Intent(MainActivity.this, EcgHrHistogramActivity.class);
-        startActivity(intent);
     }
 
     private void updateNavigationViewUsingUserInfo() {

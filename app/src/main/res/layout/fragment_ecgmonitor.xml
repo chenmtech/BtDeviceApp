@@ -163,6 +163,15 @@
                 android:textSize="14sp"
                 android:text="00:00:00"/>
 
+            <ImageButton
+                android:id="@+id/ib_hr_statistics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@color/primary_dark"
+                android:src="@mipmap/ic_hr_statistics"
+                android:contentDescription="hr statistics"/>
+
             <CheckBox
                 android:id="@+id/cb_ecg_filter"
                 android:layout_width="wrap_content"
