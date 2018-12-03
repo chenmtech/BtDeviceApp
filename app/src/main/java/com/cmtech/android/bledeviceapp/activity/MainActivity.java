@@ -42,6 +42,7 @@ import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.model.BleDeviceConnectState;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.IBleDeviceFragmentActivity;
@@ -391,7 +392,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
         if(isDeviceFragmentOpened(device)) {
             showFragment( findOpenedFragment(device) );
-        } else {
+        } else if(device.isClosed()){
             AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
             if(factory != null) {
                 openFragment(factory.createFragment(), device.getImagePath(), device.getNickName());

@@ -9,6 +9,7 @@ import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledevicecore.model.BleDataOpException;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
 import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 
@@ -128,10 +129,10 @@ public class ThermoDevice extends BleDevice {
 
     // 检测基本温湿度服务是否正常
     private boolean checkBasicThermoService() {
-        Object thermoData = getGattObject(THERMODATA);
-        Object thermoControl = getGattObject(THERMOCONTROL);
-        Object thermoPeriod = getGattObject(THERMOPERIOD);
-        Object thermoDataCCC = getGattObject(THERMODATACCC);
+        Object thermoData = BleDeviceUtil.getGattObject(this, THERMODATA);
+        Object thermoControl = BleDeviceUtil.getGattObject(this, THERMOCONTROL);
+        Object thermoPeriod = BleDeviceUtil.getGattObject(this, THERMOPERIOD);
+        Object thermoDataCCC = BleDeviceUtil.getGattObject(this, THERMODATACCC);
 
         if(thermoData == null || thermoControl == null || thermoPeriod == null || thermoDataCCC == null) {
             Log.d("ThermoFragment", "Can't find the Gatt object on the device.");

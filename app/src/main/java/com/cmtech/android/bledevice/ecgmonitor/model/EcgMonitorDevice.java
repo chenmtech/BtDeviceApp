@@ -22,6 +22,7 @@ import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.BleDataOpException;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
 import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.bmefile.BmeFileDataType;
@@ -308,11 +309,11 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 检测基本心电监护服务是否正常
     private boolean checkBasicEcgMonitorService() {
-        Object ecgData = getGattObject(ECGMONITORDATA);
-        Object ecgControl = getGattObject(ECGMONITORCTRL);
-        Object ecgSampleRate = getGattObject(ECGMONITORSAMPLERATE);
-        Object ecgLeadType = getGattObject(ECGMONITORLEADTYPE);
-        Object ecgDataCCC = getGattObject(ECGMONITORDATACCC);
+        Object ecgData = BleDeviceUtil.getGattObject(this, ECGMONITORDATA);
+        Object ecgControl = BleDeviceUtil.getGattObject(this, ECGMONITORCTRL);
+        Object ecgSampleRate = BleDeviceUtil.getGattObject(this, ECGMONITORSAMPLERATE);
+        Object ecgLeadType = BleDeviceUtil.getGattObject(this, ECGMONITORLEADTYPE);
+        Object ecgDataCCC = BleDeviceUtil.getGattObject(this, ECGMONITORDATACCC);
 
         if(ecgData == null || ecgControl == null || ecgSampleRate == null || ecgLeadType == null || ecgDataCCC == null) {
             ViseLog.e("EcgMonitor Services is wrong!");

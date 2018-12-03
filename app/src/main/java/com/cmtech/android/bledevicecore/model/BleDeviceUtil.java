@@ -77,4 +77,9 @@ public class BleDeviceUtil {
             }
         });
     }
+
+    // 获取device设备上element对应的Gatt Object
+    public static Object getGattObject(BleDevice device, BleGattElement element) {
+        return (element == null) ? null : element.retrieveGattObject(device);
+    }
 }

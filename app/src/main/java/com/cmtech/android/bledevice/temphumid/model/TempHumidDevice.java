@@ -7,6 +7,7 @@ import android.os.Message;
 import com.cmtech.android.bledevicecore.model.BleDataOpException;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.BleGattElement;
 import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.vise.log.ViseLog;
@@ -282,10 +283,10 @@ public class TempHumidDevice extends BleDevice {
     private boolean checkBasicTempHumidService() {
         boolean hasBasicTempHumidService = true;
 
-        Object tempHumidData = getGattObject(TEMPHUMIDDATA);
-        Object tempHumidControl = getGattObject(TEMPHUMIDCTRL);
-        Object tempHumidPeriod = getGattObject(TEMPHUMIDPERIOD);
-        Object tempHumidDataCCC = getGattObject(TEMPHUMIDDATACCC);
+        Object tempHumidData = BleDeviceUtil.getGattObject(this, TEMPHUMIDDATA);
+        Object tempHumidControl = BleDeviceUtil.getGattObject(this, TEMPHUMIDCTRL);
+        Object tempHumidPeriod = BleDeviceUtil.getGattObject(this, TEMPHUMIDPERIOD);
+        Object tempHumidDataCCC = BleDeviceUtil.getGattObject(this, TEMPHUMIDDATACCC);
 
         if (tempHumidData == null || tempHumidControl == null || tempHumidPeriod == null || tempHumidDataCCC == null) {
             ViseLog.i("The basic service and characteristic is bad.");
@@ -297,9 +298,9 @@ public class TempHumidDevice extends BleDevice {
 
     // 检测是否存在定时器服务
     private boolean existTimerService() {
-        Object timerValue = getGattObject(TIMERVALUE);
-        Object historyTime = getGattObject(TEMPHUMIDHISTORYTIME);
-        Object historyData = getGattObject(TEMPHUMIDHISTORYDATA);
+        Object timerValue = BleDeviceUtil.getGattObject(this, TIMERVALUE);
+        Object historyTime = BleDeviceUtil.getGattObject(this, TEMPHUMIDHISTORYTIME);
+        Object historyData = BleDeviceUtil.getGattObject(this, TEMPHUMIDHISTORYDATA);
         if (timerValue == null || historyTime == null || historyData == null) {
             ViseLog.i("The device don't provide history data sampling service.");
             return false;
