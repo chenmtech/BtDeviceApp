@@ -496,9 +496,7 @@ public class EcgMonitorDevice extends BleDevice {
                     FileUtil.moveFile(ecgFile.getFile(), toFile);
                 }
                 ecgFile = null;
-            } catch (FileException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (FileException | IOException e) {
                 e.printStackTrace();
             }
         }
