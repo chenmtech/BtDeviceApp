@@ -6,6 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+/**
+ * RandomwAccessBmeFile: 可随机访问的BmeFile
+ * Created by Chenm, 2018-12-03
+ */
+
 public class RandomAccessBmeFile extends BmeFile {
     protected long dataBeginPointer = 0;
     protected RandomAccessFile raf;

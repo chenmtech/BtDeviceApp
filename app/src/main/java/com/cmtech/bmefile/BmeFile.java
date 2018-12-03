@@ -231,15 +231,15 @@ public abstract class BmeFile {
 		
 		try {
 			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-				for(int i = 0; i < data.length; i++) {
-					out.writeDouble(data[i]);
-					dataNum++;
-				}				
+			    for(double num : data) {
+			        out.writeDouble(num);
+			        dataNum++;
+                }
 			} else {
-				for(int i = 0; i < data.length; i++) {
-					out.writeDouble(ByteUtil.reverseDouble(data[i]));
-					dataNum++;
-				}
+                for(double num : data) {
+                    out.writeDouble(ByteUtil.reverseDouble(num));
+                    dataNum++;
+                }
 			}
 		} catch(IOException ioe) {
 			throw new FileException(file.getName(), "写数据错误");
@@ -260,15 +260,15 @@ public abstract class BmeFile {
 		
 		try {
 			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-				for(int i = 0; i < data.length; i++) {
-					out.writeInt(data[i]);
-					dataNum++;
-				}				
+			    for(int num : data) {
+			        out.writeInt(num);
+			        dataNum++;
+                }
 			} else {
-				for(int i = 0; i < data.length; i++) {
-					out.writeInt(ByteUtil.reverseInt(data[i]));
-					dataNum++;
-				}
+			    for(int num : data) {
+			        out.writeInt(ByteUtil.reverseInt(num));
+			        dataNum++;
+                }
 			}
 		} catch(IOException ioe) {
 			throw new FileException(file.getName(), "写数据错误");
@@ -288,10 +288,10 @@ public abstract class BmeFile {
 		}
 		
 		try {
-			for(int i = 0; i < data.length; i++) {
-				out.writeByte(data[i]);
-				dataNum++;
-			}
+		    for(byte num : data) {
+		        out.writeByte(num);
+		        dataNum++;
+            }
 		} catch(IOException ioe) {
 			throw new FileException(file.getName(), "写数据错误");
 		}
