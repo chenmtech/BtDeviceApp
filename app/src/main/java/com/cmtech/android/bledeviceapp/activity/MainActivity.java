@@ -34,6 +34,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileReplayActivity;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgHrHistogramActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
@@ -139,6 +140,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                         return true;
                     case R.id.nav_changeuser:
                         changeUser();
+                        return true;
+                    case R.id.nav_debugcharts:
+                        debugCharts();
                         return true;
                     case R.id.nav_exit:
                         finish();
@@ -548,6 +552,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void debugCharts() {
+        Intent intent = new Intent(MainActivity.this, EcgHrHistogramActivity.class);
+        startActivity(intent);
     }
 
     private void updateNavigationViewUsingUserInfo() {
