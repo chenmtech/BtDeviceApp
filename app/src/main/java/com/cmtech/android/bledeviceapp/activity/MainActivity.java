@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         //android.os.Process.killProcess(android.os.Process.myPid());
 
         UserAccountManager.getInstance().signOut();
-        android.os.Process.killProcess(android.os.Process.myPid());
+        //android.os.Process.killProcess(android.os.Process.myPid());
     }
 
 
