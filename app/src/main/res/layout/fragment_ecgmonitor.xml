@@ -125,35 +125,33 @@
         android:background="@color/primary_dark"
         android:baselineAligned="false">
 
-        <RelativeLayout
+        <ImageButton
+            android:id="@+id/ib_ecgreplay_startandstop"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2">
-            <ImageButton
-                android:id="@+id/ib_ecgreplay_startandstop"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:clickable="false"
-                android:background="@color/primary_dark"
-                android:src="@mipmap/ic_ecg_play_48px"
-                android:contentDescription="startorstop"/>
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:clickable="false"
+            android:background="@color/primary_dark"
+            android:src="@mipmap/ic_ecg_play_48px"
+            android:contentDescription="startorstop"/>
 
-            <ImageButton
-                android:id="@+id/ib_ecg_record"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@color/primary_dark"
-                android:src="@mipmap/ic_ecg_record_stop"
-                android:contentDescription="record"/>
-        </RelativeLayout>
+
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:gravity="center_horizontal">
+            <ImageButton
+                android:id="@+id/ib_ecg_record"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:background="@color/primary_dark"
+                android:src="@mipmap/ic_ecg_record_stop"
+                android:contentDescription="record"/>
+
             <TextView
                 android:id="@+id/tv_ecg_recordtime"
                 android:layout_width="wrap_content"
@@ -163,14 +161,6 @@
                 android:textSize="14sp"
                 android:text="00:00:00"/>
 
-            <ImageButton
-                android:id="@+id/ib_hr_statistics"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@color/primary_dark"
-                android:src="@mipmap/ic_hr_statistics"
-                android:contentDescription="hr statistics"/>
 
             <CheckBox
                 android:id="@+id/cb_ecg_filter"
@@ -183,6 +173,17 @@
                 android:visibility="gone"
                 android:text="滤波"/>
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/ib_hr_statistics"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:background="@color/primary_dark"
+            android:src="@mipmap/ic_hr_statistics"
+            android:contentDescription="hr statistics"/>
+
     </LinearLayout>
 
     <LinearLayout
