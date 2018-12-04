@@ -335,14 +335,14 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 初始化EcgView
     private void initializeEcgView() {
-        int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
-        float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
-        float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
+        int pixelPerGrid = 10;                   // 每小格的像素个数
+        float xSecondPerGrid = 0.04f;            // X方向每小格代表的秒数，即0.04对应于25格/秒，这是标准的ECG走纸速度
+        float yMvPerGrid = 0.1f;                 // Y方向每小格代表的mV
         // 计算EcgView分辨率
-        int xRes = Math.round(viewGridWidth / (viewXGridTime * sampleRate));     // 计算横向分辨率
-        float yRes = value1mV * viewYGridmV / viewGridWidth;                     // 计算纵向分辨率
+        int xPixelPerData = Math.round(pixelPerGrid / (xSecondPerGrid * sampleRate));     // 计算横向分辨率
+        float yValuePerPixel = value1mV * yMvPerGrid / pixelPerGrid;                      // 计算纵向分辨率
         // 更新EcgView
-        updateEcgView(xRes, yRes, viewGridWidth);
+        updateEcgView(xPixelPerData, yValuePerPixel, pixelPerGrid);
     }
 
     // 初始化滤波器
@@ -571,12 +571,12 @@ public class EcgMonitorDevice extends BleDevice {
         });
     }
 
-    private void updateEcgView(final int xRes, final float yRes, final int viewGridWidth) {
+    private void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 if(observer != null)
-                    observer.updateEcgView(xRes, yRes, viewGridWidth);
+                    observer.updateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
             }
         });
     }

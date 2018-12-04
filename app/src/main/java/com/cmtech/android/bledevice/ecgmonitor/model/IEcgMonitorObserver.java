@@ -15,7 +15,7 @@ public interface IEcgMonitorObserver {
     // 更新记录状态
     void updateRecordStatus(boolean isRecord);
     // 更新EcgView
-    void updateEcgView(int xRes, float yRes, int viewGridWidth);
+    void updateEcgView(int xPixelPerData, float yValuePerPixel, int gridPixels);
     // 更新Ecg信号
     void updateEcgSignal(int ecgSignal);
     // 更新记录时长，单位秒

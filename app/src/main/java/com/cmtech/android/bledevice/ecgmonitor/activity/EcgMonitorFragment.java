@@ -233,9 +233,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateEcgView(final int xRes, final float yRes, final int viewGridWidth) {
-        ecgView.setRes(xRes, yRes);
-        ecgView.setGridWidth(viewGridWidth);
+    public void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
+        ecgView.setResolution(xPixelPerData, yValuePerPixel);
+        ecgView.setGridPixels(gridPixels);
         ecgView.setZeroLocation(0.5);
         ecgView.initView();
     }

@@ -107,8 +107,8 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     }
 
     private void updateWaveView(final int xRes, final float yRes, final int viewGridWidth) {
-        waveView.setRes(xRes, yRes);
-        waveView.setGridWidth(viewGridWidth);
+        waveView.setResolution(xRes, yRes);
+        waveView.setGridPixels(viewGridWidth);
         waveView.setZeroLocation(0.5);
         waveView.initView();
 
