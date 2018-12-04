@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
-import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -13,7 +13,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
@@ -24,11 +26,24 @@ import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.dsp.seq.RealSeq;
 import com.cmtech.dsp.util.SeqUtil;
+import com.github.mikephil.charting.animation.Easing;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -52,6 +67,17 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ImageButton ibRecord;
     private ImageButton ibHrStatistics;
     private CheckBox cbEcgFilter;
+    private FrameLayout flEcgView;
+    private RelativeLayout rlHrStatistics;
+    private BarChart hrBarHistogram;
+    private TextView tvHrTotal;
+
+
+    private XAxis xAxis;
+    private BarDataSet hrBarDateSet;
+    private List<BarEntry> hrBarEntries = new ArrayList<>();
+    private List<String> hrBarXStrings = new ArrayList<>();
+
     // 标记异常留言的Button
     private List<Button> commentBtnList = new ArrayList<>();
     int[] commentBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
@@ -143,6 +169,16 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 hrStatistics();
             }
         });
+
+        flEcgView = view.findViewById(R.id.fl_ecgview);
+        rlHrStatistics = view.findViewById(R.id.rl_hrstatistics);
+        hrBarHistogram = view.findViewById(R.id.bc_hr_histogram);
+        initBarChart(hrBarHistogram);
+        updateHrBarData(device.getHrStatistics());
+        hrBarDateSet = initBarDataSet("心率统计次数", Color.BLUE, Color.RED);
+        showBarChart();
+
+        tvHrTotal = view.findViewById(R.id.tv_ecghr_totaltimes);
     }
 
     @Override
@@ -260,9 +296,135 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private void hrStatistics() {
         int[] hrHistogram = device.getHrStatistics();
         if(hrHistogram != null) {
-            Intent intent = new Intent(getActivity(), EcgHrHistogramActivity.class);
-            intent.putExtra("hr_histogram", hrHistogram);
-            startActivity(intent);
+            if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
+                updateBarChart(hrHistogram);
+                rlHrStatistics.setVisibility(View.VISIBLE);
+                flEcgView.setVisibility(View.INVISIBLE);
+            }
+            else {
+                rlHrStatistics.setVisibility(View.INVISIBLE);
+                flEcgView.setVisibility(View.VISIBLE);
+            }
         }
+    }
+
+    private void initBarChart(BarChart barChart) {
+        /***图表设置***/
+        //背景颜色
+        barChart.setBackgroundColor(Color.WHITE);
+        //不显示图表网格
+        barChart.setDrawGridBackground(false);
+        //背景阴影
+        barChart.setDrawBarShadow(false);
+        barChart.setHighlightFullBarEnabled(false);
+        //显示边框
+        barChart.setDrawBorders(true);
+        //设置动画效果
+        barChart.animateY(1000, Easing.Linear);
+        barChart.animateX(1000, Easing.Linear);
+
+        /***XY轴的设置***/
+        //X轴设置显示位置在底部
+        xAxis = barChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        //xAxis.setAxisMinimum(0f);
+        xAxis.setGranularity(1f);
+
+        YAxis leftAxis = barChart.getAxisLeft();
+        YAxis rightAxis = barChart.getAxisRight();
+        //保证Y轴从0开始，不然会上移一点
+        leftAxis.setAxisMinimum(0f);
+        rightAxis.setAxisMinimum(0f);
+        xAxis.setDrawAxisLine(false);
+        leftAxis.setDrawAxisLine(false);
+        rightAxis.setDrawAxisLine(false);
+
+        /***折线图例 标签 设置***/
+        Legend legend = barChart.getLegend();
+        legend.setForm(Legend.LegendForm.LINE);
+        legend.setTextSize(11f);
+        //显示位置
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
+        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        //是否绘制在图表里面
+        legend.setDrawInside(false);
+
+        Description description = new Description();
+        description.setEnabled(false);
+        barChart.setDescription(description);
+
+        barChart.setDrawValueAboveBar(true);
+    }
+
+    private void updateHrBarData(int[] hrData) {
+        hrBarXStrings.clear();
+        hrBarEntries.clear();
+        if(hrData == null || hrData.length < 4) {
+            hrBarXStrings.add("无有效数据");
+            hrBarEntries.add(new BarEntry(0, 0.0f));
+        } else {
+            int j = 0;
+            hrBarXStrings.add("30以下");
+            hrBarEntries.add(new BarEntry(j++, (float) (hrData[0] + hrData[1] + hrData[2])));
+            for (int i = 3; i < hrData.length - 1; i++) {
+                if (hrData[i] > 5) {
+                    String key = String.valueOf(i * 10) + '-' + String.valueOf((i + 1) * 10);
+                    hrBarXStrings.add(key);
+                    hrBarEntries.add(new BarEntry(j++, (float) hrData[i]));
+                }
+            }
+            hrBarXStrings.add("200以上");
+            hrBarEntries.add(new BarEntry(j, (float) hrData[hrData.length - 1]));
+        }
+    }
+
+    /**
+     * 柱状图始化设置 一个BarDataSet 代表一列柱状图
+     *
+     * @param barColor      柱状图颜色
+     */
+    private BarDataSet initBarDataSet(String legendString, int barColor, int dataColor) {
+        // 每一个BarDataSet代表一类柱状图
+        BarDataSet barDataSet = new BarDataSet(hrBarEntries, legendString);
+
+        barDataSet.setColor(barColor);
+        barDataSet.setFormLineWidth(1f);
+        barDataSet.setFormSize(15.f);
+        //不显示柱状图顶部值
+        barDataSet.setDrawValues(true);
+        barDataSet.setValueTextSize(14f);
+        barDataSet.setValueTextColor(dataColor);
+        barDataSet.setValueFormatter(new IValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                return String.valueOf((int) value);
+            }
+        });
+        return barDataSet;
+    }
+
+    public void showBarChart() {
+        //X轴自定义值
+        xAxis.setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return hrBarXStrings.get((int) value);
+            }
+        });
+
+        BarData data = new BarData(hrBarDateSet);
+        hrBarHistogram.setData(data);
+    }
+
+    public void updateBarChart(int[] hrHistogram) {
+        updateHrBarData(hrHistogram);
+        hrBarDateSet.setValues(hrBarEntries);
+        showBarChart();
+        int sum = 0;
+        for(int num : hrHistogram) {
+            sum += num;
+        }
+        tvHrTotal.setText(String.valueOf(sum));
     }
 }

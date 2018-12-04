@@ -65,27 +65,70 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-        <com.cmtech.android.bledevice.view.ScanWaveView
-            android:id="@+id/rwv_ecgview"
+        <FrameLayout
+            android:id="@+id/fl_ecgview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <com.cmtech.android.bledevice.view.ScanWaveView
+                android:id="@+id/rwv_ecgview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                cmtech:background_color="#666"
+                cmtech:grid_color="#f00"
+                cmtech:wave_color="#ff0"
+                cmtech:show_gridline="true"/>
+
+            <TextView
+                android:id="@+id/tv_ecg_hr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|top"
+                android:layout_marginStart="5sp"
+                android:drawableStart="@mipmap/ic_ecg_heart"
+                android:text="0"
+                android:textSize="40sp"
+                android:textColor="@color/primary"/>
+        </FrameLayout>
+
+        <RelativeLayout
+            android:id="@+id/rl_hrstatistics"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            cmtech:background_color="#666"
-            cmtech:grid_color="#f00"
-            cmtech:wave_color="#ff0"
-            cmtech:show_gridline="true"/>
+            android:visibility="invisible">
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/bc_hr_histogram"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_centerInParent="true"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/bc_hr_histogram"
+                android:layout_marginTop="-40dp"
+                android:gravity="center_horizontal"
+                android:text="心率统计"
+                android:textSize="30sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/bc_hr_histogram"
+                android:layout_marginBottom="-20dp"
+                android:gravity="center_horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="总次数：" />
 
-        <TextView
-            android:id="@+id/tv_ecg_hr"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|top"
-            android:layout_marginStart="5sp"
-            android:drawableStart="@mipmap/ic_ecg_heart"
-            android:text="0"
-            android:textSize="40sp"
-            android:textColor="@color/primary"/>
+                <TextView
+                    android:id="@+id/tv_ecghr_totaltimes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0" />
+
+            </LinearLayout>
+        </RelativeLayout>
+
     </FrameLayout>
-
 
     <RelativeLayout
         android:layout_width="match_parent"

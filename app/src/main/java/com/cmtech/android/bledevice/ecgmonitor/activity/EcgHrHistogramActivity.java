@@ -63,7 +63,7 @@ public class EcgHrHistogramActivity extends AppCompatActivity {
         dataList.add((float)hrHistogram[hrHistogram.length-1]);
         xStrList.add("200以上");
 
-        showBarChart(hrBarHistogram, dataList, xStrList, "心率统计次数", Color.BLUE, Color.RED);
+        showBarChart(dataList, xStrList, "心率统计次数", Color.BLUE, Color.RED);
 
         int sum = 0;
         for(int num : hrHistogram) {
@@ -145,7 +145,7 @@ public class EcgHrHistogramActivity extends AppCompatActivity {
         });
     }
 
-    public void showBarChart(BarChart barChart, List<Float> dateValueList, final List<String> xStrList, String name, int barColor, int dataColor) {
+    public void showBarChart(List<Float> dateValueList, final List<String> xStrList, String name, int barColor, int dataColor) {
         ArrayList<BarEntry> entries = new ArrayList<>();
         for (int i = 0; i < dateValueList.size(); i++) {
             BarEntry barEntry = new BarEntry(i, dateValueList.get(i));
@@ -164,7 +164,7 @@ public class EcgHrHistogramActivity extends AppCompatActivity {
         });
 
         BarData data = new BarData(barDataSet);
-        barChart.setData(data);
+        hrBarHistogram.setData(data);
     }
 
 }
