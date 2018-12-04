@@ -74,7 +74,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private TextView tvHrTotal;
 
 
-    private XAxis xAxis;
     private BarDataSet hrBarDateSet;
     private List<BarEntry> hrBarEntries = new ArrayList<>();
     private List<String> hrBarXStrings = new ArrayList<>();
@@ -294,7 +293,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         audioTrack.write(wave, 0, wave.length);
     }
 
-    private synchronized void hrStatistics() {
+    private void hrStatistics() {
         if(device.getHrStatistics() != null) {
             int[] hrHistogram = Arrays.copyOf(device.getHrStatistics(), device.getHrStatistics().length);
             if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
@@ -326,17 +325,17 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         /***XY轴的设置***/
         //X轴设置显示位置在底部
-        xAxis = barChart.getXAxis();
+        XAxis xAxis = barChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         //xAxis.setAxisMinimum(0f);
         xAxis.setGranularity(1f);
+        xAxis.setDrawAxisLine(false);
 
         YAxis leftAxis = barChart.getAxisLeft();
         YAxis rightAxis = barChart.getAxisRight();
         //保证Y轴从0开始，不然会上移一点
         leftAxis.setAxisMinimum(0f);
         rightAxis.setAxisMinimum(0f);
-        xAxis.setDrawAxisLine(false);
         leftAxis.setDrawAxisLine(false);
         rightAxis.setDrawAxisLine(false);
 
@@ -358,7 +357,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         barChart.setDrawValueAboveBar(true);
     }
 
-    private synchronized void updateHrBarData(int[] hrData) {
+    private void updateHrBarData(int[] hrData) {
         hrBarXStrings.clear();
         hrBarEntries.clear();
         if(hrData == null || hrData.length < 4) {
@@ -406,22 +405,27 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     public void showBarChart() {
+        BarData data = new BarData(hrBarDateSet);
+        hrBarHistogram.setData(data);
+
         //X轴自定义值
+        XAxis xAxis = hrBarHistogram.getXAxis();
+        xAxis.setAvoidFirstLastClipping(true);
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
+                ViseLog.e(Arrays.toString(hrBarXStrings.toArray()));
+                ViseLog.e(Arrays.toString(hrBarEntries.toArray()));
                 return hrBarXStrings.get((int) value);
             }
         });
-
-        BarData data = new BarData(hrBarDateSet);
-        hrBarHistogram.setData(data);
     }
 
-    public synchronized void updateBarChart(int[] hrHistogram) {
+    public void updateBarChart(int[] hrHistogram) {
         updateHrBarData(hrHistogram);
-        hrBarDateSet = initBarDataSet("心率统计次数", Color.BLUE, Color.RED);
-        showBarChart();
+        hrBarDateSet.setValues(hrBarEntries);
+        hrBarHistogram.setData(new BarData(hrBarDateSet));
+        //hrBarHistogram.notifyDataSetChanged();
         int sum = 0;
         for(int num : hrHistogram) {
             sum += num;
