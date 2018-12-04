@@ -168,18 +168,22 @@
         android:background="@color/primary_dark"
         android:baselineAligned="false">
 
-        <ImageButton
-            android:id="@+id/ib_ecgreplay_startandstop"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            android:clickable="false"
-            android:background="@color/primary_dark"
-            android:src="@mipmap/ic_ecg_play_48px"
-            android:contentDescription="startorstop"/>
-
-
+            android:gravity="center_horizontal">
+            <ImageButton
+                android:id="@+id/ib_ecgreplay_startandstop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:clickable="false"
+                android:background="@color/primary_dark"
+                android:src="@mipmap/ic_ecg_play_48px"
+                android:contentDescription="startorstop"/>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -217,15 +221,22 @@
                 android:text="滤波"/>
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/ib_hr_statistics"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            android:background="@color/primary_dark"
-            android:src="@mipmap/ic_hr_statistics"
-            android:contentDescription="hr statistics"/>
+            android:gravity="center_horizontal">
+            <ImageButton
+                android:id="@+id/ib_hr_statistics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:clickable="false"
+                android:background="@color/primary_dark"
+                android:src="@mipmap/ic_hr_statistics"
+                android:contentDescription="hr statistics"/>
+        </LinearLayout>
 
     </LinearLayout>
 

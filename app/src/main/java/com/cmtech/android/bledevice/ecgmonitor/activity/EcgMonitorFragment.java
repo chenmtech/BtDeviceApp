@@ -308,6 +308,27 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         }
     }
 
+    private class StringAxisValueFormatter implements IAxisValueFormatter {
+        private List<String> mStrs;
+        /**
+     * 对字符串类型的坐标轴标记进行格式化
+     * @param strs
+     */
+        public StringAxisValueFormatter(List<String> strs){
+            this.mStrs =strs;
+        }
+
+        @Override
+        public String getFormattedValue(float value, AxisBase axisBase) {
+            int index = (int) value;
+            if (index < 0 || index >= mStrs.size()) {
+                return "";
+            } else {
+                return mStrs.get(index);
+            }
+        }
+    }
+
     private void initBarChart(BarChart barChart) {
         /***图表设置***/
         //背景颜色
@@ -330,6 +351,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         //xAxis.setAxisMinimum(0f);
         xAxis.setGranularity(1f);
         xAxis.setDrawAxisLine(false);
+        xAxis.setValueFormatter(new StringAxisValueFormatter(hrBarXStrings));
 
         YAxis leftAxis = barChart.getAxisLeft();
         YAxis rightAxis = barChart.getAxisRight();
@@ -407,25 +429,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     public void showBarChart() {
         BarData data = new BarData(hrBarDateSet);
         hrBarHistogram.setData(data);
+        hrBarHistogram.invalidate();
 
-        //X轴自定义值
-        XAxis xAxis = hrBarHistogram.getXAxis();
-        xAxis.setAvoidFirstLastClipping(true);
-        xAxis.setValueFormatter(new IAxisValueFormatter() {
-            @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-                ViseLog.e(Arrays.toString(hrBarXStrings.toArray()));
-                ViseLog.e(Arrays.toString(hrBarEntries.toArray()));
-                return hrBarXStrings.get((int) value);
-            }
-        });
     }
 
     public void updateBarChart(int[] hrHistogram) {
         updateHrBarData(hrHistogram);
         hrBarDateSet.setValues(hrBarEntries);
-        hrBarHistogram.setData(new BarData(hrBarDateSet));
-        //hrBarHistogram.notifyDataSetChanged();
+        showBarChart();
         int sum = 0;
         for(int num : hrHistogram) {
             sum += num;
