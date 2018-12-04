@@ -47,6 +47,7 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -293,9 +294,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         audioTrack.write(wave, 0, wave.length);
     }
 
-    private void hrStatistics() {
-        int[] hrHistogram = device.getHrStatistics();
-        if(hrHistogram != null) {
+    private synchronized void hrStatistics() {
+        if(device.getHrStatistics() != null) {
+            int[] hrHistogram = Arrays.copyOf(device.getHrStatistics(), device.getHrStatistics().length);
             if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
                 updateBarChart(hrHistogram);
                 rlHrStatistics.setVisibility(View.VISIBLE);
@@ -357,7 +358,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         barChart.setDrawValueAboveBar(true);
     }
 
-    private void updateHrBarData(int[] hrData) {
+    private synchronized void updateHrBarData(int[] hrData) {
         hrBarXStrings.clear();
         hrBarEntries.clear();
         if(hrData == null || hrData.length < 4) {
@@ -417,9 +418,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         hrBarHistogram.setData(data);
     }
 
-    public void updateBarChart(int[] hrHistogram) {
+    public synchronized void updateBarChart(int[] hrHistogram) {
         updateHrBarData(hrHistogram);
-        hrBarDateSet.setValues(hrBarEntries);
+        hrBarDateSet = initBarDataSet("心率统计次数", Color.BLUE, Color.RED);
         showBarChart();
         int sum = 0;
         for(int num : hrHistogram) {
