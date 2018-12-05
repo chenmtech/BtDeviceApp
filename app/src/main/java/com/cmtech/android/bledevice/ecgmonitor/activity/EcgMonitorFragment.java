@@ -218,8 +218,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateCalibrationValue(final int calibrationValue) {
-        tvEcg1mV.setText(String.valueOf(calibrationValue));
+    public void updateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
+        tvEcg1mV.setText(String.valueOf(calibrationValueBefore) + '/' + String.valueOf(calibrationValueAfter));
     }
 
     @Override

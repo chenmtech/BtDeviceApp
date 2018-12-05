@@ -59,7 +59,7 @@ public class EcgMonitorCalibratingState implements IEcgMonitorState {
                 int value1mV = calculateCalibration(calibrationData);
                 calibrationData.clear();
 
-                device.finishCalibration(value1mV);
+                device.onSetValue1mV(value1mV);
 
                 onCalibrateSuccess();
             }

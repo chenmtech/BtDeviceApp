@@ -21,6 +21,10 @@ import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
 
+/**
+ * ScanWaveView: 扫描式的波形显示视图，用于心电信号采集时的实时显示
+ * Created by bme on 2018/12/06.
+ */
 
 public class ScanWaveView extends View {
 
@@ -28,7 +32,7 @@ public class ScanWaveView extends View {
     private static final int DEFAULT_XPIXELPERDATA = 2;                  // 缺省的X方向的分辨率
     private static final float DEFAULT_YVALUEPERPIXEL = 1.0f;	            // 缺省的Y方向的分辨率
     private static final double DEFAULT_ZERO_LOCATION = 0.5;   // 缺省的零线位置在Y方向的高度的比例
-    private static final int DEFAULT_GRID_PIXELS = 10;           // 背景栅格像素宽度
+    private static final int DEFAULT_PIXELSPERGRID = 10;           // 每个栅格的像素个数
 
     private static final int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
     private static final int DEFAULT_GRID_COLOR = Color.RED;
@@ -53,7 +57,7 @@ public class ScanWaveView extends View {
     private final int waveColor;
 
     // View初始化主要需要设置下面4个参数
-    private int gridPixels = DEFAULT_GRID_PIXELS;                // 栅格像素个数
+    private int gridPixels = DEFAULT_PIXELSPERGRID;                // 栅格像素个数
     public void setGridPixels(int gridPixels) {
         this.gridPixels = gridPixels;
     }

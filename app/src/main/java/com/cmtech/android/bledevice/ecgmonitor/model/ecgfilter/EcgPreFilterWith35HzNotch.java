@@ -4,14 +4,14 @@ import com.cmtech.dsp.filter.IDigitalFilter;
 import com.cmtech.dsp.filter.design.NotchDesigner;
 import com.cmtech.dsp.filter.structure.StructType;
 
-public class EcgFilterWith35HzNotch extends EcgFilter {
+public class EcgPreFilterWith35HzNotch extends EcgPreFilter {
     private IDigitalFilter notch35Hz;
 
-    public EcgFilterWith35HzNotch(int sampleRate) {
+    public EcgPreFilterWith35HzNotch(int sampleRate) {
         super(sampleRate);
 
         // 准备35Hz陷波器
-        notch35Hz = NotchDesigner.design(35, 0.5, sampleRate);           // 设计陷波器
+        notch35Hz = NotchDesigner.design(35, NOTCH_BANDWIDTH_3DB, sampleRate);           // 设计陷波器
         notch35Hz.createStructure(StructType.IIR_NOTCH);                            // 创建陷波器专用结构
     }
 

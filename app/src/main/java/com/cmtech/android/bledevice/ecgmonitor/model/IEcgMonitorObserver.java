@@ -11,7 +11,7 @@ public interface IEcgMonitorObserver {
     // 更新导联类型
     void updateLeadType(EcgLeadType leadType);
     // 更新标定值
-    void updateCalibrationValue(int calibrationValue);
+    void updateCalibrationValue(int calibrationValueBefore, int calibrationValueAfter);
     // 更新记录状态
     void updateRecordStatus(boolean isRecord);
     // 更新EcgView

@@ -5,14 +5,16 @@ import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgcalibrator.EcgCalibrator65536;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgcalibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.EcgFilterWith35HzNotch;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.EcgPreFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.IEcgFilter;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgHrProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.EcgHrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.IEcgHrProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratedState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratingState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorInitialState;
@@ -28,6 +30,7 @@ import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.exception.FileException;
+import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -52,7 +55,7 @@ public class EcgMonitorDevice extends BleDevice {
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;                          // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
-    private static final int DEFAULT_CALIBRATIONVALUE = 2600;                   // 缺省1mV定标值
+    private static final int DEFAULT_CALIBRATIONVALUE = 65536;                  // 缺省1mV定标值
 
     // GATT消息常量
     private static final int MSG_OBTAINDATA = 1;                                // 获取一个ECG数据，可以是1mV定标数据，也可以是Ecg信号
@@ -99,10 +102,7 @@ public class EcgMonitorDevice extends BleDevice {
     private EcgLeadType leadType = DEFAULT_LEADTYPE;                // 导联类型
 
     private int value1mV = DEFAULT_CALIBRATIONVALUE;                // 1mV定标值
-    private void setValue1mV(int value1mV) {
-        this.value1mV = value1mV;
-        updateCalibrationValue(value1mV);
-    }
+
 
     private boolean isRecord = false;                               // 是否记录信号
     public boolean isRecord() {return isRecord;}
@@ -118,12 +118,13 @@ public class EcgMonitorDevice extends BleDevice {
         return (int)(recordDataNum/sampleRate);
     }
 
-    private IEcgFilter ecgFilter;                            // Ecg信号滤波器
-    public void setFilter(IEcgFilter filter) {
-        this.ecgFilter = filter;
-    }
+    private IEcgCalibrator ecgCalibrator;                    // Ecg信号定标器
 
-    private IEcgProcessor ecgProcessor;                      // Ecg信号处理器
+    private IEcgFilter ecgFilter;                            // Ecg信号滤波器
+
+    private QrsDetector qrsDetector;                         // Ecg Qrs波检测器，可用于获取心率
+
+    private IEcgHrProcessor hrProcessor;                     // Ecg心率处理器
 
     // 设备状态
     private final EcgMonitorInitialState initialState = new EcgMonitorInitialState(this);               // 初始化
@@ -161,7 +162,7 @@ public class EcgMonitorDevice extends BleDevice {
 
         updateSampleRate(DEFAULT_SAMPLERATE);
         updateLeadType(DEFAULT_LEADTYPE);
-        updateCalibrationValue(DEFAULT_CALIBRATIONVALUE);
+        updateCalibrationValue(0, DEFAULT_CALIBRATIONVALUE);
 
         if(!checkBasicEcgMonitorService()) {
             return false;
@@ -323,14 +324,30 @@ public class EcgMonitorDevice extends BleDevice {
         return true;
     }
 
-    // 完成标定后要做的事情
-    public void finishCalibration(int value1mV) {
-        setValue1mV(value1mV);
+    // 响应获取到1mV定标值后要做的事情
+    public void onSetValue1mV(int value1mV) {
+        // 初始化定标器
+        initializeCalibrator(value1mV);
+
+        // 初始化EcgFile
         if(isRecord) {
             initializeEcgFile();        // 如果需要记录，就初始化Ecg文件
         }
-        initializeProcessor();        // 初始化QRS波检测器
-        initializeEcgView();            // 初始化EcgView
+
+        // 初始化Qrs波检测器
+        initializeQrsDetector();
+
+        // 初始化心率处理器
+        initializeHrProcessor();
+
+        // 初始化EcgView
+        initializeEcgView();
+    }
+
+    // 初始化定标器
+    private void initializeCalibrator(int value1mV) {
+        ecgCalibrator = new EcgCalibrator65536(value1mV);       // 初始化定标器
+        updateCalibrationValue(value1mV, this.value1mV);
     }
 
     // 初始化EcgView
@@ -347,20 +364,26 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 初始化滤波器
     private void initializeFilter() {
-        ecgFilter = new EcgFilterWith35HzNotch(sampleRate);
+        ecgFilter = new EcgPreFilterWith35HzNotch(sampleRate);
     }
 
-    // 初始化QRS波检测器
-    private void initializeProcessor() {
-        ecgProcessor = new EcgHrProcessor(sampleRate, value1mV);
+    // 初始化Qrs波检测器
+    private void initializeQrsDetector() {
+        qrsDetector = new QrsDetector(sampleRate, value1mV);
+    }
+
+    // 初始化心率处理器
+    private void initializeHrProcessor() {
+        hrProcessor = new EcgHrProcessor();
     }
 
 
     // 处理Ecg信号
     public void processEcgSignal(int ecgSignal) {
-        if(isFilter && ecgFilter != null)
-            ecgSignal = (int) ecgFilter.filter(ecgSignal);
+        // 定标及滤波处理
+        ecgSignal = (int) ecgFilter.filter(ecgCalibrator.process(ecgSignal));
 
+        // 保存到EcgFile
         if(isRecord) {
             try {
                 ecgFile.writeData(ecgSignal);
@@ -371,23 +394,29 @@ public class EcgMonitorDevice extends BleDevice {
             }
         }
 
+        // 显示
         updateEcgSignal(ecgSignal);
 
-        if(ecgProcessor != null) {
-            ecgProcessor.process(ecgSignal);
-            int hr = ((EcgHrProcessor) ecgProcessor).getHr();
-            if (hr != 0) {
-                updateEcgHr(hr);
-                if(((EcgHrProcessor) ecgProcessor).isHrWarn()) {
-                    notifyHrWarn();
-                }
+        // 检测Qrs波，获取心率
+        int hr = qrsDetector.outputHR(ecgSignal);
+
+        if(hr != 0) {
+            // 更新心率值显示
+            updateEcgHr(hr);
+
+            // 处理心率值
+            hrProcessor.process(hr);
+
+            // 如果需要报警
+            if(((EcgHrProcessor) hrProcessor).isWarn()) {
+                notifyHrWarn();
             }
         }
     }
 
     public int[] getHrStatistics() {
-        if(ecgProcessor instanceof EcgHrProcessor) {
-            return ((EcgHrProcessor) ecgProcessor).getHrHistgram();
+        if(hrProcessor instanceof EcgHrProcessor) {
+            return ((EcgHrProcessor) hrProcessor).getHrHistgram();
         }
         return null;
     }
@@ -551,12 +580,12 @@ public class EcgMonitorDevice extends BleDevice {
         });
     }
 
-    private void updateCalibrationValue(final int calibrationValue) {
+    private void updateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 if(observer != null)
-                    observer.updateCalibrationValue(calibrationValue);
+                    observer.updateCalibrationValue(calibrationValueBefore, calibrationValueAfter);
             }
         });
     }
