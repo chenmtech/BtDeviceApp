@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.vise.log.ViseLog;
 
@@ -101,6 +102,10 @@ public abstract class BleDeviceFragment extends Fragment{
 
     // 切换设备状态，根据设备的当前状态实现状态切换
     public void switchState() {
+        if(device.getConnectState() == BleDeviceConnectState.CONNECT_SCAN || device.getConnectState() == BleDeviceConnectState.CONNECT_PROCESS) {
+            Toast.makeText(getActivity(), "请稍等。", Toast.LENGTH_SHORT).show();
+            return;
+        }
         device.switchState();
     }
 

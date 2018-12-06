@@ -311,10 +311,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         ViseLog.e(TAG + ":onDestroy");
         super.onDestroy();
 
+        // 防止设备没有彻底断开
         BleDeviceUtil.disconnectAllDevice();
+
         BleDeviceUtil.clearAllDevice();
 
         UserAccountManager.getInstance().signOut();
+
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
@@ -468,10 +471,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     return o1.getMacAddress().compareTo(o2.getMacAddress());
                 }
             });
-            // 添加Activity作为设备状态的观察者
-            //device.registerDeviceStateObserver(this);
-            // 通知观察者
-            //device.notifyDeviceStateObservers();
             updateDeviceState(device);
         }
         return true;
@@ -599,11 +598,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void updateToolBar(BleDevice device) {
         if(device == null) return;
 
-        // 更新连接菜单
-        menuSwitch.setEnabled(device.isEnableSwitch());
-        menuClose.setEnabled(device.isEnableClose());
+        // 更新连接菜单menuSwitch
+        // menuSwitch图标如果是动画，先停止动画
+        if(menuSwitch.getIcon() instanceof AnimationDrawable) {
+            AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
+            if(connectingDrawable.isRunning())
+                connectingDrawable.stop();
+        }
         menuSwitch.setIcon(device.getStateIcon());
-        if(!device.isEnableSwitch()) {         // 不能做连接操作时，显示动画图标
+        // 如果menuSwitch图标是动画，则启动动画
+        if(menuSwitch.getIcon() instanceof AnimationDrawable) {
             AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
             if(!connectingDrawable.isRunning())
                 connectingDrawable.start();

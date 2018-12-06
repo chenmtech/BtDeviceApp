@@ -81,6 +81,10 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 设备连接状态，初始化为关闭状态
     private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED;
 
+    public BleDeviceConnectState getConnectState() {
+        return connectState;
+    }
+
     // 设置设备连接状态，并通知状态观察者
     public void setConnectState(BleDeviceConnectState connectState) {
         this.connectState = connectState;
@@ -91,14 +95,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     public synchronized String getStateDescription() {
         return connectState.getDescription();
     }
-    // 设备当前状态是否可做切换操作
-    public synchronized boolean isEnableSwitch() {
-        return connectState.isEnableSwitch();
-    }
-    // 设备当前状态是否可做关闭操作
-    public synchronized boolean isEnableClose() {
-        return connectState.isEnableClose();
-    }
+
     // 获取设备状态图标
     public synchronized int getStateIcon() {
         return connectState.getIcon();
@@ -226,6 +223,10 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         switch (connectState) {
             case CONNECT_SUCCESS:
                 disconnect();
+                break;
+
+            case CONNECT_SCAN:
+            case CONNECT_PROCESS:
                 break;
 
             default:
