@@ -350,6 +350,37 @@ public class EcgMonitorDevice extends BleDevice {
         updateCalibrationValue(value1mV, this.value1mV);
     }
 
+    // 初始化Ecg文件
+    private void initializeEcgFile() {
+        // 创建bmeFileHead文件头
+        BmeFileHead30 bmeFileHead = new BmeFileHead30();
+        bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        bmeFileHead.setDataType(BmeFileDataType.INT32);
+        bmeFileHead.setFs(sampleRate);
+        bmeFileHead.setInfo("这是一个心电文件。");
+        bmeFileHead.setCalibrationValue(value1mV);
+        long timeInMillis = new Date().getTime();
+        bmeFileHead.setCreatedTime(timeInMillis);
+
+        // 创建ecgFileHead文件头
+        String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(getMacAddress());
+        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, leadType);
+        commentList.clear();
+
+        // 创建ecgFile
+        String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
+        File toFile = FileUtil.getFile(CACHEDIR, fileName);
+        try {
+            fileName = toFile.getCanonicalPath();
+            ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
+            recordDataNum = 0;
+            updateRecordSecond(0);
+            ViseLog.e(ecgFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     // 初始化EcgView
     private void initializeEcgView() {
         int pixelPerGrid = 10;                   // 每小格的像素个数
@@ -374,13 +405,14 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 初始化心率处理器
     private void initializeHrProcessor() {
-        hrProcessor = new EcgHrProcessor();
+        if(hrProcessor == null) {
+            hrProcessor = new EcgHrProcessor();
+        }
     }
-
 
     // 处理Ecg信号
     public void processEcgSignal(int ecgSignal) {
-        // 定标及滤波处理
+        // 标定后滤波处理
         ecgSignal = (int) ecgFilter.filter(ecgCalibrator.process(ecgSignal));
 
         // 保存到EcgFile
@@ -394,7 +426,7 @@ public class EcgMonitorDevice extends BleDevice {
             }
         }
 
-        // 显示
+        // 显示心电信号
         updateEcgSignal(ecgSignal);
 
         // 检测Qrs波，获取心率
@@ -482,37 +514,6 @@ public class EcgMonitorDevice extends BleDevice {
 
     }
 
-    // 初始化Ecg文件
-    private void initializeEcgFile() {
-        // 创建bmeFileHead文件头
-        BmeFileHead30 bmeFileHead = new BmeFileHead30();
-        bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-        bmeFileHead.setDataType(BmeFileDataType.INT32);
-        bmeFileHead.setFs(sampleRate);
-        bmeFileHead.setInfo("这是一个心电文件。");
-        bmeFileHead.setCalibrationValue(value1mV);
-        long timeInMillis = new Date().getTime();
-        bmeFileHead.setCreatedTime(timeInMillis);
-
-        // 创建ecgFileHead文件头
-        String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(getMacAddress());
-        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, leadType);
-        commentList.clear();
-
-        // 创建ecgFile
-        String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
-        File toFile = FileUtil.getFile(CACHEDIR, fileName);
-        try {
-            fileName = toFile.getCanonicalPath();
-            ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
-            recordDataNum = 0;
-            updateRecordSecond(0);
-            ViseLog.e(ecgFile);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     // 保存Ecg文件
     private void saveEcgFile() {
         if (ecgFile != null) {
@@ -549,6 +550,12 @@ public class EcgMonitorDevice extends BleDevice {
         observer = null;
     }
 
+    // 关闭设备
+    @Override
+    public void close() {
+        super.close();
+        hrProcessor = null;
+    }
 
     private void updateEcgMonitorState() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
