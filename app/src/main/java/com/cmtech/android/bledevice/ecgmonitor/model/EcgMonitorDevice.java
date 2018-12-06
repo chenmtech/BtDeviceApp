@@ -159,7 +159,6 @@ public class EcgMonitorDevice extends BleDevice {
 
     @Override
     public boolean executeAfterConnectSuccess() {
-
         updateSampleRate(DEFAULT_SAMPLERATE);
         updateLeadType(DEFAULT_LEADTYPE);
         updateCalibrationValue(0, DEFAULT_CALIBRATIONVALUE);
@@ -203,20 +202,12 @@ public class EcgMonitorDevice extends BleDevice {
 
     @Override
     public void executeAfterDisconnect() {
-        stopSaveEcgFile();
+        //saveEcgFile();
     }
 
     @Override
     public void executeAfterConnectFailure() {
-        stopSaveEcgFile();
-    }
-
-    private void stopSaveEcgFile() {
-        if(this.isRecord) {
-            saveEcgFile();
-            //this.isRecord = false;
-            //updateRecordStatus(false);
-        }
+        //saveEcgFile();
     }
 
     @Override
@@ -268,15 +259,17 @@ public class EcgMonitorDevice extends BleDevice {
     public synchronized void setEcgRecord(boolean isRecord) {
         if(this.isRecord == isRecord) return;
 
-        if(isRecord) {
+        // 当前isRecord与要设置的isRecord不同，就意味着要改变当前的isRecord状态
+        if(this.isRecord) {
+            saveEcgFile();              // 停止记录心电信号，保存Ecg文件
+        } else {
             if(state == calibratedState || state == sampleState)        // 如果已经标定了或者开始采样了
                 initializeEcgFile();                                    // 才可以开始记录心电信号，初始化Ecg文件
             else {
-                                                                        // 否则什么都不做，会在标定后根据isRecord值初始化Ecg文件
+                // 否则什么都不做，会在标定后根据isRecord值初始化Ecg文件
             }
-        } else {
-            saveEcgFile();              // 停止记录心电信号，保存Ecg文件
         }
+
         this.isRecord = isRecord;
         updateRecordStatus(isRecord);
     }
@@ -352,32 +345,34 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 初始化Ecg文件
     private void initializeEcgFile() {
-        // 创建bmeFileHead文件头
-        BmeFileHead30 bmeFileHead = new BmeFileHead30();
-        bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-        bmeFileHead.setDataType(BmeFileDataType.INT32);
-        bmeFileHead.setFs(sampleRate);
-        bmeFileHead.setInfo("这是一个心电文件。");
-        bmeFileHead.setCalibrationValue(value1mV);
-        long timeInMillis = new Date().getTime();
-        bmeFileHead.setCreatedTime(timeInMillis);
+        if(ecgFile == null) {
+            // 创建bmeFileHead文件头
+            BmeFileHead30 bmeFileHead = new BmeFileHead30();
+            bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+            bmeFileHead.setDataType(BmeFileDataType.INT32);
+            bmeFileHead.setFs(sampleRate);
+            bmeFileHead.setInfo("这是一个心电文件。");
+            bmeFileHead.setCalibrationValue(value1mV);
+            long timeInMillis = new Date().getTime();
+            bmeFileHead.setCreatedTime(timeInMillis);
 
-        // 创建ecgFileHead文件头
-        String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(getMacAddress());
-        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, leadType);
-        commentList.clear();
+            // 创建ecgFileHead文件头
+            String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(getMacAddress());
+            EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, leadType);
+            commentList.clear();
 
-        // 创建ecgFile
-        String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
-        File toFile = FileUtil.getFile(CACHEDIR, fileName);
-        try {
-            fileName = toFile.getCanonicalPath();
-            ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
-            recordDataNum = 0;
-            updateRecordSecond(0);
-            ViseLog.e(ecgFile);
-        } catch (Exception e) {
-            e.printStackTrace();
+            // 创建ecgFile
+            String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
+            File toFile = FileUtil.getFile(CACHEDIR, fileName);
+            try {
+                fileName = toFile.getCanonicalPath();
+                ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
+                recordDataNum = 0;
+                updateRecordSecond(0);
+                ViseLog.e(ecgFile);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -516,7 +511,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 保存Ecg文件
     private void saveEcgFile() {
-        if (ecgFile != null) {
+        if (isRecord && ecgFile != null) {
             try {
                 if(ecgFile.getDataNum() <= 0) {     // 如果没有数据，删除文件
                     ecgFile.close();
@@ -555,6 +550,7 @@ public class EcgMonitorDevice extends BleDevice {
     public void close() {
         super.close();
         hrProcessor = null;
+        saveEcgFile();
     }
 
     private void updateEcgMonitorState() {
