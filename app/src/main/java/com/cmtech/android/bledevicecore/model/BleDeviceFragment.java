@@ -88,14 +88,15 @@ public abstract class BleDeviceFragment extends Fragment{
         // 关闭设备
         device.close();
 
-        // 延时2秒后设为关闭状态，并注销设备状态观察者
+        // 延时后设为关闭状态，并注销设备状态观察者
+        // 延时是为了让设备真正断开
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
                 device.removeDeviceStateObserver(activity);
             }
-        }, 2000);
+        }, 1000);
     }
 
     // 切换设备状态，根据设备的当前状态实现状态切换

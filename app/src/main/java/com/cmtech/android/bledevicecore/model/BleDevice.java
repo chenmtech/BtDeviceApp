@@ -219,12 +219,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             disconnect();
     }
 
-    // 设备是否已关闭
-    public boolean isClosed() {
-        return connectState == BleDeviceConnectState.CONNECT_CLOSED;
-    }
-
-    // 转换设备状态
+    // 切换设备状态
     public synchronized void switchState() {
         ViseLog.i("switchState");
         handler.removeCallbacksAndMessages(null);
@@ -239,6 +234,19 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
                 break;
         }
     }
+
+    // 设备是否已关闭
+    public boolean isClosed() {
+        return connectState == BleDeviceConnectState.CONNECT_CLOSED;
+    }
+
+    // 设备是否已连接
+    public boolean isConnected() {
+        //DeviceMirror deviceMirror = BleDeviceUtil.getDeviceMirror(this);
+        //return (deviceMirror != null && deviceMirror.isConnected());
+        return connectState == BleDeviceConnectState.CONNECT_SUCCESS;
+    }
+
 
     // 扫描或连接
     private synchronized void scanOrConnect() {
@@ -298,13 +306,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             if(curReconnectTimes < canReconnectTimes)
                 curReconnectTimes++;
         }
-    }
-
-
-    // 设备是否已连接
-    protected synchronized boolean isConnected() {
-        DeviceMirror deviceMirror = BleDeviceUtil.getDeviceMirror(this);
-        return (deviceMirror != null && deviceMirror.isConnected());
     }
 
     // 添加Gatt操作命令

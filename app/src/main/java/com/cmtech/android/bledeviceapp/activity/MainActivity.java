@@ -315,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         BleDeviceUtil.clearAllDevice();
 
         UserAccountManager.getInstance().signOut();
-        //android.os.Process.killProcess(android.os.Process.myPid());
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
 
