@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="导联类型："/>
+            android:text="导联："/>
 
         <TextView
             android:id="@+id/tv_ecg_leadtype"
@@ -49,7 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="1mV定标值："/>
+            android:text="定标值："/>
 
         <TextView
             android:id="@+id/tv_ecg_1mv"
@@ -88,15 +88,8 @@
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/bc_hr_histogram"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="250dp"
                 android:layout_centerInParent="true"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@id/bc_hr_histogram"
-                android:layout_centerHorizontal="true"
-                android:text="心率值统计"
-                android:textSize="30sp" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -125,7 +118,7 @@
             android:drawableStart="@mipmap/ic_ecg_heart"
             android:text="0"
             android:textSize="40sp"
-            android:textColor="@color/primary"/>
+            android:textColor="@color/primary_text"/>
 
     </FrameLayout>
 
@@ -218,23 +211,6 @@
                 android:focusable="true"
                 android:visibility="gone"
                 android:text="滤波"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:gravity="center_horizontal">
-            <ImageButton
-                android:id="@+id/ib_hr_statistics"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:clickable="false"
-                android:background="@color/primary_dark"
-                android:src="@mipmap/ic_hr_statistics"
-                android:contentDescription="hr statistics"/>
         </LinearLayout>
 
     </LinearLayout>

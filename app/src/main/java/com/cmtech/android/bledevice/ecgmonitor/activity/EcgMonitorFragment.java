@@ -66,7 +66,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ScanWaveView ecgView;
     private ImageButton ibSwitchSampleEcg;
     private ImageButton ibRecord;
-    private ImageButton ibHrStatistics;
     private CheckBox cbEcgFilter;
     private FrameLayout flEcgView;
     private RelativeLayout rlHrStatistics;
@@ -118,7 +117,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         ibSwitchSampleEcg = view.findViewById(R.id.ib_ecgreplay_startandstop);
         ibRecord = view.findViewById(R.id.ib_ecg_record);
-        ibHrStatistics = view.findViewById(R.id.ib_hr_statistics);
         cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
 
         for(int i = 0; i < commentBtnId.length; i++) {
@@ -163,22 +161,22 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        ibHrStatistics.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                hrStatistics();
-            }
-        });
-
         flEcgView = view.findViewById(R.id.fl_ecgview);
         rlHrStatistics = view.findViewById(R.id.rl_hrstatistics);
         hrBarHistogram = view.findViewById(R.id.bc_hr_histogram);
         initBarChart(hrBarHistogram);
         updateHrBarData(device.getHrStatistics());
-        hrBarDateSet = initBarDataSet("心率统计次数", Color.BLUE, Color.RED);
+        hrBarDateSet = initBarDataSet("心率值统计", Color.BLUE, Color.RED);
         showBarChart();
 
         tvHrTotal = view.findViewById(R.id.tv_ecghr_totaltimes);
+
+        tvEcgHr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hrStatistics();
+            }
+        });
     }
 
     @Override
@@ -214,7 +212,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateLeadType(final EcgLeadType leadType) {
-        tvEcgLeadType.setText(leadType.getDescription());
+        tvEcgLeadType.setText("L"+leadType.getDescription());
     }
 
     @Override
