@@ -56,24 +56,22 @@ public abstract class BleDeviceFragment extends Fragment{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-    }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViseLog.e(getClass().getSimpleName() + ": onCreateView()");
-        // 获取BleDevice信息
+        // 获取BleDevice
         Bundle bundle = getArguments();
         if(bundle == null) throw new IllegalStateException();
         String deviceMac = bundle.getString("device_mac");
         device = activity.getDeviceByMac(deviceMac);
         if(device == null) throw new IllegalArgumentException();
+
+        // 注册设备状态观察者
         device.registerDeviceStateObserver(activity);
 
-        return null;
-    }
+        // 打开设备
+        device.open();
 
+        ViseLog.i(getClass().getSimpleName() + " " + device.getMacAddress() + ": onCreate()");
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -81,18 +79,16 @@ public abstract class BleDeviceFragment extends Fragment{
 
         // 更新连接状态
         updateDeviceState();
-
-        // 打开设备
-        device.open();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
+        // 关闭设备
         device.close();
 
-        // 延时2秒后设为关闭状态，才能进行下次打开
+        // 延时2秒后设为关闭状态，并注销设备状态观察者
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -111,12 +107,7 @@ public abstract class BleDeviceFragment extends Fragment{
     public void updateDeviceState(final BleDevice device) {
         // isAdded()用来判断Fragment是否与Activity关联，如果关联了，才能更新状态信息
         if(device == this.device && isAdded()) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    updateDeviceState();
-                }
-            });
+            updateDeviceState();
         }
     }
 
