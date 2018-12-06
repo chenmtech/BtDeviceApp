@@ -166,7 +166,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         hrBarHistogram = view.findViewById(R.id.bc_hr_histogram);
         initBarChart(hrBarHistogram);
         updateHrBarData(device.getHrStatistics());
-        hrBarDateSet = initBarDataSet("心率值统计", Color.BLUE, Color.RED);
+        hrBarDateSet = initBarDataSet("心率值统计", Color.BLUE, Color.BLACK);
         showBarChart();
 
         tvHrTotal = view.findViewById(R.id.tv_ecghr_totaltimes);

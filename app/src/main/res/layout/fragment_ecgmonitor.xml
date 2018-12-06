@@ -64,7 +64,8 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:background="@color/secondary">
 
         <FrameLayout
             android:id="@+id/fl_ecgview"
@@ -98,13 +99,15 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="心跳总次数：" />
+                    android:text="心跳总次数："
+                    android:textColor="@color/primary_text"/>
 
                 <TextView
                     android:id="@+id/tv_ecghr_totaltimes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0" />
+                    android:text="0"
+                    android:textColor="@color/primary_text"/>
 
             </LinearLayout>
         </RelativeLayout>
@@ -118,7 +121,7 @@
             android:drawableStart="@mipmap/ic_ecg_heart"
             android:text="0"
             android:textSize="40sp"
-            android:textColor="@color/primary_text"/>
+            android:textColor="@color/primary"/>
 
     </FrameLayout>
 
