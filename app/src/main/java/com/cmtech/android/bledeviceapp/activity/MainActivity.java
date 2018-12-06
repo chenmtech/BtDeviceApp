@@ -61,7 +61,7 @@ import static java.lang.Thread.sleep;
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
-public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver, IBleDeviceFragmentActivity {
+public class MainActivity extends AppCompatActivity implements IBleDeviceFragmentActivity {
     private static final String TAG = "MainActivity";
 
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
 
     ////////////////////////////////////////////////////////////
-    // IBleDeviceStateObserver设备状态观察者接口函数
+    // IBleDeviceFragmentActivity接口函数
     ////////////////////////////////////////////////////////////
 
     // 更新设备状态
@@ -469,9 +469,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 }
             });
             // 添加Activity作为设备状态的观察者
-            device.registerDeviceStateObserver(this);
+            //device.registerDeviceStateObserver(this);
             // 通知观察者
-            device.notifyDeviceStateObservers();
+            //device.notifyDeviceStateObservers();
+            updateDeviceState(device);
         }
         return true;
     }

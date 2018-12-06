@@ -82,7 +82,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED;
 
     // 设置设备连接状态，并通知状态观察者
-    private void setConnectState(BleDeviceConnectState connectState) {
+    public void setConnectState(BleDeviceConnectState connectState) {
         this.connectState = connectState;
         notifyDeviceStateObservers();
     }
@@ -217,15 +217,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             stopScan();
         else
             disconnect();
-
-        // 延时2秒后设为关闭状态，才能进行下次打开
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
-                removeAllDeviceStateObserver();
-            }
-        }, 2000);
     }
 
     // 设备是否已关闭

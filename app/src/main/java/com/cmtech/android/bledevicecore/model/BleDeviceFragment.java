@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.vise.log.ViseLog;
+
 /**
  * Created by bme on 2018/2/27.
  */
@@ -39,19 +41,6 @@ public abstract class BleDeviceFragment extends Fragment{
         return fragment;
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // 获取BleDevice信息
-        Bundle bundle = getArguments();
-        if(bundle == null) throw new IllegalStateException();
-        String deviceMac = bundle.getString("device_mac");
-        device = activity.getDeviceByMac(deviceMac);
-        if(device == null) throw new IllegalArgumentException();
-
-        return null;
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -62,8 +51,29 @@ public abstract class BleDeviceFragment extends Fragment{
 
         // 获得activity
         activity = (IBleDeviceFragmentActivity) context;
-
     }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        ViseLog.e(getClass().getSimpleName() + ": onCreateView()");
+        // 获取BleDevice信息
+        Bundle bundle = getArguments();
+        if(bundle == null) throw new IllegalStateException();
+        String deviceMac = bundle.getString("device_mac");
+        device = activity.getDeviceByMac(deviceMac);
+        if(device == null) throw new IllegalArgumentException();
+        device.registerDeviceStateObserver(activity);
+
+        return null;
+    }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -73,7 +83,7 @@ public abstract class BleDeviceFragment extends Fragment{
         updateDeviceState();
 
         // 打开设备
-        openDevice();
+        device.open();
     }
 
     @Override
@@ -81,11 +91,15 @@ public abstract class BleDeviceFragment extends Fragment{
         super.onDestroy();
 
         device.close();
-    }
 
-    // 打开设备
-    public void openDevice() {
-        device.open();
+        // 延时2秒后设为关闭状态，才能进行下次打开
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+                device.removeDeviceStateObserver(activity);
+            }
+        }, 2000);
     }
 
     // 切换设备状态，根据设备的当前状态实现状态切换
