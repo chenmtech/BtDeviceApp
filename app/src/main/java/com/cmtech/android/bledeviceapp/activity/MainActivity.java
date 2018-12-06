@@ -34,7 +34,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileReplayActivity;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgHrHistogramActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
@@ -43,7 +42,6 @@ import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.model.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.model.BleDevice;
 import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.model.BleDeviceConnectState;
 import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.model.IBleDeviceFragmentActivity;
@@ -299,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             case R.id.toolbar_close:
                 fragment = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
                 if(fragment != null) {
-                    fragment.closeDevice();
+                    deleteFragment(fragment);
                 } else {
                     finish();
                 }
@@ -308,29 +306,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         return true;
     }
 
-
     @Override
     protected void onDestroy() {
         ViseLog.e(TAG + ":onDestroy");
-
         super.onDestroy();
-
-        for(BleDevice device : deviceList) {
-            if(device != null) {
-                device.removeDeviceStateObserver(this);
-            }
-        }
 
         BleDeviceUtil.disconnectAllDevice();
         BleDeviceUtil.clearAllDevice();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        //MyApplication.getViseBle().disconnect();
-        //MyApplication.getViseBle().clear();
-        //android.os.Process.killProcess(android.os.Process.myPid());
 
         UserAccountManager.getInstance().signOut();
         //android.os.Process.killProcess(android.os.Process.myPid());
@@ -368,13 +350,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             }
         });
 
-    }
-
-    // 关闭设备
-    @Override
-    public void closeDevice(BleDeviceFragment fragment) {
-        if(fragment == null) return;
-        deleteFragment(fragment);
     }
 
     @Override

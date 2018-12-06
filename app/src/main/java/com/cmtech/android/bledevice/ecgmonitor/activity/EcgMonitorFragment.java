@@ -183,13 +183,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     public void onDestroy() {
         super.onDestroy();
 
-        // 注销观察者
-        if(device != null) {
-            device.removeEcgMonitorObserver();
-
-            // 关闭时要保存数据，防止丢失数据
-            device.stopEcgRecord();
-        }
     }
 
     @Override

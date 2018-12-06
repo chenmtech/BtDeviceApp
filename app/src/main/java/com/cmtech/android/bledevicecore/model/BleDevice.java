@@ -207,7 +207,8 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 关闭设备
     public synchronized void close() {
-        ViseLog.i("close");
+        ViseLog.e(getClass().getSimpleName() + " " + getMacAddress() + ": close()");
+
         handler.removeCallbacksAndMessages(null);
 
         isClosing = true;
@@ -222,6 +223,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             @Override
             public void run() {
                 setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+                removeAllDeviceStateObserver();
             }
         }, 2000);
     }
@@ -367,6 +369,13 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         int index = stateObserverList.indexOf(observer);
         if(index >= 0) {
             stateObserverList.remove(index);
+        }
+    }
+
+    // 删除所有设备状态观察者
+    public void removeAllDeviceStateObserver() {
+        for(IBleDeviceStateObserver observer : stateObserverList) {
+            removeDeviceStateObserver(observer);
         }
     }
 

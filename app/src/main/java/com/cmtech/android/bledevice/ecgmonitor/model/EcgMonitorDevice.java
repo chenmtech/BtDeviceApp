@@ -52,6 +52,8 @@ import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
  */
 
 public class EcgMonitorDevice extends BleDevice {
+    private final static String TAG = "EcgMonitorDevice";
+
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;                          // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
@@ -262,7 +264,11 @@ public class EcgMonitorDevice extends BleDevice {
         // 当前isRecord与要设置的isRecord不同，就意味着要改变当前的isRecord状态
         if(this.isRecord) {
             saveEcgFile();              // 停止记录心电信号，保存Ecg文件
-        } else {
+        }
+
+        this.isRecord = isRecord;
+
+        if(this.isRecord) {
             if(state == calibratedState || state == sampleState)        // 如果已经标定了或者开始采样了
                 initializeEcgFile();                                    // 才可以开始记录心电信号，初始化Ecg文件
             else {
@@ -270,7 +276,6 @@ public class EcgMonitorDevice extends BleDevice {
             }
         }
 
-        this.isRecord = isRecord;
         updateRecordStatus(isRecord);
     }
 
@@ -405,6 +410,34 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
+    // 保存Ecg文件
+    private void saveEcgFile() {
+        ViseLog.e(TAG + " " + getMacAddress() + ": saveEcgFile()");
+
+        if (ecgFile != null) {
+            try {
+                if(ecgFile.getDataNum() <= 0) {     // 如果没有数据，删除文件
+                    ecgFile.close();
+                    FileUtil.deleteFile(ecgFile.getFile());
+                } else {    // 如果有数据
+                    if(!commentList.isEmpty()) {
+                        for(EcgComment comment : commentList) {
+                            ecgFile.addComment(comment);
+                        }
+                    }
+                    ecgFile.close();
+                    ViseLog.e(ecgFile);
+                    File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
+                    // 将缓存区中的文件移动到ECGFILEDIR目录中
+                    FileUtil.moveFile(ecgFile.getFile(), toFile);
+                }
+                ecgFile = null;
+            } catch (FileException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     // 处理Ecg信号
     public void processEcgSignal(int ecgSignal) {
         // 标定后滤波处理
@@ -509,31 +542,6 @@ public class EcgMonitorDevice extends BleDevice {
 
     }
 
-    // 保存Ecg文件
-    private void saveEcgFile() {
-        if (isRecord && ecgFile != null) {
-            try {
-                if(ecgFile.getDataNum() <= 0) {     // 如果没有数据，删除文件
-                    ecgFile.close();
-                    FileUtil.deleteFile(ecgFile.getFile());
-                } else {    // 如果有数据
-                    if(!commentList.isEmpty()) {
-                        for(EcgComment comment : commentList) {
-                            ecgFile.addComment(comment);
-                        }
-                    }
-                    ecgFile.close();
-                    ViseLog.e(ecgFile);
-                    File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
-                    // 将缓存区中的文件移动到ECGFILEDIR目录中
-                    FileUtil.moveFile(ecgFile.getFile(), toFile);
-                }
-                ecgFile = null;
-            } catch (FileException | IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     // 登记心电监护仪观察者
     public void registerEcgMonitorObserver(IEcgMonitorObserver observer) {
@@ -549,8 +557,15 @@ public class EcgMonitorDevice extends BleDevice {
     @Override
     public void close() {
         super.close();
+
+        removeEcgMonitorObserver();
+
         hrProcessor = null;
-        saveEcgFile();
+
+        if(isRecord) {
+            saveEcgFile();
+            isRecord = false;
+        }
     }
 
     private void updateEcgMonitorState() {
