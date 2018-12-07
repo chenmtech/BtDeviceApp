@@ -19,7 +19,7 @@ import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
+import com.cmtech.android.bledevicecore.BleDeviceFragment;
 
 import java.util.Locale;
 

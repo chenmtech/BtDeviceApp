@@ -4,12 +4,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.bledevicecore.model.BleDataOpException;
-import com.cmtech.android.bledevicecore.model.BleDevice;
-import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.model.BleGattElement;
-import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
+import com.cmtech.android.bledevicecore.BleDataOpException;
+import com.cmtech.android.bledevicecore.BleDevice;
+import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.BleDeviceUtil;
+import com.cmtech.android.bledevicecore.BleGattElement;
+import com.cmtech.android.bledevicecore.IBleDataOpCallback;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -21,7 +21,7 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.CCCUUID;
 
 public class TempHumidDevice extends BleDevice {
     private static final String TAG = "TempHumidDevice";

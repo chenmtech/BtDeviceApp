@@ -21,12 +21,12 @@ import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorInitialStat
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorSampleState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
-import com.cmtech.android.bledevicecore.model.BleDataOpException;
-import com.cmtech.android.bledevicecore.model.BleDevice;
-import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.model.BleGattElement;
-import com.cmtech.android.bledevicecore.model.IBleDataOpCallback;
+import com.cmtech.android.bledevicecore.BleDataOpException;
+import com.cmtech.android.bledevicecore.BleDevice;
+import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.BleDeviceUtil;
+import com.cmtech.android.bledevicecore.BleGattElement;
+import com.cmtech.android.bledevicecore.IBleDataOpCallback;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.exception.FileException;
@@ -42,8 +42,8 @@ import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CACHEDIR;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.CACHEDIR;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.CCCUUID;
 
 
 /**

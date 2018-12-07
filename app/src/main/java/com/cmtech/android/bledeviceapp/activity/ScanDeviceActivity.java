@@ -17,10 +17,10 @@ import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
-import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.model.BleDeviceConfig;
-import com.cmtech.android.bledevicecore.model.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.model.Uuid;
+import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.BleDeviceConfig;
+import com.cmtech.android.bledevicecore.BleDeviceUtil;
+import com.cmtech.android.bledevicecore.Uuid;
 
 import java.util.ArrayList;
 import java.util.List;

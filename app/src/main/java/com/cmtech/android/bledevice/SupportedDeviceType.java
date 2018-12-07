@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevicecore.model.BleDeviceType;
+import com.cmtech.android.bledevicecore.BleDeviceType;
 
 public class SupportedDeviceType {
 

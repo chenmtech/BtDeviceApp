@@ -12,8 +12,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.thermo.model.IThermoDataObserver;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevicecore.model.BleDevice;
-import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
+import com.cmtech.android.bledevicecore.BleDeviceFragment;
 
 import java.util.Locale;
 

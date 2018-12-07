@@ -27,7 +27,7 @@ import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledevicecore.model.BleDeviceFragment;
+import com.cmtech.android.bledevicecore.BleDeviceFragment;
 import com.cmtech.dsp.seq.RealSeq;
 import com.cmtech.dsp.util.SeqUtil;
 import com.github.mikephil.charting.animation.Easing;

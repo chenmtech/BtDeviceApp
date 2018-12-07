@@ -22,17 +22,17 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo.DEFAULT_DEVICE_AUTOCONNECT;
-import static com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo.DEFAULT_DEVICE_IMAGEPATH;
-import static com.cmtech.android.bledevicecore.model.BleDeviceBasicInfo.DEFAULT_DEVICE_RECONNECTTIMES;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.IMAGEDIR;
+import static com.cmtech.android.bledevicecore.BleDeviceBasicInfo.DEFAULT_DEVICE_AUTOCONNECT;
+import static com.cmtech.android.bledevicecore.BleDeviceBasicInfo.DEFAULT_DEVICE_IMAGEPATH;
+import static com.cmtech.android.bledevicecore.BleDeviceBasicInfo.DEFAULT_DEVICE_RECONNECTTIMES;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.IMAGEDIR;
 
 /**
  *  DeviceBasicInfoActivity: 设备基本信息Activity，可用于修改BleDeviceBasicInfo字段

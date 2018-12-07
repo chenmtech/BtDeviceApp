@@ -12,7 +12,7 @@ import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity;
-import com.cmtech.android.bledevicecore.model.Uuid;
+import com.cmtech.android.bledevicecore.Uuid;
 
 import java.util.List;
 

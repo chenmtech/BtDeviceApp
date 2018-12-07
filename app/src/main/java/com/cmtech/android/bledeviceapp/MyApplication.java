@@ -4,21 +4,19 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import com.cmtech.android.bledevicecore.model.BleDeviceConfig;
-import com.cmtech.android.bledevicecore.model.BleDeviceConstant;
+import com.cmtech.android.bledevicecore.BleDeviceConfig;
+import com.cmtech.android.bledevicecore.BleDeviceConstant;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
 
-import cn.sharesdk.framework.ShareSDK;
-
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CONNECT_RETRY_COUNT;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.CONNECT_TIMEOUT;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.RECONNECT_INTERVAL;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.SCAN_DEVICE_NAME;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.SCAN_TIMEOUT;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.CONNECT_RETRY_COUNT;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.CONNECT_TIMEOUT;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.RECONNECT_INTERVAL;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_DEVICE_NAME;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_TIMEOUT;
 
 /**
  * Created by bme on 2018/2/19.
