@@ -32,7 +32,7 @@ public enum BleDeviceConnectState {
 
     private int code;
     private String description;
-    int icon;
+    private int icon;
 
     public int getCode() {
         return code;

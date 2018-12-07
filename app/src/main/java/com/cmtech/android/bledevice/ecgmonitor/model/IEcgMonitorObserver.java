@@ -1,11 +1,10 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
 
 public interface IEcgMonitorObserver {
     // 更新设备状态
-    void updateState(IEcgMonitorState state);
+    void updateState(EcgMonitorState state);
     // 更新采样率
     void updateSampleRate(int sampleRate);
     // 更新导联类型

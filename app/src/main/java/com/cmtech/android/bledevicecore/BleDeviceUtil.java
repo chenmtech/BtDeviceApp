@@ -79,7 +79,7 @@ public class BleDeviceUtil {
 
     // 列出目录中的所有.bme文件
     public static File[] listDirBmeFiles(File fileDir) {
-        if(fileDir == null || fileDir.exists()) return null;
+        if(fileDir == null || !fileDir.exists()) return null;
 
         return fileDir.listFiles(new FilenameFilter() {
             @Override

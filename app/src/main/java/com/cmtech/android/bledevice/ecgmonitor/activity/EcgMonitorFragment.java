@@ -19,10 +19,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.state.IEcgMonitorState;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -186,7 +186,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateState(final IEcgMonitorState state) {
+    public void updateState(final EcgMonitorState state) {
         if(state.canStart()) {
             ibSwitchSampleEcg.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_48px));
             ibSwitchSampleEcg.setClickable(true);
