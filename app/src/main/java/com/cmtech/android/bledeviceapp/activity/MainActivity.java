@@ -43,6 +43,7 @@ import com.cmtech.android.bledevicecore.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.BleDevice;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.BleDeviceFragment;
+import com.cmtech.android.bledevicecore.BleDeviceManager;
 import com.cmtech.android.bledevicecore.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.IBleDeviceFragmentActivity;
 import com.vise.log.ViseLog;
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 已登记的设备列表
     private final List<BleDevice> deviceList = new ArrayList<>();
+
+    private final BleDeviceManager deviceManager = BleDeviceManager.getInstance();
 
     // 显示已登记设备列表的Adapter和RecyclerView
     private BleDeviceListAdapter deviceListAdapter;
