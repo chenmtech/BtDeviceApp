@@ -29,7 +29,7 @@ import static com.cmtech.android.bledevicecore.BleDeviceConstant.RECONNECT_INTER
  */
 
 public abstract class BleDevice implements IDeviceMirrorStateObserver {
-    // 设备基本信息
+    // 设备基本信息对象
     private BleDeviceBasicInfo basicInfo;
     public BleDeviceBasicInfo getBasicInfo() {
         return basicInfo;

@@ -11,6 +11,7 @@ public class EcgCalibrator65536 extends EcgCalibrator {
         super(calibrateValueBefore);
     }
 
+    // 乘以65536可以用右移16位实现
     @Override
     public int process(int data) {
         return (data<<16)/calibrateValueBefore;
