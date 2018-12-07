@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter;
 
 import com.cmtech.dsp.filter.IDigitalFilter;
 import com.cmtech.dsp.filter.design.NotchDesigner;

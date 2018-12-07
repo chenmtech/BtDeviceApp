@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess;
 
 /**
  * EcgHrWarner: 心率报警器类
