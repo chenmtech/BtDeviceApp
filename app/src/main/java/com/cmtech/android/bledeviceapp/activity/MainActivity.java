@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 工具条上的连接菜单和关闭菜单
     private MenuItem menuSwitch;
-    private MenuItem menuClose;
 
     // 显示账户名,用户名和头像
     private TextView tvAccountName;
@@ -222,8 +221,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 if(resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
                     // 用基本信息创建BleDevice
-                    if(createBleDeviceUsingBasicInfo(basicInfo)) {
-                        // 创建成功后，将设备基本信息保存到数据库中
+                    BleDevice device = createBleDeviceUsingBasicInfo(basicInfo);
+                    if(device != null) {
+                        addDeviceToList(device);
                         basicInfo.save();
                     }
                 }
@@ -267,7 +267,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
         menuSwitch = menu.findItem(R.id.toolbar_switch);
-        menuClose = menu.findItem(R.id.toolbar_close);
         return true;
     }
 
@@ -448,31 +447,32 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 }
             });
             for(BleDeviceBasicInfo basicInfo : basicInfoList) {
-                createBleDeviceUsingBasicInfo(basicInfo);
+                BleDevice device = createBleDeviceUsingBasicInfo(basicInfo);
+                if(device != null) {
+                    addDeviceToList(device);
+                }
             }
         }
     }
 
     // 根据设备基本信息创建一个新的设备，并添加到设备列表中
-    private boolean createBleDeviceUsingBasicInfo(BleDeviceBasicInfo basicInfo) {
+    private BleDevice createBleDeviceUsingBasicInfo(BleDeviceBasicInfo basicInfo) {
         // 获取相应的抽象工厂
         AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(basicInfo);
-        if(factory == null) return false;
-        // 用工厂创建BleDevice
-        BleDevice device = factory.createBleDevice();
+        return (factory == null) ? null : factory.createBleDevice();
+    }
 
-        if(device != null) {
-            // 将设备添加到设备列表
-            deviceList.add(device);
-            Collections.sort(deviceList, new Comparator<BleDevice>() {
-                @Override
-                public int compare(BleDevice o1, BleDevice o2) {
-                    return o1.getMacAddress().compareTo(o2.getMacAddress());
-                }
-            });
-            updateDeviceState(device);
-        }
-        return true;
+    // 将设备添加到deviceList中
+    private void addDeviceToList(BleDevice device) {
+        // 将设备添加到设备列表
+        deviceList.add(device);
+        Collections.sort(deviceList, new Comparator<BleDevice>() {
+            @Override
+            public int compare(BleDevice o1, BleDevice o2) {
+                return o1.getMacAddress().compareTo(o2.getMacAddress());
+            }
+        });
+        updateDeviceState(device);
     }
 
 
