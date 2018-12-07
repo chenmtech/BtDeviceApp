@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore.model;
+package com.cmtech.android.bledevicecore;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;

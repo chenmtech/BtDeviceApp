@@ -30,7 +30,7 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.IMAGEDIR;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.IMAGEDIR;
 
 public class UserInfoActivity extends AppCompatActivity {
     private EditText etUserName;

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore.model;
+package com.cmtech.android.bledevicecore;
 
 import java.nio.ByteBuffer;
 import java.util.UUID;

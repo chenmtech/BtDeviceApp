@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore.model;
+package com.cmtech.android.bledevicecore;
 
 /**
  * IBleDeviceStateObserver: 设备状态观察者接口

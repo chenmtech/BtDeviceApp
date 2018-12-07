@@ -1,11 +1,9 @@
-package com.cmtech.android.bledevicecore.model;
+package com.cmtech.android.bledevicecore;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.common.PropertyType;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.core.DeviceMirror;
-
-import java.io.Serializable;
 
 /**
  * Created by bme on 2018/3/1.

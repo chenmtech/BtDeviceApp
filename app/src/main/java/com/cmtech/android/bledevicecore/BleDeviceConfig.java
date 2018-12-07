@@ -1,11 +1,11 @@
-package com.cmtech.android.bledevicecore.model;
+package com.cmtech.android.bledevicecore;
 
 import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.common.BleConfig;
 import com.cmtech.android.bledeviceapp.MyApplication;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.OPDATA_RETRY_COUNT;
-import static com.cmtech.android.bledevicecore.model.BleDeviceConstant.SCAN_DEVICE_NAME;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.OPDATA_RETRY_COUNT;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_DEVICE_NAME;
 
 /**
  * Created by bme on 2018/10/22.

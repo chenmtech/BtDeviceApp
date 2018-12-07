@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore.model;
+package com.cmtech.android.bledevicecore;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.common.PropertyType;
@@ -9,7 +9,6 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.HexUtil;
 import com.vise.log.ViseLog;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Queue;
 

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore.model;
+package com.cmtech.android.bledevicecore;
 
 import com.cmtech.android.ble.common.BleExceptionCode;
 import com.cmtech.android.ble.exception.BleException;
