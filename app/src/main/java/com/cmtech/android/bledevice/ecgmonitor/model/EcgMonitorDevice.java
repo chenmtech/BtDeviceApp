@@ -13,7 +13,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.EcgPreFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.IEcgFilter;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.EcgHrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.EcgHrHistogram;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.EcgHrWarner;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.IEcgHrProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratedState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratingState;
@@ -42,6 +43,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.IEcgHrProcessor.INVALID_HR;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.CACHEDIR;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.CCCUUID;
 
@@ -126,7 +128,9 @@ public class EcgMonitorDevice extends BleDevice {
 
     private QrsDetector qrsDetector;                         // Ecg Qrs波检测器，可用于获取心率
 
-    private IEcgHrProcessor hrProcessor;                     // Ecg心率处理器
+    private EcgHrWarner hrWarner;                            // Ecg心率报警器
+
+    private EcgHrHistogram hrHistogram;                      // Ecg心率直方图
 
     // 设备状态
     private final EcgMonitorInitialState initialState = new EcgMonitorInitialState(this);               // 初始化
@@ -405,9 +409,10 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 初始化心率处理器
     private void initializeHrProcessor() {
-        if(hrProcessor == null) {
-            hrProcessor = new EcgHrProcessor();
+        if(hrHistogram == null) {
+            hrHistogram = new EcgHrHistogram();
         }
+        hrWarner = new EcgHrWarner();
     }
 
     // 保存Ecg文件
@@ -460,25 +465,23 @@ public class EcgMonitorDevice extends BleDevice {
         // 检测Qrs波，获取心率
         int hr = qrsDetector.outputHR(ecgSignal);
 
-        if(hr != 0) {
+        if(hr != INVALID_HR) {
             // 更新心率值显示
             updateEcgHr(hr);
 
             // 处理心率值
-            hrProcessor.process(hr);
+            hrWarner.process(hr);
+            hrHistogram.process(hr);
 
             // 如果需要报警
-            if(((EcgHrProcessor) hrProcessor).isWarn()) {
+            if(hrWarner.isWarn()) {
                 notifyHrWarn();
             }
         }
     }
 
     public int[] getHrStatistics() {
-        if(hrProcessor instanceof EcgHrProcessor) {
-            return ((EcgHrProcessor) hrProcessor).getHrHistgram();
-        }
-        return null;
+        return (hrHistogram == null) ? null : hrHistogram.getHistgram();
     }
 
     // 启动ECG信号采集
@@ -560,7 +563,7 @@ public class EcgMonitorDevice extends BleDevice {
 
         removeEcgMonitorObserver();
 
-        hrProcessor = null;
+        hrHistogram.reset();
 
         if(isRecord) {
             saveEcgFile();
