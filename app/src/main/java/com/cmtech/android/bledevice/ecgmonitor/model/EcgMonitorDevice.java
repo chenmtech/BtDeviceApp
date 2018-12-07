@@ -5,17 +5,16 @@ import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgcalibrator.EcgCalibrator65536;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgcalibrator.IEcgCalibrator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.EcgCalibrator65536;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.EcgPreFilterWith35HzNotch;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfilter.IEcgFilter;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.EcgHrHistogram;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.EcgHrWarner;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.IEcgHrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter.EcgPreFilterWith35HzNotch;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter.IEcgFilter;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.EcgHrHistogram;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.EcgHrWarner;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratedState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorCalibratingState;
 import com.cmtech.android.bledevice.ecgmonitor.model.state.EcgMonitorInitialState;
@@ -43,7 +42,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess.IEcgHrProcessor.INVALID_HR;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.CACHEDIR;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.CCCUUID;
 

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecghrprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess;
 
 /**
  * EcgHrHistogram: 心率直方图类
