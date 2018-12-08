@@ -38,6 +38,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
+import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.BleDevice;
@@ -45,13 +46,10 @@ import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.BleDeviceManager;
 import com.cmtech.android.bledevicecore.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.IBleDeviceFragmentActivity;
+import com.cmtech.android.bledevicecore.IBleDeviceStateObserver;
 import com.vise.log.ViseLog;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
@@ -61,16 +59,14 @@ import static java.lang.Thread.sleep;
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
-public class MainActivity extends AppCompatActivity implements IBleDeviceFragmentActivity {
+public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver {
     private static final String TAG = "MainActivity";
 
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备基本信息返回码
     private final static int REQUESTCODE_MODIFYUSERINFO = 3;     // 修改用户信息返回码
 
-    // 已登记的设备列表
-    private final List<BleDevice> deviceList = new ArrayList<>();
-
+    // 设备管理器
     private final BleDeviceManager deviceManager = BleDeviceManager.getInstance();
 
     // 显示已登记设备列表的Adapter和RecyclerView
@@ -121,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDeviceList.setLayoutManager(layoutManager);
         rvDeviceList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        deviceListAdapter = new BleDeviceListAdapter(deviceList, this);
+        deviceListAdapter = new BleDeviceListAdapter(deviceManager.getDeviceList(), this);
         rvDeviceList.setAdapter(deviceListAdapter);
 
         // 导航菜单设置
@@ -132,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_registerdevice:
-                        registerNewDevice();
+                        startScanDevice();
                         return true;
                     case R.id.nav_readecgrecord:
                         replayEcg();
@@ -223,11 +219,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
                 if(resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
-                    // 用基本信息创建BleDevice
-                    BleDevice device = createBleDeviceUsingBasicInfo(basicInfo);
-                    if(device != null) {
-                        addDeviceToList(device);
-                        basicInfo.save();
+                    if(basicInfo != null) {
+                        BleDevice device = deviceManager.addDevice(basicInfo);
+                        if(device != null) {
+                            updateDeviceListAdapter();
+                            basicInfo.saveToPref();
+                        }
                     }
                 }
                 break;
@@ -238,17 +235,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
                 if ( resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
-                    String macAddress = basicInfo.getMacAddress();
-                    BleDevice device = null;
-                    for(BleDevice ele : deviceList) {
-                        if(macAddress.equalsIgnoreCase(ele.getMacAddress())) {
-                            device = ele;
-                            break;
-                        }
-                    }
+                    BleDevice device = deviceManager.findDevice(basicInfo);
 
                     if(device != null) {
-                        basicInfo.save();
+                        basicInfo.saveToPref();
                         device.setBasicInfo(basicInfo);
                         deviceListAdapter.notifyDataSetChanged();
                     }
@@ -319,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         UserAccountManager.getInstance().signOut();
 
-        android.os.Process.killProcess(android.os.Process.myPid());
+        //android.os.Process.killProcess(android.os.Process.myPid());
     }
 
 
@@ -330,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
 
     ////////////////////////////////////////////////////////////
-    // IBleDeviceFragmentActivity接口函数
+    // IBleDeviceStateObserver接口函数
     ////////////////////////////////////////////////////////////
 
     // 更新设备状态
@@ -356,17 +346,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     }
 
-    @Override
-    public BleDevice getDeviceByMac(String mac) {
-        for(BleDevice device : deviceList) {
-            if(device.getMacAddress().equalsIgnoreCase(mac)) {
-                return device;
-            }
-        }
-        return null;
-    }
-
-    // 打开一个设备：为设备创建并打开Fragment
+    // 打开设备：为设备创建并打开Fragment
     public void openDevice(BleDevice device) {
         if(device == null) return;
 
@@ -380,12 +360,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         }
     }
 
-    private boolean isDeviceFragmentOpened(BleDevice device) {
-        return (findOpenedFragment(device) != null);
-    }
-
-    // 删除一个已登记设备
-    public void deleteDeviceFromRegisteredDeviceList(final BleDevice device) {
+    // 删除设备
+    public void deleteDevice(final BleDevice device) {
         if(device == null) return;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -394,8 +370,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                device.getBasicInfo().delete();
-                deviceList.remove(device);
+                device.getBasicInfo().deleteFromPref();
+                deviceManager.deleteDevice(device);
                 updateDeviceListAdapter();
             }
         });
@@ -409,11 +385,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     // 修改设备基本信息 
-    public void modifyDeviceBasicInfo(final BleDevice device) {
+    public void modifyDeviceBasicInfo(final BleDeviceBasicInfo basicInfo) {
         Intent intent = new Intent(this, DeviceBasicInfoActivity.class);
-        intent.putExtra(DEVICE_BASICINFO, device.getBasicInfo());
+        intent.putExtra(DEVICE_BASICINFO, basicInfo);
 
         startActivityForResult(intent, REQUESTCODE_MODIFYDEVICE);
+    }
+
+    private boolean isDeviceFragmentOpened(BleDevice device) {
+        return (findOpenedFragment(device) != null);
     }
 
     private void initMainLayout() {
@@ -442,42 +422,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void initializeBleDevice() {
         // 从数据库获取设备信息，并构造相应的BLEDevice
         List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
-        if(basicInfoList != null && !basicInfoList.isEmpty()) {
-            Collections.sort(basicInfoList, new Comparator<BleDeviceBasicInfo>() {
-                @Override
-                public int compare(BleDeviceBasicInfo o1, BleDeviceBasicInfo o2) {
-                    return o1.getMacAddress().compareTo(o2.getMacAddress());
-                }
-            });
-            for(BleDeviceBasicInfo basicInfo : basicInfoList) {
-                BleDevice device = createBleDeviceUsingBasicInfo(basicInfo);
-                if(device != null) {
-                    addDeviceToList(device);
-                }
-            }
-        }
+        deviceManager.addDevice(basicInfoList);
+        updateDeviceListAdapter();
     }
-
-    // 根据设备基本信息创建一个新的设备，并添加到设备列表中
-    private BleDevice createBleDeviceUsingBasicInfo(BleDeviceBasicInfo basicInfo) {
-        // 获取相应的抽象工厂
-        AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(basicInfo);
-        return (factory == null) ? null : factory.createBleDevice();
-    }
-
-    // 将设备添加到deviceList中
-    private void addDeviceToList(BleDevice device) {
-        // 将设备添加到设备列表
-        deviceList.add(device);
-        Collections.sort(deviceList, new Comparator<BleDevice>() {
-            @Override
-            public int compare(BleDevice o1, BleDevice o2) {
-                return o1.getMacAddress().compareTo(o2.getMacAddress());
-            }
-        });
-        updateDeviceState(device);
-    }
-
 
     // 打开或关闭侧滑菜单
     private void openDrawer(boolean open) {
@@ -486,20 +433,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         } else {
             drawerLayout.closeDrawer(GravityCompat.START);
         }
-    }
-
-    // 产生已登记的设备Mac地址字符串列表
-    private List<String> getRegisteredDeviceMacAddressList() {
-        List<String> deviceMacList = new ArrayList<>();
-        for(BleDevice device : deviceList) {
-            deviceMacList.add(device.getMacAddress());
-        }
-        return deviceMacList;
-    }
-
-    // 登记新设备
-    private void registerNewDevice() {
-        startScanDevice();
     }
 
     // 心电信号回放
@@ -529,23 +462,21 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     private void updateNavigationViewUsingUserInfo() {
-        tvAccountName.setText(UserAccountManager.getInstance().getUserAccount().getAccountName());
-        tvUserName.setText(UserAccountManager.getInstance().getUserAccount().getUserName());
-        String imagePath = UserAccountManager.getInstance().getUserAccount().getImagePath();
+        UserAccount account = UserAccountManager.getInstance().getUserAccount();
+        if(account == null) return;
+        tvAccountName.setText(account.getAccountName());
+        tvUserName.setText(account.getUserName());
+        String imagePath = account.getImagePath();
         if(!"".equals(imagePath))
             Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
     }
 
     // 开始扫描设备
     private void startScanDevice() {
-        List<String> deviceMacList = getRegisteredDeviceMacAddressList();
-        startScanActivity(deviceMacList);
-    }
+        List<String> deviceMacList = deviceManager.getDeviceMacList();
 
-    // 启动扫描设备Activity
-    private void startScanActivity(List<String> registeredDeviceMacList) {
         Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
-        intent.putExtra("registered_device_list", (Serializable) registeredDeviceMacList);
+        intent.putExtra("registered_device_list", (Serializable) deviceMacList);
 
         startActivityForResult(intent, REQUESTCODE_REGISTERDEVICE);
     }

@@ -17,8 +17,8 @@ import com.vise.log.ViseLog;
 public abstract class BleDeviceFragment extends Fragment{
     private static final String TAG = "BleDeviceFragment";
 
-    // IBleDeviceFragmentActivity，包含Fragment的Activity
-    private IBleDeviceFragmentActivity activity;
+    // 设备状态观察者
+    private IBleDeviceStateObserver stateObserver;
 
     // 对应的设备
     private BleDevice device;
@@ -42,12 +42,11 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(!(context instanceof IBleDeviceFragmentActivity)) {
+        if(context instanceof IBleDeviceStateObserver) {
+            stateObserver = (IBleDeviceStateObserver) context;
+        } else {
             throw new IllegalArgumentException();
         }
-
-        // 获得activity
-        activity = (IBleDeviceFragmentActivity) context;
     }
 
     @Override
@@ -58,11 +57,11 @@ public abstract class BleDeviceFragment extends Fragment{
         Bundle bundle = getArguments();
         if(bundle == null) throw new IllegalStateException();
         String deviceMac = bundle.getString("device_mac");
-        device = activity.getDeviceByMac(deviceMac);
+        device = BleDeviceManager.getInstance().findDevice(deviceMac);
         if(device == null) throw new IllegalArgumentException();
 
         // 注册设备状态观察者
-        device.registerDeviceStateObserver(activity);
+        device.registerDeviceStateObserver(stateObserver);
 
         // 打开设备
         device.open();
@@ -91,7 +90,7 @@ public abstract class BleDeviceFragment extends Fragment{
             @Override
             public void run() {
                 device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
-                device.removeDeviceStateObserver(activity);
+                device.removeDeviceStateObserver(stateObserver);
             }
         }, 1000);
     }

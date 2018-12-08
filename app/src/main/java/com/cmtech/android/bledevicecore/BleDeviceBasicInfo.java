@@ -3,6 +3,7 @@ package com.cmtech.android.bledevicecore;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
@@ -119,8 +120,8 @@ public class BleDeviceBasicInfo implements Serializable{
         this.reconnectTimes = reconnectTimes;
     }
 
-    public boolean save() {
-        if(macAddress == null || macAddress == "") return false;
+    public boolean saveToPref() {
+        if(TextUtils.isEmpty(macAddress)) return false;
 
         SharedPreferences.Editor editor = pref.edit();
 
@@ -138,13 +139,14 @@ public class BleDeviceBasicInfo implements Serializable{
         editor.putBoolean(macAddress+"_autoConnect", autoConnect);
         editor.putInt(macAddress+"_reconnectTimes", reconnectTimes);
 
-        ViseLog.i("save the basic info.");
+        ViseLog.i("saveToPref the basic info.");
 
         return editor.commit();
     }
 
-    public boolean delete() {
-        if(macAddress == null || macAddress == "") return false;
+    // 从Pref中删除
+    public void deleteFromPref() {
+        if(TextUtils.isEmpty(macAddress)) return;
 
         SharedPreferences.Editor editor = pref.edit();
 
@@ -162,11 +164,11 @@ public class BleDeviceBasicInfo implements Serializable{
         editor.remove(macAddress+"_autoConnect");
         editor.remove(macAddress+"_reconnectTimes");
 
-        return editor.commit();
+        editor.commit();
     }
 
     public static BleDeviceBasicInfo createFromPreference(String macAddress) {
-        if(macAddress == null || macAddress == "") return null;
+        if(TextUtils.isEmpty(macAddress)) return null;
 
         String address = pref.getString(macAddress+"_macAddress", "");
         if("".equals(address)) return null;
