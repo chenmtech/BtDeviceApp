@@ -87,6 +87,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 设置设备连接状态，并通知状态观察者
     public void setConnectState(BleDeviceConnectState connectState) {
+        if(this.connectState == connectState) {
+            return;
+        }
         this.connectState = connectState;
         notifyDeviceStateObservers();
     }
@@ -171,7 +174,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         };
     }
 
-    public Handler getHandler() {
+    protected Handler getHandler() {
         return handler;
     }
 
