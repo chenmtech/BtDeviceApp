@@ -48,9 +48,8 @@ import com.cmtech.android.bledevicecore.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.BleDevice;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.BleDeviceFragment;
-import com.cmtech.android.bledevicecore.BleDeviceManager;
 import com.cmtech.android.bledevicecore.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.IBleDeviceStateObserver;
+import com.cmtech.android.bledevicecore.IBleDeviceFragmentActivity;
 import com.vise.log.ViseLog;
 
 import java.io.Serializable;
@@ -64,7 +63,7 @@ import static java.lang.Thread.sleep;
  *  Created by bme on 2018/2/19.
  */
 
-public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver {
+public class MainActivity extends AppCompatActivity implements IBleDeviceFragmentActivity {
     private static final String TAG = "MainActivity";
 
     private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
@@ -72,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private final static int REQUESTCODE_MODIFYUSERINFO = 3;     // 修改用户信息返回码
 
     // 设备管理器
-    private BleDeviceManager deviceManager;
+    private BleDeviceService deviceService;
 
     // 显示已登记设备列表的Adapter和RecyclerView
     private BleDeviceListAdapter deviceListAdapter;
@@ -104,9 +103,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private ServiceConnection deviceServiceConnect = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            deviceManager = ((BleDeviceService.DeviceServiceBinder)iBinder).getDeviceManager();
+            deviceService = ((BleDeviceService.DeviceServiceBinder)iBinder).getService();
 
-            if(deviceManager != null) {
+            if(deviceService != null) {
                 initialize();
             } else {
                 finish();
@@ -146,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDeviceList.setLayoutManager(layoutManager);
         rvDeviceList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        deviceListAdapter = new BleDeviceListAdapter(deviceManager.getDeviceList(), this);
+        deviceListAdapter = new BleDeviceListAdapter(deviceService.getDeviceList(), this);
         rvDeviceList.setAdapter(deviceListAdapter);
 
         // 导航菜单设置
@@ -247,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 if(resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
                     if(basicInfo != null) {
-                        BleDevice device = deviceManager.addDevice(basicInfo);
+                        BleDevice device = deviceService.addDevice(basicInfo);
                         if(device != null) {
                             updateDeviceListAdapter();
                             basicInfo.saveToPref();
@@ -262,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
                 if ( resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
-                    BleDevice device = deviceManager.findDevice(basicInfo);
+                    BleDevice device = deviceService.findDevice(basicInfo);
 
                     if(device != null) {
                         basicInfo.saveToPref();
@@ -355,29 +354,24 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     // 更新设备状态
     @Override
     public void updateDeviceState(final BleDevice device) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // 更新设备列表Adapter
-                updateDeviceListAdapter();
+        // 更新设备列表Adapter
+        updateDeviceListAdapter();
 
-                // 更新设备的Fragment
-                BleDeviceFragment deviceFrag = findOpenedFragment(device);
-                if(deviceFrag != null) deviceFrag.updateDeviceState(device);
+        // 更新设备的Fragment
+        BleDeviceFragment deviceFrag = findOpenedFragment(device);
+        if(deviceFrag != null) deviceFrag.updateDeviceState(device);
 
-                // 更新Activity的ToolBar
-                BleDeviceFragment currentFrag = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
-                if(currentFrag != null && deviceFrag == currentFrag) {
-                    updateToolBar(currentFrag.getDevice());
-                }
-            }
-        });
+        // 更新Activity的ToolBar
+        BleDeviceFragment currentFrag = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
+        if(currentFrag != null && deviceFrag == currentFrag) {
+            updateToolBar(currentFrag.getDevice());
+        }
     }
 
     @Override
     public BleDevice findDevice(String macAddress) {
-        if(deviceManager != null)
-            return deviceManager.findDevice(macAddress);
+        if(deviceService != null)
+            return deviceService.findDevice(macAddress);
         return null;
     }
 
@@ -406,7 +400,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.getBasicInfo().deleteFromPref();
-                deviceManager.deleteDevice(device);
+                deviceService.deleteDevice(device);
                 updateDeviceListAdapter();
             }
         });
@@ -457,7 +451,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private void initializeBleDevice() {
         // 从数据库获取设备信息，并构造相应的BLEDevice
         List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
-        deviceManager.addDevice(basicInfoList);
+        deviceService.addDevice(basicInfoList);
         updateDeviceListAdapter();
     }
 
@@ -508,7 +502,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
 
     // 开始扫描设备
     private void startScanDevice() {
-        List<String> deviceMacList = deviceManager.getDeviceMacList();
+        List<String> deviceMacList = deviceService.getDeviceMacList();
 
         Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
         intent.putExtra("registered_device_list", (Serializable) deviceMacList);

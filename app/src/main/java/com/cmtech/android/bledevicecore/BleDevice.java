@@ -3,6 +3,7 @@ package com.cmtech.android.bledevicecore;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.ble.callback.IBleCallback;
@@ -375,7 +376,12 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     public void notifyDeviceStateObservers() {
         for(final IBleDeviceStateObserver observer : stateObserverList) {
             if(observer != null) {
-                observer.updateDeviceState(BleDevice.this);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        observer.updateDeviceState(BleDevice.this);
+                    }
+                });
             }
         }
     }

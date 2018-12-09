@@ -9,5 +9,4 @@ public interface IBleDeviceStateObserver {
     // 更新设备状态
     void updateDeviceState(final BleDevice device);
 
-    BleDevice findDevice(String macAddress);
 }
