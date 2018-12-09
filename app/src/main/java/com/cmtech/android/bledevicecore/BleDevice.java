@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
@@ -17,6 +18,7 @@ import com.cmtech.android.ble.core.IDeviceMirrorStateObserver;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 
 import java.util.LinkedList;
@@ -111,10 +113,12 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
             synchronized (BleDevice.this) {
                 BleDevice.this.bluetoothLeDevice = bluetoothLeDevice;
-                BluetoothDevice device = bluetoothLeDevice.getDevice();
-                if(device.getBondState() == BluetoothDevice.BOND_NONE) {            // 还没有绑定，则启动绑定
-                    device.createBond();
-                } else if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
+                BluetoothDevice bluetoothDevice = bluetoothLeDevice.getDevice();
+                if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
+                    Toast.makeText(MyApplication.getContext(), "请先绑定设备。", Toast.LENGTH_SHORT).show();
+                    bluetoothDevice.createBond();   // 还没有绑定，则启动绑定
+                    BleDevice.this.onScanFinish(false);
+                } else if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
                     BleDevice.this.onScanFinish(true);
                 }
             }
