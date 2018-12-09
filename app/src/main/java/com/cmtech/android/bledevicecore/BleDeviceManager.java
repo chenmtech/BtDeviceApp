@@ -8,33 +8,15 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * BleDeviceManager: 所有设备的管理器，单例
+ * BleDeviceManager: 所有设备的管理器
  * Created by bme on 2018/12/08.
  */
 
 public class BleDeviceManager {
-    private static BleDeviceManager instance;
-
     private List<BleDevice> deviceList = new ArrayList<>();
 
-    private BleDeviceManager() {
+    public BleDeviceManager() {
 
-    }
-
-    /**
-     * 单例
-     *
-     * @return 返回BleDeviceManager
-     */
-    public static BleDeviceManager getInstance() {
-        if (instance == null) {
-            synchronized (BleDeviceManager.class) {
-                if (instance == null) {
-                    instance = new BleDeviceManager();
-                }
-            }
-        }
-        return instance;
     }
 
     // 添加多个设备

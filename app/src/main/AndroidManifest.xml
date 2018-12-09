@@ -122,7 +122,12 @@
         </activity>
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity" />
         <activity android:name=".activity.UserInfoActivity" />
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgHrHistogramActivity"></activity>
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgHrHistogramActivity" />
+
+        <service
+            android:name=".model.BleDeviceService"
+            android:enabled="true"
+            android:exported="false"></service>
     </application>
 
 </manifest>

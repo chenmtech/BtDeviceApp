@@ -57,7 +57,7 @@ public abstract class BleDeviceFragment extends Fragment{
         Bundle bundle = getArguments();
         if(bundle == null) throw new IllegalStateException();
         String deviceMac = bundle.getString("device_mac");
-        device = BleDeviceManager.getInstance().findDevice(deviceMac);
+        device = stateObserver.findDevice(deviceMac);
         if(device == null) throw new IllegalArgumentException();
 
         // 注册设备状态观察者

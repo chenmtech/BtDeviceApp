@@ -1,13 +1,16 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -37,6 +40,7 @@ import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
+import com.cmtech.android.bledeviceapp.model.BleDeviceService;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
 import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
@@ -59,6 +63,7 @@ import static java.lang.Thread.sleep;
  *  MainActivity: 主界面
  *  Created by bme on 2018/2/19.
  */
+
 public class MainActivity extends AppCompatActivity implements IBleDeviceStateObserver {
     private static final String TAG = "MainActivity";
 
@@ -67,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private final static int REQUESTCODE_MODIFYUSERINFO = 3;     // 修改用户信息返回码
 
     // 设备管理器
-    private final BleDeviceManager deviceManager = BleDeviceManager.getInstance();
+    private BleDeviceManager deviceManager;
 
     // 显示已登记设备列表的Adapter和RecyclerView
     private BleDeviceListAdapter deviceListAdapter;
@@ -96,6 +101,23 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
     private TextView tvUserName;
     private ImageView ivAccountImage;
 
+    private ServiceConnection deviceServiceConnect = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            deviceManager = ((BleDeviceService.DeviceServiceBinder)iBinder).getDeviceManager();
+
+            if(deviceManager != null) {
+                initialize();
+            } else {
+                finish();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +130,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
             finish();
         }
 
+        Intent startService = new Intent(this, BleDeviceService.class);
+        startService(startService);
+        bindService(startService, deviceServiceConnect, BIND_AUTO_CREATE);
+
+    }
+
+    private void initialize() {
         // 创建ToolBar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -188,8 +217,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         // 处理输入Intent
         processIntent(getIntent());
     }
-
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -302,6 +329,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
         ViseLog.e(TAG + ":onDestroy");
         super.onDestroy();
 
+        unbindService(deviceServiceConnect);
+
         // 防止设备没有彻底断开
         BleDeviceUtil.disconnectAllDevice();
 
@@ -343,7 +372,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceStateOb
                 }
             }
         });
+    }
 
+    @Override
+    public BleDevice findDevice(String macAddress) {
+        if(deviceManager != null)
+            return deviceManager.findDevice(macAddress);
+        return null;
     }
 
     // 打开设备：为设备创建并打开Fragment
