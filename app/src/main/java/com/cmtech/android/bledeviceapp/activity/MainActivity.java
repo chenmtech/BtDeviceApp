@@ -114,7 +114,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-
+            if(deviceService != null) {
+                Intent stopIntent = new Intent(MainActivity.this, BleDeviceService.class);
+                stopService(stopIntent);
+                deviceService = null;
+            }
+            finish();
         }
     };
 
