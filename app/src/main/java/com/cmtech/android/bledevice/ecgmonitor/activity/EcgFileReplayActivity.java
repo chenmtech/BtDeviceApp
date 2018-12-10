@@ -1,9 +1,11 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -258,10 +260,26 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
      * IEcgCommentOperator接口函数
      */
     @Override
-    public void deleteComment(EcgComment comment) {
+    public void deleteComment(final EcgComment comment) {
         if(ecgView.isReplaying())
             stopReplay();
-        replayModel.deleteComment(comment);
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("删除Ecg留言");
+        builder.setMessage("确定删除该Ecg留言吗？");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                replayModel.deleteComment(comment);
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        builder.show();
     }
 
     @Override

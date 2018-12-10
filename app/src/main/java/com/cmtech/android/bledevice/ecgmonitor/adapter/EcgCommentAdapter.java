@@ -1,6 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor.adapter;
 
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,8 +59,9 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         holder.ibDeleteComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(commentOperator != null)
+                if(commentOperator != null) {
                     commentOperator.deleteComment(commentList.get(holder.getAdapterPosition()));
+                }
             }
         });
 
