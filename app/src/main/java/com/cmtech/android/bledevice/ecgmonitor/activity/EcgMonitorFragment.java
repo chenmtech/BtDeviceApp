@@ -71,6 +71,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private RelativeLayout rlHrStatistics;
     private BarChart hrBarHistogram;
     private TextView tvHrTotal;
+    private ImageButton ibResetHistogram;
 
 
     private BarDataSet hrBarDateSet;
@@ -175,6 +176,15 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onClick(View v) {
                 hrStatistics();
+            }
+        });
+
+        ibResetHistogram = view.findViewById(R.id.ib_reset_histogram);
+        ibResetHistogram.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                device.resetHrStatistics();
+                updateBarChart(null);
             }
         });
     }
@@ -374,7 +384,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         hrBarXStrings.clear();
         hrBarEntries.clear();
         if(hrData == null || hrData.length < 4) {
-            hrBarXStrings.add("无有效数据");
+            hrBarXStrings.add("无有效心率");
             hrBarEntries.add(new BarEntry(0, 0.0f));
         } else {
             int j = 0;
@@ -429,8 +439,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         hrBarDateSet.setValues(hrBarEntries);
         showBarChart();
         int sum = 0;
-        for(int num : hrHistogram) {
-            sum += num;
+
+        if(hrHistogram != null) {
+            for (int num : hrHistogram) {
+                sum += num;
+            }
         }
         tvHrTotal.setText(String.valueOf(sum));
     }

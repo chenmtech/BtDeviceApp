@@ -291,6 +291,12 @@ public class EcgMonitorDevice extends BleDevice {
         return (hrHistogram == null) ? null : hrHistogram.getHistgram();
     }
 
+    // 重置统计直方图数据
+    public void resetHrStatistics() {
+        if(hrHistogram != null) {
+            hrHistogram.reset();
+        }
+    }
 
     // 检测基本心电监护服务是否正常
     private boolean checkBasicEcgMonitorService() {
