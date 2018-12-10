@@ -26,7 +26,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         TextView fileCreatedPerson;
         TextView fileCreatedTime;
         TextView fileLastComment;
-        ImageButton ibPlay;
+        ImageButton ibShare;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -34,7 +34,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             fileCreatedPerson = fileView.findViewById(R.id.ecgfile_createperson);
             fileCreatedTime = fileView.findViewById(R.id.ecgfile_createtime);
             fileLastComment = fileView.findViewById(R.id.ecgfile_lastcomment);
-            ibPlay = fileView.findViewById(R.id.ib_ecgfile_play);
+            ibShare = fileView.findViewById(R.id.ib_ecgfile_share);
         }
     }
 
@@ -53,14 +53,19 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                explorerModel.select(holder.getAdapterPosition());
+                int selectPos = holder.getAdapterPosition();
+                if(selectPos == explorerModel.getSelectIndex()) {   // 已经选择的和这次点击的一样，即再次点击
+                    explorerModel.replaySelectedFile();
+                } else {    // 否则仅仅改变选中ecg文件
+                    explorerModel.select(holder.getAdapterPosition());
+                }
             }
         });
 
-        holder.ibPlay.setOnClickListener(new View.OnClickListener() {
+        holder.ibShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                explorerModel.replaySelectedFile();
+                explorerModel.shareSelectFileThroughWechat();
             }
         });
 
@@ -103,12 +108,12 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         if(explorerModel.getSelectIndex() == position) {
             bgdColor = MyApplication.getContext().getResources().getColor(R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
-            holder.ibPlay.setBackgroundColor(bgdColor);
-            holder.ibPlay.setVisibility(View.VISIBLE);
+            holder.ibShare.setBackgroundColor(bgdColor);
+            holder.ibShare.setVisibility(View.VISIBLE);
         } else {
             holder.fileView.setBackground(defaultBackground);
-            holder.ibPlay.setBackground(defaultBackground);
-            holder.ibPlay.setVisibility(View.INVISIBLE);
+            holder.ibShare.setBackground(defaultBackground);
+            holder.ibShare.setVisibility(View.INVISIBLE);
         }
     }
 

@@ -69,11 +69,11 @@
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/ib_ecgfile_play"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/ib_ecgfile_share"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center_vertical"
-        android:src="@mipmap/ic_ecg_play_48px"
+        android:src="@mipmap/ic_ecgexplorer_share"
         android:contentDescription="replay ecg file"
         android:background="@color/primary"
         android:layout_marginEnd="2dp"/>
