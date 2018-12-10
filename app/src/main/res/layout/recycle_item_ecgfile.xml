@@ -78,6 +78,4 @@
         android:background="@color/primary"
         android:layout_marginEnd="2dp"/>
 
-
-
 </LinearLayout>
