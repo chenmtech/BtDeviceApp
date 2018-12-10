@@ -211,6 +211,12 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
     // 登记一个设备
     public void registerDevice(final BluetoothLeDevice device) {
+        // 先停止扫描
+        if(scanCallback.isScanning()) {
+            BleDeviceUtil.stopScan(scanCallback);
+            srlScanDevice.setRefreshing(false);
+        }
+
         if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
             Toast.makeText(ScanDeviceActivity.this, "请输入设备密码绑定设备。", Toast.LENGTH_SHORT).show();
             device.getDevice().createBond();
