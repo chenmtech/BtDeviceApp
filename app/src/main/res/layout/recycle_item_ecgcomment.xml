@@ -5,6 +5,17 @@
     android:layout_height="wrap_content"
     android:layout_margin="2dp">
 
+    <ImageButton
+        android:id="@+id/ib_ecgcomment_locate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="5dp"
+        android:src="@mipmap/ic_ecgreplay_secondwhencomment"
+        android:contentDescription="locate comment"
+        android:background="@color/primary"
+        android:visibility="gone"/>
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -46,17 +57,6 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/ib_ecgcomment_locate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginEnd="5dp"
-        android:src="@mipmap/ic_ecgreplay_secondwhencomment"
-        android:contentDescription="locate comment"
-        android:background="@color/primary"
-        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/ib_ecgcomment_delete"
