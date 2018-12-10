@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -11,6 +12,7 @@ import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledevicecore.BleDevice;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.BleDeviceConnectState;
@@ -157,7 +159,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
      */
     public Notification createNotification(String content){
         //使用兼容版本
-        NotificationCompat.Builder builder=new NotificationCompat.Builder(this, "default");
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "default");
         //设置状态栏的通知图标
         builder.setSmallIcon(R.mipmap.ic_kang);
         //设置通知栏横条的图标
@@ -173,6 +175,10 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         //builder.setContentText(content);
         builder.setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(content));
+        Intent startMainActivity = new Intent(this, MainActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, startMainActivity, 0);
+        builder.setContentIntent(pi);
+
         //创建通知
         return builder.build();
     }
