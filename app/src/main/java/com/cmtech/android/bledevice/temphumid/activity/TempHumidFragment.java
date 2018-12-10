@@ -57,7 +57,6 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (TempHumidDevice) getDevice();
-
         device.registerTempHumidDataObserver(this);
 
         return inflater.inflate(R.layout.fragment_temphumid, container, false);

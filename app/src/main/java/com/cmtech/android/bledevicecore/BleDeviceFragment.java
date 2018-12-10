@@ -61,7 +61,7 @@ public abstract class BleDeviceFragment extends Fragment{
         if(device == null) throw new IllegalArgumentException();
 
         // 注册设备状态观察者
-        device.registerDeviceStateObserver(activity);
+        //device.registerDeviceStateObserver(activity);
 
         // 打开设备
         device.open();
@@ -81,7 +81,7 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onDestroy() {
         super.onDestroy();
 
-        // 关闭设备
+        /*// 关闭设备
         device.close();
 
         // 延时后设为关闭状态，并注销设备状态观察者
@@ -92,7 +92,7 @@ public abstract class BleDeviceFragment extends Fragment{
                 device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
                 device.removeDeviceStateObserver(activity);
             }
-        }, 1000);
+        }, 1000);*/
     }
 
     // 切换设备状态，根据设备的当前状态实现状态切换

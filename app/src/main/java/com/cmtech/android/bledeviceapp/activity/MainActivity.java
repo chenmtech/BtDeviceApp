@@ -31,6 +31,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -105,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             deviceService = ((BleDeviceService.DeviceServiceBinder)iBinder).getService();
 
+            // 成功绑定后初始化
             if(deviceService != null) {
                 initialize();
             } else {
@@ -128,18 +130,21 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // 确定账户已经登录
         if(!UserAccountManager.getInstance().isSignIn()) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
         }
 
+        // 启动并绑定服务
         Intent startService = new Intent(this, BleDeviceService.class);
         startService(startService);
         bindService(startService, deviceServiceConnect, BIND_AUTO_CREATE);
 
     }
 
+    // 主界面初始化
     private void initialize() {
         // 创建ToolBar
         toolbar = findViewById(R.id.toolbar);
@@ -206,17 +211,18 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             }
         });
 
+        // 初始化设备
+        initializeBleDevice();
+        updateDeviceListAdapter();
+
         // 更新导航视图
         updateNavigationViewUsingUserInfo();
 
-        // 初始化主界面
-        initMainLayout();
+        // 初始化欢迎界面
+        initWelcomeLayout();
 
-        // 更新主界面
+        // 更新主界面可视性
         updateMainLayoutVisibility();
-
-        // 初始化设备
-        initializeBleDevice();
 
         // 处理输入Intent
         processIntent(getIntent());
@@ -253,6 +259,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     if(basicInfo != null) {
                         BleDevice device = deviceService.addDevice(basicInfo);
                         if(device != null) {
+                            device.registerDeviceStateObserver(this);
                             updateDeviceListAdapter();
                             basicInfo.saveToPref();
                         }
@@ -319,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             case R.id.toolbar_close:
                 fragment = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
                 if(fragment != null) {
+                    deviceService.closeDevice(fragment.getDevice());
                     deleteFragment(fragment);
                 } else {
                     finish();
@@ -333,16 +341,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         ViseLog.e(TAG + ":onDestroy");
         super.onDestroy();
 
+        for(BleDevice device : deviceService.getDeviceList()) {
+            device.removeDeviceStateObserver(this);
+        }
+
         unbindService(deviceServiceConnect);
 
-        // 防止设备没有彻底断开
-        BleDeviceUtil.disconnectAllDevice();
-
-        BleDeviceUtil.clearAllDevice();
-
-        UserAccountManager.getInstance().signOut();
-
-        //android.os.Process.killProcess(android.os.Process.myPid());
+        Intent stopIntent = new Intent(this, BleDeviceService.class);
+        stopService(stopIntent);
     }
 
 
@@ -398,6 +404,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     public void deleteDevice(final BleDevice device) {
         if(device == null) return;
 
+        if(isDeviceFragmentOpened(device)) {
+            Toast.makeText(this, "请先关闭设备。", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("确定删除该设备吗？");
         builder.setMessage(device.getMacAddress()+'\n'+device.getNickName());
@@ -430,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         return (findOpenedFragment(device) != null);
     }
 
-    private void initMainLayout() {
+    private void initWelcomeLayout() {
         // 设置欢迎词
         String welcomeText = getResources().getString(R.string.welcome_text);
         welcomeText = String.format(welcomeText, getResources().getString(R.string.app_name));
@@ -454,10 +465,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 从数据库中获取已登记的设备基本信息列表
     private void initializeBleDevice() {
-        // 从数据库获取设备信息，并构造相应的BLEDevice
+        // 从Preference获取所有设备信息，并构造相应的BLEDevice
         List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
         deviceService.addDevice(basicInfoList);
-        updateDeviceListAdapter();
+        for(BleDevice device : deviceService.getDeviceList()) {
+            device.registerDeviceStateObserver(this);
+        }
     }
 
     // 打开或关闭侧滑菜单

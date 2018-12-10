@@ -193,6 +193,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     public void onDestroy() {
         super.onDestroy();
 
+        if(device != null)
+            device.removeEcgMonitorObserver();
+
     }
 
     @Override

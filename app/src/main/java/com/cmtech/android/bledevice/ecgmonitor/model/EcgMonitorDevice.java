@@ -597,7 +597,7 @@ public class EcgMonitorDevice extends BleDevice {
     public void close() {
         super.close();
 
-        removeEcgMonitorObserver();
+        //removeEcgMonitorObserver();
 
         if(hrHistogram != null)
             hrHistogram.reset();

@@ -5,7 +5,9 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.bledeviceapp.R;
@@ -13,6 +15,7 @@ import com.cmtech.android.bledevicecore.BleDevice;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.BleDeviceConnectState;
 import com.cmtech.android.bledevicecore.BleDeviceManager;
+import com.cmtech.android.bledevicecore.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.IBleDeviceStateObserver;
 import com.vise.log.ViseLog;
 
@@ -58,6 +61,23 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     @Override
     public IBinder onBind(Intent intent) {
         return binder;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        for(final BleDevice device : getDeviceList()) {
+            closeDevice(device);
+        }
+
+        // 防止设备没有彻底断开
+        BleDeviceUtil.disconnectAllDevice();
+        BleDeviceUtil.clearAllDevice();
+
+        UserAccountManager.getInstance().signOut();
+
+        //android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     @Override
@@ -115,6 +135,21 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         return deviceManager.findDevice(macAddress);
     }
 
+    // 关闭设备
+    public void closeDevice(final BleDevice device) {
+        if(device != null) {
+            device.close();
+            // 延时后设为关闭状态，并注销设备状态观察者
+            // 延时是为了让设备真正断开
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+                    device.removeDeviceStateObserver(BleDeviceService.this);
+                }
+            }, 1000);
+        }
+    }
 
 
     /**

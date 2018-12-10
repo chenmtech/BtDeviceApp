@@ -46,7 +46,6 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (ThermoDevice)getDevice();
-
         device.registerThermoDataObserver(this);
 
         return inflater.inflate(R.layout.fragment_thermometer, container, false);
