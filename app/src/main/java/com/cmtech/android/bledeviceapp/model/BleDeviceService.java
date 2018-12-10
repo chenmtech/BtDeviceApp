@@ -170,7 +170,9 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         builder.setShowWhen(true);
         //设置通知栏的标题内容
         builder.setContentTitle("欢迎使用" + getResources().getString(R.string.app_name));
-        builder.setContentText(content);
+        //builder.setContentText(content);
+        builder.setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(content));
         //创建通知
         return builder.build();
     }
