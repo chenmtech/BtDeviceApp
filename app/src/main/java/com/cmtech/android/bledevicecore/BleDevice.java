@@ -112,13 +112,13 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         @Override
         public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
             synchronized (BleDevice.this) {
-                BleDevice.this.bluetoothLeDevice = bluetoothLeDevice;
                 BluetoothDevice bluetoothDevice = bluetoothLeDevice.getDevice();
                 if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
                     Toast.makeText(MyApplication.getContext(), "请先绑定设备。", Toast.LENGTH_SHORT).show();
                     bluetoothDevice.createBond();   // 还没有绑定，则启动绑定
                     BleDevice.this.onScanFinish(false);
                 } else if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
+                    BleDevice.this.bluetoothLeDevice = bluetoothLeDevice;
                     BleDevice.this.onScanFinish(true);
                 }
             }
