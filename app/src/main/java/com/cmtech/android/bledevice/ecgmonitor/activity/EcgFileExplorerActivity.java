@@ -110,10 +110,6 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             case R.id.explorer_delete:
                 deleteSelectedFile();
                 break;
-
-            case R.id.explorer_share:
-                shareSelectFileThroughWechat();
-                break;
         }
         return true;
     }
@@ -148,10 +144,6 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             });
             builder.show();
         }
-    }
-
-    public void shareSelectFileThroughWechat() {
-        model.shareSelectFileThroughWechat();
     }
 
     @Override
