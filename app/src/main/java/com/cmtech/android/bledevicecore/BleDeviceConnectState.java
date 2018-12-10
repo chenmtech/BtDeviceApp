@@ -8,7 +8,7 @@ import com.cmtech.android.bledeviceapp.R;
  */
 
 public enum BleDeviceConnectState {
-    CONNECT_INIT(-1, "连接准备", R.mipmap.ic_connect_disconnect),
+    CONNECT_INIT(-1, "连接初始化", R.mipmap.ic_connect_disconnect),
     CONNECT_PROCESS(0x00, "连接中...", R.drawable.connectingdrawable),
     CONNECT_SUCCESS(0x01, "连接成功", R.mipmap.ic_connect_connected),
     CONNECT_FAILURE(0x02, "连接错误", R.mipmap.ic_connect_disconnect),

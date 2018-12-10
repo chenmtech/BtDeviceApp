@@ -1,12 +1,17 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
@@ -15,6 +20,7 @@ import com.cmtech.android.ble.callback.scan.ScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
+import com.cmtech.android.ble.model.adrecord.AdRecordStore;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
@@ -81,6 +87,34 @@ public class ScanDeviceActivity extends AppCompatActivity {
     // 已经登记的设备Mac地址列表
     private List<String> registeredDeviceMacList = new ArrayList<>();
 
+    private class BleDeviceReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
+                //当设备的连接状态改变
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                switch (device.getBondState()) {
+                    case BluetoothDevice.BOND_BONDING:
+                        break;
+                    case BluetoothDevice.BOND_BONDED:
+                        // 连接设备
+                        for (BluetoothLeDevice leDevice : deviceList) {
+                            if(leDevice.getAddress().equalsIgnoreCase(device.getAddress())) {
+                                registerBondedDevice(leDevice);
+                                break;
+                            }
+                        }
+                        break;
+                    case BluetoothDevice.BOND_NONE:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    private BleDeviceReceiver bondReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +143,11 @@ public class ScanDeviceActivity extends AppCompatActivity {
             }
         });
 
+        IntentFilter bondIntent = new IntentFilter();
+        bondIntent.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        bondReceiver = new BleDeviceReceiver();
+        registerReceiver(bondReceiver, bondIntent);
+
         startScan();
         srlScanDevice.setRefreshing(true);
     }
@@ -131,6 +170,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        unregisterReceiver(bondReceiver);
 
         if(srlScanDevice.isRefreshing())
             srlScanDevice.setRefreshing(false);
@@ -168,9 +209,18 @@ public class ScanDeviceActivity extends AppCompatActivity {
         }
     }
 
-
     // 登记一个设备
     public void registerDevice(final BluetoothLeDevice device) {
+        if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
+            Toast.makeText(ScanDeviceActivity.this, "请输入设备密码绑定设备。", Toast.LENGTH_SHORT).show();
+            device.getDevice().createBond();
+        } else {
+            registerBondedDevice(device);
+        }
+    }
+
+    // 登记已经绑定的设备
+    private void registerBondedDevice(final BluetoothLeDevice device) {
         String macAddress = device.getAddress();
 
         // 获取设备广播数据中的UUID的短串

@@ -203,7 +203,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         isClosing = false;
         curReconnectTimes = 0;
 
-        notifyDeviceStateObservers();
+        //notifyDeviceStateObservers();
 
         if(autoConnect())
             scanOrConnect();
