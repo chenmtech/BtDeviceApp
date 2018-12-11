@@ -47,6 +47,7 @@ import com.cmtech.android.bledeviceapp.model.BleDeviceService;
 import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
 import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
+import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledevicecore.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.BleDevice;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
@@ -495,6 +496,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         welcomeText = String.format(welcomeText, getResources().getString(R.string.app_name));
         TextView tvWelcomeText = welcomeLayout.findViewById(R.id.tv_welcometext);
         tvWelcomeText.setText(welcomeText);
+        TextView tvVersionName = welcomeLayout.findViewById(R.id.tv_versionname);
+        tvVersionName.setText("Ver"+APKVersionCodeUtils.getVerName(this));
     }
 
     // 更新主Layout的可视性

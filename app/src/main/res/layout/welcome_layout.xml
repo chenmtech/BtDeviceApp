@@ -40,4 +40,11 @@
         android:gravity="center_horizontal"
         android:text="QQ：127609XXXX"/>
 
+    <TextView
+        android:id="@+id/tv_versionname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="ver1.0"/>
+
 </LinearLayout>
