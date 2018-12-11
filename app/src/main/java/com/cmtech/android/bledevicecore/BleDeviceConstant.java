@@ -13,7 +13,7 @@ public class BleDeviceConstant {
     public static final String CCCUUID = "00002902-0000-1000-8000-00805f9b34fb";
 
     // 重新连接时间间隔，注意：反复多次重连会导致系统禁用蓝牙
-    public final static int RECONNECT_INTERVAL = 6000;
+    public final static int RECONNECT_INTERVAL = 8000;
     // 扫描超时
     public final static int SCAN_TIMEOUT = 12000;
     // 连接超时

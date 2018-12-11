@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     }
                 }
             }
-        }, 1000);
+        }, 500);
     }
 
     @Override
