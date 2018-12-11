@@ -193,13 +193,16 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
         ecgView.removeEcgFileReelWaveViewObserver();
 
-        replayModel.removeEcgFileObserver();
+        if(replayModel != null) {
+            replayModel.removeEcgFileObserver();
 
-        replayModel.close();
+            replayModel.close();
 
-        Intent intent = new Intent();
-        intent.putExtra("updated", replayModel.isUpdated());
-        setResult(RESULT_OK, intent);
+            Intent intent = new Intent();
+            intent.putExtra("updated", replayModel.isUpdated());
+            setResult(RESULT_OK, intent);
+        }
+
         finish();
     }
 

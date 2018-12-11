@@ -100,7 +100,8 @@ public class EcgFileReplayModel {
 
     public void close() {
         try {
-            ecgFile.close();
+            if(ecgFile != null)
+                ecgFile.close();
         } catch (FileException e) {
             e.printStackTrace();
         }
