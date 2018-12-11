@@ -16,6 +16,7 @@ import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.IDeviceMirrorStateObserver;
 import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -112,15 +113,16 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         @Override
         public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
             synchronized (BleDevice.this) {
-                BluetoothDevice bluetoothDevice = bluetoothLeDevice.getDevice();
-                if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
-                    Toast.makeText(MyApplication.getContext(), "请先绑定设备。", Toast.LENGTH_SHORT).show();
-                    bluetoothDevice.createBond();   // 还没有绑定，则启动绑定
-                    BleDevice.this.onScanFinish(false);
-                } else if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    BleDevice.this.bluetoothLeDevice = bluetoothLeDevice;
-                    BleDevice.this.onScanFinish(true);
-                }
+
+            }
+            BluetoothDevice bluetoothDevice = bluetoothLeDevice.getDevice();
+            if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
+                Toast.makeText(MyApplication.getContext(), "请先绑定设备。", Toast.LENGTH_SHORT).show();
+                bluetoothDevice.createBond();   // 还没有绑定，则启动绑定
+                BleDevice.this.onScanFinish(false);
+            } else if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
+                BleDevice.this.bluetoothLeDevice = bluetoothLeDevice;
+                BleDevice.this.onScanFinish(true);
             }
         }
 
@@ -132,8 +134,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         @Override
         public void onScanTimeout() {
             synchronized (BleDevice.this) {
-                BleDevice.this.onScanFinish(false);
+
             }
+            BleDevice.this.onScanFinish(false);
         }
     };
 
@@ -489,6 +492,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         if(isClosing)
             return;
 
+        if(bleException instanceof TimeoutException) {
+            return;
+        }
         // 仍然有可能会连续执行两次下面语句
         stopCommandExecutor();
         executeAfterConnectFailure();
