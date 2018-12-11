@@ -49,7 +49,6 @@ import com.cmtech.android.bledevicecore.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.BleDevice;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.BleDeviceFragment;
-import com.cmtech.android.bledevicecore.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.IBleDeviceFragmentActivity;
 import com.vise.log.ViseLog;
 
@@ -211,9 +210,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             }
         });
 
-        // 初始化设备
-        initializeBleDevice();
-        updateDeviceListAdapter();
+        // 登记设备状态观察者
+        registerDeviceStateObserver();
+        //updateDeviceListAdapter();
 
         // 更新导航视图
         updateNavigationViewUsingUserInfo();
@@ -463,11 +462,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         }
     }
 
-    // 从数据库中获取已登记的设备基本信息列表
-    private void initializeBleDevice() {
-        // 从Preference获取所有设备信息，并构造相应的BLEDevice
-        List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
-        deviceService.addDevice(basicInfoList);
+    // 登记设备状态观察者
+    private void registerDeviceStateObserver() {
         for(BleDevice device : deviceService.getDeviceList()) {
             device.registerDeviceStateObserver(this);
         }

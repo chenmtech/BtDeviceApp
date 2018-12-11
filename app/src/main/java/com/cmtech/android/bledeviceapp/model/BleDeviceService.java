@@ -31,12 +31,21 @@ import java.util.List;
 public class BleDeviceService extends Service implements IBleDeviceStateObserver {
     private final static String TAG = "BleDeviceService";
 
+    private final static String NODEVICE_OPENED = "无设备打开。";
+
     /**
      * id不可设置为0,否则不能设置为前台service
      */
     private static final int DEVICE_SERVICE_ID = 0x0001;
 
     private BleDeviceManager deviceManager;
+
+
+    public class DeviceServiceBinder extends Binder {
+        public BleDeviceService getService() {
+            return BleDeviceService.this;
+        }
+    }
 
     private DeviceServiceBinder binder = new DeviceServiceBinder();
 
@@ -48,16 +57,11 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         super.onCreate();
 
         deviceManager = new BleDeviceManager();
+        initDeviceFromPref();
 
-        notification = createNotification("");
+        notification = createNotification(NODEVICE_OPENED);
 
         startForeground(DEVICE_SERVICE_ID, notification);
-    }
-
-    public class DeviceServiceBinder extends Binder {
-        public BleDeviceService getService() {
-            return BleDeviceService.this;
-        }
     }
 
     @Override
@@ -90,9 +94,17 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
                 builder.append(dev.getMacAddress()).append(": ").append(dev.getConnectState().getDescription()).append('\n');
             }
         }
-        notification = createNotification(builder.toString());
+        String content = builder.toString();
+        if(content.equals("")) content = NODEVICE_OPENED;
+        notification = createNotification(content);
         startForeground(DEVICE_SERVICE_ID, notification);
         ViseLog.e(TAG + device.getConnectState().getDescription());
+    }
+
+    // 从Preference获取所有设备信息，并构造相应的BLEDevice
+    private void initDeviceFromPref() {
+        List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
+        addDevice(basicInfoList);
     }
 
     // 创建并添加一个设备
