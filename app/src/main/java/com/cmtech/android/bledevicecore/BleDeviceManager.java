@@ -94,5 +94,14 @@ public class BleDeviceManager {
         return findDevice;
     }
 
-
+    public boolean hasDeviceOpened() {
+        boolean open = false;
+        for(BleDevice device : deviceList) {
+            if(device.getConnectState() != BleDeviceConnectState.CONNECT_CLOSED) {
+                open = true;
+                break;
+            }
+        }
+        return open;
+    }
 }

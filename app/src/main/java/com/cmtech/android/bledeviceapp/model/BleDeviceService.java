@@ -149,6 +149,10 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         return deviceManager.findDevice(macAddress);
     }
 
+    public boolean hasDeviceOpened() {
+        return deviceManager.hasDeviceOpened();
+    }
+
     // 关闭设备
     public void closeDevice(final BleDevice device) {
         if(device != null) {

@@ -48,6 +48,7 @@ import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.BleDevice;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.BleDeviceConnectState;
 import com.cmtech.android.bledevicecore.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.IBleDeviceFragmentActivity;
 import com.vise.log.ViseLog;
@@ -100,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private TextView tvUserName;
     private ImageView ivAccountImage;
 
+    private boolean isExit = false;
+
     private ServiceConnection deviceServiceConnect = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -109,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             if(deviceService != null) {
                 initialize();
             } else {
-                finish();
+                requestFinish();
             }
         }
 
@@ -174,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                         changeUser();
                         return true;
                     case R.id.nav_exit:
-                        finish();
+                        requestFinish();
                         return true;
                 }
                 return false;
@@ -328,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     deviceService.closeDevice(fragment.getDevice());
                     deleteFragment(fragment);
                 } else {
-                    finish();
+                    requestFinish();
                 }
                 break;
         }
@@ -346,10 +349,36 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         unbindService(deviceServiceConnect);
 
-        Intent stopIntent = new Intent(this, BleDeviceService.class);
-        stopService(stopIntent);
+        if(isExit) {
+            Intent stopIntent = new Intent(MainActivity.this, BleDeviceService.class);
+            stopService(stopIntent);
+        }
     }
 
+    private void requestFinish() {
+        if(deviceService.hasDeviceOpened()) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("退出应用");
+            builder.setMessage("有些设备仍然打开中，退出应用将关闭这些设备。");
+            builder.setPositiveButton("退出", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    isExit = true;
+                    finish();
+                }
+            });
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            });
+            builder.show();
+        } else {
+            isExit = true;
+            finish();
+        }
+    }
 
     @Override
     public void onBackPressed() {
@@ -493,6 +522,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 切换用户
     private void changeUser() {
+        if(deviceService.hasDeviceOpened()) {
+            Toast.makeText(this, "请先关闭设备。", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         UserAccountManager.getInstance().signOut();
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -501,7 +535,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         editor.apply();
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
-        finish();
+        requestFinish();
     }
 
     private void updateNavigationViewUsingUserInfo() {
