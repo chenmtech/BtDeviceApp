@@ -143,24 +143,27 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         @Override
         public void onConnectSuccess(DeviceMirror mirror) {
             synchronized (BleDevice.this) {
-                BleDevice.this.onConnectSuccess(mirror);
+
             }
+            BleDevice.this.onConnectSuccess(mirror);
         }
 
         // 连接失败回调
         @Override
         public void onConnectFailure(final BleException exception) {
             synchronized (BleDevice.this) {
-                BleDevice.this.onConnectFailure(exception);
+
             }
+            BleDevice.this.onConnectFailure(exception);
         }
 
         // 连接断开回调
         @Override
         public void onDisconnect(final boolean isActive) {
             synchronized (BleDevice.this) {
-                BleDevice.this.onDisconnect(isActive);
+
             }
+            BleDevice.this.onDisconnect(isActive);
         }
     };
 
