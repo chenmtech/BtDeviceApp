@@ -97,7 +97,7 @@ public class BleDeviceManager {
     public boolean hasDeviceOpened() {
         boolean open = false;
         for(BleDevice device : deviceList) {
-            if(device.getConnectState() != BleDeviceConnectState.CONNECT_CLOSED) {
+            if(!device.isClosed()) {
                 open = true;
                 break;
             }

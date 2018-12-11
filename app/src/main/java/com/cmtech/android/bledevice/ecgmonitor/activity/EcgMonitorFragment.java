@@ -110,15 +110,37 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         super.onViewCreated(view, savedInstanceState);
 
         tvEcgSampleRate = view.findViewById(R.id.tv_ecg_samplerate);
+        tvEcgSampleRate.setText(String.valueOf(device.getSampleRate()));
+
         tvEcgLeadType = view.findViewById(R.id.tv_ecg_leadtype);
+        tvEcgLeadType.setText("L"+device.getLeadType().getDescription());
+
         tvEcg1mV = view.findViewById(R.id.tv_ecg_1mv);
+        tvEcg1mV.setText(String.valueOf(device.getValue1mVBeforeCalibrate()) + '/' + String.valueOf(EcgMonitorDevice.DEFAULT_CALIBRATIONVALUE));
+
         tvEcgHr = view.findViewById(R.id.tv_ecg_hr);
+        tvEcgHr.setText(String.valueOf(device.getCurrentHr()));
+        tvEcgHr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hrStatistics();
+            }
+        });
+
         ecgView = view.findViewById(R.id.rwv_ecgview);
+        device.initializeEcgView();
+
         tvEcgRecordTime = view.findViewById(R.id.tv_ecg_recordtime);
+        tvEcgRecordTime.setText(DateTimeUtil.secToTime(device.getRecordSecond()));
 
         ibSwitchSampleEcg = view.findViewById(R.id.ib_ecgreplay_startandstop);
-        ibRecord = view.findViewById(R.id.ib_ecg_record);
-        cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
+        updateState(device.getState());
+        ibSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                device.switchSampleState();
+            }
+        });
 
         for(int i = 0; i < commentBtnId.length; i++) {
             Button button = view.findViewById(commentBtnId[i]);
@@ -133,13 +155,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             commentBtnList.add(button);
         }
 
-        ibSwitchSampleEcg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                device.switchSampleState();
-            }
-        });
-
+        ibRecord = view.findViewById(R.id.ib_ecg_record);
         // 根据设备的isRecord初始化Record按钮
         updateRecordStatus(device.isRecord());
         ibRecord.setOnClickListener(new View.OnClickListener() {
@@ -154,6 +170,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
+        cbEcgFilter = view.findViewById(R.id.cb_ecg_filter);
         cbEcgFilter.setChecked(device.isFilter());
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -169,15 +186,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         updateHrBarData(device.getHrStatistics());
         hrBarDateSet = initBarDataSet("心率值统计", Color.BLUE, Color.BLACK);
         showBarChart();
-
         tvHrTotal = view.findViewById(R.id.tv_ecghr_totaltimes);
-
-        tvEcgHr.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hrStatistics();
-            }
-        });
 
         ibResetHistogram = view.findViewById(R.id.ib_reset_histogram);
         ibResetHistogram.setOnClickListener(new View.OnClickListener() {

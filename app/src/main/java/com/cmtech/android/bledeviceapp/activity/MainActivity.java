@@ -10,7 +10,9 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -36,8 +38,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileReplayActivity;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileReplayActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
@@ -48,7 +50,6 @@ import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.BleDevice;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.BleDeviceConnectState;
 import com.cmtech.android.bledevicecore.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.IBleDeviceFragmentActivity;
 import com.vise.log.ViseLog;
@@ -57,7 +58,6 @@ import java.io.Serializable;
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
-import static java.lang.Thread.sleep;
 
 /**
  *  MainActivity: 主界面
@@ -228,12 +228,27 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 处理输入Intent
         processIntent(getIntent());
+
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // 为已打开设备创建并打开Fragment
+                for(BleDevice device : deviceService.getDeviceList()) {
+                    if(!device.isClosed()) {
+                        createAndOpenFragment(device);
+                        updateDeviceState(device);
+                    }
+                }
+            }
+        }, 1000);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         processIntent(intent);
     }
+
+
 
     // 处理输入Intent
     private void processIntent(Intent intent) {
@@ -349,6 +364,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         unbindService(deviceServiceConnect);
 
+        //isExit = false;
         if(isExit) {
             Intent stopIntent = new Intent(MainActivity.this, BleDeviceService.class);
             stopService(stopIntent);
@@ -398,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 更新设备的Fragment
         BleDeviceFragment deviceFrag = findOpenedFragment(device);
-        if(deviceFrag != null) deviceFrag.updateDeviceState(device);
+        if(deviceFrag != null) deviceFrag.updateDeviceState();
 
         // 更新Activity的ToolBar
         BleDeviceFragment currentFrag = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
@@ -421,10 +437,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         if(isDeviceFragmentOpened(device)) {
             showFragment( findOpenedFragment(device) );
         } else if(device.isClosed()){
-            AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
-            if(factory != null) {
-                openFragment(factory.createFragment(), device.getImagePath(), device.getNickName());
-            }
+            createAndOpenFragment(device);
+        }
+    }
+
+    private void createAndOpenFragment(BleDevice device) {
+        AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
+        if(factory != null) {
+            openFragment(factory.createFragment(), device.getImagePath(), device.getNickName());
         }
     }
 

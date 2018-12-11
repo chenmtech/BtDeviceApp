@@ -55,7 +55,7 @@ public class EcgMonitorDevice extends BleDevice {
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;                          // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
-    private static final int DEFAULT_CALIBRATIONVALUE = 65536;                  // 缺省1mV定标值
+    public static final int DEFAULT_CALIBRATIONVALUE = 65536;                  // 缺省1mV定标值
 
     // GATT消息常量
     private static final int MSG_OBTAINDATA = 1;                                // 获取一个ECG数据，可以是1mV定标数据，也可以是Ecg信号
@@ -95,9 +95,16 @@ public class EcgMonitorDevice extends BleDevice {
     ////////////////////////////////////////////////////////
 
     private int sampleRate = DEFAULT_SAMPLERATE;                    // 采样率
+    public int getSampleRate() { return sampleRate; }
     private EcgLeadType leadType = DEFAULT_LEADTYPE;                // 导联类型
-    private int value1mV = DEFAULT_CALIBRATIONVALUE;                // 1mV定标值
+    public EcgLeadType getLeadType() {
+        return leadType;
+    }
+    private int value1mVBeforeCalibrate = 0;
+    public int getValue1mVBeforeCalibrate() { return value1mVBeforeCalibrate; }
     private List<Integer> calibrationData = new ArrayList<>(250);       // 用于保存标定用的数据
+    private int currentHr = 0;
+    public int getCurrentHr() { return currentHr; }
 
     private boolean isRecord = false;                               // 是否记录信号
     public boolean isRecord() {return isRecord;}
@@ -121,6 +128,9 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 设备状态
     private EcgMonitorState state = EcgMonitorState.INIT;
+    public EcgMonitorState getState() {
+        return state;
+    }
     private void setState(EcgMonitorState state) {
         this.state = state;
         updateEcgMonitorState();
@@ -138,7 +148,7 @@ public class EcgMonitorDevice extends BleDevice {
     public boolean executeAfterConnectSuccess() {
         updateSampleRate(DEFAULT_SAMPLERATE);
         updateLeadType(DEFAULT_LEADTYPE);
-        updateCalibrationValue(0, DEFAULT_CALIBRATIONVALUE);
+        updateCalibrationValue(value1mVBeforeCalibrate, DEFAULT_CALIBRATIONVALUE);
 
         if(!checkBasicEcgMonitorService()) {
             return false;
@@ -341,10 +351,10 @@ public class EcgMonitorDevice extends BleDevice {
             calibrationData.add(tmpData);
         else {
             // 计算1mV定标信号值
-            int value1mV = calculateCalibration(calibrationData);
+            value1mVBeforeCalibrate = calculateCalibration(calibrationData);
             calibrationData.clear();
 
-            onSetValue1mV(value1mV);
+            onSetValue1mV(value1mVBeforeCalibrate);
 
             setState(EcgMonitorState.CALIBRATED);
             stopSampleData();
@@ -372,15 +382,15 @@ public class EcgMonitorDevice extends BleDevice {
         updateEcgSignal(ecgSignal);
 
         // 检测Qrs波，获取心率
-        int hr = qrsDetector.outputHR(ecgSignal);
+        currentHr = qrsDetector.outputHR(ecgSignal);
 
-        if(hr != INVALID_HR) {
+        if(currentHr != INVALID_HR) {
             // 更新心率值显示
-            updateEcgHr(hr);
+            updateEcgHr(currentHr);
 
             // 处理心率值
-            hrWarner.process(hr);
-            hrHistogram.process(hr);
+            hrWarner.process(currentHr);
+            hrHistogram.process(currentHr);
 
             // 如果需要报警
             if(hrWarner.isWarn()) {
@@ -426,7 +436,7 @@ public class EcgMonitorDevice extends BleDevice {
     // 初始化定标器
     private void initializeCalibrator(int value1mV) {
         ecgCalibrator = new EcgCalibrator65536(value1mV);       // 初始化定标器
-        updateCalibrationValue(value1mV, this.value1mV);
+        updateCalibrationValue(value1mV, DEFAULT_CALIBRATIONVALUE);
     }
 
     // 初始化Ecg文件
@@ -438,7 +448,7 @@ public class EcgMonitorDevice extends BleDevice {
             bmeFileHead.setDataType(BmeFileDataType.INT32);
             bmeFileHead.setFs(sampleRate);
             bmeFileHead.setInfo("这是一个心电文件。");
-            bmeFileHead.setCalibrationValue(value1mV);
+            bmeFileHead.setCalibrationValue(DEFAULT_CALIBRATIONVALUE);
             long timeInMillis = new Date().getTime();
             bmeFileHead.setCreatedTime(timeInMillis);
 
@@ -463,13 +473,13 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     // 初始化EcgView
-    private void initializeEcgView() {
+    public void initializeEcgView() {
         int pixelPerGrid = 10;                   // 每小格的像素个数
         float xSecondPerGrid = 0.04f;            // X方向每小格代表的秒数，即0.04对应于25格/秒，这是标准的ECG走纸速度
         float yMvPerGrid = 0.1f;                 // Y方向每小格代表的mV
         // 计算EcgView分辨率
         int xPixelPerData = Math.round(pixelPerGrid / (xSecondPerGrid * sampleRate));     // 计算横向分辨率
-        float yValuePerPixel = value1mV * yMvPerGrid / pixelPerGrid;                      // 计算纵向分辨率
+        float yValuePerPixel = DEFAULT_CALIBRATIONVALUE * yMvPerGrid / pixelPerGrid;                      // 计算纵向分辨率
         // 更新EcgView
         updateEcgView(xPixelPerData, yValuePerPixel, pixelPerGrid);
     }
@@ -481,7 +491,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 初始化Qrs波检测器
     private void initializeQrsDetector() {
-        qrsDetector = new QrsDetector(sampleRate, value1mV);
+        qrsDetector = new QrsDetector(sampleRate, DEFAULT_CALIBRATIONVALUE);
     }
 
     // 初始化心率处理器
