@@ -75,6 +75,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
         for(final BleDevice device : getDeviceList()) {
             closeDevice(device);
+            device.removeDeviceStateObserver(BleDeviceService.this);
         }
 
         // 防止设备没有彻底断开
@@ -96,8 +97,8 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         }
         String content = builder.toString();
         if(content.equals("")) content = NODEVICE_OPENED;
-        notification = createNotification(content);
-        startForeground(DEVICE_SERVICE_ID, notification);
+        //notification = createNotification(content);
+        //startForeground(DEVICE_SERVICE_ID, notification);
         ViseLog.e(TAG + device.getConnectState().getDescription());
     }
 
@@ -157,13 +158,11 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     public void closeDevice(final BleDevice device) {
         if(device != null) {
             device.close();
-            // 延时后设为关闭状态，并注销设备状态观察者
-            // 延时是为了让设备真正断开
+            // 延时后设为关闭状态，延时是为了让设备真正断开
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
-                    device.removeDeviceStateObserver(BleDeviceService.this);
                 }
             }, 1000);
         }
@@ -188,7 +187,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         builder.setShowWhen(true);
         //设置通知栏的标题内容
         builder.setContentTitle("欢迎使用" + getResources().getString(R.string.app_name));
-        //builder.setContentText(content);
+        builder.setContentText(content);
         builder.setStyle(new NotificationCompat.BigTextStyle()
                         .bigText(content));
         Intent startMainActivity = new Intent(this, MainActivity.class);

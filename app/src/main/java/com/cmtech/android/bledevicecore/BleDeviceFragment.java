@@ -76,7 +76,7 @@ public abstract class BleDeviceFragment extends Fragment{
         // 更新连接状态
         updateDeviceState();
 
-        device.notifyDeviceStateObservers();
+        //device.notifyDeviceStateObservers();
     }
 
     @Override

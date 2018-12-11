@@ -359,6 +359,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 登记设备状态观察者
     public void registerDeviceStateObserver(IBleDeviceStateObserver observer) {
+        ViseLog.e("register device observer:" + observer);
         if(!stateObserverList.contains(observer)) {
             stateObserverList.add(observer);
         }
@@ -369,13 +370,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         int index = stateObserverList.indexOf(observer);
         if(index >= 0) {
             stateObserverList.remove(index);
-        }
-    }
-
-    // 删除所有设备状态观察者
-    public void removeAllDeviceStateObserver() {
-        for(IBleDeviceStateObserver observer : stateObserverList) {
-            removeDeviceStateObserver(observer);
         }
     }
 
