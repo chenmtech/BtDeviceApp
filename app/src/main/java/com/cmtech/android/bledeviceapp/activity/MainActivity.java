@@ -659,6 +659,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         toolbar.setLogoDescription(device.getNickName());
 
         // 更新工具条Title
-        toolbar.setTitle(device.getNickName());
+        toolbar.setTitle(device.getConnectState().getDescription());
     }
 }
