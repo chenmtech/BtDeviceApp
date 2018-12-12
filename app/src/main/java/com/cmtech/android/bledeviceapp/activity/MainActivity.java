@@ -51,7 +51,6 @@ import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledevicecore.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.BleDevice;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.BleDeviceConnectState;
 import com.cmtech.android.bledevicecore.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.IBleDeviceFragmentActivity;
 import com.vise.log.ViseLog;
@@ -322,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        updateMainMenuVisibility();
+        updateMainMenu();
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -599,7 +598,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         // 添加设备的Fragment到管理器
         fragAndTabManager.addFragment(fragment, tabImagePath, tabText);
         updateMainLayoutVisibility();
-        updateMainMenuVisibility();
+        //updateMainMenu();
+        invalidateOptionsMenu();
     }
 
     // 显示Fragment
@@ -612,14 +612,33 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void deleteFragment(BleDeviceFragment fragment) {
         fragAndTabManager.deleteFragment(fragment);
         updateMainLayoutVisibility();
-        updateMainMenuVisibility();
+        //updateMainMenu();
+        invalidateOptionsMenu();
     }
 
-    private void updateMainMenuVisibility() {
+    private void updateMainMenu() {
         if(fragAndTabManager.size() == 0) {
             menuSwitch.setVisible(false);
         } else {
             menuSwitch.setVisible(true);
+
+            BleDeviceFragment currentFrag = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
+            if(currentFrag != null && currentFrag.getDevice() != null) {
+                // 更新连接转换菜单menuSwitch
+                // menuSwitch图标如果是动画，先停止动画
+                /*if(menuSwitch.getIcon() instanceof AnimationDrawable) {
+                    AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
+                    if(connectingDrawable.isRunning())
+                        connectingDrawable.stop();
+                }*/
+                menuSwitch.setIcon(currentFrag.getDevice().getStateIcon());
+                /*// 如果menuSwitch图标是动画，则启动动画
+                if(menuSwitch.getIcon() instanceof AnimationDrawable) {
+                    AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
+                    if(!connectingDrawable.isRunning())
+                        connectingDrawable.start();
+                }*/
+            }
         }
     }
 
@@ -632,20 +651,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void updateToolBar(BleDevice device) {
         if(device == null) return;
 
-        // 更新连接转换菜单menuSwitch
-        // menuSwitch图标如果是动画，先停止动画
-        if(menuSwitch.getIcon() instanceof AnimationDrawable) {
-            AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
-            if(connectingDrawable.isRunning())
-                connectingDrawable.stop();
-        }
-        menuSwitch.setIcon(device.getStateIcon());
-        // 如果menuSwitch图标是动画，则启动动画
-        if(menuSwitch.getIcon() instanceof AnimationDrawable) {
-            AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
-            if(!connectingDrawable.isRunning())
-                connectingDrawable.start();
-        }
+        // 更新工具条菜单
+        invalidateOptionsMenu();
 
         // 更新工具条图标
         Drawable drawable;
