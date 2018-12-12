@@ -51,6 +51,7 @@ import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.cmtech.android.bledevicecore.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevicecore.BleDevice;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
+import com.cmtech.android.bledevicecore.BleDeviceConnectState;
 import com.cmtech.android.bledevicecore.BleDeviceFragment;
 import com.cmtech.android.bledevicecore.IBleDeviceFragmentActivity;
 import com.vise.log.ViseLog;
@@ -631,7 +632,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void updateToolBar(BleDevice device) {
         if(device == null) return;
 
-        // 更新连接菜单menuSwitch
+        // 更新连接转换菜单menuSwitch
         // menuSwitch图标如果是动画，先停止动画
         if(menuSwitch.getIcon() instanceof AnimationDrawable) {
             AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();

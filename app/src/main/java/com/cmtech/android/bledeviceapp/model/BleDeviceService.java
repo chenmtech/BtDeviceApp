@@ -88,7 +88,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     }
 
     @Override
-    public void updateDeviceState(BleDevice device) {
+    public void updateDeviceState(final BleDevice device) {
         StringBuilder builder = new StringBuilder();
         for(BleDevice dev : deviceManager.getDeviceList()) {
             if(dev.getConnectState() != BleDeviceConnectState.CONNECT_CLOSED) {

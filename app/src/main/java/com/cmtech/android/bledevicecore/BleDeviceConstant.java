@@ -17,7 +17,7 @@ public class BleDeviceConstant {
     // 扫描超时
     public final static int SCAN_TIMEOUT = 12000;
     // 连接超时
-    public final static int CONNECT_TIMEOUT = 25000;
+    public final static int CONNECT_TIMEOUT = 35000;
     // 连接重试次数
     public final static int CONNECT_RETRY_COUNT = 0;
     // 数据操作重试次数
