@@ -366,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         unbindService(deviceServiceConnect);
 
-        //isExit = false;
+        isExit = false;
         if(isExit) {
             Intent stopIntent = new Intent(MainActivity.this, BleDeviceService.class);
             stopService(stopIntent);

@@ -158,16 +158,9 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     public void closeDevice(final BleDevice device) {
         if(device != null) {
             device.close();
-            // 延时后设为关闭状态，延时是为了让设备真正断开
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
-                }
-            }, 1000);
+            device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
         }
     }
-
 
     /**
      * Notification

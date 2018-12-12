@@ -498,8 +498,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 连接断开回调
     private void onDisconnect(boolean isActive) {
         ViseLog.i("onDisconnect " + isActive);
-
-        if(!isActive && !isClosing) {
+        if(isClosing) {
+            setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+        } else if(!isActive) {
             hasExecuteConnectSuccess = false;
             stopCommandExecutor();
             executeAfterConnectFailure();
