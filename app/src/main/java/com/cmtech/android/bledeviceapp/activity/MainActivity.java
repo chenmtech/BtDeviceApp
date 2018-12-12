@@ -44,7 +44,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
 import com.cmtech.android.bledeviceapp.model.BleDeviceService;
-import com.cmtech.android.bledeviceapp.model.FragmentAndTabLayoutManager;
+import com.cmtech.android.bledeviceapp.model.MyFragmentManager;
 import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private LinearLayout mainLayout;
 
     // 主界面的TabLayout和Fragment管理器
-    private FragmentAndTabLayoutManager fragAndTabManager;
+    private MyFragmentManager fragmentManager;
 
     // 工具条上的连接菜单和关闭菜单
     private MenuItem menuSwitch;
@@ -206,11 +206,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.main_tab_layout);
-        fragAndTabManager = new FragmentAndTabLayoutManager(getSupportFragmentManager(), tabLayout, R.id.main_fragment_layout);
-        fragAndTabManager.setOnFragmentChangedListener(new FragmentAndTabLayoutManager.OnFragmentChangedListener() {
+        fragmentManager = new MyFragmentManager(getSupportFragmentManager(), tabLayout, R.id.main_fragment_layout);
+        fragmentManager.setOnFragmentChangedListener(new MyFragmentManager.OnFragmentChangedListener() {
             @Override
-            public void onFragmentchanged() {
-                updateToolBar(((BleDeviceFragment) fragAndTabManager.getCurrentFragment()).getDevice());
+            public void onFragmentchanged(Fragment fragment) {
+                updateToolBar(((BleDeviceFragment) fragment).getDevice());
             }
         });
 
@@ -335,14 +335,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 break;
 
             case R.id.toolbar_switch:
-                fragment = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
+                fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.switchState();
                 }
                 break;
 
             case R.id.toolbar_close:
-                fragment = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
+                fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
                     deviceService.closeDevice(fragment.getDevice());
                     deleteFragment(fragment);
@@ -418,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         if(deviceFrag != null) deviceFrag.updateDeviceState();
 
         // 更新Activity的ToolBar
-        BleDeviceFragment currentFrag = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
+        BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
         if(currentFrag != null && deviceFrag == currentFrag) {
             updateToolBar(currentFrag.getDevice());
         }
@@ -445,7 +445,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void createAndOpenFragment(BleDevice device) {
         AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
         if(factory != null) {
-            openFragment(factory.createFragment(), device.getImagePath(), device.getNickName());
+            openFragment(factory.createFragment(), device.getNickName());
         }
     }
 
@@ -502,7 +502,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 更新主Layout的可视性
     private void updateMainLayoutVisibility() {
-        if(fragAndTabManager.size() == 0) {
+        if(fragmentManager.size() == 0) {
             welcomeLayout.setVisibility(View.VISIBLE);
             mainLayout.setVisibility(View.INVISIBLE);
             setTitle(R.string.app_name);
@@ -583,7 +583,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 在已打开的Fragment中寻找设备对应的Fragment
     private BleDeviceFragment findOpenedFragment(BleDevice device) {
-        List<Fragment> fragmentList = fragAndTabManager.getFragmentList();
+        List<Fragment> fragmentList = fragmentManager.getFragmentList();
         for(Fragment fragment : fragmentList) {
             if(device.equals(((BleDeviceFragment)fragment).getDevice())) {
                 return (BleDeviceFragment)fragment;
@@ -593,36 +593,35 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     // 打开Fragment：将Fragment加入Manager，并显示
-    private void openFragment(BleDeviceFragment fragment, String tabImagePath, String tabText) {
+    private void openFragment(BleDeviceFragment fragment, String tabText) {
         drawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
-        fragAndTabManager.addFragment(fragment, tabImagePath, tabText);
+        fragmentManager.addFragment(fragment, tabText);
         updateMainLayoutVisibility();
-        //updateMainMenu();
         invalidateOptionsMenu();
     }
 
     // 显示Fragment
     private void showFragment(BleDeviceFragment fragment) {
         openDrawer(false);
-        fragAndTabManager.showFragment(fragment);
+        fragmentManager.showFragment(fragment);
     }
 
     // 删除Fragment
     private void deleteFragment(BleDeviceFragment fragment) {
-        fragAndTabManager.deleteFragment(fragment);
+        fragmentManager.deleteFragment(fragment);
         updateMainLayoutVisibility();
         //updateMainMenu();
         invalidateOptionsMenu();
     }
 
     private void updateMainMenu() {
-        if(fragAndTabManager.size() == 0) {
+        if(fragmentManager.size() == 0) {
             menuSwitch.setVisible(false);
         } else {
             menuSwitch.setVisible(true);
 
-            BleDeviceFragment currentFrag = (BleDeviceFragment) fragAndTabManager.getCurrentFragment();
+            BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
             if(currentFrag != null && currentFrag.getDevice() != null) {
                 // 更新连接转换菜单menuSwitch
                 // menuSwitch图标如果是动画，先停止动画

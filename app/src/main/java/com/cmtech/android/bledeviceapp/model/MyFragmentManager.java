@@ -8,6 +8,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledevicecore.BleDeviceType;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -18,9 +20,18 @@ import java.util.List;
  * Created by chenm on 2018/3/16.
  */
 
-public class FragmentAndTabLayoutManager {
+public class MyFragmentManager {
+
+    // fragment改变监听器接口
+    public interface OnFragmentChangedListener {
+        void onFragmentchanged(Fragment fragment);
+    }
     // fragment改变监听器
     private OnFragmentChangedListener listener = null;
+    // 设置监听器
+    public void setOnFragmentChangedListener(OnFragmentChangedListener listener) {
+        this.listener = listener;
+    }
 
     // Fragment内部管理器实例
     private final InnerFragmentManager fragManager;
@@ -31,24 +42,12 @@ public class FragmentAndTabLayoutManager {
     // 当前显示的Fragment和Tab的位置
     private int curPos = -1;
 
-    // fragment改变监听器接口
-    public interface OnFragmentChangedListener {
-        void onFragmentchanged();
-    }
+
 
     // 构造器
-    public FragmentAndTabLayoutManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
+    public MyFragmentManager(android.support.v4.app.FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
         fragManager = new InnerFragmentManager(fragmentManager, containerId);
         this.tabLayout = tabLayout;
-        init();
-    }
-
-    // 设置fragment改变监听器
-    public void setOnFragmentChangedListener(OnFragmentChangedListener listener) {
-        this.listener = listener;
-    }
-
-    private void init() {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -64,7 +63,7 @@ public class FragmentAndTabLayoutManager {
                 curPos = pos;
 
                 if(listener != null) {
-                    listener.onFragmentchanged();
+                    listener.onFragmentchanged(fragManager.getFragment(pos));
                 }
             }
 
@@ -85,6 +84,17 @@ public class FragmentAndTabLayoutManager {
     }
 
     // 添加Fragment，并显示
+    public void addFragment(Fragment fragment, String tabText) {
+        if(fragment == null || fragManager.fragments.contains(fragment)) return;
+
+        fragManager.addFragment(fragment, "");
+
+        TabLayout.Tab tab = tabLayout.newTab();
+
+        tabLayout.addTab(tab.setText(tabText), true);
+    }
+
+    // 添加Fragment，并显示
     public void addFragment(Fragment fragment, String tabImagePath, String tabText) {
         if(fragment == null || fragManager.fragments.contains(fragment)) return;
 
@@ -92,28 +102,28 @@ public class FragmentAndTabLayoutManager {
 
         TabLayout.Tab tab = tabLayout.newTab();
 
-        /*Drawable drawable = null;
+        Drawable drawable = null;
         if(tabImagePath != null && !"".equals(tabImagePath)) {
             drawable = new BitmapDrawable(MyApplication.getContext().getResources(), tabImagePath);
         } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(BleDeviceType.fromUuid(device.getUuidString()).getImage());
-        }*/
+            drawable = MyApplication.getContext().getResources().getDrawable(R.mipmap.ic_device_default_icon);
+        }
+        tabLayout.addTab(tab.setText(tabText).setIcon(drawable), true);
 
-        //tabLayout.addTab(tab.setText(tabText).setIcon(drawable), true);
         tabLayout.addTab(tab.setText(tabText), true);
     }
 
     // 获取当前fragment
     public Fragment getCurrentFragment() {
-        return (curPos < 0 || curPos >= size()) ? null : fragManager.getFragment(curPos);
+        return fragManager.getFragment(curPos);
     }
 
     // 获取当前tab
     public TabLayout.Tab getCurrentTab() {
-        return (curPos < 0 || curPos >= size() || size() == 0) ? null : tabLayout.getTabAt(curPos);
+        return tabLayout.getTabAt(curPos);
     }
 
-    // 更新tab信息
+    // 更新tab
     public void updateTabInfo(Fragment fragment, String tabImagePath, String tabText) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
@@ -132,8 +142,8 @@ public class FragmentAndTabLayoutManager {
     public void deleteFragment(Fragment fragment) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
-        int index = fragManager.fragments.indexOf(fragment);
         fragManager.removeFragment(fragment);
+        int index = fragManager.fragments.indexOf(fragment);
         TabLayout.Tab tab = tabLayout.getTabAt(index);
         if(tab != null)
             tabLayout.removeTab(tab);
@@ -155,20 +165,15 @@ public class FragmentAndTabLayoutManager {
 
     private static class InnerFragmentManager {
 
-        private FragmentManager fragmentManager;
+        private android.support.v4.app.FragmentManager fragmentManager;
 
         private int containerId;
 
-        private List<Fragment> fragments;
+        private List<Fragment> fragments = new ArrayList<>();
 
-        InnerFragmentManager(FragmentManager fragmentManager, int containerId) {
-            super();
-
-            this.containerId = containerId;
-
+        InnerFragmentManager(android.support.v4.app.FragmentManager fragmentManager, int containerId) {
             this.fragmentManager = fragmentManager;
-
-            fragments = new ArrayList<>();
+            this.containerId = containerId;
         }
 
         public int size() { return fragments.size(); }
@@ -185,7 +190,6 @@ public class FragmentAndTabLayoutManager {
 
         void removeFragment(Fragment fragment) {
             if (fragment != null) {
-                ViseLog.i("removeFragment " + fragment);
                 fragments.remove(fragment);
 
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -203,7 +207,6 @@ public class FragmentAndTabLayoutManager {
         }
 
         void showFragment(Fragment fragment) {
-            ViseLog.i("showFragment " + fragment);
             if (fragment != null) {
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.show(fragment);
