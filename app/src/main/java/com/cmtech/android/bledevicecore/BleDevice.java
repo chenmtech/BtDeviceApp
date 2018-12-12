@@ -112,13 +112,10 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     private final IScanCallback scanCallback = new IScanCallback() {
         @Override
         public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
-            synchronized (BleDevice.this) {
-
-            }
             BluetoothDevice bluetoothDevice = bluetoothLeDevice.getDevice();
             if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
-                Toast.makeText(MyApplication.getContext(), "请先绑定设备。", Toast.LENGTH_SHORT).show();
-                bluetoothDevice.createBond();   // 还没有绑定，则启动绑定
+                Toast.makeText(MyApplication.getContext(), "未绑定设备，无法使用。", Toast.LENGTH_SHORT).show();
+                //bluetoothDevice.createBond();   // 还没有绑定，则启动绑定
                 BleDevice.this.onScanFinish(false);
             } else if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
                 BleDevice.this.bluetoothLeDevice = bluetoothLeDevice;
@@ -133,9 +130,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
         @Override
         public void onScanTimeout() {
-            synchronized (BleDevice.this) {
-
-            }
             BleDevice.this.onScanFinish(false);
         }
     };
@@ -145,27 +139,18 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         // 连接成功回调
         @Override
         public void onConnectSuccess(DeviceMirror mirror) {
-            synchronized (BleDevice.this) {
-
-            }
             BleDevice.this.onConnectSuccess(mirror);
         }
 
         // 连接失败回调
         @Override
         public void onConnectFailure(final BleException exception) {
-            synchronized (BleDevice.this) {
-
-            }
             BleDevice.this.onConnectFailure(exception);
         }
 
         // 连接断开回调
         @Override
         public void onDisconnect(final boolean isActive) {
-            synchronized (BleDevice.this) {
-
-            }
             BleDevice.this.onDisconnect(isActive);
         }
     };
