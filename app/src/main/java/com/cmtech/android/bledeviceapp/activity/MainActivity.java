@@ -321,9 +321,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
         updateMainMenu();
-
-        return super.onPrepareOptionsMenu(menu);
+        return true;
     }
 
     @Override
@@ -626,18 +626,18 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             if(currentFrag != null && currentFrag.getDevice() != null) {
                 // 更新连接转换菜单menuSwitch
                 // menuSwitch图标如果是动画，先停止动画
-                /*if(menuSwitch.getIcon() instanceof AnimationDrawable) {
+                if(menuSwitch.getIcon() instanceof AnimationDrawable) {
                     AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
                     if(connectingDrawable.isRunning())
                         connectingDrawable.stop();
-                }*/
+                }
                 menuSwitch.setIcon(currentFrag.getDevice().getStateIcon());
-                /*// 如果menuSwitch图标是动画，则启动动画
+                // 如果menuSwitch图标是动画，则启动动画
                 if(menuSwitch.getIcon() instanceof AnimationDrawable) {
                     AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
                     if(!connectingDrawable.isRunning())
                         connectingDrawable.start();
-                }*/
+                }
             }
         }
     }
