@@ -533,7 +533,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void openFragment(BleDeviceFragment fragment, String tabText) {
         drawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
-        fragmentManager.addFragment(fragment, tabText);
+        fragmentManager.addFragment(fragment, "", tabText);
         updateMainLayoutVisibility();
         invalidateOptionsMenu();
     }
