@@ -5,6 +5,8 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -100,7 +102,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (EcgMonitorDevice) getDevice();
-        device.registerEcgMonitorObserver(this);
+        //device.registerEcgMonitorObserver(EcgMonitorFragment.this);
 
         return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
     }
@@ -128,7 +130,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         });
 
         ecgView = view.findViewById(R.id.rwv_ecgview);
-        device.initializeEcgView();
+        updateEcgView(device.getxPixelPerData(), device.getyValuePerPixel(), device.getPixelPerGrid());
+        //device.initializeEcgView();
 
         tvEcgRecordTime = view.findViewById(R.id.tv_ecg_recordtime);
         tvEcgRecordTime.setText(DateTimeUtil.secToTime(device.getRecordSecond()));
@@ -196,6 +199,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 updateBarChart(null);
             }
         });
+
+        device.registerEcgMonitorObserver(EcgMonitorFragment.this);
     }
 
     @Override

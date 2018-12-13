@@ -195,6 +195,11 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         PendingIntent pi = PendingIntent.getActivity(this, 0, startMainActivity, 0);
         builder.setContentIntent(pi);
 
+        Notification notification = builder.build();
+        notification.flags = Notification.FLAG_ONGOING_EVENT;
+        notification.flags |= Notification.FLAG_NO_CLEAR;
+        notification.flags |= Notification.FLAG_FOREGROUND_SERVICE;
+
         //创建通知
         return builder.build();
     }

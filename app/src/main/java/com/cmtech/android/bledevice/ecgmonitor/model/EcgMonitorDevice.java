@@ -120,6 +120,13 @@ public class EcgMonitorDevice extends BleDevice {
         return (int)(recordDataNum/sampleRate);
     }
 
+    private int pixelPerGrid = 10;                   // 每小格的像素个数
+    public int getPixelPerGrid() { return pixelPerGrid; }
+    private int xPixelPerData = 2;     // 计算横向分辨率
+    public int getxPixelPerData() { return xPixelPerData; }
+    private float yValuePerPixel = 100.0f;                      // 计算纵向分辨率
+    public float getyValuePerPixel() { return yValuePerPixel; }
+
     private IEcgCalibrator ecgCalibrator;                    // Ecg信号定标器
     private IEcgFilter ecgFilter;                            // Ecg信号滤波器
     private QrsDetector qrsDetector;                         // Ecg Qrs波检测器，可用于获取心率
@@ -474,12 +481,12 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 初始化EcgView
     public void initializeEcgView() {
-        int pixelPerGrid = 10;                   // 每小格的像素个数
+        pixelPerGrid = 10;                   // 每小格的像素个数
         float xSecondPerGrid = 0.04f;            // X方向每小格代表的秒数，即0.04对应于25格/秒，这是标准的ECG走纸速度
         float yMvPerGrid = 0.1f;                 // Y方向每小格代表的mV
         // 计算EcgView分辨率
-        int xPixelPerData = Math.round(pixelPerGrid / (xSecondPerGrid * sampleRate));     // 计算横向分辨率
-        float yValuePerPixel = DEFAULT_CALIBRATIONVALUE * yMvPerGrid / pixelPerGrid;                      // 计算纵向分辨率
+        xPixelPerData = Math.round(pixelPerGrid / (xSecondPerGrid * sampleRate));                       // 计算横向分辨率
+        yValuePerPixel = DEFAULT_CALIBRATIONVALUE * yMvPerGrid / pixelPerGrid;                         // 计算纵向分辨率
         // 更新EcgView
         updateEcgView(xPixelPerData, yValuePerPixel, pixelPerGrid);
     }
