@@ -248,6 +248,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         else
             imageId = R.mipmap.ic_ecg_record_stop;
         ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
+        for(Button button : commentBtnList) {
+            button.setEnabled(isRecord);
+        }
     }
 
     @Override
