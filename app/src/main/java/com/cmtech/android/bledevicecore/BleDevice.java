@@ -435,7 +435,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             startConnect();
         } else {
             handler.removeCallbacksAndMessages(null);
-            setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+            setConnectState(BleDeviceConnectState.CONNECT_DISCONNECT);
         }
     }
 

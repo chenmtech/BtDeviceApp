@@ -76,6 +76,8 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     public void onDestroy() {
         super.onDestroy();
 
+        stopForeground(true);
+
         for(final BleDevice device : getDeviceList()) {
             device.close();
             device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
@@ -106,15 +108,12 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
         sendNotification(content);
 
-        //notification = createNotification(content);
-        //startForeground(SERVICE_NOTIFICATION_ID, notification);
         ViseLog.e(TAG + device.getConnectState().getDescription());
     }
 
     private void sendNotification(String content) {
         notificationBuilder.setStyle(new NotificationCompat.BigTextStyle()
                 .bigText(content));
-        notificationBuilder.setDefaults(Notification.DEFAULT_SOUND);
 
         Notification notification = notificationBuilder.build();
         notification.flags = Notification.FLAG_ONGOING_EVENT;
