@@ -60,8 +60,13 @@ public abstract class BleDeviceFragment extends Fragment{
         device = activity.findDevice(deviceMac);
         if(device == null) throw new IllegalArgumentException();
 
+        // 更新连接状态
+        updateDeviceState();
+
         // 注册设备状态观察者
-        //device.registerDeviceStateObserver(activity);
+        device.registerDeviceStateObserver(activity);
+
+        device.notifyDeviceStateObservers();
 
         // 打开设备
         device.open();
@@ -72,29 +77,13 @@ public abstract class BleDeviceFragment extends Fragment{
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        // 更新连接状态
-        updateDeviceState();
-
-        //device.notifyDeviceStateObservers();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        /*// 关闭设备
-        device.close();
-
-        // 延时后设为关闭状态，并注销设备状态观察者
-        // 延时是为了让设备真正断开
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
-                device.removeDeviceStateObserver(activity);
-            }
-        }, 1000);*/
+        device.removeDeviceStateObserver(activity);
     }
 
     // 切换设备状态，根据设备的当前状态实现状态切换

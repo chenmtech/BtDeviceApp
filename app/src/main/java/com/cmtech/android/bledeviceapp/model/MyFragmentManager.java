@@ -24,7 +24,7 @@ public class MyFragmentManager {
 
     // fragment改变监听器接口
     public interface OnFragmentChangedListener {
-        void onFragmentchanged(Fragment fragment);
+        void onFragmentchanged();
     }
     // fragment改变监听器
     private OnFragmentChangedListener listener = null;
@@ -63,7 +63,7 @@ public class MyFragmentManager {
                 curPos = pos;
 
                 if(listener != null) {
-                    listener.onFragmentchanged(fragManager.getFragment(pos));
+                    listener.onFragmentchanged();
                 }
             }
 
@@ -140,6 +140,7 @@ public class MyFragmentManager {
 
     // 删除Fragment
     public void deleteFragment(Fragment fragment) {
+        ViseLog.e("delete fragment");
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
         fragManager.removeFragment(fragment);

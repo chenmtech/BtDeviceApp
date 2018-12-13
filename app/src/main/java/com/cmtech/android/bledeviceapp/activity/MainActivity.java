@@ -43,6 +43,7 @@ import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileReplayActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
+import com.cmtech.android.bledeviceapp.model.BleDeviceFragmentManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceService;
 import com.cmtech.android.bledeviceapp.model.MyFragmentManager;
 import com.cmtech.android.bledeviceapp.model.UserAccount;
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private LinearLayout mainLayout;
 
     // 主界面的TabLayout和Fragment管理器
-    private MyFragmentManager fragmentManager;
+    private BleDeviceFragmentManager fragmentManager;
 
     // 工具条上的连接菜单和关闭菜单
     private MenuItem menuSwitch;
@@ -206,17 +207,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.main_tab_layout);
-        fragmentManager = new MyFragmentManager(getSupportFragmentManager(), tabLayout, R.id.main_fragment_layout);
+        fragmentManager = new BleDeviceFragmentManager(getSupportFragmentManager(), tabLayout, R.id.main_fragment_layout);
         fragmentManager.setOnFragmentChangedListener(new MyFragmentManager.OnFragmentChangedListener() {
             @Override
-            public void onFragmentchanged(Fragment fragment) {
-                updateToolBar(((BleDeviceFragment) fragment).getDevice());
+            public void onFragmentchanged() {
+                updateToolBar(((BleDeviceFragment) fragmentManager.getCurrentFragment()).getDevice());
             }
         });
-
-        // 登记设备状态观察者
-        registerDeviceStateObserver();
-        //updateDeviceListAdapter();
 
         // 更新导航视图
         updateNavigationViewUsingUserInfo();
@@ -227,42 +224,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         // 更新主界面可视性
         updateMainLayoutVisibility();
 
-        // 处理输入Intent
-        processIntent(getIntent());
-
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // 为已打开设备创建并打开Fragment
-                for(BleDevice device : deviceService.getDeviceList()) {
-                    if(!device.isClosed()) {
-                        createAndOpenFragment(device);
-                        updateDeviceState(device);
-                    }
-                }
-            }
-        }, 500);
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        processIntent(intent);
-    }
-
-
-
-    // 处理输入Intent
-    private void processIntent(Intent intent) {
-        if(intent != null) {
-            Uri uri = intent.getData();
-            if(uri != null) {
-                ViseLog.e(intent.getData().getPath());
-                String desFileName = intent.getData().getPath();
-                replayEcgFile(desFileName);
+        // 为已经打开的设备创建并打开Fragment
+        for(BleDevice device : deviceService.getDeviceList()) {
+            if(!device.isClosed()) {
+                createAndOpenFragment(device);
             }
         }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -413,9 +381,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         // 更新设备列表Adapter
         updateDeviceListAdapter();
 
-        // 更新设备的Fragment
-        BleDeviceFragment deviceFrag = findOpenedFragment(device);
-        if(deviceFrag != null) deviceFrag.updateDeviceState();
+        // 更新设备的Fragment界面
+        BleDeviceFragment deviceFrag = fragmentManager.findOpenedFragment(device);
+        if(deviceFrag != null) deviceFrag.updateDeviceState();  // 暂时没有处理
 
         // 更新Activity的ToolBar
         BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
@@ -435,8 +403,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     public void openDevice(BleDevice device) {
         if(device == null) return;
 
-        if(isDeviceFragmentOpened(device)) {
-            showFragment( findOpenedFragment(device) );
+        BleDeviceFragment fragment = fragmentManager.findOpenedFragment(device);
+        if(fragment != null) {
+            showFragment( fragment );
         } else if(device.isClosed()){
             createAndOpenFragment(device);
         }
@@ -453,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     public void deleteDevice(final BleDevice device) {
         if(device == null) return;
 
-        if(isDeviceFragmentOpened(device)) {
+        if(fragmentManager.isDeviceFragmentOpened(device)) {
             Toast.makeText(this, "请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -486,10 +455,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         startActivityForResult(intent, REQUESTCODE_MODIFYDEVICE);
     }
 
-    private boolean isDeviceFragmentOpened(BleDevice device) {
-        return (findOpenedFragment(device) != null);
-    }
-
     private void initWelcomeLayout() {
         // 设置欢迎词
         String welcomeText = getResources().getString(R.string.welcome_text);
@@ -511,13 +476,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         } else {
             welcomeLayout.setVisibility(View.INVISIBLE);
             mainLayout.setVisibility(View.VISIBLE);
-        }
-    }
-
-    // 登记设备状态观察者
-    private void registerDeviceStateObserver() {
-        for(BleDevice device : deviceService.getDeviceList()) {
-            device.registerDeviceStateObserver(this);
         }
     }
 
@@ -561,16 +519,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         requestFinish();
     }
 
-    private void updateNavigationViewUsingUserInfo() {
-        UserAccount account = UserAccountManager.getInstance().getUserAccount();
-        if(account == null) return;
-        tvAccountName.setText(account.getAccountName());
-        tvUserName.setText(account.getUserName());
-        String imagePath = account.getImagePath();
-        if(!"".equals(imagePath))
-            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
-    }
-
     // 开始扫描设备
     private void startScanDevice() {
         List<String> deviceMacList = deviceService.getDeviceMacList();
@@ -579,17 +527,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         intent.putExtra("registered_device_list", (Serializable) deviceMacList);
 
         startActivityForResult(intent, REQUESTCODE_REGISTERDEVICE);
-    }
-
-    // 在已打开的Fragment中寻找设备对应的Fragment
-    private BleDeviceFragment findOpenedFragment(BleDevice device) {
-        List<Fragment> fragmentList = fragmentManager.getFragmentList();
-        for(Fragment fragment : fragmentList) {
-            if(device.equals(((BleDeviceFragment)fragment).getDevice())) {
-                return (BleDeviceFragment)fragment;
-            }
-        }
-        return null;
     }
 
     // 打开Fragment：将Fragment加入Manager，并显示
@@ -615,6 +552,18 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         invalidateOptionsMenu();
     }
 
+    // 更新导航视图
+    private void updateNavigationViewUsingUserInfo() {
+        UserAccount account = UserAccountManager.getInstance().getUserAccount();
+        if(account == null) return;
+        tvAccountName.setText(account.getAccountName());
+        tvUserName.setText(account.getUserName());
+        String imagePath = account.getImagePath();
+        if(!"".equals(imagePath))
+            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+    }
+
+    // 更新主菜单
     private void updateMainMenu() {
         if(fragmentManager.size() == 0) {
             menuSwitch.setVisible(false);
@@ -625,18 +574,18 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             if(currentFrag != null && currentFrag.getDevice() != null) {
                 // 更新连接转换菜单menuSwitch
                 // menuSwitch图标如果是动画，先停止动画
-                if(menuSwitch.getIcon() instanceof AnimationDrawable) {
+                /*if(menuSwitch.getIcon() instanceof AnimationDrawable) {
                     AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
                     if(connectingDrawable.isRunning())
                         connectingDrawable.stop();
-                }
+                }*/
                 menuSwitch.setIcon(currentFrag.getDevice().getStateIcon());
-                // 如果menuSwitch图标是动画，则启动动画
+                /*// 如果menuSwitch图标是动画，则启动动画
                 if(menuSwitch.getIcon() instanceof AnimationDrawable) {
                     AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
                     if(!connectingDrawable.isRunning())
                         connectingDrawable.start();
-                }
+                }*/
             }
         }
     }

@@ -74,7 +74,8 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         super.onDestroy();
 
         for(final BleDevice device : getDeviceList()) {
-            closeDevice(device);
+            device.close();
+            device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
             device.removeDeviceStateObserver(BleDeviceService.this);
         }
 
@@ -125,6 +126,21 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         }
     }
 
+    // 打开设备
+    public void openDevice(final BleDevice device) {
+        if(device != null) {
+            device.open();
+        }
+    }
+
+    // 关闭设备
+    public void closeDevice(final BleDevice device) {
+        if(device != null) {
+            device.close();
+            device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+        }
+    }
+
     // 删除一个设备
     public void deleteDevice(BleDevice device) {
         deviceManager.deleteDevice(device);
@@ -152,14 +168,6 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
     public boolean hasDeviceOpened() {
         return deviceManager.hasDeviceOpened();
-    }
-
-    // 关闭设备
-    public void closeDevice(final BleDevice device) {
-        if(device != null) {
-            device.close();
-            device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
-        }
     }
 
     /**
