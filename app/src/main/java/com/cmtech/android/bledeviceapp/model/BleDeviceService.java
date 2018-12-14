@@ -20,6 +20,8 @@ import com.cmtech.android.bledevicecore.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.IBleDeviceStateObserver;
 import com.vise.log.ViseLog;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -30,7 +32,8 @@ import java.util.List;
 public class BleDeviceService extends Service implements IBleDeviceStateObserver {
     private final static String TAG = "BleDeviceService";
 
-    private final static String NODEVICE_OPENED = "无设备打开。";
+    private String notiTitle;
+    private final static String NOTIFICATION_CONTENT_TEXT = "当前设备状态";
 
     /**
      * id不可设置为0,否则不能设置为前台service
@@ -48,9 +51,8 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
     private DeviceServiceBinder binder = new DeviceServiceBinder();
 
-    //使用兼容版本
     private NotificationCompat.Builder notificationBuilder;
-    private NotificationManager notifacationManager;
+    private NotificationManager notificationManager;
 
     @Override
     public void onCreate() {
@@ -59,12 +61,12 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         deviceManager = new BleDeviceManager();
         initDeviceFromPref();
 
-        notificationBuilder = new NotificationCompat.Builder(this, "default");
-        notifacationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        notiTitle = "欢迎使用" + getResources().getString(R.string.app_name);
 
-        Notification notification = createNotification(NODEVICE_OPENED);
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        initNotificationBuilder();
 
-        startForeground(SERVICE_NOTIFICATION_ID, notification);
+        startForeground(SERVICE_NOTIFICATION_ID, createNotification(Arrays.asList(new String[]{NOTIFICATION_CONTENT_TEXT})));
     }
 
     @Override
@@ -95,38 +97,22 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
     @Override
     public void updateDeviceState(final BleDevice device) {
-        StringBuilder builder = new StringBuilder();
+        List<String> info = new ArrayList<>();
         for(BleDevice dev : deviceManager.getDeviceList()) {
             if(dev.getConnectState() != BleDeviceConnectState.CONNECT_CLOSED) {
-                builder.append(dev.getMacAddress()).append(": ").append(dev.getConnectState().getDescription()).append('\n');
+                info.add(dev.getMacAddress() + ": " + dev.getConnectState().getDescription());
             }
         }
-        String content = builder.toString();
-        if(content.equals("")) {
-            content = NODEVICE_OPENED;
+
+        if(info.size() == 0) {
+            info.add("无设备打开");
         }
 
-        sendNotification(content);
+        sendNotification(info);
 
-        ViseLog.e(TAG + device.getConnectState().getDescription());
+        ViseLog.e(TAG + device.getConnectState().getDescription() + Arrays.toString(info.toArray()));
     }
 
-    private void sendNotification(String content) {
-        notificationBuilder.setStyle(new NotificationCompat.BigTextStyle()
-                .bigText(content));
-
-        Notification notification = notificationBuilder.build();
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
-        notification.flags |= Notification.FLAG_NO_CLEAR;
-        notification.flags |= Notification.FLAG_FOREGROUND_SERVICE;
-        notifacationManager.notify(SERVICE_NOTIFICATION_ID, notification);
-    }
-
-    // 从Preference获取所有设备信息，并构造相应的BLEDevice
-    private void initDeviceFromPref() {
-        List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
-        addDevice(basicInfoList);
-    }
 
     // 创建并添加一个设备
     public BleDevice addDevice(BleDeviceBasicInfo basicInfo) {
@@ -189,10 +175,14 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         return deviceManager.hasDeviceOpened();
     }
 
-    /**
-     * Notification
-     */
-    public Notification createNotification(String content){
+    // 从Preference获取所有设备信息，并构造相应的BLEDevice
+    private void initDeviceFromPref() {
+        List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
+        addDevice(basicInfoList);
+    }
+
+    private void initNotificationBuilder() {
+        notificationBuilder = new NotificationCompat.Builder(this, "default");
         //设置状态栏的通知图标
         notificationBuilder.setSmallIcon(R.mipmap.ic_kang);
         //设置通知栏横条的图标
@@ -204,18 +194,35 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         //右上角的时间显示
         notificationBuilder.setShowWhen(true);
         //设置通知栏的标题内容
-        notificationBuilder.setContentTitle("欢迎使用" + getResources().getString(R.string.app_name));
-        notificationBuilder.setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText(content));
+        notificationBuilder.setContentTitle(notiTitle);
+        notificationBuilder.setContentText(NOTIFICATION_CONTENT_TEXT);
+
         Intent startMainActivity = new Intent(this, MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(this, 0, startMainActivity, 0);
         notificationBuilder.setContentIntent(pi);
+    }
 
+    private void sendNotification(List<String> contents) {
+        Notification notification = createNotification(contents);
+        if(notification != null)
+         notificationManager.notify(SERVICE_NOTIFICATION_ID, notification);
+    }
+
+    private Notification createNotification(List<String> contents){
+        if(contents == null || contents.size() <= 0) return null;
+
+        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+        inboxStyle.setBigContentTitle(notiTitle);
+        for(String content : contents) {
+            inboxStyle.addLine(content);
+        }
+        notificationBuilder.setStyle(inboxStyle);
+        notificationBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
         Notification notification = notificationBuilder.build();
         notification.flags = Notification.FLAG_ONGOING_EVENT;
         notification.flags |= Notification.FLAG_NO_CLEAR;
         notification.flags |= Notification.FLAG_FOREGROUND_SERVICE;
-
+        notification.defaults = Notification.DEFAULT_SOUND;
         //创建通知
         return notification;
     }
