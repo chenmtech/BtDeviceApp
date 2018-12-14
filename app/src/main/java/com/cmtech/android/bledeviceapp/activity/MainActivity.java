@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         unbindService(deviceServiceConnect);
 
-        isExit = false;
+        //isExit = false;
         if(isExit) {
             Intent stopIntent = new Intent(MainActivity.this, BleDeviceService.class);
             stopService(stopIntent);
@@ -344,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         if(deviceService.hasDeviceOpened()) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("退出应用");
-            builder.setMessage("有些设备仍然打开中，退出应用将关闭这些设备。");
+            builder.setMessage("有设备打开，退出将关闭这些设备。");
             builder.setPositiveButton("退出", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -352,10 +352,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     finish();
                 }
             });
-            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton("最小化", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-
+                    isExit = false;
+                    MainActivity.this.moveTaskToBack(true);
                 }
             });
             builder.show();
