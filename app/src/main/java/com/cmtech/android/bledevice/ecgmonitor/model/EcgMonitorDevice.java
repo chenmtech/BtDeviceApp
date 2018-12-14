@@ -15,6 +15,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter.EcgPre
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter.IEcgFilter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.EcgHrHistogram;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.EcgHrWarner;
+import com.cmtech.android.bledeviceapp.BuildConfig;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.BleDataOpException;
 import com.cmtech.android.bledevicecore.BleDevice;
@@ -56,6 +57,9 @@ public class EcgMonitorDevice extends BleDevice {
     private static final int DEFAULT_SAMPLERATE = 125;                          // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
     public static final int DEFAULT_CALIBRATIONVALUE = 65536;                  // 缺省1mV定标值
+    private static final float DEFAULT_SECOND_PER_GRID = 0.04f;                 // 缺省横向每个栅格代表的秒数，对应于走纸速度
+    private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
+    private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
 
     // GATT消息常量
     private static final int MSG_OBTAINDATA = 1;                                // 获取一个ECG数据，可以是1mV定标数据，也可以是Ecg信号
@@ -120,7 +124,7 @@ public class EcgMonitorDevice extends BleDevice {
         return (int)(recordDataNum/sampleRate);
     }
 
-    private int pixelPerGrid = 10;                   // 每小格的像素个数
+    private int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
     public int getPixelPerGrid() { return pixelPerGrid; }
     private int xPixelPerData = 2;     // 计算横向分辨率
     public int getxPixelPerData() { return xPixelPerData; }
@@ -211,7 +215,6 @@ public class EcgMonitorDevice extends BleDevice {
                 if(msg.obj != null) {
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
-                    initializeFilter();     // 有了采样率，可以初始化滤波器
                 }
                 break;
 
@@ -254,9 +257,9 @@ public class EcgMonitorDevice extends BleDevice {
         this.isRecord = isRecord;
 
         if(this.isRecord) {
-            //if(state == calibratedState || state == sampleState)        // 如果已经标定了或者开始采样了
+            // 如果已经标定了或者开始采样了,才可以开始记录心电信号，初始化Ecg文件
             if(state == EcgMonitorState.CALIBRATED || state == EcgMonitorState.SAMPLE)
-                initializeEcgFile();                                    // 才可以开始记录心电信号，初始化Ecg文件
+                initializeEcgFile(ecgFile, sampleRate, DEFAULT_CALIBRATIONVALUE, leadType);
             else {
                 // 否则什么都不做，会在标定后根据isRecord值初始化Ecg文件
             }
@@ -423,31 +426,47 @@ public class EcgMonitorDevice extends BleDevice {
     // 响应获取到1mV定标值后要做的事情
     private void onSetValue1mV(int value1mV) {
         // 初始化定标器
-        initializeCalibrator(value1mV);
+        initializeCalibrator(value1mV, DEFAULT_CALIBRATIONVALUE);
+
+        // 初始化滤波器
+        initializeFilter(sampleRate);
 
         // 初始化EcgFile
         if(isRecord) {
-            initializeEcgFile();        // 如果需要记录，就初始化Ecg文件
+            initializeEcgFile(ecgFile, sampleRate, DEFAULT_CALIBRATIONVALUE, leadType);        // 如果需要记录，就初始化Ecg文件
         }
 
         // 初始化Qrs波检测器
-        initializeQrsDetector();
+        initializeQrsDetector(sampleRate, DEFAULT_CALIBRATIONVALUE);
 
         // 初始化心率处理器
         initializeHrProcessor();
 
         // 初始化EcgView
-        initializeEcgView();
+        initializeEcgView(sampleRate, DEFAULT_CALIBRATIONVALUE);
     }
 
     // 初始化定标器
-    private void initializeCalibrator(int value1mV) {
-        ecgCalibrator = new EcgCalibrator65536(value1mV);       // 初始化定标器
-        updateCalibrationValue(value1mV, DEFAULT_CALIBRATIONVALUE);
+    private void initializeCalibrator(int value1mVBeforeCalibrate, int value1mVAfterCalibrate) {
+        if(value1mVAfterCalibrate != DEFAULT_CALIBRATIONVALUE) {
+            return;
+        }
+        ecgCalibrator = new EcgCalibrator65536(value1mVBeforeCalibrate);       // 初始化定标器
+        updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
     }
 
     // 初始化Ecg文件
-    private void initializeEcgFile() {
+    private void initializeEcgFile(EcgFile ecgFile, int sampleRate, int calibrationValue, EcgLeadType leadType) {
+        createEcgFile(ecgFile, sampleRate, calibrationValue, leadType);
+        if(ecgFile != null) {
+            commentList.clear();
+            recordDataNum = 0;
+            updateRecordSecond(0);
+        }
+    }
+
+    // 初始化Ecg文件
+    private void createEcgFile(EcgFile ecgFile, int sampleRate, int calibrationValue, EcgLeadType leadType) {
         if(ecgFile == null) {
             // 创建bmeFileHead文件头
             BmeFileHead30 bmeFileHead = new BmeFileHead30();
@@ -455,14 +474,13 @@ public class EcgMonitorDevice extends BleDevice {
             bmeFileHead.setDataType(BmeFileDataType.INT32);
             bmeFileHead.setFs(sampleRate);
             bmeFileHead.setInfo("这是一个心电文件。");
-            bmeFileHead.setCalibrationValue(DEFAULT_CALIBRATIONVALUE);
+            bmeFileHead.setCalibrationValue(calibrationValue);
             long timeInMillis = new Date().getTime();
             bmeFileHead.setCreatedTime(timeInMillis);
 
             // 创建ecgFileHead文件头
             String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(getMacAddress());
             EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, leadType);
-            commentList.clear();
 
             // 创建ecgFile
             String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
@@ -470,8 +488,6 @@ public class EcgMonitorDevice extends BleDevice {
             try {
                 fileName = toFile.getCanonicalPath();
                 ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
-                recordDataNum = 0;
-                updateRecordSecond(0);
                 ViseLog.e(ecgFile);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -479,26 +495,26 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
+
+
     // 初始化EcgView
-    public void initializeEcgView() {
-        pixelPerGrid = 10;                   // 每小格的像素个数
-        float xSecondPerGrid = 0.04f;            // X方向每小格代表的秒数，即0.04对应于25格/秒，这是标准的ECG走纸速度
-        float yMvPerGrid = 0.1f;                 // Y方向每小格代表的mV
+    private void initializeEcgView(int sampleRate, int calibrationValue) {
+        pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
         // 计算EcgView分辨率
-        xPixelPerData = Math.round(pixelPerGrid / (xSecondPerGrid * sampleRate));                       // 计算横向分辨率
-        yValuePerPixel = DEFAULT_CALIBRATIONVALUE * yMvPerGrid / pixelPerGrid;                         // 计算纵向分辨率
+        xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate));                       // 计算横向分辨率
+        yValuePerPixel = calibrationValue * DEFAULT_MV_PER_GRID / pixelPerGrid;                         // 计算纵向分辨率
         // 更新EcgView
         updateEcgView(xPixelPerData, yValuePerPixel, pixelPerGrid);
     }
 
     // 初始化滤波器
-    private void initializeFilter() {
+    private void initializeFilter(int sampleRate) {
         ecgFilter = new EcgPreFilterWith35HzNotch(sampleRate);
     }
 
     // 初始化Qrs波检测器
-    private void initializeQrsDetector() {
-        qrsDetector = new QrsDetector(sampleRate, DEFAULT_CALIBRATIONVALUE);
+    private void initializeQrsDetector(int sampleRate, int calibrationValue) {
+        qrsDetector = new QrsDetector(sampleRate, calibrationValue);
     }
 
     // 初始化心率处理器

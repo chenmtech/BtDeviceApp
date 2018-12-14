@@ -75,14 +75,13 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             e.printStackTrace();
             finish();
         }
-        replayModel.registerEcgFileReplayObserver(this);
 
         ecgView = findViewById(R.id.rwv_ecgview);
         ecgView.setEcgFile(replayModel.getEcgFile());
-        ecgView.registerEcgFileReelWaveViewObserver(this);
+        initEcgView(replayModel.getxPixelPerData(), replayModel.getyValuePerPixel(), replayModel.getPixelPerGrid(), 0.5);
 
         tvCurrentTime = findViewById(R.id.tv_ecgreplay_currenttime);
-
+        tvCurrentTime.setText(DateTimeUtil.secToTime(replayModel.getCurrentSecond()));
         tvTotalTime = findViewById(R.id.tv_ecgreplay_totaltime);
         tvTotalTime.setText(DateTimeUtil.secToTime(replayModel.getTotalSecond()));
 
@@ -158,13 +157,11 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             }
         });
 
-        initReplay();
+        ecgView.registerEcgFileReelWaveViewObserver(this);
+
+        replayModel.registerEcgFileReplayObserver(this);
 
         startReplay();
-    }
-
-    private void initReplay() {
-        replayModel.initReplay();
     }
 
     private void startReplay() {
@@ -175,35 +172,30 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         ecgView.stopShow();
     }
 
+    private void initEcgView(int xRes, float yRes, int viewGridWidth, double zerolocation) {
+        ecgView.setRes(xRes, yRes);
+        ecgView.setGridWidth(viewGridWidth);
+        ecgView.setZeroLocation(zerolocation);
+        ecgView.clearData();
+        ecgView.initView();
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        //stopReplay();
-
-        //replayModel.removeEcgFileObserver();
-
-        //replayModel.close();
-    }
-
-    @Override
-    public void onBackPressed() {
         stopReplay();
 
         ecgView.removeEcgFileReelWaveViewObserver();
 
         if(replayModel != null) {
-            replayModel.removeEcgFileObserver();
-
             replayModel.close();
+            replayModel.removeEcgFileObserver();
 
             Intent intent = new Intent();
             intent.putExtra("updated", replayModel.isUpdated());
             setResult(RESULT_OK, intent);
         }
-
-        finish();
     }
 
 
@@ -217,15 +209,6 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         if(reportAdapter.getItemCount() > 1)
             rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
         etComment.setText("");
-    }
-
-    @Override
-    public void initEcgView(int xRes, float yRes, int viewGridWidth, double zerolocation) {
-        ecgView.setRes(xRes, yRes);
-        ecgView.setGridWidth(viewGridWidth);
-        ecgView.setZeroLocation(zerolocation);
-        ecgView.clearData();
-        ecgView.initView();
     }
 
     @Override
