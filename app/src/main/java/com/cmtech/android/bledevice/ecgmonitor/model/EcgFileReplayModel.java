@@ -11,6 +11,10 @@ import java.util.Date;
 import java.util.List;
 
 public class EcgFileReplayModel {
+    private static final float DEFAULT_SECOND_PER_GRID = 0.04f;                 // 缺省横向每个栅格代表的秒数，对应于走纸速度
+    private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
+    private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
+
     private EcgFile ecgFile;            // 播放的EcgFile
 
     private boolean updated = false;            // 文件是否已更新
@@ -19,18 +23,13 @@ public class EcgFileReplayModel {
     // 文件播放观察者
     private IEcgFileReplayObserver observer;
 
-    // 用于设置EcgWaveView的参数
-    private int viewGridWidth = 10;               // 设置ECG View中的每小格有10个像素点
-    // 下面两个参数可用来计算View中的xRes和yRes
-    private float viewXGridTime = 0.04f;          // 设置ECG View中的横向每小格代表0.04秒，即25格/s，这是标准的ECG走纸速度
-    private float viewYGridmV = 0.1f;             // 设置ECG View中的纵向每小格代表0.1mV
-
     private final int totalSecond;                   // 信号总的秒数
     public int getTotalSecond() {
         return totalSecond;
     }
 
-    private int currentSecond = -1;                 // 记录当前播放的Ecg的秒数
+    private int currentSecond = 0;                 // 记录当前播放的Ecg的秒数
+    public int getCurrentSecond() { return currentSecond; }
     public void setCurrentSecond(int currentSecond) {
         this.currentSecond = currentSecond;
     }
@@ -51,9 +50,20 @@ public class EcgFileReplayModel {
         }
     }
 
+    private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
+    public int getPixelPerGrid() { return pixelPerGrid; }
+    private final int xPixelPerData;     // 横向分辨率
+    public int getxPixelPerData() { return xPixelPerData; }
+    private final float yValuePerPixel;                      // 纵向分辨率
+    public float getyValuePerPixel() { return yValuePerPixel; }
+
     public EcgFileReplayModel(String ecgFileName) throws FileException{
         ecgFile = EcgFile.openBmeFile(ecgFileName);
-        totalSecond = ecgFile.getDataNum()/ecgFile.getFs();
+        int sampleRate = ecgFile.getFs();
+        totalSecond = ecgFile.getDataNum()/sampleRate;
+        int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
+        xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate));   // 计算横向分辨率
+        yValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid;                     // 计算纵向分辨率
     }
 
     public EcgFile getEcgFile() {
@@ -62,11 +72,6 @@ public class EcgFileReplayModel {
 
     public List<EcgComment> getCommentList() {
         return ecgFile.getCommentList();
-    }
-
-    // 播放初始化
-    public void initReplay() {
-        initEcgView();
     }
 
     // 添加一个留言
@@ -120,16 +125,6 @@ public class EcgFileReplayModel {
     private void updateCommentList() {
         if(observer != null) {
             observer.updateCommentList();
-        }
-    }
-
-    private void initEcgView() {
-        if(observer != null) {
-            int sampleRate = ecgFile.getFs();
-            int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
-            int xRes = Math.round(viewGridWidth / (viewXGridTime * sampleRate));   // 计算横向分辨率
-            float yRes = value1mV * viewYGridmV / viewGridWidth;                     // 计算纵向分辨率
-            observer.initEcgView(xRes, yRes, viewGridWidth, 0.5);
         }
     }
 }
