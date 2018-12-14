@@ -6,8 +6,11 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.bledeviceapp.R;
@@ -54,6 +57,8 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     private NotificationCompat.Builder notificationBuilder;
     private NotificationManager notificationManager;
 
+    private Ringtone warnRingtone;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -62,6 +67,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         initDeviceFromPref();
 
         notiTitle = "欢迎使用" + getResources().getString(R.string.app_name);
+        warnRingtone = RingtoneManager.getRingtone(this, Settings.System.DEFAULT_RINGTONE_URI);
 
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         initNotificationBuilder();
@@ -76,6 +82,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
     @Override
     public void onDestroy() {
+        ViseLog.e(TAG + "onDestroy()");
         super.onDestroy();
 
         stopForeground(true);
@@ -113,6 +120,10 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         ViseLog.e(TAG + device.getConnectState().getDescription() + Arrays.toString(info.toArray()));
     }
 
+    @Override
+    public void warnDeviceDisconnect(BleDevice device, boolean play) {
+        playWarnRingtone(play);
+    }
 
     // 创建并添加一个设备
     public BleDevice addDevice(BleDeviceBasicInfo basicInfo) {
@@ -175,6 +186,15 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         return deviceManager.hasDeviceOpened();
     }
 
+    // 播放报警声音
+    private void playWarnRingtone(boolean play) {
+        if(play) {
+            warnRingtone.play();
+        } else if(warnRingtone.isPlaying()) {
+            warnRingtone.stop();
+        }
+    }
+
     // 从Preference获取所有设备信息，并构造相应的BLEDevice
     private void initDeviceFromPref() {
         List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
@@ -217,12 +237,11 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
             inboxStyle.addLine(content);
         }
         notificationBuilder.setStyle(inboxStyle);
-        notificationBuilder.setPriority(NotificationCompat.PRIORITY_MAX);
+
         Notification notification = notificationBuilder.build();
         notification.flags = Notification.FLAG_ONGOING_EVENT;
         notification.flags |= Notification.FLAG_NO_CLEAR;
         notification.flags |= Notification.FLAG_FOREGROUND_SERVICE;
-        notification.defaults = Notification.DEFAULT_SOUND;
         //创建通知
         return notification;
     }

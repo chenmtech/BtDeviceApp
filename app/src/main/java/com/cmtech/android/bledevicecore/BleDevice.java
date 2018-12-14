@@ -304,6 +304,8 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             startConnect();
             if(curReconnectTimes < canReconnectTimes)
                 curReconnectTimes++;
+        } else {
+            notifyDeviceDisconnectObservers(true);
         }
     }
 
@@ -372,6 +374,20 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
                     @Override
                     public void run() {
                         observer.updateDeviceState(BleDevice.this);
+                    }
+                });
+            }
+        }
+    }
+
+    // 通知观察者设备断开
+    public void notifyDeviceDisconnectObservers(final boolean warn) {
+        for(final IBleDeviceStateObserver observer : stateObserverList) {
+            if(observer != null) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        observer.warnDeviceDisconnect(BleDevice.this, warn);
                     }
                 });
             }

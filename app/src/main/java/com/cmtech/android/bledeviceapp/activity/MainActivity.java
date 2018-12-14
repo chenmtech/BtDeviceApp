@@ -393,6 +393,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
+    public void warnDeviceDisconnect(BleDevice device, boolean play) {
+
+    }
+
+    @Override
     public BleDevice findDevice(String macAddress) {
         if(deviceService != null)
             return deviceService.findDevice(macAddress);
