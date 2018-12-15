@@ -15,7 +15,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter.EcgPre
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter.IEcgFilter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.EcgHrHistogram;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.EcgHrWarner;
-import com.cmtech.android.bledeviceapp.BuildConfig;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevicecore.BleDataOpException;
 import com.cmtech.android.bledevicecore.BleDevice;
@@ -106,6 +105,8 @@ public class EcgMonitorDevice extends BleDevice {
     }
     private int value1mVBeforeCalibrate = 0;
     public int getValue1mVBeforeCalibrate() { return value1mVBeforeCalibrate; }
+    private final int value1mVAfterCalibrate = DEFAULT_CALIBRATIONVALUE;
+    public int getValue1mVAfterCalibrate() { return value1mVAfterCalibrate; }
     private List<Integer> calibrationData = new ArrayList<>(250);       // 用于保存标定用的数据
     private int currentHr = 0;
     public int getCurrentHr() { return currentHr; }
@@ -159,7 +160,7 @@ public class EcgMonitorDevice extends BleDevice {
     public boolean executeAfterConnectSuccess() {
         updateSampleRate(DEFAULT_SAMPLERATE);
         updateLeadType(DEFAULT_LEADTYPE);
-        updateCalibrationValue(value1mVBeforeCalibrate, DEFAULT_CALIBRATIONVALUE);
+        updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
         if(!checkBasicEcgMonitorService()) {
             return false;
@@ -259,7 +260,7 @@ public class EcgMonitorDevice extends BleDevice {
         if(this.isRecord) {
             // 如果已经标定了或者开始采样了,才可以开始记录心电信号，初始化Ecg文件
             if(state == EcgMonitorState.CALIBRATED || state == EcgMonitorState.SAMPLE)
-                initializeEcgFile(sampleRate, DEFAULT_CALIBRATIONVALUE, leadType);
+                initializeEcgRecorder(sampleRate, value1mVAfterCalibrate, leadType);
             else {
                 // 否则什么都不做，会在标定后根据isRecord值初始化Ecg文件
             }
@@ -357,14 +358,16 @@ public class EcgMonitorDevice extends BleDevice {
     // 处理标定数据
     private void processCalibrateData(int tmpData) {
         // 采集1个周期的定标信号
-        if (calibrationData.size() < sampleRate)
+        if (calibrationData.size() < sampleRate) {
             calibrationData.add(tmpData);
+        }
         else {
-            // 计算1mV定标信号值
+            // 计算得到实际1mV定标值
             value1mVBeforeCalibrate = calculateCalibration(calibrationData);
             calibrationData.clear();
 
-            onSetValue1mV(value1mVBeforeCalibrate);
+            // 初始化各种Ecg处理器
+            initializeProcessor();
 
             setState(EcgMonitorState.CALIBRATED);
             stopSampleData();
@@ -423,27 +426,27 @@ public class EcgMonitorDevice extends BleDevice {
         return (sum2-sum1)/2/len;
     }
 
-    // 响应获取到1mV定标值后要做的事情
-    private void onSetValue1mV(int value1mV) {
+    // 初始化各种Ecg处理器
+    private void initializeProcessor() {
         // 初始化定标器
-        initializeCalibrator(value1mV, DEFAULT_CALIBRATIONVALUE);
+        initializeCalibrator(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
         // 初始化滤波器
         initializeFilter(sampleRate);
 
-        // 初始化EcgFile
+        // 初始化Ecg记录器
         if(isRecord) {
-            initializeEcgFile(sampleRate, DEFAULT_CALIBRATIONVALUE, leadType);        // 如果需要记录，就初始化Ecg文件
+            initializeEcgRecorder(sampleRate, value1mVAfterCalibrate, leadType);        // 如果需要记录，就初始化Ecg文件
         }
 
         // 初始化Qrs波检测器
-        initializeQrsDetector(sampleRate, DEFAULT_CALIBRATIONVALUE);
+        initializeQrsDetector(sampleRate, value1mVAfterCalibrate);
 
         // 初始化心率处理器
         initializeHrProcessor();
 
         // 初始化EcgView
-        initializeEcgView(sampleRate, DEFAULT_CALIBRATIONVALUE);
+        initializeEcgView(sampleRate, value1mVAfterCalibrate);
     }
 
     // 初始化定标器
@@ -455,8 +458,8 @@ public class EcgMonitorDevice extends BleDevice {
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
     }
 
-    // 初始化Ecg文件
-    private void initializeEcgFile(int sampleRate, int calibrationValue, EcgLeadType leadType) {
+    // 初始化Ecg记录器
+    private void initializeEcgRecorder(int sampleRate, int calibrationValue, EcgLeadType leadType) {
         if(ecgFile != null) return;
 
         ecgFile = createEcgFile(sampleRate, calibrationValue, leadType);

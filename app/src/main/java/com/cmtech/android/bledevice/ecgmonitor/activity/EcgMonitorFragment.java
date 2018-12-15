@@ -118,7 +118,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvEcgLeadType.setText("L"+device.getLeadType().getDescription());
 
         tvEcg1mV = view.findViewById(R.id.tv_ecg_1mv);
-        tvEcg1mV.setText(String.valueOf(device.getValue1mVBeforeCalibrate()) + '/' + String.valueOf(EcgMonitorDevice.DEFAULT_CALIBRATIONVALUE));
+        tvEcg1mV.setText(String.valueOf(device.getValue1mVBeforeCalibrate()) + '/' + String.valueOf(device.getValue1mVAfterCalibrate()));
 
         tvEcgHr = view.findViewById(R.id.tv_ecg_hr);
         tvEcgHr.setText(String.valueOf(device.getCurrentHr()));
