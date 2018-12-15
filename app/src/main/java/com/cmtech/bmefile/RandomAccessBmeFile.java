@@ -63,10 +63,6 @@ public class RandomAccessBmeFile extends BmeFile {
     }
 
     @Override
-    public int getDataNum() {
-        return (int)((file.length()-dataBeginPointer)/fileHead.getDataType().getTypeLength());
-    }
-
     public int availableData() {
         if(in != null) {
             try {
@@ -78,11 +74,13 @@ public class RandomAccessBmeFile extends BmeFile {
         return 0;
     }
 
+    @Override
     public boolean isEof() throws IOException {
         if(raf == null) return true;
         return (raf.length() == raf.getFilePointer());
     }
 
+    @Override
     public void close() throws FileException {
         try {
             if(raf != null) {

@@ -10,6 +10,7 @@ package com.cmtech.bmefile;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.bmefile.exception.FileException;
+import com.vise.log.ViseLog;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -44,7 +45,7 @@ public abstract class BmeFile {
 	
 	protected final BmeFileHead fileHead;
 
-	private int dataNum;
+	protected int dataNum;
     public int getDataNum() {
         return dataNum;
     }

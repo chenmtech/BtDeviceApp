@@ -9,11 +9,13 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.BleDeviceUtil;
 import com.cmtech.bmefile.exception.FileException;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -80,12 +82,8 @@ public class EcgFileExplorerModel {
             } catch (Exception e) {
                 ecgFileList.remove(ecgFile);
             } finally {
-                try {
-                    if(ecgFile != null)
-                        ecgFile.close();
-                } catch (FileException e) {
-                    e.printStackTrace();
-                }
+                if(ecgFile != null)
+                    ecgFile.close();
             }
         }
         return ecgFileList;
@@ -134,11 +132,7 @@ public class EcgFileExplorerModel {
                 return;
             } finally {
                 if(ecgFile != null) {
-                    try {
-                        ecgFile.close();
-                    } catch (FileException e) {
-                        e.printStackTrace();
-                    }
+                    ecgFile.close();
                 }
             }
 
@@ -198,14 +192,10 @@ public class EcgFileExplorerModel {
             } catch (Exception e) {
                 fileList.remove(toEcgFile);
             } finally {
-                try {
-                    if(tmpEcgFile != null)
-                        tmpEcgFile.close();
-                    if(toEcgFile != null)
-                        toEcgFile.close();
-                } catch (FileException e) {
-                    e.printStackTrace();
-                }
+                if(tmpEcgFile != null)
+                    tmpEcgFile.close();
+                if(toEcgFile != null)
+                    toEcgFile.close();
             }
         }
 
@@ -221,8 +211,8 @@ public class EcgFileExplorerModel {
     }
 
     private boolean mergeTwoEcgFileComments(EcgFile srcFile, EcgFile destFile) {
-        List<EcgComment> srcComments = srcFile.getEcgFileHead().getCommentList();
-        List<EcgComment> destComments = destFile.getEcgFileHead().getCommentList();
+        List<EcgComment> srcComments = srcFile.getEcgFileTail().getCommentList();
+        List<EcgComment> destComments = destFile.getEcgFileTail().getCommentList();
         List<EcgComment> needAddComments = new ArrayList<>();
 
         for(EcgComment srcComment : srcComments) {

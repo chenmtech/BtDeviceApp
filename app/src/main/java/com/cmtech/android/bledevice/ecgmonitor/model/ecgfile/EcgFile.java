@@ -4,6 +4,7 @@ import com.cmtech.bmefile.BmeFileHead;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.RandomAccessBmeFile;
 import com.cmtech.bmefile.exception.FileException;
+import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -19,6 +20,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_BLO
 public class EcgFile extends RandomAccessBmeFile {
 
     private EcgFileHead ecgFileHead = EcgFileHead.createDefaultEcgFileHead();       // EcgFileHead
+    private EcgFileTail ecgFileTail = new EcgFileTail();        // Ecg文件尾
     private long ecgFileHeadPointer;                                               // EcgFileHead在文件中的位置指针
 
     // 打开已有文件
@@ -33,6 +35,9 @@ public class EcgFile extends RandomAccessBmeFile {
             ecgFileHeadPointer = raf.getFilePointer();      // 标记EcgFileHead位置指针
             ecgFileHead.readFromStream(raf);                 // 读EcgFileHead
             dataBeginPointer = raf.getFilePointer();        // 标记数据开始的位置指针
+            ecgFileTail.readFromStream(raf);
+            raf.seek(dataBeginPointer);
+            dataNum = availableData();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,12 +61,45 @@ public class EcgFile extends RandomAccessBmeFile {
         }
     }
 
+    @Override
+    public int availableData() {
+        if(raf != null && ecgFileTail != null) {
+            try {
+                return (int)((raf.length() - ecgFileTail.length() - raf.getFilePointer())/fileHead.getDataType().getTypeLength());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean isEof() throws IOException {
+        if(raf == null) return true;
+        return ((raf.getFilePointer() - dataBeginPointer) == dataNum*fileHead.getDataType().getTypeLength() );
+    }
+
+    @Override
+    public void close() {
+        try {
+            raf.seek(dataBeginPointer + dataNum*fileHead.getDataType().getTypeLength());
+            ecgFileTail.writeToStream(raf);
+            super.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (FileException e) {
+            e.printStackTrace();
+        }
+    }
+
     public EcgFileHead getEcgFileHead() {
         return ecgFileHead;
     }
 
+    public EcgFileTail getEcgFileTail() { return ecgFileTail; }
+
     public List<EcgComment> getCommentList() {
-        return ecgFileHead.getCommentList();
+        return ecgFileTail.getCommentList();
     }
 
     public String getCreatedPerson() {
@@ -73,7 +111,7 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     public int getCommentsNum() {
-        return ecgFileHead.getCommentsNum();
+        return ecgFileTail.getCommentsNum();
     }
 
     // 将文件指针定位到某个数据位置
@@ -87,85 +125,21 @@ public class EcgFile extends RandomAccessBmeFile {
 
     // 为文件添加一条留言
     public void addComment(EcgComment comment) {
-        try {
-            long rafPos = raf.getFilePointer(); // 记录当前文件位置，操作完成后要回到原来的位置
-
-            // 把文件数据向后移动EcgComment长度
-            pushTerminalBlockBackSomeBytes(raf, dataBeginPointer, EcgComment.length(), ECG_BLOCK_LEN);
-
-            // 更新文件头，并写入文件
-            ecgFileHead.addComment(comment);
-            raf.seek(ecgFileHeadPointer);
-            ecgFileHead.writeToStream(raf);
-
-            // 修改数据开始指针
-            dataBeginPointer = raf.getFilePointer();
-
-            // 还原文件位置
-            raf.seek(rafPos + EcgComment.length());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FileException e) {
-            e.printStackTrace();
-        }
+        ecgFileTail.addComment(comment);
     }
 
     // 添加多条留言
     public void addComments(List<EcgComment> comments) {
-        try {
-            long rafPos = raf.getFilePointer(); // 记录当前文件位置，操作完成后要回到原来的位置
-
-            pushTerminalBlockBackSomeBytes(raf, dataBeginPointer, EcgComment.length()*comments.size(), ECG_BLOCK_LEN);
-
-            for(EcgComment comment : comments) {
-                ecgFileHead.addComment(comment);
-            }
-            raf.seek(ecgFileHeadPointer);
-            ecgFileHead.writeToStream(raf);
-
-            // 修改数据开始指针
-            dataBeginPointer = raf.getFilePointer();
-
-            // 还原文件位置
-            raf.seek(rafPos + EcgComment.length()*comments.size());
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FileException e) {
-            e.printStackTrace();
+        for(EcgComment comment : comments) {
+            ecgFileTail.addComment(comment);
         }
     }
 
     // 删除一条留言
     public void deleteComment(EcgComment comment) {
-        if(ecgFileHead.getCommentList().contains(comment)) {
-            try {
-                long rafPos = raf.getFilePointer(); // 记录当前文件位置，操作完成后要回到原来的位置
-
-                // 删除留言
-                ecgFileHead.deleteComment(comment);
-                raf.seek(ecgFileHeadPointer);
-                ecgFileHead.writeToStream(raf);
-
-                // 记录新的数据起始位置
-                long newDataBeginPointer = raf.getFilePointer();
-
-                // 将数据往前移动EcgComment.length
-                pullTerminalBlockForwardSomeBytes(raf, dataBeginPointer, EcgComment.length(), ECG_BLOCK_LEN);
-
-                // 记录数据起始位置
-                dataBeginPointer = newDataBeginPointer;
-
-                // 还原文件位置
-                raf.seek(rafPos - EcgComment.length());
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (FileException e) {
-                e.printStackTrace();
-            }
-
+        if(ecgFileTail.getCommentList().contains(comment)) {
+            // 删除留言
+            ecgFileTail.deleteComment(comment);
         }
     }
 
@@ -223,14 +197,14 @@ public class EcgFile extends RandomAccessBmeFile {
 
     @Override
     public String toString() {
-        return super.toString() + ";" + ecgFileHead;
+        return super.toString() + ";" + ecgFileHead + ";" + ecgFileTail;
     }
 
     // 输出所有留言字符串，用于调试
     public String getCommentString() {
-        if(ecgFileHead.getCommentsNum() == 0) return "";
+        if(ecgFileTail.getCommentsNum() == 0) return "";
         StringBuilder builder = new StringBuilder();
-        for(EcgComment comment : ecgFileHead.getCommentList()) {
+        for(EcgComment comment : ecgFileTail.getCommentList()) {
             builder.append(comment.toString());
         }
         return builder.toString();
