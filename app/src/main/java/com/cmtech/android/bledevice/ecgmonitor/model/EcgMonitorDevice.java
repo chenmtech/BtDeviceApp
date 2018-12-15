@@ -124,7 +124,7 @@ public class EcgMonitorDevice extends BleDevice {
         return (int)(recordDataNum/sampleRate);
     }
 
-    private int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
+    private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
     public int getPixelPerGrid() { return pixelPerGrid; }
     private int xPixelPerData = 2;     // 计算横向分辨率
     public int getxPixelPerData() { return xPixelPerData; }
@@ -259,7 +259,7 @@ public class EcgMonitorDevice extends BleDevice {
         if(this.isRecord) {
             // 如果已经标定了或者开始采样了,才可以开始记录心电信号，初始化Ecg文件
             if(state == EcgMonitorState.CALIBRATED || state == EcgMonitorState.SAMPLE)
-                initializeEcgFile(ecgFile, sampleRate, DEFAULT_CALIBRATIONVALUE, leadType);
+                initializeEcgFile(sampleRate, DEFAULT_CALIBRATIONVALUE, leadType);
             else {
                 // 否则什么都不做，会在标定后根据isRecord值初始化Ecg文件
             }
@@ -433,7 +433,7 @@ public class EcgMonitorDevice extends BleDevice {
 
         // 初始化EcgFile
         if(isRecord) {
-            initializeEcgFile(ecgFile, sampleRate, DEFAULT_CALIBRATIONVALUE, leadType);        // 如果需要记录，就初始化Ecg文件
+            initializeEcgFile(sampleRate, DEFAULT_CALIBRATIONVALUE, leadType);        // 如果需要记录，就初始化Ecg文件
         }
 
         // 初始化Qrs波检测器
@@ -456,8 +456,10 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     // 初始化Ecg文件
-    private void initializeEcgFile(EcgFile ecgFile, int sampleRate, int calibrationValue, EcgLeadType leadType) {
-        createEcgFile(ecgFile, sampleRate, calibrationValue, leadType);
+    private void initializeEcgFile(int sampleRate, int calibrationValue, EcgLeadType leadType) {
+        if(ecgFile != null) return;
+
+        ecgFile = createEcgFile(sampleRate, calibrationValue, leadType);
         if(ecgFile != null) {
             commentList.clear();
             recordDataNum = 0;
@@ -465,41 +467,41 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    // 初始化Ecg文件
-    private void createEcgFile(EcgFile ecgFile, int sampleRate, int calibrationValue, EcgLeadType leadType) {
-        if(ecgFile == null) {
-            // 创建bmeFileHead文件头
-            BmeFileHead30 bmeFileHead = new BmeFileHead30();
-            bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-            bmeFileHead.setDataType(BmeFileDataType.INT32);
-            bmeFileHead.setFs(sampleRate);
-            bmeFileHead.setInfo("这是一个心电文件。");
-            bmeFileHead.setCalibrationValue(calibrationValue);
-            long timeInMillis = new Date().getTime();
-            bmeFileHead.setCreatedTime(timeInMillis);
+    // 创建Ecg文件
+    private EcgFile createEcgFile(int sampleRate, int calibrationValue, EcgLeadType leadType) {
+        EcgFile ecgFile = null;
+        // 创建bmeFileHead文件头
+        BmeFileHead30 bmeFileHead = new BmeFileHead30();
+        bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        bmeFileHead.setDataType(BmeFileDataType.INT32);
+        bmeFileHead.setFs(sampleRate);
+        bmeFileHead.setInfo("这是一个心电文件。");
+        bmeFileHead.setCalibrationValue(calibrationValue);
+        long timeInMillis = new Date().getTime();
+        bmeFileHead.setCreatedTime(timeInMillis);
 
-            // 创建ecgFileHead文件头
-            String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(getMacAddress());
-            EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, leadType);
+        // 创建ecgFileHead文件头
+        String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(getMacAddress());
+        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, leadType);
 
-            // 创建ecgFile
-            String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
-            File toFile = FileUtil.getFile(CACHEDIR, fileName);
-            try {
-                fileName = toFile.getCanonicalPath();
-                ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
-                ViseLog.e(ecgFile);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        // 创建ecgFile
+        String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
+        File toFile = FileUtil.getFile(CACHEDIR, fileName);
+        try {
+            fileName = toFile.getCanonicalPath();
+            ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
+            ViseLog.e(ecgFile);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return ecgFile;
     }
 
 
 
     // 初始化EcgView
     private void initializeEcgView(int sampleRate, int calibrationValue) {
-        pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
+        //pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
         // 计算EcgView分辨率
         xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate));                       // 计算横向分辨率
         yValuePerPixel = calibrationValue * DEFAULT_MV_PER_GRID / pixelPerGrid;                         // 计算纵向分辨率
