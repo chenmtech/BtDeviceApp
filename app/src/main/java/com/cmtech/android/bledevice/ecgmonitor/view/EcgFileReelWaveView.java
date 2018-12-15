@@ -6,6 +6,7 @@ import android.util.AttributeSet;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.view.ReelWaveView;
 import com.cmtech.bmefile.exception.FileException;
+import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,11 +40,13 @@ public class EcgFileReelWaveView extends ReelWaveView {
                 @Override
                 public void run() {
                     try {
-                        if(ecgFile.isEof()) {
+                        if(num == ecgFile.getDataNum()-1) {
                             stopShow();
                         }
                         for(int i = 0; i < dataNumReadEachShow; i++, num++) {
-                            cacheData.add(ecgFile.readInt());
+                            int data = ecgFile.readInt();
+                            ViseLog.e("" + num + ":" + data);
+                            cacheData.add(data);
                             if(ecgFile.isEof()) break;
                         }
                         showData(cacheData);
@@ -90,14 +93,10 @@ public class EcgFileReelWaveView extends ReelWaveView {
 
     public void startShow() {
         if(!replaying) {
-            try {
-                if(ecgFile.isEof()) {
-                    ecgFile.seekData(0);
-                    clearData();
-                    num = 0;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(num == ecgFile.getDataNum()-1) {
+                ecgFile.seekData(0);
+                clearData();
+                num = 0;
             }
             showTimer = new Timer();
             showTimer.scheduleAtFixedRate(new ShowTask(), interval, interval);

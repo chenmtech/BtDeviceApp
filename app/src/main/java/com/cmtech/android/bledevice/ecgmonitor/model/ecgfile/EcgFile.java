@@ -76,13 +76,14 @@ public class EcgFile extends RandomAccessBmeFile {
     @Override
     public boolean isEof() throws IOException {
         if(raf == null) return true;
-        return ((raf.getFilePointer() - dataBeginPointer) == dataNum*fileHead.getDataType().getTypeLength() );
+        return (raf.length() - ecgFileTail.length() == raf.getFilePointer());
+        //return (availableData() <= 0);
     }
 
     @Override
     public void close() {
         try {
-            raf.seek(dataBeginPointer + dataNum*fileHead.getDataType().getTypeLength());
+            raf.seek(dataBeginPointer + dataNum * fileHead.getDataType().getTypeLength());
             ecgFileTail.writeToStream(raf);
             super.close();
         } catch (IOException e) {

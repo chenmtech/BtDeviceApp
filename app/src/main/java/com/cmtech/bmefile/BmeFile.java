@@ -98,7 +98,7 @@ public abstract class BmeFile {
 		return fileHead;
 	}
 
-	public abstract void createInputStream() throws FileNotFoundException;
+
 
     private BmeFileHead createUsingHead(BmeFileHead head) throws FileException{
         if(file == null)
@@ -123,9 +123,11 @@ public abstract class BmeFile {
         return head;
     }
 
+    public abstract void createInputStream() throws FileNotFoundException;
     public abstract void createOutputStream() throws FileNotFoundException;
-
 	public abstract int availableData();
+    public abstract boolean isEof() throws IOException;
+    public abstract void close() throws FileException;
 	
 	// 读单个int数据
     public int readInt() throws FileException{
@@ -300,8 +302,7 @@ public abstract class BmeFile {
 	}
 
 
-	public abstract boolean isEof() throws IOException;
-	public abstract void close() throws FileException;
+
 	
 	public File getFile() {
 	    return file;

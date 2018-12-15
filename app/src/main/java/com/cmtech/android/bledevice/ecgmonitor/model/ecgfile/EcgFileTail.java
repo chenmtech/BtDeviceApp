@@ -48,8 +48,10 @@ public class EcgFileTail {
 
     public void writeToStream(RandomAccessFile raf) throws FileException {
         try {
+            long filePointer = raf.getFilePointer();
             long length = commentList.size()*EcgComment.length();
             raf.setLength(raf.getFilePointer() + length + 8);
+            raf.seek(filePointer);
 
             // 写留言
             for(int i = 0; i < commentList.size(); i++) {
