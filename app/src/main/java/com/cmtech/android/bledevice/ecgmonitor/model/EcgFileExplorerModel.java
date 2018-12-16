@@ -212,6 +212,7 @@ public class EcgFileExplorerModel {
                 }
                 if(toEcgFile != null) {
                     try {
+                        toEcgFile.saveFileTail();
                         toEcgFile.close();
                     } catch (FileException e) {
                         e.printStackTrace();

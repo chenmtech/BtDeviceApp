@@ -541,11 +541,9 @@ public class EcgMonitorDevice extends BleDevice {
                     FileUtil.deleteFile(ecgFile.getFile());
                 } else {    // 如果有数据
                     if(!commentList.isEmpty()) {
-                        for(EcgComment comment : commentList) {
-                            ecgFile.addComment(comment);
-                        }
-                        ecgFile.saveFileTail();
+                        ecgFile.addComments(commentList);
                     }
+                    ecgFile.saveFileTail();
                     ecgFile.close();
                     ViseLog.e(ecgFile);
                     File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
