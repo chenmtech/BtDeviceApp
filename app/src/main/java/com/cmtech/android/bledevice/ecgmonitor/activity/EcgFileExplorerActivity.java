@@ -17,6 +17,7 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileExplorerObserver;
 import com.cmtech.android.bledeviceapp.R;
+import com.vise.log.ViseLog;
 
 import java.io.IOException;
 
@@ -88,6 +89,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
                 // 回放心电信号返回
                 if(resultCode == RESULT_OK) {
                     boolean updated = data.getBooleanExtra("updated", false);
+                    ViseLog.e("Updated is " + updated);
                     if(updated) model.reloadSelectedFile();
                 }
                 break;

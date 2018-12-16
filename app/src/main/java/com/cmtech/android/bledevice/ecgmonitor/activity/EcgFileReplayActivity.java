@@ -27,6 +27,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.exception.FileException;
+import com.vise.log.ViseLog;
 
 
 public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver, IEcgCommentOperator {
@@ -182,8 +183,6 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-
         stopReplay();
 
         ecgView.removeEcgFileReelWaveViewObserver();
@@ -191,14 +190,17 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         if(replayModel != null) {
             replayModel.close();
             replayModel.removeEcgFileObserver();
-
-            Intent intent = new Intent();
-            intent.putExtra("updated", replayModel.isUpdated());
-            setResult(RESULT_OK, intent);
         }
+        super.onDestroy();
     }
 
-
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra("updated", replayModel.isUpdated());
+        setResult(RESULT_OK, intent);
+        finish();
+    }
 
     /**
      * IEcgFileReplayObserver接口函数

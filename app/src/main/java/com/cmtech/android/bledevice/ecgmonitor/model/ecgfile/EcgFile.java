@@ -34,10 +34,13 @@ public class EcgFile extends RandomAccessBmeFile {
         try {
             ecgFileHeadPointer = raf.getFilePointer();      // 标记EcgFileHead位置指针
             ecgFileHead.readFromStream(raf);                 // 读EcgFileHead
+            ViseLog.e("hi1");
             dataBeginPointer = raf.getFilePointer();        // 标记数据开始的位置指针
             ecgFileTail.readFromStream(raf);
+            ViseLog.e("hi2");
             raf.seek(dataBeginPointer);
             dataNum = availableData();
+            ViseLog.e("hi3");
         } catch (IOException e) {
             e.printStackTrace();
         }

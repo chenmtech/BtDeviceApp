@@ -126,7 +126,9 @@ public class EcgFileExplorerModel {
             EcgFile ecgFile = null;
             try {
                 ecgFile = EcgFile.openBmeFile(fileName);
+                ViseLog.e("hi");
                 fileList.set(selectIndex, ecgFile);
+                ViseLog.e(ecgFile.getCommentString());
             } catch (FileException e) {
                 e.printStackTrace();
                 return;
