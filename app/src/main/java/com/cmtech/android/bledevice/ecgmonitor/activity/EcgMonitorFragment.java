@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -20,6 +21,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
@@ -74,6 +76,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private BarChart hrBarHistogram;
     private TextView tvHrTotal;
     private ImageButton ibResetHistogram;
+    private ImageButton ibSetup;
 
 
     private BarDataSet hrBarDateSet;
@@ -131,7 +134,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         ecgView = view.findViewById(R.id.rwv_ecgview);
         updateEcgView(device.getxPixelPerData(), device.getyValuePerPixel(), device.getPixelPerGrid());
-        //device.initializeEcgView();
 
         tvEcgRecordTime = view.findViewById(R.id.tv_ecg_recordtime);
         tvEcgRecordTime.setText(DateTimeUtil.secToTime(device.getRecordSecond()));
@@ -167,9 +169,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 boolean isRecord = !device.isRecord();
                 device.setEcgRecord(isRecord);
 
-                for(Button button : commentBtnList) {
+                /*for(Button button : commentBtnList) {
                     button.setEnabled(isRecord);
-                }
+                }*/
             }
         });
 
@@ -197,6 +199,17 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             public void onClick(View v) {
                 device.resetHrStatistics();
                 updateBarChart(null);
+            }
+        });
+
+        ibSetup = view.findViewById(R.id.ib_ecgmonitor_setup);
+        ibSetup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
+                EcgMonitorConfiguration configuration = new EcgMonitorConfiguration();
+                intent.putExtra("configuration", configuration);
+                startActivity(intent);
             }
         });
 
