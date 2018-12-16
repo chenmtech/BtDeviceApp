@@ -356,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     isExit = false;
+                    openDrawer(false);
                     MainActivity.this.moveTaskToBack(true);
                 }
             });

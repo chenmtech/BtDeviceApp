@@ -55,7 +55,6 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     private DeviceServiceBinder binder = new DeviceServiceBinder();
 
     private NotificationCompat.Builder notificationBuilder;
-    private NotificationManager notificationManager;
 
     private Ringtone warnRingtone;
 
@@ -69,7 +68,6 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         notiTitle = "欢迎使用" + getResources().getString(R.string.app_name);
         warnRingtone = RingtoneManager.getRingtone(this, Settings.System.DEFAULT_RINGTONE_URI);
 
-        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         initNotificationBuilder();
 
         startForeground(SERVICE_NOTIFICATION_ID, createNotification(Arrays.asList(new String[]{NOTIFICATION_CONTENT_TEXT})));
@@ -82,17 +80,14 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
     @Override
     public void onDestroy() {
-        ViseLog.e(TAG + "onDestroy()");
         super.onDestroy();
-
-        stopForeground(true);
 
         for(final BleDevice device : getDeviceList()) {
             device.close();
             device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
             device.removeDeviceStateObserver(BleDeviceService.this);
         }
-
+        stopForeground(true);
         // 防止设备没有彻底断开
         BleDeviceUtil.disconnectAllDevice();
         BleDeviceUtil.clearAllDevice();
@@ -224,8 +219,9 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
     private void sendNotification(List<String> contents) {
         Notification notification = createNotification(contents);
-        if(notification != null)
-         notificationManager.notify(SERVICE_NOTIFICATION_ID, notification);
+        if(notification != null) {
+            startForeground(SERVICE_NOTIFICATION_ID, notification);
+        }
     }
 
     private Notification createNotification(List<String> contents){
