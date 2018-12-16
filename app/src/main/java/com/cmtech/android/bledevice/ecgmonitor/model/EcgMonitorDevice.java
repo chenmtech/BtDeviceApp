@@ -544,6 +544,7 @@ public class EcgMonitorDevice extends BleDevice {
                         for(EcgComment comment : commentList) {
                             ecgFile.addComment(comment);
                         }
+                        ecgFile.saveFileTail();
                     }
                     ecgFile.close();
                     ViseLog.e(ecgFile);
@@ -553,6 +554,8 @@ public class EcgMonitorDevice extends BleDevice {
                 }
                 ecgFile = null;
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (FileException e) {
                 e.printStackTrace();
             }
         }

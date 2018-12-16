@@ -182,7 +182,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     }
 
     @Override
-    protected void onDestroy() {
+    public void onBackPressed() {
         stopReplay();
 
         ecgView.removeEcgFileReelWaveViewObserver();
@@ -191,11 +191,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             replayModel.close();
             replayModel.removeEcgFileObserver();
         }
-        super.onDestroy();
-    }
 
-    @Override
-    public void onBackPressed() {
         Intent intent = new Intent();
         intent.putExtra("updated", replayModel.isUpdated());
         setResult(RESULT_OK, intent);

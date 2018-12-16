@@ -53,7 +53,6 @@ public abstract class BmeFile {
     // 为已存在文件创建BmeFile
 	protected BmeFile(String fileName) throws FileException{
 		checkFile(fileName);
-		ViseLog.e("hi4");
 		fileHead = open();
 		dataNum = availableData();
 	}

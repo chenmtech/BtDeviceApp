@@ -34,13 +34,10 @@ public class EcgFile extends RandomAccessBmeFile {
         try {
             ecgFileHeadPointer = raf.getFilePointer();      // 标记EcgFileHead位置指针
             ecgFileHead.readFromStream(raf);                 // 读EcgFileHead
-            ViseLog.e("hi1");
             dataBeginPointer = raf.getFilePointer();        // 标记数据开始的位置指针
             ecgFileTail.readFromStream(raf);
-            ViseLog.e("hi2");
             raf.seek(dataBeginPointer);
             dataNum = availableData();
-            ViseLog.e("hi3");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -76,16 +73,16 @@ public class EcgFile extends RandomAccessBmeFile {
         return 0;
     }
 
-    @Override
-    public void close() {
-        try {
-            raf.seek(dataBeginPointer + dataNum * fileHead.getDataType().getTypeLength());
-            ecgFileTail.writeToStream(raf);
-            super.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (FileException e) {
-            e.printStackTrace();
+    public void saveFileTail() {
+        if(ecgFileTail != null) {
+            try {
+                raf.seek(dataBeginPointer + dataNum * fileHead.getDataType().getTypeLength());
+                ecgFileTail.writeToStream(raf);
+            } catch (FileException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

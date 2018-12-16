@@ -105,8 +105,16 @@ public class EcgFileReplayModel {
 
 
     public void close() {
-        if(ecgFile != null)
-            ecgFile.close();
+        if(ecgFile != null) {
+            if(updated) {
+                ecgFile.saveFileTail();
+            }
+            try {
+                ecgFile.close();
+            } catch (FileException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     // 登记心电回放观察者

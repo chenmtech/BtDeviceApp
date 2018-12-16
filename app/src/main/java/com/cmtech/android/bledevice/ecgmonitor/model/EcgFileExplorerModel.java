@@ -82,8 +82,13 @@ public class EcgFileExplorerModel {
             } catch (Exception e) {
                 ecgFileList.remove(ecgFile);
             } finally {
-                if(ecgFile != null)
-                    ecgFile.close();
+                if(ecgFile != null) {
+                    try {
+                        ecgFile.close();
+                    } catch (FileException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
         return ecgFileList;
@@ -126,15 +131,19 @@ public class EcgFileExplorerModel {
             EcgFile ecgFile = null;
             try {
                 ecgFile = EcgFile.openBmeFile(fileName);
-                ViseLog.e("hi");
                 fileList.set(selectIndex, ecgFile);
                 ViseLog.e(ecgFile.getCommentString());
             } catch (FileException e) {
                 e.printStackTrace();
+                ViseLog.e(e);
                 return;
             } finally {
                 if(ecgFile != null) {
-                    ecgFile.close();
+                    try {
+                        ecgFile.close();
+                    } catch (FileException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -194,10 +203,20 @@ public class EcgFileExplorerModel {
             } catch (Exception e) {
                 fileList.remove(toEcgFile);
             } finally {
-                if(tmpEcgFile != null)
-                    tmpEcgFile.close();
-                if(toEcgFile != null)
-                    toEcgFile.close();
+                if(tmpEcgFile != null) {
+                    try {
+                        tmpEcgFile.close();
+                    } catch (FileException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(toEcgFile != null) {
+                    try {
+                        toEcgFile.close();
+                    } catch (FileException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
 
