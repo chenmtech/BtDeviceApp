@@ -6,9 +6,7 @@ import android.util.AttributeSet;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.view.ReelWaveView;
 import com.cmtech.bmefile.exception.FileException;
-import com.vise.log.ViseLog;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -40,27 +38,28 @@ public class EcgFileReelWaveView extends ReelWaveView {
                 @Override
                 public void run() {
                     try {
-                        if(num == ecgFile.getDataNum()-1) {
+                        if(ecgFile.noMoreData()) {
                             stopShow();
+                        } else {
+                            for (int i = 0; i < dataNumReadEachShow; i++, num++) {
+                                cacheData.add(ecgFile.readInt());
+                                if (ecgFile.noMoreData()) {
+                                    break;
+                                }
+                            }
+                            showData(cacheData);
+                            cacheData.clear();
+                            if(observer != null) {
+                                observer.updateCurrentTime(num/ecgFile.getFs());
+                            }
+
                         }
-                        for(int i = 0; i < dataNumReadEachShow; i++, num++) {
-                            int data = ecgFile.readInt();
-                            ViseLog.e("" + num + ":" + data);
-                            cacheData.add(data);
-                            if(ecgFile.isEof()) break;
-                        }
-                        showData(cacheData);
-                        cacheData.clear();
-                        if(observer != null)
-                            observer.updateCurrentTime(num/ecgFile.getFs());
                     } catch (FileException e) {
-                        stopShow();
-                    } catch (IOException e) {
-                        e.printStackTrace();
                         stopShow();
                     }
                 }
             });
+
         }
     }
     private Timer showTimer;
@@ -93,7 +92,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
 
     public void startShow() {
         if(!replaying) {
-            if(num == ecgFile.getDataNum()-1) {
+            if(ecgFile.noMoreData()) {
                 ecgFile.seekData(0);
                 clearData();
                 num = 0;
