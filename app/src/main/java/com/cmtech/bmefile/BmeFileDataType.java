@@ -1,23 +1,10 @@
-/**
- * Project Name:DSP_JAVA
- * File Name:BmeFileDataType.java
- * Package Name:com.cmtech.dsp.file
- * Date:2018年2月12日上午11:05:51
- * Copyright (c) 2018, e_yujunquan@163.com All Rights Reserved.
- *
- */
 package com.cmtech.bmefile;
 
 /**
- * ClassName: BmeFileDataType
- * Function: TODO ADD FUNCTION. 
- * Reason: TODO ADD REASON(可选). 
- * date: 2018年2月12日 上午11:05:51 
- *
- * @author bme
- * @version 
- * @since JDK 1.6
+ * BmeFileDataType: Bme文件可保存的数据类型
+ * created by chenm, 2018-02-12
  */
+
 public enum BmeFileDataType {
 	INT32(0),    //int
     UINT8(1),    //unsigned char    
@@ -33,7 +20,8 @@ public enum BmeFileDataType {
     public int getCode() {
         return this.code;
     }
-    
+
+    // 获取类型字节长度
     public int getTypeLength() {
         switch (code) {
             case 0:
@@ -45,5 +33,15 @@ public enum BmeFileDataType {
             default:
                 return -1;
         }
+    }
+
+    // 由code获取对应的BmeFileDataType
+    public static BmeFileDataType getFromCode(int code) {
+        for(BmeFileDataType ele : BmeFileDataType.values()) {
+            if(ele.code == code) {
+                return ele;
+            }
+        }
+        return UNKNOWN;
     }
 }

@@ -8,27 +8,26 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * BmeFileHead30: Bme文件头,3.0版本
+ * created by chenm, 2018-06-10
+ */
+
 public class BmeFileHead30 extends BmeFileHead10 {
-    public static final byte[] VER = new byte[] {0x00, 0x03};
+    public static final byte[] VER = new byte[] {0x00, 0x03}; // 版本号
 
-    // 1mV定标值
-    private int calibrationValue = 1;
-
-    // 文件创建时间
-    private long createdTime = 0;
-
+    private int calibrationValue = 1; // 定标值
     public int getCalibrationValue() {
         return calibrationValue;
     }
-
     public void setCalibrationValue(int calibrationValue) {
         this.calibrationValue = calibrationValue;
     }
 
+    private long createdTime = 0; // 文件创建时间
     public long getCreatedTime() {
         return createdTime;
     }
-
     public void setCreatedTime(long createdTime) {
         this.createdTime = createdTime;
     }
@@ -49,25 +48,17 @@ public class BmeFileHead30 extends BmeFileHead10 {
     }
 
     @Override
-    public void readFromStream(DataInput in) throws FileException {
+    public void readFromStream(DataInput in) throws IOException{
         super.readFromStream(in);
-        try {
-            setCalibrationValue(ByteUtil.reverseInt(in.readInt()));
-            setCreatedTime(ByteUtil.reverseLong(in.readLong()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setCalibrationValue(ByteUtil.reverseInt(in.readInt())); // 读定标值
+        setCreatedTime(ByteUtil.reverseLong(in.readLong())); // 读创建时间
     }
 
     @Override
-    public void writeToStream(DataOutput out) throws FileException {
+    public void writeToStream(DataOutput out) throws IOException{
         super.writeToStream(out);
-        try {
-            out.writeInt(ByteUtil.reverseInt(getCalibrationValue()));
-            out.writeLong(ByteUtil.reverseLong(getCreatedTime()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        out.writeInt(ByteUtil.reverseInt(getCalibrationValue())); // 写定标值
+        out.writeLong(ByteUtil.reverseLong(getCreatedTime())); // 写创建时间
     }
 
     @Override
@@ -83,7 +74,7 @@ public class BmeFileHead30 extends BmeFileHead10 {
                 + getCreatedTime() + "]";
     }
 
-    // 长度 = super.getLength() + calibrationValue(4字节) + createdTime(8字节)
+    // 文件头字节长度：super.getLength() + calibrationValue(4字节) + createdTime(8字节)
     public int getLength() {
         return super.getLength() + 12;
     }

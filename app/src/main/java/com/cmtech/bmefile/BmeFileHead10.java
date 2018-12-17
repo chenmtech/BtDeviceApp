@@ -1,11 +1,3 @@
-/**
- * Project Name:DSP_JAVA
- * File Name:BmeFileHead10.java
- * Package Name:com.cmtech.dsp.file
- * Date:2018年2月11日下午1:57:37
- * Copyright (c) 2018, e_yujunquan@163.com All Rights Reserved.
- *
- */
 package com.cmtech.bmefile;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -18,17 +10,15 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 /**
- * ClassName: BmeFileHead10
- * Function: TODO ADD FUNCTION. 
- * Reason: TODO ADD REASON(可选). 
- * date: 2018年2月11日 下午1:57:37 
- *
- * @author bme
- * @version 
- * @since JDK 1.6
+ * BmeFileHead10: Bme文件头,1.0版本
+ * created by chenm, 2018-02-12
  */
+
 public class BmeFileHead10 extends BmeFileHead {
+    // 版本号
 	public static final byte[] VER = new byte[] {0x00, 0x01};
+	// 字节序,1.0版本为little endian
+    private static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
 	
 	public BmeFileHead10() {
 		super();
@@ -47,51 +37,34 @@ public class BmeFileHead10 extends BmeFileHead {
 		return BmeFileHead10.VER;
 	}
 
-	
 	@Override
 	public ByteOrder getByteOrder() {
-		return ByteOrder.LITTLE_ENDIAN;
+		return BYTE_ORDER;
 	}
 	
 	@Override
-	public BmeFileHead setByteOrder(ByteOrder byteOrder) {
-		return this;
+	public void setByteOrder(ByteOrder byteOrder) {
+
 	}
 	
 	@Override
-	public void readFromStream(DataInput in) throws FileException{
-		try {
-			// ver1.0内部数据字节序为LSB，要反过来变为MSB
-			int infoLen = ByteUtil.reverseInt(in.readInt());
-			byte[] str = new byte[infoLen];
-			in.readFully(str);
-			setInfo(new String(str));
-			int dataType = in.readByte();
-			setDataType(BmeFileDataType.UNKNOWN);
-			for(BmeFileDataType type : BmeFileDataType.values()) {
-				if(dataType == type.getCode()) {
-					setDataType(type);
-					break;
-				}
-			}
-			setFs(ByteUtil.reverseInt(in.readInt()));
-		} catch(IOException ioe) {
-			throw new FileException("文件头", "读入错误");
-		}
+	public void readFromStream(DataInput in) throws IOException{
+        int infoLen = ByteUtil.reverseInt(in.readInt()); // 读info字节长度
+        byte[] str = new byte[infoLen];
+        in.readFully(str); // 读info
+        setInfo(new String(str));
+        int dataTypeCode = in.readByte(); // 读数据类型code
+        setDataType(BmeFileDataType.getFromCode(dataTypeCode));
+        setFs(ByteUtil.reverseInt(in.readInt())); // 读采样频率
 	}
 
     @Override
-	public void writeToStream(DataOutput out) throws FileException {
-		try {
-			int infoLen = getInfo().getBytes().length;
-			// ver1.0要写为LSB字节序
-			out.writeInt(ByteUtil.reverseInt(infoLen));
-			out.write(getInfo().getBytes());
-			out.writeByte((byte)getDataType().getCode());
-			out.writeInt(ByteUtil.reverseInt(getFs()));
-		} catch(IOException ioe) {
-			throw new FileException("文件头", "写出错误");
-		}
+	public void writeToStream(DataOutput out) throws IOException{
+        int infoLen = getInfo().getBytes().length;
+        out.writeInt(ByteUtil.reverseInt(infoLen)); // 写infoLen
+        out.write(getInfo().getBytes()); // 写info
+        out.writeByte((byte)getDataType().getCode()); // 写数据类型code
+        out.writeInt(ByteUtil.reverseInt(getFs())); // 写采样频率
 	}
 
 	@Override

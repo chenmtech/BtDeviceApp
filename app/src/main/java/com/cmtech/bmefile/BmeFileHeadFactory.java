@@ -1,29 +1,18 @@
-/**
- * Project Name:DSP_JAVA
- * File Name:BmeFileHeadFactory.java
- * Package Name:com.cmtech.bmefile
- * Date:2018年2月17日上午5:33:27
- * Copyright (c) 2018, e_yujunquan@163.com All Rights Reserved.
- *
- */
 package com.cmtech.bmefile;
 
 import com.cmtech.bmefile.exception.FileException;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * ClassName: BmeFileHeadFactory
- * Function: TODO ADD FUNCTION. 
- * Reason: TODO ADD REASON(可选). 
- * date: 2018年2月17日 上午5:33:27 
- *
- * @author bme
- * @version 
- * @since JDK 1.6
+ * BmeFileHeadFactory: Bme文件头工厂
+ * created by chenm, 2018-02-17
  */
+
 public class BmeFileHeadFactory {
-	public static BmeFileHead create(byte[] ver) throws FileException{
+    // 用版本号创建文件头
+	public static BmeFileHead create(byte[] ver) throws IOException {
 		if(Arrays.equals(ver, BmeFileHead10.VER)) {
 			return new BmeFileHead10();
 		} else if(Arrays.equals(ver, BmeFileHead20.VER)) {
@@ -31,10 +20,11 @@ public class BmeFileHeadFactory {
         } else if(Arrays.equals(ver, BmeFileHead30.VER)) {
 		    return new BmeFileHead30();
 		} else {
-			throw new FileException(Arrays.toString(ver), "不支持此文件版本");
+			throw new IOException(Arrays.toString(ver) + "不支持此文件版本");
 		}
 	}
-	
+
+	// 创建缺省文件头，即1.0版本的
 	public static BmeFileHead createDefault() {
 		return new BmeFileHead10();
 	}

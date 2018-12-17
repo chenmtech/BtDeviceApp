@@ -1,11 +1,3 @@
-/**
- * Project Name:DSP_JAVA
- * File Name:BmeFileHead20.java
- * Package Name:com.cmtech.dsp.file
- * Date:2018年2月14日上午8:46:47
- * Copyright (c) 2018, e_yujunquan@163.com All Rights Reserved.
- *
- */
 package com.cmtech.bmefile;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -17,23 +9,25 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+
 /**
- * ClassName: BmeFileHead20
- * Function: TODO ADD FUNCTION. 
- * Reason: TODO ADD REASON(可选). 
- * date: 2018年2月14日 上午8:46:47 
- *
- * @author bme
- * @version 
- * @since JDK 1.6
+ * BmeFileHead20: Bme文件头,2.0版本
+ * created by chenm, 2018-02-14
  */
+
 public class BmeFileHead20 extends BmeFileHead {
+    // 版本号
 	public static final byte[] VER = new byte[] {0x00, 0x02};
-	
-	private static final byte MSB = 0;
-	private static final byte LSB = 1;
-	
-	private ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
+	// 缺省字节序
+	private static final ByteOrder DEFAULT_BYTE_ORDER = BIG_ENDIAN;
+
+	private static final byte BIG_ENDIAN_CODE = 0; // big endian code
+	private static final byte LITTLE_ENDIAN_CODE = 1; // little endian code
+
+	// 字节序
+	private ByteOrder byteOrder = DEFAULT_BYTE_ORDER;
 	
 	public BmeFileHead20() {
 		super();
@@ -65,65 +59,36 @@ public class BmeFileHead20 extends BmeFileHead {
 	}
 	
 	@Override
-	public BmeFileHead setByteOrder(ByteOrder byteOrder) {
+	public void setByteOrder(ByteOrder byteOrder) {
 		this.byteOrder = byteOrder;
-		return this;
 	}
 
 	@Override
-	public void readFromStream(DataInput in) throws FileException {
-		try {
-			byte order = in.readByte();
-            int infoLen;
-            if(order == MSB) {
-				infoLen = in.readInt();
-				byteOrder = ByteOrder.BIG_ENDIAN;
-			} else {
-				infoLen = ByteUtil.reverseInt(in.readInt());
-				byteOrder = ByteOrder.LITTLE_ENDIAN;
-			}
-			byte[] str = new byte[infoLen];
-			in.readFully(str);
-			setInfo(new String(str));
-			int dataType = in.readByte();
-			setDataType(BmeFileDataType.UNKNOWN);
-			for(BmeFileDataType type : BmeFileDataType.values()) {
-				if(dataType == type.getCode()) {
-					setDataType(type);
-					break;
-				}
-			}
-			if(order == MSB) {
-				setFs(in.readInt());
-			} else {
-				setFs(ByteUtil.reverseInt(in.readInt()));
-			}
-		} catch(IOException ioe) {
-			throw new FileException("文件头", "读入错误");
-		}
+	public void readFromStream(DataInput in) throws IOException{
+        byte byteOrderCode = in.readByte(); // 读字节序code
+        byteOrder = (byteOrderCode == BIG_ENDIAN_CODE) ? BIG_ENDIAN : LITTLE_ENDIAN;
+        int infoLen = readInt(in); // 读infoLen
+        byte[] str = new byte[infoLen];
+        in.readFully(str); // 读info
+        setInfo(new String(str));
+        int dataTypeCode = in.readByte(); // 读数据类型code
+        setDataType(BmeFileDataType.getFromCode(dataTypeCode));
+        setFs(readInt(in)); // 读采样率
 	}
 
 	@Override
-	public void writeToStream(DataOutput out) throws FileException {
-		try {
-			int infoLen = getInfo().getBytes().length;
-			if(byteOrder == ByteOrder.BIG_ENDIAN) {
-				out.writeByte(MSB);
-				out.writeInt(infoLen);
-			} else {
-				out.writeByte(LSB);
-				out.writeInt(ByteUtil.reverseInt(infoLen));
-			}
-			out.write(getInfo().getBytes());
-			out.writeByte((byte)getDataType().getCode());
-			if(byteOrder == ByteOrder.BIG_ENDIAN) {
-				out.writeInt(getFs());
-			} else {
-				out.writeInt(ByteUtil.reverseInt(getFs()));
-			}
-		} catch(IOException ioe) {
-			throw new FileException("文件头", "写出错误");
-		}
+	public void writeToStream(DataOutput out) throws IOException{
+        // 写字节序code
+        if(byteOrder == BIG_ENDIAN) {
+            out.writeByte(BIG_ENDIAN_CODE);
+        } else {
+            out.writeByte(LITTLE_ENDIAN_CODE);
+        }
+        int infoLen = getInfo().getBytes().length;
+        writeInt(out, infoLen); // 写infoLen
+        out.write(getInfo().getBytes()); // 写info
+        out.writeByte((byte)getDataType().getCode()); // 写数据类型code
+        writeInt(out, getFs()); // 写采样率
 	}
 
 	@Override
@@ -137,8 +102,20 @@ public class BmeFileHead20 extends BmeFileHead {
 				+ getFs() + "]";
 	}
 
-	// super.getLength() + byteOrder(1字节)
+	// 文件头字节长度：super.getLength() + byteOrder(1字节)
     public int getLength() {
         return super.getLength() + 1;
+    }
+
+    private int readInt(DataInput in) throws IOException{
+	    return (byteOrder == BIG_ENDIAN) ? in.readInt() : ByteUtil.reverseInt(in.readInt());
+    }
+
+    private void writeInt(DataOutput out, int data) throws IOException{
+        if ((byteOrder == BIG_ENDIAN)) {
+            out.writeInt(data);
+        } else {
+            out.writeInt(ByteUtil.reverseInt(data));
+        }
     }
 }

@@ -1,33 +1,42 @@
-/**
- * Project Name:DSP_JAVA
- * File Name:BmeFileCore.java
- * Package Name:com.cmtech.dsp.file
- * Date:2018年2月11日下午1:41:50
- * Copyright (c) 2018, e_yujunquan@163.com All Rights Reserved.
- *
- */
 package com.cmtech.bmefile;
-
-import com.cmtech.bmefile.exception.FileException;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.IOException;
 import java.nio.ByteOrder;
 
 /**
- * ClassName: BmeFileCore
- * Function: TODO ADD FUNCTION. 
- * Reason: TODO ADD REASON(可选). 
- * date: 2018年2月11日 下午1:41:50 
- *
- * @author bme
- * @version 
- * @since JDK 1.6
+ * BmeFileHead: Bme文件头
+ * created by chenm, 2018-02-12
  */
+
 public abstract class BmeFileHead {
+    // 信息字符串
 	private String info = "Unknown";
+    public String getInfo() {
+        return info;
+    }
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+	// 数据类型
 	private BmeFileDataType dataType = BmeFileDataType.DOUBLE;
+    public BmeFileDataType getDataType() {
+        return dataType;
+    }
+    public void setDataType(BmeFileDataType dataType) {
+        this.dataType = dataType;
+    }
+
+	// 采样频率
 	private int fs = -1;
+    public int getFs() {
+        return fs;
+    }
+    public void setFs(int fs) {
+        this.fs = fs;
+    }
 	
 	public BmeFileHead() {
 	}
@@ -43,45 +52,20 @@ public abstract class BmeFileHead {
 		dataType = fileHead.dataType;
 		fs = fileHead.fs;
 	}
-	
-	public abstract byte[] getVersion();
-	
-	public String getInfo() {
-		return info;
-	}
-	
-	public BmeFileHead setInfo(String info) {
-		this.info = info;
-		return this;
-	}
-	
-	public BmeFileDataType getDataType() {
-		return dataType;
-	}
-	
-	public BmeFileHead setDataType(BmeFileDataType dataType) {
-		this.dataType = dataType;
-        return this;
-	}
-	
-	public int getFs() {
-		return fs;
-	}
-	
-	public BmeFileHead setFs(int fs) {
-		this.fs = fs;
-		return this;
-	}
 
-	// infoLen(4字节) + info + dataType(1字节) + fs(4字节)
+	// BmeFileHead字节长度：infoLen(4字节) + info + dataType(1字节) + fs(4字节)
 	public int getLength() {
 	    return 4 + info.getBytes().length + 1 + 4;
     }
-	
-	public abstract ByteOrder getByteOrder();
-	public abstract BmeFileHead setByteOrder(ByteOrder byteOrder);
 
-	
-	public abstract void readFromStream(DataInput in) throws FileException;
-	public abstract void writeToStream(DataOutput out) throws FileException;
+    // 获取文件头版本号
+    public abstract byte[] getVersion();
+    // 获取文件数据字节序
+	public abstract ByteOrder getByteOrder();
+	// 设置文件数据字节序
+	public abstract void setByteOrder(ByteOrder byteOrder);
+	// 从输入流读取文件头
+	public abstract void readFromStream(DataInput in) throws IOException;
+	// 将文件头写到输出流
+	public abstract void writeToStream(DataOutput out) throws IOException;
 }
