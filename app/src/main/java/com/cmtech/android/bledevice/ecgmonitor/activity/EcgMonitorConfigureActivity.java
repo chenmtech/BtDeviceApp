@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -9,22 +8,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledeviceapp.R;
-import com.vise.utils.file.FileUtil;
-import com.vise.utils.view.BitmapUtil;
-
-import java.io.File;
-import java.io.IOException;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_HIGH_LIMIT;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_LOW_LIMIT;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WARN_WHEN_DISCONNECT;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WARN_WHEN_HR_ABNORMAL;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.IMAGEDIR;
 
 public class EcgMonitorConfigureActivity extends AppCompatActivity {
     private static final String TAG = "EcgMonitorConfigureActivity";
@@ -32,7 +23,6 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
     private Button btnCancel;
     private Button btnOk;
     private Button btnDefault;
-    private CheckBox cbIsWarnWhenDisconnect;
     private CheckBox cbIsWarnWhenHrAbnormal;
     private EditText etHrLowLimit;
     private EditText etHrHighLimit;
@@ -55,16 +45,12 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
             finish();
         }
 
-        configBackup.setWarnWhenDisconnect(config.isWarnWhenDisconnect());
         configBackup.setWarnWhenHrAbnormal(config.isWarnWhenHrAbnormal());
         configBackup.setHrLowLimit(config.getHrLowLimit());
         configBackup.setHrHighLimit(config.getHrHighLimit());
 
         // 设置标题为设备地址
         setTitle("配置心电带：" + config.getMacAddress());
-
-        cbIsWarnWhenDisconnect = findViewById(R.id.cb_ecgmonitor_warnwhendisconnect);
-        cbIsWarnWhenDisconnect.setChecked(config.isWarnWhenDisconnect());
 
         cbIsWarnWhenHrAbnormal = findViewById(R.id.cb_ecgmonitor_warnwhenhrabnormal);
         cbIsWarnWhenHrAbnormal.setChecked(config.isWarnWhenHrAbnormal());
@@ -95,7 +81,6 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
                     return;
                 }
 
-                config.setWarnWhenDisconnect(cbIsWarnWhenDisconnect.isChecked());
                 config.setWarnWhenHrAbnormal(cbIsWarnWhenHrAbnormal.isChecked());
                 config.setHrLowLimit(lowLimit);
                 config.setHrHighLimit(highLimit);
@@ -111,7 +96,6 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
         btnDefault.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cbIsWarnWhenDisconnect.setChecked(WARN_WHEN_DISCONNECT);
                 cbIsWarnWhenHrAbnormal.setChecked(WARN_WHEN_HR_ABNORMAL);
                 etHrLowLimit.setText(String.valueOf(HR_LOW_LIMIT));
                 etHrHighLimit.setText(String.valueOf(HR_HIGH_LIMIT));

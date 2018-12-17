@@ -6,13 +6,11 @@ import java.io.Serializable;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_HIGH_LIMIT;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_LOW_LIMIT;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WARN_WHEN_DISCONNECT;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WARN_WHEN_HR_ABNORMAL;
 
 public class EcgMonitorDeviceConfig extends LitePalSupport implements Serializable {
     private int id;
     private String macAddress = "";
-    private boolean warnWhenDisconnect = WARN_WHEN_DISCONNECT;
     private boolean warnWhenHrAbnormal = WARN_WHEN_HR_ABNORMAL;
     private int hrLowLimit = HR_LOW_LIMIT;
     private int hrHighLimit = HR_HIGH_LIMIT;
@@ -31,14 +29,6 @@ public class EcgMonitorDeviceConfig extends LitePalSupport implements Serializab
 
     public void setMacAddress(String macAddress) {
         this.macAddress = macAddress;
-    }
-
-    public boolean isWarnWhenDisconnect() {
-        return warnWhenDisconnect;
-    }
-
-    public void setWarnWhenDisconnect(boolean warnWhenDisconnect) {
-        this.warnWhenDisconnect = warnWhenDisconnect;
     }
 
     public boolean isWarnWhenHrAbnormal() {

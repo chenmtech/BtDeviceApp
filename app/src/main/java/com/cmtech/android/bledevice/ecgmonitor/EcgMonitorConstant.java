@@ -21,8 +21,6 @@ public class EcgMonitorConstant {
     // Ecg文件数据操作时分块的大小,单位字节
     public static final int ECG_BLOCK_LEN = 512;        // 添加和删除评论时，每次移动的文件数据块的大小
 
-    public static final boolean WARN_WHEN_DISCONNECT = true;
-
     public static final boolean WARN_WHEN_HR_ABNORMAL = true;
 
     public static final int HR_LOW_LIMIT = 50;

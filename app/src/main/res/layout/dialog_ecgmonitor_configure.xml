@@ -4,26 +4,12 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_margin="5dp">
-    <LinearLayout
-        android:layout_width="match_parent"
+    <CheckBox
+        android:id="@+id/cb_ecgmonitor_warnwhenhrabnormal"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <CheckBox
-            android:id="@+id/cb_ecgmonitor_warnwhendisconnect"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:text="异常断开后是否报警" />
-        <CheckBox
-            android:id="@+id/cb_ecgmonitor_warnwhenhrabnormal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:text="心率值异常是否报警" />
-
-    </LinearLayout>
+        android:layout_gravity="center"
+        android:text="心率值异常是否报警" />
 
     <LinearLayout
         android:layout_width="match_parent"

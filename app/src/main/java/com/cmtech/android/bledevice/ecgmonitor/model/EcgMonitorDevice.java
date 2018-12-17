@@ -157,7 +157,6 @@ public class EcgMonitorDevice extends BleDevice {
     }
     public void setConfig(EcgMonitorDeviceConfig config) {
         this.config.setWarnWhenHrAbnormal(config.isWarnWhenHrAbnormal());
-        this.config.setWarnWhenDisconnect(config.isWarnWhenDisconnect());
         this.config.setHrLowLimit(config.getHrLowLimit());
         this.config.setHrHighLimit(config.getHrHighLimit());
         this.config.save();
