@@ -28,6 +28,7 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
     private EditText etHrHighLimit;
 
     private EcgMonitorDeviceConfig config;
+    private String deviceNickName;
 
     private EcgMonitorDeviceConfig configBackup = new EcgMonitorDeviceConfig();
 
@@ -39,6 +40,7 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if(intent != null) {
             config = (EcgMonitorDeviceConfig) intent.getSerializableExtra("configuration");
+            deviceNickName = intent.getStringExtra("devicenickname");
         }
 
         if(config == null) {
@@ -50,7 +52,7 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
         configBackup.setHrHighLimit(config.getHrHighLimit());
 
         // 设置标题为设备地址
-        setTitle("配置心电带：" + config.getMacAddress());
+        setTitle("配置" + deviceNickName + "：" + config.getMacAddress());
 
         cbIsWarnWhenHrAbnormal = findViewById(R.id.cb_ecgmonitor_warnwhenhrabnormal);
         cbIsWarnWhenHrAbnormal.setChecked(config.isWarnWhenHrAbnormal());

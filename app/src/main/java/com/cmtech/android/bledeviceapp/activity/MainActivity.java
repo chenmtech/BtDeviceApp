@@ -401,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("设备断开报警");
         builder.setMessage("设备" + device.getMacAddress() + "无法连接，已经断开。");
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 device.notifyReconnectFailureObservers(false);

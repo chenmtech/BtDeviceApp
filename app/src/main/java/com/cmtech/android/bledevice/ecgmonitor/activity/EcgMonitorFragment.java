@@ -210,6 +210,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
                 intent.putExtra("configuration", device.getConfig());
+                intent.putExtra("devicenickname", device.getNickName());
                 startActivityForResult(intent, 1);
             }
         });
