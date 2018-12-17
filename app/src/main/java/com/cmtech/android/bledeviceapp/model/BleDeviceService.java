@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
+import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledevicecore.BleDevice;
@@ -21,11 +22,16 @@ import com.cmtech.android.bledevicecore.BleDeviceConnectState;
 import com.cmtech.android.bledevicecore.BleDeviceManager;
 import com.cmtech.android.bledevicecore.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.IBleDeviceStateObserver;
+import com.cmtech.bmefile.exception.FileException;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
  *  BleDeviceService: BleDevice服务
@@ -34,6 +40,8 @@ import java.util.List;
 
 public class BleDeviceService extends Service implements IBleDeviceStateObserver {
     private final static String TAG = "BleDeviceService";
+
+    private final int WARN_TIME_INTERVAL = 5000;
 
     private String notiTitle;
     private final static String NOTIFICATION_CONTENT_TEXT = "当前设备状态";
@@ -58,6 +66,16 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
     private Ringtone warnRingtone;
 
+    private class DisconnectWarnTask extends TimerTask {
+        @Override
+        public void run() {
+            if(!warnRingtone.isPlaying()) {
+                warnRingtone.play();
+            }
+        }
+    }
+    private Timer disconnectWarnTimer;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -66,7 +84,8 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         initDeviceFromPref();
 
         notiTitle = "欢迎使用" + getResources().getString(R.string.app_name);
-        warnRingtone = RingtoneManager.getRingtone(this, Settings.System.DEFAULT_RINGTONE_URI);
+
+        warnRingtone = RingtoneManager.getRingtone(this, Settings.System.DEFAULT_ALARM_ALERT_URI);
 
         initNotificationBuilder();
 
@@ -88,6 +107,9 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
             device.removeDeviceStateObserver(BleDeviceService.this);
         }
         stopForeground(true);
+
+        stopWarnRingtone();
+
         // 防止设备没有彻底断开
         BleDeviceUtil.disconnectAllDevice();
         BleDeviceUtil.clearAllDevice();
@@ -117,7 +139,11 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
     @Override
     public void warnDeviceReconnectFailure(BleDevice device, boolean play) {
-        playWarnRingtone(play);
+        if(play) {
+            playWarnRingtone();
+        } else {
+            stopWarnRingtone();
+        }
     }
 
     // 创建并添加一个设备
@@ -182,11 +208,17 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     }
 
     // 播放报警声音
-    private void playWarnRingtone(boolean play) {
-        if(play) {
-            warnRingtone.play();
-        } else if(warnRingtone.isPlaying()) {
-            warnRingtone.stop();
+    private void playWarnRingtone() {
+        if(disconnectWarnTimer == null) {
+            disconnectWarnTimer = new Timer();
+            disconnectWarnTimer.scheduleAtFixedRate(new BleDeviceService.DisconnectWarnTask(), WARN_TIME_INTERVAL, WARN_TIME_INTERVAL);
+        }
+    }
+
+    private void stopWarnRingtone() {
+        if(disconnectWarnTimer != null) {
+            disconnectWarnTimer.cancel();
+            disconnectWarnTimer = null;
         }
     }
 
