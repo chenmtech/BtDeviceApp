@@ -99,7 +99,7 @@
                 android:layout_alignParentEnd="true"
                 android:layout_margin="5dp"
                 android:background="@color/secondary"
-                android:src="@mipmap/ic_reset_highesttemp"
+                android:src="@mipmap/ic_reset_hrhistogram"
                 android:contentDescription="reset histogram"/>
             <LinearLayout
                 android:layout_width="match_parent"
