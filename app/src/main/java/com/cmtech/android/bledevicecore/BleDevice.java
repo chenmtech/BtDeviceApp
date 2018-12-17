@@ -194,8 +194,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         isClosing = false;
         curReconnectTimes = 0;
 
-        //notifyDeviceStateObservers();
-
         if(autoConnect())
             scanOrConnect();
     }
@@ -457,7 +455,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 连接成功回调
     private void onConnectSuccess(DeviceMirror mirror) {
-        ViseLog.i("onConnectSuccess");
+        ViseLog.e("onConnectSuccess");
         if(hasExecuteConnectSuccess) {
             return;
         }
@@ -488,14 +486,14 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 连接错误回调
     private void onConnectFailure(final BleException bleException) {
-        ViseLog.i("onConnectFailure " + bleException);
+        ViseLog.e("onConnectFailure: " + bleException);
 
         if(isClosing)
             return;
 
-        if(bleException instanceof TimeoutException) {
+        /*if(bleException instanceof TimeoutException) {
             return;
-        }
+        }*/
         // 仍然有可能会连续执行两次下面语句
         stopCommandExecutor();
         executeAfterConnectFailure();
@@ -513,7 +511,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 连接断开回调
     private void onDisconnect(boolean isActive) {
-        ViseLog.i("onDisconnect " + isActive);
+        ViseLog.e("onDisconnect " + isActive);
         if(isClosing) {
             setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
         } else if(!isActive) {
