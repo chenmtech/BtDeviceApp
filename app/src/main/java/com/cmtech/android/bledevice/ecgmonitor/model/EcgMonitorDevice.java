@@ -151,7 +151,7 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     // 设备配置信息
-    private EcgMonitorDeviceConfig config;
+    private final EcgMonitorDeviceConfig config;
     public EcgMonitorDeviceConfig getConfig() {
         return config;
     }
@@ -161,6 +161,17 @@ public class EcgMonitorDevice extends BleDevice {
         this.config.setHrLowLimit(config.getHrLowLimit());
         this.config.setHrHighLimit(config.getHrHighLimit());
         this.config.save();
+        changeConfiguration(config);
+    }
+
+    private void changeConfiguration(EcgMonitorDeviceConfig config) {
+        if(config.isWarnWhenHrAbnormal()) {
+            if(hrWarner != null) {
+                hrWarner.setHrWarn(config.getHrLowLimit(), config.getHrHighLimit());
+            }
+        } else {
+            hrWarner = null;
+        }
     }
 
     // 设备观察者
@@ -424,12 +435,16 @@ public class EcgMonitorDevice extends BleDevice {
             updateEcgHr(currentHr);
 
             // 处理心率值
-            hrWarner.process(currentHr);
-            hrHistogram.process(currentHr);
+            if(hrWarner != null) {
+                hrWarner.process(currentHr);
+                // 如果心率异常
+                if(hrWarner.isAbnormal()) {
+                    notifyHrAbnormal();
+                }
+            }
 
-            // 如果需要报警
-            if(hrWarner.isWarn()) {
-                notifyHrWarn();
+            if(hrHistogram != null) {
+                hrHistogram.process(currentHr);
             }
         }
     }
@@ -549,7 +564,7 @@ public class EcgMonitorDevice extends BleDevice {
         if(hrHistogram == null) {
             hrHistogram = new EcgHrHistogram();
         }
-        hrWarner = new EcgHrWarner();
+        hrWarner = new EcgHrWarner(config.getHrLowLimit(), config.getHrHighLimit());
     }
 
     // 保存Ecg文件
@@ -759,12 +774,12 @@ public class EcgMonitorDevice extends BleDevice {
         });
     }
 
-    private void notifyHrWarn() {
+    private void notifyHrAbnormal() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 if(observer != null)
-                    observer.notifyHrWarn();
+                    observer.notifyHrAbnormal();
             }
         });
     }

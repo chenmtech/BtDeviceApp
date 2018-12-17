@@ -21,6 +21,6 @@ public interface IEcgMonitorObserver {
     void updateRecordSecond(int second);
     // 更新心率值，单位bpm
     void updateEcgHr(int hr);
-    // 通知心率报警
-    void notifyHrWarn();
+    // 通知心率异常
+    void notifyHrAbnormal();
 }

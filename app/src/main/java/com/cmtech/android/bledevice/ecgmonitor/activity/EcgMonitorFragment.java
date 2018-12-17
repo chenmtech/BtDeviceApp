@@ -304,7 +304,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void notifyHrWarn() {
+    public void notifyHrAbnormal() {
         ViseLog.e("Hr Warn!");
 
         if(audioTrack == null) {

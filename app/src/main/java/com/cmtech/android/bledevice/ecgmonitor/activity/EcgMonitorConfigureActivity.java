@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledeviceapp.R;
@@ -83,10 +84,17 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                int lowLimit = Integer.parseInt(etHrLowLimit.getText().toString());
+                int highLimit = Integer.parseInt(etHrHighLimit.getText().toString());
+                if(highLimit <= lowLimit) {
+                    Toast.makeText(EcgMonitorConfigureActivity.this, "心率值异常上限必须大于下限。", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 config.setWarnWhenDisconnect(cbIsWarnWhenDisconnect.isChecked());
                 config.setWarnWhenHrAbnormal(cbIsWarnWhenHrAbnormal.isChecked());
-                config.setHrLowLimit(Integer.parseInt(etHrLowLimit.getText().toString()));
-                config.setHrHighLimit(Integer.parseInt(etHrHighLimit.getText().toString()));
+                config.setHrLowLimit(lowLimit);
+                config.setHrHighLimit(highLimit);
 
                 Intent intent = new Intent();
                 intent.putExtra("configuration", config);

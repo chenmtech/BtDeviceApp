@@ -6,13 +6,11 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess;
  */
 
 public class EcgHrWarner implements IEcgHrProcessor {
-    private static final int DEFAULT_HR_LOW_LIMIT = 50;
-    private static final int DEFAULT_HR_HIGH_LIMIT = 100;
     private static final int DEFAULT_HR_BUFFLEN = 5;
 
-    private boolean warn = false;
-    public boolean isWarn() {
-        return warn;
+    private boolean abnormal = false;
+    public boolean isAbnormal() {
+        return abnormal;
     }
 
     private int hrLowLimit;
@@ -20,12 +18,13 @@ public class EcgHrWarner implements IEcgHrProcessor {
     private int[] hrBuff;
     private int hrIndex;
 
-    public EcgHrWarner() {
-        this(DEFAULT_HR_LOW_LIMIT, DEFAULT_HR_HIGH_LIMIT, DEFAULT_HR_BUFFLEN);
+    public EcgHrWarner(int lowLimit, int highLimit) {
+        setHrWarn(lowLimit, highLimit);
     }
 
-    public EcgHrWarner(int lowLimit, int highLimit, int buffLen) {
-        setHrWarn(lowLimit, highLimit, buffLen);
+    // 设置参数
+    public void setHrWarn(int lowLimit, int highLimit) {
+        setHrWarn(lowLimit, highLimit, DEFAULT_HR_BUFFLEN);
     }
 
     // 设置参数
@@ -38,27 +37,27 @@ public class EcgHrWarner implements IEcgHrProcessor {
             hrBuff[i] = half;
         }
         hrIndex = 0;
-        warn = false;
+        abnormal = false;
     }
 
     @Override
     public void process(int hr) {
         if(hr != 0) {
             hrBuff[hrIndex++] = hr;
-            warn = checkHrWarn();
+            abnormal = checkHrAbnormal();
             hrIndex = hrIndex % hrBuff.length;
         }
     }
 
     // 是否需要报警
-    private boolean checkHrWarn() {
-        boolean warn = true;
+    private boolean checkHrAbnormal() {
+        boolean abnormal = true;
         for(int hr : hrBuff) {
             if(hr > hrLowLimit && hr < hrHighLimit) {
-                warn = false;
+                abnormal = false;
                 break;
             }
         }
-        return warn;
+        return abnormal;
     }
 }
