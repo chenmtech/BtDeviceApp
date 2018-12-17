@@ -395,7 +395,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void warnDeviceDisconnect(BleDevice device, boolean play) {
+    public void warnDeviceReconnectFailure(BleDevice device, boolean play) {
 
     }
 

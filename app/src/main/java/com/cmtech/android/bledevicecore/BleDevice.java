@@ -304,8 +304,8 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             startConnect();
             if(curReconnectTimes < canReconnectTimes)
                 curReconnectTimes++;
-        } else {
-            notifyDeviceDisconnectObservers(true);
+        } else if(basicInfo.isWarnAfterReconnectFailure()) {
+            notifyReconnectFailureObservers(true);
         }
     }
 
@@ -380,14 +380,14 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         }
     }
 
-    // 通知观察者设备断开
-    public void notifyDeviceDisconnectObservers(final boolean warn) {
+    // 通知观察者设备重连失败
+    private void notifyReconnectFailureObservers(final boolean isWarn) {
         for(final IBleDeviceStateObserver observer : stateObserverList) {
             if(observer != null) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        observer.warnDeviceDisconnect(BleDevice.this, warn);
+                        observer.warnDeviceReconnectFailure(BleDevice.this, isWarn);
                     }
                 });
             }
