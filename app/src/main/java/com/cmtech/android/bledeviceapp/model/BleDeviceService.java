@@ -215,10 +215,13 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         }
     }
 
-    private void stopWarnRingtone() {
+    public void stopWarnRingtone() {
         if(disconnectWarnTimer != null) {
             disconnectWarnTimer.cancel();
             disconnectWarnTimer = null;
+            if(warnRingtone.isPlaying()) {
+                warnRingtone.stop();
+            }
         }
     }
 

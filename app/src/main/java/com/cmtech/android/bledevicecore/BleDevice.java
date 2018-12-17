@@ -381,7 +381,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 通知观察者设备重连失败
-    private void notifyReconnectFailureObservers(final boolean isWarn) {
+    public void notifyReconnectFailureObservers(final boolean isWarn) {
         for(final IBleDeviceStateObserver observer : stateObserverList) {
             if(observer != null) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {

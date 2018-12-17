@@ -395,8 +395,20 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void warnDeviceReconnectFailure(BleDevice device, boolean play) {
+    public void warnDeviceReconnectFailure(final BleDevice device, boolean play) {
+        if(!play) return;
 
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("设备断开报警");
+        builder.setMessage("设备" + device.getMacAddress() + "无法连接，已经断开。");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                device.notifyReconnectFailureObservers(false);
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
     }
 
     @Override
