@@ -60,7 +60,9 @@
             android:name=".activity.DeviceBasicInfoActivity"
             android:label="设置设备信息"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorConfigureActivity" />
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorConfigureActivity"
+            android:label="配置心电带设备"
+            android:theme="@style/Theme.AppCompat.Light.Dialog"/>
         <activity android:name="com.cmtech.android.bledevice.temphumid.activity.TempHumidConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.thermo.activity.ThermoConfigureActivity" />
         <activity

@@ -6,8 +6,6 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -21,7 +19,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfiguration;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
@@ -31,6 +29,7 @@ import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.BleDeviceFragment;
 import com.cmtech.dsp.seq.RealSeq;
 import com.cmtech.dsp.util.SeqUtil;
@@ -53,6 +52,9 @@ import com.vise.log.ViseLog;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
+import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 
 /**
  * EcgMonitorFragment: 心电带设备Fragment
@@ -207,13 +209,25 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
-                EcgMonitorConfiguration configuration = new EcgMonitorConfiguration();
-                intent.putExtra("configuration", configuration);
-                startActivity(intent);
+                intent.putExtra("configuration", device.getConfig());
+                startActivityForResult(intent, 1);
             }
         });
 
         device.registerEcgMonitorObserver(EcgMonitorFragment.this);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 1:
+                if(resultCode == RESULT_OK) {
+                    EcgMonitorDeviceConfig config = (EcgMonitorDeviceConfig) data.getSerializableExtra("configuration");
+                    device.setConfig(config);
+                }
+                break;
+        }
     }
 
     @Override

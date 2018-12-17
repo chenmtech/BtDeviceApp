@@ -29,6 +29,8 @@ import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
+import org.litepal.LitePal;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -148,12 +150,32 @@ public class EcgMonitorDevice extends BleDevice {
         updateEcgMonitorState();
     }
 
+    // 设备配置信息
+    private EcgMonitorDeviceConfig config;
+    public EcgMonitorDeviceConfig getConfig() {
+        return config;
+    }
+    public void setConfig(EcgMonitorDeviceConfig config) {
+        this.config.setWarnWhenHrAbnormal(config.isWarnWhenHrAbnormal());
+        this.config.setWarnWhenDisconnect(config.isWarnWhenDisconnect());
+        this.config.setHrLowLimit(config.getHrLowLimit());
+        this.config.setHrHighLimit(config.getHrHighLimit());
+        this.config.save();
+    }
 
     // 设备观察者
     private IEcgMonitorObserver observer;
 
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
+        List<EcgMonitorDeviceConfig> find = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);
+        if(find == null || find.size() == 0) {
+            config = new EcgMonitorDeviceConfig();
+            config.setMacAddress(basicInfo.getMacAddress());
+            config.save();
+        } else {
+            config = find.get(0);
+        }
     }
 
     @Override
