@@ -57,12 +57,26 @@
             android:hint="请输入数字"/>
     </LinearLayout>
 
-    <CheckBox
-        android:id="@+id/cb_device_basicinfo_isautoconnect"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="打开设备后自动连接" />
+        android:orientation="horizontal">
+        <CheckBox
+            android:id="@+id/cb_device_basicinfo_isautoconnect"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="打开设备后自动连接" />
+
+        <CheckBox
+            android:id="@+id/cb_warn_after_reconnect_failure"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center"
+            android:text="重连失败后是否报警" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

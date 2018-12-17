@@ -15,6 +15,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_AUTOCONNECT;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_NICKNAME;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECTTIMES;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
+
 /**
  *  BleDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库或SharePreference中
  *  Created by bme on 2018/6/27.
@@ -23,40 +29,32 @@ import java.util.Set;
 public class BleDeviceBasicInfo implements Serializable{
     private final static long serialVersionUID = 1L;
 
-    public static final String DEFAULT_DEVICE_NICKNAME = "";
-    public static final String DEFAULT_DEVICE_IMAGEPATH = "";
-    public static final boolean DEFAULT_DEVICE_AUTOCONNECT = true;
-    public static final int DEFAULT_DEVICE_RECONNECTTIMES = 3;
-
-
-
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
     // mac地址
     private String macAddress = "";
-
     // 设备昵称
     private String nickName = DEFAULT_DEVICE_NICKNAME;
-
     // 设备广播Uuid Short String
     private String uuidString = "";
-
     // 图标路径
     private String imagePath = DEFAULT_DEVICE_IMAGEPATH;
-
     // 是否自动连接
     private boolean autoConnect = DEFAULT_DEVICE_AUTOCONNECT;
-
     // 连接断开后重连次数
     private int reconnectTimes = DEFAULT_DEVICE_RECONNECTTIMES;
+    // 重连失败后是否报警
+    private boolean warnAfterReconnectFailure = DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
 
-    public BleDeviceBasicInfo(String macAddress, String nickName, String uuidString, String imagePath, boolean autoConnect, int reconnectTimes) {
+    public BleDeviceBasicInfo(String macAddress, String nickName, String uuidString, String imagePath,
+                              boolean autoConnect, int reconnectTimes, boolean warnAfterReconnectFailure) {
         this.macAddress = macAddress;
         this.nickName = nickName;
         this.uuidString = uuidString;
         this.imagePath = imagePath;
         this.autoConnect = autoConnect;
         this.reconnectTimes = reconnectTimes;
+        this.warnAfterReconnectFailure = warnAfterReconnectFailure;
     }
 
     public BleDeviceBasicInfo(BleDeviceBasicInfo basicInfo) {
@@ -66,6 +64,7 @@ public class BleDeviceBasicInfo implements Serializable{
         imagePath = basicInfo.imagePath;
         autoConnect = basicInfo.autoConnect;
         reconnectTimes = basicInfo.reconnectTimes;
+        warnAfterReconnectFailure = basicInfo.warnAfterReconnectFailure;
     }
 
     public BleDeviceBasicInfo(BleDevice device) {
@@ -120,6 +119,14 @@ public class BleDeviceBasicInfo implements Serializable{
         this.reconnectTimes = reconnectTimes;
     }
 
+    public boolean isWarnAfterReconnectFailure() {
+        return warnAfterReconnectFailure;
+    }
+
+    public void setWarnAfterReconnectFailure(boolean warnAfterReconnectFailure) {
+        this.warnAfterReconnectFailure = warnAfterReconnectFailure;
+    }
+
     public boolean saveToPref() {
         if(TextUtils.isEmpty(macAddress)) return false;
 
@@ -138,6 +145,7 @@ public class BleDeviceBasicInfo implements Serializable{
         editor.putString(macAddress+"_imagePath", imagePath);
         editor.putBoolean(macAddress+"_autoConnect", autoConnect);
         editor.putInt(macAddress+"_reconnectTimes", reconnectTimes);
+        editor.putBoolean(macAddress+"_warnAfterReconnectFailure", warnAfterReconnectFailure);
 
         ViseLog.i("saveToPref the basic info.");
 
@@ -163,23 +171,12 @@ public class BleDeviceBasicInfo implements Serializable{
         editor.remove(macAddress+"_imagePath");
         editor.remove(macAddress+"_autoConnect");
         editor.remove(macAddress+"_reconnectTimes");
+        editor.remove(macAddress+"_warnAfterReconnectFailure");
 
         editor.commit();
     }
 
-    public static BleDeviceBasicInfo createFromPreference(String macAddress) {
-        if(TextUtils.isEmpty(macAddress)) return null;
-
-        String address = pref.getString(macAddress+"_macAddress", "");
-        if("".equals(address)) return null;
-        String nickName = pref.getString(macAddress+"_nickName", "");
-        String uuidString = pref.getString(macAddress+"_uuidString", "");
-        String imagePath = pref.getString(macAddress+"_imagePath", "");
-        boolean autoConnect = pref.getBoolean(macAddress+"_autoConnect", false);
-        int reconnectTimes = pref.getInt(macAddress+"_reconnectTimes", 3);
-        return new BleDeviceBasicInfo(address, nickName, uuidString, imagePath, autoConnect, reconnectTimes);
-    }
-
+    // 从Pref找到所有的设备基本信息
     public static List<BleDeviceBasicInfo> findAllFromPreference() {
         Set<String> addressSet = new HashSet<>();
         addressSet = pref.getStringSet("addressSet", addressSet);
@@ -200,4 +197,19 @@ public class BleDeviceBasicInfo implements Serializable{
 
         return infoList;
     }
+
+    private static BleDeviceBasicInfo createFromPreference(String macAddress) {
+        if(TextUtils.isEmpty(macAddress)) return null;
+
+        String address = pref.getString(macAddress+"_macAddress", "");
+        if("".equals(address)) return null;
+        String nickName = pref.getString(macAddress+"_nickName", DEFAULT_DEVICE_NICKNAME);
+        String uuidString = pref.getString(macAddress+"_uuidString", "");
+        String imagePath = pref.getString(macAddress+"_imagePath", DEFAULT_DEVICE_IMAGEPATH);
+        boolean autoConnect = pref.getBoolean(macAddress+"_autoConnect", DEFAULT_DEVICE_AUTOCONNECT);
+        int reconnectTimes = pref.getInt(macAddress+"_reconnectTimes", DEFAULT_DEVICE_RECONNECTTIMES);
+        boolean warnAfterRecconnectFailure = pref.getBoolean(macAddress+"_warnAfterReconnectFailure", DEFAULT_WARN_AFTER_RECONNECT_FAILURE);
+        return new BleDeviceBasicInfo(address, nickName, uuidString, imagePath, autoConnect, reconnectTimes, warnAfterRecconnectFailure);
+    }
+
 }

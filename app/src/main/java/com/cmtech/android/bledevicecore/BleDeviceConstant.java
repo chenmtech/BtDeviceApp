@@ -28,4 +28,14 @@ public class BleDeviceConstant {
     public static final File IMAGEDIR = MyApplication.getContext().getExternalFilesDir("images");
     // 文件缓存目录
     public static final File CACHEDIR = MyApplication.getContext().getExternalCacheDir();
+
+    public static final String DEFAULT_DEVICE_NICKNAME = "";
+
+    public static final String DEFAULT_DEVICE_IMAGEPATH = "";
+
+    public static final boolean DEFAULT_DEVICE_AUTOCONNECT = true;
+
+    public static final int DEFAULT_DEVICE_RECONNECTTIMES = 3;
+
+    public static final boolean DEFAULT_WARN_AFTER_RECONNECT_FAILURE = true;
 }

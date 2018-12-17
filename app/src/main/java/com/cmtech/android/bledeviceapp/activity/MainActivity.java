@@ -245,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     if(basicInfo != null) {
                         BleDevice device = deviceService.addDevice(basicInfo);
                         if(device != null) {
-                            device.registerDeviceStateObserver(this);
+                            //device.registerDeviceStateObserver(this);
                             updateDeviceListAdapter();
                             basicInfo.saveToPref();
                         }

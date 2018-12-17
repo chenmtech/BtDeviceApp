@@ -29,9 +29,10 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.bledevicecore.BleDeviceBasicInfo.DEFAULT_DEVICE_AUTOCONNECT;
-import static com.cmtech.android.bledevicecore.BleDeviceBasicInfo.DEFAULT_DEVICE_IMAGEPATH;
-import static com.cmtech.android.bledevicecore.BleDeviceBasicInfo.DEFAULT_DEVICE_RECONNECTTIMES;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_AUTOCONNECT;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECTTIMES;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.IMAGEDIR;
 
 /**
@@ -50,6 +51,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
     private ImageView ivImage;
     private CheckBox cbIsAutoconnect;
     private EditText etReconnectTimes;
+    private CheckBox cbWarnAfterReconnectFailure;
 
     // 设备基本信息
     private BleDeviceBasicInfo basicInfo;
@@ -160,6 +162,8 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
                 basicInfo.setReconnectTimes(Integer.parseInt(etReconnectTimes.getText().toString()));
 
+                basicInfo.setWarnAfterReconnectFailure(cbWarnAfterReconnectFailure.isChecked());
+
                 Intent intent = new Intent();
                 intent.putExtra(DEVICE_BASICINFO, basicInfo);
                 setResult(RESULT_OK, intent);
@@ -174,6 +178,10 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
                 restoreDefaultSetup();
             }
         });
+
+        // 设置重连失败后是否报警
+        cbWarnAfterReconnectFailure = findViewById(R.id.cb_warn_after_reconnect_failure);
+        cbWarnAfterReconnectFailure.setChecked(basicInfo.isWarnAfterReconnectFailure());
 
     }
 
@@ -263,5 +271,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
 
         etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECTTIMES));
+
+        cbWarnAfterReconnectFailure.setChecked(DEFAULT_WARN_AFTER_RECONNECT_FAILURE);
     }
 }
