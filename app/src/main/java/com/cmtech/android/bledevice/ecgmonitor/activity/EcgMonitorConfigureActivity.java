@@ -20,6 +20,10 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_HIGH_LIMIT;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_LOW_LIMIT;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WARN_WHEN_DISCONNECT;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WARN_WHEN_HR_ABNORMAL;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.IMAGEDIR;
 
 public class EcgMonitorConfigureActivity extends AppCompatActivity {
@@ -107,10 +111,10 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
         btnDefault.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cbIsWarnWhenDisconnect.setChecked(configBackup.isWarnWhenDisconnect());
-                cbIsWarnWhenHrAbnormal.setChecked(configBackup.isWarnWhenHrAbnormal());
-                etHrLowLimit.setText(String.valueOf(configBackup.getHrLowLimit()));
-                etHrHighLimit.setText(String.valueOf(configBackup.getHrHighLimit()));
+                cbIsWarnWhenDisconnect.setChecked(WARN_WHEN_DISCONNECT);
+                cbIsWarnWhenHrAbnormal.setChecked(WARN_WHEN_HR_ABNORMAL);
+                etHrLowLimit.setText(String.valueOf(HR_LOW_LIMIT));
+                etHrHighLimit.setText(String.valueOf(HR_HIGH_LIMIT));
             }
         });
     }
