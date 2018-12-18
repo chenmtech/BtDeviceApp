@@ -26,8 +26,6 @@ import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.bmefile.exception.FileException;
-import com.vise.log.ViseLog;
 
 import java.io.IOException;
 

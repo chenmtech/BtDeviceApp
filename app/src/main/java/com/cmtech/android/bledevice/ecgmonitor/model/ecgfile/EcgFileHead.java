@@ -2,16 +2,11 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
-import com.cmtech.bmefile.exception.FileException;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * EcgFileHead: 心电文件头

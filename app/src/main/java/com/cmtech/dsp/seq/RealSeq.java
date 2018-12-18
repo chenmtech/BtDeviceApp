@@ -11,7 +11,6 @@ package com.cmtech.dsp.seq;
 import com.cmtech.bmefile.BmeFile;
 import com.cmtech.bmefile.BmeFileHead;
 import com.cmtech.bmefile.StreamBmeFile;
-import com.cmtech.bmefile.exception.FileException;
 import com.cmtech.dsp.util.SeqUtil;
 
 import java.io.IOException;

@@ -1,8 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.adapter;
 
-import android.content.DialogInterface;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgCommentOperator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;

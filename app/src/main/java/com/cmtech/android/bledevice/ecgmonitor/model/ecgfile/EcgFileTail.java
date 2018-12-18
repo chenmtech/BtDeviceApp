@@ -1,8 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.cmtech.bmefile.exception.FileException;
-import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

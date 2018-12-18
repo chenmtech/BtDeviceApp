@@ -5,7 +5,6 @@ import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.view.ReelWaveView;
-import com.cmtech.bmefile.exception.FileException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -88,21 +87,13 @@ public class EcgFileReelWaveView extends ReelWaveView {
         int sampleInterval = 1000/ecgFile.getFs();
         dataNumReadEachShow = (int)(Math.ceil((double) MIN_SHOW_INTERVAL /sampleInterval));
         interval = dataNumReadEachShow *sampleInterval;
-        try {
-            ecgFile.seekData(0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ecgFile.seekData(0);
     }
 
     public void startShow() {
         if(!replaying) {
             if(ecgFile.isEOD()) {
-                try {
-                    ecgFile.seekData(0);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                ecgFile.seekData(0);
                 clearData();
                 num = 0;
             }
@@ -145,11 +136,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
             begin = 0;
         }
 
-        try {
-            ecgFile.seekData((int)begin);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        ecgFile.seekData((int)begin);
         viewData.clear();
         while(begin++ <= numAtLocation) {
             try {

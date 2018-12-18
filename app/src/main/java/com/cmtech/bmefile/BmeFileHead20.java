@@ -1,7 +1,6 @@
 package com.cmtech.bmefile;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.cmtech.bmefile.exception.FileException;
 
 import java.io.DataInput;
 import java.io.DataOutput;

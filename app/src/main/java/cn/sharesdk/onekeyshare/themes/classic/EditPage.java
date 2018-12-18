@@ -8,7 +8,6 @@
 
 package cn.sharesdk.onekeyshare.themes.classic;
 
-import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;

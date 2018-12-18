@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
@@ -20,7 +19,6 @@ import com.cmtech.android.ble.callback.scan.ScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
-import com.cmtech.android.ble.model.adrecord.AdRecordStore;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;

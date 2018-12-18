@@ -3,7 +3,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.bmefile.exception.FileException;
 
 import java.io.DataInput;
 import java.io.DataOutput;

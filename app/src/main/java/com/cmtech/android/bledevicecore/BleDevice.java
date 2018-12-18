@@ -16,7 +16,6 @@ import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.core.IDeviceMirrorStateObserver;
 import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.exception.TimeoutException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.bledeviceapp.MyApplication;

@@ -5,7 +5,6 @@ import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -104,9 +103,13 @@ public abstract class BmeFile {
 
         try {
             if(file.exists()) {
-                file.delete();
+                if(!file.delete()) {
+                    throw new IOException();
+                }
             }
-            file.createNewFile();
+            if(!file.createNewFile()) {
+                throw new IOException();
+            }
             if(!createOutputStream())
                 throw new IOException();
             out.write(BME); // 写BmeFile文件标识符

@@ -3,6 +3,7 @@ package com.cmtech.android.bledevicecore;
 import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.common.BleConfig;
 import com.cmtech.android.bledeviceapp.MyApplication;
+
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.OPDATA_RETRY_COUNT;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_DEVICE_NAME;

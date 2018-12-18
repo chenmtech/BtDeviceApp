@@ -8,14 +8,12 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.BleDeviceUtil;
-import com.cmtech.bmefile.exception.FileException;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;

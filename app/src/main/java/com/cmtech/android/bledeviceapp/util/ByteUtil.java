@@ -1,9 +1,6 @@
 package com.cmtech.android.bledeviceapp.util;
 
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Java基本数据类型和byte数组相互转化

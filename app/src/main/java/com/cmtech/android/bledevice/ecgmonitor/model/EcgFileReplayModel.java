@@ -5,8 +5,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.bmefile.BmeFileHead30;
-import com.cmtech.bmefile.exception.FileException;
-import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.util.Date;

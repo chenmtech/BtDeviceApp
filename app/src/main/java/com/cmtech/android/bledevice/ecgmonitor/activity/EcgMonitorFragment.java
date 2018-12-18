@@ -19,8 +19,8 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
@@ -29,7 +29,6 @@ import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
 import com.cmtech.android.bledevicecore.BleDeviceFragment;
 import com.cmtech.dsp.seq.RealSeq;
 import com.cmtech.dsp.util.SeqUtil;
@@ -54,7 +53,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 
 /**
  * EcgMonitorFragment: 心电带设备Fragment

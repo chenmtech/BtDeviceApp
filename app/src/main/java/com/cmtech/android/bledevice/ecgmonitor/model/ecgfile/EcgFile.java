@@ -3,14 +3,10 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 import com.cmtech.bmefile.BmeFileHead;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.RandomAccessBmeFile;
-import com.cmtech.bmefile.exception.FileException;
-import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
-
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_BLOCK_LEN;
 
 /**
  * EcgFile: 心电文件类，可随机访问
@@ -138,8 +134,13 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     // 将文件指针定位到某个数据位置
-    public void seekData(int dataNum) throws IOException{
-        raf.seek(dataBeginPointer + dataNum * getDataType().getTypeLength());
+    public boolean seekData(int dataNum) {
+        try {
+            raf.seek(dataBeginPointer + dataNum * getDataType().getTypeLength());
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
     }
 
     // 为文件添加一条留言

@@ -1,7 +1,5 @@
 package com.cmtech.bmefile;
 
-import com.cmtech.bmefile.exception.FileException;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;

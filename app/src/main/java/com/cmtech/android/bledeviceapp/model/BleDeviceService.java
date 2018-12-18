@@ -1,7 +1,6 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -13,7 +12,6 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
-import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledevicecore.BleDevice;
@@ -22,16 +20,12 @@ import com.cmtech.android.bledevicecore.BleDeviceConnectState;
 import com.cmtech.android.bledevicecore.BleDeviceManager;
 import com.cmtech.android.bledevicecore.BleDeviceUtil;
 import com.cmtech.android.bledevicecore.IBleDeviceStateObserver;
-import com.cmtech.bmefile.exception.FileException;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
  *  BleDeviceService: BleDevice服务
@@ -211,7 +205,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     private void playWarnRingtone() {
         if(disconnectWarnTimer == null) {
             disconnectWarnTimer = new Timer();
-            disconnectWarnTimer.scheduleAtFixedRate(new BleDeviceService.DisconnectWarnTask(), WARN_TIME_INTERVAL, WARN_TIME_INTERVAL);
+            disconnectWarnTimer.scheduleAtFixedRate(new BleDeviceService.DisconnectWarnTask(), 0, WARN_TIME_INTERVAL);
         }
     }
 
