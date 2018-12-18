@@ -79,13 +79,13 @@ public class EcgFileExplorerModel {
             try {
                 ecgFile = EcgFile.openBmeFile(file.getCanonicalPath());
                 ecgFileList.add(ecgFile);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 ecgFileList.remove(ecgFile);
             } finally {
                 if(ecgFile != null) {
                     try {
                         ecgFile.close();
-                    } catch (FileException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -133,15 +133,14 @@ public class EcgFileExplorerModel {
                 ecgFile = EcgFile.openBmeFile(fileName);
                 fileList.set(selectIndex, ecgFile);
                 ViseLog.e(ecgFile.getCommentString());
-            } catch (FileException e) {
-                e.printStackTrace();
+            } catch (IOException e) {
                 ViseLog.e(e);
                 return;
             } finally {
                 if(ecgFile != null) {
                     try {
                         ecgFile.close();
-                    } catch (FileException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -200,13 +199,13 @@ public class EcgFileExplorerModel {
                     fileList.add(toEcgFile);
                     hasUpdated = true;
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 fileList.remove(toEcgFile);
             } finally {
                 if(tmpEcgFile != null) {
                     try {
                         tmpEcgFile.close();
-                    } catch (FileException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -214,7 +213,7 @@ public class EcgFileExplorerModel {
                     try {
                         toEcgFile.saveFileTail();
                         toEcgFile.close();
-                    } catch (FileException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }

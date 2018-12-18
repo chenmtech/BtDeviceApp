@@ -8,6 +8,7 @@ import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.exception.FileException;
 import com.vise.log.ViseLog;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class EcgFileReplayModel {
     private final float yValuePerPixel;                      // 纵向分辨率
     public float getyValuePerPixel() { return yValuePerPixel; }
 
-    public EcgFileReplayModel(String ecgFileName) throws FileException{
+    public EcgFileReplayModel(String ecgFileName) throws IOException{
         ecgFile = EcgFile.openBmeFile(ecgFileName);
         int sampleRate = ecgFile.getFs();
         totalSecond = ecgFile.getDataNum()/sampleRate;
@@ -111,7 +112,7 @@ public class EcgFileReplayModel {
             }
             try {
                 ecgFile.close();
-            } catch (FileException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

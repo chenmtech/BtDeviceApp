@@ -14,6 +14,7 @@ import com.cmtech.bmefile.StreamBmeFile;
 import com.cmtech.bmefile.exception.FileException;
 import com.cmtech.dsp.util.SeqUtil;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -96,13 +97,13 @@ public class RealSeq extends Seq<Double>{
 		return rtn;
 	}
 	
-	public void saveAsBmeFile(String fileName) throws FileException {
+	public void saveAsBmeFile(String fileName) throws IOException {
         BmeFile bmeFile = StreamBmeFile.createBmeFile(fileName);
         bmeFile.writeData(toArray());
         bmeFile.close();
 	}
 	
-	public void saveAsBmeFile(String fileName, BmeFileHead head) throws FileException {
+	public void saveAsBmeFile(String fileName, BmeFileHead head) throws IOException {
 	    BmeFile bmeFile = StreamBmeFile.createBmeFile(fileName, head);
 	    bmeFile.writeData(toArray());
 	    bmeFile.close();

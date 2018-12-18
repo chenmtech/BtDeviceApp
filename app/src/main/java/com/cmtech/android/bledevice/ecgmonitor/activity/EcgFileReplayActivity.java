@@ -29,6 +29,8 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.exception.FileException;
 import com.vise.log.ViseLog;
 
+import java.io.IOException;
+
 
 public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver, IEcgCommentOperator {
     private static final String TAG = "EcgFileReplayActivity";
@@ -72,7 +74,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
         try {
             replayModel = new EcgFileReplayModel(fileName);
-        } catch (FileException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             finish();
         }

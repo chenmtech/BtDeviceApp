@@ -63,7 +63,7 @@ public class EcgComment {
         this.content = content;
     }
 
-    public void readFromStream(DataInput in) throws FileException {
+    public boolean readFromStream(DataInput in) {
         try {
             // 读留言人
             commentator = DataIOUtil.readFixedString(COMMENTATOR_LEN, in);
@@ -74,12 +74,12 @@ public class EcgComment {
             // 读留言内容
             content = DataIOUtil.readFixedString(CONTENT_LEN, in);
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new FileException("", "读心电文件头错误");
+            return false;
         }
+        return true;
     }
 
-    public void writeToStream(DataOutput out) throws FileException {
+    public boolean writeToStream(DataOutput out) {
         try {
             // 写留言人
             DataIOUtil.writeFixedString(commentator, COMMENTATOR_LEN, out);
@@ -90,9 +90,9 @@ public class EcgComment {
             // 写留言内容
             DataIOUtil.writeFixedString(content, CONTENT_LEN, out);
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new FileException("", "写心电文件头错误");
+            return false;
         }
+        return true;
     }
 
     public static int length() {

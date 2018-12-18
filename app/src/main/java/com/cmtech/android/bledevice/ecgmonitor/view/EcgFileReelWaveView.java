@@ -7,6 +7,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.view.ReelWaveView;
 import com.cmtech.bmefile.exception.FileException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -38,12 +39,12 @@ public class EcgFileReelWaveView extends ReelWaveView {
                 @Override
                 public void run() {
                     try {
-                        if(ecgFile.noMoreData()) {
+                        if(ecgFile.isEOD()) {
                             stopShow();
                         } else {
                             for (int i = 0; i < dataNumReadEachShow; i++, num++) {
                                 cacheData.add(ecgFile.readInt());
-                                if (ecgFile.noMoreData()) {
+                                if (ecgFile.isEOD()) {
                                     break;
                                 }
                             }
@@ -54,7 +55,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
                             }
 
                         }
-                    } catch (FileException e) {
+                    } catch (IOException e) {
                         stopShow();
                     }
                 }
@@ -87,13 +88,21 @@ public class EcgFileReelWaveView extends ReelWaveView {
         int sampleInterval = 1000/ecgFile.getFs();
         dataNumReadEachShow = (int)(Math.ceil((double) MIN_SHOW_INTERVAL /sampleInterval));
         interval = dataNumReadEachShow *sampleInterval;
-        ecgFile.seekData(0);
+        try {
+            ecgFile.seekData(0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void startShow() {
         if(!replaying) {
-            if(ecgFile.noMoreData()) {
-                ecgFile.seekData(0);
+            if(ecgFile.isEOD()) {
+                try {
+                    ecgFile.seekData(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 clearData();
                 num = 0;
             }
@@ -136,12 +145,16 @@ public class EcgFileReelWaveView extends ReelWaveView {
             begin = 0;
         }
 
-        ecgFile.seekData((int)begin);
+        try {
+            ecgFile.seekData((int)begin);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         viewData.clear();
         while(begin++ <= numAtLocation) {
             try {
                 viewData.add(ecgFile.readInt());
-            } catch (FileException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }

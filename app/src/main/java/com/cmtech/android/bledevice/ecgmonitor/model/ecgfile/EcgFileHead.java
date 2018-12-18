@@ -62,13 +62,13 @@ public class EcgFileHead {
         this.leadType = leadType;
     }
 
-    public void readFromStream(DataInput in) throws FileException {
+    public boolean readFromStream(DataInput in) {
         try {
             // 读心电文件标识
             byte[] ecg = new byte[3];
             in.readFully(ecg);
-            if(!Arrays.equals(ecg, ECG)) {
-                throw new FileException("", "ECG文件格式不对");
+            if (!Arrays.equals(ecg, ECG)) {
+                return false;
             }
             // 读版本号
             byte[] ver = new byte[2];
@@ -80,12 +80,12 @@ public class EcgFileHead {
             // 读导联类型
             leadType = EcgLeadType.getFromCode(ByteUtil.reverseInt(in.readInt()));
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new FileException("", "读心电文件头错误");
+            return false;
         }
+        return true;
     }
 
-    public void writeToStream(DataOutput out) throws FileException {
+    public boolean writeToStream(DataOutput out) {
         try {
             // 写心电文件标识
             out.write(ECG);
@@ -98,9 +98,9 @@ public class EcgFileHead {
             // 写导联类型
             out.writeInt(ByteUtil.reverseInt(leadType.getCode()));
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new FileException("", "写心电文件头错误");
+            return false;
         }
+        return true;
     }
 
     @Override

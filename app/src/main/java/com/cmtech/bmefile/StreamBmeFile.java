@@ -98,7 +98,7 @@ public class StreamBmeFile extends BmeFile {
                 out = null;
             }
         } catch(IOException ioe) {
-            throw new IOException(file.getName() + "关闭文件操作错误");
+            throw new IOException(file.getName() + "关闭文件错误");
         } finally {
             fileInOperation.remove(file.getCanonicalPath());
         }

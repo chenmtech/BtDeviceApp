@@ -19,7 +19,7 @@ public class EcgFileTail {
 
     }
 
-    public void readFromStream(RandomAccessFile raf) throws FileException {
+    public boolean readFromStream(RandomAccessFile raf) {
         try {
             raf.seek(raf.length() - 8);
             long tailEndPointer = raf.getFilePointer();
@@ -29,7 +29,9 @@ public class EcgFileTail {
             // 读留言
             for(int i = 0; i < commentNum; i++) {
                 EcgComment comment = new EcgComment();
-                comment.readFromStream(raf);
+                if(!comment.readFromStream(raf)) {
+                    throw new IOException();
+                }
                 commentList.add(comment);
             }
             // 按留言时间排序
@@ -41,12 +43,12 @@ public class EcgFileTail {
             });
 
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new FileException("", "读心电文件头错误");
+            return false;
         }
+        return true;
     }
 
-    public void writeToStream(RandomAccessFile raf) throws FileException {
+    public boolean writeToStream(RandomAccessFile raf) {
         try {
             long filePointer = raf.getFilePointer();
             long length = commentList.size()*EcgComment.length();
@@ -55,14 +57,16 @@ public class EcgFileTail {
 
             // 写留言
             for(int i = 0; i < commentList.size(); i++) {
-                commentList.get(i).writeToStream(raf);
+                if(!commentList.get(i).writeToStream(raf)) {
+                    throw new IOException();
+                }
             }
 
             raf.writeLong(ByteUtil.reverseLong(length));
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new FileException("", "写心电文件头错误");
+            return false;
         }
+        return true;
     }
 
     @Override
@@ -89,7 +93,7 @@ public class EcgFileTail {
         return commentList.size();
     }
 
-    // EcgFileTail字节长度
+    // EcgFileTail字节长度：所有留言长度 + 尾部长度（long 8字节）
     public int length() {
         return commentList.size()*EcgComment.length() + 8;
     }

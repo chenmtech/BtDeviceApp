@@ -418,7 +418,7 @@ public class EcgMonitorDevice extends BleDevice {
                 ecgFile.writeData(ecgSignal);
                 recordDataNum++;
                 updateRecordSecond(getRecordSecond());
-            } catch (FileException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -588,8 +588,6 @@ public class EcgMonitorDevice extends BleDevice {
                 }
                 ecgFile = null;
             } catch (IOException e) {
-                e.printStackTrace();
-            } catch (FileException e) {
                 e.printStackTrace();
             }
         }
