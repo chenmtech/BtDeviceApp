@@ -22,7 +22,7 @@ public abstract class RandomAccessBmeFile extends BmeFile {
     }
 
     @Override
-    public boolean createInputStream() {
+    protected boolean createInputStream() {
         try {
             raf = new RandomAccessFile(file, "rw");
         } catch (FileNotFoundException e) {
@@ -34,7 +34,7 @@ public abstract class RandomAccessBmeFile extends BmeFile {
     }
 
     @Override
-    public boolean createOutputStream() {
+    protected boolean createOutputStream() {
         try {
             raf = new RandomAccessFile(file, "rw");
         } catch (FileNotFoundException e) {
@@ -46,7 +46,7 @@ public abstract class RandomAccessBmeFile extends BmeFile {
     }
 
     @Override
-    public boolean isEof() throws IOException {
+    protected boolean isEof() throws IOException {
         return (raf == null ||raf.length() == raf.getFilePointer());
     }
 

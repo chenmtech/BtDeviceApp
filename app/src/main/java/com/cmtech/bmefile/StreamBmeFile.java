@@ -43,7 +43,7 @@ public class StreamBmeFile extends BmeFile {
     }
 
     @Override
-    public boolean createInputStream() {
+    protected boolean createInputStream() {
         try {
             in = new DataInputStream(
                     new BufferedInputStream(
@@ -55,7 +55,7 @@ public class StreamBmeFile extends BmeFile {
     }
 
     @Override
-    public boolean createOutputStream() {
+    protected boolean createOutputStream() {
         try {
             out = new DataOutputStream(
                     new BufferedOutputStream(
@@ -68,7 +68,7 @@ public class StreamBmeFile extends BmeFile {
 
     // 获取从当前文件指针位置开始，还可获取多少个数据
     @Override
-    public int availableData() {
+    protected int availableData() {
         if(in != null) {
             try {
                 return ((DataInputStream)in).available()/fileHead.getDataType().getTypeLength();
@@ -80,7 +80,7 @@ public class StreamBmeFile extends BmeFile {
     }
 
     @Override
-    public boolean isEof() throws IOException {
+    protected boolean isEof() throws IOException {
         return (((DataInputStream)in).available() <= 0);
     }
 

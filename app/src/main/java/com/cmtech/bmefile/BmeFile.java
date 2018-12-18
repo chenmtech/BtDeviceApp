@@ -123,10 +123,10 @@ public abstract class BmeFile {
         return head;
     }
 
-    public abstract boolean createInputStream();
-    public abstract boolean createOutputStream();
-	public abstract int availableData();
-    public abstract boolean isEof() throws IOException;
+    protected abstract boolean createInputStream();
+    protected abstract boolean createOutputStream();
+	protected abstract int availableData();
+    protected abstract boolean isEof() throws IOException;
     public abstract void close() throws IOException;
 
     // 读单个byte数据

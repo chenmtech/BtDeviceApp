@@ -48,7 +48,7 @@ public class CommonRandomAccessBmeFile extends RandomAccessBmeFile {
     }
 
     @Override
-    public int availableData() {
+    protected int availableData() {
         if(in != null) {
             try {
                 return (int)((raf.length()-raf.getFilePointer())/fileHead.getDataType().getTypeLength());

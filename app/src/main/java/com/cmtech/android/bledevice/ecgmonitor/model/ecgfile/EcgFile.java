@@ -77,8 +77,8 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     @Override
-    public int availableData() {
-        if(raf != null && ecgFileTail != null) {
+    protected int availableData() {
+        if(raf != null) {
             try {
                 return (int)((dataEndPointer - raf.getFilePointer())/fileHead.getDataType().getTypeLength());
             } catch (IOException e) {
