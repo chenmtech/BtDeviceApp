@@ -12,54 +12,70 @@ import java.io.RandomAccessFile;
  */
 
 public class RandomAccessBmeFile extends BmeFile {
-    protected long dataBeginPointer = 0;
+    protected long dataBeginPointer = 0; // 文件数据起始位置指针
     protected RandomAccessFile raf;
 
-    protected RandomAccessBmeFile(String fileName) throws FileException {
+    protected RandomAccessBmeFile(String fileName) throws IOException {
         super(fileName);
 
         try {
             dataBeginPointer = raf.getFilePointer();
         } catch (IOException e) {
-            throw new FileException(getFileName(), "构造文件失败");
+            throw new IOException("打开文件错误");
         }
+
+        dataNum = availableData();
     }
 
-    protected RandomAccessBmeFile(String fileName, BmeFileHead head) throws FileException{
+    protected RandomAccessBmeFile(String fileName, BmeFileHead head) throws IOException{
         super(fileName, head);
 
         try {
             dataBeginPointer = raf.getFilePointer();
         } catch (IOException e) {
-            throw new FileException(getFileName(), "构造文件失败");
+            throw new IOException("创建文件错误");
         }
+
+        dataNum = 0;
     }
 
     // 打开已有文件
-    public static RandomAccessBmeFile openBmeFile(String fileName) throws FileException{
+    public static RandomAccessBmeFile openBmeFile(String fileName) throws IOException{
         return new RandomAccessBmeFile(fileName);
     }
 
     // 用缺省文件头创建新的文件
-    public static RandomAccessBmeFile createBmeFile(String fileName) throws FileException{
+    public static RandomAccessBmeFile createBmeFile(String fileName) throws IOException{
         return new RandomAccessBmeFile(fileName, DEFAULT_BMEFILE_HEAD);
     }
 
     // 用指定的文件头创建新的文件
-    public static RandomAccessBmeFile createBmeFile(String fileName, BmeFileHead head) throws FileException{
+    public static RandomAccessBmeFile createBmeFile(String fileName, BmeFileHead head) throws IOException{
         return new RandomAccessBmeFile(fileName, head);
     }
 
-    public void createInputStream() throws FileNotFoundException {
-        raf = new RandomAccessFile(file, "rw");
+    @Override
+    public boolean createInputStream() {
+        try {
+            raf = new RandomAccessFile(file, "rw");
+        } catch (FileNotFoundException e) {
+            return false;
+        }
         in = raf;
         out = raf;
+        return true;
     }
 
-    public void createOutputStream() throws FileNotFoundException {
-        raf = new RandomAccessFile(file, "rw");
+    @Override
+    public boolean createOutputStream() {
+        try {
+            raf = new RandomAccessFile(file, "rw");
+        } catch (FileNotFoundException e) {
+            return false;
+        }
         in = raf;
         out = raf;
+        return true;
     }
 
     @Override
@@ -68,7 +84,7 @@ public class RandomAccessBmeFile extends BmeFile {
             try {
                 return (int)((raf.length()-raf.getFilePointer())/fileHead.getDataType().getTypeLength());
             } catch (IOException e) {
-                e.printStackTrace();
+                return 0;
             }
         }
         return 0;

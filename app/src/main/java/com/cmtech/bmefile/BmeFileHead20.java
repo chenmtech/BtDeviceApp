@@ -64,31 +64,41 @@ public class BmeFileHead20 extends BmeFileHead {
 	}
 
 	@Override
-	public void readFromStream(DataInput in) throws IOException{
-        byte byteOrderCode = in.readByte(); // 读字节序code
-        byteOrder = (byteOrderCode == BIG_ENDIAN_CODE) ? BIG_ENDIAN : LITTLE_ENDIAN;
-        int infoLen = readInt(in); // 读infoLen
-        byte[] str = new byte[infoLen];
-        in.readFully(str); // 读info
-        setInfo(new String(str));
-        int dataTypeCode = in.readByte(); // 读数据类型code
-        setDataType(BmeFileDataType.getFromCode(dataTypeCode));
-        setFs(readInt(in)); // 读采样率
+	public boolean readFromStream(DataInput in){
+	    try {
+            byte byteOrderCode = in.readByte(); // 读字节序code
+            byteOrder = (byteOrderCode == BIG_ENDIAN_CODE) ? BIG_ENDIAN : LITTLE_ENDIAN;
+            int infoLen = readInt(in); // 读infoLen
+            byte[] str = new byte[infoLen];
+            in.readFully(str); // 读info
+            setInfo(new String(str));
+            int dataTypeCode = in.readByte(); // 读数据类型code
+            setDataType(BmeFileDataType.getFromCode(dataTypeCode));
+            setFs(readInt(in)); // 读采样率
+            return true;
+        } catch (IOException e) {
+	        return false;
+        }
 	}
 
 	@Override
-	public void writeToStream(DataOutput out) throws IOException{
-        // 写字节序code
-        if(byteOrder == BIG_ENDIAN) {
-            out.writeByte(BIG_ENDIAN_CODE);
-        } else {
-            out.writeByte(LITTLE_ENDIAN_CODE);
+	public boolean writeToStream(DataOutput out){
+	    try {
+            // 写字节序code
+            if (byteOrder == BIG_ENDIAN) {
+                out.writeByte(BIG_ENDIAN_CODE);
+            } else {
+                out.writeByte(LITTLE_ENDIAN_CODE);
+            }
+            int infoLen = getInfo().getBytes().length;
+            writeInt(out, infoLen); // 写infoLen
+            out.write(getInfo().getBytes()); // 写info
+            out.writeByte((byte) getDataType().getCode()); // 写数据类型code
+            writeInt(out, getFs()); // 写采样率
+            return true;
+        } catch (IOException e) {
+	        return false;
         }
-        int infoLen = getInfo().getBytes().length;
-        writeInt(out, infoLen); // 写infoLen
-        out.write(getInfo().getBytes()); // 写info
-        out.writeByte((byte)getDataType().getCode()); // 写数据类型code
-        writeInt(out, getFs()); // 写采样率
 	}
 
 	@Override

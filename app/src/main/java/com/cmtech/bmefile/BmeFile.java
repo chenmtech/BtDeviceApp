@@ -12,14 +12,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+
 /**
  * BmeFile: Bme文件
  * created by chenm, 2018-02-11
  */
 
 public abstract class BmeFile {
-    // 已经打开的文件列表
-	protected static Set<String> fileInOperation = new HashSet<>();
+	protected static Set<String> fileInOperation = new HashSet<>(); // 已经打开的文件列表
 	protected static final BmeFileHead DEFAULT_BMEFILE_HEAD = BmeFileHeadFactory.createDefault(); // 缺省文件头
 	
 	private static final byte[] BME = {'B', 'M', 'E'}; // BmeFile标识符
@@ -35,258 +36,175 @@ public abstract class BmeFile {
 
     // 为已存在文件创建BmeFile
 	protected BmeFile(String fileName) throws IOException{
-		checkFile(fileName);
-		fileHead = open();
-		dataNum = availableData();
+        if(checkAndCreateFile(fileName)) {
+            fileHead = open(file);
+            if(fileHead == null) {
+                throw new IOException("打开文件错误");
+            }
+        } else {
+            throw new IOException("打开文件错误");
+        }
 	}
 
 	// 为不存在的文件创建BmeFile
 	protected BmeFile(String fileName, BmeFileHead head) throws IOException{
-		checkFile(fileName);
-		fileHead = createUsingHead(head);
-		dataNum = 0;
+		if(checkAndCreateFile(fileName)) {
+            fileHead = createUsingHead(head);
+            if(fileHead == null) {
+                throw new IOException("创建文件错误");
+            }
+        } else {
+            throw new IOException("创建文件错误");
+        }
 	}
 	
-	private void checkFile(String fileName) throws IOException{
+	private boolean checkAndCreateFile(String fileName) {
 		if(fileInOperation.contains(fileName))
-			throw new IOException(fileName + "文件已经打开");
+			return false;
 		else {
-			file = new File(fileName);
+            file = new File(fileName);
 			fileInOperation.add(fileName);
+			return true;
 		}
 	}
 
-	private BmeFileHead open() throws IOException{
+	private BmeFileHead open(File file) {
 		BmeFileHead fileHead;
 		
-		if(file == null) 
-			throw new IOException("文件未正常设置");
-		if(!file.exists())
-			throw new IOException(file.getName() + "文件不存在");
-		if(in != null || out != null)
-			throw new IOException(file.getName() + "文件已经打开，需要关闭后重新打开");
-		
+		if(file == null)
+			throw new IllegalArgumentException();
+        if(in != null || out != null)
+            throw new IllegalStateException();
+
 		try	{
-            createInputStream();
+            if(!file.exists())
+                throw new IOException();
+            if(!createInputStream())
+                throw new IOException();
 			byte[] bme = new byte[3];
-			in.readFully(bme);
-			if(!Arrays.equals(bme, BME)) throw new IOException(file.getName() + "文件格式不对");
+			in.readFully(bme); // 读BmeFile标识符
+			if(!Arrays.equals(bme, BME))
+			    throw new IOException();
 			byte[] ver = new byte[2];
-			in.readFully(ver);
+			in.readFully(ver); // 读版本号
 			fileHead = BmeFileHeadFactory.create(ver);
-			fileHead.readFromStream(in);
+			if(!fileHead.readFromStream(in)) // 读BmeFileHead
+			    throw new IOException();
 		} catch (IOException e) {
-			throw new IOException(file.getName() + "文件打开错误");
+			return null;
 		}
 		return fileHead;
 	}
 
-
-
-    private BmeFileHead createUsingHead(BmeFileHead head) throws IOException{
-        if(file == null)
-            throw new IOException("文件路径设置错误");
+    private BmeFileHead createUsingHead(BmeFileHead head){
         if(head == null)
-            throw new IOException("file head" + "文件头错误");
-        if(in != null || out != null)
-            throw new IOException(file.getName() + "文件已经打开，需要关闭后重新打开");
+            throw new IllegalArgumentException();
+        if(file == null || in != null || out != null)
+            throw new IllegalStateException();
 
         try {
             if(file.exists()) {
                 file.delete();
             }
             file.createNewFile();
-            createOutputStream();
-            out.write(BME);
-            out.write(head.getVersion());
-            head.writeToStream(out);
+            if(!createOutputStream())
+                throw new IOException();
+            out.write(BME); // 写BmeFile文件标识符
+            out.write(head.getVersion()); // 写版本号
+            if(!head.writeToStream(out)) { // 写BmeFileHead
+                throw new IOException();
+            }
         } catch(IOException ioe) {
-            throw new IOException(file.getName() + "创建文件错误");
+            return null;
         }
         return head;
     }
 
-    public abstract void createInputStream() throws FileNotFoundException;
-    public abstract void createOutputStream() throws FileNotFoundException;
+    public abstract boolean createInputStream();
+    public abstract boolean createOutputStream();
 	public abstract int availableData();
     public abstract boolean isEof() throws IOException;
     public abstract void close() throws IOException;
-	
-	// 读单个int数据
-    public int readInt() throws IOException {
-        if(in == null || fileHead == null) {
-            throw new IOException("请先打开文件");
-        }
-
-        int data = 0;
-        try {
-            if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-                data = in.readInt();
-            } else {
-                data = ByteUtil.reverseInt(in.readInt());
-            }
-        } catch(IOException ioe) {
-            throw new IOException(file.getName() + "读数据错误");
-        }
-        return data;
-    }
 
     // 读单个byte数据
     public byte readByte() throws IOException{
-        if(in == null || fileHead == null) {
-            throw new IOException("请先打开文件");
-        }
+        return in.readByte();
+    }
 
-        byte data = 0;
-        try {
-            data = in.readByte();
-        } catch(IOException ioe) {
-            throw new IOException(file.getName() + "读数据错误");
-        }
-        return data;
+    // 读单个int数据
+    public int readInt() throws IOException {
+        return readInt(in);
     }
 
     // 读单个double数据
     public double readDouble() throws IOException{
-        if(in == null || fileHead == null) {
-            throw new IOException("请先打开文件");
-        }
-
-        double data = 0;
-        try {
-            if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-                data = in.readDouble();
-            } else {
-                data = ByteUtil.reverseDouble(in.readDouble());
-            }
-        } catch(IOException ioe) {
-            throw new IOException(file.getName() + "读数据错误");
-        }
-        return data;
+        return readDouble(in);
     }
 
+    // 写单个byte数据
+    public void writeData(byte data) throws IOException{
+        out.writeByte(data);
+        dataNum++;
+    }
 
-    public BmeFile writeData(byte data) throws IOException{
-        try {
-            out.writeByte(data);
+    // 写单个int数据
+    public void writeData(int data) throws IOException{
+        writeInt(out, data);
+        dataNum++;
+    }
+
+    // 写单个double数据
+    public void writeData(double data) throws IOException{
+        writeDouble(out, data);
+        dataNum++;
+    }
+
+    // 写byte数组
+    public void writeData(byte[] data) throws IOException{
+        for(byte num : data) {
+            out.writeByte(num);
             dataNum++;
-        } catch(IOException ioe) {
-            throw new IOException(file.getName() + "写数据错误");
         }
-        return this;
     }
 
-    public BmeFile writeData(int data) throws IOException{
-        try {
-            if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-                out.writeInt(data);
-            } else {
-                out.writeInt(ByteUtil.reverseInt(data));
-            }
-            dataNum++;
-        } catch(IOException ioe) {
-            throw new IOException(file.getName() + "写数据错误");
+    // 写int数组
+    public void writeData(int[] data) throws IOException{
+        for(int num : data) {
+            writeInt(out, num);
         }
-        return this;
     }
 
-
-    public BmeFile writeData(double data) throws IOException{
-        try {
-            if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-                out.writeDouble(data);
-            } else {
-                out.writeDouble(ByteUtil.reverseDouble(data));
-            }
-            dataNum++;
-        } catch(IOException ioe) {
-            throw new IOException(file.getName() + "写数据错误");
+    // 写double数组
+	public void writeData(double[] data) throws IOException{
+        for(double num : data) {
+            writeDouble(out, num);
         }
-        return this;
-    }
-
-
-	public BmeFile writeData(double[] data) throws IOException{
-		if(out == null || fileHead == null) {
-			throw new IOException("请先创建文件");
-		}
-		
-		if(fileHead.getDataType() != BmeFileDataType.DOUBLE) {
-			throw new IOException("写入数据类型错误");
-		}
-		
-		try {
-			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-			    for(double num : data) {
-			        out.writeDouble(num);
-			        dataNum++;
-                }
-			} else {
-                for(double num : data) {
-                    out.writeDouble(ByteUtil.reverseDouble(num));
-                    dataNum++;
-                }
-			}
-		} catch(IOException ioe) {
-			throw new IOException(file.getName() + "写数据错误");
-		}
-		return this;
 	}
 
+    private int readInt(DataInput in) throws IOException{
+        return (fileHead.getByteOrder() == BIG_ENDIAN) ? in.readInt() : ByteUtil.reverseInt(in.readInt());
+    }
 
-	
-	public BmeFile writeData(int[] data) throws IOException{
-		if(out == null || fileHead == null) {
-			throw new IOException("请先创建文件");
-		}
-		
-		if(fileHead.getDataType() != BmeFileDataType.INT32) {
-			throw new IOException("写入数据类型错误");
-		}
-		
-		try {
-			if(fileHead.getByteOrder() == ByteOrder.BIG_ENDIAN) {
-			    for(int num : data) {
-			        out.writeInt(num);
-			        dataNum++;
-                }
-			} else {
-			    for(int num : data) {
-			        out.writeInt(ByteUtil.reverseInt(num));
-			        dataNum++;
-                }
-			}
-		} catch(IOException ioe) {
-			throw new IOException(file.getName() + "写数据错误");
-		}
-		return this;
-	}
-	
+    private void writeInt(DataOutput out, int data) throws IOException{
+        if ((fileHead.getByteOrder() == BIG_ENDIAN)) {
+            out.writeInt(data);
+        } else {
+            out.writeInt(ByteUtil.reverseInt(data));
+        }
+    }
 
-	
-	public BmeFile writeData(byte[] data) throws IOException{
-		if(out == null || fileHead == null) {
-			throw new IOException("请先创建文件");
-		}
-		
-		if(fileHead.getDataType() != BmeFileDataType.UINT8) {
-			throw new IOException("写入数据类型错误");
-		}
-		
-		try {
-		    for(byte num : data) {
-		        out.writeByte(num);
-		        dataNum++;
-            }
-		} catch(IOException ioe) {
-			throw new IOException(file.getName() + "写数据错误");
-		}
-		return this;
-	}
+    private double readDouble(DataInput in) throws IOException{
+        return (fileHead.getByteOrder() == BIG_ENDIAN) ? in.readDouble() : ByteUtil.reverseDouble(in.readDouble());
+    }
 
+    private void writeDouble(DataOutput out, double data) throws IOException{
+        if ((fileHead.getByteOrder() == BIG_ENDIAN)) {
+            out.writeDouble(data);
+        } else {
+            out.writeDouble(ByteUtil.reverseDouble(data));
+        }
+    }
 
-
-	
 	public File getFile() {
 	    return file;
     }

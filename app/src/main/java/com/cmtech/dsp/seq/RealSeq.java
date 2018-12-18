@@ -8,6 +8,7 @@
  */
 package com.cmtech.dsp.seq;
 
+import com.cmtech.bmefile.BmeFile;
 import com.cmtech.bmefile.BmeFileHead;
 import com.cmtech.bmefile.StreamBmeFile;
 import com.cmtech.bmefile.exception.FileException;
@@ -96,10 +97,14 @@ public class RealSeq extends Seq<Double>{
 	}
 	
 	public void saveAsBmeFile(String fileName) throws FileException {
-		StreamBmeFile.createBmeFile(fileName).writeData(toArray()).close();
+        BmeFile bmeFile = StreamBmeFile.createBmeFile(fileName);
+        bmeFile.writeData(toArray());
+        bmeFile.close();
 	}
 	
 	public void saveAsBmeFile(String fileName, BmeFileHead head) throws FileException {
-		StreamBmeFile.createBmeFile(fileName, head).writeData(toArray()).close();
+	    BmeFile bmeFile = StreamBmeFile.createBmeFile(fileName, head);
+	    bmeFile.writeData(toArray());
+	    bmeFile.close();
 	}
 }

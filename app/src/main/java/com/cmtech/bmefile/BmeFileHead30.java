@@ -48,17 +48,31 @@ public class BmeFileHead30 extends BmeFileHead10 {
     }
 
     @Override
-    public void readFromStream(DataInput in) throws IOException{
-        super.readFromStream(in);
-        setCalibrationValue(ByteUtil.reverseInt(in.readInt())); // 读定标值
-        setCreatedTime(ByteUtil.reverseLong(in.readLong())); // 读创建时间
+    public boolean readFromStream(DataInput in){
+        boolean result = super.readFromStream(in);
+        if(result) {
+            try {
+                setCalibrationValue(ByteUtil.reverseInt(in.readInt())); // 读定标值
+                setCreatedTime(ByteUtil.reverseLong(in.readLong())); // 读创建时间
+            } catch (IOException e) {
+                result = false;
+            }
+        }
+        return result;
     }
 
     @Override
-    public void writeToStream(DataOutput out) throws IOException{
-        super.writeToStream(out);
-        out.writeInt(ByteUtil.reverseInt(getCalibrationValue())); // 写定标值
-        out.writeLong(ByteUtil.reverseLong(getCreatedTime())); // 写创建时间
+    public boolean writeToStream(DataOutput out) {
+        boolean result = super.writeToStream(out);
+        if(result) {
+            try {
+                out.writeInt(ByteUtil.reverseInt(getCalibrationValue())); // 写定标值
+                out.writeLong(ByteUtil.reverseLong(getCreatedTime())); // 写创建时间
+            } catch (IOException e) {
+                result = false;
+            }
+        }
+        return result;
     }
 
     @Override

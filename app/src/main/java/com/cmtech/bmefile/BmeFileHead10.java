@@ -44,27 +44,39 @@ public class BmeFileHead10 extends BmeFileHead {
 	
 	@Override
 	public void setByteOrder(ByteOrder byteOrder) {
-
+        if(byteOrder != ByteOrder.LITTLE_ENDIAN) {
+            throw new IllegalArgumentException("字节序必须为Little Endian.");
+        }
 	}
 	
 	@Override
-	public void readFromStream(DataInput in) throws IOException{
-        int infoLen = ByteUtil.reverseInt(in.readInt()); // 读info字节长度
-        byte[] str = new byte[infoLen];
-        in.readFully(str); // 读info
-        setInfo(new String(str));
-        int dataTypeCode = in.readByte(); // 读数据类型code
-        setDataType(BmeFileDataType.getFromCode(dataTypeCode));
-        setFs(ByteUtil.reverseInt(in.readInt())); // 读采样频率
+	public boolean readFromStream(DataInput in){
+	    try {
+            int infoLen = ByteUtil.reverseInt(in.readInt()); // 读info字节长度
+            byte[] str = new byte[infoLen];
+            in.readFully(str); // 读info
+            setInfo(new String(str));
+            int dataTypeCode = in.readByte(); // 读数据类型code
+            setDataType(BmeFileDataType.getFromCode(dataTypeCode));
+            setFs(ByteUtil.reverseInt(in.readInt())); // 读采样频率
+            return true;
+        } catch (IOException e) {
+	        return false;
+        }
 	}
 
     @Override
-	public void writeToStream(DataOutput out) throws IOException{
-        int infoLen = getInfo().getBytes().length;
-        out.writeInt(ByteUtil.reverseInt(infoLen)); // 写infoLen
-        out.write(getInfo().getBytes()); // 写info
-        out.writeByte((byte)getDataType().getCode()); // 写数据类型code
-        out.writeInt(ByteUtil.reverseInt(getFs())); // 写采样频率
+	public boolean writeToStream(DataOutput out){
+	    try {
+            int infoLen = getInfo().getBytes().length;
+            out.writeInt(ByteUtil.reverseInt(infoLen)); // 写infoLen
+            out.write(getInfo().getBytes()); // 写info
+            out.writeByte((byte) getDataType().getCode()); // 写数据类型code
+            out.writeInt(ByteUtil.reverseInt(getFs())); // 写采样频率
+            return true;
+        } catch (IOException e) {
+	        return false;
+        }
 	}
 
 	@Override

@@ -65,7 +65,7 @@ public abstract class BmeFileHead {
 	// 设置文件数据字节序
 	public abstract void setByteOrder(ByteOrder byteOrder);
 	// 从输入流读取文件头
-	public abstract void readFromStream(DataInput in) throws IOException;
+	public abstract boolean readFromStream(DataInput in);
 	// 将文件头写到输出流
-	public abstract void writeToStream(DataOutput out) throws IOException;
+	public abstract boolean writeToStream(DataOutput out);
 }

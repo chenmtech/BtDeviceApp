@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 public class BmeFileHeadFactory {
     // 用版本号创建文件头
-	public static BmeFileHead create(byte[] ver) throws IOException {
+	public static BmeFileHead create(byte[] ver) {
 		if(Arrays.equals(ver, BmeFileHead10.VER)) {
 			return new BmeFileHead10();
 		} else if(Arrays.equals(ver, BmeFileHead20.VER)) {
@@ -20,7 +20,7 @@ public class BmeFileHeadFactory {
         } else if(Arrays.equals(ver, BmeFileHead30.VER)) {
 		    return new BmeFileHead30();
 		} else {
-			throw new IOException(Arrays.toString(ver) + "不支持此文件版本");
+			throw new IllegalArgumentException(Arrays.toString(ver) + "不支持此文件版本");
 		}
 	}
 
