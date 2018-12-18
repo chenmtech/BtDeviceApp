@@ -595,7 +595,7 @@ public class EcgMonitorDevice extends BleDevice {
     // 启动ECG信号采集
     private void startSampleEcg() {
 
-        IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
+        IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_OBTAINDATA, data);
@@ -608,7 +608,7 @@ public class EcgMonitorDevice extends BleDevice {
         };
 
         // enable ECG data notification
-        addNotifyCommand(ECGMONITORDATACCC, true, null, notifyCallback);
+        addIndicateCommand(ECGMONITORDATACCC, true, null, indicationCallback);
 
         addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_STARTSIGNAL, new IBleDataOpCallback() {
             @Override
@@ -625,7 +625,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 启动1mV定标信号采集
     private void startSample1mV() {
-        IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
+        IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_OBTAINDATA, data);
@@ -637,8 +637,8 @@ public class EcgMonitorDevice extends BleDevice {
             }
         };
 
-        // enable ECG data notification
-        addNotifyCommand(ECGMONITORDATACCC, true, null, notifyCallback);
+        // enable ECG data indication
+        addIndicateCommand(ECGMONITORDATACCC, true, null, indicationCallback);
 
         addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_START1MV, null);
     }
@@ -648,8 +648,8 @@ public class EcgMonitorDevice extends BleDevice {
 
         addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_STOP, null);
 
-        // disable ECG data notification
-        addNotifyCommand(ECGMONITORDATACCC, false, null, null);
+        // disable ECG data indication
+        addIndicateCommand(ECGMONITORDATACCC, false, null, null);
 
     }
 
