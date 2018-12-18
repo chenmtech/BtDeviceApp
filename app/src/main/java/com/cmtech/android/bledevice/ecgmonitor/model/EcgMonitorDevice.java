@@ -680,6 +680,22 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
+    @Override
+    public void disconnect() {
+        stopSampleData();
+        addInstantCommand(new IBleDataOpCallback() {
+            @Override
+            public void onSuccess(byte[] data) {
+                EcgMonitorDevice.super.disconnect();
+            }
+
+            @Override
+            public void onFailure(BleDataOpException exception) {
+
+            }
+        });
+    }
+
     private void updateEcgMonitorState() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override

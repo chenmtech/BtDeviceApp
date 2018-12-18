@@ -284,7 +284,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 断开连接
-    private synchronized void disconnect() {
+    protected synchronized void disconnect() {
         ViseLog.i("disconnect");
         stopCommandExecutor();
         executeAfterDisconnect();
