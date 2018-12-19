@@ -166,6 +166,8 @@ public class EcgMonitorDevice extends BleDevice {
         if(config.isWarnWhenHrAbnormal()) {
             if(hrWarner != null) {
                 hrWarner.setHrWarn(config.getHrLowLimit(), config.getHrHighLimit());
+            } else {
+                hrWarner = new EcgHrWarner(config.getHrLowLimit(), config.getHrHighLimit());
             }
         } else {
             hrWarner = null;
@@ -196,6 +198,9 @@ public class EcgMonitorDevice extends BleDevice {
         if(!checkBasicEcgMonitorService()) {
             return false;
         }
+
+        // 先停止采样
+        stopSampleData();
 
         // 读采样率命令
         addReadCommand(ECGMONITORSAMPLERATE, new IBleDataOpCallback() {
@@ -562,7 +567,8 @@ public class EcgMonitorDevice extends BleDevice {
         if(hrHistogram == null) {
             hrHistogram = new EcgHrHistogram();
         }
-        hrWarner = new EcgHrWarner(config.getHrLowLimit(), config.getHrHighLimit());
+        if(config.isWarnWhenHrAbnormal())
+            hrWarner = new EcgHrWarner(config.getHrLowLimit(), config.getHrHighLimit());
     }
 
     // 保存Ecg文件
@@ -625,6 +631,8 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 启动1mV定标信号采集
     private void startSample1mV() {
+        calibrationData.clear();
+
         IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
@@ -645,12 +653,10 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 停止数据采集
     private void stopSampleData() {
-
-        addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_STOP, null);
-
         // disable ECG data indication
         addIndicateCommand(ECGMONITORDATACCC, false, null, null);
 
+        addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_STOP, null);
     }
 
 
@@ -682,18 +688,14 @@ public class EcgMonitorDevice extends BleDevice {
 
     @Override
     public void disconnect() {
+        ViseLog.e(TAG, "disconnect()");
         stopSampleData();
-        addInstantCommand(new IBleDataOpCallback() {
+        getHandler().postDelayed(new Runnable() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void run() {
                 EcgMonitorDevice.super.disconnect();
             }
-
-            @Override
-            public void onFailure(BleDataOpException exception) {
-
-            }
-        });
+        }, 500);
     }
 
     private void updateEcgMonitorState() {
