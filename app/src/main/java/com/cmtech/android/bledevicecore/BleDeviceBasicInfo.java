@@ -18,7 +18,7 @@ import java.util.Set;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_AUTOCONNECT;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_NICKNAME;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECTTIMES;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECT_TIMES;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
 
 /**
@@ -42,7 +42,7 @@ public class BleDeviceBasicInfo implements Serializable{
     // 是否自动连接
     private boolean autoConnect = DEFAULT_DEVICE_AUTOCONNECT;
     // 连接断开后重连次数
-    private int reconnectTimes = DEFAULT_DEVICE_RECONNECTTIMES;
+    private int reconnectTimes = DEFAULT_DEVICE_RECONNECT_TIMES;
     // 重连失败后是否报警
     private boolean warnAfterReconnectFailure = DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
 
@@ -207,7 +207,7 @@ public class BleDeviceBasicInfo implements Serializable{
         String uuidString = pref.getString(macAddress+"_uuidString", "");
         String imagePath = pref.getString(macAddress+"_imagePath", DEFAULT_DEVICE_IMAGEPATH);
         boolean autoConnect = pref.getBoolean(macAddress+"_autoConnect", DEFAULT_DEVICE_AUTOCONNECT);
-        int reconnectTimes = pref.getInt(macAddress+"_reconnectTimes", DEFAULT_DEVICE_RECONNECTTIMES);
+        int reconnectTimes = pref.getInt(macAddress+"_reconnectTimes", DEFAULT_DEVICE_RECONNECT_TIMES);
         boolean warnAfterRecconnectFailure = pref.getBoolean(macAddress+"_warnAfterReconnectFailure", DEFAULT_WARN_AFTER_RECONNECT_FAILURE);
         return new BleDeviceBasicInfo(address, nickName, uuidString, imagePath, autoConnect, reconnectTimes, warnAfterRecconnectFailure);
     }

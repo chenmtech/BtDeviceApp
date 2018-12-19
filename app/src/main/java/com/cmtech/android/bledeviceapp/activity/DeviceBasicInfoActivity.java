@@ -31,7 +31,7 @@ import java.io.IOException;
 
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_AUTOCONNECT;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECTTIMES;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECT_TIMES;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.IMAGEDIR;
 
@@ -270,7 +270,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
         cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
 
-        etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECTTIMES));
+        etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECT_TIMES));
 
         cbWarnAfterReconnectFailure.setChecked(DEFAULT_WARN_AFTER_RECONNECT_FAILURE);
     }

@@ -34,7 +34,7 @@ import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.D
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_AUTOCONNECT;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_NICKNAME;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECTTIMES;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECT_TIMES;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
 
 public class ScanDeviceActivity extends AppCompatActivity {
@@ -240,7 +240,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
         Intent intent = new Intent(ScanDeviceActivity.this, DeviceBasicInfoActivity.class);
         BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo(macAddress, DEFAULT_DEVICE_NICKNAME, uuidShortString,
-                DEFAULT_DEVICE_IMAGEPATH, DEFAULT_DEVICE_AUTOCONNECT, DEFAULT_DEVICE_RECONNECTTIMES, DEFAULT_WARN_AFTER_RECONNECT_FAILURE);
+                DEFAULT_DEVICE_IMAGEPATH, DEFAULT_DEVICE_AUTOCONNECT, DEFAULT_DEVICE_RECONNECT_TIMES, DEFAULT_WARN_AFTER_RECONNECT_FAILURE);
         intent.putExtra(DEVICE_BASICINFO, basicInfo);
         startActivityForResult(intent, 1);
     }
