@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.MY_BASE_UUID;
 
 public class TempHumidDevice extends BleDevice {
     private static final String TAG = "TempHumidDevice";
@@ -42,23 +43,23 @@ public class TempHumidDevice extends BleDevice {
     private static final String tempHumidHistoryDataUuid = "aa65";          // 历史数据UUID
 
 
-    public static final BleGattElement TEMPHUMIDDATA =
-            new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, null);
+    private static final BleGattElement TEMPHUMIDDATA =
+            new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, null, MY_BASE_UUID, "温湿度数据");
 
-    public static final BleGattElement TEMPHUMIDCTRL =
-            new BleGattElement(tempHumidServiceUuid, tempHumidCtrlUuid, null);
+    private static final BleGattElement TEMPHUMIDCTRL =
+            new BleGattElement(tempHumidServiceUuid, tempHumidCtrlUuid, null, MY_BASE_UUID, "温湿度Ctrl");
 
-    public static final BleGattElement TEMPHUMIDPERIOD =
-            new BleGattElement(tempHumidServiceUuid, tempHumidPeriodUuid, null);
+    private static final BleGattElement TEMPHUMIDPERIOD =
+            new BleGattElement(tempHumidServiceUuid, tempHumidPeriodUuid, null, MY_BASE_UUID, "采集周期(ms)");
 
-    public static final BleGattElement TEMPHUMIDDATACCC =
-            new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, CCCUUID);
+    private static final BleGattElement TEMPHUMIDDATACCC =
+            new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, CCCUUID, MY_BASE_UUID, "温湿度CCC");
 
-    public static final BleGattElement TEMPHUMIDHISTORYTIME =
-            new BleGattElement(tempHumidServiceUuid, tempHumidHistoryTimeUuid, null);
+    private static final BleGattElement TEMPHUMIDHISTORYTIME =
+            new BleGattElement(tempHumidServiceUuid, tempHumidHistoryTimeUuid, null, MY_BASE_UUID, "历史数据采集时间");
 
-    public static final BleGattElement TEMPHUMIDHISTORYDATA =
-            new BleGattElement(tempHumidServiceUuid, tempHumidHistoryDataUuid, null);
+    private static final BleGattElement TEMPHUMIDHISTORYDATA =
+            new BleGattElement(tempHumidServiceUuid, tempHumidHistoryDataUuid, null, MY_BASE_UUID, "温湿度历史数据");
 
     private static final int DEFAULT_TEMPHUMID_PERIOD  = 5000; // 默认温湿度采样周期，单位：毫秒
     ////////////////////////////////////////////////////////
@@ -68,8 +69,8 @@ public class TempHumidDevice extends BleDevice {
     private static final String timerServiceUuid            = "aa70";
     private static final String timerValueUuid              = "aa71";
 
-    public static final BleGattElement TIMERVALUE =
-            new BleGattElement(timerServiceUuid, timerValueUuid, null);
+    private static final BleGattElement TIMERVALUE =
+            new BleGattElement(timerServiceUuid, timerValueUuid, null, MY_BASE_UUID, "定时周期(min)");
 
     private static final byte DEVICE_DEFAULT_TIMER_PERIOD  = 30; // 设备默认定时周期，单位：分钟
     ////////////////////////////////////////////////////////

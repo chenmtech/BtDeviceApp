@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.MY_BASE_UUID;
 
 public class ThermoDevice extends BleDevice {
     private static final int MSG_THERMODATA = 1;
@@ -27,17 +28,16 @@ public class ThermoDevice extends BleDevice {
     private static final String thermoControlUuid       = "aa32";           // 体温测量控制UUID:aa32
     private static final String thermoPeriodUuid        = "aa33";           // 体温采样周期UUID:aa33
 
-    public static final BleGattElement THERMODATA =
-            new BleGattElement(thermoServiceUuid, thermoDataUuid, null);
+    private static final BleGattElement THERMODATA =
+            new BleGattElement(thermoServiceUuid, thermoDataUuid, null, MY_BASE_UUID, "体温值");
+    private static final BleGattElement THERMOCONTROL =
+            new BleGattElement(thermoServiceUuid, thermoControlUuid, null, MY_BASE_UUID, "体温Ctrl");
+    private static final BleGattElement THERMOPERIOD =
+            new BleGattElement(thermoServiceUuid, thermoPeriodUuid, null, MY_BASE_UUID, "采集周期(s)");
+    private static final BleGattElement THERMODATACCC =
+            new BleGattElement(thermoServiceUuid, thermoDataUuid, CCCUUID, MY_BASE_UUID, "体温CCC");
 
-    public static final BleGattElement THERMOCONTROL =
-            new BleGattElement(thermoServiceUuid, thermoControlUuid, null);
-
-    public static final BleGattElement THERMOPERIOD =
-            new BleGattElement(thermoServiceUuid, thermoPeriodUuid, null);
-
-    public static final BleGattElement THERMODATACCC =
-            new BleGattElement(thermoServiceUuid, thermoDataUuid, CCCUUID);
+    private static final byte DEFAULT_SAMPLE_PERIOD = (byte)0x01;
     ///////////////////////////////////////////////////////
 
     // 当前体温数据观察者列表
@@ -95,7 +95,7 @@ public class ThermoDevice extends BleDevice {
             }
         });
 
-        startThermometer((byte)0x01);
+        startThermometer(DEFAULT_SAMPLE_PERIOD);
         return true;
     }
 

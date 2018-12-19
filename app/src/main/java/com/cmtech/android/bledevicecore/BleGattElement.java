@@ -11,6 +11,7 @@ import java.util.UUID;
 
 
 /**
+ * BleGattElement: 表示Gatt的一个基本单元，可以是三种类型：SERVICE, CHARACTERISTIC, DESCRIPTOR
  * Created by bme on 2018/3/1.
  */
 
@@ -20,38 +21,28 @@ public class BleGattElement {
     private static final int TYPE_CHARACTERISTIC = 2;      // characteristic element类型
     private static final int TYPE_DESCRIPTOR = 3;          // descriptor element类型
 
+    private final UUID serviceUuid; // 服务UUID
+    private final UUID characteristicUuid; // 特征UUID
+    private final UUID descriptorUuid; // 描述符UUID
+    private final String description; // element的描述
 
-    // 服务UUID
-    private final UUID serviceUuid;
-
-    // 特征UUID
-    private final UUID characteristicUuid;
-
-    // 描述符UUID
-    private final UUID descriptorUuid;
-
-    // element的描述
-    private final String description;
-
-
-    // 用短的字符串构建Element
-    public BleGattElement(String serviceShortString, String characteristicShortString, String descriptorShortString) {
-        this(Uuid.shortStringToUuid(serviceShortString, BleDeviceConfig.getInstance().getBaseUuid()),
-                Uuid.shortStringToUuid(characteristicShortString, BleDeviceConfig.getInstance().getBaseUuid()),
-                Uuid.shortStringToUuid(descriptorShortString, BleDeviceConfig.getInstance().getBaseUuid()));
+    // 用短的UUID字符串构建Element
+    public BleGattElement(String serviceShortString, String characteristicShortString, String descriptorShortString, String baseUuidString, String description) {
+        this(Uuid.shortStringToUuid(serviceShortString, baseUuidString),
+                Uuid.shortStringToUuid(characteristicShortString, baseUuidString),
+                Uuid.shortStringToUuid(descriptorShortString, baseUuidString), description);
     }
 
     // 用UUID构建Element
-    public BleGattElement(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid) {
+    public BleGattElement(UUID serviceUuid, UUID characteristicUuid, UUID descriptorUuid, String description) {
         this.serviceUuid = serviceUuid;
         this.characteristicUuid = characteristicUuid;
         this.descriptorUuid = descriptorUuid;
         String servStr = (serviceUuid == null) ? null : Uuid.longToShortString(serviceUuid.toString());
         String charaStr = (characteristicUuid == null) ? null : Uuid.longToShortString(characteristicUuid.toString());
         String descStr = (descriptorUuid == null) ? null : Uuid.longToShortString(descriptorUuid.toString());
-        description = "BleGattElement[ service= " + servStr
-                + ",characteristic= " + charaStr
-                + ",descriptor= " + descStr + " ]";
+        this.description = description + "["
+                + servStr + "-" + charaStr + "-" + descStr + "]";
     }
 
     public UUID getServiceUuid() {

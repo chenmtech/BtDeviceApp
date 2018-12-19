@@ -241,7 +241,7 @@ public class BleGattCommandExecutor{
         currentCommand = commandList.poll();
         currentCommand.execute();
 
-        ViseLog.i("Executing command: " + currentCommand);
+        ViseLog.i(currentCommand);
 
         // 设置未完成标记
         if(!currentCommand.isInstantCommand())

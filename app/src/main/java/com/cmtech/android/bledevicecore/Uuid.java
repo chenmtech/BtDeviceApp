@@ -8,15 +8,6 @@ import java.util.UUID;
  */
 
 public class Uuid {
-    // 基础UUID
-    //public static final String MY_BASE_UUID = "0a20XXXX-cce5-4025-a156-38ea833f6ef8";
-
-    //
-    //public static final String BT_BASE_UUID = "0000XXXX-0000-1000-8000-00805F9B34FB";
-
-    // CCC UUID
-    //public static final String CCCUUID = "00002902-0000-1000-8000-00805f9b34fb";
-
     private Uuid() {
 
     }
@@ -45,7 +36,7 @@ public class Uuid {
         return longString.substring(4, 8);
     }
 
-    // 短字符串转换为UUID
+    // 将UUID短字符串转换为UUID
     public static UUID shortStringToUuid(String shortString, String baseUuid) {
         String uuid = shortToLongString(shortString, baseUuid);
         return (uuid == null) ? null : UUID.fromString(uuid);

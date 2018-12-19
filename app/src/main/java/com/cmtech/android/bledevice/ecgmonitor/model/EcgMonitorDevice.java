@@ -43,6 +43,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILE
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.CACHEDIR;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.MY_BASE_UUID;
 
 
 /**
@@ -76,25 +77,20 @@ public class EcgMonitorDevice extends BleDevice {
 
     // Gatt Element常量
     private static final BleGattElement ECGMONITORDATA =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null);
-
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null, MY_BASE_UUID, "心电数据");
     private static final BleGattElement ECGMONITORDATACCC =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, CCCUUID);
-
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, CCCUUID, MY_BASE_UUID, "心电数据CCC");
     private static final BleGattElement ECGMONITORCTRL =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null);
-
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null, MY_BASE_UUID, "心电Ctrl");
     private static final BleGattElement ECGMONITORSAMPLERATE =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorSampleRateUuid, null);
-
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorSampleRateUuid, null, MY_BASE_UUID, "采样率");
     private static final BleGattElement ECGMONITORLEADTYPE =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null);
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null, MY_BASE_UUID, "导联类型");
 
     // ECGMONITORCTRL控制常量
     private static final byte ECGMONITORCTRL_STOP =             (byte) 0x00;        // 停止采集
     private static final byte ECGMONITORCTRL_STARTSIGNAL =      (byte) 0x01;        // 启动采集Ecg信号
     private static final byte ECGMONITORCTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
-
 
     ////////////////////////////////////////////////////////
 

@@ -4,6 +4,7 @@ import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.common.PropertyType;
 import com.cmtech.android.ble.core.BluetoothGattChannel;
 import com.cmtech.android.ble.core.DeviceMirror;
+import com.cmtech.android.ble.utils.HexUtil;
 
 /**
  * Created by bme on 2018/3/1.
@@ -15,15 +16,17 @@ public class BleGattCommand{
     private final IBleCallback dataOpCallback;        // 数据操作回调
     private final byte[] writtenData;                 // 如果是写操作，存放要写的数据；如果是notify或indicate操作，存放enable数据
     private final IBleCallback notifyOpCallback;      // 如果是notify或indicate操作，存放notify或indicate的回调
+    private final String elementDescription; // 命令操作的element的描述符
 
     private BleGattCommand(DeviceMirror deviceMirror, BluetoothGattChannel channel,
                            IBleCallback dataOpCallback,
-                           byte[] writtenData, IBleCallback notifyOpCallback) {
+                           byte[] writtenData, IBleCallback notifyOpCallback, String elementDescription) {
         this.deviceMirror = deviceMirror;
         this.channel = channel;
         this.dataOpCallback = dataOpCallback;
         this.writtenData = writtenData;
         this.notifyOpCallback = notifyOpCallback;
+        this.elementDescription = elementDescription;
     }
 
     public BluetoothGattChannel getChannel() {
@@ -36,7 +39,7 @@ public class BleGattCommand{
 
     // 创建即时命令，即时命令在执行的时候会立刻执行dataOpCallback.onSuccess()
     public static BleGattCommand createInstantCommand(IBleCallback dataOpCallback) {
-        return new BleGattCommand(null, null, dataOpCallback, null, null);
+        return new BleGattCommand(null, null, dataOpCallback, null, null, "instant cmd");
     }
 
     public boolean isInstantCommand() {
@@ -89,13 +92,12 @@ public class BleGattCommand{
 
     @Override
     public String toString() {
-        if(isInstantCommand()) return "BleInstantCommand";
+        if(isInstantCommand()) return elementDescription;
 
-        BleGattElement element =
-                new BleGattElement(channel.getServiceUUID(), channel.getCharacteristicUUID(),channel.getDescriptorUUID());
-        return "BleGattCommand{" + channel.getPropertyType() +
-                " element=" + element.toString() +
-                '}';
+        if(channel.getPropertyType() != PropertyType.PROPERTY_READ) {
+            return channel.getPropertyType() + " " + elementDescription + " " + HexUtil.encodeHexStr(writtenData);
+        } else
+            return channel.getPropertyType() + " " + elementDescription;
     }
 
     // 获取Gatt信息key
@@ -113,7 +115,7 @@ public class BleGattCommand{
         private IBleCallback dataOpCallback;
         private IBleCallback notifyOpCallback;
 
-        public Builder() {
+        Builder() {
         }
 
         public Builder setDeviceMirror(DeviceMirror deviceMirror) {
@@ -167,9 +169,7 @@ public class BleGattCommand{
                     .setCharacteristicUUID(element.getCharacteristicUuid())
                     .setDescriptorUUID(element.getDescriptorUuid()).builder();
 
-            BleGattCommand command = new BleGattCommand(deviceMirror, channel, dataOpCallback, data, notifyOpCallback);
-
-            return command;
+            return new BleGattCommand(deviceMirror, channel, dataOpCallback, data, notifyOpCallback, element.toString());
         }
     }
 }
