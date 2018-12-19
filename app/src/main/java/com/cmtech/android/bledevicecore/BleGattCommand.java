@@ -7,6 +7,7 @@ import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.utils.HexUtil;
 
 /**
+ * BleGattCommand: 表示要执行的一条Gatt操作命令
  * Created by bme on 2018/3/1.
  */
 
@@ -17,6 +18,7 @@ public class BleGattCommand{
     private final byte[] writtenData;                 // 如果是写操作，存放要写的数据；如果是notify或indicate操作，存放enable数据
     private final IBleCallback notifyOpCallback;      // 如果是notify或indicate操作，存放notify或indicate的回调
     private final String elementDescription; // 命令操作的element的描述符
+    private final boolean isInstantCommand; // 是否是立刻执行的命令，即不需要通过蓝牙通信的命令
 
     private BleGattCommand(DeviceMirror deviceMirror, BluetoothGattChannel channel,
                            IBleCallback dataOpCallback,
@@ -27,6 +29,19 @@ public class BleGattCommand{
         this.writtenData = writtenData;
         this.notifyOpCallback = notifyOpCallback;
         this.elementDescription = elementDescription;
+        this.isInstantCommand = false;
+    }
+
+    private BleGattCommand(DeviceMirror deviceMirror, BluetoothGattChannel channel,
+                           IBleCallback dataOpCallback,
+                           byte[] writtenData, IBleCallback notifyOpCallback, String elementDescription, boolean isInstantCommand) {
+        this.deviceMirror = deviceMirror;
+        this.channel = channel;
+        this.dataOpCallback = dataOpCallback;
+        this.writtenData = writtenData;
+        this.notifyOpCallback = notifyOpCallback;
+        this.elementDescription = elementDescription;
+        this.isInstantCommand = isInstantCommand;
     }
 
     public BluetoothGattChannel getChannel() {
@@ -39,11 +54,11 @@ public class BleGattCommand{
 
     // 创建即时命令，即时命令在执行的时候会立刻执行dataOpCallback.onSuccess()
     public static BleGattCommand createInstantCommand(IBleCallback dataOpCallback) {
-        return new BleGattCommand(null, null, dataOpCallback, null, null, "instant cmd");
+        return new BleGattCommand(null, null, dataOpCallback, null, null, "instant cmd", true);
     }
 
     public boolean isInstantCommand() {
-        return (deviceMirror == null && channel == null && dataOpCallback != null);
+        return isInstantCommand;
     }
 
     // 执行命令
