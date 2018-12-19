@@ -45,7 +45,7 @@ public class BleGattCommand{
 
     // 执行命令
     public synchronized boolean execute() {
-        if(isInstantCommand()) {
+        if(isInstantCommand() && dataOpCallback != null) {
             dataOpCallback.onSuccess(null, null, null);
             return true;
         }

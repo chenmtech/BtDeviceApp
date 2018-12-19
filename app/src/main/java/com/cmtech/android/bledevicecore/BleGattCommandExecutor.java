@@ -217,7 +217,7 @@ public class BleGattCommandExecutor{
             public void run() {
                 ViseLog.i("Execution Thread: "+Thread.currentThread().getName());
                 try {
-                    while (!Thread.currentThread().isInterrupted()) {
+                    while (!executeThread.isInterrupted()) {
                         executeNextCommand();
                     }
                 }catch (InterruptedException e) {
@@ -250,7 +250,7 @@ public class BleGattCommandExecutor{
 
     // 停止执行命令
     public void stop() {
-        synchronized (executeThread) {
+        /*synchronized (executeThread) {
             if(executeThread.isAlive()) {
                 try {
                     executeThread.interrupt();
@@ -259,6 +259,9 @@ public class BleGattCommandExecutor{
                     e.printStackTrace();
                 }
             }
+        }*/
+        if(isAlive()) {
+            executeThread.interrupt();
         }
     }
 
