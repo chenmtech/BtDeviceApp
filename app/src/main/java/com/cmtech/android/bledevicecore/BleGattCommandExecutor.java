@@ -193,9 +193,8 @@ public class BleGattCommandExecutor{
 
     // 添加Instant命令
     public boolean addInstantCommand(IBleCallback dataOpCallback) {
-        BleGattCommand command = BleGattCommand.createInstantCommand(dataOpCallback);
-        if(command == null) return false;
-        return addCommandToList(command);
+        BleGattCommand command = new BleGattCommand.Builder().setDataOpCallback(dataOpCallback).setInstantCommand(true).build();
+        return ((command != null) && addCommandToList(command));
     }
 
     private synchronized boolean addCommandToList(BleGattCommand command) {

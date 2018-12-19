@@ -22,18 +22,6 @@ public class BleGattCommand{
 
     private BleGattCommand(DeviceMirror deviceMirror, BluetoothGattChannel channel,
                            IBleCallback dataOpCallback,
-                           byte[] writtenData, IBleCallback notifyOpCallback, String elementDescription) {
-        this.deviceMirror = deviceMirror;
-        this.channel = channel;
-        this.dataOpCallback = dataOpCallback;
-        this.writtenData = writtenData;
-        this.notifyOpCallback = notifyOpCallback;
-        this.elementDescription = elementDescription;
-        this.isInstantCommand = false;
-    }
-
-    private BleGattCommand(DeviceMirror deviceMirror, BluetoothGattChannel channel,
-                           IBleCallback dataOpCallback,
                            byte[] writtenData, IBleCallback notifyOpCallback, String elementDescription, boolean isInstantCommand) {
         this.deviceMirror = deviceMirror;
         this.channel = channel;
@@ -44,26 +32,24 @@ public class BleGattCommand{
         this.isInstantCommand = isInstantCommand;
     }
 
+    // 获取命令用的channel
     public BluetoothGattChannel getChannel() {
         return channel;
     }
 
+    // 获取命令属性
     public PropertyType getPropertyType() {
         return channel.getPropertyType();
     }
 
-    // 创建即时命令，即时命令在执行的时候会立刻执行dataOpCallback.onSuccess()
-    public static BleGattCommand createInstantCommand(IBleCallback dataOpCallback) {
-        return new BleGattCommand(null, null, dataOpCallback, null, null, "instant cmd", true);
-    }
-
+    // 是否是instant命令
     public boolean isInstantCommand() {
         return isInstantCommand;
     }
 
     // 执行命令
     public synchronized boolean execute() {
-        if(isInstantCommand() && dataOpCallback != null) {
+        if(isInstantCommand && dataOpCallback != null) {
             dataOpCallback.onSuccess(null, null, null);
             return true;
         }
@@ -107,17 +93,24 @@ public class BleGattCommand{
 
     @Override
     public String toString() {
-        if(isInstantCommand()) return elementDescription;
+        if(isInstantCommand) return elementDescription;
 
-        if(channel.getPropertyType() != PropertyType.PROPERTY_READ) {
-            return channel.getPropertyType() + " " + elementDescription + " " + HexUtil.encodeHexStr(writtenData);
-        } else
-            return channel.getPropertyType() + " " + elementDescription;
+        switch (channel.getPropertyType()) {
+            case PROPERTY_READ:
+                return channel.getPropertyType()+" "+elementDescription;
+            case PROPERTY_WRITE:
+                return channel.getPropertyType() + " " + elementDescription + " " + HexUtil.encodeHexStr(writtenData);
+            case PROPERTY_NOTIFY:
+            case PROPERTY_INDICATE:
+                return channel.getPropertyType() + " " + elementDescription + " " + ((writtenData[0] != 0));
+                default:
+                    return "";
+        }
     }
 
     // 获取Gatt信息key
     public String getGattInfoKey() {
-        if(isInstantCommand()) return "";
+        if(isInstantCommand) return "";
 
         return channel.getGattInfoKey();
     }
@@ -129,6 +122,7 @@ public class BleGattCommand{
         private byte[] data;
         private IBleCallback dataOpCallback;
         private IBleCallback notifyOpCallback;
+        private boolean isInstantCommand = false;
 
         Builder() {
         }
@@ -163,28 +157,43 @@ public class BleGattCommand{
             return this;
         }
 
+        public Builder setInstantCommand(boolean isInstantCommand) {
+            this.isInstantCommand = isInstantCommand;
+            return this;
+        }
+
         public BleGattCommand build() {
-            if(deviceMirror == null || element == null || dataOpCallback == null) return null;
+            if(isInstantCommand) {
+                if(dataOpCallback != null) {
+                    return new BleGattCommand(null, null, dataOpCallback,
+                            null, null, "an instant cmd.", true);
+                } else {
+                    return null;
+                }
+            } else {
 
-            if(propertyType == PropertyType.PROPERTY_WRITE
-                    || propertyType == PropertyType.PROPERTY_NOTIFY
-                    || propertyType == PropertyType.PROPERTY_INDICATE) {
-                if(data == null || data.length == 0) return null;
+                if (deviceMirror == null || element == null || dataOpCallback == null) return null;
+
+                if (propertyType == PropertyType.PROPERTY_WRITE
+                        || propertyType == PropertyType.PROPERTY_NOTIFY
+                        || propertyType == PropertyType.PROPERTY_INDICATE) {
+                    if (data == null || data.length == 0) return null;
+                }
+
+                if (propertyType == PropertyType.PROPERTY_NOTIFY
+                        || propertyType == PropertyType.PROPERTY_INDICATE) {
+                    if (data[0] == 1 && notifyOpCallback == null) return null;
+                }
+
+                BluetoothGattChannel.Builder builder = new BluetoothGattChannel.Builder();
+                BluetoothGattChannel channel = builder.setBluetoothGatt(deviceMirror.getBluetoothGatt())
+                        .setPropertyType(propertyType)
+                        .setServiceUUID(element.getServiceUuid())
+                        .setCharacteristicUUID(element.getCharacteristicUuid())
+                        .setDescriptorUUID(element.getDescriptorUuid()).builder();
+
+                return new BleGattCommand(deviceMirror, channel, dataOpCallback, data, notifyOpCallback, element.toString(), false);
             }
-
-            if(propertyType == PropertyType.PROPERTY_NOTIFY
-                    || propertyType == PropertyType.PROPERTY_INDICATE) {
-                if(data[0] == 1 && notifyOpCallback == null) return null;
-            }
-
-            BluetoothGattChannel.Builder builder = new BluetoothGattChannel.Builder();
-            BluetoothGattChannel channel = builder.setBluetoothGatt(deviceMirror.getBluetoothGatt())
-                    .setPropertyType(propertyType)
-                    .setServiceUUID(element.getServiceUuid())
-                    .setCharacteristicUUID(element.getCharacteristicUuid())
-                    .setDescriptorUUID(element.getDescriptorUuid()).builder();
-
-            return new BleGattCommand(deviceMirror, channel, dataOpCallback, data, notifyOpCallback, element.toString());
         }
     }
 }
