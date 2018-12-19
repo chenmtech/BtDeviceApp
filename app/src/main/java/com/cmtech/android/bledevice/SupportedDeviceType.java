@@ -3,12 +3,17 @@ package com.cmtech.android.bledevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledevicecore.BleDeviceType;
 
+/*
+ * SupportedDeviceType：支持的设备类型
+ * Created by bme on 2018/10/13.
+ */
+
 public class SupportedDeviceType {
 
     //支持的设备类型信息，以后要保存到数据库中，并从数据库中加载
 
     // 支持的设备类型的16位UUID的字符串
-    private static final String UUID_SIMPLE128GATTPROFILE      = "aa10";       // 简单GATT例程
+    private static final String UUID_SIMPLE128GATTPROFILE       = "aa10";       // 简单GATT例程
     private static final String UUID_HEIGHTSCALE                = "aa20";       // 高度计
     private static final String UUID_THERMOMETER                = "aa30";       // 体温计
     private static final String UUID_ECGMONITOR                 = "aa40";       // 心电监护仪
@@ -17,7 +22,7 @@ public class SupportedDeviceType {
     private static final String UUID_UNKNOWN                    = "0000";       // 未知设备
 
     // 支持的设备类型的缺省名称
-    private static final String NAME_SIMPLE128GATTPROFILE       = "简单GATT例程";
+    private static final String NAME_SIMPLE128GATTPROFILE        = "简单GATT例程";
     private static final String NAME_HEIGHTSCALE                 = "高度计";
     private static final String NAME_THERMOMETER                 = "体温计";
     private static final String NAME_ECGMONITOR                  = "心电带";
@@ -42,16 +47,16 @@ public class SupportedDeviceType {
 
     // 支持的设备类型,目前支持三种设备
     // 体温计
-    public static final BleDeviceType DEVTYPE_THERMOMETER =
+    private static final BleDeviceType DEVTYPE_THERMOMETER =
             new BleDeviceType(UUID_THERMOMETER, IMAGE_THERMOMETER, NAME_THERMOMETER, thermoFactory);
     // 心电带
-    public static final BleDeviceType DEVTYPE_ECGMONITOR =
+    private static final BleDeviceType DEVTYPE_ECGMONITOR =
             new BleDeviceType(UUID_ECGMONITOR, IMAGE_ECGMONITOR, NAME_ECGMONITOR, ecgMonitorFactory);
     // 温湿度计
-    public static final BleDeviceType DEVTYPE_TEMPHUMID =
+    private static final BleDeviceType DEVTYPE_TEMPHUMID =
             new BleDeviceType(UUID_TEMPHUMID, IMAGE_TEMPHUMID, NAME_TEMPHUMID, tempHumidDeviceFactory);
     // 未知设备
-    public static final BleDeviceType DEVTYPE_UNKNOWN =
+    private static final BleDeviceType DEVTYPE_UNKNOWN =
             new BleDeviceType(UUID_UNKNOWN, IMAGE_UNKNOWN, NAME_UNKNOWN, unknownDeviceFactory);
 
     // 通过UUID获取对应的设备类型

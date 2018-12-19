@@ -14,6 +14,11 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
 
+/**
+ * BleDeviceUtil：Ble设备帮助类
+ * Created by bme on 2018/10/13.
+ */
+
 public class BleDeviceUtil {
     // 使能蓝牙
     public static void enableBluetooth(Activity activity, int requestCode) {
@@ -57,7 +62,7 @@ public class BleDeviceUtil {
     }
 
     // 获取BluetoothLeDevice清单
-    public static synchronized List<BluetoothLeDevice> getDeviceList() {
+    public static List<BluetoothLeDevice> getDeviceList() {
         return ViseBle.getInstance().getDeviceMirrorPool().getDeviceList();
     }
 

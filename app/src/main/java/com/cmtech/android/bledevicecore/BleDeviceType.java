@@ -32,7 +32,7 @@ public class BleDeviceType {
         return defaultNickname;
     }
 
-    // 创建设备类型对应的抽象工厂
+    // 创建设备类型对应的工厂
     public AbstractBleDeviceFactory createDeviceFactory() {
         if(factoryClassName == null || factoryClassName.equals(SupportedDeviceType.unknownDeviceFactory)) return null;
 

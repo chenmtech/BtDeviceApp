@@ -6,6 +6,7 @@ import com.cmtech.android.bledevice.SupportedDeviceType;
  * AbstractBleDeviceFactory：Ble设备抽象工厂
  * Created by bme on 2018/10/13.
  */
+
 public abstract class AbstractBleDeviceFactory {
     // 工厂要用的设备基本信息对象
     protected BleDeviceBasicInfo basicInfo;

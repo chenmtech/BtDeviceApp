@@ -32,9 +32,6 @@ public class MyApplication extends Application {
         return instance;
     }
 
-    // ViseBle单件实例
-    private ViseBle viseBle = ViseBle.getInstance();
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -50,7 +47,7 @@ public class MyApplication extends Application {
 
         Context context = getApplicationContext();
         // 初始化ViseBle
-        viseBle.init(context);
+        ViseBle.getInstance().init(context);
 
         // 初始化LitePal
         LitePal.initialize(context);
