@@ -8,7 +8,9 @@ import android.graphics.BitmapFactory;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
@@ -79,7 +81,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
         notiTitle = "欢迎使用" + getResources().getString(R.string.app_name);
 
-        warnRingtone = RingtoneManager.getRingtone(this, Settings.System.DEFAULT_ALARM_ALERT_URI);
+        warnRingtone = RingtoneManager.getRingtone(this, Settings.System.DEFAULT_NOTIFICATION_URI);
 
         initNotificationBuilder();
 
@@ -100,15 +102,21 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
             device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
             device.removeDeviceStateObserver(BleDeviceService.this);
         }
+
         stopForeground(true);
 
         stopWarnRingtone();
 
-        // 防止设备没有彻底断开
-        BleDeviceUtil.disconnectAllDevice();
-        BleDeviceUtil.clearAllDevice();
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // 防止设备没有彻底断开
+                BleDeviceUtil.disconnectAllDevice();
+                BleDeviceUtil.clearAllDevice();
 
-        UserAccountManager.getInstance().signOut();
+                UserAccountManager.getInstance().signOut();
+            }
+        }, 1000);
 
         //android.os.Process.killProcess(android.os.Process.myPid());
     }
