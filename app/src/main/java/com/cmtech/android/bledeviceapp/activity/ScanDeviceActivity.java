@@ -36,6 +36,7 @@ import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_NICKNAME;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECT_TIMES;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_DEVICE_NAME;
 
 public class ScanDeviceActivity extends AppCompatActivity {
     private static final String TAG = "ScanDeviceActivity";
@@ -77,7 +78,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private final ScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(BleDeviceConfig.getInstance().getScanDeviceName());
+    private final ScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(SCAN_DEVICE_NAME);
 
     // 用于实现扫描设备的显示
     private SwipeRefreshLayout srlScanDevice;

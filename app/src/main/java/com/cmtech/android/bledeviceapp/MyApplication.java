@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
+import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.bledevicecore.BleDeviceConfig;
 import com.cmtech.android.bledevicecore.BleDeviceConstant;
 import com.mob.MobSDK;
@@ -14,6 +15,7 @@ import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.CONNECT_RETRY_COUNT;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.CONNECT_TIMEOUT;
+import static com.cmtech.android.bledevicecore.BleDeviceConstant.OPDATA_RETRY_COUNT;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.RECONNECT_INTERVAL;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_DEVICE_NAME;
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_TIMEOUT;
@@ -30,22 +32,26 @@ public class MyApplication extends Application {
         return instance;
     }
 
+    // ViseBle单件实例
+    private ViseBle viseBle = ViseBle.getInstance();
+
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
 
-        // 初始化BleDeviceConfig
-        BleDeviceConfig deviceConfig = BleDeviceConfig.getInstance();
-        deviceConfig.setBaseUuid(BleDeviceConstant.MY_BASE_UUID);
-        deviceConfig.setScanTimeout(SCAN_TIMEOUT);
-        deviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
-        deviceConfig.setReconnectInterval(RECONNECT_INTERVAL);
-        deviceConfig.setConnectRetryCount(CONNECT_RETRY_COUNT);
-        deviceConfig.setScanDeviceName(SCAN_DEVICE_NAME);
+        // 先进行配置
+        BleDeviceConfig.setScanTimeout(SCAN_TIMEOUT);
+        BleDeviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
+        BleDeviceConfig.setReconnectInterval(RECONNECT_INTERVAL);
+        BleDeviceConfig.setConnectRetryCount(CONNECT_RETRY_COUNT);
+        BleDeviceConfig.setOpDataRetryCount(OPDATA_RETRY_COUNT);
 
 
         Context context = getApplicationContext();
+        // 初始化ViseBle
+        viseBle.init(context);
+
         // 初始化LitePal
         LitePal.initialize(context);
         LitePal.getDatabase();
