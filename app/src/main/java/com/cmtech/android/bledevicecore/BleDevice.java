@@ -37,6 +37,14 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     private BleDeviceBasicInfo basicInfo; // 设备基本信息对象
     private BluetoothLeDevice bluetoothLeDevice = null; // 设备BluetoothLeDevice，当扫描到后会赋值，并一直保留，直到程序关闭
     private BleGattCommandExecutor commandExecutor; // GATT命令串行执行器
+    private final List<IBleDeviceStateObserver> stateObserverList = new LinkedList<>(); // 设备状态观察者列表
+    private boolean isClosing = false; // 标记设备是否正在关闭，如果是，则对设备的所有回调都不会响应
+    private int curReconnectTimes = 0; // 当前的重连次数
+    private boolean connectSuccess = false; // 标记是否刚刚已经执行了onConnectSuccess，为了防止有时候出现连续两次执行的异常情况。这个异常是BLE包的问题
+    private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED; // 设备连接状态，初始化为关闭状态
+
+
+
 
 
     public BleDeviceBasicInfo getBasicInfo() {
@@ -61,51 +69,25 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         return basicInfo.getImagePath();
     }
     private int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
-
-
-
     public BluetoothLeDevice getBluetoothLeDevice() {
         return bluetoothLeDevice;
     }
-
-
-
-    // 设备状态观察者列表
-    private final List<IBleDeviceStateObserver> stateObserverList = new LinkedList<>();
-
-    // 标记是否正在关闭设备，如果是，则所有回调都不会响应
-    private boolean isClosing = false;
-
-    // 当前的重连次数
-    private int curReconnectTimes = 0;
-
-    // 标记是否刚刚已经执行了onConnectSuccess，为了防止有时候出现连续两次执行的异常情况
-    // 这个异常是BLE包的问题
-    private boolean hasExecuteConnectSuccess = false;
-
-    // 设备连接状态，初始化为关闭状态
-    private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED;
-
     public BleDeviceConnectState getConnectState() {
         return connectState;
     }
-
     // 设置设备连接状态，并通知状态观察者
     public void setConnectState(BleDeviceConnectState connectState) {
-        if(this.connectState == connectState) {
-            return;
+        if(this.connectState != connectState) {
+            this.connectState = connectState;
+            notifyDeviceStateObservers();
         }
-        this.connectState = connectState;
-        notifyDeviceStateObservers();
     }
-
     // 获取设备状态描述信息
-    public synchronized String getStateDescription() {
+    public String getStateDescription() {
         return connectState.getDescription();
     }
-
     // 获取设备状态图标
-    public synchronized int getStateIcon() {
+    public int getStateIcon() {
         return connectState.getIcon();
     }
 
@@ -294,7 +276,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         handler.removeCallbacksAndMessages(null);
 
         BleDeviceUtil.disconnect(this);
-        hasExecuteConnectSuccess = false;
+        connectSuccess = false;
     }
 
     // 重新连接
@@ -387,7 +369,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        observer.warnDeviceReconnectFailure(BleDevice.this, isWarn);
+                        observer.updateWarnForReconnectFailure(BleDevice.this, isWarn);
                     }
                 });
             }
@@ -458,7 +440,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 连接成功回调
     private void onConnectSuccess(DeviceMirror mirror) {
         ViseLog.e("onConnectSuccess");
-        if(hasExecuteConnectSuccess) {
+        if(connectSuccess) {
             return;
         }
 
@@ -483,7 +465,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         }
 
         curReconnectTimes = 0;
-        hasExecuteConnectSuccess = true;
+        connectSuccess = true;
     }
 
     // 连接错误回调
@@ -508,7 +490,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             }
         }, RECONNECT_INTERVAL);
 
-        hasExecuteConnectSuccess = false;
+        connectSuccess = false;
     }
 
     // 连接断开回调
@@ -517,7 +499,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         if(isClosing) {
             setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
         } else if(!isActive) {
-            hasExecuteConnectSuccess = false;
+            connectSuccess = false;
             stopCommandExecutor();
             executeAfterConnectFailure();
             handler.removeCallbacksAndMessages(null);
@@ -542,7 +524,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     @Override
-    public void updateStateAccordingMirror(ConnectState mirrorState) {
+    public void updateDeviceStateAccordingMirror(ConnectState mirrorState) {
         setConnectState(BleDeviceConnectState.getFromCode(mirrorState.getCode()));
     }
 }

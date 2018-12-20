@@ -4,11 +4,12 @@ import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
+ * UuidUtil: UUID与字符串之间的转换辅助类
  * Created by bme on 2018/3/1.
  */
 
-public class Uuid {
-    private Uuid() {
+public class UuidUtil {
+    private UuidUtil() {
 
     }
 
@@ -22,7 +23,7 @@ public class Uuid {
         return new UUID(bb.getLong(), bb.getLong());
     }
 
-    // 短字符串转换为长字符串
+    // 16位短字符串转换为长字符串
     public static String shortToLongString(String shortString, String baseUuid) {
         if(shortString == null || shortString.length() != 4) return null;
 
@@ -36,7 +37,7 @@ public class Uuid {
         return longString.substring(4, 8);
     }
 
-    // 将UUID短字符串转换为UUID
+    // 将16位UUID短字符串转换为UUID
     public static UUID shortStringToUuid(String shortString, String baseUuid) {
         String uuid = shortToLongString(shortString, baseUuid);
         return (uuid == null) ? null : UUID.fromString(uuid);

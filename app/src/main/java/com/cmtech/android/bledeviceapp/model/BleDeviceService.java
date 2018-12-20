@@ -140,8 +140,8 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     }
 
     @Override
-    public void warnDeviceReconnectFailure(BleDevice device, boolean play) {
-        if(play) {
+    public void updateWarnForReconnectFailure(BleDevice device, boolean warn) {
+        if(warn) {
             playWarnRingtone();
         } else {
             stopWarnRingtone();

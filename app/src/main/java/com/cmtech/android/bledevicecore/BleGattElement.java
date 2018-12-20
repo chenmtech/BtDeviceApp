@@ -28,9 +28,9 @@ public class BleGattElement {
 
     // 用短的UUID字符串构建Element
     public BleGattElement(String serviceShortString, String characteristicShortString, String descriptorShortString, String baseUuidString, String description) {
-        this(Uuid.shortStringToUuid(serviceShortString, baseUuidString),
-                Uuid.shortStringToUuid(characteristicShortString, baseUuidString),
-                Uuid.shortStringToUuid(descriptorShortString, baseUuidString), description);
+        this(UuidUtil.shortStringToUuid(serviceShortString, baseUuidString),
+                UuidUtil.shortStringToUuid(characteristicShortString, baseUuidString),
+                UuidUtil.shortStringToUuid(descriptorShortString, baseUuidString), description);
     }
 
     // 用UUID构建Element
@@ -38,9 +38,9 @@ public class BleGattElement {
         this.serviceUuid = serviceUuid;
         this.characteristicUuid = characteristicUuid;
         this.descriptorUuid = descriptorUuid;
-        String servStr = (serviceUuid == null) ? null : Uuid.longToShortString(serviceUuid.toString());
-        String charaStr = (characteristicUuid == null) ? null : Uuid.longToShortString(characteristicUuid.toString());
-        String descStr = (descriptorUuid == null) ? null : Uuid.longToShortString(descriptorUuid.toString());
+        String servStr = (serviceUuid == null) ? null : UuidUtil.longToShortString(serviceUuid.toString());
+        String charaStr = (characteristicUuid == null) ? null : UuidUtil.longToShortString(characteristicUuid.toString());
+        String descStr = (descriptorUuid == null) ? null : UuidUtil.longToShortString(descriptorUuid.toString());
         this.description = description + "["
                 + servStr + "-" + charaStr + "-" + descStr + "]";
     }

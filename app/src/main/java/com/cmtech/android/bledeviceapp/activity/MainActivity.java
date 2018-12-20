@@ -396,8 +396,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void warnDeviceReconnectFailure(final BleDevice device, boolean play) {
-        if(!play) return;
+    public void updateWarnForReconnectFailure(final BleDevice device, boolean warn) {
+        if(!warn) return;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("设备断开报警");
@@ -414,9 +414,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     @Override
     public BleDevice findDevice(String macAddress) {
-        if(deviceService != null)
-            return deviceService.findDevice(macAddress);
-        return null;
+        return (deviceService == null) ? null : deviceService.findDevice(macAddress);
     }
 
     // 打开设备：为设备创建并打开Fragment
