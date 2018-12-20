@@ -19,14 +19,6 @@ public class BleDeviceManager {
 
     }
 
-    // 添加多个设备
-    public void createAndAddDevice(List<BleDeviceBasicInfo> basicInfoList) {
-        if(basicInfoList == null) return;
-        for(BleDeviceBasicInfo basicInfo : basicInfoList) {
-            createAndAddDevice(basicInfo);
-        }
-    }
-
     // 创建并添加一个设备
     public BleDevice createAndAddDevice(BleDeviceBasicInfo basicInfo) {
         BleDevice device = findDevice(basicInfo);
@@ -58,7 +50,7 @@ public class BleDeviceManager {
         return deviceList;
     }
 
-    // 获取设备的Mac列表
+    // 获取所有设备的Mac列表
     public List<String> getDeviceMacList() {
         List<String> deviceMacList = new ArrayList<>();
         for(BleDevice device : deviceList) {
@@ -74,26 +66,27 @@ public class BleDeviceManager {
         return (factory == null) ? null : factory.createBleDevice();
     }
 
-    // 获取设备
+    // 用基本信息寻找设备
     public BleDevice findDevice(BleDeviceBasicInfo basicInfo) {
         if(basicInfo == null) return null;
         return findDevice(basicInfo.getMacAddress());
     }
 
-    // 获取设备
+    // 用mac地址寻找设备
     public BleDevice findDevice(String macAddress) {
         if(TextUtils.isEmpty(macAddress)) return null;
 
-        BleDevice findDevice = null;
+        BleDevice found = null;
         for(BleDevice device : deviceList) {
             if(device.getMacAddress().equalsIgnoreCase(macAddress)) {
-                findDevice = device;
+                found = device;
                 break;
             }
         }
-        return findDevice;
+        return found;
     }
 
+    // 有设备打开了
     public boolean hasDeviceOpened() {
         boolean open = false;
         for(BleDevice device : deviceList) {

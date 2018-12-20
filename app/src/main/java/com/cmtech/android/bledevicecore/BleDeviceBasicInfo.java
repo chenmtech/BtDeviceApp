@@ -179,4 +179,17 @@ public class BleDeviceBasicInfo implements Serializable{
         return new BleDeviceBasicInfo(address, nickName, uuidString, imagePath, autoConnect, reconnectTimes, warnAfterRecconnectFailure);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BleDeviceBasicInfo that = (BleDeviceBasicInfo) o;
+        return macAddress.equalsIgnoreCase(that.macAddress);
+    }
+
+    @Override
+    public int hashCode() {
+        return macAddress.hashCode();
+    }
 }

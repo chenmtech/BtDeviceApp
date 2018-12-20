@@ -527,15 +527,15 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         if (o == null || getClass() != o.getClass()) return false;
 
         BleDevice that = (BleDevice) o;
-        String thisAddress = getMacAddress();
-        String thatAddress = that.getMacAddress();
+        BleDeviceBasicInfo thisInfo = getBasicInfo();
+        BleDeviceBasicInfo thatInfo = that.getBasicInfo();
 
-        return thisAddress != null ? thisAddress.equals(thatAddress) : thatAddress == null;
+        return (thisInfo != null) ? thisInfo.equals(thatInfo) : (thatInfo == null);
     }
 
     @Override
     public int hashCode() {
-        return getMacAddress() != null ? getMacAddress().hashCode() : 0;
+        return (getBasicInfo() != null) ? getBasicInfo().hashCode() : 0;
     }
 
     @Override
