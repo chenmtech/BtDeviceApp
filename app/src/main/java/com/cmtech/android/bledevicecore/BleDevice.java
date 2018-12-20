@@ -42,9 +42,51 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     private int curReconnectTimes = 0; // 当前的重连次数
     private boolean connectSuccess = false; // 标记是否刚刚已经执行了onConnectSuccess，为了防止有时候出现连续两次执行的异常情况。这个异常是BLE包的问题
     private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED; // 设备连接状态，初始化为关闭状态
+    private final Handler handler = createMessageHandler(); // 工作用的消息Handler
+    private ScanCallback filterScanCallback = null; // 扫描回调适配器，将IScanCallback适配为BluetoothAdapter.LeScanCallback
+    private final IScanCallback scanCallback = new IScanCallback() {
+        @Override
+        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
+            BluetoothDevice bluetoothDevice = bluetoothLeDevice.getDevice();
+            if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
+                Toast.makeText(MyApplication.getContext(), "未绑定设备，无法使用。", Toast.LENGTH_SHORT).show();
+                //bluetoothDevice.createBond();   // 还没有绑定，则启动绑定
+                BleDevice.this.onScanFinish(false);
+            } else if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
+                BleDevice.this.bluetoothLeDevice = bluetoothLeDevice;
+                BleDevice.this.onScanFinish(true);
+            }
+        }
 
+        @Override
+        public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
 
+        }
 
+        @Override
+        public void onScanTimeout() {
+            BleDevice.this.onScanFinish(false);
+        }
+    }; // 扫描回调，注意与上述的ScanCallback相区别
+    private final IConnectCallback connectCallback = new IConnectCallback() {
+        // 连接成功回调
+        @Override
+        public void onConnectSuccess(DeviceMirror mirror) {
+            BleDevice.this.onConnectSuccess(mirror);
+        }
+
+        // 连接失败回调
+        @Override
+        public void onConnectFailure(final BleException exception) {
+            BleDevice.this.onConnectFailure(exception);
+        }
+
+        // 连接断开回调
+        @Override
+        public void onDisconnect(final boolean isActive) {
+            BleDevice.this.onDisconnect(isActive);
+        }
+    }; // 连接回调
 
 
     public BleDeviceBasicInfo getBasicInfo() {
@@ -90,56 +132,16 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     public int getStateIcon() {
         return connectState.getIcon();
     }
+    // 获取工作Handler
+    protected Handler getHandler() {
+        return handler;
+    }
 
 
-    // 扫描回调
-    private final IScanCallback scanCallback = new IScanCallback() {
-        @Override
-        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
-            BluetoothDevice bluetoothDevice = bluetoothLeDevice.getDevice();
-            if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
-                Toast.makeText(MyApplication.getContext(), "未绑定设备，无法使用。", Toast.LENGTH_SHORT).show();
-                //bluetoothDevice.createBond();   // 还没有绑定，则启动绑定
-                BleDevice.this.onScanFinish(false);
-            } else if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-                BleDevice.this.bluetoothLeDevice = bluetoothLeDevice;
-                BleDevice.this.onScanFinish(true);
-            }
-        }
 
-        @Override
-        public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
 
-        }
 
-        @Override
-        public void onScanTimeout() {
-            BleDevice.this.onScanFinish(false);
-        }
-    };
 
-    // 连接回调
-    private final IConnectCallback connectCallback = new IConnectCallback() {
-        // 连接成功回调
-        @Override
-        public void onConnectSuccess(DeviceMirror mirror) {
-            BleDevice.this.onConnectSuccess(mirror);
-        }
-
-        // 连接失败回调
-        @Override
-        public void onConnectFailure(final BleException exception) {
-            BleDevice.this.onConnectFailure(exception);
-        }
-
-        // 连接断开回调
-        @Override
-        public void onDisconnect(final boolean isActive) {
-            BleDevice.this.onDisconnect(isActive);
-        }
-    };
-
-    private final Handler handler = createMessageHandler();
 
     // 创建HandlerThread及其消息Handler
     private Handler createMessageHandler() {
@@ -153,12 +155,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         };
     }
 
-    protected Handler getHandler() {
-        return handler;
-    }
 
-    // 扫描回调
-    private ScanCallback filterScanCallback = null;
+
+
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
@@ -223,8 +222,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 设备是否已连接
     public boolean isConnected() {
-        //DeviceMirror deviceMirror = BleDeviceUtil.getDeviceMirror(this);
-        //return (deviceMirror != null && deviceMirror.isConnected());
         return connectState == BleDeviceConnectState.CONNECT_SUCCESS;
     }
 
@@ -293,43 +290,55 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 添加Gatt操作命令
     // 添加读取命令
-    protected synchronized boolean addReadCommand(BleGattElement element, IBleDataOpCallback dataOpCallback) {
-        IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-        return ((commandExecutor != null) && commandExecutor.addReadCommand(element, callback));
+    protected synchronized void addReadCommand(BleGattElement element, IBleDataOpCallback dataOpCallback) {
+        if(commandExecutor != null) {
+            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            commandExecutor.addReadCommand(element, callback);
+        }
     }
 
     // 添加写入多字节命令
-    protected synchronized boolean addWriteCommand(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
-        IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-        return ((commandExecutor != null) && commandExecutor.addWriteCommand(element, data, callback));
+    protected synchronized void addWriteCommand(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
+        if(commandExecutor != null) {
+            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            commandExecutor.addWriteCommand(element, data, callback);
+        }
     }
 
     // 添加写入单字节命令
-    protected synchronized boolean addWriteCommand(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
-        IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-        return ((commandExecutor != null) && commandExecutor.addWriteCommand(element, data, callback));
+    protected synchronized void addWriteCommand(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
+        if(commandExecutor != null) {
+            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            commandExecutor.addWriteCommand(element, data, callback);
+        }
     }
 
     // 添加Notify命令
-    protected synchronized boolean addNotifyCommand(BleGattElement element, boolean enable
+    protected synchronized void addNotifyCommand(BleGattElement element, boolean enable
             , IBleDataOpCallback dataOpCallback, IBleDataOpCallback notifyOpCallback) {
-        IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-        IBleCallback notifyCallback = (notifyOpCallback == null) ? null : new BleDataOpCallbackAdapter(notifyOpCallback);
-        return ((commandExecutor != null) && commandExecutor.addNotifyCommand(element, enable, dataCallback, notifyCallback));
+        if(commandExecutor != null) {
+            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            IBleCallback notifyCallback = (notifyOpCallback == null) ? null : new BleDataOpCallbackAdapter(notifyOpCallback);
+            commandExecutor.addNotifyCommand(element, enable, dataCallback, notifyCallback);
+        }
     }
 
     // 添加Indicate命令
-    protected synchronized boolean addIndicateCommand(BleGattElement element, boolean enable
+    protected synchronized void addIndicateCommand(BleGattElement element, boolean enable
             , IBleDataOpCallback dataOpCallback, IBleDataOpCallback indicateOpCallback) {
-        IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-        IBleCallback indicateCallback = (indicateOpCallback == null) ? null : new BleDataOpCallbackAdapter(indicateOpCallback);
-        return ((commandExecutor != null) && commandExecutor.addIndicateCommand(element, enable, dataCallback, indicateCallback));
+        if(commandExecutor != null) {
+            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            IBleCallback indicateCallback = (indicateOpCallback == null) ? null : new BleDataOpCallbackAdapter(indicateOpCallback);
+            commandExecutor.addIndicateCommand(element, enable, dataCallback, indicateCallback);
+        }
     }
 
     // 添加Instant命令
-    protected synchronized boolean addInstantCommand(IBleDataOpCallback dataOpCallback) {
-        IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-        return ((commandExecutor != null) && commandExecutor.addInstantCommand(dataCallback));
+    protected synchronized void addInstantCommand(IBleDataOpCallback dataOpCallback) {
+        if(commandExecutor != null) {
+            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            commandExecutor.addInstantCommand(dataCallback);
+        }
     }
 
     // 登记设备状态观察者
@@ -393,15 +402,14 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     // 创建Gatt命令执行器，并启动执行器
-    private boolean createGattCommandExecutor() {
+    private void createGattCommandExecutor() {
         ViseLog.i("create new command executor.");
-        if(isCommandExecutorAlive()) return false;
+        if(isCommandExecutorAlive()) return;
         DeviceMirror deviceMirror = BleDeviceUtil.getDeviceMirror(this);
-        if(deviceMirror == null) return false;
+        if(deviceMirror == null) return;
 
         commandExecutor = new BleGattCommandExecutor(deviceMirror);
         commandExecutor.start();
-        return true;
     }
 
     // 停止Gatt命令执行器

@@ -103,13 +103,14 @@ public class BleGattCommandExecutor{
      * @param dataOpCallback 读回调
      * @return 是否添加成功
      */
-    public boolean addReadCommand(BleGattElement element, IBleCallback dataOpCallback) {
+    public void addReadCommand(BleGattElement element, IBleCallback dataOpCallback) {
         BleGattCommand.Builder builder = new BleGattCommand.Builder();
         BleGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
                 .setPropertyType(PropertyType.PROPERTY_READ)
                 .setDataOpCallback(new BleSerialCommandCallback(dataOpCallback)).build();
-        return (command != null && addCommandToList(command));
+        if(command != null)
+            addCommandToList(command);
     }
 
     /**
@@ -119,19 +120,20 @@ public class BleGattCommandExecutor{
      * @param dataOpCallback 写回调
      * @return 是否添加成功
      */
-    public boolean addWriteCommand(BleGattElement element, byte[] data, IBleCallback dataOpCallback) {
+    public void addWriteCommand(BleGattElement element, byte[] data, IBleCallback dataOpCallback) {
         BleGattCommand.Builder builder = new BleGattCommand.Builder();
         BleGattCommand command = builder.setDeviceMirror(deviceMirror)
                 .setBluetoothElement(element)
                 .setPropertyType(PropertyType.PROPERTY_WRITE)
                 .setData(data)
                 .setDataOpCallback(new BleSerialCommandCallback(dataOpCallback)).build();
-        return (command != null && addCommandToList(command));
+        if(command != null)
+            addCommandToList(command);
     }
 
     // 写单字节数据
-    public boolean addWriteCommand(BleGattElement element, byte data, IBleCallback dataOpCallback) {
-        return addWriteCommand(element, new byte[]{data}, dataOpCallback);
+    public void addWriteCommand(BleGattElement element, byte data, IBleCallback dataOpCallback) {
+        addWriteCommand(element, new byte[]{data}, dataOpCallback);
     }
 
     /**
@@ -142,7 +144,7 @@ public class BleGattCommandExecutor{
      * @param notifyOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public boolean addNotifyCommand(BleGattElement element, boolean enable
+    public void addNotifyCommand(BleGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback notifyOpCallback) {
         BleGattCommand.Builder builder = new BleGattCommand.Builder();
         BleGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -151,7 +153,8 @@ public class BleGattCommandExecutor{
                 .setData((enable) ? new byte[]{0x01} : new byte[]{0x00})
                 .setDataOpCallback(new BleSerialCommandCallback(dataOpCallback))
                 .setNotifyOpCallback(notifyOpCallback).build();
-        return (command != null && addCommandToList(command));
+        if(command != null)
+            addCommandToList(command);
     }
 
     /**
@@ -162,7 +165,7 @@ public class BleGattCommandExecutor{
      * @param indicateOpCallback Notify数据回调
      * @return 是否添加成功
      */
-    public boolean addIndicateCommand(BleGattElement element, boolean enable
+    public void addIndicateCommand(BleGattElement element, boolean enable
             , IBleCallback dataOpCallback, IBleCallback indicateOpCallback) {
         BleGattCommand.Builder builder = new BleGattCommand.Builder();
         BleGattCommand command = builder.setDeviceMirror(deviceMirror)
@@ -171,22 +174,24 @@ public class BleGattCommandExecutor{
                 .setData((enable) ? new byte[]{0x01} : new byte[]{0x00})
                 .setDataOpCallback(new BleSerialCommandCallback(dataOpCallback))
                 .setNotifyOpCallback(indicateOpCallback).build();
-        return (command != null && addCommandToList(command));
+        if(command != null)
+            addCommandToList(command);
     }
 
     // 添加Instant命令
-    public boolean addInstantCommand(IBleCallback dataOpCallback) {
+    public void addInstantCommand(IBleCallback dataOpCallback) {
         BleGattCommand command = new BleGattCommand.Builder().setDataOpCallback(dataOpCallback).setInstantCommand(true).build();
-        return ((command != null) && addCommandToList(command));
+        if(command != null)
+            addCommandToList(command);
     }
 
-    private synchronized boolean addCommandToList(BleGattCommand command) {
-        boolean flag = commandList.offer(command);
-
+    private synchronized void addCommandToList(BleGattCommand command) {
+        if(!commandList.offer(command)) {
+            throw new IllegalStateException();
+        }
         // 添加成功，通知执行线程
-        if(flag) notifyAll();
-
-        return flag;
+        notifyAll();
+        return;
     }
 
     // 开始执行命令
