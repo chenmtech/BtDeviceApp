@@ -238,11 +238,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 if(resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
                     if(basicInfo != null) {
-                        BleDevice device = deviceService.addDevice(basicInfo);
+                        BleDevice device = deviceService.createAndAddDevice(basicInfo);
                         if(device != null) {
-                            //device.registerDeviceStateObserver(this);
-                            updateDeviceListAdapter();
-                            basicInfo.saveToPref();
+                            if(basicInfo.saveToPref()) {
+                                Toast.makeText(MainActivity.this, "设备登记成功", Toast.LENGTH_SHORT).show();
+                                updateDeviceListAdapter();
+                            } else {
+                                Toast.makeText(MainActivity.this, "设备登记失败", Toast.LENGTH_SHORT).show();
+                                deviceService.deleteDevice(device);
+                            }
                         }
                     }
                 }
@@ -256,10 +260,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
                     BleDevice device = deviceService.findDevice(basicInfo);
 
-                    if(device != null) {
-                        basicInfo.saveToPref();
+                    if(device != null && basicInfo.saveToPref()) {
+                        Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
                         device.setBasicInfo(basicInfo);
-                        deviceListAdapter.notifyDataSetChanged();
+                        updateDeviceListAdapter();
+                    } else {
+                        Toast.makeText(MainActivity.this, "设备信息修改失败", Toast.LENGTH_SHORT).show();
                     }
                 }
                 break;
@@ -442,14 +448,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         }
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("确定删除该设备吗？");
-        builder.setMessage(device.getMacAddress()+'\n'+device.getNickName());
+        builder.setTitle("删除设备");
+        builder.setMessage("确定删除设备：" + device.getMacAddress()+'\n'+device.getNickName());
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                device.getBasicInfo().deleteFromPref();
-                deviceService.deleteDevice(device);
-                updateDeviceListAdapter();
+                if(device.getBasicInfo().deleteFromPref()) {
+                    deviceService.deleteDevice(device);
+                    updateDeviceListAdapter();
+                } else {
+                    Toast.makeText(MainActivity.this, "无法删除该设备。", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {

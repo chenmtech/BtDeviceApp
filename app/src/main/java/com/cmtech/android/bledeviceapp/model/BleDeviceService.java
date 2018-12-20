@@ -149,19 +149,19 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     }
 
     // 创建并添加一个设备
-    public BleDevice addDevice(BleDeviceBasicInfo basicInfo) {
-        BleDevice device = deviceManager.addDevice(basicInfo);
+    public BleDevice createAndAddDevice(BleDeviceBasicInfo basicInfo) {
+        BleDevice device = deviceManager.createAndAddDevice(basicInfo);
         if(device != null) {
             device.registerDeviceStateObserver(this);
         }
         return device;
     }
 
-    // 添加多个设备
-    public void addDevice(List<BleDeviceBasicInfo> basicInfoList) {
+    // 创建添加多个设备
+    public void createAndAddDevice(List<BleDeviceBasicInfo> basicInfoList) {
         if(basicInfoList == null) return;
         for(BleDeviceBasicInfo basicInfo : basicInfoList) {
-            addDevice(basicInfo);
+            createAndAddDevice(basicInfo);
         }
     }
 
@@ -229,8 +229,8 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
     // 从Preference获取所有设备信息，并构造相应的BLEDevice
     private void initDeviceFromPref() {
-        List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.findAllFromPreference();
-        addDevice(basicInfoList);
+        List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.createAllFromPref();
+        createAndAddDevice(basicInfoList);
     }
 
     private void initNotificationBuilder() {

@@ -6,7 +6,6 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
-import com.vise.log.ViseLog;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_
 import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
 
 /**
- *  BleDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库或SharePreference中
+ *  BleDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库或Preference中
  *  Created by bme on 2018/6/27.
  */
 
@@ -31,20 +30,17 @@ public class BleDeviceBasicInfo implements Serializable{
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
-    // mac地址
-    private String macAddress = "";
-    // 设备昵称
-    private String nickName = DEFAULT_DEVICE_NICKNAME;
-    // 设备广播Uuid Short String
-    private String uuidString = "";
-    // 图标路径
-    private String imagePath = DEFAULT_DEVICE_IMAGEPATH;
-    // 是否自动连接
-    private boolean autoConnect = DEFAULT_DEVICE_AUTOCONNECT;
-    // 连接断开后重连次数
-    private int reconnectTimes = DEFAULT_DEVICE_RECONNECT_TIMES;
-    // 重连失败后是否报警
-    private boolean warnAfterReconnectFailure = DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
+    private String macAddress = ""; // 设备mac地址
+    private String nickName = DEFAULT_DEVICE_NICKNAME; // 设备昵称
+    private String uuidString = ""; // 设备广播Uuid16位字符串
+    private String imagePath = DEFAULT_DEVICE_IMAGEPATH; // 设备图标路径名
+    private boolean autoConnect = DEFAULT_DEVICE_AUTOCONNECT; // 设备打开后是否自动连接
+    private int reconnectTimes = DEFAULT_DEVICE_RECONNECT_TIMES; // 连接断开后重连次数
+    private boolean warnAfterReconnectFailure = DEFAULT_WARN_AFTER_RECONNECT_FAILURE; // 重连失败后是否报警
+
+    public BleDeviceBasicInfo() {
+
+    }
 
     public BleDeviceBasicInfo(String macAddress, String nickName, String uuidString, String imagePath,
                               boolean autoConnect, int reconnectTimes, boolean warnAfterReconnectFailure) {
@@ -57,76 +53,50 @@ public class BleDeviceBasicInfo implements Serializable{
         this.warnAfterReconnectFailure = warnAfterReconnectFailure;
     }
 
-    public BleDeviceBasicInfo(BleDeviceBasicInfo basicInfo) {
-        macAddress = basicInfo.macAddress;
-        nickName = basicInfo.nickName;
-        uuidString = basicInfo.uuidString;
-        imagePath = basicInfo.imagePath;
-        autoConnect = basicInfo.autoConnect;
-        reconnectTimes = basicInfo.reconnectTimes;
-        warnAfterReconnectFailure = basicInfo.warnAfterReconnectFailure;
-    }
-
-    public BleDeviceBasicInfo(BleDevice device) {
-        this(device.getBasicInfo());
-    }
-
     public String getMacAddress() {
         return macAddress;
     }
-
     public void setMacAddress(String macAddress) {
         this.macAddress = macAddress;
     }
-
     public String getNickName() {
         return nickName;
     }
-
     public void setNickName(String nickName) {
         this.nickName = nickName;
     }
-
     public String getUuidString() {
         return uuidString;
     }
-
     public void setUuidString(String uuidString) {
         this.uuidString = uuidString;
     }
-
     public String getImagePath() {
         return imagePath;
     }
-
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
-
     public boolean autoConnect() {
         return autoConnect;
     }
-
     public void setAutoConnect(boolean autoConnect) {
         this.autoConnect = autoConnect;
     }
-
     public int getReconnectTimes() {
         return reconnectTimes;
     }
-
     public void setReconnectTimes(int reconnectTimes) {
         this.reconnectTimes = reconnectTimes;
     }
-
     public boolean isWarnAfterReconnectFailure() {
         return warnAfterReconnectFailure;
     }
-
     public void setWarnAfterReconnectFailure(boolean warnAfterReconnectFailure) {
         this.warnAfterReconnectFailure = warnAfterReconnectFailure;
     }
 
+    // 将设备基本信息保存到Pref
     public boolean saveToPref() {
         if(TextUtils.isEmpty(macAddress)) return false;
 
@@ -147,20 +117,18 @@ public class BleDeviceBasicInfo implements Serializable{
         editor.putInt(macAddress+"_reconnectTimes", reconnectTimes);
         editor.putBoolean(macAddress+"_warnAfterReconnectFailure", warnAfterReconnectFailure);
 
-        ViseLog.i("saveToPref the basic info.");
-
         return editor.commit();
     }
 
-    // 从Pref中删除
-    public void deleteFromPref() {
-        if(TextUtils.isEmpty(macAddress)) return;
+    // 从Pref中删除设备基本信息
+    public boolean deleteFromPref() {
+        if(TextUtils.isEmpty(macAddress)) return false;
 
         SharedPreferences.Editor editor = pref.edit();
 
         Set<String> addressSet = new HashSet<>();
         addressSet = pref.getStringSet("addressSet", addressSet);
-        if(addressSet.contains(macAddress)) {
+        if(!addressSet.isEmpty() && addressSet.contains(macAddress)) {
             addressSet.remove(macAddress);
             editor.putStringSet("addressSet", addressSet);
         }
@@ -173,24 +141,23 @@ public class BleDeviceBasicInfo implements Serializable{
         editor.remove(macAddress+"_reconnectTimes");
         editor.remove(macAddress+"_warnAfterReconnectFailure");
 
-        editor.commit();
+        return editor.commit();
     }
 
-    // 从Pref找到所有的设备基本信息
-    public static List<BleDeviceBasicInfo> findAllFromPreference() {
+    // 从Pref创建所有的设备基本信息
+    public static List<BleDeviceBasicInfo> createAllFromPref() {
         Set<String> addressSet = new HashSet<>();
         addressSet = pref.getStringSet("addressSet", addressSet);
         if(addressSet.isEmpty()) {
-            ViseLog.i("addressSet is empty.");
             return null;
         }
         // 转为数组排序
-        String[] addressArr = (String[]) addressSet.toArray(new String[addressSet.size()]);
+        String[] addressArr = addressSet.toArray(new String[addressSet.size()]);
         Arrays.sort(addressArr);
 
         List<BleDeviceBasicInfo> infoList = new ArrayList<>();
         for(String macAddress : addressArr) {
-            BleDeviceBasicInfo basicInfo = createFromPreference(macAddress);
+            BleDeviceBasicInfo basicInfo = createFromPref(macAddress);
             if(basicInfo != null)
                 infoList.add(basicInfo);
         }
@@ -198,7 +165,7 @@ public class BleDeviceBasicInfo implements Serializable{
         return infoList;
     }
 
-    private static BleDeviceBasicInfo createFromPreference(String macAddress) {
+    private static BleDeviceBasicInfo createFromPref(String macAddress) {
         if(TextUtils.isEmpty(macAddress)) return null;
 
         String address = pref.getString(macAddress+"_macAddress", "");

@@ -240,8 +240,9 @@ public class ScanDeviceActivity extends AppCompatActivity {
         String uuidShortString = Uuid.longToShortString(Uuid.byteArrayToUuid(record.getData()).toString());
 
         Intent intent = new Intent(ScanDeviceActivity.this, DeviceBasicInfoActivity.class);
-        BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo(macAddress, DEFAULT_DEVICE_NICKNAME, uuidShortString,
-                DEFAULT_DEVICE_IMAGEPATH, DEFAULT_DEVICE_AUTOCONNECT, DEFAULT_DEVICE_RECONNECT_TIMES, DEFAULT_WARN_AFTER_RECONNECT_FAILURE);
+        BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo();
+        basicInfo.setMacAddress(macAddress);
+        basicInfo.setUuidString(uuidShortString);
         intent.putExtra(DEVICE_BASICINFO, basicInfo);
         startActivityForResult(intent, 1);
     }

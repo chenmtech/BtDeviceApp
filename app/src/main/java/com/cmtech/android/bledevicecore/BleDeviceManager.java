@@ -20,15 +20,15 @@ public class BleDeviceManager {
     }
 
     // 添加多个设备
-    public void addDevice(List<BleDeviceBasicInfo> basicInfoList) {
+    public void createAndAddDevice(List<BleDeviceBasicInfo> basicInfoList) {
         if(basicInfoList == null) return;
         for(BleDeviceBasicInfo basicInfo : basicInfoList) {
-            addDevice(basicInfo);
+            createAndAddDevice(basicInfo);
         }
     }
 
     // 创建并添加一个设备
-    public BleDevice addDevice(BleDeviceBasicInfo basicInfo) {
+    public BleDevice createAndAddDevice(BleDeviceBasicInfo basicInfo) {
         BleDevice device = findDevice(basicInfo);
         if(device != null) return null;
 
