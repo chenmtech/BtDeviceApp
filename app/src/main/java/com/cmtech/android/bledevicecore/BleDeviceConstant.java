@@ -18,8 +18,8 @@ public class BleDeviceConstant {
     // 下面四个参数是ViseBle包中需要设置的
     public final static int SCAN_TIMEOUT = 12000; // 扫描超时时间
     public final static int CONNECT_TIMEOUT = 35000; // 连接超时时间
-    public final static int CONNECT_RETRY_COUNT = 0; // 重连次数
-    public final static int OPDATA_RETRY_COUNT = 0; // 数据操作重试次数
+    public final static int CONNECT_RETRY_COUNT = 0; // 重连次数，不要改
+    public final static int OPDATA_RETRY_COUNT = 0; // 数据操作重试次数，不要改
 
 
     public static final String SCAN_DEVICE_NAME = "CM1.0"; // 扫描时过滤设备：只获取广播数据包中设备名为该名称的设备

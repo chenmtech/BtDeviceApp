@@ -28,6 +28,12 @@ public abstract class AbstractBleDeviceFactory {
         return factory;
     }
 
+    // 创建BleDevice
+    public abstract BleDevice createBleDevice();
+
+    // 创建Fragment
+    public abstract BleDeviceFragment createFragment();
+
     private static AbstractBleDeviceFactory getBLEDeviceFactory(String uuidString) {
         return getBLEDeviceFactory(SupportedDeviceType.getDeviceTypeFromUuid(uuidString));
     }
@@ -35,10 +41,4 @@ public abstract class AbstractBleDeviceFactory {
     private static AbstractBleDeviceFactory getBLEDeviceFactory(BleDeviceType deviceType) {
         return deviceType.createDeviceFactory();
     }
-
-    // 创建BleDevice
-    public abstract BleDevice createBleDevice();
-
-    // 创建Fragment
-    public abstract BleDeviceFragment createFragment();
 }
