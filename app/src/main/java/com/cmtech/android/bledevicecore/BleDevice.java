@@ -28,12 +28,17 @@ import static com.cmtech.android.bledevicecore.BleDeviceConstant.RECONNECT_INTER
 
 /**
  * BleDevice: 低功耗蓝牙设备类
+ * 作为DeviceMirror的状态的观察者，需要实现IDeviceMirrorStateObserver
  * Created by bme on 2018/2/19.
  */
 
 public abstract class BleDevice implements IDeviceMirrorStateObserver {
-    // 设备基本信息对象
-    private BleDeviceBasicInfo basicInfo;
+
+    private BleDeviceBasicInfo basicInfo; // 设备基本信息对象
+    private BluetoothLeDevice bluetoothLeDevice = null; // 设备BluetoothLeDevice，当扫描到后会赋值，并一直保留，直到程序关闭
+    private BleGattCommandExecutor commandExecutor; // GATT命令串行执行器
+
+
     public BleDeviceBasicInfo getBasicInfo() {
         return basicInfo;
     }
@@ -58,14 +63,12 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     private int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
 
 
-    // 设备信息，当扫描到后会赋值，并一直保留，直到程序关闭
-    private BluetoothLeDevice bluetoothLeDevice = null;
+
     public BluetoothLeDevice getBluetoothLeDevice() {
         return bluetoothLeDevice;
     }
 
-    // GATT命令串行执行器
-    private BleGattCommandExecutor commandExecutor;
+
 
     // 设备状态观察者列表
     private final List<IBleDeviceStateObserver> stateObserverList = new LinkedList<>();
@@ -539,7 +542,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     @Override
-    public void updateDeviceStateAccordingMirror(ConnectState mirrorState) {
+    public void updateStateAccordingMirror(ConnectState mirrorState) {
         setConnectState(BleDeviceConnectState.getFromCode(mirrorState.getCode()));
     }
 }
