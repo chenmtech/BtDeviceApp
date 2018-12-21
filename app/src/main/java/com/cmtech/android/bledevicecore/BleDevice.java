@@ -532,7 +532,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     @Override
-    public void updateDeviceStateAccordingMirror(ConnectState mirrorState) {
+    public void updateStateAccordingMirror(ConnectState mirrorState) {
         setConnectState(BleDeviceConnectState.getFromCode(mirrorState.getCode()));
     }
 }
