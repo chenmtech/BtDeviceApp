@@ -172,7 +172,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             disconnect();
     }
 
-    public void quit() {
+    public synchronized void quit() {
         ViseLog.i("quit");
         workHandler.getLooper().quit();
     }
@@ -233,9 +233,8 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 开始扫描
     private synchronized void startScan() {
-
         filterScanCallback = new SingleFilterScanCallback(scanCallback).setDeviceMac(getMacAddress()).setScan(true);
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        workHandler.post(new Runnable() {
             @Override
             public void run() {
                 ViseLog.i("startScan in " + Thread.currentThread());
@@ -249,7 +248,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     private synchronized void stopScan() {
         workHandler.removeCallbacksAndMessages(null);
         if(filterScanCallback != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
+            workHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     ViseLog.i("stopScan in " + Thread.currentThread());
@@ -261,7 +260,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 开始连接，有些资料说最好放到UI线程中执行连接
     private synchronized void startConnect() {
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+        workHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 ViseLog.i("startConnect in " + Thread.currentThread());
@@ -276,7 +275,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         executeAfterDisconnect();
         workHandler.removeCallbacksAndMessages(null);
 
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        workHandler.post(new Runnable() {
             @Override
             public void run() {
                 ViseLog.i("disconnect in " + Thread.currentThread());
@@ -287,7 +286,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 重新连接
-    private synchronized void reconnect() {
+    private void reconnect() {
         int canReconnectTimes = getReconnectTimes();
         if(curReconnectTimes < canReconnectTimes || canReconnectTimes == -1) {
             startConnect();
@@ -300,7 +299,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 添加Gatt操作命令
     // 添加读取命令
-    protected synchronized void addReadCommand(BleGattElement element, IBleDataOpCallback dataOpCallback) {
+    protected void addReadCommand(BleGattElement element, IBleDataOpCallback dataOpCallback) {
         if(commandExecutor != null) {
             IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
             commandExecutor.addReadCommand(element, callback);
@@ -308,7 +307,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 添加写入多字节命令
-    protected synchronized void addWriteCommand(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
+    protected void addWriteCommand(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
         if(commandExecutor != null) {
             IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
             commandExecutor.addWriteCommand(element, data, callback);
@@ -316,7 +315,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 添加写入单字节命令
-    protected synchronized void addWriteCommand(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
+    protected void addWriteCommand(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
         if(commandExecutor != null) {
             IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
             commandExecutor.addWriteCommand(element, data, callback);
@@ -324,7 +323,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 添加Notify命令
-    protected synchronized void addNotifyCommand(BleGattElement element, boolean enable
+    protected void addNotifyCommand(BleGattElement element, boolean enable
             , IBleDataOpCallback dataOpCallback, IBleDataOpCallback notifyOpCallback) {
         if(commandExecutor != null) {
             IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
@@ -334,7 +333,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 添加Indicate命令
-    protected synchronized void addIndicateCommand(BleGattElement element, boolean enable
+    protected void addIndicateCommand(BleGattElement element, boolean enable
             , IBleDataOpCallback dataOpCallback, IBleDataOpCallback indicateOpCallback) {
         if(commandExecutor != null) {
             IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
@@ -344,7 +343,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 添加Instant命令
-    protected synchronized void addInstantCommand(IBleDataOpCallback dataOpCallback) {
+    protected void addInstantCommand(IBleDataOpCallback dataOpCallback) {
         if(commandExecutor != null) {
             IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
             commandExecutor.addInstantCommand(dataCallback);
