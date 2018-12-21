@@ -7,6 +7,6 @@ package com.cmtech.android.bledevice.core;
  */
 
 public interface IBleDeviceFragmentActivity extends IBleDeviceStateObserver {
-    // 可以由设备的mac地址找到BleDevice对象
+    // 由设备的mac地址找到BleDevice对象
     BleDevice findDevice(String mac);
 }

@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             case R.id.toolbar_switch:
                 fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
-                    fragment.switchState();
+                    fragment.switchDeviceState();
                 }
                 break;
 
@@ -386,7 +386,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 更新设备的Fragment界面
         BleDeviceFragment deviceFrag = fragmentManager.findOpenedFragment(device);
-        if(deviceFrag != null) deviceFrag.updateDeviceState();  // 暂时没有处理
+        if(deviceFrag != null) deviceFrag.updateState();  // 暂时没有处理
 
         // 更新Activity的ToolBar
         BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();

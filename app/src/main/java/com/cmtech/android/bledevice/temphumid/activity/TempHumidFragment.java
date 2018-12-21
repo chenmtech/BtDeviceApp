@@ -47,7 +47,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
 
     public static BleDeviceFragment newInstance(String macAddress) {
         BleDeviceFragment fragment = new TempHumidFragment();
-        return BleDeviceFragment.pushMacAddressIntoFragment(macAddress, fragment);
+        return BleDeviceFragment.pushMacAddressIntoFragmentArgument(macAddress, fragment);
     }
 
 

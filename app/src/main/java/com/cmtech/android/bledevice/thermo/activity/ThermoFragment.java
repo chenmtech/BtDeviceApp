@@ -37,7 +37,7 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
 
     public static BleDeviceFragment newInstance(String macAddress) {
         BleDeviceFragment fragment = new ThermoFragment();
-        return BleDeviceFragment.pushMacAddressIntoFragment(macAddress, fragment);
+        return BleDeviceFragment.pushMacAddressIntoFragmentArgument(macAddress, fragment);
     }
 
     @Nullable

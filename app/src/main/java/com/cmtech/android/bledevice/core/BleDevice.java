@@ -160,7 +160,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 切换设备状态
     public final synchronized void switchState() {
-        ViseLog.i("switchState");
+        ViseLog.i("switchDeviceState");
         workHandler.removeCallbacksAndMessages(null);
         switch (connectState) {
             case CONNECT_SUCCESS:
