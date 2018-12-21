@@ -1,12 +1,6 @@
-package com.cmtech.android.bledevicecore;
+package com.cmtech.android.bledevice.core;
 
-import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.common.BleConfig;
-import com.cmtech.android.bledeviceapp.MyApplication;
-
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.OPDATA_RETRY_COUNT;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_DEVICE_NAME;
 
 /**
  * BleDeviceConfig: 进行一些viseBle包内部的配置

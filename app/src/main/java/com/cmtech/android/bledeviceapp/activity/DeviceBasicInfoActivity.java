@@ -22,18 +22,18 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
+import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_AUTOCONNECT;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECT_TIMES;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.IMAGEDIR;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_AUTOCONNECT;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_RECONNECT_TIMES;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGEDIR;
 
 /**
  *  DeviceBasicInfoActivity: 设备基本信息Activity，可用于修改BleDeviceBasicInfo字段

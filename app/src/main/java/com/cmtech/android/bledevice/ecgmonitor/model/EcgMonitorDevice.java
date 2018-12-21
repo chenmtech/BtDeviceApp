@@ -16,12 +16,12 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
-import com.cmtech.android.bledevicecore.BleDataOpException;
-import com.cmtech.android.bledevicecore.BleDevice;
-import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.BleGattElement;
-import com.cmtech.android.bledevicecore.IBleDataOpCallback;
+import com.cmtech.android.bledevice.core.BleDataOpException;
+import com.cmtech.android.bledevice.core.BleDevice;
+import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
+import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.cmtech.android.bledevice.core.BleGattElement;
+import com.cmtech.android.bledevice.core.IBleDataOpCallback;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
@@ -41,9 +41,9 @@ import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.CACHEDIR;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.CCCUUID;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.CACHEDIR;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
 
 
 /**

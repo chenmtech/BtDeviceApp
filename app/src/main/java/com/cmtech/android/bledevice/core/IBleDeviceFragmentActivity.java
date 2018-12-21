@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore;
+package com.cmtech.android.bledevice.core;
 
 /**
  * IBleDeviceFragmentActivity: 包含BleDeviceFragment的Activity必须要实现的接口

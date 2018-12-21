@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore;
+package com.cmtech.android.bledevice.core;
 
 
 import android.content.SharedPreferences;
@@ -14,11 +14,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_AUTOCONNECT;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_NICKNAME;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_DEVICE_RECONNECT_TIMES;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_AUTOCONNECT;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_NICKNAME;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_RECONNECT_TIMES;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
 
 /**
  *  BleDeviceBasicInfo: 设备基本信息，字段信息将保存在数据库或Preference中

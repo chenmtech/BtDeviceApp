@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore;
+package com.cmtech.android.bledevice.core;
 
 import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.common.PropertyType;

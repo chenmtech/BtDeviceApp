@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevicecore.BleDeviceType;
+import com.cmtech.android.bledevice.core.BleDeviceType;
 
 /*
  * SupportedDeviceType：支持的设备类型

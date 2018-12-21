@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore;
+package com.cmtech.android.bledevice.core;
 
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
@@ -24,7 +24,7 @@ import com.vise.log.ViseLog;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.RECONNECT_INTERVAL;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.RECONNECT_INTERVAL;
 
 /**
  * BleDevice: 低功耗蓝牙设备类

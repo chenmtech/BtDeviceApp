@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore;
+package com.cmtech.android.bledevice.core;
 
 import android.app.Activity;
 import android.content.Context;

@@ -17,7 +17,7 @@ import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
-import com.cmtech.android.bledevicecore.BleDevice;
+import com.cmtech.android.bledevice.core.BleDevice;
 
 import java.util.List;
 

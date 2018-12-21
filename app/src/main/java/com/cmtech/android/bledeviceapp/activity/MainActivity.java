@@ -44,11 +44,11 @@ import com.cmtech.android.bledeviceapp.model.MyFragmentManager;
 import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
-import com.cmtech.android.bledevicecore.AbstractBleDeviceFactory;
-import com.cmtech.android.bledevicecore.BleDevice;
-import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.BleDeviceFragment;
-import com.cmtech.android.bledevicecore.IBleDeviceFragmentActivity;
+import com.cmtech.android.bledevice.core.AbstractBleDeviceFactory;
+import com.cmtech.android.bledevice.core.BleDevice;
+import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
+import com.cmtech.android.bledevice.core.BleDeviceFragment;
+import com.cmtech.android.bledevice.core.IBleDeviceFragmentActivity;
 import com.vise.log.ViseLog;
 
 import java.io.Serializable;

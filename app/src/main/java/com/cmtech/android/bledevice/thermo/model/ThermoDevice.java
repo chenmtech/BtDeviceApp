@@ -6,18 +6,18 @@ import android.os.Message;
 import android.util.Log;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.cmtech.android.bledevicecore.BleDataOpException;
-import com.cmtech.android.bledevicecore.BleDevice;
-import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.BleGattElement;
-import com.cmtech.android.bledevicecore.IBleDataOpCallback;
+import com.cmtech.android.bledevice.core.BleDataOpException;
+import com.cmtech.android.bledevice.core.BleDevice;
+import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
+import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.cmtech.android.bledevice.core.BleGattElement;
+import com.cmtech.android.bledevice.core.IBleDataOpCallback;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.CCCUUID;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
 
 public class ThermoDevice extends BleDevice {
     private static final int MSG_THERMODATA = 1;

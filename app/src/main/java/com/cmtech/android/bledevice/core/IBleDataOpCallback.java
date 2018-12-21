@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevicecore;
+package com.cmtech.android.bledevice.core;
 
 /**
  * IBleDataOpCallback: Ble数据操作回调接口

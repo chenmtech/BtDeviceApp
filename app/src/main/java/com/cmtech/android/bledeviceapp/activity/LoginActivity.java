@@ -19,7 +19,7 @@ import android.widget.Toast;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
-import com.cmtech.android.bledevicecore.BleDeviceUtil;
+import com.cmtech.android.bledevice.core.BleDeviceUtil;
 
 import java.util.ArrayList;
 import java.util.List;

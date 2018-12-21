@@ -5,20 +5,18 @@ import android.content.Context;
 import android.util.Log;
 
 import com.cmtech.android.ble.ViseBle;
-import com.cmtech.android.bledevicecore.BleDeviceConfig;
-import com.cmtech.android.bledevicecore.BleDeviceConstant;
+import com.cmtech.android.bledevice.core.BleDeviceConfig;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.CONNECT_RETRY_COUNT;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.CONNECT_TIMEOUT;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.OPDATA_RETRY_COUNT;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.RECONNECT_INTERVAL;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_DEVICE_NAME;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_TIMEOUT;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.CONNECT_RETRY_COUNT;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.CONNECT_TIMEOUT;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.OPDATA_RETRY_COUNT;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.RECONNECT_INTERVAL;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.SCAN_TIMEOUT;
 
 /**
  * MyApplication

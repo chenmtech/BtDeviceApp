@@ -16,12 +16,12 @@ import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
-import com.cmtech.android.bledevicecore.BleDevice;
-import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.BleDeviceConnectState;
-import com.cmtech.android.bledevicecore.BleDeviceManager;
-import com.cmtech.android.bledevicecore.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.IBleDeviceStateObserver;
+import com.cmtech.android.bledevice.core.BleDevice;
+import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
+import com.cmtech.android.bledevice.core.BleDeviceConnectState;
+import com.cmtech.android.bledevice.core.BleDeviceManager;
+import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.cmtech.android.bledevice.core.IBleDeviceStateObserver;
 
 import java.util.ArrayList;
 import java.util.Arrays;

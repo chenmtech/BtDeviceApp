@@ -3,8 +3,8 @@ package com.cmtech.android.bledeviceapp.model;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 
-import com.cmtech.android.bledevicecore.BleDevice;
-import com.cmtech.android.bledevicecore.BleDeviceFragment;
+import com.cmtech.android.bledevice.core.BleDevice;
+import com.cmtech.android.bledevice.core.BleDeviceFragment;
 
 import java.util.List;
 

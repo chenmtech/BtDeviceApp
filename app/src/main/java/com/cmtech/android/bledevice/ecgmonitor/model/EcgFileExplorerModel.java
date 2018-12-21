@@ -7,7 +7,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevicecore.BleDeviceUtil;
+import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 

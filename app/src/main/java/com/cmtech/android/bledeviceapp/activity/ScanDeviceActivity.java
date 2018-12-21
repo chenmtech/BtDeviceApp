@@ -21,16 +21,16 @@ import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
-import com.cmtech.android.bledevicecore.BleDeviceBasicInfo;
-import com.cmtech.android.bledevicecore.BleDeviceUtil;
-import com.cmtech.android.bledevicecore.UuidUtil;
+import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
+import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.cmtech.android.bledevice.core.UuidUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
-import static com.cmtech.android.bledevicecore.BleDeviceConstant.SCAN_DEVICE_NAME;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.SCAN_DEVICE_NAME;
 
 public class ScanDeviceActivity extends AppCompatActivity {
     private static final String TAG = "ScanDeviceActivity";
