@@ -135,6 +135,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     public int getStateIcon() {
         return connectState.getIcon();
     }
+    public BleGattCommandExecutor getCommandExecutor() {
+        return commandExecutor;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +202,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 发送Gatt消息给工作线程
-    protected final void sendGattMessage(int what, Object obj) {
+    public final void sendGattMessage(int what, Object obj) {
         Message.obtain(workHandler, what, obj).sendToTarget();
     }
 
@@ -227,59 +230,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 设备是否已连接
     public final boolean isConnected() {
         return connectState == BleDeviceConnectState.CONNECT_SUCCESS;
-    }
-
-    // 添加Gatt操作命令
-    // 添加读取命令
-    protected final void addReadCommand(BleGattElement element, IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addReadCommand(element, callback);
-        }
-    }
-
-    // 添加写入多字节命令
-    protected final void addWriteCommand(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addWriteCommand(element, data, callback);
-        }
-    }
-
-    // 添加写入单字节命令
-    protected final void addWriteCommand(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addWriteCommand(element, data, callback);
-        }
-    }
-
-    // 添加Notify命令
-    protected final void addNotifyCommand(BleGattElement element, boolean enable
-            , IBleDataOpCallback dataOpCallback, IBleDataOpCallback notifyOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            IBleCallback notifyCallback = (notifyOpCallback == null) ? null : new BleDataOpCallbackAdapter(notifyOpCallback);
-            commandExecutor.addNotifyCommand(element, enable, dataCallback, notifyCallback);
-        }
-    }
-
-    // 添加Indicate命令
-    protected final void addIndicateCommand(BleGattElement element, boolean enable
-            , IBleDataOpCallback dataOpCallback, IBleDataOpCallback indicateOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            IBleCallback indicateCallback = (indicateOpCallback == null) ? null : new BleDataOpCallbackAdapter(indicateOpCallback);
-            commandExecutor.addIndicateCommand(element, enable, dataCallback, indicateCallback);
-        }
-    }
-
-    // 添加Instant命令
-    protected final void addInstantCommand(IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addInstantCommand(dataCallback);
-        }
     }
 
     // 登记设备状态观察者

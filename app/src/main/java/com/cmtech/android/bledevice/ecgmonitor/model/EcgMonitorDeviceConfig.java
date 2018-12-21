@@ -8,12 +8,17 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_HIGH
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_LOW_LIMIT;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WARN_WHEN_HR_ABNORMAL;
 
+/**
+ * EcgMonitorDeviceConfig: 心电带配置类
+ * Created by bme on 2018/12/20.
+ */
+
 public class EcgMonitorDeviceConfig extends LitePalSupport implements Serializable {
-    private int id;
-    private String macAddress = "";
-    private boolean warnWhenHrAbnormal = WARN_WHEN_HR_ABNORMAL;
-    private int hrLowLimit = HR_LOW_LIMIT;
-    private int hrHighLimit = HR_HIGH_LIMIT;
+    private int id; // id
+    private String macAddress = ""; // mac地址
+    private boolean warnWhenHrAbnormal = WARN_WHEN_HR_ABNORMAL; // hr异常时是否报警
+    private int hrLowLimit = HR_LOW_LIMIT; // hr异常的下限
+    private int hrHighLimit = HR_HIGH_LIMIT; // hr异常的上限
 
     public int getId() {
         return id;
