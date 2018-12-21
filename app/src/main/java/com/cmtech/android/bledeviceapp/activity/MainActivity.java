@@ -396,7 +396,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void updateWarnForReconnectFailure(final BleDevice device, boolean warn) {
+    public void notifyReconnectFailure(final BleDevice device, boolean warn) {
         if(!warn) return;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);

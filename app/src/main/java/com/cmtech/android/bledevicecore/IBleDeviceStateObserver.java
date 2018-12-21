@@ -10,10 +10,10 @@ public interface IBleDeviceStateObserver {
     void updateDeviceState(final BleDevice device);
 
     /**
-     * 由于设备重连失败，更新报警状态
+     * 通知设备重连失败，更新报警状态
      * @param device
      * @param warn: true-警告，false-消除警告
      */
-    void updateWarnForReconnectFailure(final BleDevice device, boolean warn);
+    void notifyReconnectFailure(final BleDevice device, boolean warn);
 
 }

@@ -146,7 +146,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 打开设备
-    public synchronized void open() {
+    public final synchronized void open() {
         ViseLog.i("open");
         if(!isClosed())
             return;
@@ -156,25 +156,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
         if(autoConnect())
             scanOrConnect();
-    }
-
-    // 关闭设备
-    public synchronized void close() {
-        ViseLog.e(getClass().getSimpleName() + " " + getMacAddress() + ": close()");
-
-        workHandler.removeCallbacksAndMessages(null);
-
-        isClosing = true;
-
-        if(connectState == BleDeviceConnectState.CONNECT_SCAN)
-            stopScan();
-        else
-            disconnect();
-    }
-
-    public synchronized void quit() {
-        ViseLog.i("quit");
-        workHandler.getLooper().quit();
     }
 
     // 切换设备状态
@@ -197,18 +178,172 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         }
     }
 
+    // 关闭设备
+    public synchronized void close() {
+        ViseLog.e(getClass().getSimpleName() + " " + getMacAddress() + ": close()");
+
+        workHandler.removeCallbacksAndMessages(null);
+
+        isClosing = true;
+
+        if(connectState == BleDeviceConnectState.CONNECT_SCAN)
+            stopScan();
+        else
+            disconnect();
+    }
+
+    // 停止设备工作线程
+    public final synchronized void quit() {
+        ViseLog.i("quit");
+        workHandler.getLooper().quit();
+    }
+
+    // 发送Gatt消息给工作线程
+    protected final void sendGattMessage(int what, Object obj) {
+        Message.obtain(workHandler, what, obj).sendToTarget();
+    }
+
+    // 断开连接
+    protected synchronized void disconnect() {
+        stopCommandExecutor();
+        executeAfterDisconnect();
+        workHandler.removeCallbacksAndMessages(null);
+
+        workHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                ViseLog.i("disconnect in " + Thread.currentThread());
+                BleDeviceUtil.disconnect(BleDevice.this);
+            }
+        });
+        connectSuccess = false;
+    }
+
     // 设备是否已关闭
-    public boolean isClosed() {
+    public final boolean isClosed() {
         return connectState == BleDeviceConnectState.CONNECT_CLOSED;
     }
 
     // 设备是否已连接
-    public boolean isConnected() {
+    public final boolean isConnected() {
         return connectState == BleDeviceConnectState.CONNECT_SUCCESS;
     }
 
+    // 添加Gatt操作命令
+    // 添加读取命令
+    protected final void addReadCommand(BleGattElement element, IBleDataOpCallback dataOpCallback) {
+        if(commandExecutor != null) {
+            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            commandExecutor.addReadCommand(element, callback);
+        }
+    }
+
+    // 添加写入多字节命令
+    protected final void addWriteCommand(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
+        if(commandExecutor != null) {
+            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            commandExecutor.addWriteCommand(element, data, callback);
+        }
+    }
+
+    // 添加写入单字节命令
+    protected final void addWriteCommand(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
+        if(commandExecutor != null) {
+            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            commandExecutor.addWriteCommand(element, data, callback);
+        }
+    }
+
+    // 添加Notify命令
+    protected final void addNotifyCommand(BleGattElement element, boolean enable
+            , IBleDataOpCallback dataOpCallback, IBleDataOpCallback notifyOpCallback) {
+        if(commandExecutor != null) {
+            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            IBleCallback notifyCallback = (notifyOpCallback == null) ? null : new BleDataOpCallbackAdapter(notifyOpCallback);
+            commandExecutor.addNotifyCommand(element, enable, dataCallback, notifyCallback);
+        }
+    }
+
+    // 添加Indicate命令
+    protected final void addIndicateCommand(BleGattElement element, boolean enable
+            , IBleDataOpCallback dataOpCallback, IBleDataOpCallback indicateOpCallback) {
+        if(commandExecutor != null) {
+            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            IBleCallback indicateCallback = (indicateOpCallback == null) ? null : new BleDataOpCallbackAdapter(indicateOpCallback);
+            commandExecutor.addIndicateCommand(element, enable, dataCallback, indicateCallback);
+        }
+    }
+
+    // 添加Instant命令
+    protected final void addInstantCommand(IBleDataOpCallback dataOpCallback) {
+        if(commandExecutor != null) {
+            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+            commandExecutor.addInstantCommand(dataCallback);
+        }
+    }
+
+    // 登记设备状态观察者
+    public final void registerDeviceStateObserver(IBleDeviceStateObserver observer) {
+        ViseLog.e("register device observer:" + observer);
+        if(!stateObserverList.contains(observer)) {
+            stateObserverList.add(observer);
+        }
+    }
+
+    // 删除设备状态观察者
+    public final void removeDeviceStateObserver(IBleDeviceStateObserver observer) {
+        int index = stateObserverList.indexOf(observer);
+        if(index >= 0) {
+            stateObserverList.remove(index);
+        }
+    }
+
+    // 通知设备状态观察者
+    public final void notifyDeviceStateObservers() {
+        for(final IBleDeviceStateObserver observer : stateObserverList) {
+            if(observer != null) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        observer.updateDeviceState(BleDevice.this);
+                    }
+                });
+            }
+        }
+    }
+
+    // 通知设备状态观察者重连失败，是否报警
+    public final void notifyReconnectFailureObservers(final boolean isWarn) {
+        for(final IBleDeviceStateObserver observer : stateObserverList) {
+            if(observer != null) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        observer.notifyReconnectFailure(BleDevice.this, isWarn);
+                    }
+                });
+            }
+        }
+    }
+
+    // IDeviceMirrorStateObserver接口函数
+    @Override
+    public void updateStateAccordingMirror(ConnectState mirrorState) {
+        setConnectState(BleDeviceConnectState.getFromCode(mirrorState.getCode()));
+    }
+
+    /*
+     * 抽象方法
+     */
+    public abstract boolean executeAfterConnectSuccess(); // 连接成功后执行的操作
+    public abstract void executeAfterConnectFailure(); // 连接错误后执行的操作
+    public abstract void executeAfterDisconnect(); // 断开连接后执行的操作
+    public abstract void processGattMessage(Message msg); // 处理Gatt消息函数
 
 
+    ///////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////私有方法/////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////
     // 创建工作线程，输出它的Handler
     private Handler createWorkHandler() {
         HandlerThread thread = new HandlerThread("Device:"+getMacAddress());
@@ -244,6 +379,17 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         setConnectState(BleDeviceConnectState.CONNECT_SCAN);
     }
 
+    // 开始连接，有些资料说最好放到UI线程中执行连接
+    private synchronized void startConnect() {
+        workHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ViseLog.i("startConnect in " + Thread.currentThread());
+                BleDeviceUtil.connect(bluetoothLeDevice, connectCallback);
+            }
+        }, 1000);
+    }
+
     // 停止扫描
     private synchronized void stopScan() {
         workHandler.removeCallbacksAndMessages(null);
@@ -258,161 +404,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         }
     }
 
-    // 开始连接，有些资料说最好放到UI线程中执行连接
-    private synchronized void startConnect() {
-        workHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                ViseLog.i("startConnect in " + Thread.currentThread());
-                BleDeviceUtil.connect(bluetoothLeDevice, connectCallback);
-            }
-        }, 1000);
-    }
-
-    // 断开连接
-    protected synchronized void disconnect() {
-        stopCommandExecutor();
-        executeAfterDisconnect();
-        workHandler.removeCallbacksAndMessages(null);
-
-        workHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                ViseLog.i("disconnect in " + Thread.currentThread());
-                BleDeviceUtil.disconnect(BleDevice.this);
-            }
-        });
-        connectSuccess = false;
-    }
-
-    // 重新连接
-    private void reconnect() {
-        int canReconnectTimes = getReconnectTimes();
-        if(curReconnectTimes < canReconnectTimes || canReconnectTimes == -1) {
-            startConnect();
-            if(curReconnectTimes < canReconnectTimes)
-                curReconnectTimes++;
-        } else if(basicInfo.isWarnAfterReconnectFailure()) {
-            notifyReconnectFailureObservers(true);
-        }
-    }
-
-    // 添加Gatt操作命令
-    // 添加读取命令
-    protected void addReadCommand(BleGattElement element, IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addReadCommand(element, callback);
-        }
-    }
-
-    // 添加写入多字节命令
-    protected void addWriteCommand(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addWriteCommand(element, data, callback);
-        }
-    }
-
-    // 添加写入单字节命令
-    protected void addWriteCommand(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addWriteCommand(element, data, callback);
-        }
-    }
-
-    // 添加Notify命令
-    protected void addNotifyCommand(BleGattElement element, boolean enable
-            , IBleDataOpCallback dataOpCallback, IBleDataOpCallback notifyOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            IBleCallback notifyCallback = (notifyOpCallback == null) ? null : new BleDataOpCallbackAdapter(notifyOpCallback);
-            commandExecutor.addNotifyCommand(element, enable, dataCallback, notifyCallback);
-        }
-    }
-
-    // 添加Indicate命令
-    protected void addIndicateCommand(BleGattElement element, boolean enable
-            , IBleDataOpCallback dataOpCallback, IBleDataOpCallback indicateOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            IBleCallback indicateCallback = (indicateOpCallback == null) ? null : new BleDataOpCallbackAdapter(indicateOpCallback);
-            commandExecutor.addIndicateCommand(element, enable, dataCallback, indicateCallback);
-        }
-    }
-
-    // 添加Instant命令
-    protected void addInstantCommand(IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addInstantCommand(dataCallback);
-        }
-    }
-
-    // 登记设备状态观察者
-    public void registerDeviceStateObserver(IBleDeviceStateObserver observer) {
-        ViseLog.e("register device observer:" + observer);
-        if(!stateObserverList.contains(observer)) {
-            stateObserverList.add(observer);
-        }
-    }
-
-    // 删除设备状态观察者
-    public void removeDeviceStateObserver(IBleDeviceStateObserver observer) {
-        int index = stateObserverList.indexOf(observer);
-        if(index >= 0) {
-            stateObserverList.remove(index);
-        }
-    }
-
-    // 通知设备状态观察者
-    public void notifyDeviceStateObservers() {
-        for(final IBleDeviceStateObserver observer : stateObserverList) {
-            if(observer != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        observer.updateDeviceState(BleDevice.this);
-                    }
-                });
-            }
-        }
-    }
-
-    // 通知观察者设备重连失败
-    public void notifyReconnectFailureObservers(final boolean isWarn) {
-        for(final IBleDeviceStateObserver observer : stateObserverList) {
-            if(observer != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        observer.updateWarnForReconnectFailure(BleDevice.this, isWarn);
-                    }
-                });
-            }
-        }
-    }
-
-    /*
-     * 子类需要提供的抽象方法
-     */
-    // 连接成功后执行的操作
-    public abstract boolean executeAfterConnectSuccess();
-    // 连接错误后执行的操作
-    public abstract void executeAfterConnectFailure();
-    // 断开连接后执行的操作
-    public abstract void executeAfterDisconnect();
-    // 处理Gatt命令回调消息函数
-    public abstract void processGattMessage(Message msg);
-
-
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
     // 创建Gatt命令执行器，并启动执行器
     private void createGattCommandExecutor() {
-        if(isCommandExecutorAlive()) return;
+        if((commandExecutor != null) && commandExecutor.isAlive()) return;
         DeviceMirror deviceMirror = BleDeviceUtil.getDeviceMirror(this);
         if(deviceMirror == null) return;
 
@@ -423,21 +417,10 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 停止Gatt命令执行器
     private void stopCommandExecutor() {
-        if(isCommandExecutorAlive()) {
+        if((commandExecutor != null) && commandExecutor.isAlive()) {
             ViseLog.i("stop command executor.");
             commandExecutor.stop();
         }
-    }
-
-    // Gatt命令执行器是否Alive
-    private boolean isCommandExecutorAlive() {
-        return ((commandExecutor != null) && commandExecutor.isAlive());
-    }
-
-    // 发送Gatt命令执行后回调处理消息
-    protected void sendGattMessage(int what, Object obj) {
-        Message msg = Message.obtain(workHandler, what, obj);
-        msg.sendToTarget();
     }
 
     // 扫描结束回调处理
@@ -520,11 +503,19 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         connectSuccess = false;
     }
 
-    // IDeviceMirrorStateObserver接口函数
-    @Override
-    public void updateStateAccordingMirror(ConnectState mirrorState) {
-        setConnectState(BleDeviceConnectState.getFromCode(mirrorState.getCode()));
+    // 重新连接
+    private void reconnect() {
+        int canReconnectTimes = getReconnectTimes();
+        if(curReconnectTimes < canReconnectTimes || canReconnectTimes == -1) {
+            startConnect();
+            if(curReconnectTimes < canReconnectTimes)
+                curReconnectTimes++;
+        } else if(basicInfo.isWarnAfterReconnectFailure()) {
+            notifyReconnectFailureObservers(true);
+        }
     }
+
+
 
     @Override
     public boolean equals(Object o) {
