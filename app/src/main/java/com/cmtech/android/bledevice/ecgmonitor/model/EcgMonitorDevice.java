@@ -57,7 +57,7 @@ public class EcgMonitorDevice extends BleDevice {
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;                          // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
-    public static final int DEFAULT_CALIBRATIONVALUE = 65536;                  // 缺省1mV定标值
+    private static final int DEFAULT_CALIBRATIONVALUE = 65536;                  // 缺省1mV定标值
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f;                 // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
@@ -94,59 +94,53 @@ public class EcgMonitorDevice extends BleDevice {
 
     ////////////////////////////////////////////////////////
 
-    private int sampleRate = DEFAULT_SAMPLERATE;                    // 采样率
+    private int sampleRate = DEFAULT_SAMPLERATE; // 采样率
+    private EcgLeadType leadType = DEFAULT_LEADTYPE; // 导联类型
+    private int value1mVBeforeCalibrate = 0; // 定标之前1mV对应的数值
+    private final int value1mVAfterCalibrate = DEFAULT_CALIBRATIONVALUE; // 定标之后1mV对应的数值
+    private final List<Integer> calibrationData = new ArrayList<>(250); // 用于保存标定用的数据
+    private int currentHr = 0; // 当前心率值
+    private boolean isRecord = false; // 是否记录信号
+    private boolean isFilter = true; // 是否对信号进行滤波
+    private EcgFile ecgFile = null; // 用于保存心电信号的EcgFile文件
+    private final List<EcgComment> commentList = new ArrayList<>(); // 当前信号的留言表
+    private long recordDataNum = 0; // 当前记录的心电数据个数
+    private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
+    private int xPixelPerData = 2; // EcgView的横向分辨率
+    private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
+    private IEcgCalibrator ecgCalibrator; // Ecg信号定标器
+    private IEcgFilter ecgFilter; // Ecg信号滤波器
+    private QrsDetector qrsDetector; // Ecg Qrs波检测器，可用于获取心率
+    private EcgHrWarner hrWarner; // Ecg心率报警器
+    private EcgHrHistogram hrHistogram; // Ecg心率直方图
+    private EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
+    private final EcgMonitorDeviceConfig config; // 设备配置信息
+    private IEcgMonitorObserver observer; // 设备观察者
+
     public int getSampleRate() { return sampleRate; }
-    private EcgLeadType leadType = DEFAULT_LEADTYPE;                // 导联类型
     public EcgLeadType getLeadType() {
         return leadType;
     }
-    private int value1mVBeforeCalibrate = 0;
     public int getValue1mVBeforeCalibrate() { return value1mVBeforeCalibrate; }
-    private final int value1mVAfterCalibrate = DEFAULT_CALIBRATIONVALUE;
     public int getValue1mVAfterCalibrate() { return value1mVAfterCalibrate; }
-    private List<Integer> calibrationData = new ArrayList<>(250);       // 用于保存标定用的数据
-    private int currentHr = 0;
     public int getCurrentHr() { return currentHr; }
-
-    private boolean isRecord = false;                               // 是否记录信号
     public boolean isRecord() {return isRecord;}
-    private boolean isFilter = true;                             // 是否对信号滤波
     public boolean isFilter() {return isFilter;}
-
-    private EcgFile ecgFile = null;                                 // 用于保存心电信号的EcgFile文件对象
-    private List<EcgComment> commentList = new ArrayList<>();   // 当前信号的留言列表
-
-    private long recordDataNum = 0;                                 // 记录的心电数据个数
-    // 获取记录的时间，单位为秒
+    public int getPixelPerGrid() { return pixelPerGrid; }
+    public int getxPixelPerData() { return xPixelPerData; }
+    public float getyValuePerPixel() { return yValuePerPixel; }
     public int getRecordSecond() {
         return (int)(recordDataNum/sampleRate);
-    }
-
-    private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
-    public int getPixelPerGrid() { return pixelPerGrid; }
-    private int xPixelPerData = 2;     // 计算横向分辨率
-    public int getxPixelPerData() { return xPixelPerData; }
-    private float yValuePerPixel = 100.0f;                      // 计算纵向分辨率
-    public float getyValuePerPixel() { return yValuePerPixel; }
-
-    private IEcgCalibrator ecgCalibrator;                    // Ecg信号定标器
-    private IEcgFilter ecgFilter;                            // Ecg信号滤波器
-    private QrsDetector qrsDetector;                         // Ecg Qrs波检测器，可用于获取心率
-    private EcgHrWarner hrWarner;                            // Ecg心率报警器
-    private EcgHrHistogram hrHistogram;                      // Ecg心率直方图
-
-    // 设备状态
-    private EcgMonitorState state = EcgMonitorState.INIT;
+    } // 获取记录的时间，单位为秒
     public EcgMonitorState getState() {
         return state;
     }
     private void setState(EcgMonitorState state) {
-        this.state = state;
-        updateEcgMonitorState();
+        if(this.state != state) {
+            this.state = state;
+            updateEcgMonitorState();
+        }
     }
-
-    // 设备配置信息
-    private final EcgMonitorDeviceConfig config;
     public EcgMonitorDeviceConfig getConfig() {
         return config;
     }
@@ -157,7 +151,6 @@ public class EcgMonitorDevice extends BleDevice {
         this.config.save();
         changeConfiguration(config);
     }
-
     private void changeConfiguration(EcgMonitorDeviceConfig config) {
         if(config.isWarnWhenHrAbnormal()) {
             if(hrWarner != null) {
@@ -170,9 +163,7 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
-    // 设备观察者
-    private IEcgMonitorObserver observer;
-
+    // 构造器
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
         List<EcgMonitorDeviceConfig> find = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);
@@ -224,7 +215,7 @@ public class EcgMonitorDevice extends BleDevice {
             }
         });
 
-        // 启动标定
+        // 启动1mV采样，准备标定
         setState(EcgMonitorState.CALIBRATING);
         startSample1mV();
 
@@ -275,6 +266,34 @@ public class EcgMonitorDevice extends BleDevice {
             default:
                 break;
         }
+    }
+
+    // 关闭设备
+    @Override
+    public void close() {
+        super.close();
+
+        //removeEcgMonitorObserver();
+
+        if(hrHistogram != null)
+            hrHistogram.reset();
+
+        if(isRecord) {
+            saveEcgFile();
+            isRecord = false;
+        }
+    }
+
+    @Override
+    public void disconnect() {
+        ViseLog.e(TAG, "disconnect()");
+        stopSampleData();
+        workHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                EcgMonitorDevice.super.disconnect();
+            }
+        }, 500);
     }
 
     // 设置是否记录心电信号
@@ -348,6 +367,16 @@ public class EcgMonitorDevice extends BleDevice {
         if(hrHistogram != null) {
             hrHistogram.reset();
         }
+    }
+
+    // 登记心电监护仪观察者
+    public void registerEcgMonitorObserver(IEcgMonitorObserver observer) {
+        this.observer = observer;
+    }
+
+    // 删除心电监护仪观察者
+    public void removeEcgMonitorObserver() {
+        observer = null;
     }
 
     // 检测基本心电监护服务是否正常
@@ -536,8 +565,6 @@ public class EcgMonitorDevice extends BleDevice {
         return ecgFile;
     }
 
-
-
     // 初始化EcgView
     private void initializeEcgView(int sampleRate, int calibrationValue) {
         //pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
@@ -656,43 +683,7 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
 
-    // 登记心电监护仪观察者
-    public void registerEcgMonitorObserver(IEcgMonitorObserver observer) {
-        this.observer = observer;
-    }
 
-    // 删除心电监护仪观察者
-    public void removeEcgMonitorObserver() {
-        observer = null;
-    }
-
-    // 关闭设备
-    @Override
-    public void close() {
-        super.close();
-
-        //removeEcgMonitorObserver();
-
-        if(hrHistogram != null)
-            hrHistogram.reset();
-
-        if(isRecord) {
-            saveEcgFile();
-            isRecord = false;
-        }
-    }
-
-    @Override
-    public void disconnect() {
-        ViseLog.e(TAG, "disconnect()");
-        stopSampleData();
-        workHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                EcgMonitorDevice.super.disconnect();
-            }
-        }, 500);
-    }
 
     private void updateEcgMonitorState() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
