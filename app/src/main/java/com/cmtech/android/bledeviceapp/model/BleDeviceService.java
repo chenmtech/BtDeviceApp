@@ -110,6 +110,10 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
+                for(final BleDevice device : getDeviceList()) {
+                    device.quit();
+                }
+
                 // 防止设备没有彻底断开
                 BleDeviceUtil.disconnectAllDevice();
                 BleDeviceUtil.clearAllDevice();

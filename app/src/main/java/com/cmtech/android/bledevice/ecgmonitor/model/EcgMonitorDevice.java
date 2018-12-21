@@ -263,8 +263,7 @@ public class EcgMonitorDevice extends BleDevice {
             // 接收到Ecg数据：Ecg信号或者定标数据
             case MSG_OBTAINDATA:
                 if(msg.obj != null) {
-                    byte[] data = (byte[]) msg.obj;
-                    processData(data);
+                    processData((byte[]) msg.obj);
                 }
                 break;
 
@@ -319,7 +318,7 @@ public class EcgMonitorDevice extends BleDevice {
                 break;
             case SAMPLE:
                 stopSampleData();
-                getHandler().removeCallbacksAndMessages(null);
+                workHandler.removeCallbacksAndMessages(null);
                 setState(EcgMonitorState.CALIBRATED);
                 break;
                 default:
@@ -370,6 +369,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 处理数据
     private void processData(byte[] data) {
+        ViseLog.i("Process Data in Thread: " +  Thread.currentThread());
         // 单片机发过来的是LITTLE_ENDIAN的数据
         ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
         // 单片机发过来的int是两个字节的short
@@ -686,7 +686,7 @@ public class EcgMonitorDevice extends BleDevice {
     public void disconnect() {
         ViseLog.e(TAG, "disconnect()");
         stopSampleData();
-        getHandler().postDelayed(new Runnable() {
+        workHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 EcgMonitorDevice.super.disconnect();
