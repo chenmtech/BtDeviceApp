@@ -7,7 +7,6 @@ import android.os.Message;
 import com.cmtech.android.bledevice.core.BleDataOpException;
 import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.core.BleGattElement;
 import com.cmtech.android.bledevice.core.IBleDataOpCallback;
 import com.vise.log.ViseLog;
@@ -32,14 +31,21 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
 public class TempHumidDevice extends BleDevice {
     private static final String TAG = "TempHumidDevice";
 
+    /**
+     * 一般常量
+     */
+    private static final byte DEVICE_DEFAULT_TIMER_PERIOD  = 30; // 设备默认定时周期，单位：分钟
+    private static final int DEFAULT_TEMPHUMID_PERIOD  = 5000; // 默认温湿度采样周期，单位：毫秒
+
+    /**
+     * GATT消息常量
+     */
     private static final int MSG_TEMPHUMIDDATA = 1;             // 当前温湿度数据消息
     private static final int MSG_TEMPHUMIDCTRL = 2;             //
     private static final int MSG_TEMPHUMIDPERIOD = 3;
     private static final int MSG_TEMPHUMIDHISTORYDATA = 4;      // 历史数据消息
     private static final int MSG_TIMERVALUE = 5;                // 定时器服务特征值消息
 
-    private static final byte DEVICE_DEFAULT_TIMER_PERIOD  = 30; // 设备默认定时周期，单位：分钟
-    private static final int DEFAULT_TEMPHUMID_PERIOD  = 5000; // 默认温湿度采样周期，单位：毫秒
 
     ///////////////// 温湿度计Service相关的常量////////////////
     private static final String tempHumidServiceUuid    = "aa60";           // 温湿度计服务UUID:aa60
@@ -49,22 +55,19 @@ public class TempHumidDevice extends BleDevice {
     private static final String tempHumidHistoryTimeUuid  = "aa64";         // 历史数据采集的时间UUID
     private static final String tempHumidHistoryDataUuid = "aa65";          // 历史数据UUID
 
-
+    /**
+     * Gatt Element常量
+     */
     private static final BleGattElement TEMPHUMIDDATA =
             new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, null, MY_BASE_UUID, "温湿度数据");
-
     private static final BleGattElement TEMPHUMIDCTRL =
             new BleGattElement(tempHumidServiceUuid, tempHumidCtrlUuid, null, MY_BASE_UUID, "温湿度Ctrl");
-
     private static final BleGattElement TEMPHUMIDPERIOD =
             new BleGattElement(tempHumidServiceUuid, tempHumidPeriodUuid, null, MY_BASE_UUID, "采集周期(ms)");
-
     private static final BleGattElement TEMPHUMIDDATACCC =
             new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, CCCUUID, MY_BASE_UUID, "温湿度CCC");
-
     private static final BleGattElement TEMPHUMIDHISTORYTIME =
             new BleGattElement(tempHumidServiceUuid, tempHumidHistoryTimeUuid, null, MY_BASE_UUID, "历史数据采集时间");
-
     private static final BleGattElement TEMPHUMIDHISTORYDATA =
             new BleGattElement(tempHumidServiceUuid, tempHumidHistoryDataUuid, null, MY_BASE_UUID, "温湿度历史数据");
 
@@ -155,11 +158,11 @@ public class TempHumidDevice extends BleDevice {
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
-        if(!gattOperator.checkGattElement(elements)) return false;
+        if(!gattOperator.checkGattElements(elements)) return false;
 
         // 检查是否有温湿度历史数据服务和特征值
         elements = new BleGattElement[]{TIMERVALUE, TEMPHUMIDHISTORYTIME, TEMPHUMIDHISTORYDATA};
-        hasTimerService = gattOperator.checkGattElement(elements);
+        hasTimerService = gattOperator.checkGattElements(elements);
 
         // 先读取一次当前温湿度值
         readCurrentTempHumid();

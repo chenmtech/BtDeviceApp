@@ -167,7 +167,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onClick(View view) {
                 boolean isRecord = !device.isRecord();
-                device.setEcgRecord(isRecord);
+                device.setRecord(isRecord);
 
                 /*for(Button button : commentBtnList) {
                     button.setEnabled(isRecord);
@@ -180,7 +180,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         cbEcgFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                device.hookEcgFilter(b);
+                device.setFilter(b);
             }
         });
 

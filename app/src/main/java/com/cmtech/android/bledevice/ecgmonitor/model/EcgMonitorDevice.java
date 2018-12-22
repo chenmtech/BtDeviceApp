@@ -98,12 +98,12 @@ public class EcgMonitorDevice extends BleDevice {
     private int currentHr = 0; // 当前心率值
     private boolean isRecord = false; // 是否记录信号
     private boolean isFilter = true; // 是否对信号进行滤波
-    private EcgFile ecgFile = null; // 用于保存心电信号的EcgFile文件
     private final List<EcgComment> commentList = new ArrayList<>(); // 当前信号的留言表
     private long recordDataNum = 0; // 当前记录的心电数据个数
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
     private int xPixelPerData = 2; // EcgView的横向分辨率
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
+    private EcgFile ecgFile = null; // 用于记录心电信号的EcgFile文件
     private IEcgCalibrator ecgCalibrator; // Ecg信号定标器
     private IEcgFilter ecgFilter; // Ecg信号滤波器
     private QrsDetector qrsDetector; // Ecg Qrs波检测器，可用于获取心率
@@ -125,6 +125,9 @@ public class EcgMonitorDevice extends BleDevice {
     public int getCurrentHr() { return currentHr; }
     public boolean isRecord() {return isRecord;}
     public boolean isFilter() {return isFilter;}
+    public synchronized void setFilter(boolean isFilter) {
+        this.isFilter = isFilter;
+    } // 加载Ecg滤波器
     public int getPixelPerGrid() { return pixelPerGrid; }
     public int getxPixelPerData() { return xPixelPerData; }
     public float getyValuePerPixel() { return yValuePerPixel; }
@@ -155,6 +158,7 @@ public class EcgMonitorDevice extends BleDevice {
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
 
+        // 从数据库获取设备的配置信息
         List<EcgMonitorDeviceConfig> find = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);
         if(find == null || find.size() == 0) {
             config = new EcgMonitorDeviceConfig();
@@ -174,8 +178,9 @@ public class EcgMonitorDevice extends BleDevice {
         // 启动gattOperator
         gattOperator.start();
 
+        // 验证Gatt Elements
         BleGattElement[] elements = new BleGattElement[]{ECGMONITORDATA, ECGMONITORDATACCC, ECGMONITORCTRL, ECGMONITORSAMPLERATE, ECGMONITORLEADTYPE};
-        if(!gattOperator.checkGattElement(elements)) {
+        if(!gattOperator.checkGattElements(elements)) {
             return false;
         }
 
@@ -189,8 +194,6 @@ public class EcgMonitorDevice extends BleDevice {
         readLeadType();
 
         // 启动1mV采样，准备标定
-        setState(EcgMonitorState.CALIBRATING);
-        calibrationData.clear();
         startSample1mV();
 
         return true;
@@ -249,11 +252,11 @@ public class EcgMonitorDevice extends BleDevice {
     public void close() {
         super.close();
 
-        //removeEcgMonitorObserver();
-
+        // 清楚hr直方图
         if(hrHistogram != null)
             hrHistogram.reset();
 
+        // 保存EcgFile
         if(isRecord) {
             saveEcgFile();
             isRecord = false;
@@ -264,7 +267,7 @@ public class EcgMonitorDevice extends BleDevice {
     public void disconnect() {
         ViseLog.e(TAG, "disconnect()");
         stopSampleData();
-        workHandler.postDelayed(new Runnable() {
+        postDelayed(new Runnable() {
             @Override
             public void run() {
                 EcgMonitorDevice.super.disconnect();
@@ -273,20 +276,20 @@ public class EcgMonitorDevice extends BleDevice {
     }
 
     // 设置是否记录心电信号
-    public synchronized void setEcgRecord(boolean isRecord) {
+    public synchronized void setRecord(boolean isRecord) {
         if(this.isRecord == isRecord) return;
 
         // 当前isRecord与要设置的isRecord不同，就意味着要改变当前的isRecord状态
         if(this.isRecord) {
-            saveEcgFile();              // 停止记录心电信号，保存Ecg文件
+            saveEcgFile();              // 保存Ecg文件
         }
 
         this.isRecord = isRecord;
 
         if(this.isRecord) {
-            // 如果已经标定了或者开始采样了,才可以开始记录心电信号，初始化Ecg文件
+            // 如果已经标定了或者采样了,才可以开始记录心电信号，初始化EcgFile
             if(state == EcgMonitorState.CALIBRATED || state == EcgMonitorState.SAMPLE)
-                initializeEcgRecorder(sampleRate, value1mVAfterCalibrate, leadType);
+                initializeEcgFile(sampleRate, value1mVAfterCalibrate, leadType);
             else {
                 // 否则什么都不做，会在标定后根据isRecord值初始化Ecg文件
             }
@@ -295,17 +298,11 @@ public class EcgMonitorDevice extends BleDevice {
         updateRecordStatus(isRecord);
     }
 
-    // 加载Ecg滤波器
-    public synchronized void hookEcgFilter(boolean isFilter) {
-        this.isFilter = isFilter;
-    }
 
     // 转换当前状态
     public synchronized void switchSampleState() {
         switch(state) {
             case INIT:
-                setState(EcgMonitorState.CALIBRATING);
-                calibrationData.clear();
                 startSample1mV();
                 break;
             case CALIBRATED:
@@ -314,7 +311,7 @@ public class EcgMonitorDevice extends BleDevice {
                 break;
             case SAMPLE:
                 stopSampleData();
-                workHandler.removeCallbacksAndMessages(null);
+                removeCallbacksAndMessages();
                 setState(EcgMonitorState.CALIBRATED);
                 break;
                 default:
@@ -436,6 +433,8 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 启动1mV定标信号采集
     private void startSample1mV() {
+        setState(EcgMonitorState.CALIBRATING);
+        calibrationData.clear();
         IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
@@ -567,7 +566,7 @@ public class EcgMonitorDevice extends BleDevice {
 
         // 初始化Ecg记录器
         if(isRecord) {
-            initializeEcgRecorder(sampleRate, value1mVAfterCalibrate, leadType);        // 如果需要记录，就初始化Ecg文件
+            initializeEcgFile(sampleRate, value1mVAfterCalibrate, leadType);        // 如果需要记录，就初始化Ecg文件
         }
 
         // 初始化Qrs波检测器
@@ -589,8 +588,8 @@ public class EcgMonitorDevice extends BleDevice {
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
     }
 
-    // 初始化Ecg记录器
-    private void initializeEcgRecorder(int sampleRate, int calibrationValue, EcgLeadType leadType) {
+    // 初始化EcgFile
+    private void initializeEcgFile(int sampleRate, int calibrationValue, EcgLeadType leadType) {
         if(ecgFile != null) return;
 
         ecgFile = EcgFile.create(sampleRate, calibrationValue, getMacAddress(), leadType);

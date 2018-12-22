@@ -37,7 +37,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     private ScanCallback filterScanCallback = null; // 扫描回调适配器，将IScanCallback适配为BluetoothAdapter.LeScanCallback
     private final IScanCallback scanCallback = new MyScanCallback(this); // 扫描回调，注意与上述的ScanCallback相区别
     private final MyConnectCallback connectCallback = new MyConnectCallback(this); // 连接回调
-    protected final Handler workHandler = createWorkHandler(); // 工作Handler
+    private final Handler workHandler = createWorkHandler(); // 工作Handler
     protected final BleDeviceGattOperator gattOperator = new BleDeviceGattOperator(this); // Gatt执行器
 
     public BleDeviceBasicInfo getBasicInfo() {

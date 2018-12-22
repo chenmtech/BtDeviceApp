@@ -20,7 +20,7 @@ public class BleDeviceGattOperator {
     }
 
     // 检测GattElement是否存在于device中
-    public boolean checkGattElement(BleGattElement[] elements) {
+    public boolean checkGattElements(BleGattElement[] elements) {
         for(BleGattElement element : elements) {
             if(BleDeviceUtil.getGattObject(device, element) == null) return false;
         }
