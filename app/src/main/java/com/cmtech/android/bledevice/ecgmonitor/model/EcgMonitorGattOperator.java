@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.core.BleDataOpException;
+import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceGattOperator;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.core.BleGattElement;
@@ -44,8 +45,8 @@ public class EcgMonitorGattOperator extends BleDeviceGattOperator {
     private static final byte ECGMONITORCTRL_STARTSIGNAL =      (byte) 0x01;        // 启动采集Ecg信号
     private static final byte ECGMONITORCTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
 
-    public EcgMonitorGattOperator() {
-        super();
+    public EcgMonitorGattOperator(BleDevice device) {
+        super(device);
     }
 
     // 读采样率

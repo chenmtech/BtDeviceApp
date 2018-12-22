@@ -90,8 +90,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         }
     };
     protected final Handler workHandler; // 工作Handler
-    private final BleDeviceGattOperator gattOperator; // Gatt操作者
-
 
     public BleDeviceBasicInfo getBasicInfo() {
         return basicInfo;
@@ -141,10 +139,8 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     // 构造器
-    public BleDevice(BleDeviceBasicInfo basicInfo, BleDeviceGattOperator gattOperator) {
+    public BleDevice(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
-        this.gattOperator = gattOperator;
-        gattOperator.setDevice(this);
         workHandler = createWorkHandler();
     }
 

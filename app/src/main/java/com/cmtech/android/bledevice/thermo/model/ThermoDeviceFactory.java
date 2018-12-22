@@ -8,8 +8,7 @@ import com.cmtech.android.bledevice.core.BleDeviceFragment;
 public class ThermoDeviceFactory extends AbstractBleDeviceFactory {
     @Override
     public BleDevice createBleDevice() {
-        ThermoGattOperator gattOperator = new ThermoGattOperator();
-        return new ThermoDevice(basicInfo, gattOperator);
+        return new ThermoDevice(basicInfo);
     }
 
     @Override

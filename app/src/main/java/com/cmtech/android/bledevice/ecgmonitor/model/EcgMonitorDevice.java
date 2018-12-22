@@ -126,8 +126,8 @@ public class EcgMonitorDevice extends BleDevice {
 
 
     // 构造器
-    public EcgMonitorDevice(BleDeviceBasicInfo basicInfo, EcgMonitorGattOperator gattOperator) {
-        super(basicInfo, gattOperator);
+    public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
+        super(basicInfo);
 
         List<EcgMonitorDeviceConfig> find = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);
         if(find == null || find.size() == 0) {
@@ -138,7 +138,7 @@ public class EcgMonitorDevice extends BleDevice {
             config = find.get(0);
         }
 
-        this.gattOperator = gattOperator;
+        gattOperator = new EcgMonitorGattOperator(this);
     }
 
     @Override

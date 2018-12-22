@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.thermo.model;
 import android.util.Log;
 
 import com.cmtech.android.bledevice.core.BleDataOpException;
+import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceGattOperator;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.core.BleGattElement;
@@ -28,8 +29,8 @@ public class ThermoGattOperator extends BleDeviceGattOperator {
     private static final BleGattElement THERMODATACCC =
             new BleGattElement(thermoServiceUuid, thermoDataUuid, CCCUUID, MY_BASE_UUID, "体温CCC");
 
-    public ThermoGattOperator() {
-        super();
+    public ThermoGattOperator(BleDevice device) {
+        super(device);
     }
 
     public void readThermoData() {

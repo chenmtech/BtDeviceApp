@@ -11,8 +11,7 @@ import com.cmtech.android.bledevice.core.BleDeviceFragment;
 public class TempHumidDeviceFactory extends AbstractBleDeviceFactory {
     @Override
     public BleDevice createBleDevice() {
-        TempHumidGattOperator gattOperator = new TempHumidGattOperator();
-        return new TempHumidDevice(basicInfo, gattOperator);
+        return new TempHumidDevice(basicInfo);
     }
 
     @Override

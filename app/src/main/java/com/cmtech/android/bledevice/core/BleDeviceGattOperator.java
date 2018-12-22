@@ -12,15 +12,11 @@ import com.vise.log.ViseLog;
 public abstract class BleDeviceGattOperator {
 
     private BleGattCommandExecutor commandExecutor;
-    protected BleDevice device;
+    protected final BleDevice device;
 
-    public BleDeviceGattOperator() {
-
-    }
-
-    public BleDevice getDevice() { return device; }
-    public void setDevice(BleDevice device) {
+    public BleDeviceGattOperator(BleDevice device) {
         this.device = device;
+
     }
 
     public abstract boolean checkBasicService();

@@ -88,11 +88,11 @@ public class TempHumidDevice extends BleDevice {
 
 
     // 构造器
-    public TempHumidDevice(BleDeviceBasicInfo basicInfo, TempHumidGattOperator gattOperator) {
-        super(basicInfo, gattOperator);
+    public TempHumidDevice(BleDeviceBasicInfo basicInfo) {
+        super(basicInfo);
         initializeAfterConstruction();
 
-        this.gattOperator = gattOperator;
+        this.gattOperator = new TempHumidGattOperator(this);
     }
 
     private void initializeAfterConstruction() {

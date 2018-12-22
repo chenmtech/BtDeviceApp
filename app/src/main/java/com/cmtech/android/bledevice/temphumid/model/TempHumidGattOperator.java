@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
 import com.cmtech.android.bledevice.core.BleDataOpException;
+import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceGattOperator;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.core.BleGattElement;
@@ -58,8 +59,8 @@ public class TempHumidGattOperator extends BleDeviceGattOperator {
 
 
 
-    public TempHumidGattOperator() {
-        super();
+    public TempHumidGattOperator(BleDevice device) {
+        super(device);
     }
 
 

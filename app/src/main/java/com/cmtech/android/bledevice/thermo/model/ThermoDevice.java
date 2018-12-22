@@ -57,10 +57,10 @@ public class ThermoDevice extends BleDevice {
         updateThermoData();
     }
 
-    public ThermoDevice(BleDeviceBasicInfo basicInfo, ThermoGattOperator gattOperator) {
-        super(basicInfo, gattOperator);
+    public ThermoDevice(BleDeviceBasicInfo basicInfo) {
+        super(basicInfo);
         initializeAfterConstruction();
-        this.gattOperator = gattOperator;
+        this.gattOperator = new ThermoGattOperator(this);
     }
 
     private void initializeAfterConstruction() {

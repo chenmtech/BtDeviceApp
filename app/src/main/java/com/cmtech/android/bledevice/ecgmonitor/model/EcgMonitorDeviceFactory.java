@@ -9,8 +9,7 @@ import com.cmtech.android.bledevice.core.BleDeviceFragment;
 public class EcgMonitorDeviceFactory extends AbstractBleDeviceFactory {
     @Override
     public BleDevice createBleDevice() {
-        EcgMonitorGattOperator gattOperator = new EcgMonitorGattOperator();
-        return new EcgMonitorDevice(basicInfo, gattOperator);
+        return new EcgMonitorDevice(basicInfo);
     }
 
     @Override
