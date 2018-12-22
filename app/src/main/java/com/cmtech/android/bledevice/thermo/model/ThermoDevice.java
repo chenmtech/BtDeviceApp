@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import com.cmtech.android.bledevice.temphumid.model.TempHumidGattOperator;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledevice.core.BleDataOpException;
 import com.cmtech.android.bledevice.core.BleDevice;
@@ -20,28 +21,17 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
 
 public class ThermoDevice extends BleDevice {
-    private static final int MSG_THERMODATA = 1;
+    public static final int MSG_THERMODATA = 1;
 
-    ///////////////// 体温计Service相关的常量////////////////
-    private static final String thermoServiceUuid       = "aa30";           // 体温计服务UUID:aa30
-    private static final String thermoDataUuid          = "aa31";           // 体温数据特征UUID:aa31
-    private static final String thermoControlUuid       = "aa32";           // 体温测量控制UUID:aa32
-    private static final String thermoPeriodUuid        = "aa33";           // 体温采样周期UUID:aa33
 
-    private static final BleGattElement THERMODATA =
-            new BleGattElement(thermoServiceUuid, thermoDataUuid, null, MY_BASE_UUID, "体温值");
-    private static final BleGattElement THERMOCONTROL =
-            new BleGattElement(thermoServiceUuid, thermoControlUuid, null, MY_BASE_UUID, "体温Ctrl");
-    private static final BleGattElement THERMOPERIOD =
-            new BleGattElement(thermoServiceUuid, thermoPeriodUuid, null, MY_BASE_UUID, "采集周期(s)");
-    private static final BleGattElement THERMODATACCC =
-            new BleGattElement(thermoServiceUuid, thermoDataUuid, CCCUUID, MY_BASE_UUID, "体温CCC");
 
     private static final byte DEFAULT_SAMPLE_PERIOD = (byte)0x01;
     ///////////////////////////////////////////////////////
 
     // 当前体温数据观察者列表
     private final List<IThermoDataObserver> thermoDataObserverList = new LinkedList<>();
+
+    private final ThermoGattOperator gattOperator; // Gatt操作者
 
 
     private double curTemp = 0.0;
@@ -67,9 +57,10 @@ public class ThermoDevice extends BleDevice {
         updateThermoData();
     }
 
-    public ThermoDevice(BleDeviceBasicInfo basicInfo) {
-        super(basicInfo);
+    public ThermoDevice(BleDeviceBasicInfo basicInfo, ThermoGattOperator gattOperator) {
+        super(basicInfo, gattOperator);
         initializeAfterConstruction();
+        this.gattOperator = gattOperator;
     }
 
     private void initializeAfterConstruction() {
@@ -77,36 +68,28 @@ public class ThermoDevice extends BleDevice {
 
     @Override
     public boolean executeAfterConnectSuccess() {
+        gattOperator.start();
 
         // 检查是否有正常的温湿度服务和特征值
-        if(!checkBasicThermoService()) return false;
+        if(!gattOperator.checkBasicService()) return false;
 
         resetHighestTemp();
 
         // 读温度数据
-        addReadCommand(THERMODATA, new IBleDataOpCallback() {
-            @Override
-            public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_THERMODATA, data);
-            }
+        gattOperator.readThermoData();
 
-            @Override
-            public void onFailure(BleDataOpException exception) {
-            }
-        });
-
-        startThermometer(DEFAULT_SAMPLE_PERIOD);
+        gattOperator.startThermometer(DEFAULT_SAMPLE_PERIOD);
         return true;
     }
 
     @Override
     public void executeAfterDisconnect() {
-
+        gattOperator.stop();
     }
 
     @Override
     public void executeAfterConnectFailure() {
-
+        gattOperator.stop();
     }
 
     @Override
@@ -127,47 +110,7 @@ public class ThermoDevice extends BleDevice {
         }
     }
 
-    // 检测基本温湿度服务是否正常
-    private boolean checkBasicThermoService() {
-        Object thermoData = BleDeviceUtil.getGattObject(this, THERMODATA);
-        Object thermoControl = BleDeviceUtil.getGattObject(this, THERMOCONTROL);
-        Object thermoPeriod = BleDeviceUtil.getGattObject(this, THERMOPERIOD);
-        Object thermoDataCCC = BleDeviceUtil.getGattObject(this, THERMODATACCC);
 
-        if(thermoData == null || thermoControl == null || thermoPeriod == null || thermoDataCCC == null) {
-            Log.d("ThermoFragment", "Can't find the Gatt object on the device.");
-            return false;
-        }
-
-        return true;
-    }
-
-    /*
-    启动体温计，设置采样周期
-    period: 采样周期，单位：秒
-     */
-    private void startThermometer(byte period) {
-        // 设置采样周期
-        addWriteCommand(THERMOPERIOD, period, null);
-
-        IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
-            @Override
-            public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_THERMODATA, data);
-            }
-
-            @Override
-            public void onFailure(BleDataOpException exception) {
-
-            }
-        };
-
-        // enable温度数据notify
-        addNotifyCommand(THERMODATACCC, true, null, notifyCallback);
-
-        // 启动温度采集
-        addWriteCommand(THERMOCONTROL, (byte)0x03, null);
-    }
 
     // 登记体温数据观察者
     public void registerThermoDataObserver(IThermoDataObserver observer) {

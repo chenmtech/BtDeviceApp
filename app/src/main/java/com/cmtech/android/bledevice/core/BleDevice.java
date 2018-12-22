@@ -18,6 +18,7 @@ import com.cmtech.android.ble.core.IDeviceMirrorStateObserver;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorGattOperator;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 
@@ -37,7 +38,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     private BleDeviceBasicInfo basicInfo; // 设备基本信息对象
     private BluetoothLeDevice bluetoothLeDevice = null; // 设备BluetoothLeDevice，当扫描到后会赋值，并一直保留，直到程序关闭
-    private BleGattCommandExecutor commandExecutor; // GATT命令串行执行器
     private final List<IBleDeviceStateObserver> stateObserverList = new LinkedList<>(); // 设备状态观察者列表
     private boolean isClosing = false; // 标记设备是否正在关闭，如果是，则对设备的所有回调都不会响应
     private int curReconnectTimes = 0; // 当前的重连次数
@@ -90,6 +90,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         }
     };
     protected final Handler workHandler; // 工作Handler
+    private final BleDeviceGattOperator gattOperator; // Gatt操作者
 
 
     public BleDeviceBasicInfo getBasicInfo() {
@@ -135,16 +136,15 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     public int getStateIcon() {
         return connectState.getIcon();
     }
-    public BleGattCommandExecutor getCommandExecutor() {
-        return commandExecutor;
-    }
 
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
     // 构造器
-    public BleDevice(BleDeviceBasicInfo basicInfo) {
+    public BleDevice(BleDeviceBasicInfo basicInfo, BleDeviceGattOperator gattOperator) {
         this.basicInfo = basicInfo;
+        this.gattOperator = gattOperator;
+        gattOperator.setDevice(this);
         workHandler = createWorkHandler();
     }
 
@@ -208,7 +208,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 断开连接
     protected synchronized void disconnect() {
-        stopCommandExecutor();
         executeAfterDisconnect();
         workHandler.removeCallbacksAndMessages(null);
 
@@ -354,25 +353,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         }
     }
 
-    // 创建Gatt命令执行器，并启动执行器
-    private void createGattCommandExecutor() {
-        if((commandExecutor != null) && commandExecutor.isAlive()) return;
-        DeviceMirror deviceMirror = BleDeviceUtil.getDeviceMirror(this);
-        if(deviceMirror == null) return;
-
-        commandExecutor = new BleGattCommandExecutor(deviceMirror);
-        commandExecutor.start();
-        ViseLog.i("create new command executor.");
-    }
-
-    // 停止Gatt命令执行器
-    private void stopCommandExecutor() {
-        if((commandExecutor != null) && commandExecutor.isAlive()) {
-            ViseLog.i("stop command executor.");
-            commandExecutor.stop();
-        }
-    }
-
     // 扫描结束回调处理
     private void onScanFinish(boolean result) {
         ViseLog.i("onScanFinish " + result);
@@ -406,7 +386,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         setConnectState(BleDeviceConnectState.getFromCode(mirror.getConnectState().getCode()));
 
         // 创建Gatt串行命令执行器
-        createGattCommandExecutor();
         if(!executeAfterConnectSuccess()) {
             workHandler.post(new Runnable() {
                 @Override
@@ -427,7 +406,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             return;
 
         // 仍然有可能会连续执行两次下面语句
-        stopCommandExecutor();
         executeAfterConnectFailure();
         workHandler.removeCallbacksAndMessages(null);
         workHandler.postDelayed(new Runnable() {
@@ -446,7 +424,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
         if(isClosing) {
             setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
         } else if(!isActive) {
-            stopCommandExecutor();
             executeAfterConnectFailure();
             workHandler.removeCallbacksAndMessages(null);
         }

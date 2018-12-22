@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import com.cmtech.android.bledevice.core.BleDeviceGattOperator;
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.EcgCalibrator65536;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.IEcgCalibrator;
@@ -16,12 +17,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
-import com.cmtech.android.bledevice.core.BleDataOpException;
 import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
-import com.cmtech.android.bledevice.core.BleGattElement;
-import com.cmtech.android.bledevice.core.IBleDataOpCallback;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
@@ -42,8 +39,6 @@ import java.util.List;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.CACHEDIR;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
 
 
 /**
@@ -131,8 +126,8 @@ public class EcgMonitorDevice extends BleDevice {
 
 
     // 构造器
-    public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
-        super(basicInfo);
+    public EcgMonitorDevice(BleDeviceBasicInfo basicInfo, EcgMonitorGattOperator gattOperator) {
+        super(basicInfo, gattOperator);
 
         List<EcgMonitorDeviceConfig> find = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);
         if(find == null || find.size() == 0) {
@@ -143,7 +138,7 @@ public class EcgMonitorDevice extends BleDevice {
             config = find.get(0);
         }
 
-        gattOperator = new EcgMonitorGattOperator(this);
+        this.gattOperator = gattOperator;
     }
 
     @Override
@@ -152,7 +147,9 @@ public class EcgMonitorDevice extends BleDevice {
         updateLeadType(DEFAULT_LEADTYPE);
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
-        if(!gattOperator.checkService()) {
+        gattOperator.start();
+
+        if(!gattOperator.checkBasicService()) {
             return false;
         }
 
@@ -175,10 +172,12 @@ public class EcgMonitorDevice extends BleDevice {
 
     @Override
     public void executeAfterDisconnect() {
+        gattOperator.stop();
     }
 
     @Override
     public void executeAfterConnectFailure() {
+        gattOperator.stop();
     }
 
     @Override

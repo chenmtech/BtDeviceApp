@@ -44,11 +44,8 @@ public class EcgMonitorGattOperator extends BleDeviceGattOperator {
     private static final byte ECGMONITORCTRL_STARTSIGNAL =      (byte) 0x01;        // 启动采集Ecg信号
     private static final byte ECGMONITORCTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
 
-    private final EcgMonitorDevice device;
-
-    public EcgMonitorGattOperator(EcgMonitorDevice device) {
-        super(device.getCommandExecutor());
-        this.device = device;
+    public EcgMonitorGattOperator() {
+        super();
     }
 
     // 读采样率
@@ -141,7 +138,7 @@ public class EcgMonitorGattOperator extends BleDeviceGattOperator {
     }
 
     @Override
-    public boolean checkService() {
+    public boolean checkBasicService() {
         if(BleDeviceUtil.getGattObject(device, ECGMONITORDATA) == null) return false;
         if(BleDeviceUtil.getGattObject(device, ECGMONITORCTRL) == null) return false;
         if(BleDeviceUtil.getGattObject(device, ECGMONITORSAMPLERATE) == null) return false;

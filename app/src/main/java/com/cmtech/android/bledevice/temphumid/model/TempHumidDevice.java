@@ -10,6 +10,7 @@ import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.core.BleGattElement;
 import com.cmtech.android.bledevice.core.IBleDataOpCallback;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorGattOperator;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -27,52 +28,15 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
 public class TempHumidDevice extends BleDevice {
     private static final String TAG = "TempHumidDevice";
 
-    private static final int MSG_TEMPHUMIDDATA = 1;             // 当前温湿度数据消息
-    private static final int MSG_TEMPHUMIDCTRL = 2;             //
-    private static final int MSG_TEMPHUMIDPERIOD = 3;
-    private static final int MSG_TEMPHUMIDHISTORYDATA = 4;      // 历史数据消息
-    private static final int MSG_TIMERVALUE = 5;                // 定时器服务特征值消息
-
-
-    ///////////////// 温湿度计Service相关的常量////////////////
-    private static final String tempHumidServiceUuid    = "aa60";           // 温湿度计服务UUID:aa60
-    private static final String tempHumidDataUuid       = "aa61";           // 温湿度数据特征UUID:aa61
-    private static final String tempHumidCtrlUuid       = "aa62";           // 测量控制UUID:aa62
-    private static final String tempHumidPeriodUuid     = "aa63";           // 采样周期UUID:aa63
-    private static final String tempHumidHistoryTimeUuid  = "aa64";         // 历史数据采集的时间UUID
-    private static final String tempHumidHistoryDataUuid = "aa65";          // 历史数据UUID
-
-
-    private static final BleGattElement TEMPHUMIDDATA =
-            new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, null, MY_BASE_UUID, "温湿度数据");
-
-    private static final BleGattElement TEMPHUMIDCTRL =
-            new BleGattElement(tempHumidServiceUuid, tempHumidCtrlUuid, null, MY_BASE_UUID, "温湿度Ctrl");
-
-    private static final BleGattElement TEMPHUMIDPERIOD =
-            new BleGattElement(tempHumidServiceUuid, tempHumidPeriodUuid, null, MY_BASE_UUID, "采集周期(ms)");
-
-    private static final BleGattElement TEMPHUMIDDATACCC =
-            new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, CCCUUID, MY_BASE_UUID, "温湿度CCC");
-
-    private static final BleGattElement TEMPHUMIDHISTORYTIME =
-            new BleGattElement(tempHumidServiceUuid, tempHumidHistoryTimeUuid, null, MY_BASE_UUID, "历史数据采集时间");
-
-    private static final BleGattElement TEMPHUMIDHISTORYDATA =
-            new BleGattElement(tempHumidServiceUuid, tempHumidHistoryDataUuid, null, MY_BASE_UUID, "温湿度历史数据");
-
-    private static final int DEFAULT_TEMPHUMID_PERIOD  = 5000; // 默认温湿度采样周期，单位：毫秒
-    ////////////////////////////////////////////////////////
-
-
-    //////////////// 定时服务相关常量 /////////////////////////
-    private static final String timerServiceUuid            = "aa70";
-    private static final String timerValueUuid              = "aa71";
-
-    private static final BleGattElement TIMERVALUE =
-            new BleGattElement(timerServiceUuid, timerValueUuid, null, MY_BASE_UUID, "定时周期(min)");
+    public static final int MSG_TEMPHUMIDDATA = 1;             // 当前温湿度数据消息
+    public static final int MSG_TEMPHUMIDCTRL = 2;             //
+    public static final int MSG_TEMPHUMIDPERIOD = 3;
+    public static final int MSG_TEMPHUMIDHISTORYDATA = 4;      // 历史数据消息
+    public static final int MSG_TIMERVALUE = 5;                // 定时器服务特征值消息
 
     private static final byte DEVICE_DEFAULT_TIMER_PERIOD  = 30; // 设备默认定时周期，单位：分钟
+    private static final int DEFAULT_TEMPHUMID_PERIOD  = 5000; // 默认温湿度采样周期，单位：毫秒
+
     ////////////////////////////////////////////////////////
 
 
@@ -92,6 +56,10 @@ public class TempHumidDevice extends BleDevice {
     // 设备的定时周期
     private byte deviceTimerPeriod = DEVICE_DEFAULT_TIMER_PERIOD;   // 设定的设备定时更新周期，单位：分钟
 
+    public byte getDeviceTimerPeriod() {
+        return deviceTimerPeriod;
+    }
+
     // 设备的当前时间
     private Calendar deviceCurTime;
 
@@ -103,6 +71,8 @@ public class TempHumidDevice extends BleDevice {
 
     // 是否正在更新历史数据，防止多次更新数据导致数据重复
     private boolean isUpdatingHistoryData = false;
+
+    private final TempHumidGattOperator gattOperator; // Gatt操作者
 
 
     // 获取当前温湿度值
@@ -118,9 +88,11 @@ public class TempHumidDevice extends BleDevice {
 
 
     // 构造器
-    public TempHumidDevice(BleDeviceBasicInfo basicInfo) {
-        super(basicInfo);
+    public TempHumidDevice(BleDeviceBasicInfo basicInfo, TempHumidGattOperator gattOperator) {
+        super(basicInfo, gattOperator);
         initializeAfterConstruction();
+
+        this.gattOperator = gattOperator;
     }
 
     private void initializeAfterConstruction() {
@@ -140,18 +112,19 @@ public class TempHumidDevice extends BleDevice {
 
     @Override
     public boolean executeAfterConnectSuccess() {
+        gattOperator.start();
 
         // 检查是否有正常的温湿度服务和特征值
-        if(!checkBasicTempHumidService()) return false;
+        if(!gattOperator.checkBasicService()) return false;
 
-        hasTimerService = existTimerService();
+        hasTimerService = gattOperator.existTimerService();
 
         // 先读取一次当前温湿度值
-        readCurrentTempHumid();
+        gattOperator.readCurrentTempHumid();
 
         // 启动温湿度采集服务
         int period = DEFAULT_TEMPHUMID_PERIOD;
-        startTempHumidService(period);
+        gattOperator.startTempHumidService(period);
 
         // 更新历史数据
         isUpdatingHistoryData = false;
@@ -162,12 +135,12 @@ public class TempHumidDevice extends BleDevice {
 
     @Override
     public void executeAfterDisconnect() {
-
+        gattOperator.stop();
     }
 
     @Override
     public void executeAfterConnectFailure() {
-
+        gattOperator.stop();
     }
 
     @Override
@@ -211,46 +184,13 @@ public class TempHumidDevice extends BleDevice {
         isUpdatingHistoryData = true;
 
         if(hasTimerService)
-            readTimerServiceValue();
+            gattOperator.readTimerServiceValue();
 
     }
 
-    // 读取当前温湿度值
-    private void readCurrentTempHumid() {
-        addReadCommand(TEMPHUMIDDATA, new IBleDataOpCallback() {
-            @Override
-            public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
-            }
 
-            @Override
-            public void onFailure(BleDataOpException exception) {
 
-            }
-        });
-    }
 
-    // 启动温湿度采集服务
-    private void startTempHumidService(int period) {
-        addWriteCommand(TEMPHUMIDPERIOD, (byte) (period / 100), null);
-
-        // 启动温湿度采集
-        addWriteCommand(TEMPHUMIDCTRL, (byte)0x01, null);
-
-        // enable 温湿度采集的notification
-        IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
-            @Override
-            public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
-            }
-
-            @Override
-            public void onFailure(BleDataOpException exception) {
-                ViseLog.i("onFailure");
-            }
-        };
-        addNotifyCommand(TEMPHUMIDDATACCC, true, null, notifyCallback);
-    }
 
     // 将一个数据保存到数据库中
     private void saveDataToDb(TempHumidData data) {
@@ -280,50 +220,9 @@ public class TempHumidDevice extends BleDevice {
         }
     }
 
-    // 检测基本温湿度服务是否正常
-    private boolean checkBasicTempHumidService() {
-        boolean hasBasicTempHumidService = true;
 
-        Object tempHumidData = BleDeviceUtil.getGattObject(this, TEMPHUMIDDATA);
-        Object tempHumidControl = BleDeviceUtil.getGattObject(this, TEMPHUMIDCTRL);
-        Object tempHumidPeriod = BleDeviceUtil.getGattObject(this, TEMPHUMIDPERIOD);
-        Object tempHumidDataCCC = BleDeviceUtil.getGattObject(this, TEMPHUMIDDATACCC);
 
-        if (tempHumidData == null || tempHumidControl == null || tempHumidPeriod == null || tempHumidDataCCC == null) {
-            ViseLog.i("The basic service and characteristic is bad.");
-            hasBasicTempHumidService = false;
-        }
 
-        return hasBasicTempHumidService;
-    }
-
-    // 检测是否存在定时器服务
-    private boolean existTimerService() {
-        Object timerValue = BleDeviceUtil.getGattObject(this, TIMERVALUE);
-        Object historyTime = BleDeviceUtil.getGattObject(this, TEMPHUMIDHISTORYTIME);
-        Object historyData = BleDeviceUtil.getGattObject(this, TEMPHUMIDHISTORYDATA);
-        if (timerValue == null || historyTime == null || historyData == null) {
-            ViseLog.i("The device don't provide history data sampling service.");
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    // 读取定时器服务特征值
-    private void readTimerServiceValue() {
-        addReadCommand(TIMERVALUE, new IBleDataOpCallback() {
-            @Override
-            public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_TIMERVALUE, data);
-            }
-
-            @Override
-            public void onFailure(BleDataOpException exception) {
-
-            }
-        });
-    }
 
     // 处理定时器服务特征值
     private synchronized boolean processTimerServiceValue(byte[] data) {
@@ -338,11 +237,11 @@ public class TempHumidDevice extends BleDevice {
             deviceCurTime = getDeviceCurrentTime(data[0], data[1]);                     // 通过小时和分钟来猜测设备的当前时间
             readHistoryDataFromDevice();      // 读取设备的历史数据
         } else {
-            startTimerService();                // 没有开启定时服务（比如刚换电池），就先开启定时服务
+            gattOperator.startTimerService();                // 没有开启定时服务（比如刚换电池），就先开启定时服务
         }
 
         // 添加更新历史数据完毕的命令
-        addInstantCommand(new IBleDataOpCallback() {
+        gattOperator.addInstantCommand(new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 isUpdatingHistoryData = false;
@@ -366,41 +265,15 @@ public class TempHumidDevice extends BleDevice {
         if(updateFrom.after(deviceCurTime)) return;    // 上次更新到现在还不到一个deviceTimerPeriod,不需要更新
 
         do {
-            readOneHistoryDataAtTime(updateFrom);
+            gattOperator.readOneHistoryDataAtTime(updateFrom);
             updateFrom.add(Calendar.MINUTE, deviceTimerPeriod);
             if(updateFrom.after(deviceCurTime)) break;
         }while(true);
     }
 
-    // 读取一个历史数据
-    private void readOneHistoryDataAtTime(Calendar time) {
-        final Calendar backuptime = (Calendar)time.clone();
-        byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
 
-        // 写历史数据时间
-        addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, null);
 
-        // 读取历史数据
-        addReadCommand(TEMPHUMIDHISTORYDATA, new IBleDataOpCallback() {
-            @Override
-            public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
-            }
 
-            @Override
-            public void onFailure(BleDataOpException exception) {
-
-            }
-        });
-    }
-
-    // 启动定时器服务
-    private void startTimerService() {
-        Calendar time = Calendar.getInstance();
-        byte[] value = {(byte)time.get(Calendar.HOUR_OF_DAY), (byte)time.get(Calendar.MINUTE), deviceTimerPeriod, 0x01};
-
-        addWriteCommand(TIMERVALUE, value, null);
-    }
 
     // 获取设备当前时间
     private Calendar getDeviceCurrentTime(byte hour, byte minute) {
