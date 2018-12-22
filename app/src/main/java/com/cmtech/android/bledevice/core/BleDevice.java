@@ -7,7 +7,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.callback.IBleCallback;
 import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.callback.scan.ScanCallback;
@@ -18,7 +17,6 @@ import com.cmtech.android.ble.core.IDeviceMirrorStateObserver;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorGattOperator;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 
@@ -89,7 +87,8 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             BleDevice.this.onDisconnect(isActive);
         }
     };
-    protected final Handler workHandler; // 工作Handler
+    protected final Handler workHandler = createWorkHandler(); // 工作Handler
+    protected final BleDeviceGattOperator gattOperator = new BleDeviceGattOperator(this); // Gatt执行器
 
     public BleDeviceBasicInfo getBasicInfo() {
         return basicInfo;
@@ -141,7 +140,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 构造器
     public BleDevice(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
-        workHandler = createWorkHandler();
     }
 
     // 打开设备

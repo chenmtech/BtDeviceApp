@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorGattOperator;
 import com.cmtech.android.bledevice.temphumid.activity.TempHumidFragment;
 import com.cmtech.android.bledevice.core.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevice.core.BleDevice;

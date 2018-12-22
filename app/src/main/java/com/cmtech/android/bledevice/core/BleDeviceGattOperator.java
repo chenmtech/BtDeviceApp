@@ -9,7 +9,7 @@ import com.vise.log.ViseLog;
  * Created by bme on 2018/12/20.
  */
 
-public abstract class BleDeviceGattOperator {
+public class BleDeviceGattOperator {
 
     private BleGattCommandExecutor commandExecutor;
     protected final BleDevice device;
@@ -19,7 +19,15 @@ public abstract class BleDeviceGattOperator {
 
     }
 
-    public abstract boolean checkBasicService();
+    // 检测GattElement是否存在于device中
+    public boolean checkGattElement(BleGattElement[] elements) {
+        for(BleGattElement element : elements) {
+            if(BleDeviceUtil.getGattObject(device, element) == null) return false;
+        }
+
+        ViseLog.i("EcgMonitor Services is ok!");
+        return true;
+    }
 
     // 启动Gatt命令执行器
     public void start() {

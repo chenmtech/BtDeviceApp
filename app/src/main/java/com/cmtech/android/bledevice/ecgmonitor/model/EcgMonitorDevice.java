@@ -4,6 +4,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import com.cmtech.android.bledevice.core.BleDataOpException;
+import com.cmtech.android.bledevice.core.BleGattElement;
+import com.cmtech.android.bledevice.core.IBleDataOpCallback;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.EcgCalibrator65536;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter.EcgPreFilterWith35HzNotch;
@@ -31,6 +34,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
 
@@ -52,13 +57,39 @@ public class EcgMonitorDevice extends BleDevice {
     private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
 
     // GATT消息常量
-    public static final int MSG_OBTAINDATA = 1;                                // 获取一个ECG数据包，可以是1mV定标数据，也可以是Ecg信号
-    public static final int MSG_OBTAINSAMPLERATE = 2;                          // 获取采样率
-    public static final int MSG_OBTAINLEADTYPE = 3;                            // 获取导联类型
-    public static final int MSG_STARTSAMPLINGSIGNAL = 4;                       // 开始采集Ecg信号
+    private static final int MSG_OBTAINDATA = 1;                                // 获取一个ECG数据包，可以是1mV定标数据，也可以是Ecg信号
+    private static final int MSG_OBTAINSAMPLERATE = 2;                          // 获取采样率
+    private static final int MSG_OBTAINLEADTYPE = 3;                            // 获取导联类型
+    private static final int MSG_STARTSAMPLINGSIGNAL = 4;                       // 开始采集Ecg信号
 
-    ////////////////////////////////////////////////////////
+    // 心电监护仪Service UUID常量
+    private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
+    private static final String ecgMonitorDataUuid          = "aa41";           // ECG数据特征UUID:aa41
+    private static final String ecgMonitorCtrlUuid          = "aa42";           // 测量控制UUID:aa42
+    private static final String ecgMonitorSampleRateUuid    = "aa44";           // 采样率UUID:aa44
+    private static final String ecgMonitorLeadTypeUuid      = "aa45";           // 导联类型UUID:aa45
 
+    // Gatt Element常量
+    private static final BleGattElement ECGMONITORDATA =
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null, MY_BASE_UUID, "心电数据");
+    private static final BleGattElement ECGMONITORDATACCC =
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, CCCUUID, MY_BASE_UUID, "心电数据CCC");
+    private static final BleGattElement ECGMONITORCTRL =
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null, MY_BASE_UUID, "心电Ctrl");
+    private static final BleGattElement ECGMONITORSAMPLERATE =
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorSampleRateUuid, null, MY_BASE_UUID, "采样率");
+    private static final BleGattElement ECGMONITORLEADTYPE =
+            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null, MY_BASE_UUID, "导联类型");
+
+    // ECGMONITORCTRL控制常量
+    private static final byte ECGMONITORCTRL_STOP =             (byte) 0x00;        // 停止采集
+    private static final byte ECGMONITORCTRL_STARTSIGNAL =      (byte) 0x01;        // 启动采集Ecg信号
+    private static final byte ECGMONITORCTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
+
+
+    /**
+     * 变量
+     */
     private int sampleRate = DEFAULT_SAMPLERATE; // 采样率
     private EcgLeadType leadType = DEFAULT_LEADTYPE; // 导联类型
     private int value1mVBeforeCalibrate = 0; // 定标之前1mV对应的数值
@@ -81,7 +112,9 @@ public class EcgMonitorDevice extends BleDevice {
     private EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
     private final EcgMonitorDeviceConfig config; // 设备配置信息
     private IEcgMonitorObserver observer; // 设备观察者
-    private final EcgMonitorGattOperator gattOperator; // Gatt操作者
+
+
+
 
     public int getSampleRate() { return sampleRate; }
     public EcgLeadType getLeadType() {
@@ -118,7 +151,6 @@ public class EcgMonitorDevice extends BleDevice {
         changeConfiguration(config);
     }
 
-
     // 构造器
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
         super(basicInfo);
@@ -131,8 +163,6 @@ public class EcgMonitorDevice extends BleDevice {
         } else {
             config = find.get(0);
         }
-
-        gattOperator = new EcgMonitorGattOperator(this);
     }
 
     @Override
@@ -144,23 +174,24 @@ public class EcgMonitorDevice extends BleDevice {
         // 启动gattOperator
         gattOperator.start();
 
-        if(!gattOperator.checkBasicService()) {
+        BleGattElement[] elements = new BleGattElement[]{ECGMONITORDATA, ECGMONITORDATACCC, ECGMONITORCTRL, ECGMONITORSAMPLERATE, ECGMONITORLEADTYPE};
+        if(!gattOperator.checkGattElement(elements)) {
             return false;
         }
 
         // 先停止采样
-        gattOperator.stopSampleData();
+        stopSampleData();
 
         // 读采样率
-        gattOperator.readSampleRate();
+        readSampleRate();
 
         // 读导联类型
-        gattOperator.readLeadType();
+        readLeadType();
 
         // 启动1mV采样，准备标定
         setState(EcgMonitorState.CALIBRATING);
         calibrationData.clear();
-        gattOperator.startSample1mV();
+        startSample1mV();
 
         return true;
     }
@@ -232,7 +263,7 @@ public class EcgMonitorDevice extends BleDevice {
     @Override
     public void disconnect() {
         ViseLog.e(TAG, "disconnect()");
-        gattOperator.stopSampleData();
+        stopSampleData();
         workHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -275,14 +306,14 @@ public class EcgMonitorDevice extends BleDevice {
             case INIT:
                 setState(EcgMonitorState.CALIBRATING);
                 calibrationData.clear();
-                gattOperator.startSample1mV();
+                startSample1mV();
                 break;
             case CALIBRATED:
-                gattOperator.stopSampleData();
-                gattOperator.startSampleEcg();
+                stopSampleData();
+                startSampleEcg();
                 break;
             case SAMPLE:
-                gattOperator.stopSampleData();
+                stopSampleData();
                 workHandler.removeCallbacksAndMessages(null);
                 setState(EcgMonitorState.CALIBRATED);
                 break;
@@ -342,6 +373,95 @@ public class EcgMonitorDevice extends BleDevice {
         }
     }
 
+    // 读采样率
+    private void readSampleRate() {
+        gattOperator.addReadCommand(ECGMONITORSAMPLERATE, new IBleDataOpCallback() {
+            @Override
+            public void onSuccess(byte[] data) {
+                sendGattMessage(MSG_OBTAINSAMPLERATE, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
+            }
+
+            @Override
+            public void onFailure(BleDataOpException exception) {
+
+            }
+        });
+    }
+
+    // 读导联类型
+    private void readLeadType() {
+        gattOperator.addReadCommand(ECGMONITORLEADTYPE, new IBleDataOpCallback() {
+            @Override
+            public void onSuccess(byte[] data) {
+                sendGattMessage(MSG_OBTAINLEADTYPE, data[0]);
+            }
+
+            @Override
+            public void onFailure(BleDataOpException exception) {
+
+            }
+        });
+    }
+
+    // 启动ECG信号采集
+    private void startSampleEcg() {
+
+        IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
+            @Override
+            public void onSuccess(byte[] data) {
+                sendGattMessage(MSG_OBTAINDATA, data);
+            }
+
+            @Override
+            public void onFailure(BleDataOpException exception) {
+
+            }
+        };
+
+        // enable ECG data indication
+        gattOperator.addIndicateCommand(ECGMONITORDATACCC, true, null, indicationCallback);
+
+        gattOperator.addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_STARTSIGNAL, new IBleDataOpCallback() {
+            @Override
+            public void onSuccess(byte[] data) {
+                sendGattMessage(MSG_STARTSAMPLINGSIGNAL, null);
+            }
+
+            @Override
+            public void onFailure(BleDataOpException exception) {
+
+            }
+        });
+    }
+
+    // 启动1mV定标信号采集
+    private void startSample1mV() {
+        IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
+            @Override
+            public void onSuccess(byte[] data) {
+                sendGattMessage(MSG_OBTAINDATA, data);
+            }
+
+            @Override
+            public void onFailure(BleDataOpException exception) {
+
+            }
+        };
+
+        // enable ECG data indication
+        gattOperator.addIndicateCommand(ECGMONITORDATACCC, true, null, indicationCallback);
+
+        gattOperator.addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_START1MV, null);
+    }
+
+    // 停止数据采集
+    private void stopSampleData() {
+        // disable ECG data indication
+        gattOperator.addIndicateCommand(ECGMONITORDATACCC, false, null, null);
+
+        gattOperator.addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_STOP, null);
+    }
+
     // 处理数据
     private void processData(byte[] data) {
         ViseLog.i("Process Data in Thread: " +  Thread.currentThread());
@@ -377,8 +497,8 @@ public class EcgMonitorDevice extends BleDevice {
             initializeProcessor();
 
             setState(EcgMonitorState.CALIBRATED);
-            gattOperator.stopSampleData();
-            gattOperator.startSampleEcg();
+            stopSampleData();
+            startSampleEcg();
         }
     }
 
