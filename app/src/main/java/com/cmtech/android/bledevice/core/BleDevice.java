@@ -35,33 +35,8 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     private boolean closing = false; // 标记设备是否正在关闭，如果是，则对设备的所有回调都不会响应
     private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED; // 设备连接状态，初始化为关闭状态
     private ScanCallback filterScanCallback = null; // 扫描回调适配器，将IScanCallback适配为BluetoothAdapter.LeScanCallback
-    // 扫描回调，注意与上述的ScanCallback相区别
-    private final IScanCallback scanCallback = new IScanCallback() {
-        @Override
-        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
-            BluetoothDevice bluetoothDevice = bluetoothLeDevice.getDevice();
-            if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
-                Toast.makeText(MyApplication.getContext(), "该设备未绑定，无法使用。", Toast.LENGTH_SHORT).show();
-                //bluetoothDevice.createBond();   // 还没有绑定，则启动绑定
-                BleDevice.this.onScanFinish(false);
-            } else if(bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-                BleDevice.this.bluetoothLeDevice = bluetoothLeDevice;
-                BleDevice.this.onScanFinish(true);
-            }
-        }
-
-        @Override
-        public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
-
-        }
-
-        @Override
-        public void onScanTimeout() {
-            BleDevice.this.onScanFinish(false);
-        }
-    };
-    // 连接回调
-    private final MyConnectCallback connectCallback = new MyConnectCallback(this);
+    private final IScanCallback scanCallback = new MyScanCallback(this); // 扫描回调，注意与上述的ScanCallback相区别
+    private final MyConnectCallback connectCallback = new MyConnectCallback(this); // 连接回调
     protected final Handler workHandler = createWorkHandler(); // 工作Handler
     protected final BleDeviceGattOperator gattOperator = new BleDeviceGattOperator(this); // Gatt执行器
 
@@ -89,6 +64,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
     public BluetoothLeDevice getBluetoothLeDevice() {
         return bluetoothLeDevice;
+    }
+    public void setBluetoothLeDevice(BluetoothLeDevice bluetoothLeDevice) {
+        this.bluetoothLeDevice = bluetoothLeDevice;
     }
     public BleDeviceConnectState getConnectState() {
         return connectState;
@@ -191,7 +169,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 断开连接
     protected synchronized void disconnect() {
         executeAfterDisconnect();
-        workHandler.removeCallbacksAndMessages(null);
+        removeCallbacksAndMessages();
 
         workHandler.post(new Runnable() {
             @Override
@@ -331,27 +309,6 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             });
         }
     }
-
-
-
-    // 扫描结束回调处理
-    private void onScanFinish(boolean result) {
-        ViseLog.i("onScanFinish " + result);
-        if(closing)
-            return;
-
-        if(result) {
-            setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
-            startConnect();
-        } else {
-            workHandler.removeCallbacksAndMessages(null);
-            setConnectState(BleDeviceConnectState.CONNECT_DISCONNECT);
-        }
-    }
-
-
-
-
 
     @Override
     public boolean equals(Object o) {
