@@ -58,7 +58,7 @@ public class EcgFileReplayModel {
     public float getyValuePerPixel() { return yValuePerPixel; }
 
     public EcgFileReplayModel(String ecgFileName) throws IOException{
-        ecgFile = EcgFile.openBmeFile(ecgFileName);
+        ecgFile = EcgFile.open(ecgFileName);
         int sampleRate = ecgFile.getFs();
         totalSecond = ecgFile.getDataNum()/sampleRate;
         int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();

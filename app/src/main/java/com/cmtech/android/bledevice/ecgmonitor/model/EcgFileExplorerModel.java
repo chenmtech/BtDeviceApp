@@ -75,7 +75,7 @@ public class EcgFileExplorerModel {
         for(File file : files) {
             EcgFile ecgFile = null;
             try {
-                ecgFile = EcgFile.openBmeFile(file.getCanonicalPath());
+                ecgFile = EcgFile.open(file.getCanonicalPath());
                 ecgFileList.add(ecgFile);
             } catch (IOException e) {
                 ecgFileList.remove(ecgFile);
@@ -128,7 +128,7 @@ public class EcgFileExplorerModel {
             String fileName = fileList.get(selectIndex).getFileName();
             EcgFile ecgFile = null;
             try {
-                ecgFile = EcgFile.openBmeFile(fileName);
+                ecgFile = EcgFile.open(fileName);
                 fileList.set(selectIndex, ecgFile);
                 ViseLog.e(ecgFile.getCommentString());
             } catch (IOException e) {
@@ -181,19 +181,19 @@ public class EcgFileExplorerModel {
             EcgFile tmpEcgFile = null;
             EcgFile toEcgFile = null;
             try {
-                tmpEcgFile = EcgFile.openBmeFile(wxFile.getCanonicalPath());
+                tmpEcgFile = EcgFile.open(wxFile.getCanonicalPath());
                 tmpEcgFile.close();
 
                 File toFile = FileUtil.getFile(fileDir, wxFile.getName());
 
                 if(toFile.exists()) {
-                    toEcgFile = EcgFile.openBmeFile(toFile.getCanonicalPath());
+                    toEcgFile = EcgFile.open(toFile.getCanonicalPath());
                     if(mergeTwoEcgFileComments(tmpEcgFile, toEcgFile))
                         hasUpdated = true;
                     wxFile.delete();
                 } else {
                     FileUtil.moveFile(wxFile, toFile);
-                    toEcgFile = EcgFile.openBmeFile(toFile.getCanonicalPath());
+                    toEcgFile = EcgFile.open(toFile.getCanonicalPath());
                     fileList.add(toEcgFile);
                     hasUpdated = true;
                 }

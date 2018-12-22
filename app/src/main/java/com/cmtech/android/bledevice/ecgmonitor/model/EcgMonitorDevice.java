@@ -4,8 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.bledevice.core.BleDeviceGattOperator;
-import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.EcgCalibrator65536;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter.EcgPreFilterWith35HzNotch;
@@ -14,13 +12,10 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.Ecg
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.EcgHrWarner;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
-import com.cmtech.bmefile.BmeFileDataType;
-import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -38,7 +33,6 @@ import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.CACHEDIR;
 
 
 /**
@@ -147,6 +141,7 @@ public class EcgMonitorDevice extends BleDevice {
         updateLeadType(DEFAULT_LEADTYPE);
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
+        // 启动gattOperator
         gattOperator.start();
 
         if(!gattOperator.checkBasicService()) {
@@ -478,42 +473,12 @@ public class EcgMonitorDevice extends BleDevice {
     private void initializeEcgRecorder(int sampleRate, int calibrationValue, EcgLeadType leadType) {
         if(ecgFile != null) return;
 
-        ecgFile = createEcgFile(sampleRate, calibrationValue, leadType);
+        ecgFile = EcgFile.create(sampleRate, calibrationValue, getMacAddress(), leadType);
         if(ecgFile != null) {
             commentList.clear();
             recordDataNum = 0;
             updateRecordSecond(0);
         }
-    }
-
-    // 创建Ecg文件
-    private EcgFile createEcgFile(int sampleRate, int calibrationValue, EcgLeadType leadType) {
-        EcgFile ecgFile = null;
-        // 创建bmeFileHead文件头
-        BmeFileHead30 bmeFileHead = new BmeFileHead30();
-        bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-        bmeFileHead.setDataType(BmeFileDataType.INT32);
-        bmeFileHead.setFs(sampleRate);
-        bmeFileHead.setInfo("这是一个心电文件。");
-        bmeFileHead.setCalibrationValue(calibrationValue);
-        long timeInMillis = new Date().getTime();
-        bmeFileHead.setCreatedTime(timeInMillis);
-
-        // 创建ecgFileHead文件头
-        String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(getMacAddress());
-        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, leadType);
-
-        // 创建ecgFile
-        String fileName = EcgMonitorUtil.createFileName(getMacAddress(), timeInMillis);
-        File toFile = FileUtil.getFile(CACHEDIR, fileName);
-        try {
-            fileName = toFile.getCanonicalPath();
-            ecgFile = EcgFile.createBmeFile(fileName, bmeFileHead, ecgFileHead);
-            ViseLog.e(ecgFile);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return ecgFile;
     }
 
     // 初始化EcgView

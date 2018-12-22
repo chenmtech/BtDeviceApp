@@ -1,12 +1,22 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
+import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
+import com.cmtech.android.bledeviceapp.model.UserAccountManager;
+import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.RandomAccessBmeFile;
+import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
+import java.util.Date;
 import java.util.List;
+
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.CACHEDIR;
 
 /**
  * EcgFile: 心电文件类，可随机访问
@@ -67,13 +77,43 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     // 打开已有文件
-    public static EcgFile openBmeFile(String fileName) throws IOException{
+    public static EcgFile open(String fileName) throws IOException{
         return new EcgFile(fileName);
     }
 
     // 用指定的文件头创建新的文件
-    public static EcgFile createBmeFile(String fileName, BmeFileHead head, EcgFileHead ecgFileHead) throws IOException{
+    public static EcgFile create(String fileName, BmeFileHead head, EcgFileHead ecgFileHead) throws IOException{
         return new EcgFile(fileName, head, ecgFileHead);
+    }
+
+    // 创建Ecg文件
+    public static EcgFile create(int sampleRate, int calibrationValue, String macAddress, EcgLeadType leadType) {
+        EcgFile ecgFile = null;
+        // 创建bmeFileHead文件头
+        BmeFileHead30 bmeFileHead = new BmeFileHead30();
+        bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
+        bmeFileHead.setDataType(BmeFileDataType.INT32);
+        bmeFileHead.setFs(sampleRate);
+        bmeFileHead.setInfo("这是一个心电文件。");
+        bmeFileHead.setCalibrationValue(calibrationValue);
+        long timeInMillis = new Date().getTime();
+        bmeFileHead.setCreatedTime(timeInMillis);
+
+        // 创建ecgFileHead文件头
+        String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(macAddress);
+        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount().getUserName(), simpleMacAddress, leadType);
+
+        // 创建ecgFile
+        String fileName = EcgMonitorUtil.createFileName(macAddress, timeInMillis);
+        File toFile = FileUtil.getFile(CACHEDIR, fileName);
+        try {
+            fileName = toFile.getCanonicalPath();
+            ecgFile = EcgFile.create(fileName, bmeFileHead, ecgFileHead);
+            ViseLog.e(ecgFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return ecgFile;
     }
 
     @Override
