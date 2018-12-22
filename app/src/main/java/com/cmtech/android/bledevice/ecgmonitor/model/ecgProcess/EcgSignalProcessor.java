@@ -21,7 +21,7 @@ public class EcgSignalProcessor {
     private List<IEcgHrProcessor> hrProcessors = new ArrayList<>();
 
     private EcgSignalProcessor() {
-        
+
     }
 
     // 构建者
