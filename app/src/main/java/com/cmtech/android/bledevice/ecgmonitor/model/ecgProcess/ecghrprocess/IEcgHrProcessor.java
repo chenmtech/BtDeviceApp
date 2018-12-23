@@ -8,9 +8,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.IEcgProcessor;
  */
 
 public interface IEcgHrProcessor extends IEcgProcessor{
-    // 无效心率值常量
-    int INVALID_HR = 0;
-
     // 处理心率
     void process(int hr);
 }

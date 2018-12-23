@@ -81,7 +81,7 @@ public class EcgMonitorDevice extends BleDevice {
     private static final BleGattElement ECGMONITORLEADTYPE =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null, MY_BASE_UUID, "导联类型");
 
-    // ECGMONITORCTRL控制常量
+    // ECGMONITORCTRL Element的控制常量
     private static final byte ECGMONITORCTRL_STOP =             (byte) 0x00;        // 停止采集
     private static final byte ECGMONITORCTRL_STARTSIGNAL =      (byte) 0x01;        // 启动采集Ecg信号
     private static final byte ECGMONITORCTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
