@@ -85,7 +85,7 @@ public class ThermoDevice extends BleDevice {
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
-        if(!gattOperator.checkGattElements(elements)) return false;
+        if(!gattOperator.checkElements(elements)) return false;
 
         resetHighestTemp();
 
@@ -156,7 +156,7 @@ public class ThermoDevice extends BleDevice {
 
     private void readThermoData() {
         // 读温度数据
-        gattOperator.addReadCommand(THERMODATA, new IBleDataOpCallback() {
+        gattOperator.read(THERMODATA, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_THERMODATA, data);
@@ -174,7 +174,7 @@ public class ThermoDevice extends BleDevice {
      */
     private void startThermometer(byte period) {
         // 设置采样周期
-        gattOperator.addWriteCommand(THERMOPERIOD, period, null);
+        gattOperator.write(THERMOPERIOD, period, null);
 
         IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
             @Override
@@ -189,10 +189,10 @@ public class ThermoDevice extends BleDevice {
         };
 
         // enable温度数据notify
-        gattOperator.addNotifyCommand(THERMODATACCC, true, null, notifyCallback);
+        gattOperator.notify(THERMODATACCC, true, null, notifyCallback);
 
         // 启动温度采集
-        gattOperator.addWriteCommand(THERMOCONTROL, (byte)0x03, null);
+        gattOperator.write(THERMOCONTROL, (byte)0x03, null);
     }
 
 }

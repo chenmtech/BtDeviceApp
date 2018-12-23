@@ -11,16 +11,18 @@ import com.vise.log.ViseLog;
 
 public class BleDeviceGattOperator {
 
-    private BleGattCommandExecutor commandExecutor;
-    protected final BleDevice device;
+    private BleGattCommandExecutor commandExecutor; // Gatt命令执行器
+    protected final BleDevice device; // BLE设备
 
     public BleDeviceGattOperator(BleDevice device) {
+        if(device == null) {
+            throw new NullPointerException();
+        }
         this.device = device;
-
     }
 
     // 检测GattElement是否存在于device中
-    public boolean checkGattElements(BleGattElement[] elements) {
+    public boolean checkElements(BleGattElement[] elements) {
         for(BleGattElement element : elements) {
             if(BleDeviceUtil.getGattObject(device, element) == null) return false;
         }
@@ -33,11 +35,13 @@ public class BleDeviceGattOperator {
     public void start() {
         if((commandExecutor != null) && commandExecutor.isAlive()) return;
         DeviceMirror deviceMirror = BleDeviceUtil.getDeviceMirror(device);
-        if(deviceMirror == null) return;
+        if(deviceMirror == null) {
+            throw new NullPointerException();
+        }
 
         commandExecutor = new BleGattCommandExecutor(deviceMirror);
         commandExecutor.start();
-        ViseLog.i("create new command executor.");
+        ViseLog.i("success to create new command executor.");
     }
 
     // 停止Gatt命令执行器
@@ -48,57 +52,45 @@ public class BleDeviceGattOperator {
         }
     }
 
-    // 添加Gatt操作命令
-    // 添加读取命令
-    public final void addReadCommand(BleGattElement element, IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addReadCommand(element, callback);
-        }
+    // Gatt操作命令
+    // 取命令
+    public final void read(BleGattElement element, IBleDataOpCallback dataOpCallback) {
+        IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        commandExecutor.addReadCommand(element, callback);
     }
 
-    // 添加写入多字节命令
-    public final void addWriteCommand(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addWriteCommand(element, data, callback);
-        }
+    // 写多字节命令
+    public final void write(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
+        IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        commandExecutor.addWriteCommand(element, data, callback);
     }
 
-    // 添加写入单字节命令
-    public final void addWriteCommand(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addWriteCommand(element, data, callback);
-        }
+    // 写单字节命令
+    public final void write(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
+        IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        commandExecutor.addWriteCommand(element, data, callback);
     }
 
-    // 添加Notify命令
-    public final void addNotifyCommand(BleGattElement element, boolean enable
+    // Notify命令
+    public final void notify(BleGattElement element, boolean enable
             , IBleDataOpCallback dataOpCallback, IBleDataOpCallback notifyOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            IBleCallback notifyCallback = (notifyOpCallback == null) ? null : new BleDataOpCallbackAdapter(notifyOpCallback);
-            commandExecutor.addNotifyCommand(element, enable, dataCallback, notifyCallback);
-        }
+        IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        IBleCallback notifyCallback = (notifyOpCallback == null) ? null : new BleDataOpCallbackAdapter(notifyOpCallback);
+        commandExecutor.addNotifyCommand(element, enable, dataCallback, notifyCallback);
     }
 
-    // 添加Indicate命令
-    public final void addIndicateCommand(BleGattElement element, boolean enable
+    // Indicate命令
+    public final void indicate(BleGattElement element, boolean enable
             , IBleDataOpCallback dataOpCallback, IBleDataOpCallback indicateOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            IBleCallback indicateCallback = (indicateOpCallback == null) ? null : new BleDataOpCallbackAdapter(indicateOpCallback);
-            commandExecutor.addIndicateCommand(element, enable, dataCallback, indicateCallback);
-        }
+        IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        IBleCallback indicateCallback = (indicateOpCallback == null) ? null : new BleDataOpCallbackAdapter(indicateOpCallback);
+        commandExecutor.addIndicateCommand(element, enable, dataCallback, indicateCallback);
     }
 
-    // 添加Instant命令
-    public final void addInstantCommand(IBleDataOpCallback dataOpCallback) {
-        if(commandExecutor != null) {
-            IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
-            commandExecutor.addInstantCommand(dataCallback);
-        }
+    // 不需要蓝牙通信立刻执行的命令
+    public final void instExecute(IBleDataOpCallback dataOpCallback) {
+        IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
+        commandExecutor.addInstantCommand(dataCallback);
     }
 
 }

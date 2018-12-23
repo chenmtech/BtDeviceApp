@@ -180,7 +180,7 @@ public class EcgMonitorDevice extends BleDevice {
 
         // 验证Gatt Elements
         BleGattElement[] elements = new BleGattElement[]{ECGMONITORDATA, ECGMONITORDATACCC, ECGMONITORCTRL, ECGMONITORSAMPLERATE, ECGMONITORLEADTYPE};
-        if(!gattOperator.checkGattElements(elements)) {
+        if(!gattOperator.checkElements(elements)) {
             return false;
         }
 
@@ -372,7 +372,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 读采样率
     private void readSampleRate() {
-        gattOperator.addReadCommand(ECGMONITORSAMPLERATE, new IBleDataOpCallback() {
+        gattOperator.read(ECGMONITORSAMPLERATE, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_OBTAINSAMPLERATE, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
@@ -387,7 +387,7 @@ public class EcgMonitorDevice extends BleDevice {
 
     // 读导联类型
     private void readLeadType() {
-        gattOperator.addReadCommand(ECGMONITORLEADTYPE, new IBleDataOpCallback() {
+        gattOperator.read(ECGMONITORLEADTYPE, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_OBTAINLEADTYPE, data[0]);
@@ -416,9 +416,9 @@ public class EcgMonitorDevice extends BleDevice {
         };
 
         // enable ECG data indication
-        gattOperator.addIndicateCommand(ECGMONITORDATACCC, true, null, indicationCallback);
+        gattOperator.indicate(ECGMONITORDATACCC, true, null, indicationCallback);
 
-        gattOperator.addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_STARTSIGNAL, new IBleDataOpCallback() {
+        gattOperator.write(ECGMONITORCTRL, ECGMONITORCTRL_STARTSIGNAL, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_STARTSAMPLINGSIGNAL, null);
@@ -448,17 +448,17 @@ public class EcgMonitorDevice extends BleDevice {
         };
 
         // enable ECG data indication
-        gattOperator.addIndicateCommand(ECGMONITORDATACCC, true, null, indicationCallback);
+        gattOperator.indicate(ECGMONITORDATACCC, true, null, indicationCallback);
 
-        gattOperator.addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_START1MV, null);
+        gattOperator.write(ECGMONITORCTRL, ECGMONITORCTRL_START1MV, null);
     }
 
     // 停止数据采集
     private void stopSampleData() {
         // disable ECG data indication
-        gattOperator.addIndicateCommand(ECGMONITORDATACCC, false, null, null);
+        gattOperator.indicate(ECGMONITORDATACCC, false, null, null);
 
-        gattOperator.addWriteCommand(ECGMONITORCTRL, ECGMONITORCTRL_STOP, null);
+        gattOperator.write(ECGMONITORCTRL, ECGMONITORCTRL_STOP, null);
     }
 
     // 处理数据

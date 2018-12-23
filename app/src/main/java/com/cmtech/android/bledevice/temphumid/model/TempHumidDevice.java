@@ -158,11 +158,11 @@ public class TempHumidDevice extends BleDevice {
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
-        if(!gattOperator.checkGattElements(elements)) return false;
+        if(!gattOperator.checkElements(elements)) return false;
 
         // 检查是否有温湿度历史数据服务和特征值
         elements = new BleGattElement[]{TIMERVALUE, TEMPHUMIDHISTORYTIME, TEMPHUMIDHISTORYDATA};
-        hasTimerService = gattOperator.checkGattElements(elements);
+        hasTimerService = gattOperator.checkElements(elements);
 
         // 先读取一次当前温湿度值
         readCurrentTempHumid();
@@ -237,7 +237,7 @@ public class TempHumidDevice extends BleDevice {
 
     // 读取当前温湿度值
     private void readCurrentTempHumid() {
-        gattOperator.addReadCommand(TEMPHUMIDDATA, new IBleDataOpCallback() {
+        gattOperator.read(TEMPHUMIDDATA, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
@@ -252,10 +252,10 @@ public class TempHumidDevice extends BleDevice {
 
     // 启动温湿度采集服务
     private void startTempHumidService(int period) {
-        gattOperator.addWriteCommand(TEMPHUMIDPERIOD, (byte) (period / 100), null);
+        gattOperator.write(TEMPHUMIDPERIOD, (byte) (period / 100), null);
 
         // 启动温湿度采集
-        gattOperator.addWriteCommand(TEMPHUMIDCTRL, (byte)0x01, null);
+        gattOperator.write(TEMPHUMIDCTRL, (byte)0x01, null);
 
         // enable 温湿度采集的notification
         IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
@@ -269,12 +269,12 @@ public class TempHumidDevice extends BleDevice {
                 ViseLog.i("onFailure");
             }
         };
-        gattOperator.addNotifyCommand(TEMPHUMIDDATACCC, true, null, notifyCallback);
+        gattOperator.notify(TEMPHUMIDDATACCC, true, null, notifyCallback);
     }
 
     // 读取定时器服务特征值
     private void readTimerServiceValue() {
-        gattOperator.addReadCommand(TIMERVALUE, new IBleDataOpCallback() {
+        gattOperator.read(TIMERVALUE, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TIMERVALUE, data);
@@ -293,10 +293,10 @@ public class TempHumidDevice extends BleDevice {
         byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
 
         // 写历史数据时间
-        gattOperator.addWriteCommand(TEMPHUMIDHISTORYTIME, hourminute, null);
+        gattOperator.write(TEMPHUMIDHISTORYTIME, hourminute, null);
 
         // 读取历史数据
-        gattOperator.addReadCommand(TEMPHUMIDHISTORYDATA, new IBleDataOpCallback() {
+        gattOperator.read(TEMPHUMIDHISTORYDATA, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
@@ -314,7 +314,7 @@ public class TempHumidDevice extends BleDevice {
         Calendar time = Calendar.getInstance();
         byte[] value = {(byte)time.get(Calendar.HOUR_OF_DAY), (byte)time.get(Calendar.MINUTE), getDeviceTimerPeriod(), 0x01};
 
-        gattOperator.addWriteCommand(TIMERVALUE, value, null);
+        gattOperator.write(TIMERVALUE, value, null);
     }
 
     // 将一个数据保存到数据库中
@@ -366,7 +366,7 @@ public class TempHumidDevice extends BleDevice {
         }
 
         // 添加更新历史数据完毕的命令
-        gattOperator.addInstantCommand(new IBleDataOpCallback() {
+        gattOperator.instExecute(new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 isUpdatingHistoryData = false;
