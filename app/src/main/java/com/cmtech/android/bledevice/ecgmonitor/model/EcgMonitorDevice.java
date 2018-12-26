@@ -325,8 +325,10 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
         if(this.isRecord) {
             // 如果已经标定了或者采样了,才可以开始记录心电信号，初始化EcgFile
-            if(state == EcgMonitorState.CALIBRATED || state == EcgMonitorState.SAMPLE)
-                initializeEcgFile(sampleRate, value1mVAfterCalibrate, leadType);
+            if(state == EcgMonitorState.CALIBRATED || state == EcgMonitorState.SAMPLE) {
+                initializeEcgFile(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
+                commentList.clear();
+            }
             else {
                 // 否则什么都不做，会在标定后根据isRecord值初始化Ecg文件
             }
@@ -520,7 +522,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
             // 初始化Ecg记录器
             if(isRecord) {
-                initializeEcgFile(sampleRate, value1mVAfterCalibrate, leadType);        // 如果需要记录，就初始化Ecg文件
+                initializeEcgFile(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());        // 如果需要记录，就初始化Ecg文件
             }
 
             // 初始化EcgView
@@ -565,10 +567,10 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     }
 
     // 初始化EcgFile
-    private void initializeEcgFile(int sampleRate, int calibrationValue, EcgLeadType leadType) {
+    private void initializeEcgFile(int sampleRate, int calibrationValue, EcgLeadType leadType, String macAddress) {
         if(ecgFile != null) return;
 
-        ecgFile = EcgFile.create(sampleRate, calibrationValue, getMacAddress(), leadType);
+        ecgFile = EcgFile.create(sampleRate, calibrationValue, macAddress, leadType);
         if(ecgFile != null) {
             commentList.clear();
             recordDataNum = 0;
