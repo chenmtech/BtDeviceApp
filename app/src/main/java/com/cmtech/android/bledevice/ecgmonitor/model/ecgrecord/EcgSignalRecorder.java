@@ -28,10 +28,10 @@ public class EcgSignalRecorder {
 
         ecgFile = EcgFile.create(sampleRate, calibrationValue, macAddress, leadType);
         if(ecgFile != null) {
-            return true;
-            commentList.clear();
+            //commentList.clear();
             recordDataNum = 0;
             notifyObserver(0);
+            return true;
         }
         return false;
     }
