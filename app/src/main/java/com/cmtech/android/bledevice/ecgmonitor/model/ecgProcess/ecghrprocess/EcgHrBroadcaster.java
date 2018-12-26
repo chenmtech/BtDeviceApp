@@ -3,12 +3,14 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
+
 /**
  * EcgHrBroadcaster: 心率广播器，实现心率值的广播功能
  * Created by Chenm, 2018-12-24
  */
 
-public class EcgHrBroadcaster implements IEcgHrProcessor {
+public class EcgHrBroadcaster {
     private List<IEcgHrObserver> observers = new ArrayList<>();
 
     public void registerObserver(IEcgHrObserver observer) {
@@ -17,11 +19,10 @@ public class EcgHrBroadcaster implements IEcgHrProcessor {
         }
     }
 
-    @Override
-    public void process(int hr) {
+    public void notifyObserver(int hr) {
         if(hr != INVALID_HR) {
             for (IEcgHrObserver observer : observers) {
-                observer.update(hr);
+                observer.updateHr(hr);
             }
         }
     }

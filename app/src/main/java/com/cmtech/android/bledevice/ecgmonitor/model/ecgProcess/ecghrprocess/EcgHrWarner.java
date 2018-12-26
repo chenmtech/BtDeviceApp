@@ -1,5 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * EcgHrWarner: 心率报警器类
  * Created by Chenm, 2018-12-07
@@ -8,15 +11,12 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess;
 public class EcgHrWarner implements IEcgHrProcessor {
     private static final int DEFAULT_HR_BUFFLEN = 5;
 
-    private boolean abnormal = false;
-    public boolean isAbnormal() {
-        return abnormal;
-    }
-
     private int hrLowLimit;
     private int hrHighLimit;
     private int[] hrBuff;
     private int hrIndex;
+
+    private List<IEcgHrAbnormalObserver> observers = new ArrayList<>();
 
     public EcgHrWarner(int lowLimit, int highLimit) {
         setHrWarn(lowLimit, highLimit);
@@ -37,16 +37,33 @@ public class EcgHrWarner implements IEcgHrProcessor {
             hrBuff[i] = half;
         }
         hrIndex = 0;
-        abnormal = false;
     }
 
     @Override
     public void process(int hr) {
         if(hr != INVALID_HR) {
             hrBuff[hrIndex++] = hr;
-            abnormal = checkHrAbnormal();
+            if(checkHrAbnormal()) {
+                notifyObserver();
+            }
             hrIndex = hrIndex % hrBuff.length;
         }
+    }
+
+    public void registerObserver(IEcgHrAbnormalObserver observer) {
+        if(!observers.contains(observer)) {
+            observers.add(observer);
+        }
+    }
+
+    public void notifyObserver() {
+        for (IEcgHrAbnormalObserver observer : observers) {
+            observer.hrAbnormal();
+        }
+    }
+
+    public void removeObserver(IEcgHrAbnormalObserver observer) {
+        observers.remove(observer);
     }
 
     // 是否需要报警

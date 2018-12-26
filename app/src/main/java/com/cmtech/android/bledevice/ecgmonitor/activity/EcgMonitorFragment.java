@@ -124,7 +124,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvEcg1mV.setText(String.valueOf(device.getValue1mVBeforeCalibrate()) + '/' + String.valueOf(device.getValue1mVAfterCalibrate()));
 
         tvEcgHr = view.findViewById(R.id.tv_ecg_hr);
-        tvEcgHr.setText(String.valueOf(device.getCurrentHr()));
+        tvEcgHr.setText(String.valueOf(0));
         tvEcgHr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -303,7 +303,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void notifyHrAbnormal() {
+    public void hrAbnormal() {
         ViseLog.e("Hr Warn!");
 
         if(audioTrack == null) {
