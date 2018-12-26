@@ -42,7 +42,7 @@ public class EcgHrWarner implements IEcgHrProcessor {
 
     @Override
     public void process(int hr) {
-        if(hr != 0) {
+        if(hr != INVALID_HR) {
             hrBuff[hrIndex++] = hr;
             abnormal = checkHrAbnormal();
             hrIndex = hrIndex % hrBuff.length;
