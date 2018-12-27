@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator;
 
 /**
  * EcgCalibrator: 心电信号定标器，用于定标（归一化）信号值

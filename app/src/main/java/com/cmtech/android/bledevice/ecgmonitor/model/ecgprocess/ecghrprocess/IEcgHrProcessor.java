@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
 
 /**
  * IEcgHrProcessor: 心率处理器接口

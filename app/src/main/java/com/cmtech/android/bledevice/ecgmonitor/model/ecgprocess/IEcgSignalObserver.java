@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess;
 
 /**
  * IEcgSignalObserver: 心电信号观察者接口

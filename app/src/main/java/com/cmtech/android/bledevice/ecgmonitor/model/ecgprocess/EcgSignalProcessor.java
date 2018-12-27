@@ -1,34 +1,31 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.EcgCalibrator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.EcgCalibrator65536;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgcalibrator.IEcgCalibrator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter.EcgPreFilterWith35HzNotch;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter.IEcgFilter;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.EcgHrBroadcaster;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.EcgHrHistogram;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.EcgHrWarner;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrAbnormalObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.EcgCalibrator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.EcgCalibrator65536;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.IEcgCalibrator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.EcgPreFilterWith35HzNotch;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.IEcgFilter;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrBroadcaster;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrHistogram;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrWarner;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrProcessor;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
 
 /**
- * EcgProcessor: 心电信号处理器，包含需要对心电信号做的所有处理
+ * EcgSignalProcessor: 心电信号处理器，包含需要对心电信号做的所有处理
  * Created by Chenm, 2018-12-23
  */
 
-public class EcgProcessor {
-    private final static String KEY_HRBROADCASTER = "hrbroadcaster";
+public class EcgSignalProcessor {
     private final static String KEY_HRWARNER = "hrwarner";
     private final static String KEY_HRHISTOGRAM = "hrhistogram";
 
@@ -40,7 +37,7 @@ public class EcgProcessor {
     private IEcgSignalObserver signalObserver = null;
 
 
-    private EcgProcessor(IEcgCalibrator ecgCalibrator, IEcgFilter ecgFilter, QrsDetector qrsDetector, EcgHrBroadcaster hrBroadcaster, Map<String, IEcgHrProcessor> hrProcessors) {
+    private EcgSignalProcessor(IEcgCalibrator ecgCalibrator, IEcgFilter ecgFilter, QrsDetector qrsDetector, EcgHrBroadcaster hrBroadcaster, Map<String, IEcgHrProcessor> hrProcessors) {
         this.ecgCalibrator = ecgCalibrator;
         this.ecgFilter = ecgFilter;
         this.qrsDetector = qrsDetector;
@@ -163,7 +160,7 @@ public class EcgProcessor {
             hrHighLimit = high;
         }
 
-        public EcgProcessor build() {
+        public EcgSignalProcessor build() {
             IEcgCalibrator ecgCalibrator;
             if(value1mVAfterCalibrate == 65536) {
                 ecgCalibrator = new EcgCalibrator65536(value1mVBeforeCalibrate);
@@ -184,7 +181,7 @@ public class EcgProcessor {
                 hrProcessors.put(KEY_HRWARNER, new EcgHrWarner(hrLowLimit, hrHighLimit));
             }
 
-            return new EcgProcessor(ecgCalibrator, ecgFilter, qrsDetector, hrBroadcaster, hrProcessors);
+            return new EcgSignalProcessor(ecgCalibrator, ecgFilter, qrsDetector, hrBroadcaster, hrProcessors);
         }
     }
 

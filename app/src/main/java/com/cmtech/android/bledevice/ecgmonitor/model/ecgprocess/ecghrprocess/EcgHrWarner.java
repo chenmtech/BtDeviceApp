@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
 
 import java.util.ArrayList;
 import java.util.List;

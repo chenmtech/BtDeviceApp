@@ -7,33 +7,29 @@ import android.os.Message;
 import com.cmtech.android.bledevice.core.BleDataOpException;
 import com.cmtech.android.bledevice.core.BleGattElement;
 import com.cmtech.android.bledevice.core.IBleDataOpCallback;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.EcgProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.IEcgSignalObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrAbnormalObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.CalibrateDataProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ICalibrateValueObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgSignalObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledeviceapp.model.UserAccountManager;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.EcgSignalRecorder;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.IEcgRecordSecondObserver;
 import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.vise.log.ViseLog;
-import com.vise.utils.file.FileUtil;
 
 import org.litepal.LitePal;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 
 
 /**
@@ -41,7 +37,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILE
  * Created by bme on 2018/9/20.
  */
 
-public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, IEcgHrObserver, IEcgHrAbnormalObserver {
+public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, IEcgHrObserver, IEcgHrAbnormalObserver, IEcgRecordSecondObserver, ICalibrateValueObserver {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -90,21 +86,18 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private EcgLeadType leadType = DEFAULT_LEADTYPE; // 导联类型
     private int value1mVBeforeCalibrate = 0; // 定标之前1mV对应的数值
     private final int value1mVAfterCalibrate = DEFAULT_CALIBRATIONVALUE; // 定标之后1mV对应的数值
-    private final List<Integer> calibrationData = new ArrayList<>(250); // 用于保存标定用的数据
     private boolean isRecord = false; // 是否记录信号
     private boolean isFilter = true; // 是否对信号进行滤波
-    private final List<EcgComment> commentList = new ArrayList<>(); // 当前信号的留言表
-    private long recordDataNum = 0; // 当前记录的心电数据个数
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
     private int xPixelPerData = 2; // EcgView的横向分辨率
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
-    private EcgFile ecgFile = null; // 用于记录心电信号的EcgFile文件
-    private EcgProcessor ecgProcessor; // Ecg处理器
     private EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
     private final EcgMonitorDeviceConfig config; // 设备配置信息
     private IEcgMonitorObserver observer; // 设备观察者
-
-
+    
+    private final EcgSignalRecorder ecgRecorder = new EcgSignalRecorder(); // 心电信号记录器
+    private EcgSignalProcessor ecgProcessor; // 心电处理器
+    private CalibrateDataProcessor caliProcessor; // 定标数据处理器
 
 
     public int getSampleRate() { return sampleRate; }
@@ -121,9 +114,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     public int getPixelPerGrid() { return pixelPerGrid; }
     public int getxPixelPerData() { return xPixelPerData; }
     public float getyValuePerPixel() { return yValuePerPixel; }
-    public int getRecordSecond() {
-        return (int)(recordDataNum/sampleRate);
-    } // 获取记录的时间，单位为秒
     public EcgMonitorState getState() {
         return state;
     }
@@ -143,6 +133,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         this.config.save();
         ecgProcessor.changeConfiguration(config);
     }
+    public int getRecordSecond() { return ecgRecorder.getRecordSecond(); }
 
     // 构造器
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
@@ -208,6 +199,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
                 if(msg.obj != null) {
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
+                    caliProcessor = new CalibrateDataProcessor(sampleRate);
+                    caliProcessor.registerObserver(this);
                 }
                 break;
 
@@ -247,7 +240,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
         // 保存EcgFile
         if(isRecord) {
-            saveEcgFile();
+            //saveEcgFile();
+            ecgRecorder.save();
+            ecgRecorder.removeObserver();
             isRecord = false;
         }
 
@@ -272,13 +267,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     public void updateEcgSignal(final int ecgSignal) {
         // 保存到EcgFile
         if(isRecord) {
-            try {
-                ecgFile.writeData(ecgSignal);
-                recordDataNum++;
-                updateRecordSecond(getRecordSecond());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            ecgRecorder.record(ecgSignal);
         }
 
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -312,28 +301,58 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         });
     }
 
+    @Override
+    public void updateRecordSecond(final int second) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(observer != null)
+                    observer.updateRecordSecond(second);
+            }
+        });
+    }
+
+    @Override
+    public void updateCalibrateValue(int calibrateValue) {
+        value1mVBeforeCalibrate = calibrateValue;
+        updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
+
+        // 初始化各种Ecg处理器
+        initializeProcessor();
+
+        // 初始化Ecg记录器
+        if(isRecord) {
+            ecgRecorder.initialize(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
+            ecgRecorder.registerObserver(this);
+        }
+
+        // 初始化EcgView
+        initializeEcgView(sampleRate, value1mVAfterCalibrate);
+
+        setState(EcgMonitorState.CALIBRATED);
+        stopSampleData();
+        startSampleEcg();
+    }
+
     // 设置是否记录心电信号
     public synchronized void setRecord(boolean isRecord) {
         if(this.isRecord == isRecord) return;
 
         // 当前isRecord与要设置的isRecord不同，就意味着要改变当前的isRecord状态
         if(this.isRecord) {
-            saveEcgFile();              // 保存Ecg文件
-        }
-
-        this.isRecord = isRecord;
-
-        if(this.isRecord) {
+            ecgRecorder.save();
+            ecgRecorder.removeObserver();
+        } else {
             // 如果已经标定了或者采样了,才可以开始记录心电信号，初始化EcgFile
             if(state == EcgMonitorState.CALIBRATED || state == EcgMonitorState.SAMPLE) {
-                initializeEcgFile(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
-                commentList.clear();
+                ecgRecorder.initialize(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
+                ecgRecorder.registerObserver(this);
             }
             else {
                 // 否则什么都不做，会在标定后根据isRecord值初始化Ecg文件
             }
         }
-
+        this.isRecord = isRecord;
         updateRecordStatus(isRecord);
     }
 
@@ -358,16 +377,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         }
     }
 
-    // 添加没有时间定位的留言
-    public synchronized void addComment(String comment) {
-        long timeCreated = new Date().getTime();
-        commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
-    }
-
     // 添加有时间定位的留言
     public synchronized void addComment(int secondInEcg, String comment) {
-        long timeCreated = new Date().getTime();
-        commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, secondInEcg, comment));
+        ecgRecorder.addComment(secondInEcg, comment);
     }
 
     // 获取统计直方图数据
@@ -458,7 +470,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     // 启动1mV定标信号采集
     private void startSample1mV() {
         setState(EcgMonitorState.CALIBRATING);
-        calibrationData.clear();
         IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
@@ -494,10 +505,10 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         for(int i = 0; i < data.length/2; i++) {
             switch (state) {
                 case CALIBRATING:
-                    processCalibrateData(buffer.getShort());
+                    caliProcessor.process(buffer.getShort());
                     break;
                 case SAMPLE:
-                    processEcgSignal(buffer.getShort());
+                    ecgProcessor.process(buffer.getShort());
                     break;
                 default:
                     break;
@@ -505,38 +516,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         }
     }
 
-    // 处理标定数据
-    private void processCalibrateData(int tmpData) {
-        // 采集1个周期的定标信号
-        if (calibrationData.size() < sampleRate) {
-            calibrationData.add(tmpData);
-        }
-        else {
-            // 计算得到实际1mV定标值
-            value1mVBeforeCalibrate = calculateCalibration(calibrationData);
-            calibrationData.clear();
-            updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
-
-            // 初始化各种Ecg处理器
-            initializeProcessor();
-
-            // 初始化Ecg记录器
-            if(isRecord) {
-                initializeEcgFile(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());        // 如果需要记录，就初始化Ecg文件
-            }
-
-            // 初始化EcgView
-            initializeEcgView(sampleRate, value1mVAfterCalibrate);
-
-            setState(EcgMonitorState.CALIBRATED);
-            stopSampleData();
-            startSampleEcg();
-        }
-    }
-
     // 初始化Ecg处理器
     private void initializeProcessor() {
-        EcgProcessor.Builder builder = new EcgProcessor.Builder();
+        EcgSignalProcessor.Builder builder = new EcgSignalProcessor.Builder();
         builder.setSampleRate(sampleRate);
         builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
         builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
@@ -547,37 +529,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         ecgProcessor.registerHrAbnormalObserver(this);
     }
 
-    // 处理Ecg信号
-    private void processEcgSignal(int ecgSignal) {
-        ecgProcessor.process(ecgSignal);
-    }
-
-    private int calculateCalibration(List<Integer> data) {
-        Integer[] arr = data.toArray(new Integer[0]);
-        Arrays.sort(arr);
-
-        int len = (arr.length-10)/2;
-        int sum1 = 0;
-        int sum2 = 0;
-        for(int i = 0; i < len; i++) {
-            sum1 += arr[i];
-            sum2 += arr[arr.length-i-1];
-        }
-        return (sum2-sum1)/2/len;
-    }
-
-    // 初始化EcgFile
-    private void initializeEcgFile(int sampleRate, int calibrationValue, EcgLeadType leadType, String macAddress) {
-        if(ecgFile != null) return;
-
-        ecgFile = EcgFile.create(sampleRate, calibrationValue, macAddress, leadType);
-        if(ecgFile != null) {
-            commentList.clear();
-            recordDataNum = 0;
-            updateRecordSecond(0);
-        }
-    }
-
     // 初始化EcgView
     private void initializeEcgView(int sampleRate, int calibrationValue) {
         //pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
@@ -586,33 +537,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         yValuePerPixel = calibrationValue * DEFAULT_MV_PER_GRID / pixelPerGrid;                         // 计算纵向分辨率
         // 更新EcgView
         updateEcgView(xPixelPerData, yValuePerPixel, pixelPerGrid);
-    }
-
-    // 保存Ecg文件
-    private void saveEcgFile() {
-        ViseLog.e(TAG + " " + getMacAddress() + ": saveEcgFile()");
-
-        if (ecgFile != null) {
-            try {
-                if (ecgFile.getDataNum() <= 0) {     // 如果没有数据，删除文件
-                    ecgFile.close();
-                    FileUtil.deleteFile(ecgFile.getFile());
-                } else {    // 如果有数据
-                    if (!commentList.isEmpty()) {
-                        ecgFile.addComments(commentList);
-                    }
-                    ecgFile.saveFileTail();
-                    ecgFile.close();
-                    ViseLog.e(ecgFile);
-                    File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
-                    // 将缓存区中的文件移动到ECGFILEDIR目录中
-                    FileUtil.moveFile(ecgFile.getFile(), toFile);
-                }
-                ecgFile = null;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private void updateEcgMonitorState() {
@@ -675,14 +599,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         });
     }
 
-    private void updateRecordSecond(final int second) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if(observer != null)
-                    observer.updateRecordSecond(second);
-            }
-        });
-    }
+
 
 }

@@ -1,9 +1,9 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
 
 /**
  * EcgHrBroadcaster: 心率广播器，实现心率值的广播功能

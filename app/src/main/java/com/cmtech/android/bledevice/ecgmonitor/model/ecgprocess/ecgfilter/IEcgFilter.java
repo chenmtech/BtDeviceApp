@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgProcess.ecgfilter;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter;
 
 /**
  * IEcgFilter: Ecg信号滤波器接口

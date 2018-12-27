@@ -3,11 +3,14 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
+import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
@@ -20,34 +23,41 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILE
 public class EcgSignalRecorder {
     private EcgFile ecgFile;
     private long recordDataNum;
-    private IEcgRecordNumObserver observer;
+    private int sampleRate = 125;
+    private final List<EcgComment> commentList = new ArrayList<>(); // 当前信号的留言表
+    private IEcgRecordSecondObserver observer;
 
     // 初始化EcgFile
-    public boolean initialize(int sampleRate, int calibrationValue, EcgLeadType leadType, String macAddress) {
-        if(ecgFile != null) return false;
+    public void initialize(int sampleRate, int calibrationValue, EcgLeadType leadType, String macAddress) {
+        if(ecgFile != null) return;
 
         ecgFile = EcgFile.create(sampleRate, calibrationValue, macAddress, leadType);
         if(ecgFile != null) {
-            //commentList.clear();
+            commentList.clear();
             recordDataNum = 0;
+            this.sampleRate = sampleRate;
             notifyObserver(0);
-            return true;
+        } else {
+            throw new IllegalStateException("创建心电文件失败");
         }
-        return false;
+    }
+
+    public int getRecordSecond() {
+        return (int)(recordDataNum/sampleRate);
     }
 
     public void record(int ecgSignal) {
         try {
             ecgFile.writeData(ecgSignal);
             recordDataNum++;
-            notifyObserver(recordDataNum);
+            notifyObserver(getRecordSecond());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     // 保存Ecg文件
-    public void save(List<EcgComment> commentList) {
+    public void save() {
         if (ecgFile != null) {
             try {
                 if (ecgFile.getDataNum() <= 0) {     // 如果没有数据，删除文件
@@ -71,12 +81,24 @@ public class EcgSignalRecorder {
         }
     }
 
-    public void registerObserver(IEcgRecordNumObserver observer) {
+    // 添加没有时间定位的留言
+    public void addComment(String comment) {
+        long timeCreated = new Date().getTime();
+        commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
+    }
+
+    // 添加有时间定位的留言
+    public void addComment(int secondInEcg, String comment) {
+        long timeCreated = new Date().getTime();
+        commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, secondInEcg, comment));
+    }
+
+    public void registerObserver(IEcgRecordSecondObserver observer) {
         this.observer = observer;
     }
-    private void notifyObserver(long num) {
+    private void notifyObserver(int second) {
         if(observer != null) {
-            observer.update(num);
+            observer.updateRecordSecond(second);
         }
     }
     public void removeObserver() {
