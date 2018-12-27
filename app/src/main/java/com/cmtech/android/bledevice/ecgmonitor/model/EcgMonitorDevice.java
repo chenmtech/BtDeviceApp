@@ -94,7 +94,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
     private final EcgMonitorDeviceConfig config; // 设备配置信息
     private IEcgMonitorObserver observer; // 设备观察者
-    
+
     private final EcgSignalRecorder ecgRecorder = new EcgSignalRecorder(); // 心电信号记录器
     private EcgSignalProcessor ecgProcessor; // 心电处理器
     private CalibrateDataProcessor caliProcessor; // 定标数据处理器
