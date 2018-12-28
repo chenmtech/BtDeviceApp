@@ -12,7 +12,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcess
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ICalibrateValueObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgSignalObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrValueObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.EcgSignalRecorder;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.IEcgRecordSecondObserver;
@@ -24,8 +24,6 @@ import org.litepal.LitePal;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
@@ -37,7 +35,7 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
  * Created by bme on 2018/9/20.
  */
 
-public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, IEcgHrObserver, IEcgHrAbnormalObserver, IEcgRecordSecondObserver, ICalibrateValueObserver {
+public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, IEcgHrValueObserver, IEcgHrAbnormalObserver, IEcgRecordSecondObserver, ICalibrateValueObserver {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -248,7 +246,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
         ecgProcessor.removeSignalObserver();
         ecgProcessor.removeHrAbnormalObserver(this);
-        ecgProcessor.removeHrObserver(this);
+        ecgProcessor.removeHrValueObserver(this);
     }
 
     @Override
@@ -525,7 +523,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
         ecgProcessor = builder.build();
         ecgProcessor.registerSignalObserver(this);
-        ecgProcessor.registerHrObserver(this);
+        ecgProcessor.registerHrValueObserver(this);
         ecgProcessor.registerHrAbnormalObserver(this);
     }
 
