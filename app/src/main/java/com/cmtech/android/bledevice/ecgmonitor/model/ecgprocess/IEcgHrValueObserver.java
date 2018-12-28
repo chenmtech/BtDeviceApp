@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess;
 
 /**
  * IEcgHrValueObserver: 心率值观察者接口
@@ -6,5 +6,5 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
  */
 
 public interface IEcgHrValueObserver {
-    void updateHr(int hr);
+    void updateHrValue(int hr); // 更新心率值
 }

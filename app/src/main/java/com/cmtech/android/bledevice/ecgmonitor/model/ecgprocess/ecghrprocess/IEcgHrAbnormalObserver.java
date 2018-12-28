@@ -6,5 +6,5 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
  */
 
 public interface IEcgHrAbnormalObserver {
-    void hrAbnormal();
+    void processHrAbnormal(); // 处理心率异常
 }

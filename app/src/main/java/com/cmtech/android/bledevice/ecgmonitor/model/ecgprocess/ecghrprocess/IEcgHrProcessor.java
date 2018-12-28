@@ -6,7 +6,5 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
  */
 
 public interface IEcgHrProcessor{
-
-    // 处理心率
-    void process(int hr);
+    void process(int hr); // 处理心率值
 }

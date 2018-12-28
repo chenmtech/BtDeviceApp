@@ -6,21 +6,20 @@ import java.util.List;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor.INVALID_HR;
 
 /**
- * EcgHrWarner: 心率报警器类
+ * EcgHrAbnormalWarner: 心率异常报警器类
  * Created by Chenm, 2018-12-07
  */
 
-public class EcgHrWarner implements IEcgHrProcessor {
-    private static final int DEFAULT_HR_BUFFLEN = 5;
+public class EcgHrAbnormalWarner implements IEcgHrProcessor {
+    private static final int DEFAULT_HR_BUFFLEN = 5; // 心率值缓存长度
 
-    private int hrLowLimit;
-    private int hrHighLimit;
-    private int[] hrBuff;
-    private int hrIndex;
+    private int lowLimit; // 下限
+    private int highLimit; // 上限
+    private int[] buff; // 缓存
+    private int index; // 缓存索引
+    private List<IEcgHrAbnormalObserver> observers = new ArrayList<>(); // 心率异常观察者
 
-    private List<IEcgHrAbnormalObserver> observers = new ArrayList<>();
-
-    public EcgHrWarner(int lowLimit, int highLimit) {
+    public EcgHrAbnormalWarner(int lowLimit, int highLimit) {
         setHrWarn(lowLimit, highLimit);
     }
 
@@ -31,24 +30,24 @@ public class EcgHrWarner implements IEcgHrProcessor {
 
     // 设置参数
     public void setHrWarn(int lowLimit, int highLimit, int buffLen) {
-        hrLowLimit = lowLimit;
-        hrHighLimit = highLimit;
+        this.lowLimit = lowLimit;
+        this.highLimit = highLimit;
         int half = (lowLimit+highLimit)/2;
-        hrBuff = new int[buffLen];
+        buff = new int[buffLen];
         for(int i = 0; i < buffLen; i++) {
-            hrBuff[i] = half;
+            buff[i] = half;
         }
-        hrIndex = 0;
+        index = 0;
     }
 
     @Override
     public void process(int hr) {
         if(hr != INVALID_HR) {
-            hrBuff[hrIndex++] = hr;
+            buff[index++] = hr;
             if(checkHrAbnormal()) {
                 notifyObserver();
             }
-            hrIndex = hrIndex % hrBuff.length;
+            index = index % buff.length;
         }
     }
 
@@ -60,7 +59,7 @@ public class EcgHrWarner implements IEcgHrProcessor {
 
     public void notifyObserver() {
         for (IEcgHrAbnormalObserver observer : observers) {
-            observer.hrAbnormal();
+            observer.processHrAbnormal();
         }
     }
 
@@ -68,15 +67,13 @@ public class EcgHrWarner implements IEcgHrProcessor {
         observers.remove(observer);
     }
 
-    // 是否需要报警
+    // 检查心率是否异常
     private boolean checkHrAbnormal() {
-        boolean abnormal = true;
-        for(int hr : hrBuff) {
-            if(hr > hrLowLimit && hr < hrHighLimit) {
-                abnormal = false;
-                break;
+        for(int hr : buff) {
+            if(hr > lowLimit && hr < highLimit) {
+                return false;
             }
         }
-        return abnormal;
+        return true;
     }
 }

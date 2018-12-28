@@ -12,7 +12,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcess
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ICalibrateValueObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgSignalObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrValueObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgHrValueObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.EcgSignalRecorder;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.IEcgRecordSecondObserver;
@@ -278,7 +278,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     }
 
     @Override
-    public void updateHr(final int hr) {
+    public void updateHrValue(final int hr) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -289,7 +289,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     }
 
     @Override
-    public void hrAbnormal() {
+    public void processHrAbnormal() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {

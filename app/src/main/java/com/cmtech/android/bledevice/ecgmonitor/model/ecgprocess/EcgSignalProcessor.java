@@ -6,10 +6,9 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.Ec
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.EcgPreFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.IEcgFilter;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrAbnormalWarner;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrHistogram;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrWarner;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrValueObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrProcessor;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 
@@ -67,11 +66,11 @@ public class EcgSignalProcessor {
     // 修改配置信息
     public void changeConfiguration(EcgMonitorDeviceConfig config) {
         if(config.isWarnWhenHrAbnormal()) {
-            EcgHrWarner hrWarner = (EcgHrWarner) hrProcessors.get(KEY_HRWARNER);
+            EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
             if(hrWarner != null) {
                 hrWarner.setHrWarn(config.getHrLowLimit(), config.getHrHighLimit());
             } else {
-                hrProcessors.put(KEY_HRWARNER, new EcgHrWarner(config.getHrLowLimit(), config.getHrHighLimit()));
+                hrProcessors.put(KEY_HRWARNER, new EcgHrAbnormalWarner(config.getHrLowLimit(), config.getHrHighLimit()));
             }
         } else {
             hrProcessors.remove(KEY_HRWARNER);
@@ -116,7 +115,7 @@ public class EcgSignalProcessor {
     public void notifyHrValueObserver(int hr) {
         if(hr != INVALID_HR) {
             for (IEcgHrValueObserver observer : hrValueObservers) {
-                observer.updateHr(hr);
+                observer.updateHrValue(hr);
             }
         }
     }
@@ -126,14 +125,14 @@ public class EcgSignalProcessor {
     }
 
     public void registerHrAbnormalObserver(IEcgHrAbnormalObserver observer) {
-        EcgHrWarner hrWarner = (EcgHrWarner) hrProcessors.get(KEY_HRWARNER);
+        EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
         if(hrWarner != null) {
             hrWarner.registerObserver(observer);
         }
     }
 
     public void removeHrAbnormalObserver(IEcgHrAbnormalObserver observer) {
-        EcgHrWarner hrWarner = (EcgHrWarner) hrProcessors.get(KEY_HRWARNER);
+        EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
         if(hrWarner != null) {
             hrWarner.removeObserver(observer);
         }
@@ -185,7 +184,7 @@ public class EcgSignalProcessor {
             Map<String, IEcgHrProcessor> hrProcessors = new HashMap<>();
             hrProcessors.put(KEY_HRHISTOGRAM, new EcgHrHistogram());
             if(hrWarnEnabled) {
-                hrProcessors.put(KEY_HRWARNER, new EcgHrWarner(hrLowLimit, hrHighLimit));
+                hrProcessors.put(KEY_HRWARNER, new EcgHrAbnormalWarner(hrLowLimit, hrHighLimit));
             }
 
             return new EcgSignalProcessor(ecgCalibrator, ecgFilter, qrsDetector, hrProcessors);
