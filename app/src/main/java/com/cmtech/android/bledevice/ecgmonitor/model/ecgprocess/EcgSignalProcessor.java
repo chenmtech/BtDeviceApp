@@ -14,12 +14,10 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEc
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrProcessor.INVALID_HR;
 
 /**
  * EcgSignalProcessor: 心电信号处理器，包含所有心电信号的处理
@@ -27,6 +25,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrproc
  */
 
 public class EcgSignalProcessor {
+    public final static int INVALID_HR = 0; // 无效心率值
     private final static String KEY_HRWARNER = "hrwarner";
     private final static String KEY_HRHISTOGRAM = "hrhistogram";
 
@@ -35,9 +34,9 @@ public class EcgSignalProcessor {
     private QrsDetector qrsDetector; // QRS波检测器，可求心率值
     private Map<String, IEcgHrProcessor> hrProcessors; // 心率处理器
 
-
     private IEcgSignalObserver signalObserver = null; // 心电信号观察者
     private List<IEcgHrValueObserver> hrValueObservers = new ArrayList<>(); // 心率值观察者
+
 
 
     private EcgSignalProcessor(IEcgCalibrator ecgCalibrator, IEcgFilter ecgFilter, QrsDetector qrsDetector, Map<String, IEcgHrProcessor> hrProcessors) {

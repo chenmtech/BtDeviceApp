@@ -6,8 +6,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
  */
 
 public interface IEcgHrProcessor{
-    // 无效心率值常量
-    int INVALID_HR = 0;
 
     // 处理心率
     void process(int hr);

@@ -3,6 +3,8 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor.INVALID_HR;
+
 /**
  * EcgHrWarner: 心率报警器类
  * Created by Chenm, 2018-12-07
