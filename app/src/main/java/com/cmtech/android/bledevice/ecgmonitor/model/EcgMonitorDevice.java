@@ -91,9 +91,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
     private EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
     private final EcgMonitorDeviceConfig config; // 设备配置信息
-    private IEcgMonitorObserver observer; // 设备观察者
+    private IEcgMonitorObserver observer; // 心电设备观察者
 
-    private final EcgRecorder ecgRecorder = new EcgRecorder(); // 心电信号记录器
+    private final EcgRecorder ecgRecorder = new EcgRecorder(); // 心电记录器
     private EcgSignalProcessor ecgProcessor; // 心电处理器
     private CalibrateDataProcessor caliProcessor; // 定标数据处理器
 
@@ -172,7 +172,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         // 读导联类型
         readLeadType();
 
-        // 启动1mV采样，准备标定
+        // 启动1mV采样进行定标
         startSample1mV();
 
         return true;
@@ -197,6 +197,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
                 if(msg.obj != null) {
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
+                    // 有了采样率，可以初始化定标数据处理器
                     caliProcessor = new CalibrateDataProcessor(sampleRate);
                     caliProcessor.registerObserver(this);
                 }
@@ -233,20 +234,13 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     public void close() {
         super.close();
 
-        // 清楚hr直方图
-        resetHrStatistics();
-
         // 保存EcgFile
         if(isRecord) {
-            //saveEcgFile();
-            ecgRecorder.save();
-            ecgRecorder.removeObserver();
+            ecgRecorder.close();
             isRecord = false;
         }
 
-        ecgProcessor.removeSignalObserver();
-        ecgProcessor.removeHrAbnormalObserver(this);
-        ecgProcessor.removeHrValueObserver(this);
+        ecgProcessor.close();
     }
 
     @Override
@@ -268,6 +262,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
             ecgRecorder.record(ecgSignal);
         }
 
+        // 通知观察者
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -294,7 +289,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
             @Override
             public void run() {
                 if(observer != null)
-                    observer.hrAbnormal();
+                    observer.processHrAbnormal();
             }
         });
     }

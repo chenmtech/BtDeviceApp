@@ -67,6 +67,10 @@ public class EcgHrAbnormalWarner implements IEcgHrProcessor {
         observers.remove(observer);
     }
 
+    public void removeAllObserver() {
+        observers.clear();
+    }
+
     // 检查心率是否异常
     private boolean checkHrAbnormal() {
         for(int hr : buff) {

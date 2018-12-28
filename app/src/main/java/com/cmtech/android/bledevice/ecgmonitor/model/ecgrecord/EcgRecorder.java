@@ -95,6 +95,12 @@ public class EcgRecorder {
         commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, secondInEcg, comment));
     }
 
+    // 关闭记录器
+    public void close() {
+        save();
+        removeObserver();
+    }
+
     public void registerObserver(IEcgRecordObserver observer) {
         this.observer = observer;
     }

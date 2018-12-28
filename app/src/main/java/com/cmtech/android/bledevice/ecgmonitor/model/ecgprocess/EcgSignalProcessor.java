@@ -94,6 +94,13 @@ public class EcgSignalProcessor {
         return null;
     }
 
+    public void close() {
+        resetHrHistogram();
+        removeSignalObserver();
+        removeAllHrAbnormalObserver();
+        removeAllHrValueObserver();
+    }
+
     public void registerSignalObserver(IEcgSignalObserver signalObserver) {
         this.signalObserver = signalObserver;
     }
@@ -119,9 +126,11 @@ public class EcgSignalProcessor {
             }
         }
     }
-
     public void removeHrValueObserver(IEcgHrValueObserver observer) {
         hrValueObservers.remove(observer);
+    }
+    public void removeAllHrValueObserver() {
+        hrValueObservers.clear();
     }
 
     public void registerHrAbnormalObserver(IEcgHrAbnormalObserver observer) {
@@ -135,6 +144,12 @@ public class EcgSignalProcessor {
         EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
         if(hrWarner != null) {
             hrWarner.removeObserver(observer);
+        }
+    }
+    public void removeAllHrAbnormalObserver() {
+        EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
+        if(hrWarner != null) {
+            hrWarner.removeAllObserver();
         }
     }
 

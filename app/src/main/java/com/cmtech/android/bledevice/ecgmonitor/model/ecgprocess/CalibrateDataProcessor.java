@@ -11,7 +11,7 @@ import java.util.List;
 
 public class CalibrateDataProcessor {
     private final List<Integer> calibrationData = new ArrayList<>(250); // 用于保存标定用的数据
-    private int sampleRate; // 采样率
+    private final int sampleRate; // 采样率
     private ICalibrateValueObserver observer; // 标定值观察者
 
     public CalibrateDataProcessor(int sampleRate) {
