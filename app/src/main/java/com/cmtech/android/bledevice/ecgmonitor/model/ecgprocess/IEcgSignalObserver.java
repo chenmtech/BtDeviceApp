@@ -6,5 +6,5 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess;
  */
 
 public interface IEcgSignalObserver {
-    void updateEcgSignal(int ecgSignal);
+    void updateEcgSignal(int ecgSignal); // 更新心电信号
 }
