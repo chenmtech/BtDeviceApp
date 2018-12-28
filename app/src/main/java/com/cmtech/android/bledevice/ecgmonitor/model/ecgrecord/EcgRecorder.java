@@ -16,16 +16,16 @@ import java.util.List;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 
 /**
- * EcgSignalRecorder: 心电信号记录器
+ * EcgRecorder: 心电记录器
  * Created by Chenm, 2018-12-27
  */
 
-public class EcgSignalRecorder {
-    private EcgFile ecgFile;
-    private long recordDataNum;
-    private int sampleRate = 125;
+public class EcgRecorder {
+    private EcgFile ecgFile; // 心电文件
+    private long recordDataNum; // 记录的数据个数
+    private int sampleRate = 125; // 采样频率
     private final List<EcgComment> commentList = new ArrayList<>(); // 当前信号的留言表
-    private IEcgRecordSecondObserver observer;
+    private IEcgRecordObserver observer; // 心电记录观察者
 
     // 初始化EcgFile
     public void initialize(int sampleRate, int calibrationValue, EcgLeadType leadType, String macAddress) {
@@ -42,10 +42,12 @@ public class EcgSignalRecorder {
         }
     }
 
+    // 获取记录的秒数
     public int getRecordSecond() {
         return (int)(recordDataNum/sampleRate);
     }
 
+    // 记录心电信号
     public void record(int ecgSignal) {
         try {
             ecgFile.writeData(ecgSignal);
@@ -93,14 +95,16 @@ public class EcgSignalRecorder {
         commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, secondInEcg, comment));
     }
 
-    public void registerObserver(IEcgRecordSecondObserver observer) {
+    public void registerObserver(IEcgRecordObserver observer) {
         this.observer = observer;
     }
+
     private void notifyObserver(int second) {
         if(observer != null) {
             observer.updateRecordSecond(second);
         }
     }
+
     public void removeObserver() {
         observer = null;
     }

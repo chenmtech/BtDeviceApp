@@ -14,8 +14,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgSignalObserv
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgHrValueObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.EcgSignalRecorder;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.IEcgRecordSecondObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.EcgRecorder;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.IEcgRecordObserver;
 import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.vise.log.ViseLog;
@@ -35,7 +35,7 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
  * Created by bme on 2018/9/20.
  */
 
-public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, IEcgHrValueObserver, IEcgHrAbnormalObserver, IEcgRecordSecondObserver, ICalibrateValueObserver {
+public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, IEcgHrValueObserver, IEcgHrAbnormalObserver, IEcgRecordObserver, ICalibrateValueObserver {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -93,7 +93,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private final EcgMonitorDeviceConfig config; // 设备配置信息
     private IEcgMonitorObserver observer; // 设备观察者
 
-    private final EcgSignalRecorder ecgRecorder = new EcgSignalRecorder(); // 心电信号记录器
+    private final EcgRecorder ecgRecorder = new EcgRecorder(); // 心电信号记录器
     private EcgSignalProcessor ecgProcessor; // 心电处理器
     private CalibrateDataProcessor caliProcessor; // 定标数据处理器
 
