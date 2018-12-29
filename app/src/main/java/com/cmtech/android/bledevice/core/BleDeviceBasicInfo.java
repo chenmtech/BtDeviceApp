@@ -10,6 +10,8 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -101,14 +103,12 @@ public class BleDeviceBasicInfo implements Serializable{
         if(TextUtils.isEmpty(macAddress)) return false;
 
         SharedPreferences.Editor editor = pref.edit();
-
         Set<String> addressSet = new HashSet<>();
         addressSet = pref.getStringSet("addressSet", addressSet);
         if(addressSet.isEmpty() || !addressSet.contains(macAddress)) {
             addressSet.add(macAddress);
             editor.putStringSet("addressSet", addressSet);
         }
-
         editor.putString(macAddress+"_macAddress", macAddress);
         editor.putString(macAddress+"_nickName", nickName);
         editor.putString(macAddress+"_uuidString", uuidString);
@@ -116,7 +116,6 @@ public class BleDeviceBasicInfo implements Serializable{
         editor.putBoolean(macAddress+"_autoConnect", autoConnect);
         editor.putInt(macAddress+"_reconnectTimes", reconnectTimes);
         editor.putBoolean(macAddress+"_warnAfterReconnectFailure", warnAfterReconnectFailure);
-
         return editor.commit();
     }
 
@@ -125,14 +124,12 @@ public class BleDeviceBasicInfo implements Serializable{
         if(TextUtils.isEmpty(macAddress)) return false;
 
         SharedPreferences.Editor editor = pref.edit();
-
         Set<String> addressSet = new HashSet<>();
         addressSet = pref.getStringSet("addressSet", addressSet);
         if(!addressSet.isEmpty() && addressSet.contains(macAddress)) {
             addressSet.remove(macAddress);
             editor.putStringSet("addressSet", addressSet);
         }
-
         editor.remove(macAddress+"_macAddress");
         editor.remove(macAddress+"_nickName");
         editor.remove(macAddress+"_uuidString");
@@ -140,7 +137,6 @@ public class BleDeviceBasicInfo implements Serializable{
         editor.remove(macAddress+"_autoConnect");
         editor.remove(macAddress+"_reconnectTimes");
         editor.remove(macAddress+"_warnAfterReconnectFailure");
-
         return editor.commit();
     }
 
@@ -152,19 +148,18 @@ public class BleDeviceBasicInfo implements Serializable{
             return null;
         }
         // 转为数组排序
-        String[] addressArr = addressSet.toArray(new String[addressSet.size()]);
+        String[] addressArr = addressSet.toArray(new String[0]);
         Arrays.sort(addressArr);
-
         List<BleDeviceBasicInfo> infoList = new ArrayList<>();
         for(String macAddress : addressArr) {
             BleDeviceBasicInfo basicInfo = createFromPref(macAddress);
             if(basicInfo != null)
                 infoList.add(basicInfo);
         }
-
         return infoList;
     }
 
+    // 由Pref创建设备基本信息
     private static BleDeviceBasicInfo createFromPref(String macAddress) {
         if(TextUtils.isEmpty(macAddress)) return null;
 
