@@ -19,7 +19,7 @@ public class EcgHrHistogram implements IEcgHrProcessor {
     }
 
     // 重置直方图
-    public void reset() {
+    public void clear() {
         for(int i = 0; i < HISTOGRAM_LEN; i++) {
             histgram[i] = 0;
         }

@@ -14,6 +14,8 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WARN_WH
  */
 
 public class EcgMonitorDeviceConfig extends LitePalSupport implements Serializable {
+    private final static long serialVersionUID = 1L;
+
     private int id; // id
     private String macAddress = ""; // mac地址
     private boolean warnWhenHrAbnormal = WARN_WHEN_HR_ABNORMAL; // hr异常时是否报警
@@ -23,39 +25,30 @@ public class EcgMonitorDeviceConfig extends LitePalSupport implements Serializab
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
-
     public String getMacAddress() {
         return macAddress;
     }
-
     public void setMacAddress(String macAddress) {
         this.macAddress = macAddress;
     }
-
     public boolean isWarnWhenHrAbnormal() {
         return warnWhenHrAbnormal;
     }
-
     public void setWarnWhenHrAbnormal(boolean warnWhenHrAbnormal) {
         this.warnWhenHrAbnormal = warnWhenHrAbnormal;
     }
-
     public int getHrLowLimit() {
         return hrLowLimit;
     }
-
     public void setHrLowLimit(int hrLowLimit) {
         this.hrLowLimit = hrLowLimit;
     }
-
     public int getHrHighLimit() {
         return hrHighLimit;
     }
-
     public void setHrHighLimit(int hrHighLimit) {
         this.hrHighLimit = hrHighLimit;
     }

@@ -25,18 +25,15 @@ import java.util.Map;
 
 public class EcgSignalProcessor {
     public final static int INVALID_HR = 0; // 无效心率值
-    private final static String KEY_HRWARNER = "hrwarner";
-    private final static String KEY_HRHISTOGRAM = "hrhistogram";
+    private final static String KEY_HRWARNER = "hrwarner"; // EcgHrAbnormalWarner的键值
+    private final static String KEY_HRHISTOGRAM = "hrhistogram"; // EcgHrHistogram的键值
 
     private IEcgCalibrator ecgCalibrator; // 定标器
     private IEcgFilter ecgFilter; // 滤波器
     private QrsDetector qrsDetector; // QRS波检测器，可求心率值
     private Map<String, IEcgHrProcessor> hrProcessors; // 心率处理器
-
     private IEcgSignalObserver signalObserver = null; // 心电信号观察者
     private List<IEcgHrValueObserver> hrValueObservers = new ArrayList<>(); // 心率值观察者
-
-
 
     private EcgSignalProcessor(IEcgCalibrator ecgCalibrator, IEcgFilter ecgFilter, QrsDetector qrsDetector, Map<String, IEcgHrProcessor> hrProcessors) {
         this.ecgCalibrator = ecgCalibrator;
@@ -81,7 +78,7 @@ public class EcgSignalProcessor {
     public void resetHrHistogram() {
         EcgHrHistogram hrHistogram = (EcgHrHistogram) hrProcessors.get(KEY_HRHISTOGRAM);
         if(hrHistogram != null) {
-            hrHistogram.reset();
+            hrHistogram.clear();
         }
     }
 

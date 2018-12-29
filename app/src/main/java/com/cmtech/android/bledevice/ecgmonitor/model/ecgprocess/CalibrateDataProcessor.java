@@ -25,17 +25,16 @@ public class CalibrateDataProcessor {
             calibrationData.add(calibrateData);
         }
         else {
-            // 计算得到实际定标值
-            int value = calculateCalibration(calibrationData);
+            int value = calculateCalibration(calibrationData); // 计算得到实际定标值
             notifyObserver(value);
             calibrationData.clear();
         }
     }
 
+    // 计算定标值
     private int calculateCalibration(List<Integer> data) {
         Integer[] arr = data.toArray(new Integer[0]);
         Arrays.sort(arr); // 从小到大排序
-
         int len = (arr.length-10)/2; // 去掉10个中间大小的数据
         int sum1 = 0;
         int sum2 = 0;

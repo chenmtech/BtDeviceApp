@@ -109,7 +109,7 @@ public class EcgRecorder {
 
     // 关闭记录器
     public void close() {
-        save();
+        save(); // 保存
         removeObserver();
     }
 

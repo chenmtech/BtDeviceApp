@@ -59,7 +59,7 @@ public class EcgHrAbnormalWarner implements IEcgHrProcessor {
 
     public void notifyObserver() {
         for (IEcgHrAbnormalObserver observer : observers) {
-            observer.processHrAbnormal();
+            observer.notifyHrAbnormal();
         }
     }
 

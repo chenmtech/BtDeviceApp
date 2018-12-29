@@ -60,21 +60,21 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private static final String ecgMonitorLeadTypeUuid      = "aa45";           // 导联类型UUID:aa45
 
     // Gatt Element常量
-    private static final BleGattElement ECGMONITORDATA =
+    private static final BleGattElement ECGMONITOR_DATA =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null, MY_BASE_UUID, "心电数据");
-    private static final BleGattElement ECGMONITORDATACCC =
+    private static final BleGattElement ECGMONITOR_DATA_CCC =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, CCCUUID, MY_BASE_UUID, "心电数据CCC");
-    private static final BleGattElement ECGMONITORCTRL =
+    private static final BleGattElement ECGMONITOR_CTRL =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null, MY_BASE_UUID, "心电Ctrl");
-    private static final BleGattElement ECGMONITORSAMPLERATE =
+    private static final BleGattElement ECGMONITOR_SAMPLERATE =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorSampleRateUuid, null, MY_BASE_UUID, "采样率");
-    private static final BleGattElement ECGMONITORLEADTYPE =
+    private static final BleGattElement ECGMONITOR_LEADTYPE =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null, MY_BASE_UUID, "导联类型");
 
-    // ECGMONITORCTRL Element的控制常量
-    private static final byte ECGMONITORCTRL_STOP =             (byte) 0x00;        // 停止采集
-    private static final byte ECGMONITORCTRL_STARTSIGNAL =      (byte) 0x01;        // 启动采集Ecg信号
-    private static final byte ECGMONITORCTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
+    // ECGMONITOR_CTRL Element的控制常量
+    private static final byte ECGMONITOR_CTRL_STOP =             (byte) 0x00;        // 停止采集
+    private static final byte ECGMONITOR_CTRL_STARTSIGNAL =      (byte) 0x01;        // 启动采集Ecg信号
+    private static final byte ECGMONITOR_CTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
 
 
     /**
@@ -95,7 +95,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
     private EcgRecorder ecgRecorder; // 心电记录器
     private EcgSignalProcessor ecgProcessor; // 心电处理器
-    private CalibrateDataProcessor caliProcessor; // 定标数据处理器
+    private CalibrateDataProcessor caliDataProcessor; // 定标数据处理器
 
 
     public int getSampleRate() { return sampleRate; }
@@ -160,25 +160,19 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
         // 启动gattOperator
         gattOperator.start();
-
         // 验证Gatt Elements
-        BleGattElement[] elements = new BleGattElement[]{ECGMONITORDATA, ECGMONITORDATACCC, ECGMONITORCTRL, ECGMONITORSAMPLERATE, ECGMONITORLEADTYPE};
+        BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
         if(!gattOperator.checkElements(elements)) {
             return false;
         }
-
         // 先停止采样
         stopSampleData();
-
         // 读采样率
         readSampleRate();
-
         // 读导联类型
         readLeadType();
-
         // 启动1mV采样进行定标
         startSample1mV();
-
         return true;
     }
 
@@ -202,8 +196,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
                     // 有了采样率，可以初始化定标数据处理器
-                    caliProcessor = new CalibrateDataProcessor(sampleRate);
-                    caliProcessor.registerObserver(this);
+                    caliDataProcessor = new CalibrateDataProcessor(sampleRate);
+                    caliDataProcessor.registerObserver(this);
                 }
                 break;
 
@@ -213,8 +207,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
                     Number num = (Number)msg.obj;
                     leadType = EcgLeadType.getFromCode(num.intValue());
                     updateLeadType(leadType);
-                } else {
-
                 }
                 break;
 
@@ -240,12 +232,12 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     public void close() {
         super.close();
 
-        // 保存EcgFile
+        // 关闭记录器
         if(isRecord) {
             ecgRecorder.close();
             isRecord = false;
         }
-
+        // 关闭处理器
         ecgProcessor.close();
     }
 
@@ -263,7 +255,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
     @Override
     public void updateEcgSignal(final int ecgSignal) {
-        // 保存到EcgFile
+        // 记录
         if(isRecord) {
             ecgRecorder.record(ecgSignal);
         }
@@ -290,12 +282,12 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     }
 
     @Override
-    public void processHrAbnormal() {
+    public void notifyHrAbnormal() {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 if(observer != null)
-                    observer.processHrAbnormal();
+                    observer.notifyHrAbnormal();
             }
         });
     }
@@ -316,15 +308,13 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         value1mVBeforeCalibrate = calibrateValue;
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
-        // 初始化各种Ecg处理器
-        initializeProcessor();
-
-        // 初始化Ecg记录器
+        // 创建Ecg处理器
+        createEcgProcessor();
+        // 创建记录器
         if(isRecord) {
             ecgRecorder = new EcgRecorder(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
             ecgRecorder.registerObserver(this);
         }
-
         // 初始化EcgView
         initializeEcgView(sampleRate, value1mVAfterCalibrate);
 
@@ -347,14 +337,10 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
                 ecgRecorder = new EcgRecorder(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
                 ecgRecorder.registerObserver(this);
             }
-            else {
-                // 否则什么都不做，会在标定后根据isRecord值初始化Ecg文件
-            }
         }
         this.isRecord = isRecord;
         updateRecordStatus(isRecord);
     }
-
 
     // 转换当前状态
     public synchronized void switchSampleState() {
@@ -371,8 +357,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
                 removeCallbacksAndMessages();
                 setState(EcgMonitorState.CALIBRATED);
                 break;
-                default:
-                    break;
+            default:
+                break;
         }
     }
 
@@ -396,7 +382,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     public void registerEcgMonitorObserver(IEcgMonitorObserver observer) {
         this.observer = observer;
     }
-
     // 删除心电监护仪观察者
     public void removeEcgMonitorObserver() {
         observer = null;
@@ -408,7 +393,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
      */
     // 读采样率
     private void readSampleRate() {
-        gattOperator.read(ECGMONITORSAMPLERATE, new IBleDataOpCallback() {
+        gattOperator.read(ECGMONITOR_SAMPLERATE, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_OBTAINSAMPLERATE, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
@@ -423,7 +408,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
     // 读导联类型
     private void readLeadType() {
-        gattOperator.read(ECGMONITORLEADTYPE, new IBleDataOpCallback() {
+        gattOperator.read(ECGMONITOR_LEADTYPE, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_OBTAINLEADTYPE, data[0]);
@@ -438,7 +423,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
     // 启动ECG信号采集
     private void startSampleEcg() {
-
         IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
@@ -450,11 +434,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
             }
         };
-
         // enable ECG data indication
-        gattOperator.indicate(ECGMONITORDATACCC, true, indicationCallback);
-
-        gattOperator.write(ECGMONITORCTRL, ECGMONITORCTRL_STARTSIGNAL, new IBleDataOpCallback() {
+        gattOperator.indicate(ECGMONITOR_DATA_CCC, true, indicationCallback);
+        gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_STARTSAMPLINGSIGNAL, null);
@@ -481,19 +463,16 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
             }
         };
-
         // enable ECG data indication
-        gattOperator.indicate(ECGMONITORDATACCC, true, indicationCallback);
-
-        gattOperator.write(ECGMONITORCTRL, ECGMONITORCTRL_START1MV, null);
+        gattOperator.indicate(ECGMONITOR_DATA_CCC, true, indicationCallback);
+        gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, null);
     }
 
     // 停止数据采集
     private void stopSampleData() {
         // disable ECG data indication
-        gattOperator.indicate(ECGMONITORDATACCC, false, null);
-
-        gattOperator.write(ECGMONITORCTRL, ECGMONITORCTRL_STOP, null);
+        gattOperator.indicate(ECGMONITOR_DATA_CCC, false, null);
+        gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, null);
     }
 
     // 处理数据
@@ -505,7 +484,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         for(int i = 0; i < data.length/2; i++) {
             switch (state) {
                 case CALIBRATING:
-                    caliProcessor.process(buffer.getShort());
+                    caliDataProcessor.process(buffer.getShort());
                     break;
                 case SAMPLE:
                     ecgProcessor.process(buffer.getShort());
@@ -516,8 +495,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         }
     }
 
-    // 初始化Ecg处理器
-    private void initializeProcessor() {
+    // 创建心电处理器
+    private void createEcgProcessor() {
         EcgSignalProcessor.Builder builder = new EcgSignalProcessor.Builder();
         builder.setSampleRate(sampleRate);
         builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
