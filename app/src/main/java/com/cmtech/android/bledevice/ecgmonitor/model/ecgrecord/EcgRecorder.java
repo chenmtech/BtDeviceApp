@@ -27,20 +27,18 @@ public class EcgRecorder {
     private final List<EcgComment> commentList = new ArrayList<>(); // 当前信号的留言表
     private IEcgRecordObserver observer; // 心电记录观察者
 
-    public EcgRecorder(int sampleRate, int calibrationValue, EcgLeadType leadType, String macAddress) {
-        ecgFile = EcgFile.create(sampleRate, calibrationValue, macAddress, leadType);
-        if(ecgFile != null) {
-            commentList.clear();
-            recordDataNum = 0;
-            this.sampleRate = sampleRate;
-            notifyObserver(0);
-        } else {
-            throw new IllegalStateException("创建心电文件失败");
-        }
+    // 获取记录的秒数
+    public int getRecordSecond() {
+        return (int)(recordDataNum/sampleRate);
     }
 
-    // 初始化EcgFile
-    public void initialize(int sampleRate, int calibrationValue, EcgLeadType leadType, String macAddress) {
+    public EcgRecorder() {
+
+    }
+
+    // 创建记录
+    public void create(int sampleRate, int calibrationValue, EcgLeadType leadType, String macAddress) {
+        // 已经创建过
         if(ecgFile != null) return;
 
         ecgFile = EcgFile.create(sampleRate, calibrationValue, macAddress, leadType);
@@ -50,13 +48,8 @@ public class EcgRecorder {
             this.sampleRate = sampleRate;
             notifyObserver(0);
         } else {
-            throw new IllegalStateException("创建心电文件失败");
+            throw new IllegalStateException("创建心电记录失败");
         }
-    }
-
-    // 获取记录的秒数
-    public int getRecordSecond() {
-        return (int)(recordDataNum/sampleRate);
     }
 
     // 记录心电信号
@@ -70,7 +63,7 @@ public class EcgRecorder {
         }
     }
 
-    // 保存Ecg文件
+    // 保存记录
     public void save() {
         if (ecgFile != null) {
             try {
@@ -95,6 +88,11 @@ public class EcgRecorder {
         }
     }
 
+    // 关闭
+    public void close() {
+        save();
+    }
+
     // 添加没有时间定位的留言
     public void addComment(String comment) {
         long timeCreated = new Date().getTime();
@@ -105,12 +103,6 @@ public class EcgRecorder {
     public void addComment(int secondInEcg, String comment) {
         long timeCreated = new Date().getTime();
         commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, secondInEcg, comment));
-    }
-
-    // 关闭记录器
-    public void close() {
-        save(); // 保存
-        removeObserver();
     }
 
     public void registerObserver(IEcgRecordObserver observer) {
@@ -126,4 +118,7 @@ public class EcgRecorder {
     public void removeObserver() {
         observer = null;
     }
+
+
+
 }
