@@ -234,17 +234,21 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
         // 关闭记录器
         if(isRecord) {
-            ecgRecorder.close();
+            if(ecgRecorder != null)
+                ecgRecorder.close();
             isRecord = false;
         }
         // 关闭处理器
-        ecgProcessor.close();
+        if(ecgProcessor != null)
+            ecgProcessor.close();
     }
 
     @Override
     public void disconnect() {
         ViseLog.e(TAG, "disconnect()");
-        stopSampleData();
+        if(isConnected()) {
+            stopSampleData();
+        }
         postDelayed(new Runnable() {
             @Override
             public void run() {

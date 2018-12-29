@@ -22,6 +22,7 @@ import com.cmtech.android.bledevice.core.BleDeviceConnectState;
 import com.cmtech.android.bledevice.core.BleDeviceManager;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.core.IBleDeviceStateObserver;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,6 +96,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
     @Override
     public void onDestroy() {
+        ViseLog.e(TAG+" onDestroy");
         super.onDestroy();
 
         for(final BleDevice device : getDeviceList()) {

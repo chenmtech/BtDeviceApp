@@ -184,10 +184,6 @@ public class LoginActivity extends AppCompatActivity {
     // 启动MainActivity
     private void startMainActivity() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        Intent inputIntent = getIntent();
-        if(inputIntent != null && inputIntent.getData() != null) {
-            intent.setData(inputIntent.getData());
-        }
         startActivity(intent);
     }
 

@@ -68,43 +68,24 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备基本信息返回码
     private final static int REQUESTCODE_MODIFYUSERINFO = 3;     // 修改用户信息返回码
 
-    // 设备管理器
-    private BleDeviceService deviceService;
-
-    // 显示已登记设备列表的Adapter和RecyclerView
-    private BleDeviceListAdapter deviceListAdapter;
-    private RecyclerView rvDeviceList;
-
-    // 工具条
-    private Toolbar toolbar;
-
-    // 侧滑界面
-    private DrawerLayout drawerLayout;
-
-    // 欢迎界面
-    private LinearLayout welcomeLayout;
-
-    // 包含设备Fragment和Tablayout的界面
-    private LinearLayout mainLayout;
-
-    // 主界面的TabLayout和Fragment管理器
-    private BleDeviceFragmentManager fragmentManager;
-
-    // 工具条上的连接菜单和关闭菜单
-    private MenuItem menuSwitch;
-
-    // 显示账户名,用户名和头像
-    private TextView tvAccountName;
-    private TextView tvUserName;
-    private ImageView ivAccountImage;
-
-    private boolean isExit = false;
+    private BleDeviceService deviceService; // 设备管理器
+    private BleDeviceListAdapter deviceListAdapter; // 已登记设备列表的Adapter
+    private RecyclerView rvDeviceList; // 已登记设备列表的RecyclerView
+    private Toolbar toolbar; // 工具条
+    private DrawerLayout drawerLayout; // 侧滑界面
+    private LinearLayout welcomeLayout; // 欢迎界面
+    private LinearLayout mainLayout; // 包含设备Fragment和Tablayout的主界面
+    private BleDeviceFragmentManager fragmentManager; // TabLayout和Fragment管理器
+    private MenuItem menuSwitch; // 工具条上的状态转换菜单
+    private TextView tvAccountName; // 账户名控件
+    private TextView tvUserName; // 用户名控件
+    private ImageView ivAccountImage; // 头像控件
+    private boolean isFinishService = false; // 是否结束服务
 
     private ServiceConnection deviceServiceConnect = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             deviceService = ((BleDeviceService.DeviceServiceBinder)iBinder).getService();
-
             // 成功绑定后初始化
             if(deviceService != null) {
                 initialize();
@@ -140,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         Intent startService = new Intent(this, BleDeviceService.class);
         startService(startService);
         bindService(startService, deviceServiceConnect, BIND_AUTO_CREATE);
-
     }
 
     // 主界面初始化
@@ -334,8 +314,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         unbindService(deviceServiceConnect);
 
-        //isExit = false;
-        if(isExit) {
+        //isFinishService = true;
+        if(isFinishService) {
             Intent stopIntent = new Intent(MainActivity.this, BleDeviceService.class);
             stopService(stopIntent);
         }
@@ -349,21 +329,21 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             builder.setPositiveButton("退出", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    isExit = true;
+                    isFinishService = true;
                     finish();
                 }
             });
             builder.setNegativeButton("最小化", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    isExit = false;
+                    isFinishService = false;
                     openDrawer(false);
                     MainActivity.this.moveTaskToBack(true);
                 }
             });
             builder.show();
         } else {
-            isExit = true;
+            isFinishService = true;
             finish();
         }
     }
