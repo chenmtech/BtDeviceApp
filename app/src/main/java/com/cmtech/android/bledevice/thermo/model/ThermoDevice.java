@@ -189,7 +189,7 @@ public class ThermoDevice extends BleDevice {
         };
 
         // enable温度数据notify
-        gattOperator.notify(THERMODATACCC, true, null, notifyCallback);
+        gattOperator.notify(THERMODATACCC, true, notifyCallback);
 
         // 启动温度采集
         gattOperator.write(THERMOCONTROL, (byte)0x03, null);

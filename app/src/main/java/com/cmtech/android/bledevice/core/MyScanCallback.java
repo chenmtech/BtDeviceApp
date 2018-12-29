@@ -17,7 +17,7 @@ import com.vise.log.ViseLog;
 public class MyScanCallback implements IScanCallback {
     private final BleDevice device;
 
-    public MyScanCallback(BleDevice device) {
+    MyScanCallback(BleDevice device) {
         this.device = device;
     }
 
@@ -52,7 +52,7 @@ public class MyScanCallback implements IScanCallback {
 
         if(result) {
             device.setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
-            device.startConnect();
+            device.startConnect(1000); // 扫描成功，启动连接
         } else {
             device.removeCallbacksAndMessages();
             device.setConnectState(BleDeviceConnectState.CONNECT_DISCONNECT);

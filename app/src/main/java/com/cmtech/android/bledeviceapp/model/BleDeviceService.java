@@ -111,7 +111,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
             @Override
             public void run() {
                 for(final BleDevice device : getDeviceList()) {
-                    device.quit();
+                    device.destroy();
                 }
 
                 // 防止设备没有彻底断开

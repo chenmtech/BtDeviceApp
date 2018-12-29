@@ -452,7 +452,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         };
 
         // enable ECG data indication
-        gattOperator.indicate(ECGMONITORDATACCC, true, null, indicationCallback);
+        gattOperator.indicate(ECGMONITORDATACCC, true, indicationCallback);
 
         gattOperator.write(ECGMONITORCTRL, ECGMONITORCTRL_STARTSIGNAL, new IBleDataOpCallback() {
             @Override
@@ -483,7 +483,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         };
 
         // enable ECG data indication
-        gattOperator.indicate(ECGMONITORDATACCC, true, null, indicationCallback);
+        gattOperator.indicate(ECGMONITORDATACCC, true, indicationCallback);
 
         gattOperator.write(ECGMONITORCTRL, ECGMONITORCTRL_START1MV, null);
     }
@@ -491,7 +491,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     // 停止数据采集
     private void stopSampleData() {
         // disable ECG data indication
-        gattOperator.indicate(ECGMONITORDATACCC, false, null, null);
+        gattOperator.indicate(ECGMONITORDATACCC, false, null);
 
         gattOperator.write(ECGMONITORCTRL, ECGMONITORCTRL_STOP, null);
     }

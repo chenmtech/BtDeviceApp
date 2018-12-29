@@ -14,10 +14,7 @@ public class BleDeviceGattOperator {
     private BleGattCommandExecutor commandExecutor; // Gatt命令执行器
     protected final BleDevice device; // BLE设备
 
-    public BleDeviceGattOperator(BleDevice device) {
-        if(device == null) {
-            throw new NullPointerException();
-        }
+    BleDeviceGattOperator(BleDevice device) {
         this.device = device;
     }
 
@@ -26,7 +23,6 @@ public class BleDeviceGattOperator {
         for(BleGattElement element : elements) {
             if(BleDeviceUtil.getGattObject(device, element) == null) return false;
         }
-
         ViseLog.i("EcgMonitor Services is ok!");
         return true;
     }
@@ -38,7 +34,6 @@ public class BleDeviceGattOperator {
         if(deviceMirror == null) {
             throw new NullPointerException();
         }
-
         commandExecutor = new BleGattCommandExecutor(deviceMirror);
         commandExecutor.start();
         ViseLog.i("success to create new command executor.");
@@ -79,12 +74,22 @@ public class BleDeviceGattOperator {
         commandExecutor.addNotifyCommand(element, enable, dataCallback, notifyCallback);
     }
 
+    // Notify命令
+    public final void notify(BleGattElement element, boolean enable, IBleDataOpCallback notifyOpCallback) {
+        notify(element, enable, null, notifyOpCallback);
+    }
+
     // Indicate命令
     public final void indicate(BleGattElement element, boolean enable
             , IBleDataOpCallback dataOpCallback, IBleDataOpCallback indicateOpCallback) {
         IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
         IBleCallback indicateCallback = (indicateOpCallback == null) ? null : new BleDataOpCallbackAdapter(indicateOpCallback);
         commandExecutor.addIndicateCommand(element, enable, dataCallback, indicateCallback);
+    }
+
+    // Indicate命令
+    public final void indicate(BleGattElement element, boolean enable, IBleDataOpCallback indicateOpCallback) {
+        indicate(element, enable, null, indicateOpCallback);
     }
 
     // 不需要蓝牙通信立刻执行的命令

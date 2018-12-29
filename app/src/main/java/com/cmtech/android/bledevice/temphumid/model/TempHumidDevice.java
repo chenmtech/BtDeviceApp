@@ -269,7 +269,7 @@ public class TempHumidDevice extends BleDevice {
                 ViseLog.i("onFailure");
             }
         };
-        gattOperator.notify(TEMPHUMIDDATACCC, true, null, notifyCallback);
+        gattOperator.notify(TEMPHUMIDDATACCC, true, notifyCallback);
     }
 
     // 读取定时器服务特征值
