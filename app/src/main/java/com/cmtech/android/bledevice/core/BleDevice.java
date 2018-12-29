@@ -35,9 +35,8 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     private boolean closing = false; // 标记设备是否正在关闭，如果是，则对设备的所有回调都不会响应
     private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED; // 设备连接状态，初始化为关闭状态
     private ScanCallback filterScanCallback = null; // 扫描回调适配器，将IScanCallback适配为BluetoothAdapter.LeScanCallback
-    private final IScanCallback scanCallback = new MyScanCallback(this); // 扫描回调，注意与上述的ScanCallback相区别
     private final MyConnectCallback connectCallback = new MyConnectCallback(this); // 连接回调
-    private final Handler workHandler = createWorkHandler(); // 工作Handler
+    private final Handler workHandler; // 工作Handler
     protected final BleDeviceGattOperator gattOperator = new BleDeviceGattOperator(this); // Gatt命令执行器
 
     public BleDeviceBasicInfo getBasicInfo() {
@@ -97,6 +96,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 构造器
     public BleDevice(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
+        workHandler = createWorkHandler("Device:" + basicInfo.getMacAddress());
     }
 
     // 打开设备
@@ -259,9 +259,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     ///////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////私有方法/////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////
-    // 创建工作线程，输出它的Handler
-    private Handler createWorkHandler() {
-        HandlerThread thread = new HandlerThread("Device:"+getMacAddress());
+    // 创建工作线程，输出Handler
+    private Handler createWorkHandler(String threadName) {
+        HandlerThread thread = new HandlerThread(threadName);
         thread.start();
         return new Handler(thread.getLooper()) {
             @Override
@@ -284,7 +284,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 开始扫描
     private synchronized void startScan() {
-        filterScanCallback = new SingleFilterScanCallback(scanCallback).setDeviceMac(getMacAddress()).setScan(true);
+        filterScanCallback = new SingleFilterScanCallback(new MyScanCallback(this)).setDeviceMac(getMacAddress()).setScan(true);
         workHandler.post(new Runnable() {
             @Override
             public void run() {

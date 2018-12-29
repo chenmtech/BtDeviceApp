@@ -93,7 +93,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private final EcgMonitorDeviceConfig config; // 设备配置信息
     private IEcgMonitorObserver observer; // 心电设备观察者
 
-    private final EcgRecorder ecgRecorder = new EcgRecorder(); // 心电记录器
+    private EcgRecorder ecgRecorder; // 心电记录器
     private EcgSignalProcessor ecgProcessor; // 心电处理器
     private CalibrateDataProcessor caliProcessor; // 定标数据处理器
 
@@ -130,8 +130,12 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         this.config.setHrHighLimit(config.getHrHighLimit());
         this.config.save();
         ecgProcessor.changeConfiguration(config);
+        if(config.isWarnWhenHrAbnormal())
+            ecgProcessor.registerHrAbnormalObserver(this);
     }
-    public int getRecordSecond() { return ecgRecorder.getRecordSecond(); }
+    public int getRecordSecond() {
+        return (ecgRecorder == null) ? 0 : ecgRecorder.getRecordSecond();
+    }
 
     // 构造器
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
@@ -209,6 +213,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
                     Number num = (Number)msg.obj;
                     leadType = EcgLeadType.getFromCode(num.intValue());
                     updateLeadType(leadType);
+                } else {
+
                 }
                 break;
 
@@ -315,7 +321,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
         // 初始化Ecg记录器
         if(isRecord) {
-            ecgRecorder.initialize(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
+            ecgRecorder = new EcgRecorder(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
             ecgRecorder.registerObserver(this);
         }
 
@@ -338,7 +344,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         } else {
             // 如果已经标定了或者采样了,才可以开始记录心电信号，初始化EcgFile
             if(state == EcgMonitorState.CALIBRATED || state == EcgMonitorState.SAMPLE) {
-                ecgRecorder.initialize(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
+                ecgRecorder = new EcgRecorder(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
                 ecgRecorder.registerObserver(this);
             }
             else {
@@ -377,12 +383,13 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
     // 获取统计直方图数据
     public int[] getHrStatistics() {
-        return ecgProcessor.getHistogramData();
+        return (ecgProcessor == null) ? null : ecgProcessor.getHistogramData();
     }
 
     // 重置统计直方图数据
     public void resetHrStatistics() {
-        ecgProcessor.resetHrHistogram();
+        if(ecgProcessor != null)
+            ecgProcessor.resetHrHistogram();
     }
 
     // 登记心电监护仪观察者
