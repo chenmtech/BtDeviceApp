@@ -37,7 +37,7 @@ public class EcgRecorder {
     }
 
     // 创建记录
-    public void create(int sampleRate, int calibrationValue, EcgLeadType leadType, String macAddress) {
+    public synchronized void create(int sampleRate, int calibrationValue, EcgLeadType leadType, String macAddress) {
         // 已经创建过
         if(ecgFile != null) return;
 
@@ -53,18 +53,20 @@ public class EcgRecorder {
     }
 
     // 记录心电信号
-    public void record(int ecgSignal) {
+    public synchronized void record(int ecgSignal) {
         try {
-            ecgFile.writeData(ecgSignal);
-            recordDataNum++;
-            notifyObserver(getRecordSecond());
+            if(ecgFile != null) {
+                ecgFile.writeData(ecgSignal);
+                recordDataNum++;
+                notifyObserver(getRecordSecond());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     // 保存记录
-    public void save() {
+    public synchronized void save() {
         if (ecgFile != null) {
             try {
                 if (ecgFile.getDataNum() <= 0) {     // 如果没有数据，删除文件

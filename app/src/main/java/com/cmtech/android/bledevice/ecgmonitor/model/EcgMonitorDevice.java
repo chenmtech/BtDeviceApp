@@ -25,6 +25,7 @@ import org.litepal.LitePal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
@@ -47,10 +48,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
 
     // GATT消息常量
-    private static final int MSG_OBTAINDATA = 1;                                // 获取一个ECG数据包，可以是1mV定标数据，也可以是Ecg信号
-    private static final int MSG_OBTAINSAMPLERATE = 2;                          // 获取采样率
-    private static final int MSG_OBTAINLEADTYPE = 3;                            // 获取导联类型
-    private static final int MSG_STARTSAMPLINGSIGNAL = 4;                       // 开始采集Ecg信号
+    private static final int MSG_OBTAINSAMPLERATE = 1;                          // 获取采样率
+    private static final int MSG_OBTAINLEADTYPE = 2;                            // 获取导联类型
+    private static final int MSG_STARTSAMPLINGSIGNAL = 3;                       // 开始采集Ecg信号
 
     // 心电监护仪Service UUID常量
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
@@ -93,9 +93,38 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private final EcgMonitorDeviceConfig config; // 设备配置信息
     private IEcgMonitorObserver observer; // 心电设备观察者
 
-    private final EcgRecorder ecgRecorder; // 心电记录器
+    private EcgRecorder ecgRecorder; // 心电记录器
     private EcgSignalProcessor ecgProcessor; // 心电处理器
     private CalibrateDataProcessor caliDataProcessor; // 定标数据处理器
+
+    private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<Integer>();	//数据缓存
+    private final Runnable processRunnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                while(!Thread.currentThread().isInterrupted()) {
+                    int value = dataBuff.take();
+                    //ViseLog.i("Process Data in Thread: " + Thread.currentThread());
+                    switch (state) {
+                        case CALIBRATING:
+                            caliDataProcessor.process(value);
+                            break;
+                        case SAMPLE:
+                            ecgProcessor.process(value);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                dataBuff.clear();
+            }
+        }
+    };
+    // 数据处理线程
+    private Thread processThread;
 
 
     public int getSampleRate() { return sampleRate; }
@@ -153,8 +182,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
             config = find.get(0);
         }
 
-        ecgRecorder = new EcgRecorder();
-        ecgRecorder.registerObserver(this);
     }
 
     @Override
@@ -176,6 +203,10 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         readSampleRate();
         // 读导联类型
         readLeadType();
+
+        processThread = new Thread(processRunnable);
+        processThread.start();
+
         // 启动1mV采样进行定标
         startSample1mV();
         return true;
@@ -184,11 +215,17 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     @Override
     public void executeAfterDisconnect() {
         gattOperator.stop();
+        if(processThread != null) {
+            processThread.interrupt();
+        }
     }
 
     @Override
     public void executeAfterConnectFailure() {
         gattOperator.stop();
+        if(processThread != null) {
+            processThread.interrupt();
+        }
     }
 
     @Override
@@ -215,15 +252,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
                 }
                 break;
 
-            // 接收到Ecg数据包：Ecg信号或者定标数据
-            case MSG_OBTAINDATA:
-                if(msg.obj != null) {
-                    processData((byte[]) msg.obj);
-                }
-                break;
-
             // 启动采集ECG信号
             case MSG_STARTSAMPLINGSIGNAL:
+                dataBuff.clear();
                 setState(EcgMonitorState.SAMPLE);
                 break;
 
@@ -232,10 +263,22 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         }
     }
 
+    @Override
+    public void open() {
+        super.open();
+
+        ecgRecorder = new EcgRecorder();
+        ecgRecorder.registerObserver(this);
+    }
+
     // 关闭设备
     @Override
     public void close() {
         super.close();
+
+        if(processThread != null) {
+            processThread.interrupt();
+        }
 
         // 关闭记录器
         if(isRecord) {
@@ -436,7 +479,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_OBTAINDATA, data);
+                resolveDataPacket(data);
             }
 
             @Override
@@ -465,7 +508,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_OBTAINDATA, data);
+                resolveDataPacket(data);
             }
 
             @Override
@@ -485,22 +528,14 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, null);
     }
 
-    // 处理数据
-    private void processData(byte[] data) {
-        ViseLog.i("Process Data in Thread: " +  Thread.currentThread());
-        // 单片机发过来的是LITTLE_ENDIAN的数据
-        ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-        // 单片机发过来的int是两个字节的short
-        for(int i = 0; i < data.length/2; i++) {
-            switch (state) {
-                case CALIBRATING:
-                    caliDataProcessor.process(buffer.getShort());
-                    break;
-                case SAMPLE:
-                    ecgProcessor.process(buffer.getShort());
-                    break;
-                default:
-                    break;
+    // 解析数据包
+    private void resolveDataPacket(byte[] data) {
+        synchronized (dataBuff) {
+            // 单片机发过来的是LITTLE_ENDIAN的数据
+            ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+            // 单片机发过来的int是两个字节的short
+            for (int i = 0; i < data.length / 2; i++) {
+                dataBuff.offer((int) buffer.getShort());
             }
         }
     }

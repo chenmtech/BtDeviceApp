@@ -94,7 +94,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 打开设备
-    public final synchronized void open() {
+    public synchronized void open() {
         ViseLog.i("open");
         if(!isClosed())
             return;
