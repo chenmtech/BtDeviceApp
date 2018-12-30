@@ -32,11 +32,18 @@ import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.SCAN_DEVICE_NAME;
 
+/**
+ *  ScanDeviceActivity: 扫描设备界面
+ *  Created by bme on 2018/2/28.
+ */
+
 public class ScanDeviceActivity extends AppCompatActivity {
     private static final String TAG = "ScanDeviceActivity";
+    public static final String REGISTERD_DEVICE_MACLIST = "registered_device_mac_list";
 
+    // 扫描设备回调类
     private class ScanDeviceCallback implements IScanCallback {
-        public ScanDeviceCallback() {
+        ScanDeviceCallback() {
 
         }
 
@@ -49,7 +56,6 @@ public class ScanDeviceActivity extends AppCompatActivity {
                         addDevice(bluetoothLeDevice);
                     }
                 });
-
             }
         }
 
@@ -62,7 +68,6 @@ public class ScanDeviceActivity extends AppCompatActivity {
                     Toast.makeText(ScanDeviceActivity.this, "搜索结束。", Toast.LENGTH_SHORT).show();
                 }
             });
-
         }
 
         @Override
@@ -72,28 +77,15 @@ public class ScanDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private final ScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(SCAN_DEVICE_NAME);
-
-    // 用于实现扫描设备的显示
-    private SwipeRefreshLayout srlScanDevice;
-    private ScanDeviceAdapter scanDeviceAdapter;
-    private RecyclerView rvScanDevice;
-
-
-    private List<BluetoothLeDevice> deviceList = new ArrayList<>();    // 设备列表
-
-    // 已经登记的设备Mac地址列表
-    private List<String> registeredDeviceMacList = new ArrayList<>();
-
-    private class BleDeviceReceiver extends BroadcastReceiver {
+    // 设备绑定动作广播接收器类
+    private class BleDeviceBondReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
                 //当设备的连接状态改变
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 switch (device.getBondState()) {
-                    case BluetoothDevice.BOND_BONDING:
-                        break;
+                    // 设备已绑定
                     case BluetoothDevice.BOND_BONDED:
                         // 连接设备
                         for (BluetoothLeDevice leDevice : deviceList) {
@@ -102,6 +94,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
                                 break;
                             }
                         }
+                        break;
+                    case BluetoothDevice.BOND_BONDING:
                         break;
                     case BluetoothDevice.BOND_NONE:
                         break;
@@ -112,7 +106,13 @@ public class ScanDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private BleDeviceReceiver bondReceiver;
+    private final ScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(SCAN_DEVICE_NAME); // 扫描回调
+    private SwipeRefreshLayout srlScanDevice; // 用于显示扫描到的设备
+    private ScanDeviceAdapter scanDeviceAdapter;
+    private RecyclerView rvScanDevice;
+    private List<BluetoothLeDevice> deviceList = new ArrayList<>();    // 扫描到的设备列表
+    private List<String> registeredDeviceMacList = new ArrayList<>(); // 已登记的设备Mac地址列表
+    private BleDeviceBondReceiver bondReceiver; // 绑定接收器
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +122,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         // 获取已登记过的设备Mac列表
         Intent intent = getIntent();
         if(intent != null) {
-            registeredDeviceMacList = (List<String>) intent.getSerializableExtra("registered_device_list");
+            registeredDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTERD_DEVICE_MACLIST);
         }
 
         rvScanDevice = findViewById(R.id.rv_scandevice);
@@ -143,7 +143,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
         IntentFilter bondIntent = new IntentFilter();
         bondIntent.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        bondReceiver = new BleDeviceReceiver();
+        bondReceiver = new BleDeviceBondReceiver();
         registerReceiver(bondReceiver, bondIntent);
 
         startScan();
@@ -174,11 +174,10 @@ public class ScanDeviceActivity extends AppCompatActivity {
         if(srlScanDevice.isRefreshing())
             srlScanDevice.setRefreshing(false);
 
-        if(scanCallback != null) {
-            BleDeviceUtil.stopScan(scanCallback);
-        }
+        BleDeviceUtil.stopScan(scanCallback);
     }
 
+    // 开始扫描
     private void startScan() {
         if(!scanCallback.isScanning()) {
             Toast.makeText(ScanDeviceActivity.this, "开始搜索。", Toast.LENGTH_SHORT).show();
@@ -188,18 +187,18 @@ public class ScanDeviceActivity extends AppCompatActivity {
         }
     }
 
-    // 添加一个新设备到发现的设备列表中
+    // 添加一个设备到发现的设备列表中
     private void addDevice(final BluetoothLeDevice device) {
         if(device == null) return;
 
-        boolean canAdd = true;
+        boolean newDevice = true;
         for(BluetoothLeDevice dv : deviceList) {
             if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
-                canAdd = false;
+                newDevice = false;
                 break;
             }
         }
-        if(canAdd) {
+        if(newDevice) {
             deviceList.add(device);
             scanDeviceAdapter.notifyItemInserted(deviceList.size()-1);
             scanDeviceAdapter.notifyDataSetChanged();
@@ -225,6 +224,10 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
     // 登记已经绑定的设备
     private void registerBondedDevice(final BluetoothLeDevice device) {
+        if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
+            throw new IllegalStateException("设备未绑定");
+        }
+
         String macAddress = device.getAddress();
 
         // 获取设备广播数据中的UUID的短串

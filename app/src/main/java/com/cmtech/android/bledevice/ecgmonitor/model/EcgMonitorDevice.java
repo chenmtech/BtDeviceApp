@@ -5,19 +5,19 @@ import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.bledevice.core.BleDataOpException;
+import com.cmtech.android.bledevice.core.BleDevice;
+import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledevice.core.BleGattElement;
 import com.cmtech.android.bledevice.core.IBleDataOpCallback;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.CalibrateDataProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ICalibrateValueObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgHrValueObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgSignalObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgHrValueObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.EcgRecorder;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.IEcgRecordObserver;
-import com.cmtech.android.bledevice.core.BleDevice;
-import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;

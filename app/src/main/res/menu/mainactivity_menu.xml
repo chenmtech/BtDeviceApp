@@ -11,7 +11,7 @@
 
     <item
         android:id="@+id/toolbar_close"
-        android:icon="@mipmap/ic_ecgexplorer_close"
+        android:icon="@mipmap/ic_close_32px"
         android:orderInCategory="2"
         android:title="关闭"
         app:showAsAction="always" />

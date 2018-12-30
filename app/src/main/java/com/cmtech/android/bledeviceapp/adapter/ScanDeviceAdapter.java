@@ -16,13 +16,16 @@ import com.cmtech.android.bledevice.core.UuidUtil;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 /**
+ * ScanDeviceAdapter : 扫描设备Adapter
  * Created by bme on 2018/2/8.
  */
 
 public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.ViewHolder> {
-    private List<BluetoothLeDevice> deviceList;
-    private final List<String> registeredDeviceMac;
+    private final List<BluetoothLeDevice> deviceList; // 设备列表
+    private final List<String> registeredDeviceMacList; // 已登记设备Mac List
     private final ScanDeviceActivity activity;
 
 
@@ -36,7 +39,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         ImageButton ibRegister;
 
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             deviceView = itemView;
             deviceName = deviceView.findViewById(R.id.tv_scandevice_name);
@@ -48,9 +51,9 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         }
     }
 
-    public ScanDeviceAdapter(List<BluetoothLeDevice> deviceList, final List<String> registeredDeviceMac, ScanDeviceActivity activity) {
+    public ScanDeviceAdapter(List<BluetoothLeDevice> deviceList, List<String> registeredDeviceMacList, ScanDeviceActivity activity) {
         this.deviceList = deviceList;
-        this.registeredDeviceMac = registeredDeviceMac;
+        this.registeredDeviceMacList = registeredDeviceMacList;
         this.activity = activity;
     }
 
@@ -101,7 +104,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
 
     // 设备是否已经登记过
     private boolean hasRegistered(BluetoothLeDevice device) {
-        for(String ele : registeredDeviceMac) {
+        for(String ele : registeredDeviceMacList) {
             if(ele.equalsIgnoreCase(device.getAddress())) {
                 return true;
             }
