@@ -33,16 +33,6 @@
         android:layout_weight="1"
         android:layout_gravity="center_vertical"
         android:gravity="end"
-        android:text="已登记"
         android:textColor="@color/primary_text"/>
-
-    <ImageButton
-        android:id="@+id/ib_scandevice_register"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/primary"
-        android:src="@mipmap/ic_scandevice_register"
-        android:contentDescription="register device"
-        android:layout_gravity="center_vertical"/>
 
 </LinearLayout>

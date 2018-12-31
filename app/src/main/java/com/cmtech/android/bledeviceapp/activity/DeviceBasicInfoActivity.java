@@ -16,13 +16,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
+import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -36,28 +37,20 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_WARN_A
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGEDIR;
 
 /**
- *  DeviceBasicInfoActivity: 设备基本信息Activity，可用于修改BleDeviceBasicInfo字段
+ *  DeviceBasicInfoActivity: 设备基本信息Activity，用于设置修改BleDeviceBasicInfo字段
  *  Created by bme on 2018/6/27.
  */
 
 public class DeviceBasicInfoActivity extends AppCompatActivity {
-    // intent中devicebasicinfo的键值
-    public static final String DEVICE_BASICINFO = "devicebasicinfo";
+    public static final String DEVICE_BASICINFO = "devicebasicinfo"; // intent中devicebasicinfo的键值
 
-    private Button btnCancel;
-    private Button btnOk;
-    private Button btnDefault;
-    private EditText etName;
-    private ImageView ivImage;
-    private CheckBox cbIsAutoconnect;
-    private EditText etReconnectTimes;
-    private CheckBox cbWarnAfterReconnectFailure;
-
-    // 设备基本信息
-    private BleDeviceBasicInfo basicInfo;
-
-    // 图像文件名缓存
-    private String cacheImagePath = "";
+    private BleDeviceBasicInfo basicInfo; // 设备基本信息
+    private EditText etName; // 设备昵名
+    private ImageView ivImage; // 设备图像
+    private CheckBox cbIsAutoconnect; // 设备是否自动连接
+    private EditText etReconnectTimes; // 设备重连次数
+    private CheckBox cbWarnAfterReconnectFailure; // 设备重连失败后是否报警
+    private String cacheImagePath = ""; // 图像文件名缓存
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,21 +60,26 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if(intent != null) {
             basicInfo = (BleDeviceBasicInfo) intent.getSerializableExtra(DEVICE_BASICINFO);
+            if(basicInfo == null) {
+                Toast.makeText(this, "设备基本信息对象无效", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
+
+        if(IMAGEDIR == null)
+            throw new IllegalStateException("图像目录为空");
 
         if(!IMAGEDIR.exists()) {
-            IMAGEDIR.mkdir();
+            if(!IMAGEDIR.mkdir()) {
+                throw new IllegalStateException("创建图像目录错误");
+            }
         }
 
-        if(basicInfo == null || !IMAGEDIR.exists()) {
-            finish();
-        }
-
-        // 设置标题为设备地址
+        // 设置activity标题为设备地址
         setTitle("设备："+basicInfo.getMacAddress());
 
-        // 设置设备名
-        etName = findViewById(R.id.et_device_basicinfo_nickname);
+        // 设置设备昵名
+        etName = findViewById(R.id.et_basicinfo_nickname);
         String deviceName = basicInfo.getNickName();
         if("".equals(deviceName)) {
             deviceName = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname();
@@ -89,7 +87,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         etName.setText(deviceName);
 
         // 设置设备图像
-        ivImage = findViewById(R.id.iv_device_basicinfo_image);
+        ivImage = findViewById(R.id.iv_basicinfo_image);
         cacheImagePath = basicInfo.getImagePath();
         if("".equals(cacheImagePath)) {
             int defaultImageId = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage();
@@ -107,25 +105,19 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         });
 
         // 设置重连次数
-        etReconnectTimes = findViewById(R.id.et_device_basicinfo_reconnecttimes);
+        etReconnectTimes = findViewById(R.id.et_basicinfo_reconnecttimes);
         etReconnectTimes.setText(String.valueOf(basicInfo.getReconnectTimes()));
 
         // 设置打开后是否自动重连
-        cbIsAutoconnect = findViewById(R.id.cb_device_basicinfo_isautoconnect);
+        cbIsAutoconnect = findViewById(R.id.cb_basicinfo_isautoconnect);
         cbIsAutoconnect.setChecked(basicInfo.autoConnect());
 
-
-        btnCancel = findViewById(R.id.btn_device_basicinfo_cancel);
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setResult(RESULT_CANCELED);
-                finish();
-            }
-        });
+        // 设置设备重连失败后是否报警
+        cbWarnAfterReconnectFailure = findViewById(R.id.cb_warn_after_reconnect_failure);
+        cbWarnAfterReconnectFailure.setChecked(basicInfo.isWarnAfterReconnectFailure());
 
 
-        btnOk = findViewById(R.id.btn_device_basicinfo_ok);
+        Button btnOk = findViewById(R.id.btn_basicinfo_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -159,9 +151,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
                 }
 
                 basicInfo.setAutoConnect(cbIsAutoconnect.isChecked());
-
                 basicInfo.setReconnectTimes(Integer.parseInt(etReconnectTimes.getText().toString()));
-
                 basicInfo.setWarnAfterReconnectFailure(cbWarnAfterReconnectFailure.isChecked());
 
                 Intent intent = new Intent();
@@ -171,7 +161,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             }
         });
 
-        btnDefault = findViewById(R.id.btn_device_basicinfo_default);
+        Button btnDefault = findViewById(R.id.btn_basicinfo_default);
         btnDefault.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -179,10 +169,14 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             }
         });
 
-        // 设置重连失败后是否报警
-        cbWarnAfterReconnectFailure = findViewById(R.id.cb_warn_after_reconnect_failure);
-        cbWarnAfterReconnectFailure.setChecked(basicInfo.isWarnAfterReconnectFailure());
-
+        Button btnCancel = findViewById(R.id.btn_basicinfo_cancel);
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        });
     }
 
     @Override
@@ -218,6 +212,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
     private String handleImageOnKitKat(Intent data) {
         String imagePath = "";
         Uri uri = data.getData();
+        if(uri == null) return imagePath;
         if(DocumentsContract.isDocumentUri(this, uri)) {
             String docId = DocumentsContract.getDocumentId(uri);
             if("com.android.providers.media.documents".equals(uri.getAuthority())) {
@@ -239,8 +234,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
     private String handleImageBeforeKitKat(Intent data) {
         Uri uri = data.getData();
-        String imagePath = getImagePath(uri, null);
-        return imagePath;
+        return getImagePath(uri, null);
     }
 
     private String getImagePath(Uri uri, String selection) {
@@ -262,16 +256,11 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
     // 恢复缺省设置
     private void restoreDefaultSetup() {
-        String deviceName = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname();
-        etName.setText(deviceName);
-
+        etName.setText(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname());
         cacheImagePath = DEFAULT_DEVICE_IMAGEPATH;
         Glide.with(this).load(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
-
         cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
-
         etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECT_TIMES));
-
         cbWarnAfterReconnectFailure.setChecked(DEFAULT_WARN_AFTER_RECONNECT_FAILURE);
     }
 }

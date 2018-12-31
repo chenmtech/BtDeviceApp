@@ -39,7 +39,7 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.SCAN_DEVICE_NA
 
 public class ScanDeviceActivity extends AppCompatActivity {
     private static final String TAG = "ScanDeviceActivity";
-    public static final String REGISTERD_DEVICE_MACLIST = "registered_device_mac_list";
+    public static final String REGISTERED_DEVICE_MAC_LIST = "registered_device_mac_list";
 
     // 扫描设备回调类
     private class ScanDeviceCallback implements IScanCallback {
@@ -77,7 +77,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         }
     }
 
-    // 设备绑定动作广播接收器类
+    // 设备绑定状态改变的广播接收器类
     private class BleDeviceBondReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -122,7 +122,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         // 获取已登记过的设备Mac列表
         Intent intent = getIntent();
         if(intent != null) {
-            registeredDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTERD_DEVICE_MACLIST);
+            registeredDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTERED_DEVICE_MAC_LIST);
         }
 
         rvScanDevice = findViewById(R.id.rv_scandevice);
@@ -180,7 +180,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     // 开始扫描
     private void startScan() {
         if(!scanCallback.isScanning()) {
-            Toast.makeText(ScanDeviceActivity.this, "开始搜索。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ScanDeviceActivity.this, "开始扫描设备。", Toast.LENGTH_SHORT).show();
             deviceList.clear();
             scanDeviceAdapter.notifyDataSetChanged();
             BleDeviceUtil.startScan(scanCallback);
@@ -191,14 +191,14 @@ public class ScanDeviceActivity extends AppCompatActivity {
     private void addDevice(final BluetoothLeDevice device) {
         if(device == null) return;
 
-        boolean newDevice = true;
+        boolean isNewDevice = true;
         for(BluetoothLeDevice dv : deviceList) {
             if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
-                newDevice = false;
+                isNewDevice = false;
                 break;
             }
         }
-        if(newDevice) {
+        if(isNewDevice) {
             deviceList.add(device);
             scanDeviceAdapter.notifyItemInserted(deviceList.size()-1);
             scanDeviceAdapter.notifyDataSetChanged();
@@ -228,12 +228,11 @@ public class ScanDeviceActivity extends AppCompatActivity {
             throw new IllegalStateException("设备未绑定");
         }
 
-        String macAddress = device.getAddress();
 
+        String macAddress = device.getAddress();
         // 获取设备广播数据中的UUID的短串
         AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(record == null) return;
-
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
 
         Intent intent = new Intent(ScanDeviceActivity.this, DeviceBasicInfoActivity.class);

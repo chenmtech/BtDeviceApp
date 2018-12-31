@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:text="设备名："/>
         <EditText
-            android:id="@+id/et_device_basicinfo_nickname"
+            android:id="@+id/et_basicinfo_nickname"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -33,7 +33,7 @@
             android:layout_gravity="center_vertical"
             android:text="设备图像："/>
         <ImageView
-            android:id="@+id/iv_device_basicinfo_image"
+            android:id="@+id/iv_basicinfo_image"
             android:layout_width="128dp"
             android:layout_height="128dp"
             android:src="@mipmap/ic_unknown_device"
@@ -49,11 +49,12 @@
             android:layout_height="wrap_content"
             android:text="断开自动重连次数："/>
         <EditText
-            android:id="@+id/et_device_basicinfo_reconnecttimes"
+            android:id="@+id/et_basicinfo_reconnecttimes"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="numberDecimal"
+            android:digits="1234567890"
             android:hint="请输入数字"/>
     </LinearLayout>
 
@@ -62,7 +63,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <CheckBox
-            android:id="@+id/cb_device_basicinfo_isautoconnect"
+            android:id="@+id/cb_basicinfo_isautoconnect"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -83,21 +84,21 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <Button
-            android:id="@+id/btn_device_basicinfo_cancel"
+            android:id="@+id/btn_basicinfo_cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/minWidth0DpButtonStyle"
             android:text="取消"/>
         <Button
-            android:id="@+id/btn_device_basicinfo_default"
+            android:id="@+id/btn_basicinfo_default"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/minWidth0DpButtonStyle"
             android:text="恢复默认"/>
         <Button
-            android:id="@+id/btn_device_basicinfo_ok"
+            android:id="@+id/btn_basicinfo_ok"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

@@ -1,11 +1,13 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
@@ -30,13 +32,11 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
 
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        View deviceView;
-        TextView deviceName;
-        TextView deviceAddress;
-        TextView deviceTypeName;
-
-        TextView deviceStatus;
-        ImageButton ibRegister;
+        View deviceView; // 设备视图
+        TextView deviceName; // 设备名
+        TextView deviceAddress; // 设备mac地址
+        TextView deviceTypeName; // 设备类型名
+        TextView deviceStatus; // 设备状态：是否已经登记
 
 
         ViewHolder(View itemView) {
@@ -45,9 +45,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
             deviceName = deviceView.findViewById(R.id.tv_scandevice_name);
             deviceAddress = deviceView.findViewById(R.id.tv_scandevice_macaddress);
             deviceTypeName = deviceView.findViewById(R.id.tv_scandevice_type);
-
             deviceStatus = deviceView.findViewById(R.id.tv_scandevice_status);
-            ibRegister = deviceView.findViewById(R.id.ib_scandevice_register);
         }
     }
 
@@ -65,11 +63,17 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
                 .inflate(R.layout.recycle_item_scandevice, parent, false);
         final ViewHolder holder = new ViewHolder(view);
 
-        holder.ibRegister.setOnClickListener(new View.OnClickListener() {
+        holder.deviceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(activity != null) {
-                    activity.registerDevice(deviceList.get(holder.getAdapterPosition()));
+                    BluetoothLeDevice device = deviceList.get(holder.getAdapterPosition());
+                    boolean status = hasRegistered(device);
+                    if(status) {
+                        Toast.makeText(activity, "该设备已登记", Toast.LENGTH_SHORT).show();
+                    } else {
+                        activity.registerDevice(device);
+                    }
                 }
             }
         });
@@ -82,17 +86,16 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         BluetoothLeDevice device = deviceList.get(position);
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         String supportedUUID = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(recordUUID.getData()).toString());
-        holder.deviceName.setText("设备名："+device.getName());
-        holder.deviceTypeName.setText("设备类型："+ SupportedDeviceType.getDeviceTypeFromUuid(supportedUUID).getDefaultNickname());
-        holder.deviceAddress.setText("蓝牙地址："+device.getAddress());
+        holder.deviceName.setText(String.format("设备名：%s", device.getName()));
+        holder.deviceTypeName.setText(String.format("设备类型：%s", SupportedDeviceType.getDeviceTypeFromUuid(supportedUUID).getDefaultNickname()));
+        holder.deviceAddress.setText(String.format("设备地址：%s", device.getAddress()));
 
         boolean status = hasRegistered(device);
         if(status) {
-            holder.deviceStatus.setVisibility(View.VISIBLE);
-            holder.ibRegister.setVisibility(View.GONE);
+            holder.deviceStatus.setText("已登记");
+            holder.deviceStatus.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
-            holder.deviceStatus.setVisibility(View.GONE);
-            holder.ibRegister.setVisibility(View.VISIBLE);
+            holder.deviceStatus.setText("未登记");
         }
 
     }

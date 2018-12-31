@@ -55,7 +55,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
-import static com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity.REGISTERD_DEVICE_MACLIST;
+import static com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity.REGISTERED_DEVICE_MAC_LIST;
 
 /**
  *  MainActivity: 主界面
@@ -65,9 +65,9 @@ import static com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity.REGIST
 public class MainActivity extends AppCompatActivity implements IBleDeviceFragmentActivity {
     private static final String TAG = "MainActivity";
 
-    private final static int REQUESTCODE_REGISTERDEVICE = 1;     // 登记设备返回码
-    private final static int REQUESTCODE_MODIFYDEVICE = 2;       // 修改设备基本信息返回码
-    private final static int REQUESTCODE_MODIFYUSERINFO = 3;     // 修改用户信息返回码
+    private final static int REQUESTCODE_REGISTER_DEVICE = 1;     // 登记设备返回码
+    private final static int REQUESTCODE_MODIFY_DEVICE = 2;       // 修改设备基本信息返回码
+    private final static int REQUESTCODE_MODIFY_USERINFO = 3;     // 修改用户信息返回码
 
     private BleDeviceService deviceService; // 设备管理器
     private BleDeviceListAdapter deviceListAdapter; // 已登记设备列表的Adapter
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             deviceService = ((BleDeviceService.DeviceServiceBinder)iBinder).getService();
             // 成功绑定后初始化
             if(deviceService != null) {
-                initialize();
+                initializeView();
             } else {
                 requestFinish();
             }
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     // 主界面初始化
-    private void initialize() {
+    private void initializeView() {
         // 创建ToolBar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
-                startActivityForResult(intent, REQUESTCODE_MODIFYUSERINFO);
+                startActivityForResult(intent, REQUESTCODE_MODIFY_USERINFO);
             }
         });
 
@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         switch (requestCode) {
 
             // 登记设备返回
-            case REQUESTCODE_REGISTERDEVICE:
+            case REQUESTCODE_REGISTER_DEVICE:
 
                 if(resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
@@ -235,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
 
             // 修改设备基本信息返回
-            case REQUESTCODE_MODIFYDEVICE:
+            case REQUESTCODE_MODIFY_DEVICE:
 
                 if ( resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 break;
 
             // 修改用户信息
-            case REQUESTCODE_MODIFYUSERINFO:
+            case REQUESTCODE_MODIFY_USERINFO:
 
                 if(resultCode == RESULT_OK) {
                     updateNavigationViewUsingUserInfo();
@@ -454,7 +454,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         Intent intent = new Intent(this, DeviceBasicInfoActivity.class);
         intent.putExtra(DEVICE_BASICINFO, basicInfo);
 
-        startActivityForResult(intent, REQUESTCODE_MODIFYDEVICE);
+        startActivityForResult(intent, REQUESTCODE_MODIFY_DEVICE);
     }
 
     private void initWelcomeLayout() {
@@ -526,9 +526,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         List<String> deviceMacList = deviceService.getDeviceMacList();
 
         Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
-        intent.putExtra(REGISTERD_DEVICE_MACLIST, (Serializable) deviceMacList);
+        intent.putExtra(REGISTERED_DEVICE_MAC_LIST, (Serializable) deviceMacList);
 
-        startActivityForResult(intent, REQUESTCODE_REGISTERDEVICE);
+        startActivityForResult(intent, REQUESTCODE_REGISTER_DEVICE);
     }
 
     // 打开Fragment：将Fragment加入Manager，并显示
