@@ -41,7 +41,7 @@ public class MyScanCallback implements IScanCallback {
 
     @Override
     public void onScanTimeout() {
-
+        processScanResult(false);
     }
 
     // 扫描结束回调处理
