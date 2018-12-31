@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="设备名："/>
+            android:text="设备昵称："/>
         <EditText
             android:id="@+id/et_basicinfo_nickname"
             android:layout_width="0dp"
@@ -47,7 +47,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="断开自动重连次数："/>
+            android:text="重连次数："/>
         <EditText
             android:id="@+id/et_basicinfo_reconnecttimes"
             android:layout_width="0dp"
@@ -58,26 +58,19 @@
             android:hint="请输入数字"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <CheckBox
+        android:id="@+id/cb_basicinfo_isautoconnect"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <CheckBox
-            android:id="@+id/cb_basicinfo_isautoconnect"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:text="打开设备后自动连接" />
+        android:layout_gravity="center"
+        android:text="打开设备后自动连接" />
 
-        <CheckBox
-            android:id="@+id/cb_warn_after_reconnect_failure"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:text="重连失败后是否报警" />
-    </LinearLayout>
+    <CheckBox
+        android:id="@+id/cb_warn_after_reconnect_failure"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="重连失败后是否报警" />
 
     <LinearLayout
         android:layout_width="match_parent"
