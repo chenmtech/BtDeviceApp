@@ -35,7 +35,7 @@
             android:text="总次数：" />
 
         <TextView
-            android:id="@+id/tv_ecghr_totaltimes"
+            android:id="@+id/tv_hr_totaltimes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0" />
