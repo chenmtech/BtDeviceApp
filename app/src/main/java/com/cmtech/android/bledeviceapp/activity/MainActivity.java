@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private LinearLayout mainLayout; // 包含设备Fragment和Tablayout的主界面
     private BleDeviceFragmentManager fragmentManager; // TabLayout和Fragment管理器
     private MenuItem menuSwitch; // 工具条上的状态转换菜单
+    private MenuItem menuConfig; // 工具条上的配置菜单
     private TextView tvAccountName; // 账户名控件
     private TextView tvUserName; // 用户名控件
     private ImageView ivAccountImage; // 头像控件
@@ -266,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
         menuSwitch = menu.findItem(R.id.toolbar_switch);
+        menuConfig = menu.findItem(R.id.toolbar_config);
         return true;
     }
 
@@ -288,6 +290,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.switchDeviceState();
+                }
+                break;
+
+            case R.id.toolbar_config:
+                fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+                if(fragment != null) {
+                    fragment.openConfigActivity();
                 }
                 break;
 
@@ -569,9 +578,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void updateMainMenu() {
         if(fragmentManager.size() == 0) {
             menuSwitch.setVisible(false);
+            menuConfig.setVisible(false);
         } else {
             menuSwitch.setVisible(true);
-
+            menuConfig.setVisible(true);
             BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
             if(currentFrag != null && currentFrag.getDevice() != null) {
                 // 更新连接转换菜单menuSwitch

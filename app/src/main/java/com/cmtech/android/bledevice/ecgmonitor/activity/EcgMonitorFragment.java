@@ -51,6 +51,7 @@ import com.vise.log.ViseLog;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -118,10 +119,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvEcgSampleRate.setText(String.valueOf(device.getSampleRate()));
 
         tvEcgLeadType = view.findViewById(R.id.tv_ecg_leadtype);
-        tvEcgLeadType.setText("L"+device.getLeadType().getDescription());
+        tvEcgLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
 
         tvEcg1mV = view.findViewById(R.id.tv_ecg_1mv);
-        tvEcg1mV.setText(String.valueOf(device.getValue1mVBeforeCalibrate()) + '/' + String.valueOf(device.getValue1mVAfterCalibrate()));
+        tvEcg1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mVBeforeCalibrate(), device.getValue1mVAfterCalibrate()));
 
         tvEcgHr = view.findViewById(R.id.tv_ecg_hr);
         tvEcgHr.setText(String.valueOf(0));
@@ -214,6 +215,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         });
 
         device.registerEcgMonitorObserver(EcgMonitorFragment.this);
+    }
+
+    @Override
+    public void openConfigActivity() {
+        Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
+        intent.putExtra("configuration", device.getConfig());
+        intent.putExtra("devicenickname", device.getNickName());
+        startActivityForResult(intent, 1);
     }
 
     @Override

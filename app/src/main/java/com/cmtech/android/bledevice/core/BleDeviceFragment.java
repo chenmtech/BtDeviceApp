@@ -95,7 +95,7 @@ public abstract class BleDeviceFragment extends Fragment{
         }
     }
 
-
+    public abstract void openConfigActivity();
     //////////////////////////////////////////////////////////////////////////
 
 }

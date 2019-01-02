@@ -31,8 +31,8 @@ public class UnknownDeviceFragment extends BleDeviceFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_unknowndevice, container, false);
 
-        tvServices = (TextView)view.findViewById(R.id.tv_device_services);
-        tvCharacteristic = (TextView)view.findViewById(R.id.tv_device_characteristics);
+        tvServices = view.findViewById(R.id.tv_device_services);
+        tvCharacteristic = view.findViewById(R.id.tv_device_characteristics);
 
         return view;
     }
@@ -43,5 +43,8 @@ public class UnknownDeviceFragment extends BleDeviceFragment {
 
     }
 
+    @Override
+    public void openConfigActivity() {
 
+    }
 }

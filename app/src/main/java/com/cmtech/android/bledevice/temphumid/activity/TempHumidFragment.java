@@ -117,6 +117,11 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     }
 
     @Override
+    public void openConfigActivity() {
+
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
 

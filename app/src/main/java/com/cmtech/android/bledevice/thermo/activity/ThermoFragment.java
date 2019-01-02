@@ -69,6 +69,11 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
     }
 
     @Override
+    public void openConfigActivity() {
+
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
 

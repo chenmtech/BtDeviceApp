@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.adapter;
 
 import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextPaint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,13 +92,14 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         holder.deviceAddress.setText(String.format("设备地址：%s", device.getAddress()));
 
         boolean status = hasRegistered(device);
+        TextPaint paint = holder.deviceStatus.getPaint();
         if(status) {
             holder.deviceStatus.setText("已登记");
-            holder.deviceStatus.getPaint().setFlags(Paint.STRIKE_THRU_TEXT_FLAG);
+            paint.setFlags(paint.getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
             holder.deviceStatus.setText("未登记");
+            paint.setFlags(paint.getFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         }
-
     }
 
     @Override
