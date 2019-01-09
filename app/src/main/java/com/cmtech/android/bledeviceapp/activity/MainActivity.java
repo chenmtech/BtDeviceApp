@@ -5,12 +5,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
@@ -27,12 +29,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
+import com.cmtech.android.bledevice.core.BleDeviceConnectState;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileReplayActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -75,9 +79,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private Toolbar toolbar; // 工具条
     private DrawerLayout drawerLayout; // 侧滑界面
     private LinearLayout welcomeLayout; // 欢迎界面
-    private LinearLayout mainLayout; // 包含设备Fragment和Tablayout的主界面
+    private RelativeLayout mainLayout; // 包含设备Fragment和Tablayout的主界面
+    private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private BleDeviceFragmentManager fragmentManager; // TabLayout和Fragment管理器
-    private MenuItem menuSwitch; // 工具条上的状态转换菜单
     private MenuItem menuConfig; // 工具条上的配置菜单
     private TextView tvAccountName; // 账户名控件
     private TextView tvUserName; // 用户名控件
@@ -176,6 +180,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             }
         });
 
+        // 设置FAB
+        fabConnect = findViewById(R.id.fab_connect);
+        fabConnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BleDeviceFragment fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+                if(fragment != null) {
+                    fragment.switchDeviceState();
+                }
+            }
+        });
 
         drawerLayout = findViewById(R.id.drawer_layout);
         welcomeLayout = findViewById(R.id.welcome_layout);
@@ -188,7 +203,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         fragmentManager.setOnFragmentChangedListener(new MyFragmentManager.OnFragmentChangedListener() {
             @Override
             public void onFragmentchanged() {
-                updateToolBar(((BleDeviceFragment) fragmentManager.getCurrentFragment()).getDevice());
+                BleDevice device = ((BleDeviceFragment) fragmentManager.getCurrentFragment()).getDevice();
+                updateToolBar(device);
+                updateFloatingActionButton(device);
             }
         });
 
@@ -266,7 +283,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
-        menuSwitch = menu.findItem(R.id.toolbar_switch);
         menuConfig = menu.findItem(R.id.toolbar_config);
         return true;
     }
@@ -284,13 +300,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         switch (item.getItemId()) {
             case android.R.id.home:
                 openDrawer(true);
-                break;
-
-            case R.id.toolbar_switch:
-                fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
-                if(fragment != null) {
-                    fragment.switchDeviceState();
-                }
                 break;
 
             case R.id.toolbar_config:
@@ -381,7 +390,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         // 更新Activity的ToolBar
         BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
         if(currentFrag != null && deviceFrag == currentFrag) {
-            updateToolBar(currentFrag.getDevice());
+            // 更新工具条Title
+            toolbar.setTitle(currentFrag.getDevice().getConnectState().getDescription());
+            updateFloatingActionButton(currentFrag.getDevice());
         }
     }
 
@@ -473,7 +484,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         TextView tvWelcomeText = welcomeLayout.findViewById(R.id.tv_welcometext);
         tvWelcomeText.setText(welcomeText);
         TextView tvVersionName = welcomeLayout.findViewById(R.id.tv_versionname);
-        tvVersionName.setText("Ver"+APKVersionCodeUtils.getVerName(this));
+        tvVersionName.setText(String.format("Ver%s", APKVersionCodeUtils.getVerName(this)));
     }
 
     // 更新主Layout的可视性
@@ -559,7 +570,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void deleteFragment(BleDeviceFragment fragment) {
         fragmentManager.deleteFragment(fragment);
         updateMainLayoutVisibility();
-        //updateMainMenu();
         invalidateOptionsMenu();
     }
 
@@ -577,28 +587,29 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     // 更新主菜单
     private void updateMainMenu() {
         if(fragmentManager.size() == 0) {
-            menuSwitch.setVisible(false);
             menuConfig.setVisible(false);
         } else {
-            menuSwitch.setVisible(true);
             menuConfig.setVisible(true);
+            /*
             BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+
             if(currentFrag != null && currentFrag.getDevice() != null) {
                 // 更新连接转换菜单menuSwitch
                 // menuSwitch图标如果是动画，先停止动画
-                /*if(menuSwitch.getIcon() instanceof AnimationDrawable) {
+                if(menuSwitch.getIcon() instanceof AnimationDrawable) {
                     AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
                     if(connectingDrawable.isRunning())
                         connectingDrawable.stop();
-                }*/
+                }
                 menuSwitch.setIcon(currentFrag.getDevice().getStateIcon());
-                /*// 如果menuSwitch图标是动画，则启动动画
+                // 如果menuSwitch图标是动画，则启动动画
                 if(menuSwitch.getIcon() instanceof AnimationDrawable) {
                     AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
                     if(!connectingDrawable.isRunning())
                         connectingDrawable.start();
-                }*/
+                }
             }
+            */
         }
     }
 
@@ -627,5 +638,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 更新工具条Title
         toolbar.setTitle(device.getConnectState().getDescription());
+    }
+
+    private void updateFloatingActionButton(BleDevice device) {
+        if(device != null) {
+            fabConnect.setImageResource(device.getStateIcon());
+        }
     }
 }
