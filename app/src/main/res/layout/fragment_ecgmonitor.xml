@@ -82,12 +82,12 @@
         </FrameLayout>
 
         <RelativeLayout
-            android:id="@+id/rl_hrstatistics"
+            android:id="@+id/rl_hr_statistics"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:visibility="invisible">
-            <com.github.mikephil.charting.charts.BarChart
+            <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogram
                 android:id="@+id/bc_hr_histogram"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
