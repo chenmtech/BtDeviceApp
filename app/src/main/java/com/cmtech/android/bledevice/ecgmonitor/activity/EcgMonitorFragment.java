@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,11 +25,14 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgRestMarker;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
 import com.cmtech.dsp.seq.RealSeq;
@@ -37,10 +41,16 @@ import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
+import static android.graphics.Color.YELLOW;
+import static android.view.MotionEvent.ACTION_BUTTON_RELEASE;
+import static android.view.MotionEvent.ACTION_CANCEL;
+import static android.view.MotionEvent.ACTION_DOWN;
+import static android.view.MotionEvent.ACTION_UP;
 
 /**
  * EcgMonitorFragment: 心电带设备Fragment
@@ -58,7 +68,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ImageButton ibSwitchSampleStatus; // 切换采样状态
     private ImageButton ibRecord; // 切换记录状态
     private CheckBox cbIsFilter; // 是否滤波
-    private CheckBox cbIsRest; // 是否处于安静状态
+    private ImageButton ibStayRest; // 是否处于安静状态
     private TextView tvTotalBeatTimes; // 总心跳次数
     private ImageButton ibResetHistogram; // 重置心率直方图
     private ScanWaveView ecgView; // 心电波形View
@@ -69,6 +79,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private AudioTrack audioTrack;
     private EcgMonitorDevice device; // 设备
     private EcgHrHistogram hrHistogram; // 心率直方图
+    private EcgRestMarker restMarker;
 
     public EcgMonitorFragment() {
 
@@ -139,17 +150,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         }
 
         ibRecord = view.findViewById(R.id.ib_ecg_record);
-        // 根据设备的isRecord初始化Record按钮
-        updateRecordStatus(device.isRecord());
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 boolean isRecord = !device.isRecord();
                 device.setRecord(isRecord);
-
-                /*for(Button button : commentBtnList) {
-                    button.setEnabled(isRecord);
-                }*/
             }
         });
 
@@ -162,16 +167,30 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        cbIsRest = view.findViewById(R.id.cb_stay_rest);
-        cbIsRest.setChecked(false);
-        cbIsRest.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ibStayRest = view.findViewById(R.id.ib_stay_rest);
+        ibStayRest.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b) {
-                    ecgView.setWaveColor(Color.YELLOW);
-                } else {
-                    ecgView.restoreDefaultWaveColor();
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch(motionEvent.getAction()) {
+                    case ACTION_DOWN:
+                        ecgView.setWaveColor(YELLOW);
+                        long timeCreated = new Date().getTime();
+                        restMarker = new EcgRestMarker(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated);
+                        restMarker.setStartNum(device.getRecordDataNum());
+                        break;
+                    case ACTION_UP:
+                    case ACTION_CANCEL:
+                        ecgView.restoreDefaultWaveColor();
+                        if(restMarker != null) {
+                            restMarker.setEndNum(device.getRecordDataNum());
+                            ViseLog.e(restMarker.toString());
+                            restMarker = null;
+                        }
+                        break;
+                    default:
+                        break;
                 }
+                return true;
             }
         });
 
@@ -189,6 +208,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
+        // 根据设备的isRecord初始化Record按钮
+        updateRecordStatus(device.isRecord());
         device.registerEcgMonitorObserver(EcgMonitorFragment.this);
     }
 
@@ -261,6 +282,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         for(Button button : commentBtnList) {
             button.setEnabled(isRecord);
         }
+        if(isRecord)
+            ibStayRest.setVisibility(View.VISIBLE);
+        else
+            ibStayRest.setVisibility(View.INVISIBLE);
+        ibStayRest.setEnabled(isRecord);
     }
 
     @Override

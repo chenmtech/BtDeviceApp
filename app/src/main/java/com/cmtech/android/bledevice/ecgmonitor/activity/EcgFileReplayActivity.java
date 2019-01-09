@@ -21,7 +21,7 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileReplayModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgCommentOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileReplayObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;

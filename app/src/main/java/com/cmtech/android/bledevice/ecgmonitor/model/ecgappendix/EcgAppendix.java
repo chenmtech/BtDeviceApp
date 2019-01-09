@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
@@ -16,9 +16,9 @@ import java.io.IOException;
 public abstract class EcgAppendix {
     private static final int CREATOR_LEN = 10; // 创建人名字符数
 
+    private EcgAppendixType type = EcgAppendixType.INVALID_APPENDIX; // 类型
     private String creator = "匿名"; // 创建人
     private long createTime; // 创建时间
-    private EcgAppendixType type = EcgAppendixType.COMMENT_NORMAL; // 类型
 
     public String getCreator() {
         return creator;
@@ -48,7 +48,7 @@ public abstract class EcgAppendix {
 
     }
 
-    public EcgAppendix(String creator, long createTime, EcgAppendixType type) {
+    public EcgAppendix(EcgAppendixType type, String creator, long createTime) {
         this.creator = creator;
         this.createTime = createTime;
         this.type = type;
@@ -56,12 +56,12 @@ public abstract class EcgAppendix {
 
     public boolean readFromStream(DataInput in) {
         try {
+            // 读类型
+            type = EcgAppendixType.getFromCode(ByteUtil.reverseInt(in.readInt()));
             // 读创建人
             creator = DataIOUtil.readFixedString(CREATOR_LEN, in);
             // 读创建时间
             createTime = ByteUtil.reverseLong(in.readLong());
-            // 读类型
-            type = EcgAppendixType.getFromCode(ByteUtil.reverseInt(in.readInt()));
         } catch (IOException e) {
             return false;
         }
@@ -70,12 +70,12 @@ public abstract class EcgAppendix {
 
     public boolean writeToStream(DataOutput out) {
         try {
+            // 写类型
+            out.writeInt(ByteUtil.reverseInt(type.getCode()));
             // 写创建人
             DataIOUtil.writeFixedString(creator, CREATOR_LEN, out);
             // 写创建时间
             out.writeLong(ByteUtil.reverseLong(createTime));
-            // 写类型
-            out.writeInt(ByteUtil.reverseInt(type.getCode()));
         } catch (IOException e) {
             return false;
         }

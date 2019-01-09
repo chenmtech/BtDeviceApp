@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
 
 public interface IEcgCommentOperator {
     // 删除一条留言

@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.io.IOException;

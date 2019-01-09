@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
 /**
  * EcgAppendixType: 心电附加信息类型
@@ -6,9 +6,9 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
  */
 
 public enum EcgAppendixType {
-    COMMENT_NORMAL(0, "一般留言"),
-    COMMENT_SYS(1, "系统留言"),
-    BODY_STATUS(2, "身体状态");
+    INVALID_APPENDIX(0, "无效附加信息"),
+    NORMAL_COMMENT(1, "一般留言"),
+    REST_MARKER(2, "安静时间段标记");
 
     EcgAppendixType(int code, String description) {
         this.code = code;

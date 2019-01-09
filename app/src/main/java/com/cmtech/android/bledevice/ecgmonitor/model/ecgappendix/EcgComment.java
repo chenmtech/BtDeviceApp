@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
@@ -37,23 +37,24 @@ public class EcgComment extends EcgAppendix{
 
     public EcgComment() {
         super();
-        super.setType(EcgAppendixType.COMMENT_NORMAL);
+        super.setType(EcgAppendixType.NORMAL_COMMENT);
     }
 
-    public EcgComment(String commentator, long createdTime, String content) {
-        this(commentator, createdTime, -1, content);
+    public EcgComment(String creator, long createTime, String content) {
+        this(creator, createTime, -1, content);
     }
 
     public EcgComment(String creator, long createTime, int secondInEcg, String content) {
-        super(creator, createTime, EcgAppendixType.COMMENT_NORMAL);
+        super(EcgAppendixType.NORMAL_COMMENT, creator, createTime);
         this.secondInEcg = secondInEcg;
         this.content = content;
     }
 
+    @Override
     public boolean readFromStream(DataInput in) {
         try {
             if(!super.readFromStream(in)) return false;
-            if(super.getType() != EcgAppendixType.COMMENT_NORMAL) return false;
+            if(super.getType() != EcgAppendixType.NORMAL_COMMENT) return false;
             // 读留言秒数
             secondInEcg = ByteUtil.reverseInt(in.readInt());
             // 读留言内容
@@ -64,6 +65,7 @@ public class EcgComment extends EcgAppendix{
         return true;
     }
 
+    @Override
     public boolean writeToStream(DataOutput out) {
         try {
             if(!super.writeToStream(out)) return false;

@@ -167,6 +167,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     public int getRecordSecond() {
         return (ecgRecorder == null) ? 0 : ecgRecorder.getRecordSecond();
     }
+    public long getRecordDataNum() { return (ecgRecorder == null) ? 0 : ecgRecorder.getRecordDataNum(); }
 
     // 构造器
     public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {

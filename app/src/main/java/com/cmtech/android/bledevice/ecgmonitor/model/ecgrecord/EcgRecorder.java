@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
@@ -30,6 +30,11 @@ public class EcgRecorder {
     // 获取记录的秒数
     public int getRecordSecond() {
         return (int)(recordDataNum/sampleRate);
+    }
+
+    // 获取记录的秒数
+    public long getRecordDataNum() {
+        return recordDataNum;
     }
 
     public EcgRecorder() {
