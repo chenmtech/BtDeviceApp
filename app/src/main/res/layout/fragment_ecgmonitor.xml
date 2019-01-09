@@ -77,7 +77,7 @@
                 android:layout_height="match_parent"
                 cmtech:background_color="#666"
                 cmtech:grid_color="#f00"
-                cmtech:wave_color="#ff0"
+                cmtech:wave_color="#fff"
                 cmtech:show_gridline="true"/>
         </FrameLayout>
 
@@ -236,14 +236,13 @@
             android:layout_gravity="center_vertical"
             android:gravity="center_horizontal">
 
-            <ImageButton
-                android:id="@+id/ib_ecgmonitor_setup"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+            <CheckBox
+                android:id="@+id/cb_stay_rest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:background="@color/primary_dark"
-                android:contentDescription="ecgmonitor setup"
-                android:src="@mipmap/ic_setup_48px" />
+                android:checked="false"
+                android:text="安静"/>
         </LinearLayout>
 
     </LinearLayout>

@@ -72,12 +72,12 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ImageButton ibSwitchSampleEcg;
     private ImageButton ibRecord;
     private CheckBox cbEcgFilter;
+    private CheckBox cbIsRest;
     private FrameLayout flEcgView;
     private RelativeLayout rlHrStatistics;
     private BarChart hrBarHistogram;
     private TextView tvHrTotal;
     private ImageButton ibResetHistogram;
-    private ImageButton ibSetup;
 
 
     private BarDataSet hrBarDateSet;
@@ -185,6 +185,19 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
+        cbIsRest = view.findViewById(R.id.cb_stay_rest);
+        cbIsRest.setChecked(false);
+        cbIsRest.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b) {
+                    ecgView.setWaveColor(Color.YELLOW);
+                } else {
+                    ecgView.restoreDefaultWaveColor();
+                }
+            }
+        });
+
         flEcgView = view.findViewById(R.id.fl_ecgview);
         rlHrStatistics = view.findViewById(R.id.rl_hrstatistics);
         hrBarHistogram = view.findViewById(R.id.bc_hr_histogram);
@@ -200,17 +213,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             public void onClick(View v) {
                 device.resetHrStatistics();
                 updateBarChart(null);
-            }
-        });
-
-        ibSetup = view.findViewById(R.id.ib_ecgmonitor_setup);
-        ibSetup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
-                intent.putExtra("configuration", device.getConfig());
-                intent.putExtra("devicenickname", device.getNickName());
-                startActivityForResult(intent, 1);
             }
         });
 
@@ -267,12 +269,12 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void updateLeadType(final EcgLeadType leadType) {
-        tvEcgLeadType.setText("L"+leadType.getDescription());
+        tvEcgLeadType.setText(String.format("L%s", leadType.getDescription()));
     }
 
     @Override
     public void updateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
-        tvEcg1mV.setText(String.valueOf(calibrationValueBefore) + '/' + String.valueOf(calibrationValueAfter));
+        tvEcg1mV.setText(String.format(Locale.getDefault(), "%d/%d", calibrationValueBefore, calibrationValueAfter));
     }
 
     @Override

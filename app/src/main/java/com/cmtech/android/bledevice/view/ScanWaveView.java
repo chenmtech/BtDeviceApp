@@ -28,42 +28,39 @@ import com.cmtech.android.bledeviceapp.R;
 
 public class ScanWaveView extends View {
 
-    private static final int DEFAULT_SIZE = 100;                // 缺省View的大小
-    private static final int DEFAULT_XPIXELPERDATA = 2;                  // 缺省的X方向的分辨率
-    private static final float DEFAULT_YVALUEPERPIXEL = 1.0f;	            // 缺省的Y方向的分辨率
-    private static final double DEFAULT_ZERO_LOCATION = 0.5;   // 缺省的零线位置在Y方向的高度的比例
-    private static final int DEFAULT_PIXELSPERGRID = 10;           // 每个栅格的像素个数
-
-    private static final int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
+    private static final int DEFAULT_SIZE = 100; // 缺省View的大小
+    private static final int DEFAULT_XPIXELPERDATA = 2; // 缺省的X方向的分辨率
+    private static final float DEFAULT_YVALUEPERPIXEL = 1.0f; // 缺省的Y方向的分辨率
+    private static final double DEFAULT_ZERO_LOCATION = 0.5; // 缺省的零线位置在Y方向的高度的比例
+    private static final int DEFAULT_PIXELSPERGRID = 10; // 每个栅格的像素个数
+    private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK;
     private static final int DEFAULT_GRID_COLOR = Color.RED;
-    private static final int DEFAULT_WAVE_COLOR = Color.BLACK;
+    private static final int DEFAULT_WAVE_COLOR = Color.WHITE;
 
-    private int viewWidth = 100;					//视图宽度
-    private int viewHeight = 100;				    //视图高度
-    private int initX, initY;			        //画图起始位置
-    private int preX, preY;				    //画线的前一个点坐标
-    private int curX, curY;				    //画线的当前点坐标
-
-    private final Paint bmpPaint = new Paint();
+    private int viewWidth = 100; //视图宽度
+    private int viewHeight = 100; //视图高度
+    private int initX, initY; //画图起始坐标
+    private int preX, preY; //画线的前一个点坐标
+    private int curX, curY; //画线的当前点坐标
+    private final Rect deleteRect = new Rect(); // 要抹去的小矩形
+    private final Paint bmpPaint = new Paint(); // 画线笔
     private Bitmap backBitmap;  //背景bitmap
     private Bitmap foreBitmap;	//前景bitmap
     private Canvas foreCanvas;	//前景canvas
+    private final int backgroundColor; // 背景颜色
+    private final int gridColor; // 栅格颜色
+    private int waveColor; // 画线颜色
+    private final int defaultWaveColor; // 缺省的画线颜色
     private PorterDuffXfermode srcOverMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER);
     private PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
-    private Rect deleteRect = new Rect();
-
-    private final int backgroundColor;
-    private final int gridColor;
-    private final int waveColor;
-
     // View初始化主要需要设置下面4个参数
-    private int gridPixels = DEFAULT_PIXELSPERGRID;                // 栅格像素个数
-    public void setGridPixels(int gridPixels) {
-        this.gridPixels = gridPixels;
-    }
+    private int gridPixels = DEFAULT_PIXELSPERGRID; // 栅格像素个数
+    private int xPixelPerData = DEFAULT_XPIXELPERDATA; //X方向分辨率，表示X方向每个数据点占多少个像素，pixel/data
+    private float yValuePerPixel = DEFAULT_YVALUEPERPIXEL; //Y方向分辨率，表示Y方向每个像素代表的信号值，value/pixel
+    private double zeroLocation = DEFAULT_ZERO_LOCATION; //表示零值位置占视图高度的百分比
+    private boolean showGridLine = true; // 是否显示栅格线
+    private boolean isFirstData = false; // 是否是第一个数据
 
-    private int xPixelPerData = DEFAULT_XPIXELPERDATA;						//X方向分辨率，表示X方向每个数据点占多少个像素，pixel/data
-    private float yValuePerPixel = DEFAULT_YVALUEPERPIXEL;					//Y方向分辨率，表示Y方向每个像素代表的信号值，value/pixel
     // 设置分辨率
     public void setResolution(int xPixelPerData, float yValuePerPixel)
     {
@@ -74,23 +71,30 @@ public class ScanWaveView extends View {
         this.yValuePerPixel = yValuePerPixel;
     }
 
-    private double zeroLocation = DEFAULT_ZERO_LOCATION;			//表示零值位置占视图高度的百分比
     public void setZeroLocation(double zeroLocation)
     {
         this.zeroLocation = zeroLocation;
         initY = (int)(viewHeight * this.zeroLocation);
     }
 
-    private boolean showGridLine = true;
+    public void setGridPixels(int gridPixels) {
+        this.gridPixels = gridPixels;
+    }
 
-    private boolean isFirstData = false;
+    public void setWaveColor(int waveColor) {
+        this.waveColor = waveColor;
+    }
+
+    public void restoreDefaultWaveColor() {
+        this.waveColor = defaultWaveColor;
+    }
 
     public ScanWaveView(Context context) {
         super(context);
 
         backgroundColor = DEFAULT_BACKGROUND_COLOR;
         gridColor = DEFAULT_GRID_COLOR;
-        waveColor = DEFAULT_WAVE_COLOR;
+        waveColor = defaultWaveColor = DEFAULT_WAVE_COLOR;
 
         initPaint();
     }
@@ -105,7 +109,7 @@ public class ScanWaveView extends View {
         //第二个参数为，如果没有设置这个属性，则设置的默认的值
         backgroundColor = a.getColor(R.styleable.WaveView_background_color, DEFAULT_BACKGROUND_COLOR);
         gridColor = a.getColor(R.styleable.WaveView_grid_color, DEFAULT_GRID_COLOR);
-        waveColor = a.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
+        waveColor = defaultWaveColor = a.getColor(R.styleable.WaveView_wave_color, DEFAULT_WAVE_COLOR);
         showGridLine = a.getBoolean(R.styleable.WaveView_show_gridline, true);
 
         //最后记得将TypedArray对象回收
@@ -122,7 +126,6 @@ public class ScanWaveView extends View {
         canvas.drawColor(backgroundColor);
 
         canvas.drawBitmap(foreBitmap, 0, 0, null);
-
     }
 
     @Override
