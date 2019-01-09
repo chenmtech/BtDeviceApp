@@ -36,7 +36,7 @@ public class EcgFileTail {
             Collections.sort(commentList, new Comparator<EcgComment>() {
                 @Override
                 public int compare(EcgComment o1, EcgComment o2) {
-                    return (int)(o1.getCreatedTime() - o2.getCreatedTime());
+                    return (int)(o1.getCreateTime() - o2.getCreateTime());
                 }
             });
 

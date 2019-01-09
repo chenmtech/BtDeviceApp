@@ -88,8 +88,8 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         if(commentNum > 0) {
             EcgComment comment = file.getCommentList().get(commentNum - 1);
             String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
-            String createTime1 = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreatedTime());
-            String person = comment.getCommentator();
+            String createTime1 = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreateTime());
+            String person = comment.getCreator();
             String content;
             if(comment.getSecondInEcg() == -1) {
                 content = comment.getContent();

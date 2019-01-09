@@ -77,8 +77,8 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     @Override
     public void onBindViewHolder(EcgCommentAdapter.ViewHolder holder, final int position) {
         EcgComment comment = commentList.get(position);
-        holder.createdTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreatedTime()));
-        holder.commentator.setText(comment.getCommentator());
+        holder.createdTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreateTime()));
+        holder.commentator.setText(comment.getCreator());
         int secondInEcg = comment.getSecondInEcg();
         String content;
         if(secondInEcg != -1) {
