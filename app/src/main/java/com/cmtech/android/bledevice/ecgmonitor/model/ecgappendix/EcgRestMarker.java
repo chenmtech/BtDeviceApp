@@ -33,15 +33,18 @@ public class EcgRestMarker extends EcgAppendix {
         this.endNum = endNum;
     }
 
+    public EcgRestMarker() {
+        super();
+    }
+
     public EcgRestMarker(String creator, long createTime) {
-        super(EcgAppendixType.REST_MARKER, creator, createTime);
+        super(creator, createTime);
     }
 
     @Override
     public boolean readFromStream(DataInput in) {
         try {
             if(!super.readFromStream(in)) return false;
-            if(super.getType() != EcgAppendixType.REST_MARKER) return false;
             // 读起始Number
             startNum = ByteUtil.reverseLong(in.readLong());
             // 读终止Number
@@ -66,8 +69,14 @@ public class EcgRestMarker extends EcgAppendix {
         return true;
     }
 
-    public static int length() {
-        return  EcgAppendix.length() + 2*8;
+    @Override
+    public int length() {
+        return  super.length() + 2*8;
+    }
+
+    @Override
+    public EcgAppendixType getType() {
+        return EcgAppendixType.REST_MARKER;
     }
 
     @Override

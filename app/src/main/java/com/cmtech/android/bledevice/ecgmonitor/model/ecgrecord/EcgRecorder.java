@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
@@ -24,7 +25,7 @@ public class EcgRecorder {
     private EcgFile ecgFile; // 心电文件
     private long recordDataNum; // 记录的数据个数
     private int sampleRate = 125; // 采样频率
-    private final List<EcgComment> commentList = new ArrayList<>(); // 当前信号的留言表
+    private final List<IEcgAppendix> appendixList = new ArrayList<>(); // 当前信号的附加信息表
     private IEcgRecordObserver observer; // 心电记录观察者
 
     // 获取记录的秒数
@@ -48,7 +49,7 @@ public class EcgRecorder {
 
         ecgFile = EcgFile.create(sampleRate, calibrationValue, macAddress, leadType);
         if(ecgFile != null) {
-            commentList.clear();
+            appendixList.clear();
             recordDataNum = 0;
             this.sampleRate = sampleRate;
             notifyObserver(0);
@@ -78,8 +79,8 @@ public class EcgRecorder {
                     ecgFile.close();
                     FileUtil.deleteFile(ecgFile.getFile());
                 } else {    // 如果有数据
-                    if (!commentList.isEmpty()) {
-                        ecgFile.addComments(commentList);
+                    if (!appendixList.isEmpty()) {
+                        ecgFile.addAppendices(appendixList);
                     }
                     ecgFile.saveFileTail();
                     ecgFile.close();
@@ -103,13 +104,13 @@ public class EcgRecorder {
     // 添加没有时间定位的留言
     public void addComment(String comment) {
         long timeCreated = new Date().getTime();
-        commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
+        appendixList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
     }
 
     // 添加有时间定位的留言
     public void addComment(int secondInEcg, String comment) {
         long timeCreated = new Date().getTime();
-        commentList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, secondInEcg, comment));
+        appendixList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, secondInEcg, comment));
     }
 
     public void registerObserver(IEcgRecordObserver observer) {

@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.bmefile.BmeFileHead30;
@@ -70,8 +71,8 @@ public class EcgFileReplayModel {
         return ecgFile;
     }
 
-    public List<EcgComment> getCommentList() {
-        return ecgFile.getCommentList();
+    public List<IEcgAppendix> getAppendixList() {
+        return ecgFile.getAppendixList();
     }
 
     // 添加一个留言
@@ -91,13 +92,13 @@ public class EcgFileReplayModel {
     private void addComment(int secondInEcg, String comment) {
         String commentator = UserAccountManager.getInstance().getUserAccount().getUserName();
         long timeCreated = new Date().getTime();
-        ecgFile.addComment(new EcgComment(commentator, timeCreated, secondInEcg, comment));
+        ecgFile.addAppendix(new EcgComment(commentator, timeCreated, secondInEcg, comment));
         updated = true;
         updateCommentList();
     }
 
-    public void deleteComment(EcgComment comment) {
-        ecgFile.deleteComment(comment);
+    public void deleteComment(IEcgAppendix comment) {
+        ecgFile.deleteAppendix(comment);
         updated = true;
         updateCommentList();
     }

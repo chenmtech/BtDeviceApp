@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead;
@@ -141,7 +141,7 @@ public class EcgFile extends RandomAccessBmeFile {
         return true;
     }
 
-    // 已经到达数据尾部
+    // 是否已经到达数据尾部
     public boolean isEOD() {
         if(raf == null) return true;
 
@@ -158,8 +158,8 @@ public class EcgFile extends RandomAccessBmeFile {
 
     public EcgFileTail getEcgFileTail() { return ecgFileTail; }
 
-    public List<EcgComment> getCommentList() {
-        return ecgFileTail.getCommentList();
+    public List<IEcgAppendix> getAppendixList() {
+        return ecgFileTail.getAppendixList();
     }
 
     public String getCreatedPerson() {
@@ -171,7 +171,7 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     public int getCommentsNum() {
-        return ecgFileTail.getCommentsNum();
+        return ecgFileTail.getAppendixNum();
     }
 
     // 将文件指针定位到某个数据位置
@@ -184,32 +184,32 @@ public class EcgFile extends RandomAccessBmeFile {
         return true;
     }
 
-    // 为文件添加一条留言
-    public void addComment(EcgComment comment) {
-        ecgFileTail.addComment(comment);
+    // 为文件添加一条附加信息
+    public void addAppendix(IEcgAppendix appendix) {
+        ecgFileTail.addAppendix(appendix);
     }
 
-    // 添加多条留言
-    public void addComments(List<EcgComment> comments) {
-        for(EcgComment comment : comments) {
-            ecgFileTail.addComment(comment);
+    // 添加多条附加信息
+    public void addAppendices(List<IEcgAppendix> appendices) {
+        for(IEcgAppendix appendix : appendices) {
+            ecgFileTail.addAppendix(appendix);
         }
     }
 
-    // 删除一条留言
-    public void deleteComment(EcgComment comment) {
-        if(ecgFileTail.getCommentList().contains(comment)) {
+    // 删除一条附加信息
+    public void deleteAppendix(IEcgAppendix appendix) {
+        if(ecgFileTail.getAppendixList().contains(appendix)) {
             // 删除留言
-            ecgFileTail.deleteComment(comment);
+            ecgFileTail.deleteAppendix(appendix);
         }
     }
 
-    // 输出所有留言字符串，用于调试
-    public String getCommentString() {
-        if(ecgFileTail.getCommentsNum() == 0) return "";
+    // 输出所有附加信息字符串，用于调试
+    public String getAppendixString() {
+        if(ecgFileTail.getAppendixNum() == 0) return "";
         StringBuilder builder = new StringBuilder();
-        for(EcgComment comment : ecgFileTail.getCommentList()) {
-            builder.append(comment.toString());
+        for(IEcgAppendix appendix : ecgFileTail.getAppendixList()) {
+            builder.append(appendix.toString());
         }
         return builder.toString();
     }

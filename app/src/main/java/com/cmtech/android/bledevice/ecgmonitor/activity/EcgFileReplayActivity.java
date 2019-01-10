@@ -19,9 +19,10 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileReplayModel;
-import com.cmtech.android.bledevice.ecgmonitor.model.IEcgCommentOperator;
+import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileReplayObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -30,7 +31,7 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import java.io.IOException;
 
 
-public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver, IEcgCommentOperator {
+public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver, IEcgAppendixOperator {
     private static final String TAG = "EcgFileReplayActivity";
 
     private EcgFileReplayModel replayModel;         // 模型实例
@@ -112,7 +113,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvReportList.setLayoutManager(reportLayoutManager);
         rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        reportAdapter = new EcgCommentAdapter(replayModel.getCommentList(), this);
+        reportAdapter = new EcgCommentAdapter(replayModel.getAppendixList(), this);
         rvReportList.setAdapter(reportAdapter);
         reportAdapter.notifyDataSetChanged();
         if(reportAdapter.getItemCount() > 1)
@@ -244,7 +245,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
      * IEcgCommentOperator接口函数
      */
     @Override
-    public void deleteComment(final EcgComment comment) {
+    public void deleteComment(final IEcgAppendix comment) {
         if(ecgView.isReplaying())
             stopReplay();
 
@@ -267,7 +268,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     }
 
     @Override
-    public void locateComment(EcgComment comment) {
+    public void locateComment(IEcgAppendix comment) {
         int second = comment.getSecondInEcg();
         if(second < 0 || second > replayModel.getTotalSecond())
             return;

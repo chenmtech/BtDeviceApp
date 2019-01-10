@@ -8,8 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.IEcgCommentOperator;
+import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -18,9 +19,9 @@ import java.util.List;
 
 public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.ViewHolder> {
 
-    private List<EcgComment> commentList;
+    private List<IEcgAppendix> commentList;
 
-    private IEcgCommentOperator commentOperator;
+    private IEcgAppendixOperator commentOperator;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View commentView;
@@ -41,7 +42,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         }
     }
 
-    public EcgCommentAdapter(List<EcgComment> commentList, IEcgCommentOperator commentOperator) {
+    public EcgCommentAdapter(List<IEcgAppendix> commentList, IEcgAppendixOperator commentOperator) {
         this.commentList = commentList;
         this.commentOperator = commentOperator;
     }
@@ -76,7 +77,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
     @Override
     public void onBindViewHolder(EcgCommentAdapter.ViewHolder holder, final int position) {
-        EcgComment comment = commentList.get(position);
+        IEcgAppendix comment = commentList.get(position);
         holder.createdTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreateTime()));
         holder.commentator.setText(comment.getCreator());
         int secondInEcg = comment.getSecondInEcg();
@@ -104,7 +105,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         return commentList.size();
     }
 
-    public void updateCommentList(List<EcgComment> commentList) {
+    public void updateCommentList(List<IEcgAppendix> commentList) {
         this.commentList = commentList;
         notifyDataSetChanged();
     }

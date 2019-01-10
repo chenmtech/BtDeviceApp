@@ -37,7 +37,6 @@ public class EcgComment extends EcgAppendix{
 
     public EcgComment() {
         super();
-        super.setType(EcgAppendixType.NORMAL_COMMENT);
     }
 
     public EcgComment(String creator, long createTime, String content) {
@@ -45,7 +44,7 @@ public class EcgComment extends EcgAppendix{
     }
 
     public EcgComment(String creator, long createTime, int secondInEcg, String content) {
-        super(EcgAppendixType.NORMAL_COMMENT, creator, createTime);
+        super(creator, createTime);
         this.secondInEcg = secondInEcg;
         this.content = content;
     }
@@ -54,7 +53,6 @@ public class EcgComment extends EcgAppendix{
     public boolean readFromStream(DataInput in) {
         try {
             if(!super.readFromStream(in)) return false;
-            if(super.getType() != EcgAppendixType.NORMAL_COMMENT) return false;
             // 读留言秒数
             secondInEcg = ByteUtil.reverseInt(in.readInt());
             // 读留言内容
@@ -79,8 +77,14 @@ public class EcgComment extends EcgAppendix{
         return true;
     }
 
-    public static int length() {
-        return  EcgAppendix.length() + 2*CONTENT_LEN + 4;
+    @Override
+    public int length() {
+        return  super.length() + 2*CONTENT_LEN + 4;
+    }
+
+    @Override
+    public EcgAppendixType getType() {
+        return EcgAppendixType.NORMAL_COMMENT;
     }
 
     @Override

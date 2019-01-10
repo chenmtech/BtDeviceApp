@@ -13,51 +13,44 @@ import java.io.IOException;
  * Created by bme on 2019/1/9.
  */
 
-public abstract class EcgAppendix {
+public abstract class EcgAppendix implements IEcgAppendix{
     private static final int CREATOR_LEN = 10; // 创建人名字符数
 
-    private EcgAppendixType type = EcgAppendixType.INVALID_APPENDIX; // 类型
     private String creator = "匿名"; // 创建人
     private long createTime; // 创建时间
 
+    @Override
     public String getCreator() {
         return creator;
     }
 
+    @Override
     public void setCreator(String creator) {
         this.creator = creator;
     }
 
+    @Override
     public long getCreateTime() {
         return createTime;
     }
 
+    @Override
     public void setCreateTime(long createTime) {
         this.createTime = createTime;
-    }
-
-    public EcgAppendixType getType() {
-        return type;
-    }
-
-    public void setType(EcgAppendixType type) {
-        this.type = type;
     }
 
     public EcgAppendix() {
 
     }
 
-    public EcgAppendix(EcgAppendixType type, String creator, long createTime) {
+    public EcgAppendix(String creator, long createTime) {
         this.creator = creator;
         this.createTime = createTime;
-        this.type = type;
     }
 
+    @Override
     public boolean readFromStream(DataInput in) {
         try {
-            // 读类型
-            type = EcgAppendixType.getFromCode(ByteUtil.reverseInt(in.readInt()));
             // 读创建人
             creator = DataIOUtil.readFixedString(CREATOR_LEN, in);
             // 读创建时间
@@ -68,10 +61,9 @@ public abstract class EcgAppendix {
         return true;
     }
 
+    @Override
     public boolean writeToStream(DataOutput out) {
         try {
-            // 写类型
-            out.writeInt(ByteUtil.reverseInt(type.getCode()));
             // 写创建人
             DataIOUtil.writeFixedString(creator, CREATOR_LEN, out);
             // 写创建时间
@@ -82,8 +74,9 @@ public abstract class EcgAppendix {
         return true;
     }
 
-    public static int length() {
-        return  2*CREATOR_LEN + 8 + 4;
+    @Override
+    public int length() {
+        return  2*CREATOR_LEN + 8;
     }
 
     @Override
@@ -100,11 +93,21 @@ public abstract class EcgAppendix {
 
         EcgAppendix other = (EcgAppendix)otherObject;
 
-        return  (creator.equals(other.creator) && (createTime == other.createTime) && (type == other.type) );
+        return  (creator.equals(other.creator) && (createTime == other.createTime) );
     }
 
     @Override
     public int hashCode() {
-        return (int)(creator.hashCode() + createTime + type.getCode());
+        return (int)(creator.hashCode() + createTime);
+    }
+
+    @Override
+    public int getSecondInEcg() {
+        return -1;
+    }
+
+    @Override
+    public String getContent() {
+        return "";
     }
 }

@@ -3,7 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -39,11 +39,11 @@ public class EcgFileExplorerModel {
 
     public List<EcgFile> getFileList() { return fileList; }
 
-    public List<EcgComment> getFileCommentList() {
+    public List<IEcgAppendix> getFileAppendixList() {
         if(fileList.isEmpty() || selectIndex < 0 || selectIndex >= fileList.size()){
             return new ArrayList<>();
         } else {
-            return fileList.get(selectIndex).getCommentList();
+            return fileList.get(selectIndex).getAppendixList();
         }
     }
 
@@ -130,7 +130,7 @@ public class EcgFileExplorerModel {
             try {
                 ecgFile = EcgFile.open(fileName);
                 fileList.set(selectIndex, ecgFile);
-                ViseLog.e(ecgFile.getCommentString());
+                ViseLog.e(ecgFile.getAppendixString());
             } catch (IOException e) {
                 ViseLog.e(e);
                 return;
@@ -230,12 +230,12 @@ public class EcgFileExplorerModel {
     }
 
     private boolean mergeTwoEcgFileComments(EcgFile srcFile, EcgFile destFile) {
-        List<EcgComment> srcComments = srcFile.getEcgFileTail().getCommentList();
-        List<EcgComment> destComments = destFile.getEcgFileTail().getCommentList();
-        List<EcgComment> needAddComments = new ArrayList<>();
+        List<IEcgAppendix> srcComments = srcFile.getEcgFileTail().getAppendixList();
+        List<IEcgAppendix> destComments = destFile.getEcgFileTail().getAppendixList();
+        List<IEcgAppendix> needAddComments = new ArrayList<>();
 
-        for(EcgComment srcComment : srcComments) {
-            for(EcgComment destComment : destComments) {
+        for(IEcgAppendix srcComment : srcComments) {
+            for(IEcgAppendix destComment : destComments) {
                 if(!srcComment.equals(destComment)) {
                     needAddComments.add(srcComment);
                 }
@@ -245,7 +245,7 @@ public class EcgFileExplorerModel {
         if(needAddComments.isEmpty())
             return false;
         else {
-            destFile.addComments(needAddComments);
+            destFile.addAppendices(needAddComments);
             return true;
         }
     }

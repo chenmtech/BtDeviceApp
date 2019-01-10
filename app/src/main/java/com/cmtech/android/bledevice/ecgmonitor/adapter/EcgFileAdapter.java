@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -86,7 +87,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
         int commentNum = file.getCommentsNum();
         if(commentNum > 0) {
-            EcgComment comment = file.getCommentList().get(commentNum - 1);
+            IEcgAppendix comment = file.getAppendixList().get(commentNum - 1);
             String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
             String createTime1 = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreateTime());
             String person = comment.getCreator();
