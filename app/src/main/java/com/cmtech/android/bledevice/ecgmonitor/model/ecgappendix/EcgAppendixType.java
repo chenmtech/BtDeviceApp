@@ -8,7 +8,8 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 public enum EcgAppendixType {
     INVALID_APPENDIX(0, "无效附加信息"),
     NORMAL_COMMENT(1, "一般留言"),
-    REST_MARKER(2, "安静时间段标记");
+    LOCATED_COMMENT(2, "可数据定位的留言"),
+    REST_MARKER(3, "安静时间段标记");
 
     EcgAppendixType(int code, String description) {
         this.code = code;
