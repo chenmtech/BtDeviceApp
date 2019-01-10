@@ -12,6 +12,11 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * EcgFileReplayModel: 心电文件回放模型类
+ * Created by bme on 2018/11/10.
+ */
+
 public class EcgFileReplayModel {
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f;                 // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度

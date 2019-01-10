@@ -23,7 +23,10 @@ import java.io.IOException;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
 
-
+/**
+ * EcgFileExplorerActivity: 心电文件浏览Activity
+ * Created by bme on 2018/11/10.
+ */
 
 public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver {
     private static final String TAG = "EcgFileExplorerActivity";
@@ -128,7 +131,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     public void deleteSelectedFile() {
-        if(model.getSelectIndex() >= 0 && model.getSelectIndex() < model.getFileList().size()) {
+        if(model.getCurrentSelectIndex() >= 0 && model.getCurrentSelectIndex() < model.getFileList().size()) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("删除Ecg信号");
             builder.setMessage("确定删除该Ecg信号吗？");
@@ -149,10 +152,10 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     @Override
-    public void update() {
+    public void updateFileList() {
         fileAdapter.notifyDataSetChanged();
-        if(model.getSelectIndex() >= 0 && model.getSelectIndex() < model.getFileList().size())
-            rvFileList.smoothScrollToPosition(model.getSelectIndex());
+        if(model.getCurrentSelectIndex() >= 0 && model.getCurrentSelectIndex() < model.getFileList().size())
+            rvFileList.smoothScrollToPosition(model.getCurrentSelectIndex());
 
         reportAdapter.updateCommentList(model.getFileAppendixList());
         if(model.getFileAppendixList().size() > 0)
@@ -160,7 +163,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     @Override
-    public void replay(String fileName) {
+    public void play(String fileName) {
         Intent intent = new Intent(EcgFileExplorerActivity.this, EcgFileReplayActivity.class);
         intent.putExtra("fileName", fileName);
         startActivityForResult(intent, 1);

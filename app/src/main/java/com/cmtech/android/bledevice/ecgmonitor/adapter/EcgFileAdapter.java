@@ -55,8 +55,8 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             @Override
             public void onClick(View view) {
                 int selectPos = holder.getAdapterPosition();
-                if(selectPos == explorerModel.getSelectIndex()) {   // 已经选择的和这次点击的一样，即再次点击
-                    explorerModel.replaySelectedFile();
+                if(selectPos == explorerModel.getCurrentSelectIndex()) {   // 已经选择的和这次点击的一样，即再次点击
+                    explorerModel.playSelectedFile();
                 } else {    // 否则仅仅改变选中ecg文件
                     explorerModel.select(holder.getAdapterPosition());
                 }
@@ -107,7 +107,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         }
 
         int bgdColor = 0;
-        if(explorerModel.getSelectIndex() == position) {
+        if(explorerModel.getCurrentSelectIndex() == position) {
             bgdColor = MyApplication.getContext().getResources().getColor(R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
             holder.ibShare.setBackgroundColor(bgdColor);

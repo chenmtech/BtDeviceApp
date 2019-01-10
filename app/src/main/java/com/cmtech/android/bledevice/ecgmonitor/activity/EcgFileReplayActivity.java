@@ -30,6 +30,10 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.io.IOException;
 
+/**
+ * EcgFileReplayActivity: 心电文件回放Activity
+ * Created by bme on 2018/11/10.
+ */
 
 public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver, IEcgAppendixOperator {
     private static final String TAG = "EcgFileReplayActivity";
