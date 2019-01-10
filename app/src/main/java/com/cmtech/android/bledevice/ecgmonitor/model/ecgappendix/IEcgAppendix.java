@@ -12,6 +12,5 @@ public interface IEcgAppendix {
     boolean writeToStream(DataOutput out);
     int length();
     EcgAppendixType getType();
-    int getSecondInEcg();
     String getContent();
 }

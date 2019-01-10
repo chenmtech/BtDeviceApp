@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -25,7 +24,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgRestMarker;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
@@ -47,7 +45,6 @@ import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 import static android.graphics.Color.YELLOW;
-import static android.view.MotionEvent.ACTION_BUTTON_RELEASE;
 import static android.view.MotionEvent.ACTION_CANCEL;
 import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_UP;
@@ -143,7 +140,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    device.addComment(device.getRecordSecond(), commentDescription);
+                    device.addComment(device.getRecordDataNum(), commentDescription);
                 }
             });
             commentBtnList.add(button);

@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgLocatedComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
@@ -104,13 +105,13 @@ public class EcgRecorder {
     // 添加没有时间定位的留言
     public void addComment(String comment) {
         long timeCreated = new Date().getTime();
-        appendixList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
+        appendixList.add(new EcgNormalComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
     }
 
     // 添加有时间定位的留言
-    public void addComment(int secondInEcg, String comment) {
+    public void addComment(long dataLocation, String comment) {
         long timeCreated = new Date().getTime();
-        appendixList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, secondInEcg, comment));
+        appendixList.add(new EcgLocatedComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment, dataLocation));
     }
 
     // 添加一条附加信息

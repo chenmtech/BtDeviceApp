@@ -9,8 +9,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendixDataLocation;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -80,11 +80,11 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         IEcgAppendix comment = commentList.get(position);
         holder.createdTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreateTime()));
         holder.commentator.setText(comment.getCreator());
-        int secondInEcg = comment.getSecondInEcg();
         String content;
-        if(secondInEcg != -1) {
+        if(comment instanceof IEcgAppendixDataLocation) {
             content = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
-            content = String.format(content, DateTimeUtil.secToTime(comment.getSecondInEcg()), comment.getContent());
+            int second = (int)(((IEcgAppendixDataLocation) comment).getDataLocation());
+            content = String.format(content, second, comment.getContent());
         } else {
             content = comment.getContent();
         }
@@ -92,7 +92,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
         if(commentOperator != null) {
             holder.ibDeleteComment.setVisibility(View.VISIBLE);
-            if(comment.getSecondInEcg() != -1) {
+            if(comment instanceof IEcgAppendixDataLocation) {
                 holder.ibSecondWhenComment.setVisibility(View.VISIBLE);
             } else {
                 holder.ibSecondWhenComment.setVisibility(View.GONE);

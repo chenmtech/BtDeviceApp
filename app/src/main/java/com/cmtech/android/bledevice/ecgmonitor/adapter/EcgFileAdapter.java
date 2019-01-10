@@ -10,8 +10,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendixDataLocation;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -92,11 +92,12 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             String createTime1 = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreateTime());
             String person = comment.getCreator();
             String content;
-            if(comment.getSecondInEcg() == -1) {
+            if(!(comment instanceof IEcgAppendixDataLocation)) {
                 content = comment.getContent();
             } else {
                 content = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
-                content = String.format(content, DateTimeUtil.secToTime(comment.getSecondInEcg()), comment.getContent());
+                int second = (int)(((IEcgAppendixDataLocation) comment).getDataLocation()/file.getFs());
+                content = String.format(content, DateTimeUtil.secToTime(second), comment.getContent());
             }
             lastEcgComment = String.format(lastEcgComment, createTime1, person, content);
 

@@ -21,8 +21,8 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileReplayModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileReplayObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendixDataLocation;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -269,14 +269,16 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     @Override
     public void locateComment(IEcgAppendix comment) {
-        int second = comment.getSecondInEcg();
-        if(second < 0 || second > replayModel.getTotalSecond())
-            return;
+        if(comment instanceof IEcgAppendixDataLocation) {
+            int second = (int)(((IEcgAppendixDataLocation) comment).getDataLocation()/replayModel.getEcgFile().getFs());
+            if (second < 0 || second > replayModel.getTotalSecond())
+                return;
 
-        if(ecgView.isReplaying())
-            stopReplay();
+            if (ecgView.isReplaying())
+                stopReplay();
 
-        // 特意提前一秒播放
-        ecgView.showAtLocation((second-1 < 0) ? 0 : second-1);
+            // 特意提前一秒播放
+            ecgView.showAtLocation((second - 1 < 0) ? 0 : second - 1);
+        }
     }
 }

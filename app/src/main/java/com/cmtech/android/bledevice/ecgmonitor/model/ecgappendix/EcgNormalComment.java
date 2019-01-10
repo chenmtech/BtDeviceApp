@@ -1,32 +1,22 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
-import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
-import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- * EcgComment: 心电留言
+ * EcgNormalComment: 心电一般留言
  * Created by bme on 2018/11/21.
  */
 
-public class EcgComment extends EcgAppendix{
+public class EcgNormalComment extends EcgAppendix{
     private static final int CONTENT_LEN = 50;           // 留言内容字符数
 
-    private int secondInEcg = -1; // 留言时,对应于Ecg信号中的秒数
     private String content = "无内容"; // 留言内容
 
-    public int getSecondInEcg() {
-        return secondInEcg;
-    }
-
-    public void setSecondInEcg(int secondInEcg) {
-        this.secondInEcg = secondInEcg;
-    }
-
+    @Override
     public String getContent() {
         return content;
     }
@@ -35,17 +25,12 @@ public class EcgComment extends EcgAppendix{
         this.content = content;
     }
 
-    public EcgComment() {
+    public EcgNormalComment() {
         super();
     }
 
-    public EcgComment(String creator, long createTime, String content) {
-        this(creator, createTime, -1, content);
-    }
-
-    public EcgComment(String creator, long createTime, int secondInEcg, String content) {
+    public EcgNormalComment(String creator, long createTime, String content) {
         super(creator, createTime);
-        this.secondInEcg = secondInEcg;
         this.content = content;
     }
 
@@ -53,8 +38,6 @@ public class EcgComment extends EcgAppendix{
     public boolean readFromStream(DataInput in) {
         try {
             if(!super.readFromStream(in)) return false;
-            // 读留言秒数
-            secondInEcg = ByteUtil.reverseInt(in.readInt());
             // 读留言内容
             content = DataIOUtil.readFixedString(CONTENT_LEN, in);
         } catch (IOException e) {
@@ -67,8 +50,6 @@ public class EcgComment extends EcgAppendix{
     public boolean writeToStream(DataOutput out) {
         try {
             if(!super.writeToStream(out)) return false;
-            // 写留言秒数
-            out.writeInt(ByteUtil.reverseInt(secondInEcg));
             // 写留言内容
             DataIOUtil.writeFixedString(content, CONTENT_LEN, out);
         } catch (IOException e) {
@@ -79,7 +60,7 @@ public class EcgComment extends EcgAppendix{
 
     @Override
     public int length() {
-        return  super.length() + 2*CONTENT_LEN + 4;
+        return  super.length() + 2*CONTENT_LEN;
     }
 
     @Override
@@ -90,6 +71,6 @@ public class EcgComment extends EcgAppendix{
     @Override
     public String toString() {
         return super.toString() +
-                "留言：第" + DateTimeUtil.secToTime(secondInEcg) + "秒，" + content + '\n';
+                "留言：" + content + '\n';
     }
 }

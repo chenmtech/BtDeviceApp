@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -16,7 +15,9 @@ public class EcgAppendixFactory {
     public static IEcgAppendix create(EcgAppendixType type) {
         switch (type) {
             case NORMAL_COMMENT:
-                return new EcgComment();
+                return new EcgNormalComment();
+            case LOCATED_COMMENT:
+                return new EcgLocatedComment();
             case REST_MARKER:
                 return new EcgRestMarker();
             default:

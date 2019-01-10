@@ -1,7 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgLocatedComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
@@ -92,7 +93,7 @@ public class EcgFileReplayModel {
     private void addComment(int secondInEcg, String comment) {
         String commentator = UserAccountManager.getInstance().getUserAccount().getUserName();
         long timeCreated = new Date().getTime();
-        ecgFile.addAppendix(new EcgComment(commentator, timeCreated, secondInEcg, comment));
+        ecgFile.addAppendix(new EcgLocatedComment(commentator, timeCreated, comment, secondInEcg));
         updated = true;
         updateCommentList();
     }

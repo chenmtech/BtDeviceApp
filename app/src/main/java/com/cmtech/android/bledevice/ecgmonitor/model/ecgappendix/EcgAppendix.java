@@ -80,6 +80,11 @@ public abstract class EcgAppendix implements IEcgAppendix{
     }
 
     @Override
+    public String getContent() {
+        return "";
+    }
+
+    @Override
     public String toString() {
         return creator +
                 "@" + DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(createTime);
@@ -101,13 +106,5 @@ public abstract class EcgAppendix implements IEcgAppendix{
         return (int)(creator.hashCode() + createTime);
     }
 
-    @Override
-    public int getSecondInEcg() {
-        return -1;
-    }
 
-    @Override
-    public String getContent() {
-        return "";
-    }
 }

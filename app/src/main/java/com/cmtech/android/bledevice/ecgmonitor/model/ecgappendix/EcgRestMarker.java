@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -13,7 +12,7 @@ import java.io.IOException;
  * Created by bme on 2019/1/9.
  */
 
-public class EcgRestMarker extends EcgAppendix {
+public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocation{
     private long startNum;
     private long endNum;
 
@@ -72,6 +71,11 @@ public class EcgRestMarker extends EcgAppendix {
     @Override
     public int length() {
         return  super.length() + 2*8;
+    }
+
+    @Override
+    public long getDataLocation() {
+        return startNum;
     }
 
     @Override
