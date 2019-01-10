@@ -113,6 +113,11 @@ public class EcgRecorder {
         appendixList.add(new EcgComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, secondInEcg, comment));
     }
 
+    // 添加一条附加信息
+    public void addAppendix(IEcgAppendix appendix) {
+        appendixList.add(appendix);
+    }
+
     public void registerObserver(IEcgRecordObserver observer) {
         this.observer = observer;
     }

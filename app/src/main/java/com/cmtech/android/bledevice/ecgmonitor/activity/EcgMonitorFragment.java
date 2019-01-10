@@ -183,6 +183,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                         ecgView.restoreDefaultWaveColor();
                         if(restMarker != null) {
                             restMarker.setEndNum(device.getRecordDataNum());
+                            device.addAppendix(restMarker);
                             ViseLog.e(restMarker.toString());
                             restMarker = null;
                         }
