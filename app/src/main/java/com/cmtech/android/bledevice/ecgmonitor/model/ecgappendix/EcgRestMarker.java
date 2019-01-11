@@ -13,23 +13,23 @@ import java.io.IOException;
  */
 
 public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocation{
-    private long startNum;
-    private long endNum;
+    private long beginLocation; // 起始定位
+    private long endLocation; // 终止定位
 
-    public long getStartNum() {
-        return startNum;
+    public long getBeginLocation() {
+        return beginLocation;
     }
 
-    public void setStartNum(long startNum) {
-        this.startNum = startNum;
+    public void setBeginLocation(long beginLocation) {
+        this.beginLocation = beginLocation;
     }
 
-    public long getEndNum() {
-        return endNum;
+    public long getEndLocation() {
+        return endLocation;
     }
 
-    public void setEndNum(long endNum) {
-        this.endNum = endNum;
+    public void setEndLocation(long endLocation) {
+        this.endLocation = endLocation;
     }
 
     public EcgRestMarker() {
@@ -45,9 +45,9 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
         try {
             if(!super.readFromStream(in)) return false;
             // 读起始Number
-            startNum = ByteUtil.reverseLong(in.readLong());
+            beginLocation = ByteUtil.reverseLong(in.readLong());
             // 读终止Number
-            endNum = ByteUtil.reverseLong(in.readLong());
+            endLocation = ByteUtil.reverseLong(in.readLong());
         } catch (IOException e) {
             return false;
         }
@@ -59,9 +59,9 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
         try {
             if(!super.writeToStream(out)) return false;
             // 写起始Number
-            out.writeLong(ByteUtil.reverseLong(startNum));
+            out.writeLong(ByteUtil.reverseLong(beginLocation));
             // 写终止Number
-            out.writeLong(ByteUtil.reverseLong(endNum));
+            out.writeLong(ByteUtil.reverseLong(endLocation));
         } catch (IOException e) {
             return false;
         }
@@ -74,8 +74,13 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
     }
 
     @Override
+    public String getContent() {
+        return " 安静状态[" + beginLocation + ":" + endLocation + "]";
+    }
+
+    @Override
     public long getDataLocation() {
-        return startNum;
+        return beginLocation;
     }
 
     @Override
@@ -85,7 +90,6 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
 
     @Override
     public String toString() {
-        return super.toString() +
-                "安静状态[" + startNum + ":" + endNum + "]\n";
+        return super.toString() + getContent();
     }
 }

@@ -9,12 +9,12 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- * EcgAppendix: 心电附信类
+ * EcgAppendix: 心电附加信息类
  * Created by bme on 2019/1/9.
  */
 
 public abstract class EcgAppendix implements IEcgAppendix{
-    private static final int CREATOR_LEN = 10; // 创建人名字符数
+    private static final int CREATOR_CHAR_LEN = 10; // 创建人名字符数
 
     private String creator = "匿名"; // 创建人
     private long createTime; // 创建时间
@@ -52,7 +52,7 @@ public abstract class EcgAppendix implements IEcgAppendix{
     public boolean readFromStream(DataInput in) {
         try {
             // 读创建人
-            creator = DataIOUtil.readFixedString(CREATOR_LEN, in);
+            creator = DataIOUtil.readFixedString(CREATOR_CHAR_LEN, in);
             // 读创建时间
             createTime = ByteUtil.reverseLong(in.readLong());
         } catch (IOException e) {
@@ -65,7 +65,7 @@ public abstract class EcgAppendix implements IEcgAppendix{
     public boolean writeToStream(DataOutput out) {
         try {
             // 写创建人
-            DataIOUtil.writeFixedString(creator, CREATOR_LEN, out);
+            DataIOUtil.writeFixedString(creator, CREATOR_CHAR_LEN, out);
             // 写创建时间
             out.writeLong(ByteUtil.reverseLong(createTime));
         } catch (IOException e) {
@@ -76,18 +76,12 @@ public abstract class EcgAppendix implements IEcgAppendix{
 
     @Override
     public int length() {
-        return  2*CREATOR_LEN + 8;
-    }
-
-    @Override
-    public String getContent() {
-        return "";
+        return  2* CREATOR_CHAR_LEN + 8;
     }
 
     @Override
     public String toString() {
-        return creator +
-                "@" + DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(createTime);
+        return creator + "@" + DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(createTime);
     }
 
     @Override
@@ -105,6 +99,4 @@ public abstract class EcgAppendix implements IEcgAppendix{
     public int hashCode() {
         return (int)(creator.hashCode() + createTime);
     }
-
-
 }

@@ -13,8 +13,7 @@ import java.io.IOException;
  */
 
 public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixDataLocation{
-
-    private long dataLocation = -1;
+    private long dataLocation = -1; // 数据定位
 
     public EcgLocatedComment() {
         super();
@@ -52,6 +51,16 @@ public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixD
     @Override
     public int length() {
         return  super.length() + 8;
+    }
+
+    @Override
+    public EcgAppendixType getType() {
+        return EcgAppendixType.LOCATED_COMMENT;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " 位于第" + dataLocation + "个数据";
     }
 
     @Override

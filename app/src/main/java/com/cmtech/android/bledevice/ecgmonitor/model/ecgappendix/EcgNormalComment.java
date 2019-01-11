@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 
 public class EcgNormalComment extends EcgAppendix{
-    private static final int CONTENT_LEN = 50;           // 留言内容字符数
+    private static final int CONTENT_CHAR_LEN = 50;           // 留言内容字符数
 
     private String content = "无内容"; // 留言内容
 
@@ -39,7 +39,7 @@ public class EcgNormalComment extends EcgAppendix{
         try {
             if(!super.readFromStream(in)) return false;
             // 读留言内容
-            content = DataIOUtil.readFixedString(CONTENT_LEN, in);
+            content = DataIOUtil.readFixedString(CONTENT_CHAR_LEN, in);
         } catch (IOException e) {
             return false;
         }
@@ -51,7 +51,7 @@ public class EcgNormalComment extends EcgAppendix{
         try {
             if(!super.writeToStream(out)) return false;
             // 写留言内容
-            DataIOUtil.writeFixedString(content, CONTENT_LEN, out);
+            DataIOUtil.writeFixedString(content, CONTENT_CHAR_LEN, out);
         } catch (IOException e) {
             return false;
         }
@@ -60,7 +60,7 @@ public class EcgNormalComment extends EcgAppendix{
 
     @Override
     public int length() {
-        return  super.length() + 2*CONTENT_LEN;
+        return  super.length() + 2* CONTENT_CHAR_LEN;
     }
 
     @Override
@@ -70,7 +70,6 @@ public class EcgNormalComment extends EcgAppendix{
 
     @Override
     public String toString() {
-        return super.toString() +
-                "留言：" + content + '\n';
+        return super.toString() + " 留言：" + content;
     }
 }

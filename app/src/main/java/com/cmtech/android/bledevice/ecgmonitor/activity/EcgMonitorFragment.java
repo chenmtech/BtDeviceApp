@@ -173,13 +173,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                         ecgView.setWaveColor(YELLOW);
                         long timeCreated = new Date().getTime();
                         restMarker = new EcgRestMarker(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated);
-                        restMarker.setStartNum(device.getRecordDataNum());
+                        restMarker.setBeginLocation(device.getRecordDataNum());
                         break;
                     case ACTION_UP:
                     case ACTION_CANCEL:
                         ecgView.restoreDefaultWaveColor();
                         if(restMarker != null) {
-                            restMarker.setEndNum(device.getRecordDataNum());
+                            restMarker.setEndLocation(device.getRecordDataNum());
                             device.addAppendix(restMarker);
                             ViseLog.e(restMarker.toString());
                             restMarker = null;
