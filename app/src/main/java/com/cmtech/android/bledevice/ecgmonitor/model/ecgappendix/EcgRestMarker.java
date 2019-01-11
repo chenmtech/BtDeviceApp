@@ -75,7 +75,7 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
 
     @Override
     public String getContent() {
-        return " 安静状态[" + beginLocation + ":" + endLocation + "]";
+        return "保持安静[" + beginLocation + ":" + endLocation + "]";
     }
 
     @Override

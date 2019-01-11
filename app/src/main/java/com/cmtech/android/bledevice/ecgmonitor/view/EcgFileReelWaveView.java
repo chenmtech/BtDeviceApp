@@ -50,7 +50,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
                             showData(cacheData);
                             cacheData.clear();
                             if(observer != null) {
-                                observer.updateCurrentTime(num/ecgFile.getFs());
+                                observer.updateDataLocation(num);
                             }
 
                         }
@@ -67,7 +67,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
     public interface IEcgFileReelWaveViewObserver {
         void updateShowState(boolean replaying);
 
-        void updateCurrentTime(int second);
+        void updateDataLocation(long dataLocation);
     }
 
     private IEcgFileReelWaveViewObserver observer;
@@ -153,7 +153,7 @@ public class EcgFileReelWaveView extends ReelWaveView {
         num = (int)numAtLocation;
 
         if(observer != null) {
-            observer.updateCurrentTime(num/ecgFile.getFs());
+            observer.updateDataLocation(num);
         }
 
     }

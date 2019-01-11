@@ -12,7 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgAppendixAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileExplorerObserver;
@@ -32,17 +32,10 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     private static final String TAG = "EcgFileExplorerActivity";
 
     private static EcgFileExplorerModel model;      // 文件浏览模型实例
-
-    // 文件列表
-    private EcgFileAdapter fileAdapter;
-    private RecyclerView rvFileList;
-
-    // 留言列表
-    private EcgCommentAdapter reportAdapter;
-    private RecyclerView rvReportList;
-
-    // 工具条
-    private Toolbar toolbar;
+    private EcgFileAdapter fileAdapter; // 文件列表Adapter
+    private RecyclerView rvFileList; // 文件列表RecycleView
+    private EcgAppendixAdapter appendixAdapter; // 附加信息列表Adapter
+    private RecyclerView rvAppendixList; // 附加信息列表RecycleView
 
 
     @Override
@@ -51,14 +44,15 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         setContentView(R.layout.activity_ecgfile_explorer);
 
         // 创建ToolBar
-        toolbar = findViewById(R.id.tb_ecgexplorer);
+        Toolbar toolbar = findViewById(R.id.tb_ecgexplorer);
         setSupportActionBar(toolbar);
 
+        if(ECGFILEDIR == null) {
+            throw new IllegalStateException();
+        }
+
         try {
-            if(ECGFILEDIR != null)
-                model = new EcgFileExplorerModel(ECGFILEDIR);
-        } catch (IllegalArgumentException e) {
-            finish();
+            model = new EcgFileExplorerModel(ECGFILEDIR);
         } catch (IOException e) {
             e.printStackTrace();
             finish();
@@ -72,12 +66,12 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         fileAdapter = new EcgFileAdapter(model);
         rvFileList.setAdapter(fileAdapter);
 
-        rvReportList = findViewById(R.id.rv_ecgexplorer_comment);
+        rvAppendixList = findViewById(R.id.rv_ecgexplorer_comment);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
-        rvReportList.setLayoutManager(reportLayoutManager);
-        rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        reportAdapter = new EcgCommentAdapter(model.getFileAppendixList(), null);
-        rvReportList.setAdapter(reportAdapter);
+        rvAppendixList.setLayoutManager(reportLayoutManager);
+        rvAppendixList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        appendixAdapter = new EcgAppendixAdapter(model.getFileAppendixList(), null);
+        rvAppendixList.setAdapter(appendixAdapter);
 
         if(!model.getFileList().isEmpty()) {
             model.select(model.getFileList().size()-1);
@@ -157,9 +151,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         if(model.getCurrentSelectIndex() >= 0 && model.getCurrentSelectIndex() < model.getFileList().size())
             rvFileList.smoothScrollToPosition(model.getCurrentSelectIndex());
 
-        reportAdapter.updateCommentList(model.getFileAppendixList());
+        appendixAdapter.updateCommentList(model.getFileAppendixList());
         if(model.getFileAppendixList().size() > 0)
-            rvReportList.smoothScrollToPosition(model.getFileAppendixList().size()-1);
+            rvAppendixList.smoothScrollToPosition(model.getFileAppendixList().size()-1);
     }
 
     @Override

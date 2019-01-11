@@ -60,7 +60,7 @@ public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixD
 
     @Override
     public String toString() {
-        return super.toString() + " 位于第" + dataLocation + "个数据";
+        return super.toString() + "[" + dataLocation + "]";
     }
 
     @Override

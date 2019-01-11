@@ -24,6 +24,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgLocatedComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgRestMarker;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
@@ -71,8 +72,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ScanWaveView ecgView; // 心电波形View
     private FrameLayout flEcgView;
     private RelativeLayout rlHrStatistics;
-    private List<Button> commentBtnList = new ArrayList<>(); // 标记留言的Button
-    int[] commentBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
+    private List<Button> appendixBtnList = new ArrayList<>(); // 标记附加信息的Button
+    int[] appendixBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
     private AudioTrack audioTrack;
     private EcgMonitorDevice device; // 设备
     private EcgHrHistogram hrHistogram; // 心率直方图
@@ -133,17 +134,19 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        for(int i = 0; i < commentBtnId.length; i++) {
-            Button button = view.findViewById(commentBtnId[i]);
-            final String commentDescription = EcgAbnormal.getDescriptionFromCode(i);
-            button.setText(commentDescription);
+        for(int i = 0; i < appendixBtnId.length; i++) {
+            Button button = view.findViewById(appendixBtnId[i]);
+            final String appendixContent = EcgAbnormal.getDescriptionFromCode(i);
+            button.setText(appendixContent);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    device.addComment(device.getRecordDataNum(), commentDescription);
+                    String creator = UserAccountManager.getInstance().getUserAccount().getUserName();
+                    long createTime = new Date().getTime();
+                    device.addAppendix(new EcgLocatedComment(creator, createTime, appendixContent, device.getRecordDataNum()));
                 }
             });
-            commentBtnList.add(button);
+            appendixBtnList.add(button);
         }
 
         ibRecord = view.findViewById(R.id.ib_ecg_record);
@@ -277,7 +280,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         else
             imageId = R.mipmap.ic_ecg_record_stop;
         ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
-        for(Button button : commentBtnList) {
+        for(Button button : appendixBtnList) {
             button.setEnabled(isRecord);
         }
         if(isRecord)

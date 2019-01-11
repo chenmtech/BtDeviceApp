@@ -85,23 +85,24 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         createTimeAndLength = String.format(createTimeAndLength, createTime, createLength);
         holder.fileCreatedTime.setText(createTimeAndLength);
 
-        int commentNum = file.getCommentsNum();
-        if(commentNum > 0) {
-            IEcgAppendix comment = file.getAppendixList().get(commentNum - 1);
-            String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
-            String createTime1 = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreateTime());
-            String person = comment.getCreator();
+        int appendixNum = file.getAppendixNum();
+        if(appendixNum > 0) {
+            IEcgAppendix appendix = file.getAppendixList().get(appendixNum - 1);
+            /*String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
+            createTime = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(appendix.getCreateTime());
+            String person = appendix.getCreator();
             String content;
-            if(!(comment instanceof IEcgAppendixDataLocation)) {
-                content = comment.getContent();
+            if(!(appendix instanceof IEcgAppendixDataLocation)) {
+                content = appendix.getContent();
             } else {
                 content = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
-                int second = (int)(((IEcgAppendixDataLocation) comment).getDataLocation()/file.getFs());
-                content = String.format(content, DateTimeUtil.secToTime(second), comment.getContent());
+                int second = (int)(((IEcgAppendixDataLocation) appendix).getDataLocation()/file.getFs());
+                content = String.format(content, DateTimeUtil.secToTime(second), appendix.getContent());
             }
-            lastEcgComment = String.format(lastEcgComment, createTime1, person, content);
+            lastEcgComment = String.format(lastEcgComment, createTime, person, content);
 
-            holder.fileLastComment.setText(lastEcgComment);
+            holder.fileLastComment.setText(lastEcgComment);*/
+            holder.fileLastComment.setText(appendix.toString());
         } else {
             holder.fileLastComment.setText("无留言");
         }

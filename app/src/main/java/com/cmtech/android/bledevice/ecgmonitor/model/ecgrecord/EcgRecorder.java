@@ -102,18 +102,6 @@ public class EcgRecorder {
         save();
     }
 
-    // 添加没有时间定位的留言
-    public void addComment(String comment) {
-        long timeCreated = new Date().getTime();
-        appendixList.add(new EcgNormalComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment));
-    }
-
-    // 添加有时间定位的留言
-    public void addComment(long dataLocation, String comment) {
-        long timeCreated = new Date().getTime();
-        appendixList.add(new EcgLocatedComment(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated, comment, dataLocation));
-    }
-
     // 添加一条附加信息
     public void addAppendix(IEcgAppendix appendix) {
         appendixList.add(appendix);

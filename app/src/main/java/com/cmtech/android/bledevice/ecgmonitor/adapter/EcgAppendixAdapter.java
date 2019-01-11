@@ -17,49 +17,47 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.util.List;
 
-public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.ViewHolder> {
-
-    private List<IEcgAppendix> commentList;
-
-    private IEcgAppendixOperator commentOperator;
+public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.ViewHolder> {
+    private List<IEcgAppendix> appendixList; // 附加信息列表
+    private IEcgAppendixOperator appendixOperator; // 附加信息操作者
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        View commentView;
-        TextView createdTime;
-        TextView commentator;
+        View appendixView;
+        TextView tvCreateTime;
+        TextView tvCreator;
         TextView content;
         ImageButton ibSecondWhenComment;
-        ImageButton ibDeleteComment;
+        ImageButton ibDeleteAppendix;
 
         private ViewHolder(View itemView) {
             super(itemView);
-            commentView = itemView;
-            createdTime = commentView.findViewById(R.id.tv_ecgreport_time);
-            commentator = commentView.findViewById(R.id.tv_ecgreport_commentator);
-            content = commentView.findViewById(R.id.tv_ecgreport_content);
-            ibSecondWhenComment = commentView.findViewById(R.id.ib_ecgcomment_locate);
-            ibDeleteComment = commentView.findViewById(R.id.ib_ecgcomment_delete);
+            appendixView = itemView;
+            tvCreateTime = appendixView.findViewById(R.id.tv_ecgreport_time);
+            tvCreator = appendixView.findViewById(R.id.tv_ecgreport_commentator);
+            content = appendixView.findViewById(R.id.tv_ecgreport_content);
+            ibSecondWhenComment = appendixView.findViewById(R.id.ib_ecgcomment_locate);
+            ibDeleteAppendix = appendixView.findViewById(R.id.ib_ecgcomment_delete);
         }
     }
 
-    public EcgCommentAdapter(List<IEcgAppendix> commentList, IEcgAppendixOperator commentOperator) {
-        this.commentList = commentList;
-        this.commentOperator = commentOperator;
+    public EcgAppendixAdapter(List<IEcgAppendix> appendixList, IEcgAppendixOperator appendixOperator) {
+        this.appendixList = appendixList;
+        this.appendixOperator = appendixOperator;
     }
 
     @NonNull
     @Override
-    public EcgCommentAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public EcgAppendixAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_ecgcomment, parent, false);
 
-        final EcgCommentAdapter.ViewHolder holder = new EcgCommentAdapter.ViewHolder(view);
+        final EcgAppendixAdapter.ViewHolder holder = new EcgAppendixAdapter.ViewHolder(view);
 
-        holder.ibDeleteComment.setOnClickListener(new View.OnClickListener() {
+        holder.ibDeleteAppendix.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(commentOperator != null) {
-                    commentOperator.deleteComment(commentList.get(holder.getAdapterPosition()));
+                if(appendixOperator != null) {
+                    appendixOperator.deleteAppendix(appendixList.get(holder.getAdapterPosition()));
                 }
             }
         });
@@ -67,8 +65,8 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         holder.ibSecondWhenComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(commentOperator != null)
-                    commentOperator.locateComment(commentList.get(holder.getAdapterPosition()));
+                if(appendixOperator != null)
+                    appendixOperator.locateAppendix(appendixList.get(holder.getAdapterPosition()));
             }
         });
 
@@ -76,10 +74,10 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(EcgCommentAdapter.ViewHolder holder, final int position) {
-        IEcgAppendix comment = commentList.get(position);
-        holder.createdTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreateTime()));
-        holder.commentator.setText(comment.getCreator());
+    public void onBindViewHolder(EcgAppendixAdapter.ViewHolder holder, final int position) {
+        IEcgAppendix comment = appendixList.get(position);
+        holder.tvCreateTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreateTime()));
+        holder.tvCreator.setText(comment.getCreator());
         String content;
         if(comment instanceof IEcgAppendixDataLocation) {
             content = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
@@ -90,8 +88,8 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         }
         holder.content.setText(content);
 
-        if(commentOperator != null) {
-            holder.ibDeleteComment.setVisibility(View.VISIBLE);
+        if(appendixOperator != null) {
+            holder.ibDeleteAppendix.setVisibility(View.VISIBLE);
             if(comment instanceof IEcgAppendixDataLocation) {
                 holder.ibSecondWhenComment.setVisibility(View.VISIBLE);
             } else {
@@ -102,11 +100,11 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return commentList.size();
+        return appendixList.size();
     }
 
     public void updateCommentList(List<IEcgAppendix> commentList) {
-        this.commentList = commentList;
+        this.appendixList = commentList;
         notifyDataSetChanged();
     }
 }

@@ -22,47 +22,49 @@ public class EcgFileReplayModel {
     private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
 
-    private EcgFile ecgFile;            // 播放的EcgFile
+    private EcgFile ecgFile; // 播放的EcgFile
+    private boolean updated = false; // 文件是否已更新
+    private IEcgFileReplayObserver observer; // 文件播放观察者
+    private final int totalSecond; // 信号总的秒数
+    private long dataLocation = 0; // 记录当前播放的Ecg的秒数
+    private long dataLocationWhenComment = -1; // 留言时间
+    private boolean showSecondInComment = false; // 是否在留言中加入时间定位
+    private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每小格的像素个数
+    private final int xPixelPerData; // 横向分辨率
+    private final float yValuePerPixel; // 纵向分辨率
 
-    private boolean updated = false;            // 文件是否已更新
-    public boolean isUpdated() { return updated; }
-
-    // 文件播放观察者
-    private IEcgFileReplayObserver observer;
-
-    private final int totalSecond;                   // 信号总的秒数
-    public int getTotalSecond() {
-        return totalSecond;
-    }
-
-    private int currentSecond = 0;                 // 记录当前播放的Ecg的秒数
-    public int getCurrentSecond() { return currentSecond; }
-    public void setCurrentSecond(int currentSecond) {
-        this.currentSecond = currentSecond;
-    }
-
-    private int secondWhenComment = -1;        // 留言时间
-
-    private boolean showSecondInComment = false;       // 是否在留言中加入时间定位
     public boolean isShowSecondInComment() {
         return showSecondInComment;
     }
     public void setShowSecondInComment(boolean showSecondInComment) {
         this.showSecondInComment = showSecondInComment;
         if(showSecondInComment) {
-            secondWhenComment = currentSecond;
+            dataLocationWhenComment = dataLocation;
         }
         if(observer != null) {
-            observer.updateShowSecondInComment(showSecondInComment, secondWhenComment);
+            observer.updateShowSecondInComment(showSecondInComment, (int)(dataLocationWhenComment/ecgFile.getFs()));
         }
     }
 
-    private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
+
     public int getPixelPerGrid() { return pixelPerGrid; }
-    private final int xPixelPerData;     // 横向分辨率
+
     public int getxPixelPerData() { return xPixelPerData; }
-    private final float yValuePerPixel;                      // 纵向分辨率
+
     public float getyValuePerPixel() { return yValuePerPixel; }
+
+
+    public long getDataLocation() { return dataLocation; }
+    public int getCurrentSecond() {
+        return (int)(dataLocation/ecgFile.getFs());
+    }
+    public void setDataLocation(long dataLocation) {
+        this.dataLocation = dataLocation;
+    }
+    public boolean isUpdated() { return updated; }
+    public int getTotalSecond() {
+        return totalSecond;
+    }
 
     public EcgFileReplayModel(String ecgFileName) throws IOException{
         ecgFile = EcgFile.open(ecgFileName);
@@ -83,30 +85,29 @@ public class EcgFileReplayModel {
 
     // 添加一个留言
     public void addComment(String comment) {
+        String creator = UserAccountManager.getInstance().getUserAccount().getUserName();
+        long createTime = new Date().getTime();
         if(showSecondInComment) {
-            addComment(secondWhenComment, comment);
+            addAppendix(new EcgLocatedComment(creator, createTime, comment, dataLocationWhenComment));
             showSecondInComment = false;
             if(observer != null) {
                 observer.updateShowSecondInComment(false, -1);
             }
         }
         else
-            addComment(-1, comment);
+            addAppendix(new EcgNormalComment(creator, createTime, comment));
     }
 
-    // 添加一个有时间定位的留言
-    private void addComment(int secondInEcg, String comment) {
-        String commentator = UserAccountManager.getInstance().getUserAccount().getUserName();
-        long timeCreated = new Date().getTime();
-        ecgFile.addAppendix(new EcgLocatedComment(commentator, timeCreated, comment, secondInEcg));
+    private void addAppendix(IEcgAppendix appendix) {
+        ecgFile.addAppendix(appendix);
         updated = true;
-        updateCommentList();
+        updateAppendixList();
     }
 
-    public void deleteComment(IEcgAppendix comment) {
-        ecgFile.deleteAppendix(comment);
+    public void deleteAppendix(IEcgAppendix appendix) {
+        ecgFile.deleteAppendix(appendix);
         updated = true;
-        updateCommentList();
+        updateAppendixList();
     }
 
 
@@ -129,13 +130,13 @@ public class EcgFileReplayModel {
     }
 
     // 删除心电回放观察者
-    public void removeEcgFileObserver() {
+    public void removeEcgFileReplayObserver() {
         observer = null;
     }
 
-    private void updateCommentList() {
+    private void updateAppendixList() {
         if(observer != null) {
-            observer.updateCommentList();
+            observer.updateAppendixList();
         }
     }
 }

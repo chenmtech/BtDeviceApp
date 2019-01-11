@@ -170,7 +170,7 @@ public class EcgFile extends RandomAccessBmeFile {
         return ((BmeFileHead30)getBmeFileHead()).getCreatedTime();
     }
 
-    public int getCommentsNum() {
+    public int getAppendixNum() {
         return ecgFileTail.getAppendixNum();
     }
 

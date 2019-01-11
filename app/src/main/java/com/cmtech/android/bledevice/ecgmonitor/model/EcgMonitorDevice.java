@@ -417,11 +417,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         }
     }
 
-    // 添加有时间定位的留言
-    public synchronized void addComment(long dataLocation, String comment) {
-        ecgRecorder.addComment(dataLocation, comment);
-    }
-
     // 添加一条附加信息
     public synchronized void addAppendix(IEcgAppendix appendix) {
         ecgRecorder.addAppendix(appendix);

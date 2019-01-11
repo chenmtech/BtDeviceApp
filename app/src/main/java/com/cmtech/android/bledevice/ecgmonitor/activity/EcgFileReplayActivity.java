@@ -17,7 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgAppendixAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileReplayModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileReplayObserver;
@@ -48,7 +48,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
     private EditText etComment;
 
-    private EcgCommentAdapter reportAdapter;
+    private EcgAppendixAdapter reportAdapter;
     private RecyclerView rvReportList;
 
     private TextView tvTotalTime;
@@ -117,7 +117,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvReportList.setLayoutManager(reportLayoutManager);
         rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        reportAdapter = new EcgCommentAdapter(replayModel.getAppendixList(), this);
+        reportAdapter = new EcgAppendixAdapter(replayModel.getAppendixList(), this);
         rvReportList.setAdapter(reportAdapter);
         reportAdapter.notifyDataSetChanged();
         if(reportAdapter.getItemCount() > 1)
@@ -194,7 +194,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
 
         if(replayModel != null) {
             replayModel.close();
-            replayModel.removeEcgFileObserver();
+            replayModel.removeEcgFileReplayObserver();
         }
 
         Intent intent = new Intent();
@@ -207,7 +207,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
      * IEcgFileReplayObserver接口函数
      */
     @Override
-    public void updateCommentList() {
+    public void updateAppendixList() {
         reportAdapter.notifyDataSetChanged();
         if(reportAdapter.getItemCount() > 1)
             rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
@@ -239,17 +239,18 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     }
 
     @Override
-    public void updateCurrentTime(int second) {
+    public void updateDataLocation(long dataLocation) {
+        int second = (int)(dataLocation/replayModel.getEcgFile().getFs());
         tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
         sbEcgReplay.setProgress(second);
-        replayModel.setCurrentSecond(second);
+        replayModel.setDataLocation(dataLocation);
     }
 
     /**
      * IEcgCommentOperator接口函数
      */
     @Override
-    public void deleteComment(final IEcgAppendix comment) {
+    public void deleteAppendix(final IEcgAppendix appendix) {
         if(ecgView.isReplaying())
             stopReplay();
 
@@ -259,7 +260,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                replayModel.deleteComment(comment);
+                replayModel.deleteAppendix(appendix);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -272,9 +273,9 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     }
 
     @Override
-    public void locateComment(IEcgAppendix comment) {
-        if(comment instanceof IEcgAppendixDataLocation) {
-            int second = (int)(((IEcgAppendixDataLocation) comment).getDataLocation()/replayModel.getEcgFile().getFs());
+    public void locateAppendix(IEcgAppendix appendix) {
+        if(appendix instanceof IEcgAppendixDataLocation) {
+            int second = (int)(((IEcgAppendixDataLocation) appendix).getDataLocation()/replayModel.getEcgFile().getFs());
             if (second < 0 || second > replayModel.getTotalSecond())
                 return;
 
