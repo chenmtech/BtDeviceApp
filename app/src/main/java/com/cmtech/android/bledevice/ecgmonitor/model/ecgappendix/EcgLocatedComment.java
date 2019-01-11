@@ -60,7 +60,15 @@ public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixD
 
     @Override
     public String toString() {
-        return super.toString() + "[" + dataLocation + "]";
+        return super.toString() + "@" + dataLocation;
+    }
+
+    @Override
+    public String toString(int sampleRate) {
+        if(sampleRate <= 0)
+            return toString();
+        else
+            return super.toString() + "@" + String.valueOf(dataLocation/sampleRate) + "秒";
     }
 
     @Override

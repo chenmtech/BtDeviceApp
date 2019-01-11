@@ -12,7 +12,7 @@ import java.io.IOException;
  */
 
 public class EcgAppendixFactory {
-    public static IEcgAppendix create(EcgAppendixType type) {
+    private static IEcgAppendix create(EcgAppendixType type) {
         switch (type) {
             case NORMAL_COMMENT:
                 return new EcgNormalComment();

@@ -162,11 +162,11 @@ public class EcgFile extends RandomAccessBmeFile {
         return ecgFileTail.getAppendixList();
     }
 
-    public String getCreatedPerson() {
+    public String getCreator() {
         return ecgFileHead.getCreatedPerson();
     }
 
-    public long getCreatedTime() {
+    public long getCreateTime() {
         return ((BmeFileHead30)getBmeFileHead()).getCreatedTime();
     }
 

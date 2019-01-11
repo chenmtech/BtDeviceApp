@@ -74,10 +74,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private RelativeLayout rlHrStatistics;
     private List<Button> appendixBtnList = new ArrayList<>(); // 标记附加信息的Button
     int[] appendixBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
-    private AudioTrack audioTrack;
+    private AudioTrack hrWarnAudio; // 心率报警声音
     private EcgMonitorDevice device; // 设备
     private EcgHrHistogram hrHistogram; // 心率直方图
-    private EcgRestMarker restMarker;
+    private EcgRestMarker restMarker; // 安静状态标记
 
     public EcgMonitorFragment() {
 
@@ -115,7 +115,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvHeartRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                analysisHrStatistics();
+                updateHrStatistics();
             }
         });
 
@@ -205,7 +205,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onClick(View v) {
                 device.resetHrStatistics();
-                updateHrHistogram(null);
+                updateHrHistData(null);
             }
         });
 
@@ -317,30 +317,30 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     public void notifyHrAbnormal() {
         ViseLog.e("Hr Warn!");
 
-        if(audioTrack == null) {
+        if(hrWarnAudio == null) {
             initHrWarnAudioTrack();
-            audioTrack.play();
+            hrWarnAudio.play();
         } else {
-            switch(audioTrack.getPlayState()) {
+            switch(hrWarnAudio.getPlayState()) {
                 case AudioTrack.PLAYSTATE_PAUSED:
                 case AudioTrack.PLAYSTATE_PLAYING:
-                    audioTrack.stop();
-                    audioTrack.reloadStaticData();
-                    audioTrack.play();
+                    hrWarnAudio.stop();
+                    hrWarnAudio.reloadStaticData();
+                    hrWarnAudio.play();
                     break;
                 case AudioTrack.PLAYSTATE_STOPPED:
-                    audioTrack.reloadStaticData();
-                    audioTrack.play();
+                    hrWarnAudio.reloadStaticData();
+                    hrWarnAudio.play();
                     break;
             }
         }
     }
 
-    private void analysisHrStatistics() {
+    private void updateHrStatistics() {
         if(device.getHrStatistics() != null) {
             int[] hrHistogram = Arrays.copyOf(device.getHrStatistics(), device.getHrStatistics().length);
             if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
-                updateHrHistogram(hrHistogram);
+                updateHrHistData(hrHistogram);
                 rlHrStatistics.setVisibility(View.VISIBLE);
                 flEcgView.setVisibility(View.INVISIBLE);
             }
@@ -351,7 +351,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         }
     }
 
-    private void updateHrHistogram(int[] hrHistData) {
+    private void updateHrHistData(int[] hrHistData) {
         hrHistogram.update(hrHistData);
         int sum = 0;
 
@@ -372,11 +372,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             wave[i] = (byte)(double)sinSeq.get(i);
         }
 
-        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+        hrWarnAudio = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
                 AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, length, AudioTrack.MODE_STATIC);
-        audioTrack.write(wave, 0, wave.length);
-        audioTrack.write(wave, 0, wave.length);
+        hrWarnAudio.write(wave, 0, wave.length);
+        hrWarnAudio.write(wave, 0, wave.length);
     }
-
 
 }

@@ -11,30 +11,28 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendixDataLocation;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHolder> {
-    private EcgFileExplorerModel explorerModel;
-
-    private Drawable defaultBackground;
+    private EcgFileExplorerModel explorerModel; // 浏览器模型
+    private Drawable defaultBackground; // 缺省背景
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View fileView;
-        TextView fileCreatedPerson;
-        TextView fileCreatedTime;
-        TextView fileLastComment;
-        ImageButton ibShare;
+        TextView tvCreator; // 创建人
+        TextView tvCreateTime; // 创建时间
+        TextView tvLastAppendix; // 最后一条附加信息
+        ImageButton ibShare; // 分享按钮
 
         ViewHolder(View itemView) {
             super(itemView);
             fileView = itemView;
-            fileCreatedPerson = fileView.findViewById(R.id.ecgfile_createperson);
-            fileCreatedTime = fileView.findViewById(R.id.ecgfile_createtime);
-            fileLastComment = fileView.findViewById(R.id.ecgfile_lastcomment);
+            tvCreator = fileView.findViewById(R.id.ecgfile_createperson);
+            tvCreateTime = fileView.findViewById(R.id.ecgfile_createtime);
+            tvLastAppendix = fileView.findViewById(R.id.ecgfile_lastcomment);
             ibShare = fileView.findViewById(R.id.ib_ecgfile_share);
         }
     }
@@ -55,9 +53,12 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             @Override
             public void onClick(View view) {
                 int selectPos = holder.getAdapterPosition();
-                if(selectPos == explorerModel.getCurrentSelectIndex()) {   // 已经选择的和这次点击的一样，即再次点击
+                // 已经选择的和这次点击的一样，即再次点击
+                if(selectPos == explorerModel.getCurrentSelectIndex()) {
                     explorerModel.playSelectedFile();
-                } else {    // 否则仅仅改变选中ecg文件
+                }
+                // 否则仅仅改变选中ecg文件
+                else {
                     explorerModel.select(holder.getAdapterPosition());
                 }
             }
@@ -77,37 +78,37 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     public void onBindViewHolder(EcgFileAdapter.ViewHolder holder, final int position) {
         EcgFile file = explorerModel.getFileList().get(position);
 
-        holder.fileCreatedPerson.setText(file.getCreatedPerson());
+        holder.tvCreator.setText(file.getCreator());
 
         String createTimeAndLength = MyApplication.getContext().getResources().getString(R.string.ecgfile_createinfo);
-        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getCreatedTime());
-        String createLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
-        createTimeAndLength = String.format(createTimeAndLength, createTime, createLength);
-        holder.fileCreatedTime.setText(createTimeAndLength);
+        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getCreateTime());
+        String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
+        createTimeAndLength = String.format(createTimeAndLength, createTime, fileTimeLength);
+        holder.tvCreateTime.setText(createTimeAndLength);
 
         int appendixNum = file.getAppendixNum();
         if(appendixNum > 0) {
-            IEcgAppendix appendix = file.getAppendixList().get(appendixNum - 1);
+            IEcgAppendix lastAppendix = file.getAppendixList().get(appendixNum - 1);
             /*String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
             createTime = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(appendix.getCreateTime());
             String person = appendix.getCreator();
-            String content;
+            String tvContent;
             if(!(appendix instanceof IEcgAppendixDataLocation)) {
-                content = appendix.getContent();
+                tvContent = appendix.getContent();
             } else {
-                content = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
+                tvContent = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
                 int second = (int)(((IEcgAppendixDataLocation) appendix).getDataLocation()/file.getFs());
-                content = String.format(content, DateTimeUtil.secToTime(second), appendix.getContent());
+                tvContent = String.format(tvContent, DateTimeUtil.secToTime(second), appendix.getContent());
             }
-            lastEcgComment = String.format(lastEcgComment, createTime, person, content);
+            lastEcgComment = String.format(lastEcgComment, createTime, person, tvContent);
 
-            holder.fileLastComment.setText(lastEcgComment);*/
-            holder.fileLastComment.setText(appendix.toString());
+            holder.tvLastAppendix.setText(lastEcgComment);*/
+            holder.tvLastAppendix.setText(lastAppendix.toString(file.getFs()));
         } else {
-            holder.fileLastComment.setText("无留言");
+            holder.tvLastAppendix.setText("无留言");
         }
 
-        int bgdColor = 0;
+        int bgdColor;
         if(explorerModel.getCurrentSelectIndex() == position) {
             bgdColor = MyApplication.getContext().getResources().getColor(R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);

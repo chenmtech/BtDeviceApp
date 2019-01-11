@@ -70,7 +70,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvAppendixList.setLayoutManager(reportLayoutManager);
         rvAppendixList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        appendixAdapter = new EcgAppendixAdapter(model.getFileAppendixList(), null);
+        appendixAdapter = new EcgAppendixAdapter(model.getSelectedFileAppendixList(), null, model.getSelectedFileSampleRate());
         rvAppendixList.setAdapter(appendixAdapter);
 
         if(!model.getFileList().isEmpty()) {
@@ -151,9 +151,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         if(model.getCurrentSelectIndex() >= 0 && model.getCurrentSelectIndex() < model.getFileList().size())
             rvFileList.smoothScrollToPosition(model.getCurrentSelectIndex());
 
-        appendixAdapter.updateCommentList(model.getFileAppendixList());
-        if(model.getFileAppendixList().size() > 0)
-            rvAppendixList.smoothScrollToPosition(model.getFileAppendixList().size()-1);
+        appendixAdapter.update(model.getSelectedFileAppendixList(), model.getSelectedFileSampleRate());
+        if(model.getSelectedFileAppendixList().size() > 0)
+            rvAppendixList.smoothScrollToPosition(model.getSelectedFileAppendixList().size()-1);
     }
 
     @Override

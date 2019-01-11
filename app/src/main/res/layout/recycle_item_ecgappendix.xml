@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp">
+
+    <ImageButton
+        android:id="@+id/ib_ecgappendix_locate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="5dp"
+        android:src="@mipmap/ic_ecgreplay_secondwhencomment"
+        android:contentDescription="locate appendix"
+        android:background="@color/primary"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/tv_ecgappendix_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAppearance="@style/EcgCommentTextAppearance"
+        android:textColor="#000"/>
+
+    <ImageButton
+        android:id="@+id/ib_ecgappendix_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:src="@mipmap/ic_ecgexplorer_delete"
+        android:contentDescription="delete appendix"
+        android:background="@color/primary"
+        android:visibility="gone"/>
+
+</LinearLayout>

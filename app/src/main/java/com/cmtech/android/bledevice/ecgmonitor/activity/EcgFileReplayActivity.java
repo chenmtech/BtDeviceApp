@@ -98,7 +98,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if(b) {
-                    ecgView.showAtLocation(i);
+                    ecgView.showAtSecondLocation(i);
                 }
             }
 
@@ -117,7 +117,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         rvReportList.setLayoutManager(reportLayoutManager);
         rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        reportAdapter = new EcgAppendixAdapter(replayModel.getAppendixList(), this);
+        reportAdapter = new EcgAppendixAdapter(replayModel.getAppendixList(), this, replayModel.getEcgFile().getFs());
         rvReportList.setAdapter(reportAdapter);
         reportAdapter.notifyDataSetChanged();
         if(reportAdapter.getItemCount() > 1)
@@ -275,15 +275,11 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     @Override
     public void locateAppendix(IEcgAppendix appendix) {
         if(appendix instanceof IEcgAppendixDataLocation) {
-            int second = (int)(((IEcgAppendixDataLocation) appendix).getDataLocation()/replayModel.getEcgFile().getFs());
-            if (second < 0 || second > replayModel.getTotalSecond())
-                return;
-
             if (ecgView.isReplaying())
                 stopReplay();
 
             // 特意提前一秒播放
-            ecgView.showAtLocation((second - 1 < 0) ? 0 : second - 1);
+            ecgView.showAtLocation(((IEcgAppendixDataLocation) appendix).getDataLocation() - replayModel.getEcgFile().getFs());
         }
     }
 }

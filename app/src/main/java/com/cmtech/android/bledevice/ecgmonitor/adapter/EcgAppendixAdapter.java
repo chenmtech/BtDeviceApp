@@ -19,41 +19,39 @@ import java.util.List;
 
 public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.ViewHolder> {
     private List<IEcgAppendix> appendixList; // 附加信息列表
-    private IEcgAppendixOperator appendixOperator; // 附加信息操作者
+    private final IEcgAppendixOperator appendixOperator; // 附加信息操作者
+    private int sampleRate;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View appendixView;
-        TextView tvCreateTime;
-        TextView tvCreator;
-        TextView content;
-        ImageButton ibSecondWhenComment;
-        ImageButton ibDeleteAppendix;
+        TextView tvContent;
+        ImageButton ibLocate;
+        ImageButton ibDelete;
 
         private ViewHolder(View itemView) {
             super(itemView);
             appendixView = itemView;
-            tvCreateTime = appendixView.findViewById(R.id.tv_ecgreport_time);
-            tvCreator = appendixView.findViewById(R.id.tv_ecgreport_commentator);
-            content = appendixView.findViewById(R.id.tv_ecgreport_content);
-            ibSecondWhenComment = appendixView.findViewById(R.id.ib_ecgcomment_locate);
-            ibDeleteAppendix = appendixView.findViewById(R.id.ib_ecgcomment_delete);
+            tvContent = appendixView.findViewById(R.id.tv_ecgappendix_content);
+            ibLocate = appendixView.findViewById(R.id.ib_ecgappendix_locate);
+            ibDelete = appendixView.findViewById(R.id.ib_ecgappendix_delete);
         }
     }
 
-    public EcgAppendixAdapter(List<IEcgAppendix> appendixList, IEcgAppendixOperator appendixOperator) {
+    public EcgAppendixAdapter(List<IEcgAppendix> appendixList, IEcgAppendixOperator appendixOperator, int sampleRate) {
         this.appendixList = appendixList;
         this.appendixOperator = appendixOperator;
+        this.sampleRate = sampleRate;
     }
 
     @NonNull
     @Override
     public EcgAppendixAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_ecgcomment, parent, false);
+                .inflate(R.layout.recycle_item_ecgappendix, parent, false);
 
         final EcgAppendixAdapter.ViewHolder holder = new EcgAppendixAdapter.ViewHolder(view);
 
-        holder.ibDeleteAppendix.setOnClickListener(new View.OnClickListener() {
+        holder.ibDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(appendixOperator != null) {
@@ -62,7 +60,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
             }
         });
 
-        holder.ibSecondWhenComment.setOnClickListener(new View.OnClickListener() {
+        holder.ibLocate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(appendixOperator != null)
@@ -75,25 +73,15 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
 
     @Override
     public void onBindViewHolder(EcgAppendixAdapter.ViewHolder holder, final int position) {
-        IEcgAppendix comment = appendixList.get(position);
-        holder.tvCreateTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(comment.getCreateTime()));
-        holder.tvCreator.setText(comment.getCreator());
-        String content;
-        if(comment instanceof IEcgAppendixDataLocation) {
-            content = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
-            int second = (int)(((IEcgAppendixDataLocation) comment).getDataLocation());
-            content = String.format(content, second, comment.getContent());
-        } else {
-            content = comment.getContent();
-        }
-        holder.content.setText(content);
+        IEcgAppendix appendix = appendixList.get(position);
+        holder.tvContent.setText(appendix.toString(sampleRate));
 
         if(appendixOperator != null) {
-            holder.ibDeleteAppendix.setVisibility(View.VISIBLE);
-            if(comment instanceof IEcgAppendixDataLocation) {
-                holder.ibSecondWhenComment.setVisibility(View.VISIBLE);
+            holder.ibDelete.setVisibility(View.VISIBLE);
+            if(appendix instanceof IEcgAppendixDataLocation) {
+                holder.ibLocate.setVisibility(View.VISIBLE);
             } else {
-                holder.ibSecondWhenComment.setVisibility(View.GONE);
+                holder.ibLocate.setVisibility(View.GONE);
             }
         }
     }
@@ -103,8 +91,9 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         return appendixList.size();
     }
 
-    public void updateCommentList(List<IEcgAppendix> commentList) {
+    public void update(List<IEcgAppendix> commentList, int sampleRate) {
         this.appendixList = commentList;
+        this.sampleRate = sampleRate;
         notifyDataSetChanged();
     }
 }

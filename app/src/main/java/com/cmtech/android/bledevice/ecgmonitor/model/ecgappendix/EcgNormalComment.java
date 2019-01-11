@@ -16,7 +16,6 @@ public class EcgNormalComment extends EcgAppendix{
 
     private String content = "无内容"; // 留言内容
 
-    @Override
     public String getContent() {
         return content;
     }
@@ -71,5 +70,10 @@ public class EcgNormalComment extends EcgAppendix{
     @Override
     public String toString() {
         return super.toString() + " 留言：" + content;
+    }
+
+    @Override
+    public String toString(int sampleRate) {
+        return toString();
     }
 }

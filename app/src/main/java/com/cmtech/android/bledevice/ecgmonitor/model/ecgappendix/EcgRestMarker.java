@@ -74,11 +74,6 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
     }
 
     @Override
-    public String getContent() {
-        return "保持安静[" + beginLocation + ":" + endLocation + "]";
-    }
-
-    @Override
     public long getDataLocation() {
         return beginLocation;
     }
@@ -90,6 +85,14 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
 
     @Override
     public String toString() {
-        return super.toString() + getContent();
+        return super.toString() + "安静：[" + beginLocation + ":" + endLocation + "]";
+    }
+
+    @Override
+    public String toString(int sampleRate) {
+        if(sampleRate <= 0)
+            return toString();
+        else
+            return super.toString() + "安静：[" + beginLocation/sampleRate + ":" + endLocation/sampleRate + "]" + "秒";
     }
 }

@@ -43,11 +43,19 @@ public class EcgFileExplorerModel {
 
     public List<EcgFile> getFileList() { return fileList; }
 
-    public List<IEcgAppendix> getFileAppendixList() {
+    public List<IEcgAppendix> getSelectedFileAppendixList() {
         if(fileList.isEmpty() || currentSelectIndex < 0 || currentSelectIndex >= fileList.size()){
             return new ArrayList<>();
         } else {
             return fileList.get(currentSelectIndex).getAppendixList();
+        }
+    }
+
+    public int getSelectedFileSampleRate() {
+        if(fileList.isEmpty() || currentSelectIndex < 0 || currentSelectIndex >= fileList.size()){
+            return -1;
+        } else {
+            return fileList.get(currentSelectIndex).getFs();
         }
     }
 
