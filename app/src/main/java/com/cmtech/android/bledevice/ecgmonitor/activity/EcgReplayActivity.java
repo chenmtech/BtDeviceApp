@@ -18,9 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgAppendixAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileReplayModel;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgReplayModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
-import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileReplayObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.IEcgReplayObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendixDataLocation;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
@@ -31,14 +31,14 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import java.io.IOException;
 
 /**
- * EcgFileReplayActivity: 心电文件回放Activity
+ * EcgReplayActivity: 心电文件回放Activity
  * Created by bme on 2018/11/10.
  */
 
-public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver, IEcgAppendixOperator {
-    private static final String TAG = "EcgFileReplayActivity";
+public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver, IEcgAppendixOperator {
+    private static final String TAG = "EcgReplayActivity";
 
-    private EcgFileReplayModel replayModel; // 回放模型实例
+    private EcgReplayModel replayModel; // 回放模型实例
     private EcgFileReelWaveView ecgView; // ecgView
     private EcgAppendixAdapter appendixAdapter; // 附加信息Adapter
     private RecyclerView rvAppendix; // 附加信息RecyclerView
@@ -64,10 +64,10 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         }
 
         try {
-            replayModel = new EcgFileReplayModel(fileName);
+            replayModel = new EcgReplayModel(fileName);
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(EcgFileReplayActivity.this, "无法回放该文件", Toast.LENGTH_SHORT).show();
+            Toast.makeText(EcgReplayActivity.this, "无法回放该文件", Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -110,7 +110,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             public void onClick(View view) {
                 String comment = etAppendix.getText().toString();
                 if(comment.length() < 3) {
-                    Toast.makeText(EcgFileReplayActivity.this, "留言太短，再多写点吧！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EcgReplayActivity.this, "留言太短，再多写点吧！", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if(ecgView.isReplaying())

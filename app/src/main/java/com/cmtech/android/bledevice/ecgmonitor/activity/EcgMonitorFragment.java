@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
+import static android.graphics.Color.WHITE;
 import static android.graphics.Color.YELLOW;
 import static android.view.MotionEvent.ACTION_CANCEL;
 import static android.view.MotionEvent.ACTION_DOWN;
@@ -57,6 +58,7 @@ import static android.view.MotionEvent.ACTION_UP;
 
 public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitorObserver {
     private static final String TAG = "EcgMonitorFragment";
+    private static final int COLOR_WHEN_REST = WHITE; // 安静状态下的波形颜色
 
     private TextView tvSampleRate; // 采样率
     private TextView tvLeadType; // 导联类型
@@ -173,7 +175,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch(motionEvent.getAction()) {
                     case ACTION_DOWN:
-                        ecgView.setWaveColor(YELLOW);
+                        ecgView.setWaveColor(COLOR_WHEN_REST);
                         long timeCreated = new Date().getTime();
                         restMarker = new EcgRestMarker(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated);
                         restMarker.setBeginLocation(device.getRecordDataNum());

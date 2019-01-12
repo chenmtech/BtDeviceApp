@@ -77,7 +77,7 @@
                 android:layout_height="match_parent"
                 cmtech:background_color="#666"
                 cmtech:grid_color="#f00"
-                cmtech:wave_color="#fff"
+                cmtech:wave_color="#ff0"
                 cmtech:show_gridline="true"/>
         </FrameLayout>
 

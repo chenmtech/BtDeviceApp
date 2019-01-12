@@ -35,7 +35,7 @@ public class ScanWaveView extends View {
     private static final int DEFAULT_PIXELSPERGRID = 10; // 每个栅格的像素个数
     private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK;
     private static final int DEFAULT_GRID_COLOR = Color.RED;
-    private static final int DEFAULT_WAVE_COLOR = Color.WHITE;
+    private static final int DEFAULT_WAVE_COLOR = Color.YELLOW;
 
     private int viewWidth = 100; //视图宽度
     private int viewHeight = 100; //视图高度

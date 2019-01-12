@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -36,9 +35,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.SupportedDeviceType;
-import com.cmtech.android.bledevice.core.BleDeviceConnectState;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileReplayActivity;
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgReplayActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
@@ -518,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 指定心电信号文件的回放
     private void replayEcgFile(String fileName) {
-        Intent intent = new Intent(MainActivity.this, EcgFileReplayActivity.class);
+        Intent intent = new Intent(MainActivity.this, EcgReplayActivity.class);
         intent.putExtra("fileName", fileName);
         startActivity(intent);
     }

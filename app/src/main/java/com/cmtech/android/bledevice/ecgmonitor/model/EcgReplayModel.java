@@ -13,18 +13,18 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * EcgFileReplayModel: 心电文件回放模型类
+ * EcgReplayModel: 心电文件回放模型类
  * Created by bme on 2018/11/10.
  */
 
-public class EcgFileReplayModel {
+public class EcgReplayModel {
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f;                 // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
 
     private EcgFile ecgFile; // 播放的EcgFile
     private boolean updated = false; // 文件是否已更新
-    private IEcgFileReplayObserver observer; // 文件播放观察者
+    private IEcgReplayObserver observer; // 文件播放观察者
     private final int totalSecond; // 信号总的秒数
     private long dataLocation = 0; // 记录当前播放的数据位置
     private long dataLocationWhenAppendix = -1; // 添加附加信息时的数据位置
@@ -33,7 +33,7 @@ public class EcgFileReplayModel {
     private final int xPixelPerData; // 横向分辨率
     private final float yValuePerPixel; // 纵向分辨率
 
-    public EcgFileReplayModel(String ecgFileName) throws IOException{
+    public EcgReplayModel(String ecgFileName) throws IOException{
         ecgFile = EcgFile.open(ecgFileName);
         int sampleRate = ecgFile.getFs();
         totalSecond = ecgFile.getDataNum()/sampleRate;
@@ -124,7 +124,7 @@ public class EcgFileReplayModel {
     }
 
     // 登记心电回放观察者
-    public void registerEcgFileReplayObserver(IEcgFileReplayObserver observer) {
+    public void registerEcgFileReplayObserver(IEcgReplayObserver observer) {
         this.observer = observer;
     }
 
