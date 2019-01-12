@@ -26,45 +26,12 @@ public class EcgFileReplayModel {
     private boolean updated = false; // 文件是否已更新
     private IEcgFileReplayObserver observer; // 文件播放观察者
     private final int totalSecond; // 信号总的秒数
-    private long dataLocation = 0; // 记录当前播放的Ecg的秒数
-    private long dataLocationWhenComment = -1; // 留言时间
-    private boolean showSecondInComment = false; // 是否在留言中加入时间定位
+    private long dataLocation = 0; // 记录当前播放的数据位置
+    private long dataLocationWhenAppendix = -1; // 添加附加信息时的数据位置
+    private boolean showAppendixTime = false; // 是否在附加信息中加入时间
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每小格的像素个数
     private final int xPixelPerData; // 横向分辨率
     private final float yValuePerPixel; // 纵向分辨率
-
-    public boolean isShowSecondInComment() {
-        return showSecondInComment;
-    }
-    public void setShowSecondInComment(boolean showSecondInComment) {
-        this.showSecondInComment = showSecondInComment;
-        if(showSecondInComment) {
-            dataLocationWhenComment = dataLocation;
-        }
-        if(observer != null) {
-            observer.updateShowSecondInComment(showSecondInComment, (int)(dataLocationWhenComment/ecgFile.getFs()));
-        }
-    }
-
-
-    public int getPixelPerGrid() { return pixelPerGrid; }
-
-    public int getxPixelPerData() { return xPixelPerData; }
-
-    public float getyValuePerPixel() { return yValuePerPixel; }
-
-
-    public long getDataLocation() { return dataLocation; }
-    public int getCurrentSecond() {
-        return (int)(dataLocation/ecgFile.getFs());
-    }
-    public void setDataLocation(long dataLocation) {
-        this.dataLocation = dataLocation;
-    }
-    public boolean isUpdated() { return updated; }
-    public int getTotalSecond() {
-        return totalSecond;
-    }
 
     public EcgFileReplayModel(String ecgFileName) throws IOException{
         ecgFile = EcgFile.open(ecgFileName);
@@ -72,42 +39,74 @@ public class EcgFileReplayModel {
         totalSecond = ecgFile.getDataNum()/sampleRate;
         int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
         xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate));   // 计算横向分辨率
-        yValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid;                     // 计算纵向分辨率
+        yValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
     }
 
+    public boolean isShowAppendixTime() {
+        return showAppendixTime;
+    }
+    public void setShowAppendixTime(boolean showAppendixTime) {
+        this.showAppendixTime = showAppendixTime;
+        if(showAppendixTime) {
+            dataLocationWhenAppendix = dataLocation;
+        }
+        if(observer != null) {
+            observer.updateIsShowTimeInAppendix(showAppendixTime, (int)(dataLocationWhenAppendix /ecgFile.getFs()));
+        }
+    }
+    public int getPixelPerGrid() { return pixelPerGrid; }
+    public int getxPixelPerData() { return xPixelPerData; }
+    public float getyValuePerPixel() { return yValuePerPixel; }
+    public long getDataLocation() { return dataLocation; }
+    public void setDataLocation(long dataLocation) {
+        this.dataLocation = dataLocation;
+    }
+    public int getCurrentSecond() {
+        return (int)(dataLocation/ecgFile.getFs());
+    }
+    public int getTotalSecond() {
+        return totalSecond;
+    }
+    public boolean isUpdated() { return updated; }
     public EcgFile getEcgFile() {
         return ecgFile;
     }
-
+    public int getSampleRate() {
+        return ecgFile.getFs();
+    }
     public List<IEcgAppendix> getAppendixList() {
         return ecgFile.getAppendixList();
     }
 
-    // 添加一个留言
-    public void addComment(String comment) {
+    // 添加一条留言
+    public void addComment(String content) {
         String creator = UserAccountManager.getInstance().getUserAccount().getUserName();
         long createTime = new Date().getTime();
-        if(showSecondInComment) {
-            addAppendix(new EcgLocatedComment(creator, createTime, comment, dataLocationWhenComment));
-            showSecondInComment = false;
+        if(showAppendixTime) {
+            addAppendix(new EcgLocatedComment(creator, createTime, content, dataLocationWhenAppendix));
+            showAppendixTime = false;
             if(observer != null) {
-                observer.updateShowSecondInComment(false, -1);
+                observer.updateIsShowTimeInAppendix(false, -1);
             }
         }
         else
-            addAppendix(new EcgNormalComment(creator, createTime, comment));
+            addAppendix(new EcgNormalComment(creator, createTime, content));
     }
 
     private void addAppendix(IEcgAppendix appendix) {
         ecgFile.addAppendix(appendix);
         updated = true;
-        updateAppendixList();
+        if(observer != null) {
+            observer.updateAppendixList();
+        }
     }
 
     public void deleteAppendix(IEcgAppendix appendix) {
         ecgFile.deleteAppendix(appendix);
         updated = true;
-        updateAppendixList();
+        if(observer != null) {
+            observer.updateAppendixList();
+        }
     }
 
 
@@ -134,9 +133,4 @@ public class EcgFileReplayModel {
         observer = null;
     }
 
-    private void updateAppendixList() {
-        if(observer != null) {
-            observer.updateAppendixList();
-        }
-    }
 }

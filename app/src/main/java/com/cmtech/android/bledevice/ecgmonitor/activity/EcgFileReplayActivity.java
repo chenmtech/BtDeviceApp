@@ -38,36 +38,24 @@ import java.io.IOException;
 public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFileReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver, IEcgAppendixOperator {
     private static final String TAG = "EcgFileReplayActivity";
 
-    private EcgFileReplayModel replayModel;         // 模型实例
-
-    private EcgFileReelWaveView ecgView;            // ecgView
-
-    private ImageButton ibAddComment;
-
-    private ImageButton btnSwitchReplayState;
-
-    private EditText etComment;
-
-    private EcgAppendixAdapter reportAdapter;
-    private RecyclerView rvReportList;
-
-    private TextView tvTotalTime;
-    private TextView tvCurrentTime;
-    private TextView tvSecondWhenComment;
-
-    private SeekBar sbEcgReplay;
-
-    private ImageButton ibAddSecondToComment;
+    private EcgFileReplayModel replayModel; // 回放模型实例
+    private EcgFileReelWaveView ecgView; // ecgView
+    private EcgAppendixAdapter appendixAdapter; // 附加信息Adapter
+    private RecyclerView rvAppendix; // 附加信息RecyclerView
+    private TextView tvTotalTime; // 总时长
+    private TextView tvCurrentTime; // 当前播放的信号的时刻
+    private TextView tvAppendixTime; // 添加附加信息的时刻
+    private ImageButton ibAddAppendix; // 添加附加信息
+    private ImageButton btnSwitchReplayState; // 转换回放状态
+    private ImageButton ibAddAppendixTime; // 给附加信息添加时刻
+    private EditText etAppendix; // 附加信息编辑EditText
+    private SeekBar sbReplay; // 播放条
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
-        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        //        WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_ecgfile_replay);
+        setContentView(R.layout.activity_ecgreplay);
 
         Intent intent = getIntent();
         String fileName = "";
@@ -79,6 +67,7 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             replayModel = new EcgFileReplayModel(fileName);
         } catch (IOException e) {
             e.printStackTrace();
+            Toast.makeText(EcgFileReplayActivity.this, "无法回放该文件", Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -86,19 +75,66 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
         ecgView.setEcgFile(replayModel.getEcgFile());
         initEcgView(replayModel.getxPixelPerData(), replayModel.getyValuePerPixel(), replayModel.getPixelPerGrid(), 0.5);
 
+        rvAppendix = findViewById(R.id.rv_ecgreplay_appendix);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        rvAppendix.setLayoutManager(layoutManager);
+        rvAppendix.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        appendixAdapter = new EcgAppendixAdapter(replayModel.getAppendixList(), this, replayModel.getSampleRate());
+        rvAppendix.setAdapter(appendixAdapter);
+        appendixAdapter.notifyDataSetChanged();
+        if(appendixAdapter.getItemCount() > 1)
+            rvAppendix.smoothScrollToPosition(appendixAdapter.getItemCount()-1);
+
         tvCurrentTime = findViewById(R.id.tv_ecgreplay_currenttime);
         tvCurrentTime.setText(DateTimeUtil.secToTime(replayModel.getCurrentSecond()));
         tvTotalTime = findViewById(R.id.tv_ecgreplay_totaltime);
         tvTotalTime.setText(DateTimeUtil.secToTime(replayModel.getTotalSecond()));
+        tvAppendixTime = findViewById(R.id.tv_ecgreplay_appendixtime);
+        etAppendix = findViewById(R.id.et_ecgreplay_appendix);
 
-        sbEcgReplay = findViewById(R.id.sb_ecgreplay);
-        sbEcgReplay.setMax(replayModel.getTotalSecond());
-        sbEcgReplay.setEnabled(false);
-        sbEcgReplay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        btnSwitchReplayState = findViewById(R.id.ib_ecgreplay_startandstop);
+        btnSwitchReplayState.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(ecgView.isReplaying()) {
+                    stopReplay();
+                } else {
+                    startReplay();
+                }
+            }
+        });
+
+        ibAddAppendix = findViewById(R.id.ib_ecgreplay_addappendix);
+        ibAddAppendix.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String comment = etAppendix.getText().toString();
+                if(comment.length() < 3) {
+                    Toast.makeText(EcgFileReplayActivity.this, "留言太短，再多写点吧！", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(ecgView.isReplaying())
+                    stopReplay();
+                replayModel.addComment(etAppendix.getText().toString());
+            }
+        });
+
+        ibAddAppendixTime = findViewById(R.id.ib_ecgreplay_addappendixtime);
+        ibAddAppendixTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                replayModel.setShowAppendixTime(!replayModel.isShowAppendixTime());
+            }
+        });
+
+        sbReplay = findViewById(R.id.sb_ecgreplay);
+        sbReplay.setMax(replayModel.getTotalSecond());
+        sbReplay.setEnabled(false);
+        sbReplay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if(b) {
-                    ecgView.showAtSecondLocation(i);
+                    ecgView.showSecondLocation(i);
                 }
             }
 
@@ -113,60 +149,8 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             }
         });
 
-        rvReportList = findViewById(R.id.rv_ecgreplay_comment);
-        LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
-        rvReportList.setLayoutManager(reportLayoutManager);
-        rvReportList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        reportAdapter = new EcgAppendixAdapter(replayModel.getAppendixList(), this, replayModel.getEcgFile().getFs());
-        rvReportList.setAdapter(reportAdapter);
-        reportAdapter.notifyDataSetChanged();
-        if(reportAdapter.getItemCount() > 1)
-            rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
-
-
-        btnSwitchReplayState = findViewById(R.id.ib_ecgreplay_startandstop);
-        btnSwitchReplayState.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(ecgView.isReplaying()) {
-                    stopReplay();
-                } else {
-                    startReplay();
-                }
-            }
-        });
-
-
-        etComment = findViewById(R.id.et_ecgreplay_comment);
-        ibAddComment = findViewById(R.id.ib_ecgreplay_addcomment);
-        ibAddComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String comment = etComment.getText().toString();
-                if(comment.length() < 3) {
-                    Toast.makeText(EcgFileReplayActivity.this, "你的留言太短，再多写点吧！", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(ecgView.isReplaying())
-                    stopReplay();
-                replayModel.addComment(etComment.getText().toString());
-            }
-        });
-
-        tvSecondWhenComment = findViewById(R.id.tv_ecgreplay_secondwhencomment);
-
-        ibAddSecondToComment = findViewById(R.id.ib_ecgreplay_addsecondtocomment);
-        ibAddSecondToComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                replayModel.setShowSecondInComment(!replayModel.isShowSecondInComment());
-            }
-        });
-
         ecgView.registerEcgFileReelWaveViewObserver(this);
-
         replayModel.registerEcgFileReplayObserver(this);
-
         startReplay();
     }
 
@@ -208,19 +192,19 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
      */
     @Override
     public void updateAppendixList() {
-        reportAdapter.notifyDataSetChanged();
-        if(reportAdapter.getItemCount() > 1)
-            rvReportList.smoothScrollToPosition(reportAdapter.getItemCount()-1);
-        etComment.setText("");
+        appendixAdapter.notifyDataSetChanged();
+        if(appendixAdapter.getItemCount() > 1)
+            rvAppendix.smoothScrollToPosition(appendixAdapter.getItemCount()-1);
+        etAppendix.setText("");
     }
 
     @Override
-    public void updateShowSecondInComment(boolean show, int second) {
+    public void updateIsShowTimeInAppendix(boolean show, int second) {
         if(show) {
-            tvSecondWhenComment.setText("第" + DateTimeUtil.secToTime(second) + "秒");
-            tvSecondWhenComment.setVisibility(View.VISIBLE);
+            tvAppendixTime.setText(String.format("第%s秒" , DateTimeUtil.secToTime(second)));
+            tvAppendixTime.setVisibility(View.VISIBLE);
         } else {
-            tvSecondWhenComment.setVisibility(View.GONE);
+            tvAppendixTime.setVisibility(View.GONE);
         }
     }
 
@@ -231,23 +215,23 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
     public void updateShowState(boolean replaying) {
         if(replaying) {
             btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_48px));
-            sbEcgReplay.setEnabled(false);
+            sbReplay.setEnabled(false);
         } else {
             btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_48px));
-            sbEcgReplay.setEnabled(true);
+            sbReplay.setEnabled(true);
         }
     }
 
     @Override
     public void updateDataLocation(long dataLocation) {
-        int second = (int)(dataLocation/replayModel.getEcgFile().getFs());
+        int second = (int)(dataLocation/replayModel.getSampleRate());
         tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
-        sbEcgReplay.setProgress(second);
+        sbReplay.setProgress(second);
         replayModel.setDataLocation(dataLocation);
     }
 
     /**
-     * IEcgCommentOperator接口函数
+     * IEcgAppendixOperator接口函数
      */
     @Override
     public void deleteAppendix(final IEcgAppendix appendix) {
@@ -255,8 +239,8 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             stopReplay();
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("删除Ecg留言");
-        builder.setMessage("确定删除该Ecg留言吗？");
+        builder.setTitle("删除一条Ecg附加信息");
+        builder.setMessage("确定删除该Ecg附加信息吗？");
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -278,8 +262,8 @@ public class EcgFileReplayActivity extends AppCompatActivity implements IEcgFile
             if (ecgView.isReplaying())
                 stopReplay();
 
-            // 特意提前一秒播放
-            ecgView.showAtLocation(((IEcgAppendixDataLocation) appendix).getDataLocation() - replayModel.getEcgFile().getFs());
+            // 提前一秒播放
+            ecgView.showLocation(((IEcgAppendixDataLocation) appendix).getDataLocation() - replayModel.getSampleRate());
         }
     }
 }
