@@ -188,17 +188,13 @@ public class ReelWaveView extends View {
 
     public synchronized void showData(Integer data) {
         viewData.add(data);
-
         drawDataOnForeCanvas();
-
         invalidate();
     }
 
     public synchronized void showData(List<Integer> data) {
         viewData.addAll(data);
-
         drawDataOnForeCanvas();
-
         invalidate();
     }
 
