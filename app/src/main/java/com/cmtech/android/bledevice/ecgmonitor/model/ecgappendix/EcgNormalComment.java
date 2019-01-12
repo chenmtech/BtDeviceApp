@@ -69,7 +69,7 @@ public class EcgNormalComment extends EcgAppendix{
 
     @Override
     public String toString() {
-        return super.toString() + " 留言：" + content;
+        return super.toString() + "留言：" + content;
     }
 
     @Override
