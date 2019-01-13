@@ -25,72 +25,35 @@ import java.util.List;
 
 public class ReelWaveView extends View {
 
-    private static final int DEFAULT_SIZE = 100;                // 缺省View的大小
-    private static final int DEFAULT_XRES = 2;                  // 缺省的X方向的分辨率
-    private static final float DEFAULT_YRES = 1.0f;	            // 缺省的Y方向的分辨率
-    private static final double DEFAULT_ZERO_LOCATION = 0.5;   // 缺省的零线位置在Y方向的高度的比例
-    private static final int DEFAULT_GRID_WIDTH = 10;           // 背景栅格像素宽度
+    private static final int DEFAULT_SIZE = 100; // 缺省View的大小
+    private static final int DEFAULT_XRES = 2; // 缺省的X方向的分辨率
+    private static final float DEFAULT_YRES = 1.0f; // 缺省的Y方向的分辨率
+    private static final double DEFAULT_ZERO_LOCATION = 0.5; // 缺省的零线位置在Y方向的高度的比例
+    private static final int DEFAULT_GRID_WIDTH = 10; // 缺省的每个栅格的像素宽度
+    private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK; // 缺省的背景颜色
+    private static final int DEFAULT_GRID_COLOR = Color.RED; // 缺省的栅格线颜色
+    private static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 缺省的波形颜色
 
-    private static final int DEFAULT_BACKGROUND_COLOR = Color.WHITE;
-    private static final int DEFAULT_GRID_COLOR = Color.RED;
-    private static final int DEFAULT_WAVE_COLOR = Color.BLACK;
-
-    private int viewWidth = 100;					//视图宽度
-    private int viewHeight = 100;				    //视图高度
-    private int initX, initY;			        //画图起始位置
-    private int preX, preY;				    //画线的前一个点坐标
-
-    private final Paint bmpPaint = new Paint();
-    private Bitmap backBitmap;  //背景bitmap
-    private Bitmap foreBitmap;	//前景bitmap
-    private Canvas foreCanvas;	//前景canvas
-
-    private final int backgroundColor;
-    private final int gridColor;
-    private final int waveColor;
-
+    private int viewWidth = 100; //视图宽度
+    private int viewHeight = 100;  //视图高度
+    private int initX, initY;	 //画图起始位置
+    private int preX, preY; //画线的前一个点坐标
+    private final Paint wavePaint = new Paint(); // 波形画笔
+    private Bitmap backBitmap; //背景bitmap
+    private Bitmap foreBitmap; //前景bitmap
+    private Canvas foreCanvas; //前景canvas
     //private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
-    protected List<Integer> viewData = new ArrayList<>();
-
+    protected List<Integer> viewData = new ArrayList<>(); //要显示的信号数据对象的引用
     // View初始化主要需要设置下面4个参数
-    private int gridWidth = DEFAULT_GRID_WIDTH;                // 栅格像素宽度
-    public void setGridWidth(int gridWidth) {
-        this.gridWidth = gridWidth;
-    }
-
-    private int xRes = DEFAULT_XRES;						//X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
-    private float yRes = DEFAULT_YRES;					//Y方向分辨率，表示屏幕Y方向每个像素代表的信号值的变化，DeltaSignal/pixel
-    public int getXRes()
-    {
-        return xRes;
-    }
-    public float getYRes()
-    {
-        return yRes;
-    }
-    public void setRes(int xRes, float yRes)
-    {
-        if((xRes < 1) || (yRes < 0)) return;
-        this.xRes = xRes;
-        this.yRes = yRes;
-
-        dataNumXDirection = viewWidth/xRes+1;
-    }
-
-    private double zeroLocation = DEFAULT_ZERO_LOCATION;			//表示零值位置占视图高度的百分比
-    public void setZeroLocation(double zeroLocation)
-    {
-        this.zeroLocation = zeroLocation;
-        initY = (int)(viewHeight * this.zeroLocation);
-    }
-
-    private boolean showGridLine = true;
-
-    private int dataNumXDirection = viewWidth/xRes+1;
-
-    public int getDataNumXDirection() {
-        return dataNumXDirection;
-    }
+    private int gridWidth = DEFAULT_GRID_WIDTH; // 一个栅格的像素宽度
+    private int xRes = DEFAULT_XRES;	 //X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
+    private float yRes = DEFAULT_YRES; //Y方向分辨率，表示屏幕Y方向每个像素代表的信号值的变化，DeltaSignal/pixel
+    private double zeroLocation = DEFAULT_ZERO_LOCATION; //表示零值位置占视图高度的百分比
+    private int dataNumXDirection; // X方向上一屏包含的数据点数
+    private final int backgroundColor; // 背景颜色
+    private final int gridColor; // 栅格线颜色
+    private final int waveColor; // 波形颜色
+    private final boolean showGridLine; // 是否显示栅格线
 
     public ReelWaveView(Context context) {
         super(context);
@@ -98,12 +61,15 @@ public class ReelWaveView extends View {
         backgroundColor = DEFAULT_BACKGROUND_COLOR;
         gridColor = DEFAULT_GRID_COLOR;
         waveColor = DEFAULT_WAVE_COLOR;
+        showGridLine = true;
 
-        initPaint();
+        setDataNumXDirection(viewWidth, xRes);
+        initWavePaint();
     }
 
     public ReelWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         //第二个参数就是我们在attrs.xml文件中的<declare-styleable>标签
         //即属性集合的标签，在R文件中名称为R.styleable+name
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WaveView);
@@ -118,7 +84,45 @@ public class ReelWaveView extends View {
         //最后记得将TypedArray对象回收
         a.recycle();
 
-        initPaint();
+        setDataNumXDirection(viewWidth, xRes);
+        initWavePaint();
+    }
+
+    private void initWavePaint() {
+        wavePaint.setAlpha(255);
+        wavePaint.setStyle(Paint.Style.STROKE);
+        wavePaint.setStrokeWidth(2);
+        wavePaint.setColor(waveColor);
+    }
+
+    public void setGridWidth(int gridWidth) {
+        this.gridWidth = gridWidth;
+    }
+    public int getXRes()
+    {
+        return xRes;
+    }
+    public float getYRes()
+    {
+        return yRes;
+    }
+    public void setRes(int xRes, float yRes)
+    {
+        if((xRes < 1) || (yRes < 0)) return;
+        this.xRes = xRes;
+        this.yRes = yRes;
+        setDataNumXDirection(viewWidth, xRes);
+    }
+    public void setZeroLocation(double zeroLocation)
+    {
+        this.zeroLocation = zeroLocation;
+        initY = (int)(viewHeight * this.zeroLocation);
+    }
+    public int getDataNumXDirection() {
+        return dataNumXDirection;
+    }
+    public void setDataNumXDirection(int viewWidth, int xRes) {
+        dataNumXDirection = viewWidth/xRes+1;
     }
 
     @Override
@@ -127,9 +131,7 @@ public class ReelWaveView extends View {
         super.onDraw(canvas);
 
         //canvas.drawColor(backgroundColor);
-
         canvas.drawBitmap(foreBitmap, 0, 0, null);
-
     }
 
     @Override
@@ -140,8 +142,24 @@ public class ReelWaveView extends View {
 
         viewWidth = getWidth();
         viewHeight = getHeight();
+        setDataNumXDirection(viewWidth, xRes);
+    }
 
-        dataNumXDirection = viewWidth/xRes+1;
+    private int calculateMeasure(int measureSpec)
+    {
+        int size = (int)(DEFAULT_SIZE * getResources().getDisplayMetrics().density);
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
+
+        if(specMode == MeasureSpec.EXACTLY)
+        {
+            size = specSize;
+        }
+        else if(specMode == MeasureSpec.AT_MOST)
+        {
+            size = Math.min(size, specSize);
+        }
+        return size;
     }
 
     @Override
@@ -150,19 +168,10 @@ public class ReelWaveView extends View {
 
         viewWidth = getWidth();
         viewHeight = getHeight();
-
-        dataNumXDirection = viewWidth/xRes+1;
+        setDataNumXDirection(viewWidth, xRes);
 
         initView();
-
         drawDataOnForeCanvas();
-    }
-
-    private void initPaint() {
-        bmpPaint.setAlpha(255);
-        bmpPaint.setStyle(Paint.Style.STROKE);
-        bmpPaint.setStrokeWidth(2);
-        bmpPaint.setColor(waveColor);
     }
 
     public void initView()
@@ -173,7 +182,7 @@ public class ReelWaveView extends View {
         //创建背景Bitmap
         createBackBitmap();
 
-        //将背景bitmap复制为前景bitmap
+        //将背景bitmap复制到前景bitmap
         foreBitmap = backBitmap.copy(Bitmap.Config.ARGB_8888,true);
         foreCanvas = new Canvas(foreBitmap);
 
@@ -198,32 +207,14 @@ public class ReelWaveView extends View {
         invalidate();
     }
 
-    private int calculateMeasure(int measureSpec)
-    {
-        int size = (int)(DEFAULT_SIZE * getResources().getDisplayMetrics().density);
-        int specMode = MeasureSpec.getMode(measureSpec);
-        int specSize = MeasureSpec.getSize(measureSpec);
-
-        if(specMode == MeasureSpec.EXACTLY)
-        {
-            size = specSize;
-        }
-        else if(specMode == MeasureSpec.AT_MOST)
-        {
-            size = Math.min(size, specSize);
-        }
-        return size;
-    }
-
     protected boolean drawDataOnForeCanvas()
     {
-        foreCanvas.drawBitmap(backBitmap, 0, 0, bmpPaint);
+        foreCanvas.drawBitmap(backBitmap, 0, 0, null);
 
         Integer[] data = viewData.toArray(new Integer[0]);
         int dataNum = data.length;
         if(dataNum <= 1) return true;
 
-        //int dataNumXDirection = viewWidth/xRes+1;
         int begin = dataNum - dataNumXDirection;
         if(begin < 0) {
             begin = 0;
@@ -242,11 +233,11 @@ public class ReelWaveView extends View {
             path.lineTo(preX, preY);
         }
 
-        foreCanvas.drawPath(path, bmpPaint);
-
+        foreCanvas.drawPath(path, wavePaint);
         return true;
     }
 
+    // 创建背景Bitmap
     private void createBackBitmap()
     {
         initX = 0;

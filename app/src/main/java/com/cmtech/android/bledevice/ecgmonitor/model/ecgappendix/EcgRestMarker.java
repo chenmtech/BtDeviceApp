@@ -85,7 +85,7 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
 
     @Override
     public String toString() {
-        return super.toString() + "标记：安静[" + beginLocation + ":" + endLocation + "]";
+        return super.toString() + "标记：安静@[" + beginLocation + ":" + endLocation + "]";
     }
 
     @Override
@@ -93,6 +93,6 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
         if(sampleRate <= 0)
             return toString();
         else
-            return super.toString() + "标记：安静[" + beginLocation/sampleRate + ":" + endLocation/sampleRate + "]" + "秒";
+            return super.toString() + "标记：安静@[" + beginLocation/sampleRate + ":" + endLocation/sampleRate + "]" + "秒";
     }
 }
