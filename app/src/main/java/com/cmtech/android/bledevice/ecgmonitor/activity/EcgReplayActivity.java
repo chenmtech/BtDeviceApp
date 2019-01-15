@@ -23,7 +23,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgReplayObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendixDataLocation;
-import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileReelWaveView;
+import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -35,11 +35,11 @@ import java.io.IOException;
  * Created by bme on 2018/11/10.
  */
 
-public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayObserver, EcgFileReelWaveView.IEcgFileReelWaveViewObserver, IEcgAppendixOperator {
+public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayObserver, EcgFileRollWaveView.IEcgFileReelWaveViewObserver, IEcgAppendixOperator {
     private static final String TAG = "EcgReplayActivity";
 
     private EcgReplayModel replayModel; // 回放模型实例
-    private EcgFileReelWaveView ecgView; // ecgView
+    private EcgFileRollWaveView ecgView; // ecgView
     private EcgAppendixAdapter appendixAdapter; // 附加信息Adapter
     private RecyclerView rvAppendix; // 附加信息RecyclerView
     private TextView tvTotalTime; // 总时长

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.view.ReelWaveView;
+import com.cmtech.android.bledevice.view.RollWaveView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +14,12 @@ import java.util.TimerTask;
 
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
-public class EcgFileReelWaveView extends ReelWaveView {
+/**
+ * EcgFileRollWaveView: 用于播放心电文件的卷轴滚动式的波形显示视图
+ * Created by bme on 2018/12/06.
+ */
+
+public class EcgFileRollWaveView extends RollWaveView {
     private static final int MIN_SHOW_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
 
     private EcgFile ecgFile; // 要播放的Ecg文件
@@ -64,11 +69,11 @@ public class EcgFileReelWaveView extends ReelWaveView {
     private IEcgFileReelWaveViewObserver observer; // 观察者
 
 
-    public EcgFileReelWaveView(Context context) {
+    public EcgFileRollWaveView(Context context) {
         super(context);
     }
 
-    public EcgFileReelWaveView(Context context, AttributeSet attrs) {
+    public EcgFileRollWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

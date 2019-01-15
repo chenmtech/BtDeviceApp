@@ -22,8 +22,12 @@ import com.cmtech.android.bledeviceapp.R;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * RollWaveView: 卷轴滚动式的波形显示视图
+ * Created by bme on 2018/12/06.
+ */
 
-public class ReelWaveView extends View {
+public class RollWaveView extends View {
 
     private static final int DEFAULT_SIZE = 100; // 缺省View的大小
     private static final int DEFAULT_XRES = 2; // 缺省的X方向的分辨率
@@ -55,7 +59,7 @@ public class ReelWaveView extends View {
     private final int waveColor; // 波形颜色
     private final boolean showGridLine; // 是否显示栅格线
 
-    public ReelWaveView(Context context) {
+    public RollWaveView(Context context) {
         super(context);
 
         backgroundColor = DEFAULT_BACKGROUND_COLOR;
@@ -67,7 +71,7 @@ public class ReelWaveView extends View {
         initWavePaint();
     }
 
-    public ReelWaveView(Context context, AttributeSet attrs) {
+    public RollWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         //第二个参数就是我们在attrs.xml文件中的<declare-styleable>标签
