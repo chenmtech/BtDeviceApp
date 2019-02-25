@@ -36,7 +36,7 @@ public class RollWaveView extends View {
     private static final int DEFAULT_GRID_WIDTH = 10; // 缺省的每个栅格的像素宽度
     private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK; // 缺省的背景颜色
     private static final int DEFAULT_GRID_COLOR = Color.RED; // 缺省的栅格线颜色
-    private static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 缺省的波形颜色
+    protected static final int DEFAULT_WAVE_COLOR = Color.YELLOW; // 缺省的波形颜色
 
     private int viewWidth = 100; //视图宽度
     private int viewHeight = 100;  //视图高度
@@ -47,7 +47,7 @@ public class RollWaveView extends View {
     private Bitmap foreBitmap; //前景bitmap
     private Canvas foreCanvas; //前景canvas
     //private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
-    protected List<Integer> viewData = new ArrayList<>(); //要显示的信号数据对象的引用
+    private List<Integer> viewData = new ArrayList<>(); //要显示的信号数据对象的引用
     // View初始化主要需要设置下面4个参数
     private int gridWidth = DEFAULT_GRID_WIDTH; // 一个栅格的像素宽度
     private int xRes = DEFAULT_XRES;	 //X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
@@ -199,10 +199,8 @@ public class RollWaveView extends View {
         viewData.clear();
     }
 
-    public synchronized void showData(Integer data) {
+    public void addData(Integer data) {
         viewData.add(data);
-        drawDataOnForeCanvas();
-        invalidate();
     }
 
     public synchronized void showData(List<Integer> data) {

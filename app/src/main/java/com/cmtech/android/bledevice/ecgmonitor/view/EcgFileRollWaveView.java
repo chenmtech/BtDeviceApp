@@ -143,17 +143,16 @@ public class EcgFileRollWaveView extends RollWaveView {
         }
 
         ecgFile.seekData((int)begin);
-        viewData.clear();
+        clearData();
         while(begin++ <= location) {
             try {
-                viewData.add(ecgFile.readInt());
+                addData(ecgFile.readInt());
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }
         }
         drawDataOnForeCanvas();
-
         invalidate();
 
         num = (int)location;
