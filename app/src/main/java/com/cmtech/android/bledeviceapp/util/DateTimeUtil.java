@@ -2,18 +2,19 @@ package com.cmtech.android.bledeviceapp.util;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateTimeUtil {
     public static String timeToString(long timeInMillis) {
-        return new SimpleDateFormat("yyyy年MM月dd日HH时mm分ss秒").format(new Date(timeInMillis));
+        return new SimpleDateFormat("yyyy年MM月dd日HH时mm分ss秒", Locale.CHINA).format(new Date(timeInMillis));
     }
 
-    public static String timeToShortStringFormat(long timeInMillis) {
-        return new SimpleDateFormat("yy-MM-dd HH:mm").format(new Date(timeInMillis));
+    public static String timeToShortString(long timeInMillis) {
+        return new SimpleDateFormat("yy-MM-dd HH:mm", Locale.CHINA).format(new Date(timeInMillis));
     }
 
-    public static String timeToShortStringWithTodayYesterdayFormat(long timeInMillis) {
-        return todayYesterdayFormat(timeInMillis) + new SimpleDateFormat(" HH:mm").format(timeInMillis);
+    public static String timeToShortStringWithTodayYesterday(long timeInMillis) {
+        return todayYesterday(timeInMillis) + new SimpleDateFormat(" HH:mm", Locale.CHINA).format(timeInMillis);
     }
 
     // a integer to xx:xx:xx
@@ -41,7 +42,7 @@ public class DateTimeUtil {
         return timeStr;
     }
 
-    public static String todayYesterdayFormat(long timeStamp) {
+    private static String todayYesterday(long timeStamp) {
         long curTimeMillis = System.currentTimeMillis();
         Date curDate = new Date(curTimeMillis);
         int todayHoursSeconds = curDate.getHours() * 60 * 60;
@@ -61,7 +62,7 @@ public class DateTimeUtil {
         if(timeStamp >= yesterdayBeforeStartMilis) {
             return "前天";
         }
-        return  new SimpleDateFormat("MM-dd").format(timeStamp);
+        return  new SimpleDateFormat("MM-dd", Locale.CHINA).format(timeStamp);
     }
 
     private static String unitFormat(int i) {

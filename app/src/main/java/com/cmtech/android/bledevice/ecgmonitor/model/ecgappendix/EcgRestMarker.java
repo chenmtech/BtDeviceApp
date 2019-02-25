@@ -70,11 +70,11 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
 
     @Override
     public int length() {
-        return  super.length() + 2*8;
+        return  super.length() + 16;
     }
 
     @Override
-    public long getDataLocation() {
+    public long getLocation() {
         return beginLocation;
     }
 
@@ -89,7 +89,7 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
     }
 
     @Override
-    public String toString(int sampleRate) {
+    public String toStringWithSampleRate(int sampleRate) {
         if(sampleRate <= 0)
             return toString();
         else

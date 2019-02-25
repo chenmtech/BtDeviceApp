@@ -263,7 +263,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
                 stopReplay();
 
             // 提前一秒播放
-            ecgView.showLocation(((IEcgAppendixDataLocation) appendix).getDataLocation() - replayModel.getSampleRate());
+            ecgView.showLocation(((IEcgAppendixDataLocation) appendix).getLocation() - replayModel.getSampleRate());
         }
     }
 }

@@ -81,7 +81,7 @@ public abstract class EcgAppendix implements IEcgAppendix{
 
     @Override
     public String toString() {
-        return creator + "@" + DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(createTime) + '\n';
+        return creator + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(createTime) + '\n';
     }
 
     @Override

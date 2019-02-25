@@ -49,7 +49,7 @@ public class TempHumidHistoryDataAdapter extends RecyclerView.Adapter<TempHumidH
     public void onBindViewHolder(TempHumidHistoryDataAdapter.ViewHolder holder, final int position) {
         TempHumidData data = dataList.get(position);
 
-        holder.historyTime.setText(DateTimeUtil.timeToShortStringFormat(data.getTime().getTimeInMillis()));
+        holder.historyTime.setText(DateTimeUtil.timeToShortString(data.getTime().getTimeInMillis()));
         holder.historyTemp.setText(String.format(Locale.getDefault(),"%.3f", data.getTemp()));
         holder.historyHumid.setText(String.valueOf(data.getHumid()));
     }

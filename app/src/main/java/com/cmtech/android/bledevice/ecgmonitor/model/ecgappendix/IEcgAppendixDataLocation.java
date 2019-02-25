@@ -6,5 +6,5 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
  */
 
 public interface IEcgAppendixDataLocation {
-    long getDataLocation(); // 获取附加信息在数据中的位置
+    long getLocation(); // 获取附加信息在数据中的位置
 }

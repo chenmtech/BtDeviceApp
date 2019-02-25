@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -13,15 +12,17 @@ import java.io.IOException;
  */
 
 public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixDataLocation{
-    private long dataLocation = -1; // 数据定位
+    private long location = -1; // 数据定位
+
+    public void setLocation(long location) { this.location = location; }
 
     public EcgLocatedComment() {
         super();
     }
 
-    public EcgLocatedComment(String creator, long createTime, String content, long dataLocation) {
+    public EcgLocatedComment(String creator, long createTime, String content, long location) {
         super(creator, createTime, content);
-        this.dataLocation = dataLocation;
+        this.location = location;
     }
 
     @Override
@@ -29,7 +30,7 @@ public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixD
         try {
             if(!super.readFromStream(in)) return false;
             // 读数据定位
-            dataLocation = ByteUtil.reverseLong(in.readLong());
+            location = ByteUtil.reverseLong(in.readLong());
         } catch (IOException e) {
             return false;
         }
@@ -41,7 +42,7 @@ public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixD
         try {
             if(!super.writeToStream(out)) return false;
             // 写数据定位
-            out.writeLong(ByteUtil.reverseLong(dataLocation));
+            out.writeLong(ByteUtil.reverseLong(location));
         } catch (IOException e) {
             return false;
         }
@@ -60,20 +61,20 @@ public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixD
 
     @Override
     public String toString() {
-        return super.toString() + "@" + dataLocation;
+        return super.toString() + "@" + location;
     }
 
     @Override
-    public String toString(int sampleRate) {
+    public String toStringWithSampleRate(int sampleRate) {
         if(sampleRate <= 0)
             return toString();
         else
-            return super.toString() + "@" + String.valueOf(dataLocation/sampleRate) + "秒";
+            return super.toString() + "@" + String.valueOf(location /sampleRate) + "秒";
     }
 
     @Override
-    public long getDataLocation() {
-        return dataLocation;
+    public long getLocation() {
+        return location;
     }
 
 }

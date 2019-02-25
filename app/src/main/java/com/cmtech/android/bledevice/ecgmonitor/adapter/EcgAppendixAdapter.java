@@ -11,9 +11,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendixDataLocation;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.util.List;
 
@@ -74,7 +72,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
     @Override
     public void onBindViewHolder(EcgAppendixAdapter.ViewHolder holder, final int position) {
         IEcgAppendix appendix = appendixList.get(position);
-        holder.tvContent.setText(appendix.toString(sampleRate));
+        holder.tvContent.setText(appendix.toStringWithSampleRate(sampleRate));
 
         if(appendixOperator != null) {
             holder.ibDelete.setVisibility(View.VISIBLE);

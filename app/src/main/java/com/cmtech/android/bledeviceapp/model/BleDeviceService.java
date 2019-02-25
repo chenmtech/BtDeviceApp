@@ -142,7 +142,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
         sendNotification(info);
 
-        //ViseLog.e(TAG + device.getConnectState().getDescription() + Arrays.toString(info.toArray()));
+        //ViseLog.e(TAG + device.getConnectState().getDescription() + Arrays.toStringWithSampleRate(info.toArray()));
     }
 
     @Override

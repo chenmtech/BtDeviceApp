@@ -81,7 +81,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.tvCreator.setText(file.getCreator());
 
         String createTimeAndLength = MyApplication.getContext().getResources().getString(R.string.ecgfile_createinfo);
-        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(file.getCreateTime());
+        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
         String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
         createTimeAndLength = String.format(createTimeAndLength, createTime, fileTimeLength);
         holder.tvCreateTime.setText(createTimeAndLength);
@@ -90,20 +90,20 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         if(appendixNum > 0) {
             IEcgAppendix lastAppendix = file.getAppendixList().get(appendixNum - 1);
             /*String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
-            createTime = DateTimeUtil.timeToShortStringWithTodayYesterdayFormat(appendix.getCreateTime());
+            createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getCreateTime());
             String person = appendix.getCreator();
             String tvContent;
             if(!(appendix instanceof IEcgAppendixDataLocation)) {
                 tvContent = appendix.getContent();
             } else {
                 tvContent = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
-                int second = (int)(((IEcgAppendixDataLocation) appendix).getDataLocation()/file.getFs());
+                int second = (int)(((IEcgAppendixDataLocation) appendix).getLocation()/file.getFs());
                 tvContent = String.format(tvContent, DateTimeUtil.secToTime(second), appendix.getContent());
             }
             lastEcgComment = String.format(lastEcgComment, createTime, person, tvContent);
 
             holder.tvLastAppendix.setText(lastEcgComment);*/
-            holder.tvLastAppendix.setText(lastAppendix.toString(file.getFs()));
+            holder.tvLastAppendix.setText(lastAppendix.toStringWithSampleRate(file.getFs()));
         } else {
             holder.tvLastAppendix.setText("无留言");
         }

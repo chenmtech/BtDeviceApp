@@ -73,7 +73,7 @@ public class EcgNormalComment extends EcgAppendix{
     }
 
     @Override
-    public String toString(int sampleRate) {
+    public String toStringWithSampleRate(int sampleRate) {
         return toString();
     }
 }
