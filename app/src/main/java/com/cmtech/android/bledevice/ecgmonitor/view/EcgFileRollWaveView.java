@@ -62,11 +62,11 @@ public class EcgFileRollWaveView extends RollWaveView {
     }
     private Timer showTimer; // 定时器
     // 观察者接口
-    public interface IEcgFileReelWaveViewObserver {
+    public interface IEcgFileRollWaveViewObserver {
         void updateShowState(boolean replaying); // 更新显示状态
         void updateDataLocation(long dataLocation); // 更新当前数据位置
     }
-    private IEcgFileReelWaveViewObserver observer; // 观察者
+    private IEcgFileRollWaveViewObserver observer; // 观察者
 
 
     public EcgFileRollWaveView(Context context) {
@@ -126,25 +126,25 @@ public class EcgFileRollWaveView extends RollWaveView {
     }
 
     // 显示指定秒数的信号
-    public void showSecondLocation(int second) {
-        showLocation(second*ecgFile.getFs());
+    public void showAtInSecond(int second) {
+        showAt(second*ecgFile.getFs());
     }
 
     // 显示指定数据位置信号
-    public void showLocation(long numAtLocation) {
-        if(numAtLocation > ecgFile.getDataNum()) {
-            numAtLocation = ecgFile.getDataNum();
-        } else if(numAtLocation < 0) {
-            numAtLocation = 0;
+    public void showAt(long location) {
+        if(location > ecgFile.getDataNum()) {
+            location = ecgFile.getDataNum();
+        } else if(location < 0) {
+            location = 0;
         }
-        long begin = numAtLocation - getDataNumXDirection();
+        long begin = location - getDataNumXDirection();
         if(begin < 0) {
             begin = 0;
         }
 
         ecgFile.seekData((int)begin);
         viewData.clear();
-        while(begin++ <= numAtLocation) {
+        while(begin++ <= location) {
             try {
                 viewData.add(ecgFile.readInt());
             } catch (IOException e) {
@@ -156,7 +156,7 @@ public class EcgFileRollWaveView extends RollWaveView {
 
         invalidate();
 
-        num = (int)numAtLocation;
+        num = (int)location;
 
         if(observer != null) {
             observer.updateDataLocation(num);
@@ -165,12 +165,12 @@ public class EcgFileRollWaveView extends RollWaveView {
     }
 
     // 登记心电回放观察者
-    public void registerEcgFileReelWaveViewObserver(IEcgFileReelWaveViewObserver observer) {
+    public void registerEcgFileRollWaveViewObserver(IEcgFileRollWaveViewObserver observer) {
         this.observer = observer;
     }
 
     // 删除心电回放观察者
-    public void removeEcgFileReelWaveViewObserver() {
+    public void removeEcgFileRollWaveViewObserver() {
         observer = null;
     }
 }

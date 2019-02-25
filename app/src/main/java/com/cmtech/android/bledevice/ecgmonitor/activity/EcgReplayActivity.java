@@ -35,7 +35,7 @@ import java.io.IOException;
  * Created by bme on 2018/11/10.
  */
 
-public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayObserver, EcgFileRollWaveView.IEcgFileReelWaveViewObserver, IEcgAppendixOperator {
+public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayObserver, EcgFileRollWaveView.IEcgFileRollWaveViewObserver, IEcgAppendixOperator {
     private static final String TAG = "EcgReplayActivity";
 
     private EcgReplayModel replayModel; // 回放模型实例
@@ -134,7 +134,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if(b) {
-                    ecgView.showSecondLocation(i);
+                    ecgView.showAtInSecond(i);
                 }
             }
 
@@ -149,7 +149,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
             }
         });
 
-        ecgView.registerEcgFileReelWaveViewObserver(this);
+        ecgView.registerEcgFileRollWaveViewObserver(this);
         replayModel.registerEcgFileReplayObserver(this);
         startReplay();
     }
@@ -174,7 +174,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
     public void onBackPressed() {
         stopReplay();
 
-        ecgView.removeEcgFileReelWaveViewObserver();
+        ecgView.removeEcgFileRollWaveViewObserver();
 
         if(replayModel != null) {
             replayModel.close();
@@ -263,7 +263,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
                 stopReplay();
 
             // 提前一秒播放
-            ecgView.showLocation(((IEcgAppendixDataLocation) appendix).getLocation() - replayModel.getSampleRate());
+            ecgView.showAt(((IEcgAppendixDataLocation) appendix).getLocation() - replayModel.getSampleRate());
         }
     }
 }
