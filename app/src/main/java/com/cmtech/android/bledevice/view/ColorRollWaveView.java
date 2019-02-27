@@ -93,6 +93,7 @@ public class ColorRollWaveView extends RollWaveView {
                 wavePaint.setColor((markers[i]) ? MARKED_WAVE_COLOR : DEFAULT_WAVE_COLOR);
             }
         }
+        foreCanvas.drawPath(path, wavePaint);
 
         return true;
     }
