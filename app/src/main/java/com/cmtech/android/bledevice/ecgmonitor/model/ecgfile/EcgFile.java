@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
+import android.util.Range;
+
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
@@ -202,6 +204,11 @@ public class EcgFile extends RandomAccessBmeFile {
             // 删除留言
             ecgFileTail.deleteAppendix(appendix);
         }
+    }
+
+    // 判断指定的数据位置是否位于标记中
+    public boolean isWithinMarker(long location) {
+        return ecgFileTail.isWithinMarker(location);
     }
 
     // 输出所有附加信息字符串，用于调试

@@ -40,20 +40,20 @@ public class RollWaveView extends View {
 
     private int viewWidth = 100; //视图宽度
     private int viewHeight = 100;  //视图高度
-    private int initX, initY;	 //画图起始位置
-    private int preX, preY; //画线的前一个点坐标
-    private final Paint wavePaint = new Paint(); // 波形画笔
-    private Bitmap backBitmap; //背景bitmap
+    protected int initX, initY;	 //画图起始位置
+    protected int preX, preY; //画线的前一个点坐标
+    protected final Paint wavePaint = new Paint(); // 波形画笔
+    protected Bitmap backBitmap; //背景bitmap
     private Bitmap foreBitmap; //前景bitmap
-    private Canvas foreCanvas; //前景canvas
+    protected Canvas foreCanvas; //前景canvas
     //private final LinkedBlockingQueue<Integer> viewData = new LinkedBlockingQueue<Integer>();	//要显示的信号数据对象的引用
-    private List<Integer> viewData = new ArrayList<>(); //要显示的信号数据对象的引用
+    protected List<Integer> viewData = new ArrayList<>(); //要显示的信号数据对象的引用
     // View初始化主要需要设置下面4个参数
     private int gridWidth = DEFAULT_GRID_WIDTH; // 一个栅格的像素宽度
-    private int xRes = DEFAULT_XRES;	 //X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
-    private float yRes = DEFAULT_YRES; //Y方向分辨率，表示屏幕Y方向每个像素代表的信号值的变化，DeltaSignal/pixel
+    protected int xRes = DEFAULT_XRES;	 //X方向分辨率，表示屏幕X方向每个数据点占多少个像素，pixel/data
+    protected float yRes = DEFAULT_YRES; //Y方向分辨率，表示屏幕Y方向每个像素代表的信号值的变化，DeltaSignal/pixel
     private double zeroLocation = DEFAULT_ZERO_LOCATION; //表示零值位置占视图高度的百分比
-    private int dataNumXDirection; // X方向上一屏包含的数据点数
+    protected int dataNumXDirection; // X方向上一屏包含的数据点数
     private final int backgroundColor; // 背景颜色
     private final int gridColor; // 栅格线颜色
     private final int waveColor; // 波形颜色
@@ -222,14 +222,14 @@ public class RollWaveView extends View {
             begin = 0;
         }
 
-        viewData.clear();
-        viewData.add(data[begin]);
+        clearData();
+        addData(data[begin]);
         preX = initX;
         preY = initY - Math.round(data[begin]/yRes);
         Path path = new Path();
         path.moveTo(preX, preY);
         for(int i = begin+1; i < dataNum; i++) {
-            viewData.add(data[i]);
+            addData(data[i]);
             preX += xRes;
             preY = initY - Math.round(data[i]/yRes);
             path.lineTo(preX, preY);

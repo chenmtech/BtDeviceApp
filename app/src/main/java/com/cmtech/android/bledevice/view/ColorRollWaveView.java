@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.view;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Path;
 import android.util.AttributeSet;
 
@@ -8,12 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ColorRollWaveView: 带颜色的卷轴滚动式的波形显示视图
+ * ColorRollWaveView: 带标记颜色的卷轴滚动式的波形显示视图
  * Created by bme on 2019/2/26.
  */
 
 public class ColorRollWaveView extends RollWaveView {
-    private List<Integer> viewDataColor = new ArrayList<>(); //要显示的信号数据的颜色
+    protected static final int MARKED_WAVE_COLOR = Color.WHITE; // 缺省的标记波形颜色
+
+    private List<Boolean> markerList = new ArrayList<>(); //要显示的信号数据是否处于标记中
 
     public ColorRollWaveView(Context context) {
         super(context);
@@ -26,17 +29,17 @@ public class ColorRollWaveView extends RollWaveView {
     @Override
     public void clearData() {
         super.clearData();
-        viewDataColor.clear();
+        markerList.clear();
     }
 
     @Override
     public void addData(Integer data) {
-        addData(data, DEFAULT_WAVE_COLOR);
+        addData(data, false);
     }
 
-    public void addData(Integer data, int color) {
+    public void addData(Integer data, boolean isMarked) {
         super.addData(data);
-        viewDataColor.add(color);
+        markerList.add(isMarked);
     }
 
     @Override
@@ -48,10 +51,10 @@ public class ColorRollWaveView extends RollWaveView {
         invalidate();
     }
 
-    public synchronized void showData(List<Integer> data, List<Integer> colors) {
-        for(int i = 0; i < data.size(); i++) {
-            addData(data.get(i), colors.get(i));
-        }
+    public synchronized void showData(List<Integer> data, List<Boolean> markers) {
+        viewData.addAll(data);
+        markerList.addAll(markers);
+
         drawDataOnForeCanvas();
         invalidate();
     }
@@ -62,6 +65,7 @@ public class ColorRollWaveView extends RollWaveView {
         foreCanvas.drawBitmap(backBitmap, 0, 0, null);
 
         Integer[] data = viewData.toArray(new Integer[0]);
+        Boolean[] markers = markerList.toArray(new Boolean[0]);
         int dataNum = data.length;
         if(dataNum <= 1) return true;
 
@@ -70,20 +74,26 @@ public class ColorRollWaveView extends RollWaveView {
             begin = 0;
         }
 
-        viewData.clear();
-        viewData.add(data[begin]);
+        clearData();
+        addData(data[begin], markers[begin]);
         preX = initX;
         preY = initY - Math.round(data[begin]/yRes);
         Path path = new Path();
         path.moveTo(preX, preY);
+        wavePaint.setColor((markers[begin]) ? MARKED_WAVE_COLOR : DEFAULT_WAVE_COLOR);
         for(int i = begin+1; i < dataNum; i++) {
-            viewData.add(data[i]);
+            addData(data[i], markers[i]);
             preX += xRes;
             preY = initY - Math.round(data[i]/yRes);
             path.lineTo(preX, preY);
+            if(markers[i] != markers[i-1]) {
+                foreCanvas.drawPath(path, wavePaint);
+                path = new Path();
+                path.moveTo(preX, preY);
+                wavePaint.setColor((markers[i]) ? MARKED_WAVE_COLOR : DEFAULT_WAVE_COLOR);
+            }
         }
 
-        foreCanvas.drawPath(path, wavePaint);
         return true;
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.view.ColorRollWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
  * Created by bme on 2018/12/06.
  */
 
-public class EcgFileRollWaveView extends RollWaveView {
+public class EcgFileRollWaveView extends ColorRollWaveView {
     private static final int MIN_SHOW_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
 
     private EcgFile ecgFile; // 要播放的Ecg文件
@@ -28,6 +29,7 @@ public class EcgFileRollWaveView extends RollWaveView {
     private int interval = 0; // 每次更新显示的时间间隔，为采样间隔的整数倍
     private int dataNumReadEachUpdate = 1; // 每次更新显示时需要读取的数据个数
     private final List<Integer> cacheData = new ArrayList<>(); // 每次更新显示时需要读取的数据缓存
+    private final List<Boolean> cacheMarked = new ArrayList<>(); // 标记缓存
     // 定时周期显示任务
     private class ShowTask extends TimerTask {
         @Override
@@ -42,12 +44,14 @@ public class EcgFileRollWaveView extends RollWaveView {
                             // 读出数据
                             for (int i = 0; i < dataNumReadEachUpdate; i++, num++) {
                                 cacheData.add(ecgFile.readInt());
+                                cacheMarked.add(ecgFile.isWithinMarker(num));
                                 if (ecgFile.isEOD()) {
                                     break;
                                 }
                             }
-                            showData(cacheData);
+                            showData(cacheData, cacheMarked);
                             cacheData.clear();
+                            cacheMarked.clear();
                             if(observer != null) {
                                 observer.updateDataLocation(num);
                             }
@@ -146,7 +150,7 @@ public class EcgFileRollWaveView extends RollWaveView {
         clearData();
         while(begin++ <= location) {
             try {
-                addData(ecgFile.readInt());
+                addData(ecgFile.readInt(), ecgFile.isWithinMarker(begin));
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

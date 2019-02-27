@@ -1,6 +1,9 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
+import android.util.Range;
+
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendixFactory;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgRestMarker;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
@@ -12,8 +15,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendixType.REST_MARKER;
+
+/**
+ * EcgFileTail: 心电文件中的尾部类
+ * Created by bme on 2019/1/19.
+ */
+
 public class EcgFileTail {
-    private List<IEcgAppendix> appendixList = new ArrayList<>();
+    private List<IEcgAppendix> appendixList = new ArrayList<>(); // 附加留言列表
+    private List<Range<Long>> markerRanges = new ArrayList<>(); // 数据位于标记当中的范围列表
+
 
     public EcgFileTail() {
 
@@ -28,7 +40,7 @@ public class EcgFileTail {
             while (raf.getFilePointer() < tailEndPointer) {
                 IEcgAppendix appendix = EcgAppendixFactory.readFromStream(raf);
                 if(appendix != null) {
-                    appendixList.add(appendix);
+                    addAppendix(appendix);
                 }
             }
             // 按留言时间排序
@@ -75,11 +87,25 @@ public class EcgFileTail {
     // 添加附加信息
     public void addAppendix(IEcgAppendix appendix) {
         appendixList.add(appendix);
+        if(appendix.getType() == REST_MARKER) {
+            EcgRestMarker marker = (EcgRestMarker) appendix;
+            markerRanges.add(new Range<>(marker.getBeginLocation(), marker.getEndLocation()));
+        }
     }
 
     // 删除附加信息
     public void deleteAppendix(IEcgAppendix appendix) {
         appendixList.remove(appendix);
+        if(appendix.getType() == REST_MARKER) {
+            EcgRestMarker marker = (EcgRestMarker) appendix;
+            Range<Long> range = new Range<>(marker.getBeginLocation(), marker.getEndLocation());
+            for(int i = 0; i < markerRanges.size(); i++) {
+                if(markerRanges.get(i).equals(range)) {
+                    markerRanges.remove(i);
+                    break;
+                }
+            }
+        }
     }
 
     // 获取附加信息列表
@@ -97,5 +123,14 @@ public class EcgFileTail {
             length += (appendix.length() + 4); // "加4"是指包含EcgAppendixType
         }
         return length + 8; // "加8"是指包含最后的附加信息长度long类型
+    }
+
+    // 判断指定的数据位置是否位于标记中
+    public boolean isWithinMarker(long location) {
+        for(Range<Long> range : markerRanges) {
+            if(range.contains(location))
+                return true;
+        }
+        return false;
     }
 }
