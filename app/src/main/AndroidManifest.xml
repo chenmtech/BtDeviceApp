@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.cmtech.android.bledeviceapp">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -19,6 +20,7 @@
 
     <application
         android:name=".MyApplication"
+        tools:replace="android:name"
         android:persistent="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_kang"
@@ -26,6 +28,7 @@
         android:roundIcon="@mipmap/ic_kang"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity
             android:name=".activity.LoginActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -46,84 +49,37 @@
                     android:scheme="file" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".activity.ScanDeviceActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".activity.DeviceBasicInfoActivity"
             android:label="设置设备信息"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
+
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorConfigureActivity"
             android:label="配置心电带设备"
             android:theme="@style/Theme.AppCompat.Light.Dialog"/>
+
         <activity android:name="com.cmtech.android.bledevice.temphumid.activity.TempHumidConfigureActivity" />
+
         <activity android:name="com.cmtech.android.bledevice.thermo.activity.ThermoConfigureActivity" />
+
         <activity
             android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgReplayActivity"
             android:launchMode="singleTask" />
 
-        <!-- ShareSDK的activity -->
-        <activity
-            android:name="com.mob.tools.MobUIShell"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:windowSoftInputMode="stateHidden|adjustResize">
-
-            <!-- 调用新浪原生SDK，需要注册的回调activity -->
-            <intent-filter>
-                <action android:name="com.sina.weibo.sdk.action.ACTION_SDK_REQ_ACTIVITY" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-
-            <!-- 集成line客户端登录授权，需要添如下格式的过滤器 -->
-            <intent-filter>
-                <data android:scheme="line.1477692153" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <!-- 填写您从Mob开发者后台中得到的Appkey和AppSecret -->
-        <meta-data
-            android:name="Mob-AppKey"
-            android:value="2865551f849a2" />
-        <meta-data
-            android:name="Mob-AppSecret"
-            android:value="4e4d54b3cba5472505b5f251419ba502" />
-
-        <!-- 微信分享回调 -->
-        <activity
-            android:name="cn.sharesdk.demo.wxapi.WXEntryActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
-        <!-- QQ分享回调 -->
-        <activity
-            android:name="cn.sharesdk.tencent.qq.ReceiveActivity"
-            android:launchMode="singleTask"
-            android:noHistory="true">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="tencent1107924092" />
-            </intent-filter>
-        </activity>
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity" />
+
         <activity android:name=".activity.UserInfoActivity" />
 
         <service
