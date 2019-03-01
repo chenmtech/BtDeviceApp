@@ -94,6 +94,18 @@
                 android:layout_height="wrap_content"
                 android:text="自动登录"/>
         </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="60dp">
+            <Button
+                android:id="@+id/btn_phone_signin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="手机号登录"
+                style="@style/minWidth0DpButtonStyle"/>
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

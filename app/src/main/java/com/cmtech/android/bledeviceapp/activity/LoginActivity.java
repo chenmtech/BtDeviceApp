@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -20,9 +21,20 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.mob.tools.utils.UIHandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.PlatformActionListener;
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.tencent.qq.QQ;
+import cn.sharesdk.wechat.friends.Wechat;
+import cn.smssdk.EventHandler;
+import cn.smssdk.SMSSDK;
+import cn.smssdk.gui.RegisterPage;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
@@ -41,9 +53,9 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnSignup;
     private CheckBox cbRememberPassword;
     private CheckBox cbAutoSignin;
-
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
+    private Button btnPhoneSignin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
         btnSignup = findViewById(R.id.btn_account_signup);
         cbRememberPassword = findViewById(R.id.cb_remember_password);
         cbAutoSignin = findViewById(R.id.cb_auto_signin);
+        btnPhoneSignin = findViewById(R.id.btn_phone_signin);
 
         // 读账户名
         String account = pref.getString("account", "");
@@ -101,6 +114,13 @@ public class LoginActivity extends AppCompatActivity {
                 String account = etAccount.getText().toString();
                 String password = etPassword.getText().toString();
                 signUp(account, password);
+            }
+        });
+
+        btnPhoneSignin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendCode(LoginActivity.this);
             }
         });
     }
@@ -242,6 +262,77 @@ public class LoginActivity extends AppCompatActivity {
         if (!BleDeviceUtil.isBleEnable(MyApplication.getContext())) {
             BleDeviceUtil.enableBluetooth(this, REQUESTCODE_ENABLEBLUETOOTH);
         }
+    }
+
+    private void authorize(Platform plat) {
+        if (plat == null || !plat.isClientValid()) {
+            Toast.makeText(this, "无法登陆", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        //判断指定平台是否已经完成授权
+        if(plat.isAuthValid()) {
+            String userId = plat.getDb().getUserId();
+            if (userId != null) {
+                Toast.makeText(this, "已经授权", Toast.LENGTH_SHORT).show();
+                login(plat.getName(), userId, null);
+                return;
+            }
+        }
+        plat.setPlatformActionListener(new PlatformActionListener() {
+            @Override
+            public void onComplete(Platform platform, int action, HashMap<String, Object> hashMap) {
+                if (action == Platform.ACTION_USER_INFOR) {
+                    Toast.makeText(LoginActivity.this, "授权成功", Toast.LENGTH_SHORT).show();
+                    login(platform.getName(), platform.getDb().getUserId(), hashMap);
+                }
+                System.out.println(hashMap);
+                System.out.println("------User Name ---------" + platform.getDb().getUserName());
+                System.out.println("------User ID ---------" + platform.getDb().getUserId());
+            }
+
+            @Override
+            public void onError(Platform platform, int action, Throwable throwable) {
+                if (action == Platform.ACTION_USER_INFOR) {
+                    Toast.makeText(LoginActivity.this, "授权失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancel(Platform platform, int action) {
+                if (action == Platform.ACTION_USER_INFOR) {
+                    Toast.makeText(LoginActivity.this, "授权取消", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        // true不使用SSO授权，false使用SSO授权
+        plat.SSOSetting(false);
+        //获取用户资料
+        plat.authorize();
+    }
+
+    private void login(String plat, String userId, HashMap<String, Object> userInfo) {
+        Toast.makeText(LoginActivity.this, "开始登陆", Toast.LENGTH_SHORT).show();
+    }
+
+    private void sendCode(Context context) {
+        RegisterPage page = new RegisterPage();
+        //如果使用我们的ui，没有申请模板编号的情况下需传null
+        page.setTempCode(null);
+        page.setRegisterCallback(new EventHandler() {
+            public void afterEvent(int event, int result, Object data) {
+                if (result == SMSSDK.RESULT_COMPLETE) {
+                    // 处理成功的结果
+                    HashMap<String,Object> phoneMap = (HashMap<String, Object>) data;
+                    String country = (String) phoneMap.get("country"); // 国家代码，如“86”
+                    String phone = (String) phoneMap.get("phone"); // 手机号码，如“13800138000”
+                    // TODO 利用国家代码和手机号码进行后续的操作
+
+                } else{
+                    // TODO 处理错误的结果
+                }
+            }
+        });
+        page.show(context);
     }
 
 }

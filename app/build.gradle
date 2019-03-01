@@ -37,9 +37,17 @@ MobSDK {
                 MiniprogramType = "2"
                 Enable="true"
             }
+            WechatMoments {
+                Id = "2"
+                SortId = "2"
+                AppId = "wxd04c4aa20ef139d4"
+                AppSecret = "dd5f65b0b23333b9b2c1ba21a32ff2cf"
+                BypassApproval = "false"
+                Enable = "true"
+            }
             QQ {
-                Id="2"
-                SortId="2"
+                Id="3"
+                SortId="3"
                 AppId="1107924092"
                 AppKey="4jXh8LftCT1SPKxn"
                 BypassApproval="true"
@@ -49,6 +57,8 @@ MobSDK {
         }
 
     }
+
+    SMSSDK {}
 
 }
 
