@@ -26,6 +26,7 @@ import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 
@@ -49,8 +50,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private String phone; // 手机号
     private String veriCode; // 验证码
-    private boolean hasSendCode = false; // 服务器是否已发送验证码
-
+    private boolean successSendCode = false; // 服务器已成功发送验证码
+    // 验证回调处理器
     private EventHandler eventHandler = new EventHandler() {
         public void afterEvent(int event, int result, Object data) {
             // afterEvent会在子线程被调用，因此如果后续有UI相关操作，需要将数据发送到UI线程
@@ -68,9 +69,8 @@ public class LoginActivity extends AppCompatActivity {
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // TODO 处理成功得到验证码的结果
                             // 请注意，此时只是完成了发送验证码的请求，验证码短信还需要几秒钟之后才送达
-                            hasSendCode = true;
-                            boolean smart = (Boolean) data;
-                            if(smart) {
+                            successSendCode = true;
+                            if((Boolean) data) {
                                 // 智能验证成功，直接登录
                                 signIn(phone);
                             } else {
@@ -81,9 +81,9 @@ public class LoginActivity extends AppCompatActivity {
                             ((Throwable) data).printStackTrace();
                         }
                     } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                        successSendCode = false;
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // TODO 处理验证码验证通过的结果
-                            hasSendCode = false;
                             signIn(phone);
                         } else {
                             // TODO 处理错误的结果
@@ -112,8 +112,8 @@ public class LoginActivity extends AppCompatActivity {
         // 检查权限
         checkPermissions();
 
+        // 读上次记录的手机号
         pref = PreferenceManager.getDefaultSharedPreferences(this);
-        // 读账户名
         phone = pref.getString("phone", "");
         etPhone.setText(phone);
 
@@ -121,10 +121,10 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 phone = etPhone.getText().toString();
-                veriCode = etVeriCode.getText().toString();
-                if(!hasSendCode) {
+                if(!successSendCode) {
                     getVeriCode(phone); // 获取验证码
                 } else {
+                    veriCode = etVeriCode.getText().toString();
                     verify(phone, veriCode); // 验证
                 }
             }
@@ -149,7 +149,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case 1: {
                 for(int i = 0; i < grantResults.length; i++) {
@@ -164,8 +164,6 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 }
-
-                return;
             }
         }
     }
@@ -179,19 +177,15 @@ public class LoginActivity extends AppCompatActivity {
 
     // 登录
     private void signIn(String phone) {
-        if(UserAccountManager.getInstance().signIn(phone) || UserAccountManager.getInstance().signUp(phone)) {
-            Toast.makeText(LoginActivity.this, "登录成功。", Toast.LENGTH_LONG).show();
-            startMainActivity();
+        UserAccountManager manager = UserAccountManager.getInstance();
+        if(manager.signIn(phone) || manager.signUp(phone)) {
+            //Toast.makeText(LoginActivity.this, "登录成功。", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
             finish();
         } else {
             Toast.makeText(LoginActivity.this, "登录错误。", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    // 启动MainActivity
-    private void startMainActivity() {
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
     }
 
     // 将登录信息保存到Pref

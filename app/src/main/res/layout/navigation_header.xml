@@ -10,7 +10,7 @@
         android:background="@color/secondary">
 
         <ImageView
-            android:id="@+id/accountimage"
+            android:id="@+id/accountportrait"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_centerHorizontal="true"
@@ -19,22 +19,11 @@
             android:layout_marginTop="5dp"/>
 
         <TextView
-            android:id="@+id/accountname"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@+id/accountimage"
-            android:text="未登录"
-            android:textColor="@color/primary_text"
-            android:textSize="16sp"
-            android:layout_marginBottom="5dp"/>
-
-        <TextView
             android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/accountname"
+            android:layout_below="@+id/accountportrait"
             android:text="未设置"
             android:textColor="@color/secondary_text"
             android:textSize="20sp"/>

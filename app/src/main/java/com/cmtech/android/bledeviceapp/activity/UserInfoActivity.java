@@ -32,14 +32,20 @@ import java.io.IOException;
 
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGEDIR;
 
+/**
+ *  UserInfoActivity: 用户信息Activity
+ *  Created by bme on 2018/10/27.
+ */
+
 public class UserInfoActivity extends AppCompatActivity {
-    private EditText etUserName;
-    private EditText etPassword;
+    private EditText etPhone;
+    private EditText etName;
+    private ImageView ivPortrait;
+    private EditText etRemark;
     private Button btnOk;
     private Button btnCancel;
-    private ImageView ivUserImage;
 
-    private String cacheImagePath = "";
+    private String cachePortraitPath = ""; // 头像文件路径缓存
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,55 +54,58 @@ public class UserInfoActivity extends AppCompatActivity {
 
         if(!UserAccountManager.getInstance().isSignIn()) finish();
 
-        EditText etAccountName = findViewById(R.id.et_userinfo_accountname);
-        etPassword = findViewById(R.id.et_userinfo_password);
-        etUserName = findViewById(R.id.et_userinfo_username);
-        ivUserImage = findViewById(R.id.iv_userinfo_image);
+        etPhone = findViewById(R.id.et_userinfo_phone);
+        etName = findViewById(R.id.et_userinfo_username);
+        ivPortrait = findViewById(R.id.iv_userinfo_portrait);
+        etRemark = findViewById(R.id.et_userinfo_remark);
         btnOk = findViewById(R.id.btn_userinfo_ok);
         btnCancel = findViewById(R.id.btn_userinfo_cancel);
 
         UserAccount account = UserAccountManager.getInstance().getUserAccount();
-        etAccountName.setText(account.getPhoneNum());
-        etUserName.setText(account.getUserName());
-        cacheImagePath = account.getImagePath();
-        if("".equals(cacheImagePath)) {
-            Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivUserImage);
+        etPhone.setText(account.getPhone());
+        etName.setText(account.getUserName());
+        cachePortraitPath = account.getPortraitFilePath();
+        if("".equals(cachePortraitPath)) {
+            Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivPortrait);
         } else {
-            Glide.with(MyApplication.getContext()).load(cacheImagePath)
-                    .skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivUserImage);
+            Glide.with(MyApplication.getContext()).load(cachePortraitPath)
+                    .skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivPortrait);
         }
+        etRemark.setText(account.getRemark());
 
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 UserAccount account = UserAccountManager.getInstance().getUserAccount();
-                account.setUserName(etUserName.getText().toString());
+                account.setUserName(etName.getText().toString());
 
-                if(!cacheImagePath.equals(account.getImagePath())) {
+                if(!cachePortraitPath.equals(account.getPortraitFilePath())) {
                     // 把原来的图像文件删除
-                    if(!"".equals(account.getImagePath())) {
-                        File imageFile = new File(account.getImagePath());
+                    if(!"".equals(account.getPortraitFilePath())) {
+                        File imageFile = new File(account.getPortraitFilePath());
                         imageFile.delete();
                     }
 
-                    // 把当前图像保存，以账户名为文件名
-                    if("".equals(cacheImagePath)) {
-                        account.setImagePath("");
+                    // 把当前图像保存，以手机号为文件名
+                    if("".equals(cachePortraitPath)) {
+                        account.setPortraitFilePath("");
                     } else {
                         try {
-                            ivUserImage.setDrawingCacheEnabled(true);
-                            Bitmap bitmap = ivUserImage.getDrawingCache();
-                            File toFile = FileUtil.getFile(IMAGEDIR, account.getPhoneNum() + ".jpg");
+                            ivPortrait.setDrawingCacheEnabled(true);
+                            Bitmap bitmap = ivPortrait.getDrawingCache();
+                            File toFile = FileUtil.getFile(IMAGEDIR, account.getPhone() + ".jpg");
                             BitmapUtil.saveBitmap(bitmap, toFile);
-                            ivUserImage.setDrawingCacheEnabled(false);
+                            ivPortrait.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();
-                            account.setImagePath(filePath);
+                            account.setPortraitFilePath(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            account.setImagePath("");
+                            account.setPortraitFilePath("");
                         }
                     }
                 }
+
+                account.setRemark(etRemark.getText().toString());
                 account.save();
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
@@ -113,7 +122,7 @@ public class UserInfoActivity extends AppCompatActivity {
             }
         });
 
-        ivUserImage.setOnClickListener(new View.OnClickListener() {
+        ivPortrait.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openAlbum();
@@ -127,12 +136,12 @@ public class UserInfoActivity extends AppCompatActivity {
             case 1:
                 if(resultCode == RESULT_OK) {
                     if(Build.VERSION.SDK_INT >= 19) {
-                        cacheImagePath = handleImageOnKitKat(data);
+                        cachePortraitPath = handleImageOnKitKat(data);
                     } else {
-                        cacheImagePath = handleImageBeforeKitKat(data);
+                        cachePortraitPath = handleImageBeforeKitKat(data);
                     }
-                    if(!"".equals(cacheImagePath)) {
-                        displaySelectedImage(cacheImagePath);
+                    if(!"".equals(cachePortraitPath)) {
+                        displaySelectedImage(cachePortraitPath);
                     }
                 }
                 break;
@@ -194,17 +203,7 @@ public class UserInfoActivity extends AppCompatActivity {
     }
 
     private void displaySelectedImage(String imagePath) {
-        Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivUserImage);
+        Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivPortrait);
     }
 
-    private void modifyPasswordInPref(String newPassword) {
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean isRememberPassword = pref.getBoolean("remember_password", false);
-
-        if(isRememberPassword) {
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putString("password", newPassword);
-            editor.apply();
-        }
-    }
 }

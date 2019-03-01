@@ -4,18 +4,17 @@ import org.litepal.crud.LitePalSupport;
 
 import java.io.Serializable;
 
+/**
+ *  UserAccount: 用户账户类
+ *  Created by bme on 2018/10/27.
+ */
+
 public class UserAccount  extends LitePalSupport implements Serializable{
-    // 数据库保存的字段
-    // id
-    private int id;
-
-    private String phoneNum = "";
-
-    private String userName = "未设置";
-
-    private String imagePath = "";
-
-    private long lastLoginTime = -1;
+    private int id; // id
+    private String phone = ""; // 手机号
+    private String userName = "未设置"; // 网络名称
+    private String portraitFilePath = ""; // 头像文件路径
+    private String remark = ""; // 备注
 
     public int getId() {
         return id;
@@ -25,12 +24,12 @@ public class UserAccount  extends LitePalSupport implements Serializable{
         this.id = id;
     }
 
-    public String getPhoneNum() {
-        return phoneNum;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setPhoneNum(String phoneNum) {
-        this.phoneNum = phoneNum;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getUserName() {
@@ -41,19 +40,19 @@ public class UserAccount  extends LitePalSupport implements Serializable{
         this.userName = userName;
     }
 
-    public String getImagePath() {
-        return imagePath;
+    public String getPortraitFilePath() {
+        return portraitFilePath;
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setPortraitFilePath(String portraitFilePath) {
+        this.portraitFilePath = portraitFilePath;
     }
 
-    public long getLastLoginTime() {
-        return lastLoginTime;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setLastLoginTime(long lastLoginTime) {
-        this.lastLoginTime = lastLoginTime;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

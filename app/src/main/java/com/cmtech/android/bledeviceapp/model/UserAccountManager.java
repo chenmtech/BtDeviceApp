@@ -42,19 +42,19 @@ public class UserAccountManager {
         return userAccount != null;
     }
 
-    // 登出
+    // 退出账号
     public void signOut() {
         userAccount = null;
     }
 
-    // 注册
-    public boolean signUp(String phoneNum) {
-        List<UserAccount> find = LitePal.where("phoneNum = ?", phoneNum).find(UserAccount.class);
+    // 注册新账户
+    public boolean signUp(String phone) {
+        List<UserAccount> find = LitePal.where("phone = ?", phone).find(UserAccount.class);
         if(find != null && find.size() > 0) {
             return false;
         } else {
             UserAccount user = new UserAccount();
-            user.setPhoneNum(phoneNum);
+            user.setPhone(phone);
             user.save();
             setUserAccount(user);
             return true;
@@ -62,8 +62,8 @@ public class UserAccountManager {
     }
 
     // 登录
-    public boolean signIn(String phoneNum) {
-        List<UserAccount> find = LitePal.where("phoneNum = ?", phoneNum).find(UserAccount.class);
+    public boolean signIn(String phone) {
+        List<UserAccount> find = LitePal.where("phone = ?", phone).find(UserAccount.class);
         if(find != null && find.size() == 1) {
             setUserAccount(find.get(0));
             return true;

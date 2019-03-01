@@ -81,9 +81,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private BleDeviceFragmentManager fragmentManager; // TabLayout和Fragment管理器
     private MenuItem menuConfig; // 工具条上的配置菜单
-    private TextView tvAccountName; // 账户名控件
-    private TextView tvUserName; // 用户名控件
-    private ImageView ivAccountImage; // 头像控件
+    private TextView tvAccountName; // 账户名称控件
+    private ImageView ivAccountPortrait; // 头像控件
     private boolean isFinishService = false; // 是否结束服务
 
     private ServiceConnection deviceServiceConnect = new ServiceConnection() {
@@ -167,9 +166,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 设置导航视图
         View headerView = navView.getHeaderView(0);
-        tvAccountName = headerView.findViewById(R.id.accountname);
-        tvUserName = headerView.findViewById(R.id.username);
-        ivAccountImage = headerView.findViewById(R.id.accountimage);
+        tvAccountName = headerView.findViewById(R.id.username);
+        ivAccountPortrait = headerView.findViewById(R.id.accountportrait);
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -178,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             }
         });
 
-        // 设置FAB
+        // 设置FAB，FloatingActionButton
         fabConnect = findViewById(R.id.fab_connect);
         fabConnect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,7 +191,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         drawerLayout = findViewById(R.id.drawer_layout);
         welcomeLayout = findViewById(R.id.welcome_layout);
         mainLayout = findViewById(R.id.main_layout);
-
 
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.main_tab_layout);
@@ -575,11 +572,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void updateNavigationViewUsingUserInfo() {
         UserAccount account = UserAccountManager.getInstance().getUserAccount();
         if(account == null) return;
-        tvAccountName.setText(account.getPhoneNum());
-        tvUserName.setText(account.getUserName());
-        String imagePath = account.getImagePath();
+        tvAccountName.setText(account.getUserName());
+        String imagePath = account.getPortraitFilePath();
         if(!"".equals(imagePath))
-            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountPortrait);
     }
 
     // 更新主菜单
