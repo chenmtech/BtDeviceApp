@@ -9,13 +9,13 @@ public class UserAccount  extends LitePalSupport implements Serializable{
     // id
     private int id;
 
-    private String accountName = "";
-
-    private String password = "";
+    private String phoneNum = "";
 
     private String userName = "未设置";
 
     private String imagePath = "";
+
+    private long lastLoginTime = -1;
 
     public int getId() {
         return id;
@@ -25,20 +25,12 @@ public class UserAccount  extends LitePalSupport implements Serializable{
         this.id = id;
     }
 
-    public String getAccountName() {
-        return accountName;
+    public String getPhoneNum() {
+        return phoneNum;
     }
 
-    public void setAccountName(String accountName) {
-        this.accountName = accountName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setPhoneNum(String phoneNum) {
+        this.phoneNum = phoneNum;
     }
 
     public String getUserName() {
@@ -55,5 +47,13 @@ public class UserAccount  extends LitePalSupport implements Serializable{
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public long getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public void setLastLoginTime(long lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
     }
 }

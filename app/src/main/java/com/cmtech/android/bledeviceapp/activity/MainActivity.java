@@ -575,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void updateNavigationViewUsingUserInfo() {
         UserAccount account = UserAccountManager.getInstance().getUserAccount();
         if(account == null) return;
-        tvAccountName.setText(account.getAccountName());
+        tvAccountName.setText(account.getPhoneNum());
         tvUserName.setText(account.getUserName());
         String imagePath = account.getImagePath();
         if(!"".equals(imagePath))

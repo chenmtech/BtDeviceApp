@@ -37,7 +37,7 @@ public class UserAccountManager {
     private UserAccountManager() {
     }
 
-    // 是否登录
+    // 是否已经登录
     public boolean isSignIn() {
         return userAccount != null;
     }
@@ -48,22 +48,21 @@ public class UserAccountManager {
     }
 
     // 注册
-    public boolean signUp(String account, String password) {
-        List<UserAccount> find = LitePal.where("accountName = ?", account).find(UserAccount.class);
+    public boolean signUp(String phoneNum) {
+        List<UserAccount> find = LitePal.where("phoneNum = ?", phoneNum).find(UserAccount.class);
         if(find != null && find.size() > 0) {
             return false;
         } else {
             UserAccount user = new UserAccount();
-            user.setAccountName(account);
-            user.setPassword(password);
+            user.setPhoneNum(phoneNum);
             user.save();
             return true;
         }
     }
 
     // 登录
-    public boolean signIn(String account, String password) {
-        List<UserAccount> find = LitePal.where("accountName = ? and password = ?", account, password).find(UserAccount.class);
+    public boolean signIn(String phoneNum) {
+        List<UserAccount> find = LitePal.where("accountName = ?", phoneNum).find(UserAccount.class);
         if(find != null && find.size() == 1) {
             setUserAccount(find.get(0));
             return true;
@@ -73,8 +72,8 @@ public class UserAccountManager {
     }
 
     // 用规则判断账户信息是否有效
-    public boolean isAccountInfoValid(String account, String password) {
-        if(account.length() < 3 || password.length() < 3) {
+    public boolean isAccountInfoValid(String account) {
+        if(account.length() < 3 ) {
             return false;
         }
         return true;

@@ -11,17 +11,17 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
-import com.mob.tools.utils.UIHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,9 +29,6 @@ import java.util.List;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
-import cn.sharesdk.framework.ShareSDK;
-import cn.sharesdk.tencent.qq.QQ;
-import cn.sharesdk.wechat.friends.Wechat;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.RegisterPage;
@@ -48,11 +45,8 @@ public class LoginActivity extends AppCompatActivity {
     private final static int REQUESTCODE_ENABLEBLUETOOTH = 1;
 
     private EditText etAccount;
-    private EditText etPassword;
     private Button btnSignin;
     private Button btnSignup;
-    private CheckBox cbRememberPassword;
-    private CheckBox cbAutoSignin;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private Button btnPhoneSignin;
@@ -62,49 +56,29 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        etAccount = findViewById(R.id.account);
+        btnSignin = findViewById(R.id.btn_account_signin);
+        btnSignup = findViewById(R.id.btn_account_signup);
+        btnPhoneSignin = findViewById(R.id.btn_phone_signin);
+
         // 检查权限
         checkPermissions();
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
-
-        etAccount = findViewById(R.id.account);
-        etPassword = findViewById(R.id.password);
-        btnSignin = findViewById(R.id.btn_account_signin);
-        btnSignup = findViewById(R.id.btn_account_signup);
-        cbRememberPassword = findViewById(R.id.cb_remember_password);
-        cbAutoSignin = findViewById(R.id.cb_auto_signin);
-        btnPhoneSignin = findViewById(R.id.btn_phone_signin);
-
         // 读账户名
         String account = pref.getString("account", "");
         etAccount.setText(account);
 
-        String password = "";
-        // 读是否记住密码，并根据结果决定是否读取密码
-        boolean isRemember = pref.getBoolean("remember_password", false);
-        if(isRemember) {
-            password = pref.getString("password", "");
-        }
-        cbRememberPassword.setChecked(isRemember);
-
-        // 设置密码
-        etPassword.setText(password);
-
-        // 读是否自动登录
-        boolean autoSignin = pref.getBoolean("auto_signin", false);
-        cbAutoSignin.setChecked(autoSignin);
-
         // 根据是否自动登录及是否已经使能蓝牙，决定是否登录
-        if(autoSignin && BleDeviceUtil.isBleEnable(MyApplication.getContext())) {
-            signIn(account, password);
+        if(!TextUtils.isEmpty(account) && BleDeviceUtil.isBleEnable(MyApplication.getContext())) {
+            signIn(account);
         }
 
         btnSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String account = etAccount.getText().toString();
-                String password = etPassword.getText().toString();
-                signIn(account, password);
+                signIn(account);
             }
         });
 
@@ -112,8 +86,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String account = etAccount.getText().toString();
-                String password = etPassword.getText().toString();
-                signUp(account, password);
+                signUp(account);
             }
         });
 
@@ -133,12 +106,8 @@ public class LoginActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     enableBluetooth();
 
-                    boolean autoSignin = pref.getBoolean("auto_signin", false);
-                    if(autoSignin) {
-                        String account = etAccount.getText().toString();
-                        String password = etPassword.getText().toString();
-                        signIn(account, password);
-                    }
+                    String account = etAccount.getText().toString();
+                    signIn(account);
 
                 } else if (resultCode == RESULT_CANCELED) { // 不同意
                     Toast.makeText(this, "蓝牙不打开，程序无法运行", Toast.LENGTH_SHORT).show();
@@ -177,12 +146,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // 注册账户
-    private void signUp(String account, String password) {
-        if(!UserAccountManager.getInstance().isAccountInfoValid(account, password)) {
+    private void signUp(String account) {
+        if(!UserAccountManager.getInstance().isAccountInfoValid(account)) {
             Toast.makeText(LoginActivity.this, "注册的账户信息无效。", Toast.LENGTH_SHORT).show();
         }
 
-        boolean result = UserAccountManager.getInstance().signUp(account, password);
+        boolean result = UserAccountManager.getInstance().signUp(account);
         if(!result) {
             Toast.makeText(LoginActivity.this, "账户已存在。", Toast.LENGTH_SHORT).show();
         } else {
@@ -191,8 +160,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // 登录
-    private void signIn(String account, String password) {
-        boolean result = UserAccountManager.getInstance().signIn(account, password);
+    private void signIn(String account) {
+        boolean result = UserAccountManager.getInstance().signIn(account);
         if(result) {
             startMainActivity();
             finish();
@@ -210,20 +179,10 @@ public class LoginActivity extends AppCompatActivity {
     // 将登录信息保存到Pref
     private void saveLoginInfoToPref() {
         String account = etAccount.getText().toString();
-        String password = etPassword.getText().toString();
 
         editor = pref.edit();
 
         editor.putString("account", account);
-
-        if(cbRememberPassword.isChecked()) {
-            editor.putString("password", password);
-        } else {
-            editor.remove("password");
-        }
-
-        editor.putBoolean("remember_password", cbRememberPassword.isChecked());
-        editor.putBoolean("auto_signin", cbAutoSignin.isChecked());
 
         editor.apply();
     }

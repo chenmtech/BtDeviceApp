@@ -56,7 +56,7 @@ public class UserInfoActivity extends AppCompatActivity {
         btnCancel = findViewById(R.id.btn_userinfo_cancel);
 
         UserAccount account = UserAccountManager.getInstance().getUserAccount();
-        etAccountName.setText(account.getAccountName());
+        etAccountName.setText(account.getPhoneNum());
         etPassword.setText(account.getPassword());
         etUserName.setText(account.getUserName());
         cacheImagePath = account.getImagePath();
@@ -93,7 +93,7 @@ public class UserInfoActivity extends AppCompatActivity {
                         try {
                             ivUserImage.setDrawingCacheEnabled(true);
                             Bitmap bitmap = ivUserImage.getDrawingCache();
-                            File toFile = FileUtil.getFile(IMAGEDIR, account.getAccountName() + ".jpg");
+                            File toFile = FileUtil.getFile(IMAGEDIR, account.getPhoneNum() + ".jpg");
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivUserImage.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();
