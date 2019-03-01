@@ -1,20 +1,20 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -24,14 +24,10 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import cn.sharesdk.framework.Platform;
-import cn.sharesdk.framework.PlatformActionListener;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
-import cn.smssdk.gui.RegisterPage;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
@@ -43,59 +39,97 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 public class LoginActivity extends AppCompatActivity {
     // 使能蓝牙权限返回码
     private final static int REQUESTCODE_ENABLEBLUETOOTH = 1;
+    private final static String PHONENUMBER_CHINA = "86";
 
-    private EditText etAccount;
-    private Button btnSignin;
-    private Button btnSignup;
+    private EditText etPhone;
+    private EditText etVeriCode;
+    private Button btnPhoneSignin;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
-    private Button btnPhoneSignin;
+
+    private String phone; // 手机号
+    private String veriCode; // 验证码
+    private boolean hasSendCode = false; // 服务器是否已发送验证码
+
+    private EventHandler eventHandler = new EventHandler() {
+        public void afterEvent(int event, int result, Object data) {
+            // afterEvent会在子线程被调用，因此如果后续有UI相关操作，需要将数据发送到UI线程
+            Message msg = new Message();
+            msg.arg1 = event;
+            msg.arg2 = result;
+            msg.obj = data;
+            new Handler(Looper.getMainLooper(), new Handler.Callback() {
+                @Override
+                public boolean handleMessage(Message msg) {
+                    int event = msg.arg1;
+                    int result = msg.arg2;
+                    Object data = msg.obj;
+                    if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
+                        if (result == SMSSDK.RESULT_COMPLETE) {
+                            // TODO 处理成功得到验证码的结果
+                            // 请注意，此时只是完成了发送验证码的请求，验证码短信还需要几秒钟之后才送达
+                            hasSendCode = true;
+                            boolean smart = (Boolean) data;
+                            if(smart) {
+                                // 智能验证成功，直接登录
+                                signIn(phone);
+                            } else {
+                                Toast.makeText(LoginActivity.this, "验证码已发出，请稍等。", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            // TODO 处理错误的结果
+                            ((Throwable) data).printStackTrace();
+                        }
+                    } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                        if (result == SMSSDK.RESULT_COMPLETE) {
+                            // TODO 处理验证码验证通过的结果
+                            hasSendCode = false;
+                            signIn(phone);
+                        } else {
+                            // TODO 处理错误的结果
+                            ((Throwable) data).printStackTrace();
+                        }
+                    }
+                    // TODO 其他接口的返回结果也类似，根据event判断当前数据属于哪个接口
+                    return false;
+                }
+            }).sendMessage(msg);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        etAccount = findViewById(R.id.account);
-        btnSignin = findViewById(R.id.btn_account_signin);
-        btnSignup = findViewById(R.id.btn_account_signup);
+        etPhone = findViewById(R.id.phone);
+        etVeriCode = findViewById(R.id.verficationcode);
         btnPhoneSignin = findViewById(R.id.btn_phone_signin);
+
+        // 注册一个事件回调，用于处理SMSSDK接口请求的结果
+        SMSSDK.registerEventHandler(eventHandler);
 
         // 检查权限
         checkPermissions();
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         // 读账户名
-        String account = pref.getString("account", "");
-        etAccount.setText(account);
-
-        // 根据是否自动登录及是否已经使能蓝牙，决定是否登录
-        if(!TextUtils.isEmpty(account) && BleDeviceUtil.isBleEnable(MyApplication.getContext())) {
-            signIn(account);
-        }
-
-        btnSignin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String account = etAccount.getText().toString();
-                signIn(account);
-            }
-        });
-
-        btnSignup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String account = etAccount.getText().toString();
-                signUp(account);
-            }
-        });
+        phone = pref.getString("phone", "");
+        etPhone.setText(phone);
 
         btnPhoneSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendCode(LoginActivity.this);
+                phone = etPhone.getText().toString();
+                veriCode = etVeriCode.getText().toString();
+                if(!hasSendCode) {
+                    getVeriCode(phone); // 获取验证码
+                } else {
+                    verify(phone, veriCode); // 验证
+                }
             }
         });
+
     }
 
     @Override
@@ -105,9 +139,6 @@ public class LoginActivity extends AppCompatActivity {
             case REQUESTCODE_ENABLEBLUETOOTH:
                 if (resultCode == RESULT_OK) {
                     enableBluetooth();
-
-                    String account = etAccount.getText().toString();
-                    signIn(account);
 
                 } else if (resultCode == RESULT_CANCELED) { // 不同意
                     Toast.makeText(this, "蓝牙不打开，程序无法运行", Toast.LENGTH_SHORT).show();
@@ -143,30 +174,17 @@ public class LoginActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         saveLoginInfoToPref();
-    }
-
-    // 注册账户
-    private void signUp(String account) {
-        if(!UserAccountManager.getInstance().isAccountInfoValid(account)) {
-            Toast.makeText(LoginActivity.this, "注册的账户信息无效。", Toast.LENGTH_SHORT).show();
-        }
-
-        boolean result = UserAccountManager.getInstance().signUp(account);
-        if(!result) {
-            Toast.makeText(LoginActivity.this, "账户已存在。", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(LoginActivity.this, "注册成功。", Toast.LENGTH_SHORT).show();
-        }
+        SMSSDK.unregisterEventHandler(eventHandler);
     }
 
     // 登录
-    private void signIn(String account) {
-        boolean result = UserAccountManager.getInstance().signIn(account);
-        if(result) {
+    private void signIn(String phone) {
+        if(UserAccountManager.getInstance().signIn(phone) || UserAccountManager.getInstance().signUp(phone)) {
+            Toast.makeText(LoginActivity.this, "登录成功。", Toast.LENGTH_LONG).show();
             startMainActivity();
             finish();
         } else {
-            Toast.makeText(LoginActivity.this, "账户和密码不正确。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, "登录错误。", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -178,12 +196,8 @@ public class LoginActivity extends AppCompatActivity {
 
     // 将登录信息保存到Pref
     private void saveLoginInfoToPref() {
-        String account = etAccount.getText().toString();
-
         editor = pref.edit();
-
-        editor.putString("account", account);
-
+        editor.putString("phone", phone);
         editor.apply();
     }
 
@@ -223,75 +237,16 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void authorize(Platform plat) {
-        if (plat == null || !plat.isClientValid()) {
-            Toast.makeText(this, "无法登陆", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        //判断指定平台是否已经完成授权
-        if(plat.isAuthValid()) {
-            String userId = plat.getDb().getUserId();
-            if (userId != null) {
-                Toast.makeText(this, "已经授权", Toast.LENGTH_SHORT).show();
-                login(plat.getName(), userId, null);
-                return;
-            }
-        }
-        plat.setPlatformActionListener(new PlatformActionListener() {
-            @Override
-            public void onComplete(Platform platform, int action, HashMap<String, Object> hashMap) {
-                if (action == Platform.ACTION_USER_INFOR) {
-                    Toast.makeText(LoginActivity.this, "授权成功", Toast.LENGTH_SHORT).show();
-                    login(platform.getName(), platform.getDb().getUserId(), hashMap);
-                }
-                System.out.println(hashMap);
-                System.out.println("------User Name ---------" + platform.getDb().getUserName());
-                System.out.println("------User ID ---------" + platform.getDb().getUserId());
-            }
-
-            @Override
-            public void onError(Platform platform, int action, Throwable throwable) {
-                if (action == Platform.ACTION_USER_INFOR) {
-                    Toast.makeText(LoginActivity.this, "授权失败", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancel(Platform platform, int action) {
-                if (action == Platform.ACTION_USER_INFOR) {
-                    Toast.makeText(LoginActivity.this, "授权取消", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        // true不使用SSO授权，false使用SSO授权
-        plat.SSOSetting(false);
-        //获取用户资料
-        plat.authorize();
+    // 获取验证码
+    private void getVeriCode(final String phone) {
+        // 请求验证码，其中country表示国家代码，如“86”；phone表示手机号码，如“13800138000”
+        SMSSDK.getVerificationCode(PHONENUMBER_CHINA, phone);
     }
 
-    private void login(String plat, String userId, HashMap<String, Object> userInfo) {
-        Toast.makeText(LoginActivity.this, "开始登陆", Toast.LENGTH_SHORT).show();
-    }
-
-    private void sendCode(Context context) {
-        RegisterPage page = new RegisterPage();
-        //如果使用我们的ui，没有申请模板编号的情况下需传null
-        page.setTempCode(null);
-        page.setRegisterCallback(new EventHandler() {
-            public void afterEvent(int event, int result, Object data) {
-                if (result == SMSSDK.RESULT_COMPLETE) {
-                    // 处理成功的结果
-                    HashMap<String,Object> phoneMap = (HashMap<String, Object>) data;
-                    String country = (String) phoneMap.get("country"); // 国家代码，如“86”
-                    String phone = (String) phoneMap.get("phone"); // 手机号码，如“13800138000”
-                    // TODO 利用国家代码和手机号码进行后续的操作
-
-                } else{
-                    // TODO 处理错误的结果
-                }
-            }
-        });
-        page.show(context);
+    // 提交验证
+    private void verify(final String phone, final String veriCode) {
+        // 提交验证码，其中的code表示验证码，如“1357”
+        SMSSDK.submitVerificationCode(PHONENUMBER_CHINA, phone, veriCode);
     }
 
 }

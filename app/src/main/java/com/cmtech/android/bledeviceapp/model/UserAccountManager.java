@@ -56,27 +56,20 @@ public class UserAccountManager {
             UserAccount user = new UserAccount();
             user.setPhoneNum(phoneNum);
             user.save();
+            setUserAccount(user);
             return true;
         }
     }
 
     // 登录
     public boolean signIn(String phoneNum) {
-        List<UserAccount> find = LitePal.where("accountName = ?", phoneNum).find(UserAccount.class);
+        List<UserAccount> find = LitePal.where("phoneNum = ?", phoneNum).find(UserAccount.class);
         if(find != null && find.size() == 1) {
             setUserAccount(find.get(0));
             return true;
         } else {
             return false;
         }
-    }
-
-    // 用规则判断账户信息是否有效
-    public boolean isAccountInfoValid(String account) {
-        if(account.length() < 3 ) {
-            return false;
-        }
-        return true;
     }
 
 }

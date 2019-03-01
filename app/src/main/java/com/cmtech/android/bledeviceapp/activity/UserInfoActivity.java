@@ -57,7 +57,6 @@ public class UserInfoActivity extends AppCompatActivity {
 
         UserAccount account = UserAccountManager.getInstance().getUserAccount();
         etAccountName.setText(account.getPhoneNum());
-        etPassword.setText(account.getPassword());
         etUserName.setText(account.getUserName());
         cacheImagePath = account.getImagePath();
         if("".equals(cacheImagePath)) {
@@ -72,12 +71,6 @@ public class UserInfoActivity extends AppCompatActivity {
             public void onClick(View view) {
                 UserAccount account = UserAccountManager.getInstance().getUserAccount();
                 account.setUserName(etUserName.getText().toString());
-
-                String password = etPassword.getText().toString();
-                if(!account.getPassword().equals(password)) {
-                    modifyPasswordInPref(password);
-                    account.setPassword(password);
-                }
 
                 if(!cacheImagePath.equals(account.getImagePath())) {
                     // 把原来的图像文件删除

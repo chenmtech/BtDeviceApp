@@ -60,6 +60,8 @@ MobSDK {
 
     SMSSDK {}
 
+    UMSSDK {}
+
 }
 
 dependencies {
