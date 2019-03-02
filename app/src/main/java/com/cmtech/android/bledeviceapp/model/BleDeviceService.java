@@ -109,6 +109,8 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
 
         stopWarnRingtone();
 
+        UserAccountManager.getInstance().signOut();
+
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -119,8 +121,6 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
                 // 防止设备没有彻底断开
                 BleDeviceUtil.disconnectAllDevice();
                 BleDeviceUtil.clearAllDevice();
-
-                UserAccountManager.getInstance().signOut();
             }
         }, 1000);
 
