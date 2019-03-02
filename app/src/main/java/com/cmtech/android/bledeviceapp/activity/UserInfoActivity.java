@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -53,6 +54,10 @@ public class UserInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_userinfo);
 
         if(!UserAccountManager.getInstance().isSignIn()) finish();
+
+        // 创建ToolBar
+        Toolbar toolbar = findViewById(R.id.tb_setuserinfo);
+        setSupportActionBar(toolbar);
 
         etPhone = findViewById(R.id.et_userinfo_phone);
         etName = findViewById(R.id.et_userinfo_username);

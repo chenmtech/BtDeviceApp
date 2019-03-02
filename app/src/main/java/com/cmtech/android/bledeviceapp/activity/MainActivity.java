@@ -428,6 +428,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
         if(factory != null) {
             openFragment(factory.createFragment(), device.getNickName());
+            updateMainLayoutVisibility();
+            updateToolBar(device);
         }
     }
 
@@ -551,8 +553,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         drawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
         fragmentManager.addFragment(fragment, "", tabText);
-        updateMainLayoutVisibility();
-        invalidateOptionsMenu();
     }
 
     // 显示Fragment

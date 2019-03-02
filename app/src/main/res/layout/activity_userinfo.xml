@@ -2,7 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:toolbar="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tb_setuserinfo"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        toolbar:title="修改账户信息"
+        toolbar:navigationIcon="@mipmap/ic_menu_changeuser"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <LinearLayout
         android:orientation="horizontal"
