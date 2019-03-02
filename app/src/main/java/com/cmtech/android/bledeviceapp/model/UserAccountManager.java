@@ -53,10 +53,9 @@ public class UserAccountManager {
         if(find != null && find.size() > 0) {
             return false;
         } else {
-            UserAccount user = new UserAccount();
-            user.setPhone(phone);
-            user.save();
-            setUserAccount(user);
+            userAccount = new UserAccount();
+            userAccount.setPhone(phone);
+            userAccount.save();
             return true;
         }
     }

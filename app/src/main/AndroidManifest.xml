@@ -80,7 +80,7 @@
 
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity" />
 
-        <activity android:name=".activity.UserInfoActivity" />
+        <activity android:name=".activity.UserInfoActivity"/>
 
         <service
             android:name=".model.BleDeviceService"

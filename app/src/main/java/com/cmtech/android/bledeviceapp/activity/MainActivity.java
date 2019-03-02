@@ -175,6 +175,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 startActivityForResult(intent, REQUESTCODE_MODIFY_USERINFO);
             }
         });
+        // 更新导航视图
+        updateNavigationViewUsingUserInfo();
 
         // 设置FAB，FloatingActionButton
         fabConnect = findViewById(R.id.fab_connect);
@@ -203,9 +205,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 updateFloatingActionButton(device);
             }
         });
-
-        // 更新导航视图
-        updateNavigationViewUsingUserInfo();
 
         // 初始化欢迎界面
         initWelcomeLayout();
@@ -529,8 +528,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = pref.edit();
-        editor.putBoolean("auto_signin", false);
-        editor.apply();
+        editor.putString("phone", "");
+        editor.putLong("logintime", -1);
+        editor.commit();
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         requestFinish();

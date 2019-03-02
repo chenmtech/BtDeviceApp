@@ -44,13 +44,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText etPhone;
     private EditText etVeriCode;
+    private Button btnGetVeriCode;
     private Button btnPhoneSignin;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
 
     private String phone; // 手机号
     private String veriCode; // 验证码
-    private boolean successSendCode = false; // 服务器已成功发送验证码
     // 验证回调处理器
     private EventHandler eventHandler = new EventHandler() {
         public void afterEvent(int event, int result, Object data) {
@@ -69,7 +69,6 @@ public class LoginActivity extends AppCompatActivity {
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // TODO 处理成功得到验证码的结果
                             // 请注意，此时只是完成了发送验证码的请求，验证码短信还需要几秒钟之后才送达
-                            successSendCode = true;
                             if((Boolean) data) {
                                 // 智能验证成功，直接登录
                                 signIn(phone);
@@ -81,12 +80,12 @@ public class LoginActivity extends AppCompatActivity {
                             ((Throwable) data).printStackTrace();
                         }
                     } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
-                        successSendCode = false;
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // TODO 处理验证码验证通过的结果
                             signIn(phone);
                         } else {
                             // TODO 处理错误的结果
+                            Toast.makeText(LoginActivity.this, "验证失败。", Toast.LENGTH_SHORT).show();
                             ((Throwable) data).printStackTrace();
                         }
                     }
@@ -104,6 +103,7 @@ public class LoginActivity extends AppCompatActivity {
 
         etPhone = findViewById(R.id.phone);
         etVeriCode = findViewById(R.id.verficationcode);
+        btnGetVeriCode = findViewById(R.id.btn_get_vericode);
         btnPhoneSignin = findViewById(R.id.btn_phone_signin);
 
         // 注册一个事件回调，用于处理SMSSDK接口请求的结果
@@ -117,16 +117,27 @@ public class LoginActivity extends AppCompatActivity {
         phone = pref.getString("phone", "");
         etPhone.setText(phone);
 
+        long lastLoginTime = pref.getLong("logintime", -1);
+        int oneDayMillis = 24 * 60 * 60 * 1000;
+        // 当前时间与上次登录时间位于一天之内，则自动登录
+        if(System.currentTimeMillis() - lastLoginTime < oneDayMillis) {
+            signIn(phone);
+        }
+
+        btnGetVeriCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                phone = etPhone.getText().toString();
+                getVeriCode(phone); // 获取验证码
+            }
+        });
+
         btnPhoneSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 phone = etPhone.getText().toString();
-                if(!successSendCode) {
-                    getVeriCode(phone); // 获取验证码
-                } else {
-                    veriCode = etVeriCode.getText().toString();
-                    verify(phone, veriCode); // 验证
-                }
+                veriCode = etVeriCode.getText().toString();
+                verify(phone, veriCode); // 验证
             }
         });
 
@@ -139,7 +150,6 @@ public class LoginActivity extends AppCompatActivity {
             case REQUESTCODE_ENABLEBLUETOOTH:
                 if (resultCode == RESULT_OK) {
                     enableBluetooth();
-
                 } else if (resultCode == RESULT_CANCELED) { // 不同意
                     Toast.makeText(this, "蓝牙不打开，程序无法运行", Toast.LENGTH_SHORT).show();
                     finish();
@@ -171,7 +181,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        saveLoginInfoToPref();
+
         SMSSDK.unregisterEventHandler(eventHandler);
     }
 
@@ -180,6 +190,7 @@ public class LoginActivity extends AppCompatActivity {
         UserAccountManager manager = UserAccountManager.getInstance();
         if(manager.signIn(phone) || manager.signUp(phone)) {
             //Toast.makeText(LoginActivity.this, "登录成功。", Toast.LENGTH_LONG).show();
+            saveLoginInfoToPref();
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -192,7 +203,8 @@ public class LoginActivity extends AppCompatActivity {
     private void saveLoginInfoToPref() {
         editor = pref.edit();
         editor.putString("phone", phone);
-        editor.apply();
+        editor.putLong("logintime", System.currentTimeMillis());
+        editor.commit();
     }
 
 
