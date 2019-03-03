@@ -16,15 +16,17 @@ import java.util.Arrays;
 
 public class EcgFileHead {
     public static EcgFileHead createDefaultEcgFileHead() {
-        return new EcgFileHead("", "", "", EcgLeadType.LEAD_I);
+        return new EcgFileHead(new UserAccount(), "", EcgLeadType.LEAD_I);
     }
 
+    private static final int CREATOR_PHONE_LEN = 15; // 创建人手机号
     private static final int CREATOR_NAME_LEN = 10; // 创建人名字符数
     private static final int CREATOR_REMARK_LEN = 50; // 创建人备注字符数
     private static final int MACADDRESS_LEN = 12;           // mac地址字符数
 
     private static final byte[] ECGFILE_TAG = {'E', 'C', 'G'};          // 心电文件标识
     private static final byte[] VER = new byte[] {0x01, 0x01};         // 心电文件头版本号1.1，便于以后升级
+    private String phone = ""; // 创建人手机号
     private String creator = ""; // 创建人
     private String creatorRemark = ""; // 创建人备注
     private String macAddress = "";                                     // 设备地址
@@ -36,6 +38,14 @@ public class EcgFileHead {
 
     public void setMacAddress(String macAddress) {
         this.macAddress = macAddress;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getCreator() {
@@ -62,7 +72,8 @@ public class EcgFileHead {
         this.creatorRemark = creatorRemark;
     }
 
-    public EcgFileHead(String creator, String creatorRemark, String macAddress, EcgLeadType leadType) {
+    private EcgFileHead(String phone, String creator, String creatorRemark, String macAddress, EcgLeadType leadType) {
+        this.phone = phone;
         this.creator = creator;
         this.creatorRemark = creatorRemark;
         this.macAddress = macAddress;
@@ -70,7 +81,7 @@ public class EcgFileHead {
     }
 
     public EcgFileHead(UserAccount account, String macAddress, EcgLeadType leadType) {
-        this(account.getUserName(), account.getRemark(), macAddress, leadType);
+        this(account.getPhone(), account.getUserName(), account.getRemark(), macAddress, leadType);
     }
 
     public boolean readFromStream(DataInput in) {
@@ -84,6 +95,8 @@ public class EcgFileHead {
             // 读版本号
             byte[] ver = new byte[2];
             in.readFully(ver);
+            // 读创建人手机号
+            phone = DataIOUtil.readFixedString(CREATOR_PHONE_LEN, in);
             // 读创建人
             creator = DataIOUtil.readFixedString(CREATOR_NAME_LEN, in);
             // 读创建人备注
@@ -104,6 +117,8 @@ public class EcgFileHead {
             out.write(ECGFILE_TAG);
             // 写版本号
             out.write(VER);
+            // 写创建人手机号
+            DataIOUtil.writeFixedString(phone, CREATOR_PHONE_LEN, out);
             // 写创建人
             DataIOUtil.writeFixedString(creator, CREATOR_NAME_LEN, out);
             // 写创建人备注
@@ -130,6 +145,6 @@ public class EcgFileHead {
 
     // EcgFileHead字节长度：3个字节的{E,C,G} + 2个字节的版本号 + 创建人 + 创建人备注 + 创建设备MAC + 导联类型（4字节）
     public int length() {
-        return 3 + 2 + CREATOR_NAME_LEN *2 + CREATOR_REMARK_LEN *2 + MACADDRESS_LEN *2 + 4;
+        return 3 + 2 + CREATOR_PHONE_LEN *2 + CREATOR_NAME_LEN *2 + CREATOR_REMARK_LEN *2 + MACADDRESS_LEN *2 + 4;
     }
 }
