@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:text="欢迎使用康明物联移动APP"
-            android:textSize="20sp"
+            android:textSize="30sp"
             android:textColor="#000"/>
 
         <LinearLayout

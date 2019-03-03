@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
                             // 请注意，此时只是完成了发送验证码的请求，验证码短信还需要几秒钟之后才送达
                             if((Boolean) data) {
                                 // 智能验证成功，直接登录
-                                signIn(phone);
+                                signIn(phone, true);
                             } else {
                                 Toast.makeText(LoginActivity.this, "验证码已发出，请稍等。", Toast.LENGTH_SHORT).show();
                             }
@@ -82,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
                     } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // TODO 处理验证码验证通过的结果
-                            signIn(phone);
+                            signIn(phone, true);
                         } else {
                             // TODO 处理错误的结果
                             Toast.makeText(LoginActivity.this, "验证失败。", Toast.LENGTH_SHORT).show();
@@ -121,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
         int oneDayMillis = 24 * 60 * 60 * 1000;
         // 当前时间与上次登录时间位于一天之内，则自动登录
         if(System.currentTimeMillis() - lastLoginTime < oneDayMillis) {
-            signIn(phone);
+            signIn(phone, false);
         }
 
         btnGetVeriCode.setOnClickListener(new View.OnClickListener() {
@@ -186,11 +186,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // 登录
-    private void signIn(String phone) {
+    private void signIn(String phone, boolean isSave) {
         UserAccountManager manager = UserAccountManager.getInstance();
         if(manager.signIn(phone) || manager.signUp(phone)) {
             //Toast.makeText(LoginActivity.this, "登录成功。", Toast.LENGTH_LONG).show();
-            saveLoginInfoToPref();
+            if(isSave)
+                saveLoginInfoToPref();
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
