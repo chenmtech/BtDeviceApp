@@ -9,13 +9,13 @@ import com.cmtech.android.bledeviceapp.R;
 
 public enum BleDeviceConnectState {
     CONNECT_INIT(-1, "连接初始化", R.mipmap.ic_connect_disconnect),
-    CONNECT_PROCESS(0x00, "正在连接", R.mipmap.ic_connect_3),
+    CONNECT_PROCESS(0x00, "正在连接", R.mipmap.ic_connect_5),
     CONNECT_SUCCESS(0x01, "已连接", R.mipmap.ic_connect_connected),
     CONNECT_FAILURE(0x02, "连接错误", R.mipmap.ic_connect_disconnect),
     CONNECT_TIMEOUT(0x03, "连接超时", R.mipmap.ic_connect_disconnect),
     CONNECT_DISCONNECT(0x04, "连接断开", R.mipmap.ic_connect_disconnect),
 
-    CONNECT_SCAN(0x05, "正在扫描", R.mipmap.ic_connect_3),
+    CONNECT_SCAN(0x05, "正在扫描", R.mipmap.ic_connect_4),
     CONNECT_CLOSED(0x06, "设备关闭", R.mipmap.ic_connect_disconnect);
 
     /**

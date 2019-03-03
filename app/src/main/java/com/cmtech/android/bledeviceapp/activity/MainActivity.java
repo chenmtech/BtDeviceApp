@@ -1,10 +1,13 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -56,6 +59,8 @@ import com.vise.log.ViseLog;
 import java.io.Serializable;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_PROCESS;
+import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_SCAN;
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 import static com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity.REGISTERED_DEVICE_MAC_LIST;
 
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountPortrait; // 头像控件
     private boolean isFinishService = false; // 是否结束服务
+    private ObjectAnimator fabAnimator; // 浮动动作按钮的动画
 
     private ServiceConnection deviceServiceConnect = new ServiceConnection() {
         @Override
@@ -385,7 +391,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
         if(currentFrag != null && deviceFrag == currentFrag) {
             // 更新工具条Title
-            toolbar.setTitle(currentFrag.getDevice().getConnectState().getDescription());
+            //toolbar.setTitle(currentFrag.getDevice().getConnectState().getDescription());
             updateFloatingActionButton(currentFrag.getDevice());
         }
     }
@@ -631,12 +637,23 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         toolbar.setLogoDescription(device.getNickName());
 
         // 更新工具条Title
-        toolbar.setTitle(device.getConnectState().getDescription());
+        //toolbar.setTitle(device.getConnectState().getDescription());
     }
 
+    // 更新浮动动作按钮
     private void updateFloatingActionButton(BleDevice device) {
         if(device != null) {
             fabConnect.setImageResource(device.getStateIcon());
+
+            if(device.getConnectState() != CONNECT_PROCESS && device.getConnectState() != CONNECT_SCAN && fabAnimator != null) {
+                fabAnimator.setRepeatCount(0);
+                fabConnect.clearAnimation();
+            } else {
+                fabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, 360f).setDuration(3000);
+                fabAnimator.setRepeatCount(ValueAnimator.INFINITE);
+                fabAnimator.setAutoCancel(true);
+                fabAnimator.start();
+            }
         }
     }
 }
