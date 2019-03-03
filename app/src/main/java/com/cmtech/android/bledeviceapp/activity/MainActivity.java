@@ -643,17 +643,20 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     // 更新浮动动作按钮
     private void updateFloatingActionButton(BleDevice device) {
         if(device != null) {
-            fabConnect.setImageResource(device.getStateIcon());
-
-            if(device.getConnectState() != CONNECT_PROCESS && device.getConnectState() != CONNECT_SCAN && fabAnimator != null) {
-                fabAnimator.setRepeatCount(0);
-                fabConnect.clearAnimation();
-            } else {
-                fabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, 360f).setDuration(3000);
-                fabAnimator.setRepeatCount(ValueAnimator.INFINITE);
-                fabAnimator.setAutoCancel(true);
-                fabAnimator.start();
+            float degree = 360.0f;
+            long duration = 3000;
+            int count = ValueAnimator.INFINITE;
+            if(device.getConnectState() != CONNECT_PROCESS && device.getConnectState() != CONNECT_SCAN) {
+                degree = 0.0f;
+                duration = 100;
+                count = 0;
             }
+            fabConnect.clearAnimation();
+            fabConnect.setImageResource(device.getStateIcon());
+            fabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, degree).setDuration(duration);
+            fabAnimator.setRepeatCount(count);
+            fabAnimator.setAutoCancel(true);
+            fabAnimator.start();
         }
     }
 }

@@ -24,15 +24,17 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         View fileView;
         TextView tvCreator; // 创建人
         TextView tvCreateTime; // 创建时间
-        TextView tvLastAppendix; // 最后一条附加信息
+        TextView tvModifiedTime; // 最后修改时间
+        TextView tvLength; // 信号长度
         ImageButton ibShare; // 分享按钮
 
         ViewHolder(View itemView) {
             super(itemView);
             fileView = itemView;
-            tvCreator = fileView.findViewById(R.id.ecgfile_createperson);
+            tvCreator = fileView.findViewById(R.id.ecgfile_creator);
             tvCreateTime = fileView.findViewById(R.id.ecgfile_createtime);
-            tvLastAppendix = fileView.findViewById(R.id.ecgfile_lastcomment);
+            tvModifiedTime = fileView.findViewById(R.id.ecgfile_modifiedtime);
+            tvLength = fileView.findViewById(R.id.ecgfile_length);
             ibShare = fileView.findViewById(R.id.ib_ecgfile_share);
         }
     }
@@ -53,7 +55,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             @Override
             public void onClick(View view) {
                 int selectPos = holder.getAdapterPosition();
-                // 已经选择的和这次点击的一样，即再次点击
+                // 这次点击的未知与已经选择的位置一样，即再次点击
                 if(selectPos == explorerModel.getCurrentSelectIndex()) {
                     explorerModel.replaySelectedFile();
                 }
@@ -80,16 +82,17 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
         holder.tvCreator.setText(file.getCreator());
 
-        String createTimeAndLength = MyApplication.getContext().getResources().getString(R.string.ecgfile_createinfo);
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
         String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
-        createTimeAndLength = String.format(createTimeAndLength, createTime, fileTimeLength);
-        holder.tvCreateTime.setText(createTimeAndLength);
+        holder.tvCreateTime.setText(createTime);
+        holder.tvLength.setText(fileTimeLength);
+        String modifiedTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getFile().lastModified());
+        holder.tvModifiedTime.setText(modifiedTime);
 
-        int appendixNum = file.getAppendixNum();
+        /*int appendixNum = file.getAppendixNum();
         if(appendixNum > 0) {
             IEcgAppendix lastAppendix = file.getAppendixList().get(appendixNum - 1);
-            /*String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
+            *//*String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
             createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getCreateTime());
             String person = appendix.getCreator();
             String tvContent;
@@ -102,11 +105,11 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             }
             lastEcgComment = String.format(lastEcgComment, createTime, person, tvContent);
 
-            holder.tvLastAppendix.setText(lastEcgComment);*/
-            holder.tvLastAppendix.setText(lastAppendix.toStringWithSampleRate(file.getFs()));
+            holder.tvModifiedTime.setText(lastEcgComment);*//*
+            holder.tvModifiedTime.setText(lastAppendix.toStringWithSampleRate(file.getFs()));
         } else {
-            holder.tvLastAppendix.setText("无留言");
-        }
+            holder.tvModifiedTime.setText("无留言");
+        }*/
 
         int bgdColor;
         if(explorerModel.getCurrentSelectIndex() == position) {
