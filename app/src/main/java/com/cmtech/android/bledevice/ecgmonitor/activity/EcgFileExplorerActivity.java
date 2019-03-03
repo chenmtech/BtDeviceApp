@@ -21,7 +21,7 @@ import com.vise.log.ViseLog;
 
 import java.io.IOException;
 
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 
 /**
  * EcgFileExplorerActivity: 心电文件浏览Activity
@@ -30,6 +30,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILE
 
 public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver {
     private static final String TAG = "EcgFileExplorerActivity";
+    private static final int RCODE_REPLAY_ECG = 1; // 回放ECG的返回码
 
     private static EcgFileExplorerModel model;      // 文件浏览模型实例
     private EcgFileAdapter fileAdapter; // 文件列表Adapter
@@ -44,15 +45,15 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         setContentView(R.layout.activity_ecgfile_explorer);
 
         // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_ecgexplorer);
+        Toolbar toolbar = findViewById(R.id.tb_ecgfile_explorer);
         setSupportActionBar(toolbar);
 
-        if(ECGFILEDIR == null) {
+        if(ECG_FILE_DIR == null) {
             throw new IllegalStateException();
         }
 
         try {
-            model = new EcgFileExplorerModel(ECGFILEDIR);
+            model = new EcgFileExplorerModel(ECG_FILE_DIR);
         } catch (IOException e) {
             e.printStackTrace();
             finish();
@@ -82,11 +83,11 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case 1:
+            case RCODE_REPLAY_ECG:
                 // 回放心电信号返回
                 if(resultCode == RESULT_OK) {
                     boolean updated = data.getBooleanExtra("updated", false);
-                    ViseLog.e("Updated is " + updated);
+                    ViseLog.w("The ECG file is Updated: " + updated);
                     if(updated) model.reloadSelectedFile();
                 }
                 break;
@@ -146,7 +147,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     @Override
-    public void updateFileList() {
+    public void update() {
         fileAdapter.notifyDataSetChanged();
         if(model.getCurrentSelectIndex() >= 0 && model.getCurrentSelectIndex() < model.getFileList().size())
             rvFileList.smoothScrollToPosition(model.getCurrentSelectIndex());
@@ -157,7 +158,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     @Override
-    public void play(String fileName) {
+    public void replay(String fileName) {
         Intent intent = new Intent(EcgFileExplorerActivity.this, EcgReplayActivity.class);
         intent.putExtra("fileName", fileName);
         startActivityForResult(intent, 1);

@@ -73,7 +73,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center_vertical"
-        android:src="@mipmap/ic_ecgexplorer_share"
+        android:src="@mipmap/ic_share_32px"
         android:contentDescription="replay ecg file"
         android:background="@color/primary"
         android:layout_marginEnd="2dp"/>

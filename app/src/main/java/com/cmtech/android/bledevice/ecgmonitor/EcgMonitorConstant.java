@@ -13,10 +13,10 @@ import java.io.File;
 
 public class EcgMonitorConstant {
     // Ecg文件存放目录
-    public static final File ECGFILEDIR = MyApplication.getContext().getExternalFilesDir("ecgSignal");
+    public static final File ECG_FILE_DIR = MyApplication.getContext().getExternalFilesDir("ecgSignal");
 
     // 微信的下载存储目录
-    public static final String WECHAT_DOWNLOAD_DIR = Environment.getExternalStorageDirectory().getPath()+"/tencent/MicroMsg/Download";
+    public static final String WECHAT_DOWNLOAD_DIR = Environment.getExternalStorageDirectory().getPath() + "/tencent/MicroMsg/Download";
 
     // Ecg文件数据操作时分块的大小,单位字节
     public static final int ECG_BLOCK_LEN = 512;        // 添加和删除评论时，每次移动的文件数据块的大小

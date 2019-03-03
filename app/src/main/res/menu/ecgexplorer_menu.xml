@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/explorer_update"
-        android:icon="@mipmap/ic_ecgexplorer_update"
+        android:icon="@mipmap/ic_update_ecgfiles"
         android:orderInCategory="0"
         android:title="导入"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/explorer_delete"
-        android:icon="@mipmap/ic_ecgexplorer_delete"
+        android:icon="@mipmap/ic_file_delete_32px"
         android:orderInCategory="1"
         android:title="删除"
         app:showAsAction="always"/>

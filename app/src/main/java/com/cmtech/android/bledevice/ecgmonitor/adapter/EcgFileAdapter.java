@@ -55,7 +55,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
                 int selectPos = holder.getAdapterPosition();
                 // 已经选择的和这次点击的一样，即再次点击
                 if(selectPos == explorerModel.getCurrentSelectIndex()) {
-                    explorerModel.playSelectedFile();
+                    explorerModel.replaySelectedFile();
                 }
                 // 否则仅仅改变选中ecg文件
                 else {
@@ -67,7 +67,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.ibShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                explorerModel.shareSelectFileThroughWechat();
+                explorerModel.shareSelectedFileThroughWechat();
             }
         });
 

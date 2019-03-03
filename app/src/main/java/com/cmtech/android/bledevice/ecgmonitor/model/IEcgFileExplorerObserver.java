@@ -1,8 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 public interface IEcgFileExplorerObserver {
-    // 更新文件列表
-    void updateFileList();
+    // 更新列表
+    void update();
     // 播放指定文件
-    void play(String fileName);
+    void replay(String fileName);
 }

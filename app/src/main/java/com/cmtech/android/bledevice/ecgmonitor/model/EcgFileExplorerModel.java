@@ -70,16 +70,18 @@ public class EcgFileExplorerModel {
             throw new IOException("磁盘空间不足");
         }
 
-        fileList = initFileList(fileDir);
+        fileList = initEcgFileList(fileDir);
     }
 
-    private List<EcgFile> initFileList(File fileDir) {
+    // 初始化文件目录中的EcgFile列表
+    private List<EcgFile> initEcgFileList(File fileDir) {
         File[] files = BleDeviceUtil.listDirBmeFiles(fileDir);
         List<EcgFile> fileList = createEcgFileList(files);
         sortFileList(fileList);
         return fileList;
     }
 
+    // 创建相应的EcgFile列表
     private List<EcgFile> createEcgFileList(File[] files) {
         List<EcgFile> ecgFileList = new ArrayList<>();
         for(File file : files) {
@@ -102,6 +104,7 @@ public class EcgFileExplorerModel {
         return ecgFileList;
     }
 
+    // 给EcgFile文件列表按照最后修改时间排序
     private void sortFileList(List<EcgFile> fileList) {
         if(fileList.size() <= 1) return;
 
@@ -115,19 +118,21 @@ public class EcgFileExplorerModel {
 
     // 选中一个文件
     public void select(int index) {
+        if(index < 0 || index > fileList.size()-1) return;
+
         currentSelectIndex = index;
         if(observer != null) {
-            observer.updateFileList();
+            observer.update();
         }
     }
 
     // 播放选中的文件
-    public void playSelectedFile() {
+    public void replaySelectedFile() {
         if(currentSelectIndex >= 0 && currentSelectIndex < fileList.size()) {
             String fileName = fileList.get(currentSelectIndex).getFileName();
 
             if(observer != null) {
-                observer.play(fileName);
+                observer.replay(fileName);
             }
         }
     }
@@ -140,7 +145,7 @@ public class EcgFileExplorerModel {
             try {
                 ecgFile = EcgFile.open(fileName);
                 fileList.set(currentSelectIndex, ecgFile);
-                ViseLog.e(ecgFile.getAppendixString());
+                ViseLog.w(ecgFile.getAppendixString());
             } catch (IOException e) {
                 ViseLog.e(e);
                 return;
@@ -158,7 +163,7 @@ public class EcgFileExplorerModel {
             currentSelectIndex = fileList.size()-1;
 
             if(observer != null) {
-                observer.updateFileList();
+                observer.update();
             }
         }
     }
@@ -172,7 +177,7 @@ public class EcgFileExplorerModel {
 
                 if(currentSelectIndex > fileList.size()-1) currentSelectIndex = fileList.size()-1;
                 if(observer != null) {
-                    observer.updateFileList();
+                    observer.update();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -185,7 +190,7 @@ public class EcgFileExplorerModel {
         File wxFileDir = new File(WECHAT_DOWNLOAD_DIR);
         File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
 
-        boolean hasUpdated = false;
+        boolean updated = false;
 
         for(File wxFile : wxFileList) {
             EcgFile tmpEcgFile = null;
@@ -198,14 +203,14 @@ public class EcgFileExplorerModel {
 
                 if(toFile.exists()) {
                     toEcgFile = EcgFile.open(toFile.getCanonicalPath());
-                    if(mergeTwoEcgFileComments(tmpEcgFile, toEcgFile))
-                        hasUpdated = true;
+                    if(mergeEcgFileAppendix(tmpEcgFile, toEcgFile))
+                        updated = true;
                     wxFile.delete();
                 } else {
                     FileUtil.moveFile(wxFile, toFile);
                     toEcgFile = EcgFile.open(toFile.getCanonicalPath());
                     fileList.add(toEcgFile);
-                    hasUpdated = true;
+                    updated = true;
                 }
             } catch (IOException e) {
                 fileList.remove(toEcgFile);
@@ -228,18 +233,19 @@ public class EcgFileExplorerModel {
             }
         }
 
-        if(hasUpdated) {
+        if(updated) {
             sortFileList(fileList);
 
             currentSelectIndex = fileList.size() - 1;
 
             if (observer != null) {
-                observer.updateFileList();
+                observer.update();
             }
         }
     }
 
-    private boolean mergeTwoEcgFileComments(EcgFile srcFile, EcgFile destFile) {
+    // 融合EcgFile的附加留言
+    private boolean mergeEcgFileAppendix(EcgFile srcFile, EcgFile destFile) {
         List<IEcgAppendix> srcComments = srcFile.getEcgFileTail().getAppendixList();
         List<IEcgAppendix> destComments = destFile.getEcgFileTail().getAppendixList();
         List<IEcgAppendix> needAddComments = new ArrayList<>();
@@ -255,13 +261,13 @@ public class EcgFileExplorerModel {
         if(needAddComments.isEmpty())
             return false;
         else {
-            destFile.addAppendices(needAddComments);
+            destFile.addAppendix(needAddComments);
             return true;
         }
     }
 
     // 用微信分享BME文件
-    public void shareSelectFileThroughWechat() {
+    public void shareSelectedFileThroughWechat() {
         if(currentSelectIndex < 0 || currentSelectIndex >= fileList.size()) return;
 
         EcgFile sharedFile = fileList.get(currentSelectIndex);
@@ -271,12 +277,11 @@ public class EcgFileExplorerModel {
         String fileShortName = sharedFile.getFile().getName();
         sp.setTitle(fileShortName);
         sp.setText(fileShortName);
-
-        Bitmap bmp= BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_kang);
+        Bitmap bmp = BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_kang);
         sp.setImageData(bmp);
-
         sp.setFilePath(sharedFile.getFileName());
-        Platform wxPlatform = ShareSDK.getPlatform (Wechat.NAME);
+
+        Platform wxPlatform = ShareSDK.getPlatform(Wechat.NAME);
         wxPlatform.setPlatformActionListener(new PlatformActionListener() {
             @Override
             public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
@@ -296,8 +301,6 @@ public class EcgFileExplorerModel {
         // 执行分享
         wxPlatform.share(sp);
     }
-
-
 
     // 登记心电文件浏览器观察者
     public void registerEcgFileExplorerObserver(IEcgFileExplorerObserver observer) {

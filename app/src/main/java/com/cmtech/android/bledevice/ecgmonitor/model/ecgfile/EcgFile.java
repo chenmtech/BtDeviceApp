@@ -190,7 +190,7 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     // 添加多条附加信息
-    public void addAppendices(List<IEcgAppendix> appendices) {
+    public void addAppendix(List<IEcgAppendix> appendices) {
         for(IEcgAppendix appendix : appendices) {
             ecgFileTail.addAppendix(appendix);
         }

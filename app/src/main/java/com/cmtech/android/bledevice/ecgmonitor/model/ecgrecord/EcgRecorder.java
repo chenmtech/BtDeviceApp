@@ -1,21 +1,17 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgLocatedComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECGFILEDIR;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 
 /**
  * EcgRecorder: 心电记录器
@@ -81,12 +77,12 @@ public class EcgRecorder {
                     FileUtil.deleteFile(ecgFile.getFile());
                 } else {    // 如果有数据
                     if (!appendixList.isEmpty()) {
-                        ecgFile.addAppendices(appendixList);
+                        ecgFile.addAppendix(appendixList);
                     }
                     ecgFile.saveFileTail();
                     ecgFile.close();
                     ViseLog.e(ecgFile);
-                    File toFile = FileUtil.getFile(ECGFILEDIR, ecgFile.getFile().getName());
+                    File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
                     // 将缓存区中的文件移动到ECGFILEDIR目录中
                     FileUtil.moveFile(ecgFile.getFile(), toFile);
                 }
