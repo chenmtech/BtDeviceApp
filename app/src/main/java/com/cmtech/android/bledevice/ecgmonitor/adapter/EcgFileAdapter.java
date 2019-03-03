@@ -94,7 +94,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             IEcgAppendix lastAppendix = file.getAppendixList().get(appendixNum - 1);
             *//*String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
             createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getCreateTime());
-            String person = appendix.getCreator();
+            String person = appendix.getCreatorName();
             String tvContent;
             if(!(appendix instanceof IEcgAppendixDataLocation)) {
                 tvContent = appendix.getContent();

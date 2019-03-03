@@ -19,7 +19,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="创建人："
+                android:text="创建："
                 android:textColor="@color/secondary_text"
                 android:textSize="18sp"/>
 
@@ -31,13 +31,6 @@
                 android:text="匿名"
                 android:textColor="@color/primary_text"
                 android:maxLength="10"
-                android:textSize="18sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="时间："
-                android:textColor="@color/secondary_text"
                 android:textSize="18sp"/>
 
             <TextView
@@ -89,7 +82,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="修改时间："
+                android:text="最后修改时间："
                 android:textColor="@color/secondary_text"
                 android:textSize="16sp"/>
 

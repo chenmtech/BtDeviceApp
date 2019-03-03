@@ -1,7 +1,12 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import com.cmtech.android.bledeviceapp.util.DataIOUtil;
+
 import org.litepal.crud.LitePalSupport;
 
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -10,6 +15,10 @@ import java.io.Serializable;
  */
 
 public class UserAccount  extends LitePalSupport implements Serializable{
+    private static final int PHONE_LEN = 15; // 手机号字符数
+    private static final int NAME_LEN = 10; // 人名字符数
+    private static final int REMARK_LEN = 50; // 备注字符数
+
     private int id; // id
     private String phone = ""; // 手机号
     private String userName = "未设置"; // 网络名称
@@ -54,5 +63,36 @@ public class UserAccount  extends LitePalSupport implements Serializable{
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public boolean readFromStream(DataInput in) throws IOException{
+        // 读创建人手机号
+        phone = DataIOUtil.readFixedString(PHONE_LEN, in);
+        // 读创建人
+        userName = DataIOUtil.readFixedString(NAME_LEN, in);
+        // 读创建人备注
+        remark = DataIOUtil.readFixedString(REMARK_LEN, in);
+
+        return true;
+    }
+
+    public boolean writeToStream(DataOutput out) throws IOException{
+        // 写创建人手机号
+        DataIOUtil.writeFixedString(phone, PHONE_LEN, out);
+        // 写创建人
+        DataIOUtil.writeFixedString(userName, NAME_LEN, out);
+        // 写创建人备注
+        DataIOUtil.writeFixedString(remark, REMARK_LEN, out);
+        return true;
+    }
+
+    public int length() {
+        return (PHONE_LEN + NAME_LEN + REMARK_LEN)*2;
+    }
+
+    @Override
+    public String toString() {
+        return "用户名：" + userName + ";"
+                + "备注：" + remark;
     }
 }

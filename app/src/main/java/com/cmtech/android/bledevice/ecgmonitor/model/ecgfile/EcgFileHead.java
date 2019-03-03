@@ -19,16 +19,11 @@ public class EcgFileHead {
         return new EcgFileHead(new UserAccount(), "", EcgLeadType.LEAD_I);
     }
 
-    private static final int CREATOR_PHONE_LEN = 15; // 创建人手机号
-    private static final int CREATOR_NAME_LEN = 10; // 创建人名字符数
-    private static final int CREATOR_REMARK_LEN = 50; // 创建人备注字符数
     private static final int MACADDRESS_LEN = 12;           // mac地址字符数
 
     private static final byte[] ECGFILE_TAG = {'E', 'C', 'G'};          // 心电文件标识
     private static final byte[] VER = new byte[] {0x01, 0x01};         // 心电文件头版本号1.1，便于以后升级
-    private String phone = ""; // 创建人手机号
-    private String creator = ""; // 创建人
-    private String creatorRemark = ""; // 创建人备注
+    private UserAccount creator; // 创建人
     private String macAddress = "";                                     // 设备地址
     private EcgLeadType leadType = EcgLeadType.LEAD_I;                  // 导联类型
 
@@ -40,20 +35,8 @@ public class EcgFileHead {
         this.macAddress = macAddress;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getCreator() {
-        return creator;
-    }
-
-    public void setCreator(String creator) {
-        this.creator = creator;
+    public String getCreatorName() {
+        return creator.getUserName();
     }
 
     public EcgLeadType getLeadType() {
@@ -64,24 +47,10 @@ public class EcgFileHead {
         this.leadType = leadType;
     }
 
-    public String getCreatorRemark() {
-        return creatorRemark;
-    }
-
-    public void setCreatorRemark(String creatorRemark) {
-        this.creatorRemark = creatorRemark;
-    }
-
-    private EcgFileHead(String phone, String creator, String creatorRemark, String macAddress, EcgLeadType leadType) {
-        this.phone = phone;
+    public EcgFileHead(UserAccount creator, String macAddress, EcgLeadType leadType) {
         this.creator = creator;
-        this.creatorRemark = creatorRemark;
         this.macAddress = macAddress;
         this.leadType = leadType;
-    }
-
-    public EcgFileHead(UserAccount account, String macAddress, EcgLeadType leadType) {
-        this(account.getPhone(), account.getUserName(), account.getRemark(), macAddress, leadType);
     }
 
     public boolean readFromStream(DataInput in) {
@@ -95,12 +64,8 @@ public class EcgFileHead {
             // 读版本号
             byte[] ver = new byte[2];
             in.readFully(ver);
-            // 读创建人手机号
-            phone = DataIOUtil.readFixedString(CREATOR_PHONE_LEN, in);
-            // 读创建人
-            creator = DataIOUtil.readFixedString(CREATOR_NAME_LEN, in);
-            // 读创建人备注
-            creatorRemark = DataIOUtil.readFixedString(CREATOR_REMARK_LEN, in);
+            // 读创建人信息
+            creator.readFromStream(in);
             // 读macAddress
             macAddress = DataIOUtil.readFixedString(MACADDRESS_LEN, in);
             // 读导联类型
@@ -117,12 +82,8 @@ public class EcgFileHead {
             out.write(ECGFILE_TAG);
             // 写版本号
             out.write(VER);
-            // 写创建人手机号
-            DataIOUtil.writeFixedString(phone, CREATOR_PHONE_LEN, out);
-            // 写创建人
-            DataIOUtil.writeFixedString(creator, CREATOR_NAME_LEN, out);
-            // 写创建人备注
-            DataIOUtil.writeFixedString(creatorRemark, CREATOR_REMARK_LEN, out);
+            // 写创建人信息
+            creator.writeToStream(out);
             // 写macAddress
             DataIOUtil.writeFixedString(macAddress, MACADDRESS_LEN, out);
             // 写导联类型
@@ -137,14 +98,13 @@ public class EcgFileHead {
     public String toString() {
         return "[心电文件头信息："
                 + "版本号：" + Arrays.toString(VER) + ";"
-                + "采集人：" + creator + ";"
-                + "采集人备注：" + creatorRemark + ";"
+                + creator.toString() + ";"
                 + "设备地址：" + macAddress + ";"
                 + "导联类型：" + leadType.getDescription() + "]";
     }
 
     // EcgFileHead字节长度：3个字节的{E,C,G} + 2个字节的版本号 + 创建人 + 创建人备注 + 创建设备MAC + 导联类型（4字节）
     public int length() {
-        return 3 + 2 + CREATOR_PHONE_LEN *2 + CREATOR_NAME_LEN *2 + CREATOR_REMARK_LEN *2 + MACADDRESS_LEN *2 + 4;
+        return 3 + 2 + creator.length() + MACADDRESS_LEN *2 + 4;
     }
 }

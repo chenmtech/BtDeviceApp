@@ -163,7 +163,7 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     public String getCreator() {
-        return ecgFileHead.getCreator();
+        return ecgFileHead.getCreatorName();
     }
 
     public long getCreateTime() {
