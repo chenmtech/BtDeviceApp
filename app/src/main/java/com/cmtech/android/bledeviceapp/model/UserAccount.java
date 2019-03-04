@@ -14,7 +14,7 @@ import java.io.Serializable;
  *  Created by bme on 2018/10/27.
  */
 
-public class UserAccount  extends LitePalSupport implements Serializable{
+public class UserAccount  extends LitePalSupport implements Serializable, Cloneable{
     private static final int PHONE_LEN = 15; // 手机号字符数
     private static final int NAME_LEN = 10; // 人名字符数
     private static final int REMARK_LEN = 50; // 备注字符数
@@ -95,4 +95,31 @@ public class UserAccount  extends LitePalSupport implements Serializable{
         return "用户名：" + userName + ";"
                 + "备注：" + remark;
     }
+
+    @Override
+    public int hashCode() {
+        return userName.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object otherObject) {
+        if(this == otherObject) return true;
+        if(otherObject == null) return false;
+        if(getClass() != otherObject.getClass()) return false;
+
+        UserAccount other = (UserAccount) otherObject;
+
+        return  (phone.equals(other.phone));
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        UserAccount account = (UserAccount) super.clone();
+        account.phone = phone;
+        account.userName = userName;
+        account.portraitFilePath = portraitFilePath;
+        account.remark = remark;
+        return account;
+    }
+
 }

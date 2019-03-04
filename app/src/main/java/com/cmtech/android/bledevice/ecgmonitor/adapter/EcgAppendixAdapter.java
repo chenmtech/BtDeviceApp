@@ -12,6 +12,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendixDataLocation;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.util.List;
 
@@ -22,6 +23,8 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View appendixView;
+        TextView tvCreatorName;
+        TextView tvCreatorTime;
         TextView tvContent;
         ImageButton ibLocate;
         ImageButton ibDelete;
@@ -29,7 +32,9 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         private ViewHolder(View itemView) {
             super(itemView);
             appendixView = itemView;
-            tvContent = appendixView.findViewById(R.id.tv_ecgappendix_content);
+            tvContent = appendixView.findViewById(R.id.ecgappendix_content);
+            tvCreatorName = appendixView.findViewById(R.id.ecgappendix_creator);
+            tvCreatorTime = appendixView.findViewById(R.id.ecgappendix_createtime);
             ibLocate = appendixView.findViewById(R.id.ib_ecgappendix_locate);
             ibDelete = appendixView.findViewById(R.id.ib_ecgappendix_delete);
         }
@@ -72,6 +77,8 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
     @Override
     public void onBindViewHolder(EcgAppendixAdapter.ViewHolder holder, final int position) {
         IEcgAppendix appendix = appendixList.get(position);
+        holder.tvCreatorName.setText(appendix.getCreatorName());
+        holder.tvCreatorTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getCreateTime()));
         holder.tvContent.setText(appendix.toStringWithSampleRate(sampleRate));
 
         if(appendixOperator != null) {

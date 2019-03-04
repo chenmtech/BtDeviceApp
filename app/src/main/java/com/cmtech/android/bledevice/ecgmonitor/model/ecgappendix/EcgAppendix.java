@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
+import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.io.DataInput;
@@ -14,19 +14,12 @@ import java.io.IOException;
  */
 
 public abstract class EcgAppendix implements IEcgAppendix{
-    private static final int CREATOR_CHAR_LEN = 10; // 创建人名字符数
-
-    private String creator = "匿名"; // 创建人
+    private UserAccount creator = new UserAccount(); // 创建人
     private long createTime; // 创建时间
 
     @Override
-    public String getCreator() {
-        return creator;
-    }
-
-    @Override
-    public void setCreator(String creator) {
-        this.creator = creator;
+    public String getCreatorName() {
+        return creator.getUserName();
     }
 
     @Override
@@ -43,8 +36,12 @@ public abstract class EcgAppendix implements IEcgAppendix{
 
     }
 
-    public EcgAppendix(String creator, long createTime) {
-        this.creator = creator;
+    public EcgAppendix(UserAccount creator, long createTime) {
+        try {
+            this.creator = (UserAccount) creator.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
         this.createTime = createTime;
     }
 
@@ -52,7 +49,7 @@ public abstract class EcgAppendix implements IEcgAppendix{
     public boolean readFromStream(DataInput in) {
         try {
             // 读创建人
-            creator = DataIOUtil.readFixedString(CREATOR_CHAR_LEN, in);
+            creator.readFromStream(in);
             // 读创建时间
             createTime = ByteUtil.reverseLong(in.readLong());
         } catch (IOException e) {
@@ -65,7 +62,7 @@ public abstract class EcgAppendix implements IEcgAppendix{
     public boolean writeToStream(DataOutput out) {
         try {
             // 写创建人
-            DataIOUtil.writeFixedString(creator, CREATOR_CHAR_LEN, out);
+            creator.writeToStream(out);
             // 写创建时间
             out.writeLong(ByteUtil.reverseLong(createTime));
         } catch (IOException e) {
@@ -76,12 +73,12 @@ public abstract class EcgAppendix implements IEcgAppendix{
 
     @Override
     public int length() {
-        return  2* CREATOR_CHAR_LEN + 8;
+        return  creator.length() + 8;
     }
 
     @Override
     public String toString() {
-        return creator + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(createTime) + '\n';
+        return creator.getUserName() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(createTime) + '\n';
     }
 
     @Override
@@ -92,7 +89,7 @@ public abstract class EcgAppendix implements IEcgAppendix{
 
         EcgAppendix other = (EcgAppendix)otherObject;
 
-        return  (creator.equals(other.creator) && (createTime == other.createTime) );
+        return  (creator.getPhone().equals(other.creator.getPhone()) && (createTime == other.createTime) );
     }
 
     @Override

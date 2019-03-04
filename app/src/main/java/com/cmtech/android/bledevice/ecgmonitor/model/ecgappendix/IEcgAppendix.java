@@ -9,8 +9,8 @@ import java.io.DataOutput;
  */
 
 public interface IEcgAppendix {
-    String getCreator(); // 获取创建人
-    void setCreator(String creator); // 设置创建人
+    String getCreatorName(); // 获取创建人
+    //void setCreatorName(String creatorName); // 设置创建人
     long getCreateTime(); // 获取创建时间
     void setCreateTime(long createTime); // 设置创建时间
     boolean readFromStream(DataInput in); // 从数据流中读

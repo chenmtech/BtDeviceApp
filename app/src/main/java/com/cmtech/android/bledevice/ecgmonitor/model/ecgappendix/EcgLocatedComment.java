@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
+import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.io.DataInput;
@@ -20,7 +21,7 @@ public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixD
         super();
     }
 
-    public EcgLocatedComment(String creator, long createTime, String content, long location) {
+    public EcgLocatedComment(UserAccount creator, long createTime, String content, long location) {
         super(creator, createTime, content);
         this.location = location;
     }
@@ -61,7 +62,7 @@ public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixD
 
     @Override
     public String toString() {
-        return super.toString() + "@" + location;
+        return "第" + location + "个数据，" + super.toString();
     }
 
     @Override
@@ -69,7 +70,7 @@ public class EcgLocatedComment extends EcgNormalComment implements IEcgAppendixD
         if(sampleRate <= 0)
             return toString();
         else
-            return super.toString() + "@" + String.valueOf(location /sampleRate) + "秒";
+            return "第" + String.valueOf(location /sampleRate) + "秒，" + super.toString();
     }
 
     @Override

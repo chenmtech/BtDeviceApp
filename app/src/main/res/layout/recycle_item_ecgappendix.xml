@@ -5,6 +5,72 @@
     android:layout_height="wrap_content"
     android:layout_margin="2dp">
 
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="留言人："
+                android:textColor="@color/secondary_text"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/ecgappendix_creator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:text="匿名"
+                android:textColor="@color/primary_text"
+                android:maxLength="10"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="时间："
+                android:textColor="@color/secondary_text"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/ecgappendix_createtime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:layout_gravity="center_vertical"
+                android:text="未设定"
+                android:textColor="@color/primary_text"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="内容："
+                android:textColor="@color/secondary_text"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/ecgappendix_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/EcgCommentTextAppearance"
+                android:textColor="#000"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
     <ImageButton
         android:id="@+id/ib_ecgappendix_locate"
         android:layout_width="wrap_content"
@@ -15,14 +81,6 @@
         android:contentDescription="locate appendix"
         android:background="@color/primary"
         android:visibility="gone"/>
-
-    <TextView
-        android:id="@+id/tv_ecgappendix_content"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textAppearance="@style/EcgCommentTextAppearance"
-        android:textColor="#000"/>
 
     <ImageButton
         android:id="@+id/ib_ecgappendix_delete"

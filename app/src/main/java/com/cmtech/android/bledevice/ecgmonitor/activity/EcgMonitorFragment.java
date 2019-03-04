@@ -31,6 +31,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
@@ -143,7 +144,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String creator = UserAccountManager.getInstance().getUserAccount().getUserName();
+                    UserAccount creator = UserAccountManager.getInstance().getUserAccount();
                     long createTime = new Date().getTime();
                     device.addAppendix(new EcgLocatedComment(creator, createTime, appendixContent, device.getRecordDataNum()));
                 }
@@ -177,7 +178,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                     case ACTION_DOWN:
                         ecgView.setWaveColor(COLOR_WHEN_REST);
                         long timeCreated = new Date().getTime();
-                        restMarker = new EcgRestMarker(UserAccountManager.getInstance().getUserAccount().getUserName(), timeCreated);
+                        restMarker = new EcgRestMarker(UserAccountManager.getInstance().getUserAccount(), timeCreated);
                         restMarker.setBeginLocation(device.getRecordDataNum());
                         break;
                     case ACTION_UP:

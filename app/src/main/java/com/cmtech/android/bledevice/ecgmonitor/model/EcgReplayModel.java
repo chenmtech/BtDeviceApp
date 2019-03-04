@@ -5,6 +5,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgLocatedComme
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.bmefile.BmeFileHead30;
 
@@ -80,7 +81,7 @@ public class EcgReplayModel {
 
     // 添加一条留言
     public void addComment(String content) {
-        String creator = UserAccountManager.getInstance().getUserAccount().getUserName();
+        UserAccount creator = UserAccountManager.getInstance().getUserAccount();
         long createTime = new Date().getTime();
         if(showAppendixTime) {
             addAppendix(new EcgLocatedComment(creator, createTime, content, dataLocationWhenAppendix));

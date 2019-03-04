@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
+import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 
 import java.io.DataInput;
@@ -28,7 +29,7 @@ public class EcgNormalComment extends EcgAppendix{
         super();
     }
 
-    public EcgNormalComment(String creator, long createTime, String content) {
+    public EcgNormalComment(UserAccount creator, long createTime, String content) {
         super(creator, createTime);
         this.content = content;
     }
@@ -69,7 +70,7 @@ public class EcgNormalComment extends EcgAppendix{
 
     @Override
     public String toString() {
-        return super.toString() + "留言：" + content;
+        return content;
     }
 
     @Override

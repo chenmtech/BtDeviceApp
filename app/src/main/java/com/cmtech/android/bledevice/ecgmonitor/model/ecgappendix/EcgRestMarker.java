@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
 
+import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.io.DataInput;
@@ -36,7 +37,7 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
         super();
     }
 
-    public EcgRestMarker(String creator, long createTime) {
+    public EcgRestMarker(UserAccount creator, long createTime) {
         super(creator, createTime);
     }
 
@@ -85,7 +86,7 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
 
     @Override
     public String toString() {
-        return super.toString() + "标记：安静@[" + beginLocation + ":" + endLocation + "]";
+        return "第" + beginLocation + "-" + endLocation + "个数据，处于安静状态";
     }
 
     @Override
@@ -93,6 +94,6 @@ public class EcgRestMarker extends EcgAppendix implements IEcgAppendixDataLocati
         if(sampleRate <= 0)
             return toString();
         else
-            return super.toString() + "标记：安静@[" + beginLocation/sampleRate + ":" + endLocation/sampleRate + "]" + "秒";
+            return "第" + beginLocation/sampleRate + "-" + endLocation/sampleRate + "秒，处于安静状态";
     }
 }
