@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
+import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead;
@@ -162,7 +163,11 @@ public class EcgFile extends RandomAccessBmeFile {
         return ecgFileTail.getAppendixList();
     }
 
-    public String getCreator() {
+    public UserAccount getCreator() {
+        return ecgFileHead.getCreator();
+    }
+
+    public String getCreatorName() {
         return ecgFileHead.getCreatorName();
     }
 

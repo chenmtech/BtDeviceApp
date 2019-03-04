@@ -3,17 +3,19 @@ package com.cmtech.android.bledevice.ecgmonitor.adapter;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHolder> {
@@ -73,6 +75,15 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             }
         });
 
+        holder.tvCreator.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EcgFile file = explorerModel.getFileList().get(holder.getAdapterPosition());
+                UserAccount creator = file.getCreator();
+                Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_LONG).show();
+            }
+        });
+
         return holder;
     }
 
@@ -80,7 +91,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     public void onBindViewHolder(EcgFileAdapter.ViewHolder holder, final int position) {
         EcgFile file = explorerModel.getFileList().get(position);
 
-        holder.tvCreator.setText(file.getCreator());
+        holder.tvCreator.setText(Html.fromHtml("<u>"+file.getCreatorName()+"</u>"));
 
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
         String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());

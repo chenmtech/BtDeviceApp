@@ -28,26 +28,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="2dp"
                 android:text="匿名"
-                android:textColor="@color/primary_text"
+                android:textAppearance="@style/PersonTextAppearance"
                 android:maxLength="10"
-                android:textSize="16sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="时间："
-                android:textColor="@color/secondary_text"
                 android:textSize="16sp"/>
 
             <TextView
                 android:id="@+id/ecgappendix_createtime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="2dp"
-                android:layout_gravity="center_vertical"
-                android:text="未设定"
-                android:textColor="@color/primary_text"
-                android:textSize="16sp"/>
+                android:textAppearance="@style/EcgCommentTextAppearance"
+                android:textColor="#000"/>
         </LinearLayout>
 
         <LinearLayout
@@ -59,14 +49,15 @@
                 android:layout_height="wrap_content"
                 android:text="内容："
                 android:textColor="@color/secondary_text"
-                android:textSize="16sp"/>
+                android:textSize="18sp"/>
 
             <TextView
                 android:id="@+id/ecgappendix_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/EcgCommentTextAppearance"
-                android:textColor="#000"/>
+                android:textSize="18sp"
+                android:textColor="@color/red"/>
         </LinearLayout>
 
     </LinearLayout>

@@ -18,6 +18,11 @@ public abstract class EcgAppendix implements IEcgAppendix{
     private long createTime; // 创建时间
 
     @Override
+    public UserAccount getCreator() {
+        return creator;
+    }
+
+    @Override
     public String getCreatorName() {
         return creator.getUserName();
     }

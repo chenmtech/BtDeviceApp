@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
+import com.cmtech.android.bledeviceapp.model.UserAccount;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 
@@ -9,7 +11,8 @@ import java.io.DataOutput;
  */
 
 public interface IEcgAppendix {
-    String getCreatorName(); // 获取创建人
+    UserAccount getCreator(); // 获取创建人
+    String getCreatorName(); // 获取创建人名
     //void setCreatorName(String creatorName); // 设置创建人
     long getCreateTime(); // 获取创建时间
     void setCreateTime(long createTime); // 设置创建时间

@@ -35,6 +35,10 @@ public class EcgFileHead {
         this.macAddress = macAddress;
     }
 
+    public UserAccount getCreator() {
+        return creator;
+    }
+
     public String getCreatorName() {
         return creator.getUserName();
     }

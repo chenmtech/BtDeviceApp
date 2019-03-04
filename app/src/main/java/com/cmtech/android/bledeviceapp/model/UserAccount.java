@@ -92,7 +92,7 @@ public class UserAccount  extends LitePalSupport implements Serializable, Clonea
 
     @Override
     public String toString() {
-        return "用户名：" + userName + ";"
+        return "用户名：" + userName + '\n'
                 + "备注：" + remark;
     }
 

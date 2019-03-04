@@ -15,13 +15,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="记录人："
                 android:textColor="@color/secondary_text"
-                android:textSize="18sp"/>
+                android:textSize="20sp"/>
 
             <TextView
                 android:id="@+id/ecgfile_creator"
@@ -29,27 +28,17 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="2dp"
                 android:text="匿名"
-                android:textColor="@color/primary_text"
-                android:maxLength="10"
-                android:textSize="18sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="时间："
-                android:textColor="@color/secondary_text"
-                android:textSize="18sp"/>
+                android:textAppearance="@style/PersonTextAppearance"
+                android:maxLength="10"/>
 
             <TextView
                 android:id="@+id/ecgfile_createtime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="2dp"
-                android:layout_gravity="center_vertical"
-                android:text="未设定"
+                android:text="未知"
                 android:textColor="@color/primary_text"
-                android:textSize="18sp"/>
-
+                android:textSize="16sp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -59,9 +48,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="长度："
+                android:text="时长："
                 android:textColor="@color/secondary_text"
-                android:textSize="18sp"/>
+                android:textSize="16sp"/>
 
             <TextView
                 android:id="@+id/ecgfile_length"
@@ -71,14 +60,7 @@
                 android:layout_gravity="center_vertical"
                 android:text="未知"
                 android:textColor="@color/primary_text"
-                android:textSize="18sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="秒"
-                android:textColor="@color/secondary_text"
-                android:textSize="18sp"/>
+                android:textSize="16sp"/>
 
         </LinearLayout>
 
@@ -89,7 +71,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="最后修改时间："
+                android:text="最后修改："
                 android:textColor="@color/secondary_text"
                 android:textSize="16sp"/>
 
