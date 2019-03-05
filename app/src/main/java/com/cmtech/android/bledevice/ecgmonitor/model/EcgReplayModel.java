@@ -79,23 +79,57 @@ public class EcgReplayModel {
         return ecgFile.getAppendixList();
     }
 
-    // 添加一条留言
-    public void addComment(String content) {
-        UserAccount creator = UserAccountManager.getInstance().getUserAccount();
-        long createTime = new Date().getTime();
+    // 添加一条附言
+    public void addAppendix(String content) {
+        IEcgAppendix appendix = createAppendix(content, false);
+
         if(showAppendixTime) {
-            addAppendix(new EcgLocatedComment(creator, createTime, content, dataLocationWhenAppendix));
             showAppendixTime = false;
             if(observer != null) {
                 observer.updateIsShowTimeInAppendix(false, -1);
             }
         }
+
+        addAppendix(appendix);
+    }
+
+    // 在指定位置的前面插入一条回复附言
+    public void insertReplyAppendix(String content, int pos) {
+        IEcgAppendix appendix = createAppendix(content, true);
+
+        if(showAppendixTime) {
+            showAppendixTime = false;
+            if(observer != null) {
+                observer.updateIsShowTimeInAppendix(false, -1);
+            }
+        }
+
+        insertAppendix(appendix, pos);
+    }
+
+    private IEcgAppendix createAppendix(String content, boolean isReply) {
+        UserAccount creator = UserAccountManager.getInstance().getUserAccount();
+        long createTime = new Date().getTime();
+        IEcgAppendix appendix;
+        if(showAppendixTime) {
+            appendix = new EcgLocatedComment(creator, createTime, content, dataLocationWhenAppendix);
+        }
         else
-            addAppendix(new EcgNormalComment(creator, createTime, content));
+            appendix = new EcgNormalComment(creator, createTime, content);
+        appendix.setReply(isReply);
+        return appendix;
     }
 
     private void addAppendix(IEcgAppendix appendix) {
         ecgFile.addAppendix(appendix);
+        updated = true;
+        if(observer != null) {
+            observer.updateAppendixList();
+        }
+    }
+
+    private void insertAppendix(IEcgAppendix appendix, int pos) {
+        ecgFile.insertAppendix(appendix, pos);
         updated = true;
         if(observer != null) {
             observer.updateAppendixList();

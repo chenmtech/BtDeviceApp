@@ -16,6 +16,7 @@ import java.io.IOException;
 public abstract class EcgAppendix implements IEcgAppendix{
     private UserAccount creator = new UserAccount(); // 创建人
     private long createTime; // 创建时间
+    private boolean isReply = false; // 是否是回复信息
 
     @Override
     public UserAccount getCreator() {
@@ -50,6 +51,11 @@ public abstract class EcgAppendix implements IEcgAppendix{
         this.createTime = createTime;
     }
 
+    public EcgAppendix(UserAccount creator, long createTime, boolean isReply) {
+        this(creator, createTime);
+        this.isReply = isReply;
+    }
+
     @Override
     public boolean readFromStream(DataInput in) {
         try {
@@ -57,6 +63,8 @@ public abstract class EcgAppendix implements IEcgAppendix{
             creator.readFromStream(in);
             // 读创建时间
             createTime = ByteUtil.reverseLong(in.readLong());
+            // 读是否是回复信息
+            isReply = in.readBoolean();
         } catch (IOException e) {
             return false;
         }
@@ -70,6 +78,8 @@ public abstract class EcgAppendix implements IEcgAppendix{
             creator.writeToStream(out);
             // 写创建时间
             out.writeLong(ByteUtil.reverseLong(createTime));
+            // 写是否是回复信息
+            out.writeBoolean(isReply);
         } catch (IOException e) {
             return false;
         }
@@ -78,7 +88,17 @@ public abstract class EcgAppendix implements IEcgAppendix{
 
     @Override
     public int length() {
-        return  creator.length() + 8;
+        return  creator.length() + 8 + 1;
+    }
+
+    @Override
+    public boolean isReply() {
+        return isReply;
+    }
+
+    @Override
+    public void setReply(boolean reply) {
+        isReply = reply;
     }
 
     @Override

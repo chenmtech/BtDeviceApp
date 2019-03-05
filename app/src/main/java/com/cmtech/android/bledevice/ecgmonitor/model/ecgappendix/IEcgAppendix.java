@@ -21,4 +21,6 @@ public interface IEcgAppendix {
     int length(); // 获取字节长度
     EcgAppendixType getType(); // 获取附加信息类型
     String toStringWithSampleRate(int sampleRate); // 带采样率的字符串输出
+    boolean isReply(); // 是否是回复信息
+    void setReply(boolean isReply);
 }

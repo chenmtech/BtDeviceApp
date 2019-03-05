@@ -69,8 +69,13 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         holder.ibDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(appendixOperator != null) {
+                /*if(appendixOperator != null) {
                     appendixOperator.deleteAppendix(appendixList.get(holder.getAdapterPosition()));
+                }*/
+                if(appendixOperator != null) {
+                    int pos = holder.getAdapterPosition();
+                    String content = appendixList.get(pos).toString();
+                    appendixOperator.insertAppendix("回复：" + content, pos+1);
                 }
             }
         });
@@ -112,6 +117,11 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
     public void update(List<IEcgAppendix> commentList, int sampleRate) {
         this.appendixList = commentList;
         this.sampleRate = sampleRate;
+        notifyDataSetChanged();
+    }
+
+    public void update(List<IEcgAppendix> appendixList) {
+        this.appendixList = appendixList;
         notifyDataSetChanged();
     }
 }

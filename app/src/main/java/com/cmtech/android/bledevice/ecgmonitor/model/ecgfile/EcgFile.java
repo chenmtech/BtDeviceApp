@@ -201,6 +201,11 @@ public class EcgFile extends RandomAccessBmeFile {
         }
     }
 
+    // 在指定位置的前面插入一条附言
+    public void insertAppendix(IEcgAppendix appendix, int pos) {
+        ecgFileTail.insertAppendix(appendix, pos);
+    }
+
     // 删除一条附加信息
     public void deleteAppendix(IEcgAppendix appendix) {
         if(ecgFileTail.getAppendixList().contains(appendix)) {

@@ -115,7 +115,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
                 }
                 if(ecgView.isReplaying())
                     stopReplay();
-                replayModel.addComment(etAppendix.getText().toString());
+                replayModel.addAppendix(etAppendix.getText().toString());
             }
         });
 
@@ -192,7 +192,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
      */
     @Override
     public void updateAppendixList() {
-        appendixAdapter.notifyDataSetChanged();
+        appendixAdapter.update(replayModel.getAppendixList());
         if(appendixAdapter.getItemCount() > 1)
             rvAppendix.smoothScrollToPosition(appendixAdapter.getItemCount()-1);
         etAppendix.setText("");
@@ -265,5 +265,13 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
             // 提前一秒播放
             ecgView.showAt(((IEcgAppendixDataLocation) appendix).getLocation() - replayModel.getSampleRate());
         }
+    }
+
+    @Override
+    public void insertAppendix(String content, int pos) {
+        if(ecgView.isReplaying())
+            stopReplay();
+
+        replayModel.insertReplyAppendix(content, pos);
     }
 }

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendixType.REST_MARKER;
@@ -43,13 +44,13 @@ public class EcgFileTail {
                     addAppendix(appendix);
                 }
             }
-            // 按留言时间排序
+            /*// 按留言时间排序
             Collections.sort(appendixList, new Comparator<IEcgAppendix>() {
                 @Override
                 public int compare(IEcgAppendix o1, IEcgAppendix o2) {
                     return (int)(o1.getCreateTime() - o2.getCreateTime());
                 }
-            });
+            });*/
         } catch (IOException e) {
             return false;
         }
@@ -86,7 +87,24 @@ public class EcgFileTail {
 
     // 添加附加信息
     public void addAppendix(IEcgAppendix appendix) {
-        appendixList.add(appendix);
+        insertAppendix(appendix, appendixList.size());
+    }
+
+    // 在指定位置的前面插入一条附言
+    public void insertAppendix(IEcgAppendix appendix, int pos) {
+        if(pos < 0 || pos > appendixList.size()) return;
+        if(pos == appendixList.size()) {
+            appendixList.add(appendix);
+        } else {
+            List<IEcgAppendix> newList = new ArrayList<>();
+            for (int i = 0; i < appendixList.size(); i++) {
+                if (pos == i) {
+                    newList.add(appendix);
+                }
+                newList.add(appendixList.get(i));
+            }
+            appendixList = newList;
+        }
         if(appendix.getType() == REST_MARKER) {
             EcgRestMarker marker = (EcgRestMarker) appendix;
             markerRanges.add(new Range<>(marker.getBeginLocation(), marker.getEndLocation()));
