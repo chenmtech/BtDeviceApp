@@ -10,14 +10,14 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- *  UserAccount: 用户账户类
+ *  User: 用户类
  *  Created by bme on 2018/10/27.
  */
 
-public class UserAccount  extends LitePalSupport implements Serializable, Cloneable{
-    private static final int PHONE_LEN = 15; // 手机号字符数
-    private static final int NAME_LEN = 10; // 人名字符数
-    private static final int REMARK_LEN = 50; // 备注字符数
+public class User extends LitePalSupport implements Serializable, Cloneable{
+    private static final int PHONE_CHAR_LEN = 15; // 手机号字符数
+    private static final int NAME_CHAR_LEN = 10; // 人名字符数
+    private static final int REMARK_CHAR_LEN = 50; // 备注字符数
 
     private int id; // id
     private String phone = ""; // 手机号
@@ -66,39 +66,42 @@ public class UserAccount  extends LitePalSupport implements Serializable, Clonea
     }
 
     public boolean readFromStream(DataInput in) throws IOException{
-        // 读创建人手机号
-        phone = DataIOUtil.readFixedString(PHONE_LEN, in);
-        // 读创建人
-        userName = DataIOUtil.readFixedString(NAME_LEN, in);
-        // 读创建人备注
-        remark = DataIOUtil.readFixedString(REMARK_LEN, in);
+        // 读手机号
+        phone = DataIOUtil.readFixedString(PHONE_CHAR_LEN, in);
+        // 读人名
+        userName = DataIOUtil.readFixedString(NAME_CHAR_LEN, in);
+        // 读备注信息
+        remark = DataIOUtil.readFixedString(REMARK_CHAR_LEN, in);
 
         return true;
     }
 
     public boolean writeToStream(DataOutput out) throws IOException{
-        // 写创建人手机号
-        DataIOUtil.writeFixedString(phone, PHONE_LEN, out);
-        // 写创建人
-        DataIOUtil.writeFixedString(userName, NAME_LEN, out);
-        // 写创建人备注
-        DataIOUtil.writeFixedString(remark, REMARK_LEN, out);
+        // 写手机号
+        DataIOUtil.writeFixedString(phone, PHONE_CHAR_LEN, out);
+        // 写人名
+        DataIOUtil.writeFixedString(userName, NAME_CHAR_LEN, out);
+        // 写备注
+        DataIOUtil.writeFixedString(remark, REMARK_CHAR_LEN, out);
         return true;
     }
 
+    /**
+     * 获取用户对象占用的字符长度
+     * @return 字符长度
+     */
     public int length() {
-        return (PHONE_LEN + NAME_LEN + REMARK_LEN)*2;
+        return (PHONE_CHAR_LEN + NAME_CHAR_LEN + REMARK_CHAR_LEN)*2;
     }
 
     @Override
     public String toString() {
-        return "用户名：" + userName + '\n'
-                + "备注：" + remark;
+        return "用户名：" + userName + ' ' + "备注：" + remark;
     }
 
     @Override
     public int hashCode() {
-        return userName.hashCode();
+        return phone.hashCode();
     }
 
     @Override
@@ -107,14 +110,14 @@ public class UserAccount  extends LitePalSupport implements Serializable, Clonea
         if(otherObject == null) return false;
         if(getClass() != otherObject.getClass()) return false;
 
-        UserAccount other = (UserAccount) otherObject;
+        User other = (User) otherObject;
 
         return  (phone.equals(other.phone));
     }
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        UserAccount account = (UserAccount) super.clone();
+        User account = (User) super.clone();
         account.phone = phone;
         account.userName = userName;
         account.portraitFilePath = portraitFilePath;

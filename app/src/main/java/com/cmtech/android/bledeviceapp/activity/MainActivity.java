@@ -47,11 +47,11 @@ import com.cmtech.android.bledevice.ecgmonitor.activity.EcgReplayActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceFragmentManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceService;
 import com.cmtech.android.bledeviceapp.model.MyFragmentManager;
-import com.cmtech.android.bledeviceapp.model.UserAccount;
-import com.cmtech.android.bledeviceapp.model.UserAccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.vise.log.ViseLog;
 
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
-        if(!UserAccountManager.getInstance().isSignIn()) {
+        if(!AccountManager.getInstance().isSignIn()) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -531,7 +531,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             return;
         }
 
-        UserAccountManager.getInstance().signOut();
+        AccountManager.getInstance().signOut();
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = pref.edit();
@@ -575,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 更新导航视图
     private void updateNavigationViewUsingUserInfo() {
-        UserAccount account = UserAccountManager.getInstance().getUserAccount();
+        User account = AccountManager.getInstance().getAccount();
         if(account == null) return;
         tvAccountName.setText(account.getUserName());
         String imagePath = account.getPortraitFilePath();

@@ -15,7 +15,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserAccount;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.util.List;
@@ -61,7 +61,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         holder.tvCreatorName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                UserAccount creator = appendixList.get(holder.getAdapterPosition()).getCreator();
+                User creator = appendixList.get(holder.getAdapterPosition()).getCreator();
                 Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_LONG).show();
             }
         });
@@ -90,7 +90,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
     @Override
     public void onBindViewHolder(@NonNull EcgAppendixAdapter.ViewHolder holder, final int position) {
         EcgAppendix appendix = appendixList.get(position);
-        holder.tvCreatorName.setText(Html.fromHtml("<u>"+appendix.getCreatorName()+"</u>"));
+        holder.tvCreatorName.setText(Html.fromHtml("<u>"+appendix.getCreator().getUserName()+"</u>"));
         holder.tvCreatorTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getCreateTime()));
         holder.etContent.setText(appendix.getContent());
 

@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserAccountManager;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,7 +187,7 @@ public class LoginActivity extends AppCompatActivity {
 
     // 登录
     private void signIn(String phone, boolean isSave) {
-        UserAccountManager manager = UserAccountManager.getInstance();
+        AccountManager manager = AccountManager.getInstance();
         if(manager.signIn(phone) || manager.signUp(phone)) {
             //Toast.makeText(LoginActivity.this, "登录成功。", Toast.LENGTH_LONG).show();
             if(isSave)

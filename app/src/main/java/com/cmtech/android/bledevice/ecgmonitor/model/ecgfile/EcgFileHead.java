@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
-import com.cmtech.android.bledeviceapp.model.UserAccount;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 
@@ -16,14 +16,14 @@ import java.util.Arrays;
 
 public class EcgFileHead {
     public static EcgFileHead createDefaultEcgFileHead() {
-        return new EcgFileHead(new UserAccount(), "", EcgLeadType.LEAD_I);
+        return new EcgFileHead(new User(), "", EcgLeadType.LEAD_I);
     }
 
     private static final int MACADDRESS_LEN = 12;           // mac地址字符数
 
     private static final byte[] ECGFILE_TAG = {'E', 'C', 'G'};          // 心电文件标识
     private static final byte[] VER = new byte[] {0x01, 0x01};         // 心电文件头版本号1.1，便于以后升级
-    private UserAccount creator; // 创建人
+    private User creator; // 创建人
     private String macAddress = "";                                     // 设备地址
     private EcgLeadType leadType = EcgLeadType.LEAD_I;                  // 导联类型
 
@@ -35,7 +35,7 @@ public class EcgFileHead {
         this.macAddress = macAddress;
     }
 
-    public UserAccount getCreator() {
+    public User getCreator() {
         return creator;
     }
 
@@ -51,7 +51,7 @@ public class EcgFileHead {
         this.leadType = leadType;
     }
 
-    public EcgFileHead(UserAccount creator, String macAddress, EcgLeadType leadType) {
+    public EcgFileHead(User creator, String macAddress, EcgLeadType leadType) {
         this.creator = creator;
         this.macAddress = macAddress;
         this.leadType = leadType;

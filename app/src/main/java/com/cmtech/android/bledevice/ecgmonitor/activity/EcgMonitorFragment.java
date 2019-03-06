@@ -29,8 +29,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserAccount;
-import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
 import com.cmtech.dsp.seq.RealSeq;
@@ -39,7 +37,6 @@ import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 

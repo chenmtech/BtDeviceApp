@@ -3,13 +3,11 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -23,8 +21,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserAccount;
-import com.cmtech.android.bledeviceapp.model.UserAccountManager;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -53,7 +51,7 @@ public class UserInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userinfo);
 
-        if(!UserAccountManager.getInstance().isSignIn()) finish();
+        if(!AccountManager.getInstance().isSignIn()) finish();
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_setuserinfo);
@@ -66,7 +64,7 @@ public class UserInfoActivity extends AppCompatActivity {
         btnOk = findViewById(R.id.btn_userinfo_ok);
         btnCancel = findViewById(R.id.btn_userinfo_cancel);
 
-        UserAccount account = UserAccountManager.getInstance().getUserAccount();
+        User account = AccountManager.getInstance().getAccount();
         etPhone.setText(account.getPhone());
         etName.setText(account.getUserName());
         cachePortraitPath = account.getPortraitFilePath();
@@ -81,7 +79,7 @@ public class UserInfoActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                UserAccount account = UserAccountManager.getInstance().getUserAccount();
+                User account = AccountManager.getInstance().getAccount();
                 account.setUserName(etName.getText().toString());
 
                 if(!cachePortraitPath.equals(account.getPortraitFilePath())) {

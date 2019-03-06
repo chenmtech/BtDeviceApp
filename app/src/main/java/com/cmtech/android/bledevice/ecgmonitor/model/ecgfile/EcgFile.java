@@ -2,8 +2,8 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
-import com.cmtech.android.bledeviceapp.model.UserAccount;
-import com.cmtech.android.bledeviceapp.model.UserAccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead;
 import com.cmtech.bmefile.BmeFileHead30;
@@ -103,7 +103,7 @@ public class EcgFile extends RandomAccessBmeFile {
 
         // 创建ecgFileHead文件头
         String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(macAddress);
-        EcgFileHead ecgFileHead = new EcgFileHead(UserAccountManager.getInstance().getUserAccount(), simpleMacAddress, leadType);
+        EcgFileHead ecgFileHead = new EcgFileHead(AccountManager.getInstance().getAccount(), simpleMacAddress, leadType);
 
         // 创建ecgFile
         String fileName = EcgMonitorUtil.createFileName(macAddress, timeInMillis);
@@ -163,7 +163,7 @@ public class EcgFile extends RandomAccessBmeFile {
         return ecgFileTail.getAppendixList();
     }
 
-    public UserAccount getCreator() {
+    public User getCreator() {
         return ecgFileHead.getCreator();
     }
 

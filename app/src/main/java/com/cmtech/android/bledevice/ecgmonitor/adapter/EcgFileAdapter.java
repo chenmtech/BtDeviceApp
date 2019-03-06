@@ -15,7 +15,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserAccount;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHolder> {
@@ -79,7 +79,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             @Override
             public void onClick(View view) {
                 EcgFile file = explorerModel.getFileList().get(holder.getAdapterPosition());
-                UserAccount creator = file.getCreator();
+                User creator = file.getCreator();
                 Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_LONG).show();
             }
         });

@@ -3,8 +3,8 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledeviceapp.model.UserAccount;
-import com.cmtech.android.bledeviceapp.model.UserAccountManager;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.bmefile.BmeFileHead30;
 
 import java.io.IOException;
@@ -84,7 +84,7 @@ public class EcgReplayModel {
     }
 
     private EcgAppendix createAppendix(String content) {
-        UserAccount creator = UserAccountManager.getInstance().getUserAccount();
+        User creator = AccountManager.getInstance().getAccount();
         long createTime = new Date().getTime();
         return new EcgAppendix(creator, createTime, content);
     }
