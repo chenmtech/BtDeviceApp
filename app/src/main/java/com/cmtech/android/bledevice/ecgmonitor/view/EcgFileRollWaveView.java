@@ -5,7 +5,6 @@ import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.view.ColorRollWaveView;
-import com.cmtech.android.bledevice.view.RollWaveView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
                             // 读出数据
                             for (int i = 0; i < dataNumReadEachUpdate; i++, num++) {
                                 cacheData.add(ecgFile.readInt());
-                                cacheMarked.add(ecgFile.isWithinMarker(num));
+                                cacheMarked.add(false);
                                 if (ecgFile.isEOD()) {
                                     break;
                                 }
@@ -150,7 +149,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
         clearData();
         while(begin++ <= location) {
             try {
-                addData(ecgFile.readInt(), ecgFile.isWithinMarker(begin));
+                addData(ecgFile.readInt(), false);
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

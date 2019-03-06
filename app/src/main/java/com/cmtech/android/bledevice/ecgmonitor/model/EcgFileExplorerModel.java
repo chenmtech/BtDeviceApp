@@ -3,11 +3,11 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
+import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -43,7 +43,7 @@ public class EcgFileExplorerModel {
 
     public List<EcgFile> getFileList() { return fileList; }
 
-    public List<IEcgAppendix> getSelectedFileAppendixList() {
+    public List<EcgAppendix> getSelectedFileAppendixList() {
         if(fileList.isEmpty() || currentSelectIndex < 0 || currentSelectIndex >= fileList.size()){
             return new ArrayList<>();
         } else {
@@ -89,6 +89,7 @@ public class EcgFileExplorerModel {
             try {
                 ecgFile = EcgFile.open(file.getCanonicalPath());
                 ecgFileList.add(ecgFile);
+                ViseLog.e(ecgFile.toString());
             } catch (IOException e) {
                 ViseLog.e("打开心电文件失败" + file);
             } finally {
@@ -246,12 +247,12 @@ public class EcgFileExplorerModel {
 
     // 融合EcgFile的附加留言
     private boolean mergeEcgFileAppendix(EcgFile srcFile, EcgFile destFile) {
-        List<IEcgAppendix> srcComments = srcFile.getEcgFileTail().getAppendixList();
-        List<IEcgAppendix> destComments = destFile.getEcgFileTail().getAppendixList();
-        List<IEcgAppendix> needAddComments = new ArrayList<>();
+        List<EcgAppendix> srcComments = srcFile.getEcgFileTail().getAppendixList();
+        List<EcgAppendix> destComments = destFile.getEcgFileTail().getAppendixList();
+        List<EcgAppendix> needAddComments = new ArrayList<>();
 
-        for(IEcgAppendix srcComment : srcComments) {
-            for(IEcgAppendix destComment : destComments) {
+        for(EcgAppendix srcComment : srcComments) {
+            for(EcgAppendix destComment : destComments) {
                 if(!srcComment.equals(destComment)) {
                     needAddComments.add(srcComment);
                 }

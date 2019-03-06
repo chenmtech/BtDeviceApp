@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
 import com.cmtech.bmefile.BmeFileDataType;
@@ -159,7 +159,7 @@ public class EcgFile extends RandomAccessBmeFile {
 
     public EcgFileTail getEcgFileTail() { return ecgFileTail; }
 
-    public List<IEcgAppendix> getAppendixList() {
+    public List<EcgAppendix> getAppendixList() {
         return ecgFileTail.getAppendixList();
     }
 
@@ -190,40 +190,30 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     // 为文件添加一条附加信息
-    public void addAppendix(IEcgAppendix appendix) {
+    public void addAppendix(EcgAppendix appendix) {
         ecgFileTail.addAppendix(appendix);
     }
 
     // 添加多条附加信息
-    public void addAppendix(List<IEcgAppendix> appendices) {
-        for(IEcgAppendix appendix : appendices) {
+    public void addAppendix(List<EcgAppendix> appendices) {
+        for(EcgAppendix appendix : appendices) {
             ecgFileTail.addAppendix(appendix);
         }
     }
 
-    // 在指定位置的前面插入一条附言
-    public void insertAppendix(IEcgAppendix appendix, int pos) {
-        ecgFileTail.insertAppendix(appendix, pos);
-    }
-
     // 删除一条附加信息
-    public void deleteAppendix(IEcgAppendix appendix) {
+    public void deleteAppendix(EcgAppendix appendix) {
         if(ecgFileTail.getAppendixList().contains(appendix)) {
             // 删除留言
             ecgFileTail.deleteAppendix(appendix);
         }
     }
 
-    // 判断指定的数据位置是否位于标记中
-    public boolean isWithinMarker(long location) {
-        return ecgFileTail.isWithinMarker(location);
-    }
-
     // 输出所有附加信息字符串，用于调试
     public String getAppendixString() {
         if(ecgFileTail.getAppendixNum() == 0) return "";
         StringBuilder builder = new StringBuilder();
-        for(IEcgAppendix appendix : ecgFileTail.getAppendixList()) {
+        for(EcgAppendix appendix : ecgFileTail.getAppendixList()) {
             builder.append(appendix.toString());
         }
         return builder.toString();

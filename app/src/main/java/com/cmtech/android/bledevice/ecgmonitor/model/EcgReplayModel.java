@@ -1,9 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgLocatedComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.model.UserAccount;
 import com.cmtech.android.bledeviceapp.model.UserAccountManager;
@@ -43,7 +41,7 @@ public class EcgReplayModel {
         yValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
     }
 
-    public boolean isShowAppendixTime() {
+    /*public boolean isShowAppendixTime() {
         return showAppendixTime;
     }
     public void setShowAppendixTime(boolean showAppendixTime) {
@@ -54,7 +52,7 @@ public class EcgReplayModel {
         if(observer != null) {
             observer.updateIsShowTimeInAppendix(showAppendixTime, (int)(dataLocationWhenAppendix /ecgFile.getFs()));
         }
-    }
+    }*/
     public int getPixelPerGrid() { return pixelPerGrid; }
     public int getxPixelPerData() { return xPixelPerData; }
     public float getyValuePerPixel() { return yValuePerPixel; }
@@ -75,52 +73,23 @@ public class EcgReplayModel {
     public int getSampleRate() {
         return ecgFile.getFs();
     }
-    public List<IEcgAppendix> getAppendixList() {
+    public List<EcgAppendix> getAppendixList() {
         return ecgFile.getAppendixList();
     }
 
     // 添加一条附言
     public void addAppendix(String content) {
-        IEcgAppendix appendix = createAppendix(content, false);
-
-        if(showAppendixTime) {
-            showAppendixTime = false;
-            if(observer != null) {
-                observer.updateIsShowTimeInAppendix(false, -1);
-            }
-        }
-
+        EcgAppendix appendix = createAppendix(content);
         addAppendix(appendix);
     }
 
-    // 在指定位置的前面插入一条回复附言
-    public void insertReplyAppendix(String content, int pos) {
-        IEcgAppendix appendix = createAppendix(content, true);
-
-        if(showAppendixTime) {
-            showAppendixTime = false;
-            if(observer != null) {
-                observer.updateIsShowTimeInAppendix(false, -1);
-            }
-        }
-
-        insertAppendix(appendix, pos);
-    }
-
-    private IEcgAppendix createAppendix(String content, boolean isReply) {
+    private EcgAppendix createAppendix(String content) {
         UserAccount creator = UserAccountManager.getInstance().getUserAccount();
         long createTime = new Date().getTime();
-        IEcgAppendix appendix;
-        if(showAppendixTime) {
-            appendix = new EcgLocatedComment(creator, createTime, content, dataLocationWhenAppendix);
-        }
-        else
-            appendix = new EcgNormalComment(creator, createTime, content);
-        appendix.setReply(isReply);
-        return appendix;
+        return new EcgAppendix(creator, createTime, content);
     }
 
-    private void addAppendix(IEcgAppendix appendix) {
+    private void addAppendix(EcgAppendix appendix) {
         ecgFile.addAppendix(appendix);
         updated = true;
         if(observer != null) {
@@ -128,15 +97,7 @@ public class EcgReplayModel {
         }
     }
 
-    private void insertAppendix(IEcgAppendix appendix, int pos) {
-        ecgFile.insertAppendix(appendix, pos);
-        updated = true;
-        if(observer != null) {
-            observer.updateAppendixList();
-        }
-    }
-
-    public void deleteAppendix(IEcgAppendix appendix) {
+    public void deleteAppendix(EcgAppendix appendix) {
         ecgFile.deleteAppendix(appendix);
         updated = true;
         if(observer != null) {

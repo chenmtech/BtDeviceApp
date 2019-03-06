@@ -21,8 +21,7 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgAppendixAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgReplayModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgReplayObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendixDataLocation;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -44,11 +43,10 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
     private RecyclerView rvAppendix; // 附加信息RecyclerView
     private TextView tvTotalTime; // 总时长
     private TextView tvCurrentTime; // 当前播放的信号的时刻
-    private TextView tvAppendixTime; // 添加附加信息的时刻
-    private ImageButton ibAddAppendix; // 添加附加信息
+    //private ImageButton ibAddAppendix; // 添加附加信息
     private ImageButton btnSwitchReplayState; // 转换回放状态
     private ImageButton ibAddAppendixTime; // 给附加信息添加时刻
-    private EditText etAppendix; // 附加信息编辑EditText
+    //private EditText etAppendix; // 附加信息编辑EditText
     private SeekBar sbReplay; // 播放条
 
 
@@ -89,8 +87,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
         tvCurrentTime.setText(DateTimeUtil.secToTime(replayModel.getCurrentSecond()));
         tvTotalTime = findViewById(R.id.tv_ecgreplay_totaltime);
         tvTotalTime.setText(DateTimeUtil.secToTime(replayModel.getTotalSecond()));
-        tvAppendixTime = findViewById(R.id.tv_ecgreplay_appendixtime);
-        etAppendix = findViewById(R.id.et_ecgreplay_appendix);
+        //etAppendix = findViewById(R.id.et_ecgreplay_appendix);
 
         btnSwitchReplayState = findViewById(R.id.ib_ecgreplay_startandstop);
         btnSwitchReplayState.setOnClickListener(new View.OnClickListener() {
@@ -104,7 +101,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
             }
         });
 
-        ibAddAppendix = findViewById(R.id.ib_ecgreplay_addappendix);
+        /*ibAddAppendix = findViewById(R.id.ib_ecgreplay_addappendix);
         ibAddAppendix.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,7 +122,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
             public void onClick(View view) {
                 replayModel.setShowAppendixTime(!replayModel.isShowAppendixTime());
             }
-        });
+        });*/
 
         sbReplay = findViewById(R.id.sb_ecgreplay);
         sbReplay.setMax(replayModel.getTotalSecond());
@@ -195,17 +192,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
         appendixAdapter.update(replayModel.getAppendixList());
         if(appendixAdapter.getItemCount() > 1)
             rvAppendix.smoothScrollToPosition(appendixAdapter.getItemCount()-1);
-        etAppendix.setText("");
-    }
-
-    @Override
-    public void updateIsShowTimeInAppendix(boolean show, int second) {
-        if(show) {
-            tvAppendixTime.setText(String.format("第%s秒" , DateTimeUtil.secToTime(second)));
-            tvAppendixTime.setVisibility(View.VISIBLE);
-        } else {
-            tvAppendixTime.setVisibility(View.GONE);
-        }
+        //etAppendix.setText("");
     }
 
     /**
@@ -234,7 +221,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
      * IEcgAppendixOperator接口函数
      */
     @Override
-    public void deleteAppendix(final IEcgAppendix appendix) {
+    public void deleteAppendix(final EcgAppendix appendix) {
         if(ecgView.isReplaying())
             stopReplay();
 
@@ -254,24 +241,5 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
             }
         });
         builder.show();
-    }
-
-    @Override
-    public void locateAppendix(IEcgAppendix appendix) {
-        if(appendix instanceof IEcgAppendixDataLocation) {
-            if (ecgView.isReplaying())
-                stopReplay();
-
-            // 提前一秒播放
-            ecgView.showAt(((IEcgAppendixDataLocation) appendix).getLocation() - replayModel.getSampleRate());
-        }
-    }
-
-    @Override
-    public void insertAppendix(String content, int pos) {
-        if(ecgView.isReplaying())
-            stopReplay();
-
-        replayModel.insertReplyAppendix(content, pos);
     }
 }

@@ -49,17 +49,16 @@
                 android:layout_height="wrap_content"
                 android:text="内容："
                 android:textColor="@color/secondary_text"
-                android:textSize="18sp"/>
+                android:textSize="14sp"/>
 
-            <TextView
+            <EditText
                 android:id="@+id/ecgappendix_content"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/EcgCommentTextAppearance"
-                android:textSize="18sp"
-                android:textColor="@color/red"/>
+                android:textSize="14sp"
+                android:enabled="false"/>
         </LinearLayout>
-
     </LinearLayout>
 
     <ImageButton

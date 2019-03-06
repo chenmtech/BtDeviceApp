@@ -9,7 +9,6 @@ import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledevice.core.BleGattElement;
 import com.cmtech.android.bledevice.core.IBleDataOpCallback;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.CalibrateDataProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
@@ -417,9 +416,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         }
     }
 
-    // 添加一条附加信息
-    public synchronized void addAppendix(IEcgAppendix appendix) {
-        ecgRecorder.addAppendix(appendix);
+    // 添加留言内容
+    public synchronized void addAppendixContent(String content) {
+        ecgRecorder.addAppendixContent(content);
     }
 
     // 获取统计直方图数据

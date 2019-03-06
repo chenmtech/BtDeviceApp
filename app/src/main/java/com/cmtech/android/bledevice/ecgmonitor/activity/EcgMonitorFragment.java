@@ -24,8 +24,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgLocatedComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgRestMarker;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.view.ScanWaveView;
@@ -47,7 +45,6 @@ import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 import static android.graphics.Color.WHITE;
-import static android.graphics.Color.YELLOW;
 import static android.view.MotionEvent.ACTION_CANCEL;
 import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_UP;
@@ -80,7 +77,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private AudioTrack hrWarnAudio; // 心率报警声音
     private EcgMonitorDevice device; // 设备
     private EcgHrHistogram hrHistogram; // 心率直方图
-    private EcgRestMarker restMarker; // 安静状态标记
 
     public EcgMonitorFragment() {
 
@@ -144,9 +140,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    UserAccount creator = UserAccountManager.getInstance().getUserAccount();
-                    long createTime = new Date().getTime();
-                    device.addAppendix(new EcgLocatedComment(creator, createTime, appendixContent, device.getRecordDataNum()));
+                    device.addAppendixContent("第" + device.getRecordDataNum()/device.getSampleRate() + "秒，" + appendixContent);
                 }
             });
             appendixBtnList.add(button);
@@ -172,24 +166,20 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         ibStayRest = view.findViewById(R.id.ib_stay_rest);
         ibStayRest.setOnTouchListener(new View.OnTouchListener() {
+            private int begin = 0;
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch(motionEvent.getAction()) {
                     case ACTION_DOWN:
                         ecgView.setWaveColor(COLOR_WHEN_REST);
-                        long timeCreated = new Date().getTime();
-                        restMarker = new EcgRestMarker(UserAccountManager.getInstance().getUserAccount(), timeCreated);
-                        restMarker.setBeginLocation(device.getRecordDataNum());
+                        //device.addAppendixContent("开始安静状态" + "@" + device.getRecordDataNum());
+                        begin = (int)(device.getRecordDataNum()/device.getSampleRate());
                         break;
                     case ACTION_UP:
                     case ACTION_CANCEL:
                         ecgView.restoreDefaultWaveColor();
-                        if(restMarker != null) {
-                            restMarker.setEndLocation(device.getRecordDataNum());
-                            device.addAppendix(restMarker);
-                            ViseLog.e(restMarker.toString());
-                            restMarker = null;
-                        }
+                        int end = (int)(device.getRecordDataNum()/device.getSampleRate());
+                        device.addAppendixContent("第" + begin + ':' + end + "秒，" + "处于安静状态");
                         break;
                     default:
                         break;
