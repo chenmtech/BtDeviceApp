@@ -26,19 +26,15 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     static class ViewHolder extends RecyclerView.ViewHolder {
         View fileView;
         TextView tvCreator; // 创建人
-        TextView tvCreateTime; // 创建时间
         TextView tvModifiedTime; // 最后修改时间
         TextView tvLength; // 信号长度
-        ImageButton ibShare; // 分享按钮
 
         ViewHolder(View itemView) {
             super(itemView);
             fileView = itemView;
             tvCreator = fileView.findViewById(R.id.ecgfile_creator);
-            tvCreateTime = fileView.findViewById(R.id.ecgfile_createtime);
             tvModifiedTime = fileView.findViewById(R.id.ecgfile_modifiedtime);
             tvLength = fileView.findViewById(R.id.ecgfile_length);
-            ibShare = fileView.findViewById(R.id.ib_ecgfile_share);
         }
     }
 
@@ -69,13 +65,13 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             }
         });
 
-        holder.ibShare.setOnClickListener(new View.OnClickListener() {
+        /*holder.ibShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 explorerModel.shareSelectFileThroughWechat();
             }
         });
-
+*/
         holder.tvCreator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,9 +96,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             holder.tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
         }
 
-        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
         String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
-        holder.tvCreateTime.setText(createTime);
         holder.tvLength.setText(fileTimeLength);
         String modifiedTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getFile().lastModified());
         holder.tvModifiedTime.setText(modifiedTime);
@@ -133,12 +127,8 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         if(explorerModel.getSelectIndex() == position) {
             bgdColor = MyApplication.getContext().getResources().getColor(R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
-            holder.ibShare.setBackgroundColor(bgdColor);
-            holder.ibShare.setVisibility(View.VISIBLE);
         } else {
             holder.fileView.setBackground(defaultBackground);
-            holder.ibShare.setBackground(defaultBackground);
-            holder.ibShare.setVisibility(View.INVISIBLE);
         }
     }
 
