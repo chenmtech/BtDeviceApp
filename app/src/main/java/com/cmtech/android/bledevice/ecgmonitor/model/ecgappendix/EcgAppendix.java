@@ -22,25 +22,25 @@ public class EcgAppendix{
     private static final int CONTENT_CHAR_NUM = 500; // 内容字符数
 
     private User creator = new User(); // 创建人
-    private long createTime = -1; // 创建时间
+    private long modifyTime = -1; // 修改时间
     private String content = ""; // 内容
 
     public EcgAppendix() {
 
     }
 
-    private EcgAppendix(User creator, long createTime) {
+    private EcgAppendix(User creator, long modifyTime) {
         this();
         try {
             this.creator = (User) creator.clone();
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
-        this.createTime = createTime;
+        this.modifyTime = modifyTime;
     }
 
-    public EcgAppendix(User creator, long createTime, String content) {
-        this(creator, createTime);
+    public EcgAppendix(User creator, long modifyTime, String content) {
+        this(creator, modifyTime);
         this.content = content;
     }
 
@@ -50,20 +50,26 @@ public class EcgAppendix{
      */
     public static EcgAppendix createDefaultAppendix() {
         User creator = AccountManager.getInstance().getAccount();
-        long createTime = new Date().getTime();
-        return new EcgAppendix(creator, createTime);
+        long modifyTime = new Date().getTime();
+        return new EcgAppendix(creator, modifyTime);
     }
 
     public User getCreator() {
         return creator;
     }
 
-    public long getCreateTime() {
-        return createTime;
+    public long getModifyTime() {
+        return modifyTime;
     }
+
+    public void setModifyTime(long modifyTime) { this.modifyTime = modifyTime;}
 
     public String getContent() {
         return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     /**
@@ -86,8 +92,8 @@ public class EcgAppendix{
         try {
             // 读创建人
             creator.readFromStream(in);
-            // 读创建时间
-            createTime = ByteUtil.reverseLong(in.readLong());
+            // 读修改时间
+            modifyTime = ByteUtil.reverseLong(in.readLong());
             // 读留言内容
             content = DataIOUtil.readFixedString(CONTENT_CHAR_NUM, in);
         } catch (IOException e) {
@@ -105,8 +111,8 @@ public class EcgAppendix{
         try {
             // 写创建人
             creator.writeToStream(out);
-            // 写创建时间
-            out.writeLong(ByteUtil.reverseLong(createTime));
+            // 写修改时间
+            out.writeLong(ByteUtil.reverseLong(modifyTime));
             // 写留言内容
             DataIOUtil.writeFixedString(content, CONTENT_CHAR_NUM, out);
         } catch (IOException e) {
@@ -125,7 +131,7 @@ public class EcgAppendix{
 
     @Override
     public String toString() {
-        return creator.getUserName() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(createTime) + ' ' + content;
+        return creator.getUserName() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + ' ' + content;
     }
 
     @Override
@@ -136,15 +142,15 @@ public class EcgAppendix{
 
         EcgAppendix other = (EcgAppendix)otherObject;
 
-        // 只要手机号相同，创建时间相同，就认为是同一条留言
-        return  (creator.getPhone().equals(other.creator.getPhone()) && (createTime == other.createTime));
+        // 只要手机号和修改时间相同，就认为是同一条留言
+        return  (creator.getPhone().equals(other.creator.getPhone()) && (modifyTime == other.modifyTime));
     }
 
     @Override
     public int hashCode() {
         int result = 17;
         result = 37*result + creator.hashCode();
-        result = 37*result + (int)(createTime^(createTime>>32));
+        result = 37*result + (int)(modifyTime^(modifyTime>>32));
         return result;
     }
 }

@@ -15,17 +15,12 @@ import java.util.Arrays;
  */
 
 public class EcgFileHead {
-    public static EcgFileHead createDefaultEcgFileHead() {
-        return new EcgFileHead(new User(), "", EcgLeadType.LEAD_I);
-    }
-
-    private static final int MACADDRESS_LEN = 12;           // mac地址字符数
-
-    private static final byte[] ECGFILE_TAG = {'E', 'C', 'G'};          // 心电文件标识
-    private static final byte[] VER = new byte[] {0x01, 0x01};         // 心电文件头版本号1.1，便于以后升级
-    private User creator; // 创建人
-    private String macAddress = "";                                     // 设备地址
-    private EcgLeadType leadType = EcgLeadType.LEAD_I;                  // 导联类型
+    private static final int MACADDRESS_CHAR_NUM = 12; // 蓝牙设备mac地址字符数
+    private static final byte[] ECGFILE_TAG = {'E', 'C', 'G'}; // 心电文件标识
+    private static final byte[] VER = new byte[] {0x01, 0x01}; // 心电文件头版本号1.1，便于以后升级
+    private User creator = new User(); // 创建人
+    private String macAddress = ""; // 蓝牙设备地址
+    private EcgLeadType leadType = EcgLeadType.LEAD_I; // 导联类型
 
     public String getMacAddress() {
         return macAddress;
@@ -39,16 +34,16 @@ public class EcgFileHead {
         return creator;
     }
 
-    public String getCreatorName() {
-        return creator.getUserName();
-    }
-
     public EcgLeadType getLeadType() {
         return leadType;
     }
 
     public void setLeadType(EcgLeadType leadType) {
         this.leadType = leadType;
+    }
+
+    public EcgFileHead() {
+
     }
 
     public EcgFileHead(User creator, String macAddress, EcgLeadType leadType) {
@@ -71,7 +66,7 @@ public class EcgFileHead {
             // 读创建人信息
             creator.readFromStream(in);
             // 读macAddress
-            macAddress = DataIOUtil.readFixedString(MACADDRESS_LEN, in);
+            macAddress = DataIOUtil.readFixedString(MACADDRESS_CHAR_NUM, in);
             // 读导联类型
             leadType = EcgLeadType.getFromCode(ByteUtil.reverseInt(in.readInt()));
         } catch (IOException e) {
@@ -89,7 +84,7 @@ public class EcgFileHead {
             // 写创建人信息
             creator.writeToStream(out);
             // 写macAddress
-            DataIOUtil.writeFixedString(macAddress, MACADDRESS_LEN, out);
+            DataIOUtil.writeFixedString(macAddress, MACADDRESS_CHAR_NUM, out);
             // 写导联类型
             out.writeInt(ByteUtil.reverseInt(leadType.getCode()));
         } catch (IOException e) {
@@ -109,6 +104,6 @@ public class EcgFileHead {
 
     // EcgFileHead字节长度：3个字节的{E,C,G} + 2个字节的版本号 + 创建人 + 创建人备注 + 创建设备MAC + 导联类型（4字节）
     public int length() {
-        return 3 + 2 + creator.length() + MACADDRESS_LEN *2 + 4;
+        return 3 + 2 + creator.length() + MACADDRESS_CHAR_NUM *2 + 4;
     }
 }

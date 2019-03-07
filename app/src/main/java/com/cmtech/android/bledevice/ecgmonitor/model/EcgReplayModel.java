@@ -39,6 +39,18 @@ public class EcgReplayModel {
         int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
         xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate));   // 计算横向分辨率
         yValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
+
+        User account = AccountManager.getInstance().getAccount();
+        boolean found = false;
+        for(EcgAppendix appendix : ecgFile.getAppendixList()) {
+            if(appendix.getCreator().equals(account)) {
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            ecgFile.addAppendix(EcgAppendix.createDefaultAppendix());
+        }
     }
 
     /*public boolean isShowAppendixTime() {
@@ -81,6 +93,13 @@ public class EcgReplayModel {
     public void addAppendix(String content) {
         EcgAppendix appendix = createAppendix(content);
         addAppendix(appendix);
+    }
+
+    // 保存一条附言
+    public void saveAppendix(EcgAppendix appendix) {
+        if(ecgFile.getAppendixList().contains(appendix)) {
+            updated = true;
+        }
     }
 
     private EcgAppendix createAppendix(String content) {

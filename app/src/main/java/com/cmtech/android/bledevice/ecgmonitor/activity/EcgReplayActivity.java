@@ -242,4 +242,9 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
         });
         builder.show();
     }
+
+    @Override
+    public void saveAppendix(EcgAppendix appendix) {
+        replayModel.saveAppendix(appendix);
+    }
 }

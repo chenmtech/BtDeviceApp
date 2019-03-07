@@ -15,9 +15,11 @@ import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
+import java.util.Date;
 import java.util.List;
 
 public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.ViewHolder> {
@@ -28,19 +30,17 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
     static class ViewHolder extends RecyclerView.ViewHolder {
         View appendixView;
         TextView tvCreatorName;
-        TextView tvCreatorTime;
+        TextView tvModifyTime;
         EditText etContent;
-        ImageButton ibLocate;
-        ImageButton ibDelete;
+        ImageButton ibSave;
 
         private ViewHolder(View itemView) {
             super(itemView);
             appendixView = itemView;
             etContent = appendixView.findViewById(R.id.ecgappendix_content);
             tvCreatorName = appendixView.findViewById(R.id.ecgappendix_creator);
-            tvCreatorTime = appendixView.findViewById(R.id.ecgappendix_createtime);
-            ibLocate = appendixView.findViewById(R.id.ib_ecgappendix_locate);
-            ibDelete = appendixView.findViewById(R.id.ib_ecgappendix_delete);
+            tvModifyTime = appendixView.findViewById(R.id.ecgappendix_modifytime);
+            ibSave = appendixView.findViewById(R.id.ib_ecgappendix_save);
         }
     }
 
@@ -62,24 +62,20 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
             @Override
             public void onClick(View view) {
                 User creator = appendixList.get(holder.getAdapterPosition()).getCreator();
-                Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
-        holder.ibDelete.setOnClickListener(new View.OnClickListener() {
+        holder.ibSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(appendixOperator != null) {
-                    appendixOperator.deleteAppendix(appendixList.get(holder.getAdapterPosition()));
-                }
-            }
-        });
-
-        holder.ibLocate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(appendixOperator != null) {
-                    //appendixOperator.locateAppendix(appendixList.get(holder.getAdapterPosition()));
+                User creator = appendixList.get(holder.getAdapterPosition()).getCreator();
+                User account = AccountManager.getInstance().getAccount();
+                if(appendixOperator != null && creator.equals(account)) {
+                    EcgAppendix appendix = appendixList.get(holder.getAdapterPosition());
+                    appendix.setContent(holder.etContent.getText().toString());
+                    appendix.setModifyTime(new Date().getTime());
+                    appendixOperator.saveAppendix(appendixList.get(holder.getAdapterPosition()));
                 }
             }
         });
@@ -90,12 +86,20 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
     @Override
     public void onBindViewHolder(@NonNull EcgAppendixAdapter.ViewHolder holder, final int position) {
         EcgAppendix appendix = appendixList.get(position);
-        holder.tvCreatorName.setText(Html.fromHtml("<u>"+appendix.getCreator().getUserName()+"</u>"));
-        holder.tvCreatorTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getCreateTime()));
+        User creator = appendix.getCreator();
+        User account = AccountManager.getInstance().getAccount();
+        if(creator.equals(account)) {
+            holder.tvCreatorName.setText(Html.fromHtml("<u>您</u>"));
+        } else {
+            holder.tvCreatorName.setText(Html.fromHtml("<u>" + appendix.getCreator().getUserName() + "</u>"));
+        }
+
+        holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getModifyTime()));
         holder.etContent.setText(appendix.getContent());
 
-        if(appendixOperator != null) {
-            holder.ibDelete.setVisibility(View.VISIBLE);
+        if(appendixOperator != null && creator.equals(account)) {
+            holder.ibSave.setVisibility(View.VISIBLE);
+            holder.etContent.setEnabled(true);
         }
     }
 

@@ -2,12 +2,15 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.UserManager;
 
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -35,29 +38,13 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_
 public class EcgFileExplorerModel {
     private final File fileDir; // 文件目录
     private final List<EcgFile> fileList; // 文件目录中包含的心电文件列表
-    private int currentSelectIndex = -1; // 当前选择的文件在文件列表中的索引号
+    private int selectIndex = -1; // 当前选择的文件在文件列表中的索引号
     private IEcgFileExplorerObserver observer; // 文件浏览器的观察者，主要给Activity用
 
 
-    public int getCurrentSelectIndex() { return currentSelectIndex; }
+    public int getSelectIndex() { return selectIndex; }
 
     public List<EcgFile> getFileList() { return fileList; }
-
-    public List<EcgAppendix> getSelectedFileAppendixList() {
-        if(fileList.isEmpty() || currentSelectIndex < 0 || currentSelectIndex >= fileList.size()){
-            return new ArrayList<>();
-        } else {
-            return fileList.get(currentSelectIndex).getAppendixList();
-        }
-    }
-
-    public int getSelectedFileSampleRate() {
-        if(fileList.isEmpty() || currentSelectIndex < 0 || currentSelectIndex >= fileList.size()){
-            return -1;
-        } else {
-            return fileList.get(currentSelectIndex).getFs();
-        }
-    }
 
     public EcgFileExplorerModel(File fileDir) throws IOException{
         if(fileDir == null || !fileDir.isDirectory()) {
@@ -75,9 +62,9 @@ public class EcgFileExplorerModel {
 
     // 初始化文件目录中的EcgFile列表
     private List<EcgFile> initEcgFileList(File fileDir) {
-        File[] files = BleDeviceUtil.listDirBmeFiles(fileDir);
-        List<EcgFile> fileList = createEcgFileList(files);
-        sortFileList(fileList);
+        File[] files = BleDeviceUtil.listDirBmeFiles(fileDir); // 列出所有bme文件
+        List<EcgFile> fileList = createEcgFileList(files); // 创建相应的EcgFile文件List
+        sortFileList(fileList); // 按照修改时间排序
         return fileList;
     }
 
@@ -105,7 +92,7 @@ public class EcgFileExplorerModel {
         return ecgFileList;
     }
 
-    // 给EcgFile文件列表按照最后修改时间排序
+    // 按照最后修改时间给EcgFile文件列表排序
     private void sortFileList(List<EcgFile> fileList) {
         if(fileList.size() <= 1) return;
 
@@ -117,20 +104,36 @@ public class EcgFileExplorerModel {
         });
     }
 
+    public List<EcgAppendix> getSelectFileAppendixList() {
+        if(fileList.isEmpty() || selectIndex < 0 || selectIndex >= fileList.size()){
+            return new ArrayList<>();
+        } else {
+            return fileList.get(selectIndex).getAppendixList();
+        }
+    }
+
+    public int getSelectFileSampleRate() {
+        if(fileList.isEmpty() || selectIndex < 0 || selectIndex >= fileList.size()){
+            return -1;
+        } else {
+            return fileList.get(selectIndex).getFs();
+        }
+    }
+
     // 选中一个文件
     public void select(int index) {
         if(index < 0 || index > fileList.size()-1) return;
 
-        currentSelectIndex = index;
+        selectIndex = index;
         if(observer != null) {
             observer.update();
         }
     }
 
-    // 播放选中的文件
-    public void replaySelectedFile() {
-        if(currentSelectIndex >= 0 && currentSelectIndex < fileList.size()) {
-            String fileName = fileList.get(currentSelectIndex).getFileName();
+    // 回放选中的文件
+    public void replaySelectFile() {
+        if(selectIndex >= 0 && selectIndex < fileList.size()) {
+            String fileName = fileList.get(selectIndex).getFileName();
 
             if(observer != null) {
                 observer.replay(fileName);
@@ -139,14 +142,13 @@ public class EcgFileExplorerModel {
     }
 
     // 重新加载所选文件
-    public void reloadSelectedFile() {
-        if(currentSelectIndex >= 0 && currentSelectIndex < fileList.size()) {
-            String fileName = fileList.get(currentSelectIndex).getFileName();
+    public void reloadSelectFile() {
+        if(selectIndex >= 0 && selectIndex < fileList.size()) {
+            String fileName = fileList.get(selectIndex).getFileName();
             EcgFile ecgFile = null;
             try {
                 ecgFile = EcgFile.open(fileName);
-                fileList.set(currentSelectIndex, ecgFile);
-                ViseLog.w(ecgFile.getAppendixString());
+                fileList.set(selectIndex, ecgFile);
             } catch (IOException e) {
                 ViseLog.e(e);
                 return;
@@ -161,7 +163,7 @@ public class EcgFileExplorerModel {
             }
 
             sortFileList(fileList);
-            currentSelectIndex = fileList.size()-1;
+            selectIndex = fileList.indexOf(ecgFile);
 
             if(observer != null) {
                 observer.update();
@@ -170,13 +172,13 @@ public class EcgFileExplorerModel {
     }
 
     // 删除所选文件
-    public void deleteSelectedFile() {
-        if(currentSelectIndex >= 0 && currentSelectIndex < fileList.size()) {
+    public void deleteSelectFile() {
+        if(selectIndex >= 0 && selectIndex < fileList.size()) {
             try {
-                FileUtil.deleteFile(fileList.get(currentSelectIndex).getFile());
-                fileList.remove(currentSelectIndex);
+                FileUtil.deleteFile(fileList.get(selectIndex).getFile());
+                fileList.remove(selectIndex);
 
-                if(currentSelectIndex > fileList.size()-1) currentSelectIndex = fileList.size()-1;
+                if(selectIndex > fileList.size()-1) selectIndex = fileList.size()-1;
                 if(observer != null) {
                     observer.update();
                 }
@@ -237,7 +239,7 @@ public class EcgFileExplorerModel {
         if(updated) {
             sortFileList(fileList);
 
-            currentSelectIndex = fileList.size() - 1;
+            selectIndex = fileList.size() - 1;
 
             if (observer != null) {
                 observer.update();
@@ -268,10 +270,10 @@ public class EcgFileExplorerModel {
     }
 
     // 用微信分享BME文件
-    public void shareSelectedFileThroughWechat() {
-        if(currentSelectIndex < 0 || currentSelectIndex >= fileList.size()) return;
+    public void shareSelectFileThroughWechat() {
+        if(selectIndex < 0 || selectIndex >= fileList.size()) return;
 
-        EcgFile sharedFile = fileList.get(currentSelectIndex);
+        EcgFile sharedFile = fileList.get(selectIndex);
 
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);

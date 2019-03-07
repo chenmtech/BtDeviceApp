@@ -30,7 +30,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
 
 public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver {
     private static final String TAG = "EcgFileExplorerActivity";
-    private static final int RCODE_REPLAY_ECG = 1; // 回放ECG的返回码
+    private static final int REQUESTCODE_REPLAY_ECG = 1; // 回放ECG的请求码
 
     private static EcgFileExplorerModel model;      // 文件浏览模型实例
     private EcgFileAdapter fileAdapter; // 文件列表Adapter
@@ -69,9 +69,10 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
         rvAppendixList = findViewById(R.id.rv_ecgexplorer_comment);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
+        //reportLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         rvAppendixList.setLayoutManager(reportLayoutManager);
         rvAppendixList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        appendixAdapter = new EcgAppendixAdapter(model.getSelectedFileAppendixList(), null, model.getSelectedFileSampleRate());
+        appendixAdapter = new EcgAppendixAdapter(model.getSelectFileAppendixList(), null, model.getSelectFileSampleRate());
         rvAppendixList.setAdapter(appendixAdapter);
 
         if(!model.getFileList().isEmpty()) {
@@ -83,12 +84,12 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case RCODE_REPLAY_ECG:
+            case REQUESTCODE_REPLAY_ECG:
                 // 回放心电信号返回
                 if(resultCode == RESULT_OK) {
                     boolean updated = data.getBooleanExtra("updated", false);
                     ViseLog.w("The ECG file is Updated: " + updated);
-                    if(updated) model.reloadSelectedFile();
+                    if(updated) model.reloadSelectFile();
                 }
                 break;
         }
@@ -126,14 +127,14 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     public void deleteSelectedFile() {
-        if(model.getCurrentSelectIndex() >= 0 && model.getCurrentSelectIndex() < model.getFileList().size()) {
+        if(model.getSelectIndex() >= 0 && model.getSelectIndex() < model.getFileList().size()) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("删除Ecg信号");
             builder.setMessage("确定删除该Ecg信号吗？");
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    model.deleteSelectedFile();
+                    model.deleteSelectFile();
                 }
             });
             builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -149,12 +150,12 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     @Override
     public void update() {
         fileAdapter.notifyDataSetChanged();
-        if(model.getCurrentSelectIndex() >= 0 && model.getCurrentSelectIndex() < model.getFileList().size())
-            rvFileList.smoothScrollToPosition(model.getCurrentSelectIndex());
+        if(model.getSelectIndex() >= 0 && model.getSelectIndex() < model.getFileList().size())
+            rvFileList.smoothScrollToPosition(model.getSelectIndex());
 
-        appendixAdapter.update(model.getSelectedFileAppendixList(), model.getSelectedFileSampleRate());
-        if(model.getSelectedFileAppendixList().size() > 0)
-            rvAppendixList.smoothScrollToPosition(model.getSelectedFileAppendixList().size()-1);
+        appendixAdapter.update(model.getSelectFileAppendixList(), model.getSelectFileSampleRate());
+        if(model.getSelectFileAppendixList().size() > 0)
+            rvAppendixList.smoothScrollToPosition(model.getSelectFileAppendixList().size()-1);
     }
 
     @Override

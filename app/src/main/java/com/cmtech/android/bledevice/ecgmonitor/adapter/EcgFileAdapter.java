@@ -15,6 +15,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
@@ -47,7 +48,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
     @NonNull
     @Override
-    public EcgFileAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public EcgFileAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_ecgfile, parent, false);
         final EcgFileAdapter.ViewHolder holder = new EcgFileAdapter.ViewHolder(view);
@@ -58,8 +59,8 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             public void onClick(View view) {
                 int selectPos = holder.getAdapterPosition();
                 // 这次点击的未知与已经选择的位置一样，即再次点击
-                if(selectPos == explorerModel.getCurrentSelectIndex()) {
-                    explorerModel.replaySelectedFile();
+                if(selectPos == explorerModel.getSelectIndex()) {
+                    explorerModel.replaySelectFile();
                 }
                 // 否则仅仅改变选中ecg文件
                 else {
@@ -71,7 +72,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.ibShare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                explorerModel.shareSelectedFileThroughWechat();
+                explorerModel.shareSelectFileThroughWechat();
             }
         });
 
@@ -80,7 +81,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             public void onClick(View view) {
                 EcgFile file = explorerModel.getFileList().get(holder.getAdapterPosition());
                 User creator = file.getCreator();
-                Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -91,7 +92,13 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     public void onBindViewHolder(EcgFileAdapter.ViewHolder holder, final int position) {
         EcgFile file = explorerModel.getFileList().get(position);
 
-        holder.tvCreator.setText(Html.fromHtml("<u>"+file.getCreatorName()+"</u>"));
+        User fileCreator = file.getCreator();
+        User account = AccountManager.getInstance().getAccount();
+        if(fileCreator.equals(account)) {
+            holder.tvCreator.setText(Html.fromHtml("<u>您</u>"));
+        } else {
+            holder.tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
+        }
 
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
         String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
@@ -123,7 +130,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         }*/
 
         int bgdColor;
-        if(explorerModel.getCurrentSelectIndex() == position) {
+        if(explorerModel.getSelectIndex() == position) {
             bgdColor = MyApplication.getContext().getResources().getColor(R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
             holder.ibShare.setBackgroundColor(bgdColor);

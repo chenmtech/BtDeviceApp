@@ -16,23 +16,27 @@ import java.util.List;
  */
 
 public class EcgFileTail {
-    private List<EcgAppendix> appendixList = new ArrayList<>(); // 附加留言列表
+    private List<EcgAppendix> appendixList = new ArrayList<>(); // 附加信息列表
 
     public EcgFileTail() {
 
     }
 
+    /**
+     * 从数据输入流读取
+     * @param raf：数据输入流
+     * @return 是否成功读取
+     */
     public boolean readFromStream(RandomAccessFile raf) {
         try {
             raf.seek(raf.length() - 8);
             long tailEndPointer = raf.getFilePointer();
-            long appendixLength = ByteUtil.reverseLong(raf.readLong()) - 8;
-            ViseLog.e("appendix Length: " + appendixLength);
+            long tailLength = ByteUtil.reverseLong(raf.readLong());
+            long appendixLength = tailLength - 8;
             raf.seek(tailEndPointer - appendixLength);
             while (raf.getFilePointer() < tailEndPointer) {
                 EcgAppendix appendix = new EcgAppendix();
                 if(appendix.readFromStream(raf)) {
-                    ViseLog.e(appendix.toString());
                     addAppendix(appendix);
                 }
             }
@@ -49,6 +53,11 @@ public class EcgFileTail {
         return true;
     }
 
+    /**
+     * 写出到数据输出流当前指针指向的位置
+     * @param raf：数据输出流
+     * @return 是否成功写出
+     */
     public boolean writeToStream(RandomAccessFile raf) {
         try {
             long filePointer = raf.getFilePointer();
@@ -58,7 +67,6 @@ public class EcgFileTail {
 
             // 写附加信息
             for(EcgAppendix appendix : appendixList) {
-                ViseLog.e(appendix.toString());
                 if(!appendix.writeToStream(raf)) {
                     return false;
                 }
@@ -73,7 +81,7 @@ public class EcgFileTail {
 
     @Override
     public String toString() {
-        return "[心电文件尾信息："
+        return "[心电文件尾："
                 + "留言数：" + appendixList.size() + ";"
                 + "留言：" + Arrays.toString(appendixList.toArray()) + "]";
     }
@@ -96,7 +104,9 @@ public class EcgFileTail {
         return appendixList.size();
     }
 
-    // EcgFileTail字节长度：所有留言长度 + 尾部长度（long 8字节）
+    /**
+     * 获取EcgFileTail字节长度：所有留言长度 + 尾部长度（long 8字节）
+      */
     public int length() {
         int length = 0;
         for(EcgAppendix appendix : appendixList) {
