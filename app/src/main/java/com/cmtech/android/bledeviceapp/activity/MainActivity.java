@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     case R.id.nav_registerdevice:
                         startScanDevice();
                         return true;
-                    case R.id.nav_readecgrecord:
+                    case R.id.nav_explorerecord:
                         replayEcg();
                         return true;
                     case R.id.nav_changeuser:

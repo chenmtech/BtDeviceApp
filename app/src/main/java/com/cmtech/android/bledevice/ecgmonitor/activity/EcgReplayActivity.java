@@ -11,7 +11,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -53,7 +52,7 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ecgreplay);
+        setContentView(R.layout.activity_ecgfile_replay);
 
         Intent intent = getIntent();
         String fileName = "";
@@ -201,10 +200,10 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
     @Override
     public void updateShowState(boolean replaying) {
         if(replaying) {
-            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_48px));
+            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_32px));
             sbReplay.setEnabled(false);
         } else {
-            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_48px));
+            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_32px));
             sbReplay.setEnabled(true);
         }
     }
