@@ -1,76 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="2dp">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_comment_24px"
-            android:layout_margin="2dp"
-            android:layout_gravity="center_horizontal"/>
+            android:src="@mipmap/ic_comment_24px"/>
         <TextView
             android:id="@+id/ecgappendix_creator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:text="匿名"
             android:textAppearance="@style/PersonTextAppearance"
             android:textSize="16sp"
             android:layout_margin="2dp"
             android:maxLength="10"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:text="修改时间："
+            android:textColor="@color/secondary_text"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/ecgappendix_modifytime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:textAppearance="@style/EcgCommentTextAppearance"
+            android:textSize="14sp"
+            android:textColor="#000"/>
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="5"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="修改时间："
-                android:textColor="@color/secondary_text"
-                android:textSize="14sp"/>
-
-            <TextView
-                android:id="@+id/ecgappendix_modifytime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/EcgCommentTextAppearance"
-                android:textSize="14sp"
-                android:textColor="#000"/>
-        </LinearLayout>
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <EditText
             android:id="@+id/ecgappendix_content"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:textAppearance="@style/EcgCommentTextAppearance"
             android:textSize="14sp"
+            android:background="@color/primary_dark"
             android:enabled="false"/>
+
+        <ImageButton
+            android:id="@+id/ib_ecgappendix_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:src="@mipmap/ic_save_32px"
+            android:contentDescription="save appendix"
+            android:background="@color/primary"
+            android:visibility="gone"/>
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/ib_ecgappendix_save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:src="@mipmap/ic_save_32px"
-        android:contentDescription="save appendix"
-        android:background="@color/primary"
-        android:visibility="gone"/>
+
 
 </LinearLayout>
