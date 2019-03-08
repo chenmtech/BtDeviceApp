@@ -7,7 +7,6 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,14 +25,14 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     static class ViewHolder extends RecyclerView.ViewHolder {
         View fileView;
         TextView tvCreator; // 创建人
-        TextView tvModifiedTime; // 最后修改时间
+        TextView tvCreateTime; // 创建时间
         TextView tvLength; // 信号长度
 
         ViewHolder(View itemView) {
             super(itemView);
             fileView = itemView;
             tvCreator = fileView.findViewById(R.id.ecgfile_creator);
-            tvModifiedTime = fileView.findViewById(R.id.ecgfile_modifiedtime);
+            tvCreateTime = fileView.findViewById(R.id.ecgfile_createtime);
             tvLength = fileView.findViewById(R.id.ecgfile_length);
         }
     }
@@ -95,11 +94,11 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         } else {
             holder.tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
         }
-
+        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
+        holder.tvCreateTime.setText(createTime);
         String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
         holder.tvLength.setText(fileTimeLength);
-        String modifiedTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getFile().lastModified());
-        holder.tvModifiedTime.setText(modifiedTime);
+
 
         /*int appendixNum = file.getAppendixNum();
         if(appendixNum > 0) {
@@ -117,10 +116,10 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             }
             lastEcgComment = String.format(lastEcgComment, createTime, person, tvContent);
 
-            holder.tvModifiedTime.setText(lastEcgComment);*//*
-            holder.tvModifiedTime.setText(lastAppendix.toStringWithSampleRate(file.getFs()));
+            holder.tvCreateTime.setText(lastEcgComment);*//*
+            holder.tvCreateTime.setText(lastAppendix.toStringWithSampleRate(file.getFs()));
         } else {
-            holder.tvModifiedTime.setText("无留言");
+            holder.tvCreateTime.setText("无留言");
         }*/
 
         int bgdColor;
