@@ -10,9 +10,16 @@
 
     <item
         android:id="@+id/explorer_delete"
-        android:icon="@mipmap/ic_file_delete_32px"
+        android:icon="@mipmap/ic_delete_32px"
         android:orderInCategory="1"
         android:title="删除"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/explorer_share"
+        android:icon="@mipmap/ic_share_32px"
+        android:orderInCategory="2"
+        android:title="分享"
         app:showAsAction="always"/>
 
 </menu>

@@ -52,15 +52,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int selectPos = holder.getAdapterPosition();
-                // 这次点击的未知与已经选择的位置一样，即再次点击
-                if(selectPos == explorerModel.getSelectIndex()) {
-                    explorerModel.replaySelectFile();
-                }
-                // 否则仅仅改变选中ecg文件
-                else {
-                    explorerModel.select(holder.getAdapterPosition());
-                }
+                explorerModel.select(holder.getAdapterPosition());
             }
         });
 
@@ -90,7 +82,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         User fileCreator = file.getCreator();
         User account = AccountManager.getInstance().getAccount();
         if(fileCreator.equals(account)) {
-            holder.tvCreator.setText(Html.fromHtml("<u>您</u>"));
+            holder.tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
             holder.tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
         }

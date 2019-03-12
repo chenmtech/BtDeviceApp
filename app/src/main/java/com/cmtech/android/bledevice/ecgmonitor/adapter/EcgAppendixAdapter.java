@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -11,13 +12,16 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.android.bledeviceapp.util.SoftKeyboardStateHelper;
 
 import java.util.Date;
 import java.util.List;
@@ -84,7 +88,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull EcgAppendixAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final EcgAppendixAdapter.ViewHolder holder, final int position) {
         EcgAppendix appendix = appendixList.get(position);
         User creator = appendix.getCreator();
         User account = AccountManager.getInstance().getAccount();
@@ -99,8 +103,20 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
 
         if(appendixOperator != null && creator.equals(account)) {
             holder.ibSave.setVisibility(View.VISIBLE);
-            holder.etContent.setEnabled(true);
+            holder.etContent.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    holder.etContent.setFocusableInTouchMode(true);
+                    return false;
+                }
+            });
+
+        } else {
+            holder.ibSave.setVisibility(View.GONE);
+
         }
+
+
     }
 
     @Override
@@ -117,5 +133,27 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
     public void update(List<EcgAppendix> appendixList) {
         this.appendixList = appendixList;
         notifyDataSetChanged();
+    }
+
+
+    private void setListenerFotEditText(View view){
+        SoftKeyboardStateHelper softKeyboardStateHelper = new SoftKeyboardStateHelper(view);
+        softKeyboardStateHelper.addSoftKeyboardStateListener(new SoftKeyboardStateHelper.SoftKeyboardStateListener() {
+            @Override
+            public void onSoftKeyboardOpened(int keyboardHeightInPx) {
+                //键盘打开
+                if(appendixOperator != null) {
+                    appendixOperator.notifySoftKeyBoardState(true);
+                }
+            }
+
+            @Override
+            public void onSoftKeyboardClosed() {
+                //键盘关闭
+                if(appendixOperator != null) {
+                    appendixOperator.notifySoftKeyBoardState(false);
+                }
+            }
+        });
     }
 }

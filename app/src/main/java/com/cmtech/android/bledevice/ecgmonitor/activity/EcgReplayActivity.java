@@ -246,4 +246,9 @@ public class EcgReplayActivity extends AppCompatActivity implements IEcgReplayOb
     public void saveAppendix(EcgAppendix appendix) {
         replayModel.saveAppendix(appendix);
     }
+
+    @Override
+    public void notifySoftKeyBoardState(boolean open) {
+
+    }
 }

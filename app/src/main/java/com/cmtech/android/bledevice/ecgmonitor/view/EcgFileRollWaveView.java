@@ -87,6 +87,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
         dataNumReadEachUpdate = (int)(Math.ceil((double) MIN_SHOW_INTERVAL /sampleInterval));
         interval = dataNumReadEachUpdate *sampleInterval;
         ecgFile.seekData(0);
+        num = 0;
     }
 
     public boolean isReplaying() {

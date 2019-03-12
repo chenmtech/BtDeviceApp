@@ -78,7 +78,8 @@
             android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgReplayActivity"
             android:launchMode="singleTask" />
 
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity" />
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity"
+            android:windowSoftInputMode="adjustPan"/>
 
         <activity android:name=".activity.UserInfoActivity"/>
 

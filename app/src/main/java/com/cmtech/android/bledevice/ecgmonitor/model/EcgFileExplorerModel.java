@@ -3,8 +3,10 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.UserManager;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgReplayActivity;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -125,6 +127,7 @@ public class EcgFileExplorerModel {
         if(index < 0 || index > fileList.size()-1) return;
 
         selectIndex = index;
+
         if(observer != null) {
             observer.update();
         }
