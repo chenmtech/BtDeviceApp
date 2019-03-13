@@ -21,16 +21,18 @@ public class EcgReplayModel {
     private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
 
-    private EcgFile ecgFile; // 播放的EcgFile
-    private boolean updated = false; // 文件是否已更新
-    private IEcgReplayObserver observer; // 文件播放观察者
-    private final int totalSecond; // 信号总的秒数
-    private long dataLocation = 0; // 记录当前播放的数据位置
-    private long dataLocationWhenAppendix = -1; // 添加附加信息时的数据位置
-    private boolean showAppendixTime = false; // 是否在附加信息中加入时间
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每小格的像素个数
     private final int xPixelPerData; // 横向分辨率
     private final float yValuePerPixel; // 纵向分辨率
+
+    private final EcgFile ecgFile; // 播放的EcgFile
+    private boolean updated = false; // 文件是否已更新
+    private IEcgReplayObserver observer; // 文件播放观察者
+    private final int totalSecond; // 信号总的秒数
+    private long dataLocation = 0; // 当前播放的数据位置
+    private long dataLocationWhenAppendix = -1; // 添加附加信息时的数据位置
+    private boolean showAppendixTime = false; // 是否在附加信息中加入时间
+
 
     public EcgReplayModel(String ecgFileName) throws IOException{
         ecgFile = EcgFile.open(ecgFileName);
