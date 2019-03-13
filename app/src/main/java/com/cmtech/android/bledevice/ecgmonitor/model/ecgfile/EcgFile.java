@@ -35,7 +35,9 @@ public class EcgFile extends RandomAccessBmeFile {
         return new EcgFile(fileName);
     }
 
-    // 打开文件时使用的私有构造器
+    /**
+     * 打开已有EcgFile文件时使用的私有构造器
+     */
     private EcgFile(String fileName) throws IOException {
         super(fileName);
 
@@ -55,7 +57,7 @@ public class EcgFile extends RandomAccessBmeFile {
             raf.seek(dataBeginPointer); // 回到数据开始位置
             dataNum = availableData(); // 获取数据个数
         } catch (IOException e) {
-            throw new IOException("打开文件错误");
+            throw new IOException("打开文件错误:" + fileName);
         }
     }
 

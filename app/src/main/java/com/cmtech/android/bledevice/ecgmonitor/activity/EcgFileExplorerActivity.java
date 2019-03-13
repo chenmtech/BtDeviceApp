@@ -281,9 +281,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
     @Override
     public void replay(String fileName) {
-        Intent intent = new Intent(EcgFileExplorerActivity.this, EcgReplayActivity.class);
-        intent.putExtra("fileName", fileName);
-        startActivityForResult(intent, 1);
+
     }
 
     /**

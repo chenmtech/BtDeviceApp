@@ -43,7 +43,6 @@ import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
 import com.cmtech.android.bledevice.core.IBleDeviceFragmentActivity;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgReplayActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
@@ -514,13 +513,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     // 心电信号回放
     private void replayEcg() {
         Intent intent = new Intent(MainActivity.this, EcgFileExplorerActivity.class);
-        startActivity(intent);
-    }
-
-    // 指定心电信号文件的回放
-    private void replayEcgFile(String fileName) {
-        Intent intent = new Intent(MainActivity.this, EcgReplayActivity.class);
-        intent.putExtra("fileName", fileName);
         startActivity(intent);
     }
 

@@ -74,10 +74,6 @@
 
         <activity android:name="com.cmtech.android.bledevice.thermo.activity.ThermoConfigureActivity" />
 
-        <activity
-            android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgReplayActivity"
-            android:launchMode="singleTask" />
-
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity"
             android:windowSoftInputMode="adjustPan"/>
 

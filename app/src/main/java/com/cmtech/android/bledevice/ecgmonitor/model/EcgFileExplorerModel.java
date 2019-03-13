@@ -2,17 +2,12 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.UserManager;
-import android.widget.Toast;
 
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgReplayActivity;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.User;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
