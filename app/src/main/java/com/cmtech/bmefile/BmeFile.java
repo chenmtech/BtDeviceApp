@@ -1,6 +1,7 @@
 package com.cmtech.bmefile;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.vise.log.ViseLog;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -35,68 +36,59 @@ public abstract class BmeFile {
 
     // 为已存在文件生成BmeFile
 	protected BmeFile(String fileName) throws IOException{
-        file = createFile(fileName);
-        if(file != null) {
+        File tempfile = new File(fileName);
+        if(tempfile.exists() && tempfile.renameTo(tempfile)) {
+            file = tempfile;
             fileHead = open(file);
             if(fileHead == null) {
-                throw new IOException("打开文件错误");
+                throw new IOException("打开文件错误:" + fileName);
             }
         } else {
-            throw new IOException("打开文件错误");
+            throw new IOException("打开文件错误:" + fileName);
         }
 	}
 
 	// 为不存在的文件创建BmeFile
 	protected BmeFile(String fileName, BmeFileHead head) throws IOException{
-        file = createFile(fileName);
-		if(file != null) {
+        File tempfile = new File(fileName);
+        if(!tempfile.exists()) {
+            file = tempfile;
             fileHead = create(head);
             if(fileHead == null) {
-                throw new IOException("创建文件错误");
+                throw new IOException("创建文件错误:" + fileName);
             }
         } else {
-            throw new IOException("创建文件错误");
-        }
-	}
-	
-	private File createFile(String fileName) {
-		/*if(fileInOperation.contains(fileName))
-			return false;
-		else {
-            file = new File(fileName);
-			fileInOperation.add(fileName);
-			return true;
-		}*/
-		File file = new File(fileName);
-		if(file.renameTo(file)) {
-		    return file;
-        } else {
-		    return null;
+            throw new IOException("创建文件错误:" + fileName);
         }
 	}
 
-	private BmeFileHead open(File file) {
+    // 判断文件是否在操作中
+    public boolean isActive() {
+        if(file == null) return false;
+        if(!file.exists()) return false;
+        return !file.renameTo(file);
+    }
+
+	private BmeFileHead open(File file){
 		BmeFileHead fileHead;
 		
 		if(file == null)
 			throw new IllegalArgumentException();
-        if(in != null || out != null)
+        if(!file.exists() || in != null || out != null)
             throw new IllegalStateException();
 
 		try	{
-            if(!file.exists())
-                throw new IOException();
             if(!createInputStream())
-                throw new IOException();
+                return null;
 			byte[] bme = new byte[3];
 			in.readFully(bme); // 读BmeFile标识符
 			if(!Arrays.equals(bme, BME))
-			    throw new IOException();
+			    return null;
 			byte[] ver = new byte[2];
 			in.readFully(ver); // 读版本号
 			fileHead = BmeFileHeadFactory.create(ver);
 			if(!fileHead.readFromStream(in)) // 读BmeFileHead
-			    throw new IOException();
+			    return null;
 		} catch (IOException e) {
 			return null;
 		}
@@ -137,10 +129,7 @@ public abstract class BmeFile {
     protected abstract boolean isEof() throws IOException;
     public abstract void close() throws IOException;
 
-    // 判断文件是否在操作中
-    public boolean isActive() {
-        return (file != null && !file.renameTo(file));
-    }
+
 
     // 读单个byte数据
     public byte readByte() throws IOException{

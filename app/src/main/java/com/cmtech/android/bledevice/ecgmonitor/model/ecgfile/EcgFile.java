@@ -82,9 +82,9 @@ public class EcgFile extends RandomAccessBmeFile {
         try {
             fileName = toFile.getCanonicalPath();
             ecgFile = EcgFile.create(fileName, bmeFileHead, ecgFileHead);
-            ViseLog.e(ecgFile);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            ViseLog.e(e);
         }
         return ecgFile;
     }
@@ -98,20 +98,16 @@ public class EcgFile extends RandomAccessBmeFile {
     private EcgFile(String fileName, BmeFileHead head, EcgFileHead ecgFileHead) throws IOException {
         super(fileName, head);
 
-        try {
-            this.ecgFileHead = ecgFileHead;
-            if (!ecgFileHead.writeToStream(raf)) { // 写EcgFileHead
-                throw new IOException();
-            }
-
-            dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
-
-            dataEndPointer = dataBeginPointer;
-
-            dataNum = 0;
-        } catch (IOException e) {
-            throw new IOException("创建文件错误");
+        this.ecgFileHead = ecgFileHead;
+        if (!ecgFileHead.writeToStream(raf)) { // 写EcgFileHead
+            throw new IOException("文件写入错误:" + fileName);
         }
+
+        dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
+
+        dataEndPointer = dataBeginPointer;
+
+        dataNum = 0;
     }
 
     @Override
