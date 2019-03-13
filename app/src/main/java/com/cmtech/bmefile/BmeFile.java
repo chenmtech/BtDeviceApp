@@ -19,7 +19,7 @@ import static java.nio.ByteOrder.BIG_ENDIAN;
  */
 
 public abstract class BmeFile {
-	protected static Set<String> fileInOperation = new HashSet<>(); // 已经打开的文件列表
+	//protected static Set<String> fileInOperation = new HashSet<>(); // 已经打开的文件列表
 	protected static final BmeFileHead DEFAULT_BMEFILE_HEAD = BmeFileHeadFactory.createDefault(); // 缺省文件头
 	
 	private static final byte[] BME = {'B', 'M', 'E'}; // BmeFile标识符
@@ -33,9 +33,10 @@ public abstract class BmeFile {
         return dataNum;
     }
 
-    // 为已存在文件创建BmeFile
+    // 为已存在文件生成BmeFile
 	protected BmeFile(String fileName) throws IOException{
-        if(checkAndCreateFile(fileName)) {
+        file = createFile(fileName);
+        if(file != null) {
             fileHead = open(file);
             if(fileHead == null) {
                 throw new IOException("打开文件错误");
@@ -47,8 +48,9 @@ public abstract class BmeFile {
 
 	// 为不存在的文件创建BmeFile
 	protected BmeFile(String fileName, BmeFileHead head) throws IOException{
-		if(checkAndCreateFile(fileName)) {
-            fileHead = createUsingHead(head);
+        file = createFile(fileName);
+		if(file != null) {
+            fileHead = create(head);
             if(fileHead == null) {
                 throw new IOException("创建文件错误");
             }
@@ -57,14 +59,20 @@ public abstract class BmeFile {
         }
 	}
 	
-	private boolean checkAndCreateFile(String fileName) {
-		if(fileInOperation.contains(fileName))
+	private File createFile(String fileName) {
+		/*if(fileInOperation.contains(fileName))
 			return false;
 		else {
             file = new File(fileName);
 			fileInOperation.add(fileName);
 			return true;
-		}
+		}*/
+		File file = new File(fileName);
+		if(file.renameTo(file)) {
+		    return file;
+        } else {
+		    return null;
+        }
 	}
 
 	private BmeFileHead open(File file) {
@@ -95,7 +103,7 @@ public abstract class BmeFile {
 		return fileHead;
 	}
 
-    private BmeFileHead createUsingHead(BmeFileHead head){
+    private BmeFileHead create(BmeFileHead head){
         if(head == null)
             throw new IllegalArgumentException();
         if(file == null || in != null || out != null)
@@ -128,6 +136,11 @@ public abstract class BmeFile {
 	protected abstract int availableData();
     protected abstract boolean isEof() throws IOException;
     public abstract void close() throws IOException;
+
+    // 判断文件是否在操作中
+    public boolean isActive() {
+        return (file != null && !file.renameTo(file));
+    }
 
     // 读单个byte数据
     public byte readByte() throws IOException{

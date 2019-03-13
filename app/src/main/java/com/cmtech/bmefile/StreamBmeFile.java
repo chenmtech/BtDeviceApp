@@ -89,16 +89,16 @@ public class StreamBmeFile extends BmeFile {
         try {
             if(in != null) {
                 ((DataInputStream)in).close();
-                in = null;
             }
             if(out != null) {
                 ((DataOutputStream)out).close();
-                out = null;
             }
         } catch(IOException ioe) {
             throw new IOException(file.getName() + "关闭文件错误");
         } finally {
-            fileInOperation.remove(file.getCanonicalPath());
+            //fileInOperation.remove(file.getCanonicalPath());
+            in = null;
+            out = null;
         }
     }
 }

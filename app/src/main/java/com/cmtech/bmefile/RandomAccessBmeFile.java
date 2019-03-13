@@ -55,14 +55,14 @@ public abstract class RandomAccessBmeFile extends BmeFile {
         try {
             if(raf != null) {
                 raf.close();
-                in = null;
-                out = null;
-                raf = null;
             }
         } catch(IOException ioe) {
             throw new IOException(file.getName() + "关闭文件错误");
         } finally {
-            fileInOperation.remove(file.getCanonicalPath());
+            //fileInOperation.remove(file.getCanonicalPath());
+            in = null;
+            out = null;
+            raf = null;
         }
     }
 }
