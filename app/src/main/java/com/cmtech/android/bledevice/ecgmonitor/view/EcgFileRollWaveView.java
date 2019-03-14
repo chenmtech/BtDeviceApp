@@ -64,11 +64,15 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
         }
     }
     private Timer showTimer; // 定时器
-    // 观察者接口
+
+    // EcgFile滚动波形视图显示观察者接口
     public interface IEcgFileRollWaveViewObserver {
-        void updateShowState(boolean replaying); // 更新显示状态
-        void updateDataLocation(long dataLocation); // 更新当前数据位置
+        // 更新显示状态
+        void updateShowState(boolean isReplay);
+        // 更新当前数据位置
+        void updateDataLocation(long dataLocation);
     }
+
     private IEcgFileRollWaveViewObserver observer; // 观察者
 
 
@@ -130,7 +134,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
     }
 
     // 显示指定秒数的信号
-    public void showAtInSecond(int second) {
+    public void showAtSecond(int second) {
         showAt(second*ecgFile.getFs());
     }
 

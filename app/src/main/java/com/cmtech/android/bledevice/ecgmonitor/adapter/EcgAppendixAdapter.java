@@ -135,25 +135,4 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         notifyDataSetChanged();
     }
 
-
-    private void setListenerFotEditText(View view){
-        SoftKeyboardStateHelper softKeyboardStateHelper = new SoftKeyboardStateHelper(view);
-        softKeyboardStateHelper.addSoftKeyboardStateListener(new SoftKeyboardStateHelper.SoftKeyboardStateListener() {
-            @Override
-            public void onSoftKeyboardOpened(int keyboardHeightInPx) {
-                //键盘打开
-                if(appendixOperator != null) {
-                    appendixOperator.notifySoftKeyBoardState(true);
-                }
-            }
-
-            @Override
-            public void onSoftKeyboardClosed() {
-                //键盘关闭
-                if(appendixOperator != null) {
-                    appendixOperator.notifySoftKeyBoardState(false);
-                }
-            }
-        });
-    }
 }

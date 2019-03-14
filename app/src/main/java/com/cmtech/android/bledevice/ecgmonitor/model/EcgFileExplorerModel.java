@@ -1,31 +1,11 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledeviceapp.R;
-import com.vise.log.ViseLog;
-import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-
-import cn.sharesdk.framework.Platform;
-import cn.sharesdk.framework.PlatformActionListener;
-import cn.sharesdk.framework.ShareSDK;
-import cn.sharesdk.wechat.friends.Wechat;
-
-import static cn.sharesdk.framework.Platform.SHARE_FILE;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
 
 /**
  * EcgFileExplorerModel: 心电文件浏览模型类
@@ -34,14 +14,13 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_
 
 public class EcgFileExplorerModel {
     private final File fileDir; // 文件目录
-    private final List<EcgFile> fileList; // 文件目录中包含的心电文件列表
-    private int selectIndex = -1; // 当前选择的文件在文件列表中的索引号
-    private IEcgFileExplorerObserver observer; // 文件浏览器的观察者，主要给Activity用
+    private EcgFileListOp fileOp;
+    private EcgFileAppendixOp appendixOp;
+    private EcgFileReplayOp replayOp;
 
+    public int getSelectIndex() { return fileOp.getSelectIndex(); }
 
-    public int getSelectIndex() { return selectIndex; }
-
-    public List<EcgFile> getFileList() { return fileList; }
+    public List<EcgFile> getFileList() { return fileOp.getFileList(); }
 
     public EcgFileExplorerModel(File fileDir) throws IOException{
         if(fileDir == null || !fileDir.isDirectory()) {
@@ -54,263 +33,50 @@ public class EcgFileExplorerModel {
             throw new IOException("磁盘空间不足");
         }
 
-        fileList = initEcgFileList(fileDir);
-    }
-
-    // 初始化文件目录中的EcgFile列表
-    private List<EcgFile> initEcgFileList(File fileDir) {
-        File[] files = BleDeviceUtil.listDirBmeFiles(fileDir); // 列出所有bme文件
-        List<EcgFile> fileList = createEcgFileList(files); // 创建相应的EcgFile文件List
-        sortFileList(fileList); // 按照修改时间排序
-        return fileList;
-    }
-
-    // 创建相应的EcgFile列表
-    private List<EcgFile> createEcgFileList(File[] files) {
-        List<EcgFile> ecgFileList = new ArrayList<>();
-        for(File file : files) {
-            EcgFile ecgFile = null;
-            try {
-                ecgFile = EcgFile.open(file.getCanonicalPath());
-                ecgFileList.add(ecgFile);
-                ViseLog.e(ecgFile.toString());
-            } catch (IOException e) {
-                ViseLog.e("打开心电文件失败" + file);
-            } finally {
-                if(ecgFile != null) {
-                    try {
-                        ecgFile.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return ecgFileList;
-    }
-
-    // 按照最后修改时间给EcgFile文件列表排序
-    private void sortFileList(List<EcgFile> fileList) {
-        if(fileList.size() <= 1) return;
-
-        Collections.sort(fileList, new Comparator<EcgFile>() {
-            @Override
-            public int compare(EcgFile o1, EcgFile o2) {
-                return (int)(o1.getFile().lastModified() - o2.getFile().lastModified());
-            }
-        });
+        fileOp = new EcgFileListOp(fileDir);
+        appendixOp = new EcgFileAppendixOp();
     }
 
     public List<EcgAppendix> getSelectFileAppendixList() {
-        if(fileList.isEmpty() || selectIndex < 0 || selectIndex >= fileList.size()){
-            return new ArrayList<>();
-        } else {
-            return fileList.get(selectIndex).getAppendixList();
-        }
+        return appendixOp.getAppendixList();
     }
 
     public int getSelectFileSampleRate() {
-        if(fileList.isEmpty() || selectIndex < 0 || selectIndex >= fileList.size()){
-            return -1;
-        } else {
-            return fileList.get(selectIndex).getFs();
-        }
+        return fileOp.getSelectFileSampleRate();
     }
 
     // 选中一个文件
     public void select(int index) {
-        if(index < 0 || index > fileList.size()-1) return;
-
-        selectIndex = index;
-
-        if(observer != null) {
-            observer.update();
-        }
-    }
-
-    // 回放选中的文件
-    public void replaySelectFile() {
-        if(selectIndex >= 0 && selectIndex < fileList.size()) {
-            String fileName = fileList.get(selectIndex).getFileName();
-
-            if(observer != null) {
-                observer.replay(fileName);
-            }
-        }
-    }
-
-    // 重新加载所选文件
-    public void reloadSelectFile() {
-        if(selectIndex >= 0 && selectIndex < fileList.size()) {
-            String fileName = fileList.get(selectIndex).getFileName();
-            EcgFile ecgFile = null;
-            try {
-                ecgFile = EcgFile.open(fileName);
-                fileList.set(selectIndex, ecgFile);
-            } catch (IOException e) {
-                ViseLog.e(e);
-                return;
-            } finally {
-                if(ecgFile != null) {
-                    try {
-                        ecgFile.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            sortFileList(fileList);
-            selectIndex = fileList.indexOf(ecgFile);
-
-            if(observer != null) {
-                observer.update();
-            }
+        EcgFile selectFile = fileOp.select(index);
+        if(selectFile != null) {
+            appendixOp.setAppendixList(selectFile.getAppendixList());
         }
     }
 
     // 删除所选文件
     public void deleteSelectFile() {
-        if(selectIndex >= 0 && selectIndex < fileList.size()) {
-            try {
-                FileUtil.deleteFile(fileList.get(selectIndex).getFile());
-                fileList.remove(selectIndex);
-
-                if(selectIndex > fileList.size()-1) selectIndex = fileList.size()-1;
-                if(observer != null) {
-                    observer.update();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        fileOp.deleteSelectFile();
     }
 
     // 从微信导入文件
     public void importFromWechat() {
-        File wxFileDir = new File(WECHAT_DOWNLOAD_DIR);
-        File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
-
-        boolean updated = false;
-
-        for(File wxFile : wxFileList) {
-            EcgFile tmpEcgFile = null;
-            EcgFile toEcgFile = null;
-            try {
-                tmpEcgFile = EcgFile.open(wxFile.getCanonicalPath());
-                tmpEcgFile.close();
-
-                File toFile = FileUtil.getFile(fileDir, wxFile.getName());
-
-                if(toFile.exists()) {
-                    toEcgFile = EcgFile.open(toFile.getCanonicalPath());
-                    if(mergeEcgFileAppendix(tmpEcgFile, toEcgFile))
-                        updated = true;
-                    wxFile.delete();
-                } else {
-                    FileUtil.moveFile(wxFile, toFile);
-                    toEcgFile = EcgFile.open(toFile.getCanonicalPath());
-                    fileList.add(toEcgFile);
-                    updated = true;
-                }
-            } catch (IOException e) {
-                fileList.remove(toEcgFile);
-            } finally {
-                if(tmpEcgFile != null) {
-                    try {
-                        tmpEcgFile.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if(toEcgFile != null) {
-                    try {
-                        toEcgFile.saveFileTail();
-                        toEcgFile.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        if(updated) {
-            sortFileList(fileList);
-
-            selectIndex = fileList.size() - 1;
-
-            if (observer != null) {
-                observer.update();
-            }
-        }
-    }
-
-    // 融合EcgFile的附加留言
-    private boolean mergeEcgFileAppendix(EcgFile srcFile, EcgFile destFile) {
-        List<EcgAppendix> srcComments = srcFile.getEcgFileTail().getAppendixList();
-        List<EcgAppendix> destComments = destFile.getEcgFileTail().getAppendixList();
-        List<EcgAppendix> needAddComments = new ArrayList<>();
-
-        for(EcgAppendix srcComment : srcComments) {
-            for(EcgAppendix destComment : destComments) {
-                if(!srcComment.equals(destComment)) {
-                    needAddComments.add(srcComment);
-                }
-            }
-        }
-
-        if(needAddComments.isEmpty())
-            return false;
-        else {
-            destFile.addAppendix(needAddComments);
-            return true;
-        }
+        fileOp.importToFromWechat(fileDir);
     }
 
     // 用微信分享BME文件
     public void shareSelectFileThroughWechat() {
-        if(selectIndex < 0 || selectIndex >= fileList.size()) return;
-
-        EcgFile sharedFile = fileList.get(selectIndex);
-
-        Platform.ShareParams sp = new Platform.ShareParams();
-        sp.setShareType(SHARE_FILE);
-        String fileShortName = sharedFile.getFile().getName();
-        sp.setTitle(fileShortName);
-        sp.setText(fileShortName);
-        Bitmap bmp = BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_kang);
-        sp.setImageData(bmp);
-        sp.setFilePath(sharedFile.getFileName());
-
-        Platform wxPlatform = ShareSDK.getPlatform(Wechat.NAME);
-        wxPlatform.setPlatformActionListener(new PlatformActionListener() {
-            @Override
-            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                //Toast.makeText(EcgFileExplorerActivity.this, "分享成功", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(Platform platform, int i, Throwable throwable) {
-                //Toast.makeText(EcgFileExplorerActivity.this, "分享错误", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onCancel(Platform platform, int i) {
-                //Toast.makeText(EcgFileExplorerActivity.this, "分享取消", Toast.LENGTH_SHORT).show();
-            }
-        });
-        // 执行分享
-        wxPlatform.share(sp);
+        fileOp.shareSelectFileThroughWechat();
     }
 
     // 登记心电文件浏览器观察者
     public void registerEcgFileExplorerObserver(IEcgFileExplorerObserver observer) {
-        this.observer = observer;
+        fileOp.registerEcgFileListObserver(observer);
     }
 
     // 删除心电文件浏览器观察者
     public void removeEcgFileExplorerObserver() {
-        observer = null;
+        fileOp.removeEcgFileListObserver();
     }
+
 
 }
