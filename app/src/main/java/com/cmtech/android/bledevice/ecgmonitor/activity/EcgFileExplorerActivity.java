@@ -19,11 +19,8 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgAppendixAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgReplayModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileExplorerObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileListObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.IEcgReplayObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView;
@@ -41,11 +38,10 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
  * Created by bme on 2018/11/10.
  */
 
-public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver, IEcgReplayObserver, EcgFileRollWaveView.IEcgFileRollWaveViewObserver, IEcgAppendixOperator {
+public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver, EcgFileRollWaveView.IEcgFileRollWaveViewObserver, IEcgAppendixOperator {
     private static final String TAG = "EcgFileExplorerActivity";
 
     private static EcgFileExplorerModel fileExploreModel;      // 文件浏览器模型实例
-    private EcgReplayModel fileReplayModel; // 回放模型实例
     private EcgFileRollWaveView ecgView; // ecgView
     private EcgFileAdapter fileAdapter; // 文件列表Adapter
     private RecyclerView rvFileList; // 文件列表RecycleView
@@ -167,9 +163,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     protected void onDestroy() {
         super.onDestroy();
 
-        if(fileExploreModel.getSelectIndex() >= 0 && fileExploreModel.getSelectIndex() < fileExploreModel.getFileList().size()) {
+        if(fileExploreModel.getSelectFile() != null) {
             try {
-                fileExploreModel.getFileList().get(fileExploreModel.getSelectIndex()).close();
+                fileExploreModel.getSelectFile().close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -183,7 +179,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     public void deleteSelectedFile() {
-        if(fileExploreModel.getSelectIndex() >= 0 && fileExploreModel.getSelectIndex() < fileExploreModel.getFileList().size()) {
+        if(fileExploreModel.getSelectFile() != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("删除Ecg信号");
             builder.setMessage("确定删除该Ecg信号吗？");
@@ -228,45 +224,24 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     public void updateEcgFileList() {
         fileAdapter.notifyDataSetChanged();
 
-        if(fileExploreModel.getSelectIndex() >= 0 && fileExploreModel.getSelectIndex() < fileExploreModel.getFileList().size()) {
+        if(fileExploreModel.getSelectFile() != null) {
             rvFileList.smoothScrollToPosition(fileExploreModel.getSelectIndex());
-            EcgFile selectFile = fileExploreModel.getFileList().get(fileExploreModel.getSelectIndex());
+            EcgFile selectFile = fileExploreModel.getSelectFile();
             ViseLog.e(selectFile);
 
-            try {
-                if(fileReplayModel != null) fileReplayModel.close();
-                fileReplayModel = new EcgReplayModel(selectFile.getFileName());
-                fileReplayModel.registerEcgFileReplayObserver(this);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            ecgView.setEcgFile(fileReplayModel.getEcgFile());
-            initEcgView(fileReplayModel.getxPixelPerData(), fileReplayModel.getyValuePerPixel(), fileReplayModel.getPixelPerGrid(), 0.5);
+            ecgView.setEcgFile(selectFile);
+            initEcgView(fileExploreModel.getxPixelPerData(), fileExploreModel.getyValuePerPixel(), fileExploreModel.getPixelPerGrid(), 0.5);
 
             tvCurrentTime.setText("00:00:00");
-            tvTotalTime.setText(DateTimeUtil.secToTime(fileReplayModel.getTotalSecond()));
-            sbReplay.setMax(fileReplayModel.getTotalSecond());
+            tvTotalTime.setText(DateTimeUtil.secToTime(fileExploreModel.getTotalSecond()));
+            sbReplay.setMax(fileExploreModel.getTotalSecond());
 
             appendixAdapter.update(selectFile.getAppendixList(), selectFile.getFs());
             if(selectFile.getAppendixList().size() > 0)
                 rvAppendixList.smoothScrollToPosition(0);
 
-            //ecgView.registerEcgFileRollWaveViewObserver(this);
-            //fileReplayModel.registerEcgFileReplayObserver(this);
             startReplay();
         }
-    }
-
-    /**
-     * IEcgFileReplayObserver接口函数
-     */
-    @Override
-    public void updateAppendixList() {
-        appendixAdapter.update(fileReplayModel.getAppendixList());
-        if(appendixAdapter.getItemCount() > 1)
-            rvAppendixList.smoothScrollToPosition(appendixAdapter.getItemCount()-1);
-        //etAppendix.setText("");
     }
 
     /**
@@ -285,10 +260,10 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
     @Override
     public void updateDataLocation(long dataLocation) {
-        int second = (int)(dataLocation/fileReplayModel.getSampleRate());
+        int second = (int)(dataLocation/fileExploreModel.getSampleRate());
         tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
         sbReplay.setProgress(second);
-        fileReplayModel.setDataLocation(dataLocation);
+        fileExploreModel.setDataLocation(dataLocation);
     }
 
     /**
@@ -305,7 +280,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                fileReplayModel.deleteAppendix(appendix);
+                //fileReplayModel.deleteAppendix(appendix);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -319,7 +294,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
     @Override
     public void saveAppendix(EcgAppendix appendix) {
-        fileReplayModel.saveAppendix(appendix);
+        fileExploreModel.saveAppendix(appendix);
     }
 
 }

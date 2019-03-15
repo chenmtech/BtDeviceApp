@@ -28,11 +28,12 @@ import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
 
 public class EcgFileListOp {
+    private final EcgFileExplorerModel explorerModel;
     private final List<EcgFile> fileList; // 文件目录中包含的心电文件列表
     private int selectIndex = -1; // 当前选择的文件在文件列表中的索引号
-    private IEcgFileListObserver observer; // 文件列表的观察者
 
-    public EcgFileListOp(File fileDir) {
+    public EcgFileListOp(File fileDir, EcgFileExplorerModel explorerModel) {
+        this.explorerModel = explorerModel;
         File[] files = BleDeviceUtil.listDirBmeFiles(fileDir); // 列出所有bme文件
         fileList = createEcgFileList(files); // 创建相应的EcgFile文件List
         sortFileList(fileList); // 按照修改时间排序
@@ -78,25 +79,33 @@ public class EcgFileListOp {
 
     public List<EcgFile> getFileList() { return fileList; }
 
-    public int getSelectFileSampleRate() {
-        if(fileList.isEmpty() || selectIndex < 0 || selectIndex >= fileList.size()){
-            return -1;
-        } else {
-            return fileList.get(selectIndex).getFs();
-        }
-    }
+    // 选中某个文件
+    public void select(int index) {
+        if(index < 0 || index > fileList.size()-1) return;
 
-    // 选中一个文件
-    public EcgFile select(int index) {
-        if(index < 0 || index > fileList.size()-1) return null;
+        // 关闭之前的文件
+        if (selectIndex >= 0 && selectIndex < fileList.size()) {
+            try {
+                fileList.get(selectIndex).close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         selectIndex = index;
 
-        if(observer != null) {
-            observer.updateEcgFileList();
+        // 打开当前选中的文件
+        try {
+            EcgFile ecgFile = EcgFile.open(fileList.get(selectIndex).getFileName());
+            fileList.set(selectIndex, ecgFile);
+            explorerModel.changeSelectFile(ecgFile);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        return fileList.get(selectIndex);
+        if(explorerModel.getObserver() != null) {
+            explorerModel.getObserver().updateEcgFileList();
+        }
     }
 
     // 删除所选文件
@@ -106,11 +115,9 @@ public class EcgFileListOp {
                 FileUtil.deleteFile(fileList.get(selectIndex).getFile());
                 fileList.remove(selectIndex);
 
-                if(selectIndex > fileList.size()-1) selectIndex = fileList.size()-1;
+                int index = (selectIndex > fileList.size()-1) ? fileList.size()-1 : selectIndex;
+                select(index);
 
-                if(observer != null) {
-                    observer.updateEcgFileList();
-                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -168,11 +175,7 @@ public class EcgFileListOp {
         if(updated) {
             sortFileList(fileList);
 
-            selectIndex = fileList.size() - 1;
-
-            if (observer != null) {
-                observer.updateEcgFileList();
-            }
+            select(fileList.size() - 1);
         }
     }
 
@@ -234,13 +237,4 @@ public class EcgFileListOp {
         wxPlatform.share(sp);
     }
 
-    // 登记心电文件列表观察者
-    public void registerEcgFileListObserver(IEcgFileListObserver observer) {
-        this.observer = observer;
-    }
-
-    // 删除心电文件列表观察者
-    public void removeEcgFileListObserver() {
-        observer = null;
-    }
 }
