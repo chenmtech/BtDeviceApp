@@ -83,9 +83,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
         rvAppendixList = findViewById(R.id.rv_ecgexplorer_comment);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
-        reportLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        reportLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvAppendixList.setLayoutManager(reportLayoutManager);
-        rvAppendixList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        rvAppendixList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
         appendixAdapter = new EcgAppendixAdapter(fileExploreModel.getSelectFileAppendixList(), this, fileExploreModel.getSelectFileSampleRate());
         rvAppendixList.setAdapter(appendixAdapter);
 
