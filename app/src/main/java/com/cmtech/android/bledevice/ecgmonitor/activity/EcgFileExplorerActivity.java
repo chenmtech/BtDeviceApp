@@ -86,7 +86,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         reportLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvAppendixList.setLayoutManager(reportLayoutManager);
         rvAppendixList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
-        appendixAdapter = new EcgAppendixAdapter(fileExploreModel.getSelectFileAppendixList(), this, fileExploreModel.getSelectFileSampleRate());
+        appendixAdapter = new EcgAppendixAdapter(fileExploreModel.getSelectFileAppendixList(), this);
         rvAppendixList.setAdapter(appendixAdapter);
 
         ecgView = findViewById(R.id.rwv_ecgview);
@@ -236,7 +236,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             tvTotalTime.setText(DateTimeUtil.secToTime(fileExploreModel.getTotalSecond()));
             sbReplay.setMax(fileExploreModel.getTotalSecond());
 
-            appendixAdapter.update(selectFile.getAppendixList(), selectFile.getFs());
+            appendixAdapter.update(selectFile.getAppendixList());
             if(selectFile.getAppendixList().size() > 0)
                 rvAppendixList.smoothScrollToPosition(0);
 

@@ -2,7 +2,10 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.bmefile.BmeFileHead30;
+import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +18,10 @@ import java.util.List;
  */
 
 public class EcgFileExplorerModel {
-    private final File fileDir; // 文件目录
-    private EcgFile selectFile; // 播放的EcgFile
-    private EcgFileListOp fileOp;
-    private IEcgFileExplorerObserver observer;
+    private final File fileDir; // 文件浏览目录
+    private EcgFile selectFile; // 选中的EcgFile
+    private EcgFileListManager filesManager; // 文件管理器
+    private IEcgFileExplorerObserver observer; // 文件浏览观察者
 
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f;                 // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
@@ -29,6 +32,7 @@ public class EcgFileExplorerModel {
     private float yValuePerPixel; // 纵向分辨率
     private int totalSecond; // 信号总的秒数
     private long dataLocation = 0; // 当前播放的数据位置
+
 
     public int getPixelPerGrid() { return pixelPerGrid; }
     public int getxPixelPerData() { return xPixelPerData; }
@@ -50,10 +54,8 @@ public class EcgFileExplorerModel {
         return selectFile.getFs();
     }
 
-    public int getSelectIndex() { return fileOp.getSelectIndex(); }
-
-    public List<EcgFile> getFileList() { return fileOp.getFileList(); }
-
+    public int getSelectIndex() { return filesManager.getSelectIndex(); }
+    public List<EcgFile> getFileList() { return filesManager.getFileList(); }
     public IEcgFileExplorerObserver getObserver() {
         return observer;
     }
@@ -69,50 +71,54 @@ public class EcgFileExplorerModel {
             throw new IOException("磁盘空间不足");
         }
 
-        fileOp = new EcgFileListOp(fileDir, this);
+        filesManager = new EcgFileListManager(fileDir, this);
     }
 
     public List<EcgAppendix> getSelectFileAppendixList() {
         if(selectFile == null)
             return new ArrayList<>();
-        else
+        else {
+            User account = AccountManager.getInstance().getAccount();
+            boolean found = false;
+            for(EcgAppendix appendix : selectFile.getAppendixList()) {
+                if(appendix.getCreator().equals(account)) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                selectFile.addAppendix(EcgAppendix.createDefaultAppendix());
+            }
             return selectFile.getAppendixList();
-    }
-
-    public int getSelectFileSampleRate() {
-        if(selectFile == null){
-            return -1;
-        } else {
-            return selectFile.getFs();
         }
     }
 
     // 选中一个文件
     public void select(int index) {
-        fileOp.select(index);
+        filesManager.select(index);
     }
 
     // 删除所选文件
     public void deleteSelectFile() {
-        fileOp.deleteSelectFile();
+        filesManager.deleteSelectFile();
     }
 
     // 从微信导入文件
     public void importFromWechat() {
-        fileOp.importToFromWechat(fileDir);
+        filesManager.importToFromWechat(fileDir);
     }
 
     // 用微信分享BME文件
     public void shareSelectFileThroughWechat() {
-        fileOp.shareSelectFileThroughWechat();
+        filesManager.shareSelectFileThroughWechat();
     }
 
-    public void changeSelectFile(EcgFile ecgFile) {
+    public void afterSelectFile(EcgFile ecgFile) {
         selectFile = ecgFile;
         initReplayPara(selectFile);
     }
 
-    private void initReplayPara(EcgFile ecgFile) {
+    private void initReplayPara(final EcgFile ecgFile) {
         int sampleRate = ecgFile.getFs();
         totalSecond = ecgFile.getDataNum()/sampleRate;
         int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
@@ -122,9 +128,8 @@ public class EcgFileExplorerModel {
     }
 
     public void saveAppendix(EcgAppendix ecgAppendix) {
-        if(selectFile != null && selectFile.getAppendixList().contains(ecgAppendix)) {
-            int index = selectFile.getAppendixList().indexOf(ecgAppendix);
-            selectFile.getAppendixList().get(index).setContent(ecgAppendix.getContent());
+        if(selectFile != null) {
+            selectFile.saveFileTail();
         }
     }
 

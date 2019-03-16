@@ -29,7 +29,6 @@ import java.util.List;
 public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.ViewHolder> {
     private List<EcgAppendix> appendixList; // 附加信息列表
     private final IEcgAppendixOperator appendixOperator; // 附加信息操作者
-    private int sampleRate;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View appendixView;
@@ -48,10 +47,9 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         }
     }
 
-    public EcgAppendixAdapter(List<EcgAppendix> appendixList, IEcgAppendixOperator appendixOperator, int sampleRate) {
+    public EcgAppendixAdapter(List<EcgAppendix> appendixList, IEcgAppendixOperator appendixOperator) {
         this.appendixList = appendixList;
         this.appendixOperator = appendixOperator;
-        this.sampleRate = sampleRate;
     }
 
     @NonNull
@@ -124,15 +122,10 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         return appendixList.size();
     }
 
-    public void update(List<EcgAppendix> commentList, int sampleRate) {
+    public void update(List<EcgAppendix> commentList) {
         this.appendixList = commentList;
-        this.sampleRate = sampleRate;
         notifyDataSetChanged();
     }
 
-    public void update(List<EcgAppendix> appendixList) {
-        this.appendixList = appendixList;
-        notifyDataSetChanged();
-    }
 
 }

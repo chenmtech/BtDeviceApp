@@ -27,12 +27,12 @@ import cn.sharesdk.wechat.friends.Wechat;
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
 
-public class EcgFileListOp {
+public class EcgFileListManager {
     private final EcgFileExplorerModel explorerModel;
     private final List<EcgFile> fileList; // 文件目录中包含的心电文件列表
     private int selectIndex = -1; // 当前选择的文件在文件列表中的索引号
 
-    public EcgFileListOp(File fileDir, EcgFileExplorerModel explorerModel) {
+    public EcgFileListManager(File fileDir, EcgFileExplorerModel explorerModel) {
         this.explorerModel = explorerModel;
         File[] files = BleDeviceUtil.listDirBmeFiles(fileDir); // 列出所有bme文件
         fileList = createEcgFileList(files); // 创建相应的EcgFile文件List
@@ -98,7 +98,7 @@ public class EcgFileListOp {
         try {
             EcgFile ecgFile = EcgFile.open(fileList.get(selectIndex).getFileName());
             fileList.set(selectIndex, ecgFile);
-            explorerModel.changeSelectFile(ecgFile);
+            explorerModel.afterSelectFile(ecgFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
