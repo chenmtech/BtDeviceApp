@@ -2,9 +2,13 @@ package com.cmtech.android.bledevice.ecgmonitor.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.view.ColorRollWaveView;
+import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,13 +79,61 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
 
     private IEcgFileRollWaveViewObserver observer; // 观察者
 
+    private GestureDetector gestureDetector;
+    private GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
+        @Override
+        public boolean onDown(MotionEvent motionEvent) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent motionEvent) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent motionEvent) {
+            if(isReplaying()) {
+                stopShow();
+            } else {
+                startShow();
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float v, float v1) {
+            showAt((long)(num+v));
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent motionEvent) {
+
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+        }
+    };
 
     public EcgFileRollWaveView(Context context) {
         super(context);
+        gestureDetector = new GestureDetector(context, gestureListener);
+        gestureDetector.setIsLongpressEnabled(false);
     }
 
     public EcgFileRollWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        gestureDetector = new GestureDetector(context, gestureListener);
+        gestureDetector.setIsLongpressEnabled(false);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return true;
     }
 
     public void setEcgFile(EcgFile ecgFile) {
