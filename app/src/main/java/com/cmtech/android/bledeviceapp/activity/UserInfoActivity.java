@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -37,7 +38,7 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGEDIR;
  */
 
 public class UserInfoActivity extends AppCompatActivity {
-    private EditText etPhone;
+    private TextView tvPhone;
     private EditText etName;
     private ImageView ivPortrait;
     private EditText etRemark;
@@ -57,7 +58,7 @@ public class UserInfoActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_setuserinfo);
         setSupportActionBar(toolbar);
 
-        etPhone = findViewById(R.id.et_userinfo_phone);
+        tvPhone = findViewById(R.id.et_userinfo_phone);
         etName = findViewById(R.id.et_userinfo_username);
         ivPortrait = findViewById(R.id.iv_userinfo_portrait);
         etRemark = findViewById(R.id.et_userinfo_remark);
@@ -65,7 +66,7 @@ public class UserInfoActivity extends AppCompatActivity {
         btnCancel = findViewById(R.id.btn_userinfo_cancel);
 
         User account = AccountManager.getInstance().getAccount();
-        etPhone.setText(account.getPhone());
+        tvPhone.setText(account.getPhone());
         etName.setText(account.getUserName());
         cachePortraitPath = account.getPortraitFilePath();
         if("".equals(cachePortraitPath)) {

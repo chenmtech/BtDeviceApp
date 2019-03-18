@@ -14,6 +14,11 @@
         toolbar:navigationIcon="@mipmap/ic_menu_changeuser"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"/>
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -26,13 +31,33 @@
             android:gravity="end"
             android:textSize="18sp"
             android:text="手机号："/>
-        <EditText
+        <TextView
             android:id="@+id/et_userinfo_phone"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            android:enabled="false"/>
+            android:text="未知"
+            android:textSize="18sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="end"
+            android:textSize="18sp"
+            android:text="头像："/>
+        <ImageView
+            android:id="@+id/iv_userinfo_portrait"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@mipmap/ic_unknown_user"
+            android:contentDescription="用户头像"/>
     </LinearLayout>
 
     <LinearLayout
@@ -53,25 +78,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="90dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:gravity="end"
-            android:textSize="18sp"
-            android:text="头像："/>
-        <ImageView
-            android:id="@+id/iv_userinfo_portrait"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@mipmap/ic_unknown_user"
-            android:contentDescription="用户头像"/>
     </LinearLayout>
 
     <LinearLayout
@@ -97,6 +103,13 @@
             android:maxLength="50"
             android:hint="请输入不超过50字符"/>
     </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="*填写网络名和备注时，请注意不要透露您的身份信息。"
+        android:textColor="@color/red"/>
 
     <LinearLayout
         android:orientation="horizontal"
