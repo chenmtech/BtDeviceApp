@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        toolbar:title="设备登记"
+        toolbar:title="登记设备"
         toolbar:navigationIcon="@mipmap/ic_register_device_48px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 

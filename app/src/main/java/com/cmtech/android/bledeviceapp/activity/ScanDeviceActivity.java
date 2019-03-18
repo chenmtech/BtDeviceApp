@@ -11,6 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
@@ -119,6 +122,10 @@ public class ScanDeviceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_device);
 
+        // 创建ToolBar
+        Toolbar toolbar = findViewById(R.id.tb_device_register);
+        setSupportActionBar(toolbar);
+
         // 获取已登记过的设备Mac列表
         Intent intent = getIntent();
         if(intent != null) {
@@ -133,7 +140,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         rvScanDevice.setAdapter(scanDeviceAdapter);
 
         srlScanDevice = findViewById(R.id.srl_scandevice);
-        srlScanDevice.setProgressViewOffset(true, 200, 300);
+        srlScanDevice.setProgressViewOffset(true, 0, 50);
         srlScanDevice.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -148,6 +155,23 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
         startScan();
         srlScanDevice.setRefreshing(true);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.scandevice_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.scan_device:
+                startScan();
+                srlScanDevice.setRefreshing(true);
+                break;
+        }
+        return true;
     }
 
     @Override
