@@ -97,7 +97,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private EcgSignalProcessor ecgProcessor; // 心电处理器
     private CalibrateDataProcessor caliDataProcessor; // 定标数据处理器
 
-    private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<Integer>();	//数据缓存
+    private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<Integer>();	//心电数据缓存
     private final Runnable processRunnable = new Runnable() {
         @Override
         public void run() {
@@ -123,7 +123,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
             }
         }
     };
-    // 数据处理线程
+    // 心电数据处理线程
     private Thread processThread;
 
 
@@ -362,7 +362,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
         // 创建Ecg处理器
-        createEcgProcessor();
+        createEcgProcessor(); // 这里每次连接都会重新创建处理器，有问题。
 
         // 创建记录
         if(isRecord) {

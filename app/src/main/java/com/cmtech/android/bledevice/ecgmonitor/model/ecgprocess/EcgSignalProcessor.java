@@ -11,6 +11,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.Ecg
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrProcessor;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,6 +80,7 @@ public class EcgSignalProcessor {
         EcgHrHistogram hrHistogram = (EcgHrHistogram) hrProcessors.get(KEY_HRHISTOGRAM);
         if(hrHistogram != null) {
             hrHistogram.clear();
+            ViseLog.e("clear hr histogram");
         }
     }
 
@@ -195,6 +197,8 @@ public class EcgSignalProcessor {
 
             Map<String, IEcgHrProcessor> hrProcessors = new HashMap<>();
             hrProcessors.put(KEY_HRHISTOGRAM, new EcgHrHistogram());
+            ViseLog.e("重新创建了EcgHrHistogram");
+
             if(hrWarnEnabled) {
                 hrProcessors.put(KEY_HRWARNER, new EcgHrAbnormalWarner(hrLowLimit, hrHighLimit));
             }
