@@ -58,7 +58,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         setContentView(R.layout.activity_ecgfile_explorer);
 
         // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_ecgfile_explorer);
+        Toolbar toolbar = findViewById(R.id.tb_ecgexplorer);
         setSupportActionBar(toolbar);
 
         if(ECG_FILE_DIR == null) {
@@ -73,7 +73,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         }
         fileExploreModel.registerEcgFileExplorerObserver(this);
 
-        rvFileList = findViewById(R.id.rv_ecgexplorer_file);
+        rvFileList = findViewById(R.id.rv_ecgfile_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         rvFileList.setLayoutManager(linearLayoutManager);
@@ -81,7 +81,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         fileAdapter = new EcgFileAdapter(fileExploreModel);
         rvFileList.setAdapter(fileAdapter);
 
-        rvAppendixList = findViewById(R.id.rv_ecgexplorer_comment);
+        rvAppendixList = findViewById(R.id.rv_ecgappendix_list);
         LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
         reportLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvAppendixList.setLayoutManager(reportLayoutManager);
@@ -91,8 +91,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
         ecgView = findViewById(R.id.rwv_ecgview);
         ecgView.registerEcgFileRollWaveViewObserver(this);
-        tvCurrentTime = findViewById(R.id.tv_ecgreplay_currenttime);
-        tvTotalTime = findViewById(R.id.tv_ecgreplay_totaltime);
+        tvCurrentTime = findViewById(R.id.tv_current_time);
+        tvTotalTime = findViewById(R.id.tv_total_time);
 
         btnSwitchReplayState = findViewById(R.id.ib_ecgreplay_startandstop);
         btnSwitchReplayState.setOnClickListener(new View.OnClickListener() {
@@ -106,7 +106,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             }
         });
 
-        sbReplay = findViewById(R.id.sb_ecgreplay);
+        sbReplay = findViewById(R.id.sb_ecgfile);
 
         sbReplay.setEnabled(false);
         sbReplay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -230,7 +230,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             ViseLog.e(selectFile);
 
             ecgView.setEcgFile(selectFile);
-            initEcgView(fileExploreModel.getxPixelPerData(), fileExploreModel.getyValuePerPixel(), fileExploreModel.getPixelPerGrid(), 0.5);
+            initEcgView(fileExploreModel.gethPixelPerData(), fileExploreModel.getvValuePerPixel(), fileExploreModel.getPixelPerGrid(), 0.5);
 
             tvCurrentTime.setText("00:00:00");
             tvTotalTime.setText(DateTimeUtil.secToTime(fileExploreModel.getTotalSecond()));
@@ -260,10 +260,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
     @Override
     public void updateDataLocation(long dataLocation) {
-        int second = (int)(dataLocation/fileExploreModel.getSampleRate());
+        int second = (int)(dataLocation/fileExploreModel.getSelectFileSampleRate());
         tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
         sbReplay.setProgress(second);
-        fileExploreModel.setDataLocation(dataLocation);
     }
 
     /**
@@ -293,8 +292,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     @Override
-    public void saveAppendix(EcgAppendix appendix) {
-        fileExploreModel.saveAppendix(appendix);
+    public void saveAppendix() {
+        fileExploreModel.saveAppendix();
     }
 
 }

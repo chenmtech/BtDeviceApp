@@ -12,16 +12,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledeviceapp.util.SoftKeyboardStateHelper;
 
 import java.util.Date;
 import java.util.List;
@@ -77,7 +74,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
                     EcgAppendix appendix = appendixList.get(holder.getAdapterPosition());
                     appendix.setContent(holder.etContent.getText().toString());
                     appendix.setModifyTime(new Date().getTime());
-                    appendixOperator.saveAppendix(appendixList.get(holder.getAdapterPosition()));
+                    appendixOperator.saveAppendix();
                 }
             }
         });
@@ -91,7 +88,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         User creator = appendix.getCreator();
         User account = AccountManager.getInstance().getAccount();
         if(creator.equals(account)) {
-            holder.tvCreatorName.setText(Html.fromHtml("<u>您</u>"));
+            holder.tvCreatorName.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
             holder.tvCreatorName.setText(Html.fromHtml("<u>" + appendix.getCreator().getUserName() + "</u>"));
         }

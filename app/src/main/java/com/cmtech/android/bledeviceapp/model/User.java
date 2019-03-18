@@ -111,7 +111,7 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
         if(getClass() != otherObject.getClass()) return false;
 
         User other = (User) otherObject;
-
+        // 只要电话相同，就是同一个用户
         return  (phone.equals(other.phone));
     }
 

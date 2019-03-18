@@ -56,13 +56,6 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             }
         });
 
-        /*holder.ibShare.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                explorerModel.shareSelectFileThroughWechat();
-            }
-        });
-*/
         holder.tvCreator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -90,29 +83,6 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.tvCreateTime.setText(createTime);
         String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
         holder.tvLength.setText(fileTimeLength);
-
-
-        /*int appendixNum = file.getAppendixNum();
-        if(appendixNum > 0) {
-            IEcgAppendix lastAppendix = file.getAppendixList().get(appendixNum - 1);
-            *//*String lastEcgComment = MyApplication.getContext().getResources().getString(R.string.lastecgcomment);
-            createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getCreateTime());
-            String person = appendix.getCreatorName();
-            String tvContent;
-            if(!(appendix instanceof IEcgAppendixDataLocation)) {
-                tvContent = appendix.getContent();
-            } else {
-                tvContent = MyApplication.getContext().getResources().getString(R.string.comment_with_second);
-                int second = (int)(((IEcgAppendixDataLocation) appendix).getLocation()/file.getFs());
-                tvContent = String.format(tvContent, DateTimeUtil.secToTime(second), appendix.getContent());
-            }
-            lastEcgComment = String.format(lastEcgComment, createTime, person, tvContent);
-
-            holder.tvCreateTime.setText(lastEcgComment);*//*
-            holder.tvCreateTime.setText(lastAppendix.toStringWithSampleRate(file.getFs()));
-        } else {
-            holder.tvCreateTime.setText("无留言");
-        }*/
 
         int bgdColor;
         if(explorerModel.getSelectIndex() == position) {

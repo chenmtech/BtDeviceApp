@@ -4,16 +4,15 @@
     xmlns:cmtech="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/tb_ecgfile_explorer"
+        android:id="@+id/tb_ecgexplorer"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         toolbar:title="心电记录"
-        toolbar:navigationIcon="@mipmap/ic_ecgexplorer_toolbar"
+        toolbar:navigationIcon="@mipmap/ic_ecgexplorer"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <FrameLayout
@@ -31,7 +30,7 @@
             cmtech:show_gridline="true"/>
 
         <TextView
-            android:id="@+id/tv_ecgreplay_currenttime"
+            android:id="@+id/tv_current_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -58,22 +57,22 @@
             android:visibility="gone"/>
 
         <SeekBar
-            android:id="@+id/sb_ecgreplay"
+            android:id="@+id/sb_ecgfile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:background="@color/primary_dark"/>
+            android:layout_gravity="center_vertical"/>
 
         <TextView
-            android:id="@+id/tv_ecgreplay_totaltime"
+            android:id="@+id/tv_total_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="2dp"
             android:layout_marginEnd="2dp"
             android:text="00:00:00"
-            android:textColor="#f00"/>
+            android:textColor="#f00"
+            android:textSize="16sp"/>
 
     </LinearLayout>
 
@@ -86,15 +85,28 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-            <android.support.v7.widget.RecyclerView
-                android:id = "@+id/rv_ecgexplorer_comment"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:ems="1"
+                    android:gravity="center_horizontal"
+                    android:layout_gravity="center_vertical"
+                    android:text="文件列表"
+                    android:textColor="@color/accent"/>
+                <android.support.v7.widget.RecyclerView
+                    android:id = "@+id/rv_ecgfile_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
 
             <android.support.v7.widget.RecyclerView
-                android:id = "@+id/rv_ecgexplorer_file"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:id = "@+id/rv_ecgappendix_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>

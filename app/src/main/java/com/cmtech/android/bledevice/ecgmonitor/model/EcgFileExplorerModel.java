@@ -5,7 +5,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.bmefile.BmeFileHead30;
-import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,46 +17,33 @@ import java.util.List;
  */
 
 public class EcgFileExplorerModel {
+    private static final float DEFAULT_SECOND_PER_HGRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
+    private static final float DEFAULT_MV_PER_VGRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
+    private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
+
     private final File fileDir; // 文件浏览目录
     private EcgFile selectFile; // 选中的EcgFile
-    private EcgFileListManager filesManager; // 文件管理器
+    private EcgFileListManager filesManager; // 文件列表管理器
     private IEcgFileExplorerObserver observer; // 文件浏览观察者
 
-    private static final float DEFAULT_SECOND_PER_GRID = 0.04f;                 // 缺省横向每个栅格代表的秒数，对应于走纸速度
-    private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
-    private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
-
     private int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每小格的像素个数
-    private int xPixelPerData; // 横向分辨率
-    private float yValuePerPixel; // 纵向分辨率
+    private int hPixelPerData; // 横向分辨率
+    private float vValuePerPixel; // 纵向分辨率
     private int totalSecond; // 信号总的秒数
-    private long dataLocation = 0; // 当前播放的数据位置
 
-
-    public int getPixelPerGrid() { return pixelPerGrid; }
-    public int getxPixelPerData() { return xPixelPerData; }
-    public float getyValuePerPixel() { return yValuePerPixel; }
-    public long getDataLocation() { return dataLocation; }
-    public void setDataLocation(long dataLocation) {
-        this.dataLocation = dataLocation;
-    }
-    public int getCurrentSecond() {
-        return (int)(dataLocation/ selectFile.getFs());
-    }
-    public int getTotalSecond() {
-        return totalSecond;
-    }
+    public List<EcgFile> getFileList() { return filesManager.getFileList(); }
+    public int getSelectIndex() { return filesManager.getSelectIndex(); }
     public EcgFile getSelectFile() {
         return selectFile;
     }
-    public int getSampleRate() {
+    public int getSelectFileSampleRate() {
         return selectFile.getFs();
     }
-
-    public int getSelectIndex() { return filesManager.getSelectIndex(); }
-    public List<EcgFile> getFileList() { return filesManager.getFileList(); }
-    public IEcgFileExplorerObserver getObserver() {
-        return observer;
+    public int getPixelPerGrid() { return pixelPerGrid; }
+    public int gethPixelPerData() { return hPixelPerData; }
+    public float getvValuePerPixel() { return vValuePerPixel; }
+    public int getTotalSecond() {
+        return totalSecond;
     }
 
     public EcgFileExplorerModel(File fileDir) throws IOException{
@@ -74,6 +60,7 @@ public class EcgFileExplorerModel {
         filesManager = new EcgFileListManager(fileDir, this);
     }
 
+    // 获取选中文件的留言列表
     public List<EcgAppendix> getSelectFileAppendixList() {
         if(selectFile == null)
             return new ArrayList<>();
@@ -98,7 +85,7 @@ public class EcgFileExplorerModel {
         filesManager.select(index);
     }
 
-    // 删除所选文件
+    // 删除选中文件
     public void deleteSelectFile() {
         filesManager.deleteSelectFile();
     }
@@ -108,26 +95,29 @@ public class EcgFileExplorerModel {
         filesManager.importToFromWechat(fileDir);
     }
 
-    // 用微信分享BME文件
+    // 通过微信分享选中文件
     public void shareSelectFileThroughWechat() {
         filesManager.shareSelectFileThroughWechat();
     }
 
-    public void afterSelectFile(EcgFile ecgFile) {
+    // 文件选中后
+    public void onSelectFile(EcgFile ecgFile) {
         selectFile = ecgFile;
         initReplayPara(selectFile);
+        notifyEcgFileExplorerObserver();
     }
 
+    // 初始化回放参数
     private void initReplayPara(final EcgFile ecgFile) {
         int sampleRate = ecgFile.getFs();
         totalSecond = ecgFile.getDataNum()/sampleRate;
         int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
-        xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate));   // 计算横向分辨率
-        yValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
-        dataLocation = 0;
+        hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_HGRID * sampleRate)); // 计算横向分辨率
+        vValuePerPixel = value1mV * DEFAULT_MV_PER_VGRID / pixelPerGrid; // 计算纵向分辨率
     }
 
-    public void saveAppendix(EcgAppendix ecgAppendix) {
+    // 保存留言信息
+    public void saveAppendix() {
         if(selectFile != null) {
             selectFile.saveFileTail();
         }
@@ -143,5 +133,10 @@ public class EcgFileExplorerModel {
         observer = null;
     }
 
-
+    // 通知心电文件浏览器观察者，更新文件列表
+    private void notifyEcgFileExplorerObserver() {
+        if(observer != null) {
+            observer.updateEcgFileList();
+        }
+    }
 }

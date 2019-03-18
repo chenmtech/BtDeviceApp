@@ -27,41 +27,38 @@
             android:maxLength="10"/>
 
         <LinearLayout
-            android:id="@+id/ecgappendix_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true">
-            <ImageButton
-                android:id="@+id/ib_ecgappendix_save"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_save_32px"
-                android:contentDescription="save appendix"
-                android:background="@color/primary"
-                android:visibility="visible"/>
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/ecgappendix_modifytime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/ecgappendix_button"
-            android:layout_centerVertical="true"
-            android:textAppearance="@style/EcgCommentTextAppearance"
-            android:text="未知"
-            android:textSize="14sp"
-            android:textColor="#000"/>
-
-        <TextView
             android:id="@+id/ecgappendix_reviseat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/ecgappendix_modifytime"
             android:layout_centerVertical="true"
-            android:text="修改于："
-            android:textColor="@color/secondary_text"
-            android:textSize="14sp"/>
+            android:layout_alignParentEnd="true">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="修改于："
+                android:textColor="@color/secondary_text"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/ecgappendix_modifytime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/EcgCommentTextAppearance"
+                android:text="未知"
+                android:textSize="14sp"
+                android:textColor="#000"/>
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/ib_ecgappendix_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_yes_32px"
+            android:contentDescription="save appendix"
+            android:layout_toStartOf="@id/ecgappendix_reviseat"
+            android:background="@color/primary"
+            android:visibility="visible"/>
 
     </RelativeLayout>
 
@@ -77,6 +74,7 @@
             android:textAppearance="@style/EcgCommentTextAppearance"
             android:textSize="16sp"
             android:hint="请输入您的留言。"
+            android:minLines="2"
             android:focusableInTouchMode="false"/>
 
     </LinearLayout>

@@ -63,14 +63,15 @@ public class EcgFileListManager {
         return ecgFileList;
     }
 
-    // 按照最后修改时间给EcgFile文件列表排序
+    // 按照创建时间给EcgFile文件列表排序
     private void sortFileList(List<EcgFile> fileList) {
         if(fileList.size() <= 1) return;
 
         Collections.sort(fileList, new Comparator<EcgFile>() {
             @Override
             public int compare(EcgFile o1, EcgFile o2) {
-                return (int)(o1.getFile().lastModified() - o2.getFile().lastModified());
+                //return (int)(o1.getFile().lastModified() - o2.getFile().lastModified());
+                return (int)(o1.getCreateTime() - o2.getCreateTime());
             }
         });
     }
@@ -98,13 +99,9 @@ public class EcgFileListManager {
         try {
             EcgFile ecgFile = EcgFile.open(fileList.get(selectIndex).getFileName());
             fileList.set(selectIndex, ecgFile);
-            explorerModel.afterSelectFile(ecgFile);
+            explorerModel.onSelectFile(ecgFile);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        if(explorerModel.getObserver() != null) {
-            explorerModel.getObserver().updateEcgFileList();
         }
     }
 
