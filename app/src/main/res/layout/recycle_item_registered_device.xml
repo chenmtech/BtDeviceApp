@@ -19,14 +19,14 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"
+        android:layout_marginEnd="5dp"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_registerdevice_nickname"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center_vertical"
+            android:layout_height="wrap_content"
+            android:gravity="end"
             android:textColor="@color/primary_text"
             android:textSize="20sp"
             android:text="未知设备名"/>
@@ -35,13 +35,17 @@
             android:id="@+id/tv_registerdevice_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="设备Mac地址"/>
+            android:gravity="end"
+            android:text="设备Mac地址"
+            android:textSize="12sp"/>
 
         <TextView
             android:id="@+id/tv_registerdevice_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="关闭"/>
+            android:gravity="end"
+            android:text="关闭"
+            android:textSize="12sp"/>
 
     </LinearLayout>
 
