@@ -30,6 +30,7 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 
@@ -236,8 +237,10 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             tvTotalTime.setText(DateTimeUtil.secToTime(fileExploreModel.getTotalSecond()));
             sbReplay.setMax(fileExploreModel.getTotalSecond());
 
-            appendixAdapter.update(selectFile.getAppendixList());
-            if(selectFile.getAppendixList().size() > 0)
+            List<EcgAppendix> appendixList = fileExploreModel.getSelectFileAppendixList();
+            appendixAdapter.setAppendixList(appendixList);
+            appendixAdapter.notifyDataSetChanged();
+            if(appendixList.size() > 0)
                 rvAppendixList.smoothScrollToPosition(0);
 
             startReplay();

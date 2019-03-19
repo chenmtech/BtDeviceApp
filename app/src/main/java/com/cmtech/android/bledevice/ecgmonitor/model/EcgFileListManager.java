@@ -28,12 +28,16 @@ import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
 
 public class EcgFileListManager {
-    private final EcgFileExplorerModel explorerModel;
     private final List<EcgFile> fileList; // 文件目录中包含的心电文件列表
     private int selectIndex = -1; // 当前选择的文件在文件列表中的索引号
 
-    public EcgFileListManager(File fileDir, EcgFileExplorerModel explorerModel) {
-        this.explorerModel = explorerModel;
+    public interface OnSelectFileChangedListener {
+        void selectFileChanged(EcgFile ecgFile);
+    }
+    private final OnSelectFileChangedListener listener;
+
+    public EcgFileListManager(File fileDir, OnSelectFileChangedListener listener) {
+        this.listener = listener;
         File[] files = BleDeviceUtil.listDirBmeFiles(fileDir); // 列出所有bme文件
         fileList = createEcgFileList(files); // 创建相应的EcgFile文件List
         sortFileList(fileList); // 按照修改时间排序
@@ -70,7 +74,6 @@ public class EcgFileListManager {
         Collections.sort(fileList, new Comparator<EcgFile>() {
             @Override
             public int compare(EcgFile o1, EcgFile o2) {
-                //return (int)(o1.getFile().lastModified() - o2.getFile().lastModified());
                 return (int)(o1.getCreateTime() - o2.getCreateTime());
             }
         });
@@ -99,7 +102,7 @@ public class EcgFileListManager {
         try {
             EcgFile ecgFile = EcgFile.open(fileList.get(selectIndex).getFileName());
             fileList.set(selectIndex, ecgFile);
-            explorerModel.onSelectFile(ecgFile);
+            if(listener != null) listener.selectFileChanged(ecgFile);
         } catch (IOException e) {
             e.printStackTrace();
         }

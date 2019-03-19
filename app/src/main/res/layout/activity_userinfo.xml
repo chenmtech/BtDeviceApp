@@ -11,7 +11,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         toolbar:title="修改账户信息"
-        toolbar:navigationIcon="@mipmap/ic_menu_changeuser"
+        toolbar:navigationIcon="@mipmap/ic_user_info_48px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <View
@@ -52,7 +52,7 @@
             android:gravity="end"
             android:textSize="18sp"
             android:text="头像："/>
-        <ImageView
+        <com.cmtech.android.bledevice.view.RoundImageView
             android:id="@+id/iv_userinfo_portrait"
             android:layout_width="100dp"
             android:layout_height="100dp"
@@ -88,7 +88,6 @@
             android:labelFor="@id/et_userinfo_remark"
             android:layout_width="90dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
             android:gravity="end"
             android:textSize="18sp"
             android:text="备注："/>
@@ -114,21 +113,27 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="60dp">
+        android:layout_height="wrap_content">
         <Button
             android:id="@+id/btn_userinfo_cancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_margin="10sp"
+            android:background="@color/accent"
             android:text="取消"
-            style="@style/minWidth0DpButtonStyle"/>
+            android:textSize="18sp"
+            android:textColor="@color/white"/>
 
         <Button
             android:id="@+id/btn_userinfo_ok"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_margin="10sp"
+            android:background="@color/accent"
             android:text="确定"
-            style="@style/minWidth0DpButtonStyle"/>
+            android:textSize="18sp"
+            android:textColor="@color/white"/>
     </LinearLayout>
 </LinearLayout>

@@ -478,11 +478,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     private void initWelcomeLayout() {
-        // 设置欢迎词
+        /*// 设置欢迎词
         String welcomeText = getResources().getString(R.string.welcome_text);
         welcomeText = String.format(welcomeText, getResources().getString(R.string.app_name));
         TextView tvWelcomeText = welcomeLayout.findViewById(R.id.tv_welcometext);
-        tvWelcomeText.setText(welcomeText);
+        tvWelcomeText.setText(welcomeText);*/
         TextView tvVersionName = welcomeLayout.findViewById(R.id.tv_versionname);
         tvVersionName.setText(String.format("Ver%s", APKVersionCodeUtils.getVerName(this)));
     }
@@ -498,6 +498,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         } else {
             welcomeLayout.setVisibility(View.INVISIBLE);
             mainLayout.setVisibility(View.VISIBLE);
+            setTitle("");
         }
     }
 

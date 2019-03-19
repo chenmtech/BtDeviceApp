@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="65dp">
 
-    <ImageView
+    <com.cmtech.android.bledevice.view.RoundImageView
         android:id="@+id/iv_registerdevice_image"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -13,13 +13,11 @@
         android:src="@mipmap/ic_unknown_device"
         android:contentDescription="登记的设备图片"/>
 
-
-
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="2"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="10dp"
         android:orientation="vertical">
 
         <TextView

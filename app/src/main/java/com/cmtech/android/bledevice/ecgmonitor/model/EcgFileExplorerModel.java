@@ -57,7 +57,14 @@ public class EcgFileExplorerModel {
             throw new IOException("磁盘空间不足");
         }
 
-        filesManager = new EcgFileListManager(fileDir, this);
+        filesManager = new EcgFileListManager(fileDir, new EcgFileListManager.OnSelectFileChangedListener() {
+            @Override
+            public void selectFileChanged(EcgFile ecgFile) {
+                selectFile = ecgFile;
+                initReplayPara(selectFile);
+                notifyEcgFileExplorerObserver();
+            }
+        });
     }
 
     // 获取选中文件的留言列表
@@ -98,13 +105,6 @@ public class EcgFileExplorerModel {
     // 通过微信分享选中文件
     public void shareSelectFileThroughWechat() {
         filesManager.shareSelectFileThroughWechat();
-    }
-
-    // 文件选中后
-    public void onSelectFile(EcgFile ecgFile) {
-        selectFile = ecgFile;
-        initReplayPara(selectFile);
-        notifyEcgFileExplorerObserver();
     }
 
     // 初始化回放参数

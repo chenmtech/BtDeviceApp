@@ -32,7 +32,8 @@ public class EcgHrHistogram implements IEcgHrProcessor {
 
     // 设置直方图
     public void setHistgram(int[] histgram) {
-        this.histgram = histgram;
+        if(histgram != null)
+            this.histgram = histgram;
     }
 
     // 获取归一化直方图

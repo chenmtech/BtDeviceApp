@@ -119,9 +119,8 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         return appendixList.size();
     }
 
-    public void update(List<EcgAppendix> commentList) {
-        this.appendixList = commentList;
-        notifyDataSetChanged();
+    public void setAppendixList(List<EcgAppendix> appendixList) {
+        this.appendixList = appendixList;
     }
 
 
