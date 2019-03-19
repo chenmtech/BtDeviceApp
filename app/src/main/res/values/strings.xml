@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">康明健康</string>
+    <string name="app_name">康明智联</string>
 
-    <string name="welcome_text">欢迎使用%1$s\n安卓应用终端！</string>
+    <string name="welcome_text">欢迎使用%1$s</string>
 
     <string name="comment_with_second">第%1$s秒，%2$s。</string>
 

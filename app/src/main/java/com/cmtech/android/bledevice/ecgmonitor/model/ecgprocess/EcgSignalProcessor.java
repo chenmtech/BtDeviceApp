@@ -93,6 +93,13 @@ public class EcgSignalProcessor {
         return null;
     }
 
+    public void setHistogramData(int[] data) {
+        EcgHrHistogram hrHistogram = (EcgHrHistogram) hrProcessors.get(KEY_HRHISTOGRAM);
+        if(hrHistogram != null) {
+            hrHistogram.setHistgram(data);
+        }
+    }
+
     public void close() {
         resetHrHistogram();
         removeSignalObserver();

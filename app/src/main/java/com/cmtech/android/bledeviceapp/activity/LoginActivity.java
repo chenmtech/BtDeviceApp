@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
@@ -41,7 +42,9 @@ public class LoginActivity extends AppCompatActivity {
     // 使能蓝牙权限返回码
     private final static int REQUESTCODE_ENABLEBLUETOOTH = 1;
     private final static String PHONENUMBER_CHINA = "86";
+    private final static int MSG_ONESECOND = 1;
 
+    private TextView tvWelcome;
     private EditText etPhone;
     private EditText etVeriCode;
     private Button btnGetVeriCode;
@@ -96,11 +99,31 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case MSG_ONESECOND:
+                    int i = msg.arg1;
+                    if(i != 0)
+                        LoginActivity.this.btnGetVeriCode.setText(i + "秒后\n重新获取");
+                    else {
+                        LoginActivity.this.btnGetVeriCode.setText("获取验证码");
+                        LoginActivity.this.btnGetVeriCode.setEnabled(true);
+                    }
+                    break;
+            }
+        }
+    };
+    private Thread timerThread;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        tvWelcome = findViewById(R.id.tv_welcometext);
         etPhone = findViewById(R.id.phone);
         etVeriCode = findViewById(R.id.verficationcode);
         btnGetVeriCode = findViewById(R.id.btn_get_vericode);
@@ -111,6 +134,11 @@ public class LoginActivity extends AppCompatActivity {
 
         // 检查权限
         checkPermissions();
+
+        // 设置欢迎词
+        String welcomeText = getResources().getString(R.string.welcome_text);
+        welcomeText = String.format(welcomeText, getResources().getString(R.string.app_name));
+        tvWelcome.setText(welcomeText);
 
         // 读上次记录的手机号
         pref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -129,6 +157,25 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 phone = etPhone.getText().toString();
                 getVeriCode(phone); // 获取验证码
+                btnGetVeriCode.setEnabled(false);
+                timerThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        int i = 60;
+                        while (--i >= 0) {
+                            try {
+                                Thread.sleep(1000);
+                                Message msg = new Message();
+                                msg.what = MSG_ONESECOND;
+                                msg.arg1 = i;
+                                handler.sendMessage(msg);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                });
+                timerThread.start();
             }
         });
 
@@ -183,6 +230,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onDestroy();
 
         SMSSDK.unregisterEventHandler(eventHandler);
+
+        if(timerThread != null) {
+            timerThread.interrupt();
+            timerThread = null;
+        }
     }
 
     // 登录

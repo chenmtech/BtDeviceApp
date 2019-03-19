@@ -543,12 +543,14 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
 
     // 创建心电处理器
     private void createEcgProcessor() {
+        int[] histogram = ecgProcessor.getHistogramData();
         EcgSignalProcessor.Builder builder = new EcgSignalProcessor.Builder();
         builder.setSampleRate(sampleRate);
         builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
         builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
         builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
         ecgProcessor = builder.build();
+        ecgProcessor.setHistogramData(histogram);
         ecgProcessor.registerSignalObserver(this);
         ecgProcessor.registerHrValueObserver(this);
         ecgProcessor.registerHrAbnormalObserver(this);

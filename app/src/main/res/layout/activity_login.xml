@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/window_background">
+    android:background="@color/secondary">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -10,13 +10,27 @@
         android:orientation="vertical"
         android:layout_centerInParent="true"
         android:layout_margin="5dp">
-        <TextView
-            android:layout_width="match_parent"
+
+        <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="欢迎使用康明物联移动APP"
+            android:layout_gravity="center_horizontal"
+            android:src="@mipmap/ic_kang"/>
+        <TextView
+            android:id="@+id/tv_welcometext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text=""
             android:textSize="30sp"
-            android:textColor="#000"/>
+            android:textColor="@color/accent"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="手机号登录"
+            android:textColor="@color/green"/>
 
         <LinearLayout
             android:orientation="horizontal"
@@ -68,17 +82,15 @@
                 style="@style/minWidth0DpButtonStyle"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:orientation="horizontal"
+        <Button
+            android:id="@+id/btn_phone_signin"
             android:layout_width="match_parent"
-            android:layout_height="60dp">
-            <Button
-                android:id="@+id/btn_phone_signin"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="登录"
-                style="@style/minWidth0DpButtonStyle"/>
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:text="登录"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:layout_margin="20sp"
+            android:background="@color/accent"/>
 
     </LinearLayout>
 

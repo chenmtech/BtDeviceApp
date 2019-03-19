@@ -30,6 +30,11 @@ public class EcgHrHistogram implements IEcgHrProcessor {
         return histgram;
     }
 
+    // 设置直方图
+    public void setHistgram(int[] histgram) {
+        this.histgram = histgram;
+    }
+
     // 获取归一化直方图
     public double[] getNormHistogram() {
         long sum = getTotalBeats();
