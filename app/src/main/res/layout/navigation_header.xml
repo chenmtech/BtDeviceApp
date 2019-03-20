@@ -10,23 +10,24 @@
         android:background="@color/secondary">
 
         <com.cmtech.android.bledevice.view.RoundImageView
-            android:id="@+id/accountportrait"
+            android:id="@+id/iv_user_portrait"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_centerHorizontal="true"
             android:src="@mipmap/ic_unknown_user"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"/>
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"/>
 
         <TextView
-            android:id="@+id/username"
+            android:id="@+id/tv_user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_below="@+id/accountportrait"
+            android:layout_below="@+id/iv_user_portrait"
             android:text="未设置"
             android:textColor="@color/secondary_text"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            android:maxLength="5"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -34,8 +35,9 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:text="点击修改"
-            android:textSize="14sp"
-            android:textColor="@color/accent"/>
+            android:textSize="12sp"
+            android:textColor="@color/accent"
+            android:layout_margin="4sp"/>
     </RelativeLayout>
 
 

@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         setSupportActionBar(toolbar);
 
         // 设置设备信息RecycleView
-        rvDeviceList = findViewById(R.id.rv_registerdevice);
+        rvDeviceList = findViewById(R.id.rv_registed_device);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDeviceList.setLayoutManager(layoutManager);
         rvDeviceList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -170,8 +170,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 设置导航视图
         View headerView = navView.getHeaderView(0);
-        tvAccountName = headerView.findViewById(R.id.username);
-        ivAccountPortrait = headerView.findViewById(R.id.accountportrait);
+        tvAccountName = headerView.findViewById(R.id.tv_user_name);
+        ivAccountPortrait = headerView.findViewById(R.id.iv_user_portrait);
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

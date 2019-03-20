@@ -2,10 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="65dp">
+    android:layout_height="70dp"
+    android:layout_margin="5dp">
 
     <com.cmtech.android.bledevice.view.RoundImageView
-        android:id="@+id/iv_registerdevice_image"
+        android:id="@+id/iv_device_image"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -21,7 +22,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tv_registerdevice_nickname"
+            android:id="@+id/tv_device_nickname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
@@ -30,29 +31,21 @@
             android:text="未知设备名"/>
 
         <TextView
-            android:id="@+id/tv_registerdevice_address"
+            android:id="@+id/tv_device_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:text="关闭"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/tv_device_macaddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
             android:text="设备Mac地址"
             android:textSize="12sp"/>
 
-        <TextView
-            android:id="@+id/tv_registerdevice_status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:text="关闭"
-            android:textSize="12sp"/>
-
     </LinearLayout>
-
-
-
-
-
-
-
-
 
 </LinearLayout>

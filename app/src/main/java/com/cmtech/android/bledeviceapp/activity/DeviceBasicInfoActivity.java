@@ -76,10 +76,10 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         }
 
         // 设置activity标题为设备地址
-        setTitle("设备："+basicInfo.getMacAddress());
+        setTitle("MAC:"+basicInfo.getMacAddress());
 
         // 设置设备昵名
-        etName = findViewById(R.id.et_basicinfo_nickname);
+        etName = findViewById(R.id.et_device_nickname);
         String deviceName = basicInfo.getNickName();
         if("".equals(deviceName)) {
             deviceName = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname();
@@ -87,7 +87,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         etName.setText(deviceName);
 
         // 设置设备图像
-        ivImage = findViewById(R.id.iv_basicinfo_image);
+        ivImage = findViewById(R.id.iv_device_image);
         cacheImagePath = basicInfo.getImagePath();
         if("".equals(cacheImagePath)) {
             int defaultImageId = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage();
@@ -105,19 +105,19 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         });
 
         // 设置重连次数
-        etReconnectTimes = findViewById(R.id.et_basicinfo_reconnecttimes);
+        etReconnectTimes = findViewById(R.id.et_device_reconnecttimes);
         etReconnectTimes.setText(String.valueOf(basicInfo.getReconnectTimes()));
 
         // 设置打开后是否自动重连
-        cbIsAutoconnect = findViewById(R.id.cb_basicinfo_isautoconnect);
+        cbIsAutoconnect = findViewById(R.id.cb_device_isautoconnect);
         cbIsAutoconnect.setChecked(basicInfo.autoConnect());
 
         // 设置设备重连失败后是否报警
-        cbWarnAfterReconnectFailure = findViewById(R.id.cb_warn_after_reconnect_failure);
+        cbWarnAfterReconnectFailure = findViewById(R.id.cb_device_warn_after_reconnect_failure);
         cbWarnAfterReconnectFailure.setChecked(basicInfo.isWarnAfterReconnectFailure());
 
 
-        Button btnOk = findViewById(R.id.btn_basicinfo_ok);
+        Button btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -161,7 +161,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             }
         });
 
-        Button btnDefault = findViewById(R.id.btn_basicinfo_default);
+        Button btnDefault = findViewById(R.id.btn_set_default);
         btnDefault.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -169,7 +169,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             }
         });
 
-        Button btnCancel = findViewById(R.id.btn_basicinfo_cancel);
+        Button btnCancel = findViewById(R.id.btn_cancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

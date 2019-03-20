@@ -31,9 +31,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
     private List<BleDevice> mDeviceList;
 
     // MainActivity
-    MainActivity activity;
-
-    //private int selectItem = 0;
+    private MainActivity activity;
 
     class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView;
@@ -42,13 +40,13 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         TextView deviceAddress;
         TextView deviceStatus;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             deviceView = itemView;
-            deviceImage = deviceView.findViewById(R.id.iv_registerdevice_image);
-            deviceName = deviceView.findViewById(R.id.tv_registerdevice_nickname);
-            deviceAddress = deviceView.findViewById(R.id.tv_registerdevice_address);
-            deviceStatus = deviceView.findViewById(R.id.tv_registerdevice_status);
+            deviceImage = deviceView.findViewById(R.id.iv_device_image);
+            deviceName = deviceView.findViewById(R.id.tv_device_nickname);
+            deviceAddress = deviceView.findViewById(R.id.tv_device_macaddress);
+            deviceStatus = deviceView.findViewById(R.id.tv_device_status);
 
         }
     }
@@ -63,7 +61,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
     @Override
     public BleDeviceListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_registered_device, parent, false);
+                .inflate(R.layout.recycle_item_registed_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
 
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
@@ -71,8 +69,6 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
             public void onClick(View view) {
                 BleDevice device = mDeviceList.get(holder.getAdapterPosition());
                 activity.openDevice(device);
-                //selectItem = holder.getAdapterPosition();
-                //notifyDataSetChanged();
             }
         });
 
@@ -97,12 +93,10 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
 
             @Override
             public boolean onLongClick(View view) {
-                //selectItem = holder.getAdapterPosition();
-                //notifyDataSetChanged();
                 view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
                     @Override
                     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                        MenuItem config = menu.add(Menu.NONE, 1, 0, "修改基本信息");
+                        MenuItem config = menu.add(Menu.NONE, 1, 0, "修改");
                         MenuItem delete = menu.add(Menu.NONE, 2, 0, "删除");
                         config.setOnMenuItemClickListener(listener);            //响应点击事件
                         delete.setOnMenuItemClickListener(listener);
