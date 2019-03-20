@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 
+import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledevice.core.BleDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -88,22 +89,14 @@ public class MyFragmentManager {
     }
 
     // 添加Fragment，并显示
-    public void addFragment(Fragment fragment, String tabImagePath, String tabText) {
+    public void addFragment(Fragment fragment, Drawable drawable, String tabText) {
         if(fragment == null || fragManager.fragments.contains(fragment)) return;
 
         fragManager.addFragment(fragment, "");
 
         TabLayout.Tab tab = tabLayout.newTab();
 
-        Drawable drawable = null;
-        if(!TextUtils.isEmpty(tabImagePath)) {
-            drawable = new BitmapDrawable(MyApplication.getContext().getResources(), tabImagePath);
-        } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(R.drawable.ic_unknowndevice_defaultimage);
-        }
-
         tabLayout.addTab(tab.setText(tabText).setIcon(drawable), true);
-        //tabLayout.addTab(tab.setText(tabText), true);
     }
 
     // 获取当前fragment

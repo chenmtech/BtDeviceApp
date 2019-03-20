@@ -25,6 +25,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -431,7 +432,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void createAndOpenFragment(BleDevice device) {
         AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
         if(factory != null) {
-            openFragment(factory.createFragment(), device.getImagePath(), device.getNickName());
+            if(device.getImagePath().equals("")) {
+                openFragment(factory.createFragment(), SupportedDeviceType.getDeviceTypeFromUuid(device.getUuidString()).getDefaultImage(), device.getNickName());
+            } else {
+                openFragment(factory.createFragment(), device.getImagePath(), device.getNickName());
+            }
             updateMainLayoutVisibility();
             updateToolBar(device);
         }
@@ -550,7 +555,21 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void openFragment(BleDeviceFragment fragment, String imagePath, String tabText) {
         drawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
-        fragmentManager.addFragment(fragment, imagePath, tabText);
+        Drawable drawable = null;
+        if(!TextUtils.isEmpty(imagePath)) {
+            drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
+        } else {
+            drawable = MyApplication.getContext().getResources().getDrawable(R.drawable.ic_unknowndevice_defaultimage);
+        }
+        fragmentManager.addFragment(fragment, drawable, tabText);
+    }
+
+    // 打开Fragment：将Fragment加入Manager，并显示
+    private void openFragment(BleDeviceFragment fragment, int imageId, String tabText) {
+        drawerLayout.closeDrawer(GravityCompat.START);
+        // 添加设备的Fragment到管理器
+        Drawable drawable = MyApplication.getContext().getResources().getDrawable(imageId);
+        fragmentManager.addFragment(fragment, drawable, tabText);
     }
 
     // 显示Fragment
