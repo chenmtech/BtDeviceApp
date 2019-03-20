@@ -6,8 +6,11 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 
+import com.cmtech.android.bledevice.core.BleDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -92,15 +95,15 @@ public class MyFragmentManager {
 
         TabLayout.Tab tab = tabLayout.newTab();
 
-        /*Drawable drawable = null;
-        if(tabImagePath != null && !"".equals(tabImagePath)) {
+        Drawable drawable = null;
+        if(!TextUtils.isEmpty(tabImagePath)) {
             drawable = new BitmapDrawable(MyApplication.getContext().getResources(), tabImagePath);
         } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(BleDeviceType.fromUuid(device.getUuidString()).getImage());
-        }*/
+            drawable = MyApplication.getContext().getResources().getDrawable(R.drawable.ic_unknowndevice_defaultimage);
+        }
 
-        //tabLayout.addTab(tab.setText(tabText).setIcon(drawable), true);
-        tabLayout.addTab(tab.setText(tabText), true);
+        tabLayout.addTab(tab.setText(tabText).setIcon(drawable), true);
+        //tabLayout.addTab(tab.setText(tabText), true);
     }
 
     // 获取当前fragment
@@ -121,7 +124,7 @@ public class MyFragmentManager {
         if(tab != null) {
             tab.setText(tabText);
 
-            if(tabImagePath != null && !"".equals(tabImagePath)) {
+            if(!TextUtils.isEmpty(tabImagePath)) {
                 Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), tabImagePath);
                 tab.setIcon(drawable);
             }

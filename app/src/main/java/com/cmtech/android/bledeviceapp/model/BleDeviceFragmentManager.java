@@ -8,6 +8,8 @@ import com.cmtech.android.bledevice.core.BleDeviceFragment;
 
 import java.util.List;
 
+
+
 public class BleDeviceFragmentManager extends MyFragmentManager {
 
     public BleDeviceFragmentManager(android.support.v4.app.FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
