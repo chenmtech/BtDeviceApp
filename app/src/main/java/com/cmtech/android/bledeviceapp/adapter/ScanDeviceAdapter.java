@@ -6,7 +6,6 @@ import android.text.TextPaint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,8 +17,6 @@ import com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity;
 import com.cmtech.android.bledevice.core.UuidUtil;
 
 import java.util.List;
-
-import androidx.annotation.NonNull;
 
 /**
  * ScanDeviceAdapter : 扫描设备Adapter
@@ -46,7 +43,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
             deviceName = deviceView.findViewById(R.id.tv_scandevice_name);
             deviceAddress = deviceView.findViewById(R.id.tv_scandevice_macaddress);
             deviceTypeName = deviceView.findViewById(R.id.tv_scandevice_type);
-            deviceStatus = deviceView.findViewById(R.id.tv_scandevice_status);
+            deviceStatus = deviceView.findViewById(R.id.tv_device_name);
         }
     }
 

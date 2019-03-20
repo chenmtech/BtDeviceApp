@@ -91,7 +91,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="文件列表"
-                android:textColor="@color/primary_text"/>
+                android:textColor="@color/primary_text"
+                android:background="@drawable/roundtextview"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id = "@+id/rv_ecgfile_list"
@@ -104,7 +105,8 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="5dp"
                 android:text="留言列表"
-                android:textColor="@color/primary_text"/>
+                android:textColor="@color/primary_text"
+                android:background="@drawable/roundtextview"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id = "@+id/rv_ecgappendix_list"

@@ -66,7 +66,8 @@ public class UserInfoActivity extends AppCompatActivity {
         btnCancel = findViewById(R.id.btn_userinfo_cancel);
 
         User account = AccountManager.getInstance().getAccount();
-        tvPhone.setText(account.getPhone());
+        String phoneNum = account.getPhone();
+        tvPhone.setText(phoneNum.substring(0,3)+"****"+phoneNum.substring(7));
         etName.setText(account.getUserName());
         cachePortraitPath = account.getPortraitFilePath();
         if("".equals(cachePortraitPath)) {

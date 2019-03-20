@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.core;
 
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -10,6 +12,8 @@ import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.common.ConnectState;
 import com.cmtech.android.ble.core.IDeviceMirrorStateObserver;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.bledevice.SupportedDeviceType;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 
 import java.util.LinkedList;
@@ -54,6 +58,14 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
     public String getImagePath() {
         return basicInfo.getImagePath();
+    }
+    public Drawable getImageDrawable() {
+        if(getImagePath().equals("")) {
+            int imageId = SupportedDeviceType.getDeviceTypeFromUuid(getUuidString()).getDefaultImage();
+            return MyApplication.getContext().getResources().getDrawable(imageId);
+        } else {
+            return new BitmapDrawable(MyApplication.getContext().getResources(), getImagePath());
+        }
     }
     public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
     public BluetoothLeDevice getBluetoothLeDevice() { return bluetoothLeDevice; }

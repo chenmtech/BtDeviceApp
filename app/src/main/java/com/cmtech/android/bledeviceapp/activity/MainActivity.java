@@ -136,6 +136,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         // 创建ToolBar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        setTitle(R.string.app_name);
+        Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.ic_kang);
+        toolbar.setLogo(drawable);
 
         // 设置设备信息RecycleView
         rvDeviceList = findViewById(R.id.rv_registed_device);
@@ -262,6 +265,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
                         device.setBasicInfo(basicInfo);
                         updateDeviceListAdapter();
+                        fragmentManager.updateTabInfo(fragmentManager.findOpenedFragment(device), device.getImageDrawable(), device.getNickName());
                     } else {
                         Toast.makeText(MainActivity.this, "设备信息修改失败", Toast.LENGTH_SHORT).show();
                     }
@@ -432,11 +436,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private void createAndOpenFragment(BleDevice device) {
         AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
         if(factory != null) {
-            if(device.getImagePath().equals("")) {
-                openFragment(factory.createFragment(), SupportedDeviceType.getDeviceTypeFromUuid(device.getUuidString()).getDefaultImage(), device.getNickName());
-            } else {
-                openFragment(factory.createFragment(), device.getImagePath(), device.getNickName());
-            }
+            openFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
             updateMainLayoutVisibility();
             updateToolBar(device);
         }
@@ -497,13 +497,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         if(fragmentManager.size() == 0) {
             welcomeLayout.setVisibility(View.VISIBLE);
             mainLayout.setVisibility(View.INVISIBLE);
-            setTitle(R.string.app_name);
-            Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.ic_kang);
-            toolbar.setLogo(drawable);
         } else {
             welcomeLayout.setVisibility(View.INVISIBLE);
             mainLayout.setVisibility(View.VISIBLE);
-            setTitle("");
         }
     }
 
@@ -552,23 +548,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     // 打开Fragment：将Fragment加入Manager，并显示
-    private void openFragment(BleDeviceFragment fragment, String imagePath, String tabText) {
+    private void openFragment(BleDeviceFragment fragment, Drawable drawable, String tabText) {
         drawerLayout.closeDrawer(GravityCompat.START);
         // 添加设备的Fragment到管理器
-        Drawable drawable = null;
-        if(!TextUtils.isEmpty(imagePath)) {
-            drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
-        } else {
-            drawable = MyApplication.getContext().getResources().getDrawable(R.drawable.ic_unknowndevice_defaultimage);
-        }
-        fragmentManager.addFragment(fragment, drawable, tabText);
-    }
-
-    // 打开Fragment：将Fragment加入Manager，并显示
-    private void openFragment(BleDeviceFragment fragment, int imageId, String tabText) {
-        drawerLayout.closeDrawer(GravityCompat.START);
-        // 添加设备的Fragment到管理器
-        Drawable drawable = MyApplication.getContext().getResources().getDrawable(imageId);
         fragmentManager.addFragment(fragment, drawable, tabText);
     }
 
@@ -637,7 +619,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         invalidateOptionsMenu();
 
         // 更新工具条图标
-        Drawable drawable;
+        /*Drawable drawable;
         String imagePath = device.getImagePath();
         if(imagePath != null && !"".equals(imagePath)) {
             drawable = new BitmapDrawable(MyApplication.getContext().getResources(), device.getImagePath());
@@ -645,7 +627,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             drawable = ContextCompat.getDrawable(this, SupportedDeviceType.getDeviceTypeFromUuid(device.getUuidString()).getDefaultImage());
         }
         toolbar.setLogo(drawable);
-        toolbar.setLogoDescription(device.getNickName());
+        toolbar.setLogoDescription(device.getNickName());*/
 
         // 更新工具条Title
         //toolbar.setTitle(device.getConnectState().getDescription());

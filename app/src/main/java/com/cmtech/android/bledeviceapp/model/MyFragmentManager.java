@@ -7,6 +7,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledevice.core.BleDeviceType;
@@ -95,8 +99,14 @@ public class MyFragmentManager {
         fragManager.addFragment(fragment, "");
 
         TabLayout.Tab tab = tabLayout.newTab();
+        View view = LayoutInflater.from(MyApplication.getContext()).inflate(R.layout.tablayout_device, null);
+        TextView tv = view.findViewById(R.id.tv_device_name);
+        tv.setText(tabText);
+        ImageView imageView = view.findViewById(R.id.iv_device_image);
+        imageView.setImageDrawable(drawable);
+        tab.setCustomView(view);
 
-        tabLayout.addTab(tab.setText(tabText).setIcon(drawable), true);
+        tabLayout.addTab(tab, true);
     }
 
     // 获取当前fragment
@@ -110,17 +120,18 @@ public class MyFragmentManager {
     }
 
     // 更新tab信息
-    public void updateTabInfo(Fragment fragment, String tabImagePath, String tabText) {
+    public void updateTabInfo(Fragment fragment, Drawable drawable, String tabText) {
         if(fragment == null || !fragManager.fragments.contains(fragment)) return;
 
         TabLayout.Tab tab = tabLayout.getTabAt(fragManager.fragments.indexOf(fragment));
-        if(tab != null) {
-            tab.setText(tabText);
 
-            if(!TextUtils.isEmpty(tabImagePath)) {
-                Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), tabImagePath);
-                tab.setIcon(drawable);
-            }
+        if(tab != null) {
+            View view = tab.getCustomView();
+            TextView tv = view.findViewById(R.id.tv_device_name);
+            tv.setText(tabText);
+            ImageView imageView = view.findViewById(R.id.iv_device_image);
+            imageView.setImageDrawable(drawable);
+            tab.setCustomView(view);
         }
     }
 
