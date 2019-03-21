@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -25,7 +24,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,7 +35,6 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledevice.core.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
@@ -61,7 +58,7 @@ import java.util.List;
 import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_PROCESS;
 import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_SCAN;
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
-import static com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity.REGISTERED_DEVICE_MAC_LIST;
+import static com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity.REGISTED_DEVICE_MAC_LIST;
 
 /**
  *  MainActivity: 主界面
@@ -542,7 +539,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         List<String> deviceMacList = deviceService.getDeviceMacList();
 
         Intent intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
-        intent.putExtra(REGISTERED_DEVICE_MAC_LIST, (Serializable) deviceMacList);
+        intent.putExtra(REGISTED_DEVICE_MAC_LIST, (Serializable) deviceMacList);
 
         startActivityForResult(intent, REQUESTCODE_REGISTER_DEVICE);
     }

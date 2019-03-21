@@ -91,7 +91,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
     private EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
     private final EcgMonitorDeviceConfig config; // 设备配置信息
-    private IEcgMonitorObserver observer; // 心电设备观察者
+    private IEcgMonitorListener listener; // 心电设备观察者
 
     private EcgRecorder ecgRecorder; // 心电记录器
     private EcgSignalProcessor ecgProcessor; // 心电处理器
@@ -317,8 +317,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(observer != null)
-                    observer.updateEcgSignal(ecgSignal);
+                if(listener != null)
+                    listener.updateEcgSignal(ecgSignal);
             }
         });
     }
@@ -328,8 +328,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(observer != null)
-                    observer.updateEcgHr(hr);
+                if(listener != null)
+                    listener.updateEcgHr(hr);
             }
         });
     }
@@ -339,8 +339,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(observer != null)
-                    observer.notifyHrAbnormal();
+                if(listener != null)
+                    listener.notifyHrAbnormal();
             }
         });
     }
@@ -350,8 +350,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(observer != null)
-                    observer.updateRecordSecond(second);
+                if(listener != null)
+                    listener.updateRecordSecond(second);
             }
         });
     }
@@ -433,12 +433,12 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     }
 
     // 登记心电监护仪观察者
-    public void registerEcgMonitorObserver(IEcgMonitorObserver observer) {
-        this.observer = observer;
+    public void setEcgMonitorListener(IEcgMonitorListener listener) {
+        this.listener = listener;
     }
     // 删除心电监护仪观察者
-    public void removeEcgMonitorObserver() {
-        observer = null;
+    public void removeEcgMonitorListener() {
+        listener = null;
     }
 
 
@@ -573,8 +573,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(observer != null)
-                    observer.updateState(state);
+                if(listener != null)
+                    listener.updateState(state);
             }
         });
     }
@@ -583,8 +583,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(observer != null)
-                    observer.updateSampleRate(sampleRate);
+                if(listener != null)
+                    listener.updateSampleRate(sampleRate);
             }
         });
     }
@@ -593,8 +593,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(observer != null)
-                    observer.updateLeadType(leadType);
+                if(listener != null)
+                    listener.updateLeadType(leadType);
             }
         });
     }
@@ -603,8 +603,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(observer != null)
-                    observer.updateCalibrationValue(calibrationValueBefore, calibrationValueAfter);
+                if(listener != null)
+                    listener.updateCalibrationValue(calibrationValueBefore, calibrationValueAfter);
             }
         });
     }
@@ -613,8 +613,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(observer != null)
-                    observer.updateRecordStatus(isRecord);
+                if(listener != null)
+                    listener.updateRecordStatus(isRecord);
             }
         });
     }
@@ -623,8 +623,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(observer != null)
-                    observer.updateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
+                if(listener != null)
+                    listener.updateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
             }
         });
     }

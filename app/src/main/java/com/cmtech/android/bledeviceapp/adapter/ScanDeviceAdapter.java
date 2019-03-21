@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
@@ -18,16 +17,17 @@ import com.cmtech.android.bledevice.core.UuidUtil;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 /**
  * ScanDeviceAdapter : 扫描设备Adapter
  * Created by bme on 2018/2/8.
  */
 
 public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.ViewHolder> {
-    private final List<BluetoothLeDevice> deviceList; // 设备列表
-    private final List<String> registeredDeviceMacList; // 已登记设备Mac List
-    private final ScanDeviceActivity activity;
-
+    private final List<BluetoothLeDevice> deviceList; // 扫描到的设备列表
+    private final List<String> registedMacList; // 已登记设备Mac List
+    private final ScanDeviceActivity activity; // 扫描设备的Activiy
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView; // 设备视图
@@ -35,7 +35,6 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         TextView deviceAddress; // 设备mac地址
         TextView deviceTypeName; // 设备类型名
         TextView deviceStatus; // 设备状态：是否已经登记
-
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -47,18 +46,17 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         }
     }
 
-    public ScanDeviceAdapter(List<BluetoothLeDevice> deviceList, List<String> registeredDeviceMacList, ScanDeviceActivity activity) {
+    public ScanDeviceAdapter(List<BluetoothLeDevice> deviceList, List<String> registedMacList, ScanDeviceActivity activity) {
         this.deviceList = deviceList;
-        this.registeredDeviceMacList = registeredDeviceMacList;
+        this.registedMacList = registedMacList;
         this.activity = activity;
     }
-
 
 
     @Override
     public ScanDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_scandevice, parent, false);
+                .inflate(R.layout.recycle_item_scan_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
 
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
@@ -66,10 +64,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
             public void onClick(View view) {
                 if(activity != null) {
                     BluetoothLeDevice device = deviceList.get(holder.getAdapterPosition());
-                    boolean status = hasRegistered(device);
-                    if(status) {
-                        Toast.makeText(activity, "该设备已登记", Toast.LENGTH_SHORT).show();
-                    } else {
+                    if(!isRegisted(device)) {
                         activity.registerDevice(device);
                     }
                 }
@@ -80,15 +75,18 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(ScanDeviceAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull ScanDeviceAdapter.ViewHolder holder, final int position) {
         BluetoothLeDevice device = deviceList.get(position);
+
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         String supportedUUID = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(recordUUID.getData()).toString());
-        holder.deviceName.setText(String.format("设备名：%s", device.getName()));
         holder.deviceTypeName.setText(String.format("设备类型：%s", SupportedDeviceType.getDeviceTypeFromUuid(supportedUUID).getDefaultNickname()));
+
         holder.deviceAddress.setText(String.format("设备地址：%s", device.getAddress()));
 
-        boolean status = hasRegistered(device);
+        holder.deviceName.setText(String.format("设备名：%s", device.getName()));
+
+        boolean status = isRegisted(device);
         TextPaint paint = holder.deviceStatus.getPaint();
         if(status) {
             holder.deviceStatus.setText("已登记");
@@ -105,8 +103,8 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
     }
 
     // 设备是否已经登记过
-    private boolean hasRegistered(BluetoothLeDevice device) {
-        for(String ele : registeredDeviceMacList) {
+    private boolean isRegisted(BluetoothLeDevice device) {
+        for(String ele : registedMacList) {
             if(ele.equalsIgnoreCase(device.getAddress())) {
                 return true;
             }

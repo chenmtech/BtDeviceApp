@@ -7,6 +7,9 @@ import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,11 +22,13 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgMarkerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogram;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
-import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.view.ScanWaveView;
@@ -37,6 +42,7 @@ import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -51,7 +57,7 @@ import static android.view.MotionEvent.ACTION_UP;
  * Created by bme on 2018/3/13.
  */
 
-public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitorObserver {
+public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitorListener {
     private static final String TAG = "EcgMonitorFragment";
     private static final int COLOR_WHEN_REST = WHITE; // 安静状态下的波形颜色
 
@@ -69,8 +75,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ScanWaveView ecgView; // 心电波形View
     private FrameLayout flEcgView;
     private RelativeLayout rlHrStatistics;
-    private List<Button> appendixBtnList = new ArrayList<>(); // 标记附加信息的Button
-    int[] appendixBtnId = new int[]{R.id.btn_ecgfeel_0, R.id.btn_ecgfeel_1, R.id.btn_ecgfeel_2};
+    private RecyclerView rvEcgMarker; // ecg标记recycleview
+    private EcgMarkerAdapter markerAdapter; // ecg标记adapter
     private AudioTrack hrWarnAudio; // 心率报警声音
     private EcgMonitorDevice device; // 设备
     private EcgHrHistogram hrHistogram; // 心率直方图
@@ -130,18 +136,20 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        for(int i = 0; i < appendixBtnId.length; i++) {
-            Button button = view.findViewById(appendixBtnId[i]);
-            final String appendixContent = EcgAbnormal.getDescriptionFromCode(i);
-            button.setText(appendixContent);
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    device.addAppendixContent("第" + device.getRecordDataNum()/device.getSampleRate() + "秒，" + appendixContent);
-                }
-            });
-            appendixBtnList.add(button);
-        }
+        rvEcgMarker = view.findViewById(R.id.rv_ecg_marker);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        rvEcgMarker.setLayoutManager(linearLayoutManager);
+        rvEcgMarker.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        List<EcgAbnormal> ecgAbnormals = new ArrayList<>(Arrays.asList(EcgAbnormal.values()));
+        markerAdapter = new EcgMarkerAdapter(ecgAbnormals, new EcgMarkerAdapter.OnMarkerClickListener() {
+            @Override
+            public void onMarkerClicked(EcgAbnormal marker) {
+                if(device != null)
+                    device.addAppendixContent("第" + device.getRecordDataNum() / device.getSampleRate() + "秒，" + marker.getDescription());
+            }
+        });
+        rvEcgMarker.setAdapter(markerAdapter);
 
         ibRecord = view.findViewById(R.id.ib_ecg_record);
         ibRecord.setOnClickListener(new View.OnClickListener() {
@@ -176,7 +184,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                     case ACTION_CANCEL:
                         ecgView.restoreDefaultWaveColor();
                         int end = (int)(device.getRecordDataNum()/device.getSampleRate());
-                        device.addAppendixContent("第" + begin + ':' + end + "秒，" + "处于安静状态");
+                        device.addAppendixContent("第" + begin + '-' + end + "秒，" + "处于安静状态");
                         break;
                     default:
                         break;
@@ -201,7 +209,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         // 根据设备的isRecord初始化Record按钮
         updateRecordStatus(device.isRecord());
-        device.registerEcgMonitorObserver(EcgMonitorFragment.this);
+        device.setEcgMonitorListener(EcgMonitorFragment.this);
     }
 
     @Override
@@ -230,7 +238,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         super.onDestroy();
 
         if(device != null)
-            device.removeEcgMonitorObserver();
+            device.removeEcgMonitorListener();
 
     }
 
@@ -269,14 +277,16 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             imageId = R.mipmap.ic_ecg_record_start;
         else
             imageId = R.mipmap.ic_ecg_record_stop;
+
         ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
-        for(Button button : appendixBtnList) {
-            button.setEnabled(isRecord);
-        }
+
+        markerAdapter.setEnabled(isRecord);
+
         if(isRecord)
             ibStayRest.setVisibility(View.VISIBLE);
         else
             ibStayRest.setVisibility(View.INVISIBLE);
+
         ibStayRest.setEnabled(isRecord);
     }
 

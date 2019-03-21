@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 
-public interface IEcgMonitorObserver {
+public interface IEcgMonitorListener {
     // 更新设备状态
     void updateState(EcgMonitorState state);
     // 更新采样率

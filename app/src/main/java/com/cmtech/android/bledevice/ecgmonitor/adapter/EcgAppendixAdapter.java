@@ -53,7 +53,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
     @Override
     public EcgAppendixAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_ecgappendix, parent, false);
+                .inflate(R.layout.recycle_item_ecg_appendix, parent, false);
 
         final EcgAppendixAdapter.ViewHolder holder = new EcgAppendixAdapter.ViewHolder(view);
 

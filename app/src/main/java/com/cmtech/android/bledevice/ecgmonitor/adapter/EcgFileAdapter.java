@@ -45,7 +45,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     @Override
     public EcgFileAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_ecgfile, parent, false);
+                .inflate(R.layout.recycle_item_ecg_file, parent, false);
         final EcgFileAdapter.ViewHolder holder = new EcgFileAdapter.ViewHolder(view);
         defaultBackground = holder.fileView.getBackground();
 

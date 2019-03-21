@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
@@ -57,9 +57,8 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:text="未知"/>
-
-
     </LinearLayout>
+
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -166,9 +165,8 @@
             android:layout_alignParentEnd="true"
             android:textSize="12sp"
             android:textColor="@color/primary_text"
-            android:text="滤波:0.5Hz基线|50Hz工频|35Hz肌电"/>
+            android:text="滤波:0.5Hz基线|50Hz工频"/>
     </RelativeLayout>
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -251,12 +249,13 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="感觉：" />
+            android:text="标记：" />
 
         <Button
             android:id="@+id/btn_ecgfeel_0"
@@ -284,6 +283,24 @@
             android:enabled="false"
             android:text="胸闷" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:ems="1"
+            android:text="标记"
+            android:layout_margin="4sp"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_ecg_marker"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
     </LinearLayout>
 
 </LinearLayout>
