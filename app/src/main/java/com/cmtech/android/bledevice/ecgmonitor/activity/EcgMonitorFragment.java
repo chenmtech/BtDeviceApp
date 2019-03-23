@@ -224,7 +224,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case 1:
+            case 1: // 修改设备配置返回
                 if(resultCode == RESULT_OK) {
                     EcgMonitorDeviceConfig config = (EcgMonitorDeviceConfig) data.getSerializableExtra("configuration");
                     device.setConfig(config);

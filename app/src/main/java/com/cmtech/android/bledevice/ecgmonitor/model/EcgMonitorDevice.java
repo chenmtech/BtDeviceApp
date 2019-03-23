@@ -97,14 +97,14 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     private EcgSignalProcessor ecgProcessor; // 心电处理器
     private CalibrateDataProcessor caliDataProcessor; // 定标数据处理器
 
-    private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<Integer>();	//心电数据缓存
+    private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<Integer>();	//数据缓存
+    // 数据处理线程Runnable
     private final Runnable processRunnable = new Runnable() {
         @Override
         public void run() {
             try {
                 while(!Thread.currentThread().isInterrupted()) {
                     int value = dataBuff.take();
-                    //ViseLog.i("Process Data in Thread: " + Thread.currentThread());
                     switch (state) {
                         case CALIBRATING:
                             caliDataProcessor.process(value);
@@ -123,7 +123,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
             }
         }
     };
-    // 心电数据处理线程
+    // 数据处理线程
     private Thread processThread;
 
 
@@ -182,7 +182,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         } else {
             config = find.get(0);
         }
-
     }
 
     @Override
