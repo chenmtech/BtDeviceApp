@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * EcgHrHistogram: 心率直方图
+ * EcgHrProcessor: 心率直方图
  * Created by bme on 2019/1/9.
  */
 

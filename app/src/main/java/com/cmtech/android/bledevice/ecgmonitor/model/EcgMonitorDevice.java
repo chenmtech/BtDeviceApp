@@ -15,6 +15,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcess
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ICalibrateValueObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgHrValueObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgSignalObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.EcgRecorder;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.IEcgRecordObserver;
@@ -547,12 +548,12 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
         builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
         builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
         builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
-        int[] histogram = null;
+        EcgHrProcessor hrProcessor = null;
         if(ecgProcessor != null) {
-            histogram = ecgProcessor.getHistogramData();
+            hrProcessor = ecgProcessor.getHrProcessor();
         }
         ecgProcessor = builder.build();
-        ecgProcessor.setHistogramData(histogram);
+        ecgProcessor.setHrProcessor(hrProcessor);
         ecgProcessor.registerSignalObserver(this);
         ecgProcessor.registerHrValueObserver(this);
         ecgProcessor.registerHrAbnormalObserver(this);

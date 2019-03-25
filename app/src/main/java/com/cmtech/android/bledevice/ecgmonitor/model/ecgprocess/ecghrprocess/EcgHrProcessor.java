@@ -3,16 +3,16 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor.INVALID_HR;
 
 /**
- * EcgHrHistogram: 心率直方图类
+ * EcgHrProcessor: 心率处理类
  * Created by Chenm, 2018-12-07
  */
 
-public class EcgHrHistogram implements IEcgHrProcessor {
+public class EcgHrProcessor implements IEcgHrProcessor {
     private final static int HISTOGRAM_LEN = 21; // 心率从0~200以上，每隔10bpm为一个统计单位，高于200bpm的都统计为200，因此统计直方图需要21个值
 
     private int[] histgram = new int[HISTOGRAM_LEN]; // 心率直方图缓存
 
-    public EcgHrHistogram() {
+    public EcgHrProcessor() {
         for(int i = 0; i < HISTOGRAM_LEN; i++) {
             histgram[i] = 0;
         }
@@ -28,12 +28,6 @@ public class EcgHrHistogram implements IEcgHrProcessor {
     // 获取直方图
     public int[] getHistgram() {
         return histgram;
-    }
-
-    // 设置直方图
-    public void setHistgram(int[] histgram) {
-        if(histgram != null)
-            this.histgram = histgram;
     }
 
     // 获取归一化直方图

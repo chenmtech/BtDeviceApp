@@ -7,7 +7,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.IE
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.EcgPreFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.IEcgFilter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrAbnormalWarner;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrHistogram;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrProcessor;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
@@ -27,7 +27,7 @@ import java.util.Map;
 public class EcgSignalProcessor {
     public final static int INVALID_HR = 0; // 无效心率值
     private final static String KEY_HRWARNER = "hrwarner"; // EcgHrAbnormalWarner的键值
-    private final static String KEY_HRHISTOGRAM = "hrhistogram"; // EcgHrHistogram的键值
+    private final static String KEY_HRPROCESSOR = "hrprocessor"; // EcgHrProcessor的键值
 
     private IEcgCalibrator ecgCalibrator; // 定标器
     private IEcgFilter ecgFilter; // 滤波器
@@ -77,27 +77,28 @@ public class EcgSignalProcessor {
 
     // 重置HR直方图
     public void resetHrHistogram() {
-        EcgHrHistogram hrHistogram = (EcgHrHistogram) hrProcessors.get(KEY_HRHISTOGRAM);
+        EcgHrProcessor hrHistogram = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
         if(hrHistogram != null) {
             hrHistogram.clear();
             ViseLog.e("clear hr histogram");
         }
     }
 
+    public EcgHrProcessor getHrProcessor() {
+        return (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+    }
+
+    public void setHrProcessor(EcgHrProcessor hrProcessor) {
+        hrProcessors.put(KEY_HRPROCESSOR, hrProcessor);
+    }
+
     // 获取HR直方图数据
     public int[] getHistogramData() {
-        EcgHrHistogram hrHistogram = (EcgHrHistogram) hrProcessors.get(KEY_HRHISTOGRAM);
+        EcgHrProcessor hrHistogram = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
         if(hrHistogram != null) {
             return hrHistogram.getHistgram();
         }
         return null;
-    }
-
-    public void setHistogramData(int[] data) {
-        EcgHrHistogram hrHistogram = (EcgHrHistogram) hrProcessors.get(KEY_HRHISTOGRAM);
-        if(hrHistogram != null) {
-            hrHistogram.setHistgram(data);
-        }
     }
 
     public void close() {
@@ -203,7 +204,7 @@ public class EcgSignalProcessor {
             QrsDetector qrsDetector = new QrsDetector(sampleRate, value1mVAfterCalibrate);
 
             Map<String, IEcgHrProcessor> hrProcessors = new HashMap<>();
-            hrProcessors.put(KEY_HRHISTOGRAM, new EcgHrHistogram());
+            hrProcessors.put(KEY_HRPROCESSOR, new EcgHrProcessor());
             ViseLog.e("重新创建了EcgHrHistogram");
 
             if(hrWarnEnabled) {
