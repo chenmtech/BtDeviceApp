@@ -422,14 +422,18 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
     }
 
     // 获取统计直方图数据
-    public int[] getHrStatistics() {
-        return (ecgProcessor == null) ? null : ecgProcessor.getHistogramData();
+    public double[] getHrStatistics() {
+        return (ecgProcessor == null) ? null : ecgProcessor.getNormHistogramData();
     }
 
     // 重置统计直方图数据
     public void resetHrStatistics() {
         if(ecgProcessor != null)
-            ecgProcessor.resetHrHistogram();
+            ecgProcessor.resetHrProcessor();
+    }
+
+    public int getTotalBeatTimes() {
+        return (ecgProcessor == null) ? 0 : ecgProcessor.getTotalBeatTimes();
     }
 
     // 登记心电监护仪观察者
@@ -553,7 +557,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalObserver, I
             hrProcessor = ecgProcessor.getHrProcessor();
         }
         ecgProcessor = builder.build();
-        ecgProcessor.setHrProcessor(hrProcessor);
+        if(hrProcessor != null)
+            ecgProcessor.setHrProcessor(hrProcessor);
         ecgProcessor.registerSignalObserver(this);
         ecgProcessor.registerHrValueObserver(this);
         ecgProcessor.registerHrAbnormalObserver(this);

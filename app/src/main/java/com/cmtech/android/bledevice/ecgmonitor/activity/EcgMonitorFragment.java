@@ -21,6 +21,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgMarkerAdapter;
@@ -117,7 +118,19 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvHeartRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateHrStatistics();
+                if(device.getHrStatistics() != null) {
+                    if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
+                        updateHrStatistics();
+                        rlHrStatistics.setVisibility(View.VISIBLE);
+                        flEcgView.setVisibility(View.INVISIBLE);
+                    }
+                    else {
+                        rlHrStatistics.setVisibility(View.INVISIBLE);
+                        flEcgView.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "没有有效心率统计数据。", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -337,30 +350,15 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     private void updateHrStatistics() {
-        if(device.getHrStatistics() != null) {
-            int[] hrHistogram = Arrays.copyOf(device.getHrStatistics(), device.getHrStatistics().length);
-            if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
-                updateHrHistData(hrHistogram);
-                rlHrStatistics.setVisibility(View.VISIBLE);
-                flEcgView.setVisibility(View.INVISIBLE);
-            }
-            else {
-                rlHrStatistics.setVisibility(View.INVISIBLE);
-                flEcgView.setVisibility(View.VISIBLE);
-            }
-        }
+        double[] hrResult = device.getHrStatistics();
+        double[] hrNormHistogram = Arrays.copyOf(hrResult, hrResult.length);
+        updateHrHistData(hrNormHistogram);
     }
 
-    private void updateHrHistData(int[] hrHistData) {
+    private void updateHrHistData(double[] hrHistData) {
         hrHistogram.update(hrHistData);
-        int sum = 0;
 
-        if(hrHistData != null) {
-            for (int num : hrHistData) {
-                sum += num;
-            }
-        }
-        tvTotalBeatTimes.setText(String.valueOf(sum));
+        tvTotalBeatTimes.setText(String.valueOf(device.getTotalBeatTimes()));
     }
 
     private void initHrWarnAudioTrack() {

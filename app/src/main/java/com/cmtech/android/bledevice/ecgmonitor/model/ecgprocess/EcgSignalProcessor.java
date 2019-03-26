@@ -75,12 +75,12 @@ public class EcgSignalProcessor {
         }
     }
 
-    // 重置HR直方图
-    public void resetHrHistogram() {
-        EcgHrProcessor hrHistogram = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
-        if(hrHistogram != null) {
-            hrHistogram.clear();
-            ViseLog.e("clear hr histogram");
+    // 重置HR处理器
+    public void resetHrProcessor() {
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        if(hrProcessor != null) {
+            hrProcessor.clear();
+            ViseLog.e("clear hr processor");
         }
     }
 
@@ -93,16 +93,24 @@ public class EcgSignalProcessor {
     }
 
     // 获取HR直方图数据
-    public int[] getHistogramData() {
-        EcgHrProcessor hrHistogram = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
-        if(hrHistogram != null) {
-            return hrHistogram.getHistgram();
+    public double[] getNormHistogramData() {
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        if(hrProcessor != null) {
+            return hrProcessor.getNormHistogram(5);
         }
         return null;
     }
 
+    public int getTotalBeatTimes() {
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        if(hrProcessor != null) {
+            return hrProcessor.getTotalBeats();
+        }
+        return 0;
+    }
+
     public void close() {
-        resetHrHistogram();
+        resetHrProcessor();
         removeSignalObserver();
         removeAllHrAbnormalObserver();
         removeAllHrValueObserver();

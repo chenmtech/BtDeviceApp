@@ -48,7 +48,7 @@ public class EcgHrHistogram extends BarChart {
     }
 
     // 更新
-    public void update(int[] hrHistogram) {
+    public void update(double[] hrHistogram) {
         updateHrBarData(hrHistogram);
         hrBarDateSet.setValues(hrBarEntries);
         invalidate();
@@ -117,7 +117,7 @@ public class EcgHrHistogram extends BarChart {
     }
 
     /**
-     * 柱状图始化设置 一个BarDataSet 代表一列柱状图
+     * 柱状图初始化设置 一个BarDataSet 代表一列柱状图
      *
      * @param barColor      柱状图颜色
      */
@@ -133,30 +133,23 @@ public class EcgHrHistogram extends BarChart {
         hrBarDateSet.setValueFormatter(new IValueFormatter() {
             @Override
             public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                return String.valueOf((int) value);
+                return String.format("%d%%", (int)(value*100));
             }
         });
     }
 
-    private void updateHrBarData(int[] hrData) {
+    private void updateHrBarData(double[] hrData) {
         hrBarXStrings.clear();
         hrBarEntries.clear();
-        if(hrData == null || hrData.length < 4) {
+        if(hrData == null) {
             hrBarXStrings.add("无有效心率");
             hrBarEntries.add(new BarEntry(0, 0.0f));
         } else {
-            int j = 0;
-            hrBarXStrings.add("30以下");
-            hrBarEntries.add(new BarEntry(j++, (float) (hrData[0] + hrData[1] + hrData[2])));
-            for (int i = 3; i < hrData.length - 1; i++) {
-                if (hrData[i] > 5) {
-                    String key = String.valueOf(i * 10) + '-' + String.valueOf((i + 1) * 10);
-                    hrBarXStrings.add(key);
-                    hrBarEntries.add(new BarEntry(j++, (float) hrData[i]));
-                }
+            for (int i = 0; i < hrData.length; i++) {
+                String key = String.valueOf(i * 10) + '-' + String.valueOf((i + 1) * 10);
+                hrBarXStrings.add(key);
+                hrBarEntries.add(new BarEntry(i, (float) hrData[i]));
             }
-            hrBarXStrings.add("200以上");
-            hrBarEntries.add(new BarEntry(j, (float) hrData[hrData.length - 1]));
         }
     }
 
