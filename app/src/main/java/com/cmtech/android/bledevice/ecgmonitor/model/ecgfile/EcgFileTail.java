@@ -16,6 +16,8 @@ import java.util.List;
  */
 
 public class EcgFileTail {
+    private List<Integer> hrArray = new ArrayList<>();
+
     private List<EcgAppendix> appendixList = new ArrayList<>(); // 附加信息列表
 
     public EcgFileTail() {
@@ -34,6 +36,13 @@ public class EcgFileTail {
             long tailLength = ByteUtil.reverseLong(raf.readLong());
             long appendixLength = tailLength - 8;
             raf.seek(tailEndPointer - appendixLength);
+
+            // 读心率数据
+            int hrLength = ByteUtil.reverseInt(raf.readInt());
+            for(int i = 0; i < hrLength; i++) {
+                hrArray.add(ByteUtil.reverseInt(raf.readInt()));
+            }
+            // 读留言信息
             while (raf.getFilePointer() < tailEndPointer) {
                 EcgAppendix appendix = new EcgAppendix();
                 if(appendix.readFromStream(raf)) {
@@ -64,6 +73,12 @@ public class EcgFileTail {
             long length = length();
             raf.setLength(raf.getFilePointer() + length);
             raf.seek(filePointer);
+
+            // 写心率信息
+            raf.writeInt(ByteUtil.reverseInt(hrArray.size()));
+            for(int hr : hrArray) {
+                raf.writeInt(ByteUtil.reverseInt(hr));
+            }
 
             // 写附加信息
             for(EcgAppendix appendix : appendixList) {
@@ -108,10 +123,12 @@ public class EcgFileTail {
      * 获取EcgFileTail字节长度：所有留言长度 + 尾部长度（long 8字节）
       */
     public int length() {
-        int length = 0;
+        int length = 4 + 4*hrArray.size(); // 心率数据长度
+
         for(EcgAppendix appendix : appendixList) {
             length += appendix.length();
         }
+
         return length + 8; // "加8"是指包含最后的附加信息长度long类型
     }
 }

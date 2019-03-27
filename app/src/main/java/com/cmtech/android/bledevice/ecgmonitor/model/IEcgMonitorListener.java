@@ -2,6 +2,8 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 
+import java.util.List;
+
 public interface IEcgMonitorListener {
     // 更新设备状态
     void updateState(EcgMonitorState state);
@@ -21,6 +23,8 @@ public interface IEcgMonitorListener {
     void updateRecordSecond(int second);
     // 更新心率值，单位bpm
     void updateEcgHr(int hr);
+    // 更新心率统计信息
+    void updateEcgHrStatistics(List<Integer> hrAverage, double[] normHistogram, int maxHr, int averageHr);
     // 处理心率异常
     void notifyHrAbnormal();
 }

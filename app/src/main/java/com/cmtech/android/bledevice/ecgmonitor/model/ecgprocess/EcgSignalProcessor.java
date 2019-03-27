@@ -8,7 +8,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.EcgPre
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.IEcgFilter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrAbnormalWarner;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrAbnormalObserver;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrProcessor;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import com.vise.log.ViseLog;
@@ -26,15 +25,33 @@ import java.util.Map;
 
 public class EcgSignalProcessor {
     public final static int INVALID_HR = 0; // 无效心率值
+
     private final static String KEY_HRWARNER = "hrwarner"; // EcgHrAbnormalWarner的键值
     private final static String KEY_HRPROCESSOR = "hrprocessor"; // EcgHrProcessor的键值
 
+    private static final int SECOND_WHEN_DO_HR_FILTER = 10;
+    private static final int BAR_NUM_HR_HISTOGRAM = 5;
+
+    public interface IEcgSignalUpdatedListener {
+        void onEcgSignalUpdated(int ecgSignal); // 更新心电信号
+    }
+
+    public interface IEcgHrValueUpdatedListener {
+        void onEcgHrValueUpdated(int hr); // 更新心率值
+    }
+
     private IEcgCalibrator ecgCalibrator; // 定标器
+
     private IEcgFilter ecgFilter; // 滤波器
+
     private QrsDetector qrsDetector; // QRS波检测器，可求心率值
+
     private Map<String, IEcgHrProcessor> hrProcessors; // 心率处理器
-    private IEcgSignalObserver signalObserver = null; // 心电信号观察者
-    private List<IEcgHrValueObserver> hrValueObservers = new ArrayList<>(); // 心率值观察者
+
+    private IEcgSignalUpdatedListener signalListener = null; // 心电信号监听器
+
+    private List<IEcgHrValueUpdatedListener> hrValueListenerArray = new ArrayList<>(); // 心率值监听器数组
+
 
     private EcgSignalProcessor(IEcgCalibrator ecgCalibrator, IEcgFilter ecgFilter, QrsDetector qrsDetector, Map<String, IEcgHrProcessor> hrProcessors) {
         this.ecgCalibrator = ecgCalibrator;
@@ -47,12 +64,16 @@ public class EcgSignalProcessor {
     public void process(int ecgSignal) {
         // 标定后滤波处理
         ecgSignal = (int) ecgFilter.filter(ecgCalibrator.process(ecgSignal));
-        // 通知信号观察者
-        notifySignalObserver(ecgSignal);
+
+        // 通知信号监听器
+        if(signalListener != null) signalListener.onEcgSignalUpdated(ecgSignal);
+
         // 检测Qrs波，获取心率
         int currentHr = qrsDetector.outputHR(ecgSignal);
-        // 通知心率观察者
-        notifyHrValueObserver(currentHr);
+
+        // 通知心率值监听器
+        notifyEcgHrValueUpdatedListener(currentHr);
+
         // 处理心率值
         if(currentHr != INVALID_HR) {
             for(IEcgHrProcessor processor : hrProcessors.values()) {
@@ -92,79 +113,72 @@ public class EcgSignalProcessor {
         hrProcessors.put(KEY_HRPROCESSOR, hrProcessor);
     }
 
-    // 获取HR直方图数据
-    public double[] getNormHistogramData() {
+    public void updateHrStatistics() {
         EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
         if(hrProcessor != null) {
-            return hrProcessor.getNormHistogram(5);
+            hrProcessor.updateHrStatistics(SECOND_WHEN_DO_HR_FILTER, BAR_NUM_HR_HISTOGRAM);
         }
-        return null;
-    }
-
-    public int getTotalBeatTimes() {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
-        if(hrProcessor != null) {
-            return hrProcessor.getTotalBeats();
-        }
-        return 0;
     }
 
     public void close() {
         resetHrProcessor();
-        removeSignalObserver();
-        removeAllHrAbnormalObserver();
-        removeAllHrValueObserver();
+        removeEcgSignalUpdatedListener();
+        removeAllHrAbnormalListeners();
+        removeEcgHrStatisticsListener();
+        clearEcgHrValueUpdatedListener();
     }
 
-    public void registerSignalObserver(IEcgSignalObserver signalObserver) {
-        this.signalObserver = signalObserver;
-    }
-    private void notifySignalObserver(int ecgSignal) {
-        if(signalObserver != null) {
-            signalObserver.updateEcgSignal(ecgSignal);
-        }
-    }
-    public void removeSignalObserver() {
-        signalObserver = null;
+    public void setEcgSignalUpdatedListener(IEcgSignalUpdatedListener signalListener) {
+        this.signalListener = signalListener;
     }
 
-    public void registerHrValueObserver(IEcgHrValueObserver observer) {
-        if(!hrValueObservers.contains(observer)) {
-            hrValueObservers.add(observer);
+    private void removeEcgSignalUpdatedListener() {
+        signalListener = null;
+    }
+
+    public void addEcgHrValueUpdatedListener(IEcgHrValueUpdatedListener listener) {
+        if(!hrValueListenerArray.contains(listener)) {
+            hrValueListenerArray.add(listener);
         }
     }
 
-    public void notifyHrValueObserver(int hr) {
+    private void notifyEcgHrValueUpdatedListener(int hr) {
         if(hr != INVALID_HR) {
-            for (IEcgHrValueObserver observer : hrValueObservers) {
-                observer.updateHrValue(hr);
+            for (IEcgHrValueUpdatedListener listener : hrValueListenerArray) {
+                listener.onEcgHrValueUpdated(hr);
             }
         }
     }
-    public void removeHrValueObserver(IEcgHrValueObserver observer) {
-        hrValueObservers.remove(observer);
-    }
-    public void removeAllHrValueObserver() {
-        hrValueObservers.clear();
+
+    private void clearEcgHrValueUpdatedListener() {
+        hrValueListenerArray.clear();
     }
 
-    public void registerHrAbnormalObserver(IEcgHrAbnormalObserver observer) {
+    public void addEcgHrAbnormalListener(EcgHrAbnormalWarner.IEcgHrAbnormalListener listener) {
         EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
         if(hrWarner != null) {
-            hrWarner.registerObserver(observer);
+            hrWarner.addEcgHrAbnormalListener(listener);
         }
     }
 
-    public void removeHrAbnormalObserver(IEcgHrAbnormalObserver observer) {
+    private void removeAllHrAbnormalListeners() {
         EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
         if(hrWarner != null) {
-            hrWarner.removeObserver(observer);
+            hrWarner.removeAllListeners();
         }
     }
-    public void removeAllHrAbnormalObserver() {
-        EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
-        if(hrWarner != null) {
-            hrWarner.removeAllObserver();
+
+    public void setEcgHrStatisticsListener(EcgHrProcessor.IEcgHrStatisticsUpdatedListener listener) {
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        if(hrProcessor != null) {
+            hrProcessor.setEcgHrStatisticsUpdatedListener(listener);
+        }
+    }
+
+    public void removeEcgHrStatisticsListener() {
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        if(hrProcessor != null) {
+            hrProcessor.removeEcgHrStatisticsUpdatedListener();
         }
     }
 

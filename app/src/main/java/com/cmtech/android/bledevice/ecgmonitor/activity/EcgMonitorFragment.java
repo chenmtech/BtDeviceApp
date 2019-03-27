@@ -14,16 +14,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgMarkerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogram;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
@@ -43,7 +40,6 @@ import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -71,7 +67,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ImageButton ibRecord; // 切换记录状态
     private CheckBox cbIsFilter; // 是否滤波
     private ImageButton ibStayRest; // 是否处于安静状态
-    private TextView tvTotalBeatTimes; // 总心跳次数
+    private TextView tvAverageHr; // 平均心率
+    private TextView tvMaxHr; // 最大心率
     private ImageButton ibResetHistogram; // 重置心率直方图
     private ScanWaveView ecgView; // 心电波形View
     private FrameLayout flEcgView;
@@ -118,18 +115,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvHeartRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(device.getHrStatistics() != null) {
-                    if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
-                        updateHrStatistics();
-                        rlHrStatistics.setVisibility(View.VISIBLE);
-                        flEcgView.setVisibility(View.INVISIBLE);
-                    }
-                    else {
-                        rlHrStatistics.setVisibility(View.INVISIBLE);
-                        flEcgView.setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    Toast.makeText(getContext(), "没有有效心率统计数据。", Toast.LENGTH_SHORT).show();
+                if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
+                    device.updateHrStatistics();
+                    rlHrStatistics.setVisibility(View.VISIBLE);
+                    flEcgView.setVisibility(View.INVISIBLE);
+                }
+                else {
+                    rlHrStatistics.setVisibility(View.INVISIBLE);
+                    flEcgView.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -209,14 +202,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         flEcgView = view.findViewById(R.id.fl_ecgview);
         rlHrStatistics = view.findViewById(R.id.rl_hr_statistics);
         hrHistogram = view.findViewById(R.id.bc_hr_histogram);
-        tvTotalBeatTimes = view.findViewById(R.id.tv_hr_totaltimes);
+        tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
+        tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
 
         ibResetHistogram = view.findViewById(R.id.ib_reset_histogram);
         ibResetHistogram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 device.resetHrStatistics();
-                updateHrHistData(null);
             }
         });
 
@@ -327,6 +320,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
+    public void updateEcgHrStatistics(List<Integer> hrAverage, double[] normHistogram, int maxHr, int averageHr) {
+        hrHistogram.update(normHistogram);
+        tvAverageHr.setText(String.valueOf(averageHr));
+        tvMaxHr.setText(String.valueOf(maxHr));
+    }
+
+    @Override
     public void notifyHrAbnormal() {
         ViseLog.e("Hr Warn!");
 
@@ -347,18 +347,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                     break;
             }
         }
-    }
-
-    private void updateHrStatistics() {
-        double[] hrResult = device.getHrStatistics();
-        double[] hrNormHistogram = Arrays.copyOf(hrResult, hrResult.length);
-        updateHrHistData(hrNormHistogram);
-    }
-
-    private void updateHrHistData(double[] hrHistData) {
-        hrHistogram.update(hrHistData);
-
-        tvTotalBeatTimes.setText(String.valueOf(device.getTotalBeatTimes()));
     }
 
     private void initHrWarnAudioTrack() {

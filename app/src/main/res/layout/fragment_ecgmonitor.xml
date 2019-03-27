@@ -91,16 +91,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:layout_centerInParent="true"/>
-            <ImageButton
-                android:id="@+id/ib_reset_histogram"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@id/bc_hr_histogram"
-                android:layout_alignParentEnd="true"
-                android:layout_margin="5dp"
-                android:background="@color/secondary"
-                android:src="@mipmap/ic_reset_hrhistogram"
-                android:contentDescription="reset histogram"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -109,12 +100,28 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="心跳次数："
+                    android:text="平均心率："
                     android:textColor="@color/primary_text"
                     android:textSize="18sp"/>
 
                 <TextView
-                    android:id="@+id/tv_hr_totaltimes"
+                    android:id="@+id/tv_average_hr_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/primary_text"
+                    android:textSize="18sp"
+                    android:layout_marginEnd="10sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="最高心率："
+                    android:textColor="@color/primary_text"
+                    android:textSize="18sp"/>
+
+                <TextView
+                    android:id="@+id/tv_max_hr_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
@@ -122,6 +129,17 @@
                     android:textSize="18sp"/>
 
             </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/ib_reset_histogram"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="5dp"
+                android:background="@color/secondary"
+                android:src="@mipmap/ic_reset_hrhistogram"
+                android:contentDescription="reset histogram"/>
         </RelativeLayout>
 
         <TextView

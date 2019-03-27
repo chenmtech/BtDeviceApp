@@ -17,11 +17,15 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
  */
 
 public class EcgRecorder {
+    public interface IEcgRecordSecondUpdatedListener {
+        void onEcgRecordSecondUpdated(int second); // 更新记录的秒数
+    }
+
     private EcgFile ecgFile; // 心电文件
     private long recordDataNum; // 记录的数据个数
     private int sampleRate = 125; // 采样频率
     private EcgAppendix appendix; // 当前信号的附加信息表
-    private IEcgRecordObserver observer; // 心电记录观察者
+    private IEcgRecordSecondUpdatedListener listener; // 心电记录秒数更新监听器
 
     // 获取记录的秒数
     public int getRecordSecond() {
@@ -48,7 +52,7 @@ public class EcgRecorder {
             ViseLog.e(appendix.toString());
             recordDataNum = 0;
             this.sampleRate = sampleRate;
-            notifyObserver(0);
+            if(listener != null) listener.onEcgRecordSecondUpdated(0);
         } else {
             throw new IllegalStateException("创建心电记录失败");
         }
@@ -60,7 +64,7 @@ public class EcgRecorder {
             if(ecgFile != null) {
                 ecgFile.writeData(ecgSignal);
                 recordDataNum++;
-                notifyObserver(getRecordSecond());
+                if(listener != null) listener.onEcgRecordSecondUpdated(getRecordSecond());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -94,6 +98,7 @@ public class EcgRecorder {
 
     // 关闭
     public void close() {
+        removeEcgRecordSecondUpdatedListener();
         save();
     }
 
@@ -102,17 +107,11 @@ public class EcgRecorder {
         appendix.appendContent(content);
     }
 
-    public void registerObserver(IEcgRecordObserver observer) {
-        this.observer = observer;
+    public void setEcgRecordSecondUpdatedListener(IEcgRecordSecondUpdatedListener listener) {
+        this.listener = listener;
     }
 
-    private void notifyObserver(int second) {
-        if(observer != null) {
-            observer.updateRecordSecond(second);
-        }
-    }
-
-    public void removeObserver() {
-        observer = null;
+    private void removeEcgRecordSecondUpdatedListener() {
+        listener = null;
     }
 }

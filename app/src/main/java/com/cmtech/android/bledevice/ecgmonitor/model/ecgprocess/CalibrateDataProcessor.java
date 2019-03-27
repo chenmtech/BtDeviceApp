@@ -10,9 +10,15 @@ import java.util.List;
  */
 
 public class CalibrateDataProcessor {
+    public interface ICalibrateValueUpdatedListener {
+        void onCalibrateValueUpdated(int calibrateValue); // 更新标定值
+    }
+
     private final List<Integer> calibrationData = new ArrayList<>(250); // 用于保存标定用的数据
+
     private final int sampleRate; // 采样率
-    private ICalibrateValueObserver observer; // 标定值观察者
+
+    private ICalibrateValueUpdatedListener listener; // 标定值监听器
 
     public CalibrateDataProcessor(int sampleRate) {
         this.sampleRate = sampleRate;
@@ -26,7 +32,7 @@ public class CalibrateDataProcessor {
         }
         else {
             int value = calculateCalibration(calibrationData); // 计算得到实际定标值
-            notifyObserver(value);
+            if(listener != null) listener.onCalibrateValueUpdated(value);
             calibrationData.clear();
         }
     }
@@ -45,13 +51,11 @@ public class CalibrateDataProcessor {
         return (sum2-sum1)/2/len;
     }
 
-    public void registerObserver(ICalibrateValueObserver observer) {
-        this.observer = observer;
+    public void setCalibrateValueUpdatedListener(ICalibrateValueUpdatedListener listener) {
+        this.listener = listener;
     }
-    public void notifyObserver(int calibrateValue) {
-        observer.updateCalibrateValue(calibrateValue);
-    }
-    public void removeObserver() {
-        observer = null;
+
+    public void removeCalibrateValueUpdatedListener() {
+        listener = null;
     }
 }

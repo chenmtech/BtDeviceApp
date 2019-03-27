@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -13,64 +12,59 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignal
  */
 
 public class EcgHrProcessor implements IEcgHrProcessor {
-    private final List<Integer> hrArray = new ArrayList<>();
-
-    public class EcgHrStatistics {
-        public double[] normHistogram;
-        public int totalBeats;
-        public int hrMax;
-        public int hrAverage;
+    // 心率统计信息更新监听器
+    public interface IEcgHrStatisticsUpdatedListener {
+        void onEcgHrStatisticsUpdated(List<Integer> hrAverage, double[] normHistogram, int maxHr, int averageHr);
     }
+
+    private final List<Integer> hrArray = new ArrayList<>();
+    private List<Integer> hrAverage = new ArrayList<>();
+
+    private double[] normHistogram;
+
+    private int maxHr;
+    private int averageHr;
+
+    private IEcgHrStatisticsUpdatedListener listener;
 
     public EcgHrProcessor() {
 
     }
 
-    public EcgHrStatistics getHrStatistics(int barNum) {
-        List<Integer> hrAverage = filter(10);
-
-        double[] normHistogram = getNormHistogram(barNum, hrAverage);
-        if(normHistogram == null) return null;
-        EcgHrStatistics statistics = new EcgHrStatistics();
-        statistics.normHistogram = normHistogram;
-        statistics.totalBeats = getTotalBeats();
-        statistics.hrMax = Collections.max(hrAverage);
-        statistics.hrAverage =
+    // 更新心率统计分析
+    public void updateHrStatistics(int secondInAverageFilter, int barNumInHistogram) {
+        hrAverage = averageFilter(secondInAverageFilter);
+        normHistogram = makeNormHistogram(barNumInHistogram, hrAverage);
+        if(!hrAverage.isEmpty()) {
+            maxHr = Collections.max(hrAverage);
+            int hrSum = 0;
+            for (int hr : hrAverage) {
+                hrSum += hr;
+            }
+            averageHr = hrSum / hrAverage.size();
+        } else {
+            maxHr = 0;
+            averageHr = 0;
+        }
+        if(listener != null)
+            listener.onEcgHrStatisticsUpdated(hrAverage, normHistogram, maxHr, averageHr);
     }
 
     // 重置心率数据
     public void clear() {
         hrArray.clear();
+        hrAverage.clear();
+        normHistogram = null;
+        maxHr = 0;
+        averageHr = 0;
+        if(listener != null)
+            listener.onEcgHrStatisticsUpdated(hrAverage, normHistogram, maxHr, averageHr);
     }
 
-    // 获取直方图
-    public int[] getHistogram(int barNum) {
-        List<Integer> hrAverage = filter(10);
 
-        return getHistogram(barNum, hrAverage);
-    }
-
-    public int[] getHistogram(int barNum, List<Integer> hrArray) {
-        if(hrArray.size() < 1) return null;
-
-        int minValue = Collections.min(hrArray);
-        int maxValue = Collections.max(hrArray);
-        int interval = (maxValue-minValue)/barNum+1;
-
-        int[] histogram = new int[barNum];
-        int num = 0;
-        for(int hr : hrArray) {
-            num = (hr-minValue)/interval;
-            int i = (num >= barNum) ? barNum-1 : num;
-            histogram[i]++;
-        }
-
-        return histogram;
-    }
-
-    // 获取归一化直方图
-    public double[] getNormHistogram(int barNum, List<Integer> hrArray) {
-        int[] histogram = getHistogram(barNum, hrArray);
+    // 产生归一化直方图
+    private double[] makeNormHistogram(int barNum, List<Integer> hrArray) {
+        int[] histogram = makeHistogram(barNum, hrArray);
         if(histogram == null) return null;
         double[] norm = new double[histogram.length];
         int sum = 0;
@@ -81,9 +75,22 @@ public class EcgHrProcessor implements IEcgHrProcessor {
         return norm;
     }
 
-    // 获取总的心跳次数
-    public int getTotalBeats() {
-        return hrArray.size();
+    private int[] makeHistogram(int barNumInHistogram, List<Integer> hrArray) {
+        if(hrArray.size() < 1) return null;
+
+        int minValue = Collections.min(hrArray);
+        int maxValue = Collections.max(hrArray);
+        int interval = (maxValue-minValue)/barNumInHistogram+1;
+
+        int[] histogram = new int[barNumInHistogram];
+        int num = 0;
+        for(int hr : hrArray) {
+            num = (hr-minValue)/interval;
+            int i = (num >= barNumInHistogram) ? barNumInHistogram-1 : num;
+            histogram[i]++;
+        }
+
+        return histogram;
     }
 
     @Override
@@ -93,7 +100,7 @@ public class EcgHrProcessor implements IEcgHrProcessor {
         }
     }
 
-    private List<Integer> filter(int second) {
+    private List<Integer> averageFilter(int second) {
         List<Integer> hrAverage = new ArrayList<>();
         double sum = 0.0;
         int num = 0;
@@ -111,4 +118,13 @@ public class EcgHrProcessor implements IEcgHrProcessor {
         }
         return hrAverage;
     }
+
+    public void setEcgHrStatisticsUpdatedListener(IEcgHrStatisticsUpdatedListener listener) {
+        this.listener = listener;
+    }
+
+    public void removeEcgHrStatisticsUpdatedListener() {
+        listener = null;
+    }
+
 }
