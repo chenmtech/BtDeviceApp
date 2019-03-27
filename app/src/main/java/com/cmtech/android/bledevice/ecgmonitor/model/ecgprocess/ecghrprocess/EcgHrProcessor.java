@@ -17,7 +17,7 @@ public class EcgHrProcessor implements IEcgHrProcessor {
         void onEcgHrStatisticsUpdated(List<Integer> hrAverage, double[] normHistogram, int maxHr, int averageHr);
     }
 
-    private final List<Integer> hrArray = new ArrayList<>();
+    private final List<Integer> hrList = new ArrayList<>();
     private List<Integer> hrAverage = new ArrayList<>();
 
     private double[] normHistogram;
@@ -29,6 +29,10 @@ public class EcgHrProcessor implements IEcgHrProcessor {
 
     public EcgHrProcessor() {
 
+    }
+
+    public List<Integer> getHrList() {
+        return hrList;
     }
 
     // 更新心率统计分析
@@ -52,7 +56,7 @@ public class EcgHrProcessor implements IEcgHrProcessor {
 
     // 重置心率数据
     public void clear() {
-        hrArray.clear();
+        hrList.clear();
         hrAverage.clear();
         normHistogram = null;
         maxHr = 0;
@@ -96,7 +100,7 @@ public class EcgHrProcessor implements IEcgHrProcessor {
     @Override
     public void process(int hr) {
         if(hr != INVALID_HR) {
-            hrArray.add(hr);
+            hrList.add(hr);
         }
     }
 
@@ -105,7 +109,7 @@ public class EcgHrProcessor implements IEcgHrProcessor {
         double sum = 0.0;
         int num = 0;
         double period = 0.0;
-        for(int hr : hrArray) {
+        for(int hr : hrList) {
             sum += hr;
             num++;
             period += 60.0/hr;

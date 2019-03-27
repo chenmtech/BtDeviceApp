@@ -396,6 +396,9 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
             }
         } else {
             // 停止记录：保存当前记录
+            if(ecgProcessor != null) {
+                ecgRecorder.setHrList(ecgProcessor.getHrList());
+            }
             ecgRecorder.save();
         }
 

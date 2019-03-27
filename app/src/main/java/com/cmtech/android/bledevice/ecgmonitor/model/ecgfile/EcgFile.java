@@ -112,6 +112,10 @@ public class EcgFile extends RandomAccessBmeFile {
         dataNum = 0;
     }
 
+    public void setHrList(List<Integer> hrList) {
+        ecgFileTail.setHrList(hrList);
+    }
+
     @Override
     protected int availableData() {
         if(raf != null) {

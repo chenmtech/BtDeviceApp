@@ -120,6 +120,14 @@ public class EcgSignalProcessor {
         }
     }
 
+    public List<Integer> getHrList() {
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        if(hrProcessor != null) {
+            return hrProcessor.getHrList();
+        }
+        return null;
+    }
+
     public void close() {
         resetHrProcessor();
         removeEcgSignalUpdatedListener();

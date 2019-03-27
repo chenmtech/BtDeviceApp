@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -16,12 +15,16 @@ import java.util.List;
  */
 
 public class EcgFileTail {
-    private List<Integer> hrArray = new ArrayList<>();
+    private List<Integer> hrList = new ArrayList<>();
 
     private List<EcgAppendix> appendixList = new ArrayList<>(); // 附加信息列表
 
     public EcgFileTail() {
 
+    }
+
+    public void setHrList(List<Integer> hrList) {
+        this.hrList = hrList;
     }
 
     /**
@@ -40,7 +43,7 @@ public class EcgFileTail {
             // 读心率数据
             int hrLength = ByteUtil.reverseInt(raf.readInt());
             for(int i = 0; i < hrLength; i++) {
-                hrArray.add(ByteUtil.reverseInt(raf.readInt()));
+                hrList.add(ByteUtil.reverseInt(raf.readInt()));
             }
             // 读留言信息
             while (raf.getFilePointer() < tailEndPointer) {
@@ -75,8 +78,8 @@ public class EcgFileTail {
             raf.seek(filePointer);
 
             // 写心率信息
-            raf.writeInt(ByteUtil.reverseInt(hrArray.size()));
-            for(int hr : hrArray) {
+            raf.writeInt(ByteUtil.reverseInt(hrList.size()));
+            for(int hr : hrList) {
                 raf.writeInt(ByteUtil.reverseInt(hr));
             }
 
@@ -97,6 +100,7 @@ public class EcgFileTail {
     @Override
     public String toString() {
         return "[心电文件尾："
+                + "心率值：" + Arrays.toString(hrList.toArray()) + ';'
                 + "留言数：" + appendixList.size() + ";"
                 + "留言：" + Arrays.toString(appendixList.toArray()) + "]";
     }
@@ -123,7 +127,7 @@ public class EcgFileTail {
      * 获取EcgFileTail字节长度：所有留言长度 + 尾部长度（long 8字节）
       */
     public int length() {
-        int length = 4 + 4*hrArray.size(); // 心率数据长度
+        int length = 4 + 4* hrList.size(); // 心率数据长度
 
         for(EcgAppendix appendix : appendixList) {
             length += appendix.length();

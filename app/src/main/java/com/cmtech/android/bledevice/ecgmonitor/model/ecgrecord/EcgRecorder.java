@@ -8,6 +8,8 @@ import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 
@@ -22,9 +24,13 @@ public class EcgRecorder {
     }
 
     private EcgFile ecgFile; // 心电文件
+
     private long recordDataNum; // 记录的数据个数
+
     private int sampleRate = 125; // 采样频率
+
     private EcgAppendix appendix; // 当前信号的附加信息表
+
     private IEcgRecordSecondUpdatedListener listener; // 心电记录秒数更新监听器
 
     // 获取记录的秒数
@@ -39,6 +45,11 @@ public class EcgRecorder {
 
     public EcgRecorder() {
 
+    }
+
+    public void setHrList(List<Integer> hrList) {
+        if(ecgFile != null)
+            ecgFile.setHrList(hrList);
     }
 
     // 创建记录
@@ -82,6 +93,7 @@ public class EcgRecorder {
                     if (appendix != null) {
                         ecgFile.addAppendix(appendix);
                     }
+
                     ecgFile.saveFileTail();
                     ecgFile.close();
                     ViseLog.e(ecgFile);
