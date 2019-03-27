@@ -1,9 +1,9 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.EcgCalibrator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.EcgCalibrator65536;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.IEcgCalibrator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrateprocess.EcgCalibrateProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrateprocess.EcgCalibrateProcessor65536;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrateprocess.IEcgCalibrateProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.EcgPreFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.IEcgFilter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrAbnormalWarner;
@@ -26,21 +26,21 @@ import java.util.Map;
 public class EcgSignalProcessor {
     public final static int INVALID_HR = 0; // 无效心率值
 
-    private final static String KEY_HRWARNER = "hrwarner"; // EcgHrAbnormalWarner的键值
-    private final static String KEY_HRPROCESSOR = "hrprocessor"; // EcgHrProcessor的键值
+    private final static String KEY_HR_WARNER = "hrwarner"; // EcgHrAbnormalWarner的键值
+    private final static String KEY_HR_PROCESSOR = "hrprocessor"; // EcgHrProcessor的键值
 
-    private static final int SECOND_WHEN_DO_HR_FILTER = 10;
-    private static final int BAR_NUM_HR_HISTOGRAM = 5;
+    private static final int HR_FILTER_RANGE_IN_SECOND = 10;
+    private static final int HR_HISTOGRAM_BAR_NUM = 5;
 
     public interface IEcgSignalUpdatedListener {
-        void onEcgSignalUpdated(int ecgSignal); // 更新心电信号
+        void onEcgSignalUpdated(int ecgSignal);
     }
 
     public interface IEcgHrValueUpdatedListener {
-        void onEcgHrValueUpdated(int hr); // 更新心率值
+        void onEcgHrValueUpdated(int hr);
     }
 
-    private IEcgCalibrator ecgCalibrator; // 定标器
+    private IEcgCalibrateProcessor ecgCalibrateProcessor; // 定标处理器
 
     private IEcgFilter ecgFilter; // 滤波器
 
@@ -52,9 +52,8 @@ public class EcgSignalProcessor {
 
     private List<IEcgHrValueUpdatedListener> hrValueListenerArray = new ArrayList<>(); // 心率值监听器数组
 
-
-    private EcgSignalProcessor(IEcgCalibrator ecgCalibrator, IEcgFilter ecgFilter, QrsDetector qrsDetector, Map<String, IEcgHrProcessor> hrProcessors) {
-        this.ecgCalibrator = ecgCalibrator;
+    private EcgSignalProcessor(IEcgCalibrateProcessor ecgCalibrateProcessor, IEcgFilter ecgFilter, QrsDetector qrsDetector, Map<String, IEcgHrProcessor> hrProcessors) {
+        this.ecgCalibrateProcessor = ecgCalibrateProcessor;
         this.ecgFilter = ecgFilter;
         this.qrsDetector = qrsDetector;
         this.hrProcessors = hrProcessors;
@@ -63,7 +62,7 @@ public class EcgSignalProcessor {
     // 处理Ecg信号
     public void process(int ecgSignal) {
         // 标定后滤波处理
-        ecgSignal = (int) ecgFilter.filter(ecgCalibrator.process(ecgSignal));
+        ecgSignal = (int) ecgFilter.filter(ecgCalibrateProcessor.process(ecgSignal));
 
         // 通知信号监听器
         if(signalListener != null) signalListener.onEcgSignalUpdated(ecgSignal);
@@ -85,47 +84,46 @@ public class EcgSignalProcessor {
     // 修改配置信息
     public void changeConfiguration(EcgMonitorDeviceConfig config) {
         if(config.isWarnWhenHrAbnormal()) {
-            EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
+            EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HR_WARNER);
             if(hrWarner != null) {
                 hrWarner.setHrWarn(config.getHrLowLimit(), config.getHrHighLimit());
             } else {
-                hrProcessors.put(KEY_HRWARNER, new EcgHrAbnormalWarner(config.getHrLowLimit(), config.getHrHighLimit()));
+                hrProcessors.put(KEY_HR_WARNER, new EcgHrAbnormalWarner(config.getHrLowLimit(), config.getHrHighLimit()));
             }
         } else {
-            hrProcessors.remove(KEY_HRWARNER);
+            hrProcessors.remove(KEY_HR_WARNER);
         }
     }
 
     // 重置HR处理器
     public void resetHrProcessor() {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
         if(hrProcessor != null) {
             hrProcessor.clear();
             ViseLog.e("clear hr processor");
         }
     }
 
-    public EcgHrProcessor getHrProcessor() {
-        return (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
-    }
-
-    public void setHrProcessor(EcgHrProcessor hrProcessor) {
-        hrProcessors.put(KEY_HRPROCESSOR, hrProcessor);
-    }
-
     public void updateHrStatistics() {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
         if(hrProcessor != null) {
-            hrProcessor.updateHrStatistics(SECOND_WHEN_DO_HR_FILTER, BAR_NUM_HR_HISTOGRAM);
+            hrProcessor.updateHrStatistics(HR_FILTER_RANGE_IN_SECOND, HR_HISTOGRAM_BAR_NUM);
         }
     }
 
     public List<Integer> getHrList() {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
         if(hrProcessor != null) {
             return hrProcessor.getHrList();
         }
         return null;
+    }
+
+    public void setHrList(List<Integer> hrList) {
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
+        if(hrProcessor != null) {
+            hrProcessor.setHrList(hrList);
+        }
     }
 
     public void close() {
@@ -133,7 +131,7 @@ public class EcgSignalProcessor {
         removeEcgSignalUpdatedListener();
         removeAllHrAbnormalListeners();
         removeEcgHrStatisticsListener();
-        clearEcgHrValueUpdatedListener();
+        removeAllEcgHrValueUpdatedListener();
     }
 
     public void setEcgSignalUpdatedListener(IEcgSignalUpdatedListener signalListener) {
@@ -158,33 +156,33 @@ public class EcgSignalProcessor {
         }
     }
 
-    private void clearEcgHrValueUpdatedListener() {
+    private void removeAllEcgHrValueUpdatedListener() {
         hrValueListenerArray.clear();
     }
 
     public void addEcgHrAbnormalListener(EcgHrAbnormalWarner.IEcgHrAbnormalListener listener) {
-        EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
+        EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HR_WARNER);
         if(hrWarner != null) {
             hrWarner.addEcgHrAbnormalListener(listener);
         }
     }
 
     private void removeAllHrAbnormalListeners() {
-        EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HRWARNER);
+        EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HR_WARNER);
         if(hrWarner != null) {
             hrWarner.removeAllListeners();
         }
     }
 
     public void setEcgHrStatisticsListener(EcgHrProcessor.IEcgHrStatisticsUpdatedListener listener) {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
         if(hrProcessor != null) {
             hrProcessor.setEcgHrStatisticsUpdatedListener(listener);
         }
     }
 
     public void removeEcgHrStatisticsListener() {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HRPROCESSOR);
+        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
         if(hrProcessor != null) {
             hrProcessor.removeEcgHrStatisticsUpdatedListener();
         }
@@ -222,11 +220,11 @@ public class EcgSignalProcessor {
         }
 
         public EcgSignalProcessor build() {
-            IEcgCalibrator ecgCalibrator;
+            IEcgCalibrateProcessor ecgCalibrator;
             if(value1mVAfterCalibrate == 65536) {
-                ecgCalibrator = new EcgCalibrator65536(value1mVBeforeCalibrate);
+                ecgCalibrator = new EcgCalibrateProcessor65536(value1mVBeforeCalibrate);
             } else {
-                ecgCalibrator = new EcgCalibrator(value1mVBeforeCalibrate, value1mVAfterCalibrate);
+                ecgCalibrator = new EcgCalibrateProcessor(value1mVBeforeCalibrate, value1mVAfterCalibrate);
             }
 
             IEcgFilter ecgFilter = new EcgPreFilterWith35HzNotch(sampleRate);
@@ -234,11 +232,10 @@ public class EcgSignalProcessor {
             QrsDetector qrsDetector = new QrsDetector(sampleRate, value1mVAfterCalibrate);
 
             Map<String, IEcgHrProcessor> hrProcessors = new HashMap<>();
-            hrProcessors.put(KEY_HRPROCESSOR, new EcgHrProcessor());
-            ViseLog.e("重新创建了EcgHrHistogram");
+            hrProcessors.put(KEY_HR_PROCESSOR, new EcgHrProcessor());
 
             if(hrWarnEnabled) {
-                hrProcessors.put(KEY_HRWARNER, new EcgHrAbnormalWarner(hrLowLimit, hrHighLimit));
+                hrProcessors.put(KEY_HR_WARNER, new EcgHrAbnormalWarner(hrLowLimit, hrHighLimit));
             }
 
             return new EcgSignalProcessor(ecgCalibrator, ecgFilter, qrsDetector, hrProcessors);

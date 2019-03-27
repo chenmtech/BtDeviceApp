@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord;
+package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
@@ -14,11 +14,11 @@ import java.util.List;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 
 /**
- * EcgRecorder: 心电记录器
+ * EcgSignalRecorder: 心电记录器
  * Created by Chenm, 2018-12-27
  */
 
-public class EcgRecorder {
+public class EcgSignalRecorder {
     public interface IEcgRecordSecondUpdatedListener {
         void onEcgRecordSecondUpdated(int second); // 更新记录的秒数
     }
@@ -29,7 +29,7 @@ public class EcgRecorder {
 
     private int sampleRate = 125; // 采样频率
 
-    private EcgAppendix appendix; // 当前信号的附加信息表
+    private EcgAppendix appendix; // 当前信号的留言
 
     private IEcgRecordSecondUpdatedListener listener; // 心电记录秒数更新监听器
 
@@ -43,7 +43,7 @@ public class EcgRecorder {
         return recordDataNum;
     }
 
-    public EcgRecorder() {
+    public EcgSignalRecorder() {
 
     }
 

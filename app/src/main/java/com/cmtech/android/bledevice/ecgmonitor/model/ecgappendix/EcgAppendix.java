@@ -80,7 +80,7 @@ public class EcgAppendix{
             this.content = content;
             return;
         }
-        this.content += ('\n' + content);
+        this.content += (';' + content);
     }
 
     /**

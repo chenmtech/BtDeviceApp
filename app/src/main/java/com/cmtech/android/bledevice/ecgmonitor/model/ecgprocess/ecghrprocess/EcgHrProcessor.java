@@ -17,7 +17,7 @@ public class EcgHrProcessor implements IEcgHrProcessor {
         void onEcgHrStatisticsUpdated(List<Integer> hrAverage, double[] normHistogram, int maxHr, int averageHr);
     }
 
-    private final List<Integer> hrList = new ArrayList<>();
+    private List<Integer> hrList = new ArrayList<>();
     private List<Integer> hrAverage = new ArrayList<>();
 
     private double[] normHistogram;
@@ -33,6 +33,10 @@ public class EcgHrProcessor implements IEcgHrProcessor {
 
     public List<Integer> getHrList() {
         return hrList;
+    }
+
+    public void setHrList(List<Integer> hrList) {
+        this.hrList = hrList;
     }
 
     // 更新心率统计分析

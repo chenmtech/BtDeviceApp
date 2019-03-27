@@ -1,15 +1,15 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * CalibrateDataProcessor: 标定数据处理器
+ * EcgSignalCalibrator: 心电信号定标器
  * Created by Chenm, 2018-12-27
  */
 
-public class CalibrateDataProcessor {
+public class EcgSignalCalibrator {
     public interface ICalibrateValueUpdatedListener {
         void onCalibrateValueUpdated(int calibrateValue); // 更新标定值
     }
@@ -20,7 +20,7 @@ public class CalibrateDataProcessor {
 
     private ICalibrateValueUpdatedListener listener; // 标定值监听器
 
-    public CalibrateDataProcessor(int sampleRate) {
+    public EcgSignalCalibrator(int sampleRate) {
         this.sampleRate = sampleRate;
     }
 

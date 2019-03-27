@@ -10,11 +10,9 @@ import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledevice.core.BleGattElement;
 import com.cmtech.android.bledevice.core.IBleDataOpCallback;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.CalibrateDataProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrAbnormalWarner;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgrecord.EcgRecorder;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -33,7 +31,7 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
  * Created by bme on 2018/9/20.
  */
 
-public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IEcgSignalUpdatedListener, EcgSignalProcessor.IEcgHrValueUpdatedListener, EcgHrAbnormalWarner.IEcgHrAbnormalListener, EcgRecorder.IEcgRecordSecondUpdatedListener, CalibrateDataProcessor.ICalibrateValueUpdatedListener, EcgHrProcessor.IEcgHrStatisticsUpdatedListener {
+public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IEcgSignalUpdatedListener, EcgSignalProcessor.IEcgHrValueUpdatedListener, EcgHrAbnormalWarner.IEcgHrAbnormalListener, EcgSignalRecorder.IEcgRecordSecondUpdatedListener, EcgSignalCalibrator.ICalibrateValueUpdatedListener, EcgHrProcessor.IEcgHrStatisticsUpdatedListener {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -86,13 +84,18 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
     private int xPixelPerData = 2; // EcgView的横向分辨率
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
-    private EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
-    private final EcgMonitorDeviceConfig config; // 设备配置信息
-    private IEcgMonitorListener listener; // 心电设备观察者
 
-    private EcgRecorder ecgRecorder; // 心电记录器
-    private EcgSignalProcessor ecgProcessor; // 心电处理器
-    private CalibrateDataProcessor caliDataProcessor; // 定标数据处理器
+    private EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
+
+    private final EcgMonitorDeviceConfig config; // 心电监护仪设备配置信息
+
+    private IEcgMonitorListener listener; // 心电监护仪设备监听器
+
+    private EcgSignalRecorder ecgRecorder; // 心电信号记录器
+
+    private EcgSignalProcessor ecgProcessor; // 心电信号处理器
+
+    private EcgSignalCalibrator ecgCalibrator; // 心电信号定标器
 
     private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<Integer>();	//数据缓存
     // 数据处理线程Runnable
@@ -104,7 +107,7 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
                     int value = dataBuff.take();
                     switch (state) {
                         case CALIBRATING:
-                            caliDataProcessor.process(value);
+                            ecgCalibrator.process(value);
                             break;
                         case SAMPLE:
                             ecgProcessor.process(value);
@@ -236,8 +239,8 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
                     // 有了采样率，可以初始化定标数据处理器
-                    caliDataProcessor = new CalibrateDataProcessor(sampleRate);
-                    caliDataProcessor.setCalibrateValueUpdatedListener(this);
+                    ecgCalibrator = new EcgSignalCalibrator(sampleRate);
+                    ecgCalibrator.setCalibrateValueUpdatedListener(this);
                 }
                 break;
 
@@ -265,7 +268,7 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
     public void open() {
         super.open();
 
-        ecgRecorder = new EcgRecorder();
+        ecgRecorder = new EcgSignalRecorder();
         ecgRecorder.setEcgRecordSecondUpdatedListener(this);
     }
 
@@ -287,8 +290,8 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         if(ecgProcessor != null)
             ecgProcessor.close();
 
-        if(caliDataProcessor != null)
-            caliDataProcessor.removeCalibrateValueUpdatedListener();
+        if(ecgCalibrator != null)
+            ecgCalibrator.removeCalibrateValueUpdatedListener();
     }
 
     @Override
@@ -556,13 +559,14 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
         builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
         builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
-        EcgHrProcessor hrProcessor = null;
+        List<Integer> hrList = null;
         if(ecgProcessor != null) {
-            hrProcessor = ecgProcessor.getHrProcessor();
+            hrList = ecgProcessor.getHrList();
         }
         ecgProcessor = builder.build();
-        if(hrProcessor != null)
-            ecgProcessor.setHrProcessor(hrProcessor);
+
+        ecgProcessor.setHrList(hrList);
+
         ecgProcessor.setEcgSignalUpdatedListener(this);
         ecgProcessor.addEcgHrValueUpdatedListener(this);
         ecgProcessor.setEcgHrStatisticsListener(this);
