@@ -9,16 +9,20 @@ import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledevice.core.BleGattElement;
 import com.cmtech.android.bledevice.core.IBleDataOpCallback;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrAbnormalWarner;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
 import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
 
 import org.litepal.LitePal;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -96,6 +100,8 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
     private EcgSignalProcessor ecgProcessor; // 心电信号处理器
 
     private EcgSignalCalibrator ecgCalibrator; // 心电信号定标器
+
+    private EcgFile ecgFile;
 
     private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<Integer>();	//数据缓存
     // 数据处理线程Runnable
@@ -267,9 +273,6 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
     @Override
     public void open() {
         super.open();
-
-        ecgRecorder = new EcgSignalRecorder();
-        ecgRecorder.setEcgRecordSecondUpdatedListener(this);
     }
 
     // 关闭设备
@@ -283,8 +286,8 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
 
         // 关闭记录器
         if(isRecord) {
-            ecgRecorder.close();
             isRecord = false;
+            ecgRecorder.removeEcgRecordSecondUpdatedListener();
         }
         // 关闭处理器
         if(ecgProcessor != null)
@@ -292,6 +295,19 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
 
         if(ecgCalibrator != null)
             ecgCalibrator.removeCalibrateValueUpdatedListener();
+
+        if(ecgFile != null) {
+            try {
+                saveEcgFile();
+                ecgFile.close();
+            } catch (IOException e) {
+                try {
+                    FileUtil.deleteFile(ecgFile.getFile());
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
@@ -373,9 +389,18 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         // 创建Ecg处理器
         createEcgProcessor(); // 这里每次连接都会重新创建处理器，有问题。
 
-        // 创建记录
+        /*// 创建记录
         if(isRecord) {
             ecgRecorder.create(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
+        }*/
+
+        if(ecgFile == null) {
+            ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibrate, getMacAddress(), leadType);
+        }
+
+        if(ecgRecorder == null) {
+            ecgRecorder = new EcgSignalRecorder(sampleRate);
+            ecgRecorder.setEcgRecordSecondUpdatedListener(this);
         }
 
         // 初始化EcgView
@@ -392,18 +417,6 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
 
         // 当前isRecord与要设置的isRecord不同，就意味着要改变当前的isRecord状态
         this.isRecord = isRecord;
-        if(this.isRecord) {
-            // 启动记录：如果已经标定了或者采样了,才可以创建新的记录，否则需要等到那时才创建记录器
-            if(state == EcgMonitorState.CALIBRATED || state == EcgMonitorState.SAMPLE) {
-                ecgRecorder.create(sampleRate, value1mVAfterCalibrate, leadType, getMacAddress());
-            }
-        } else {
-            // 停止记录：保存当前记录
-            if(ecgProcessor != null) {
-                ecgRecorder.setHrList(ecgProcessor.getHrList());
-            }
-            ecgRecorder.save();
-        }
 
         updateRecordStatus(isRecord);
     }
@@ -559,7 +572,7 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
         builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
         builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
-        List<Integer> hrList = null;
+        List<Integer> hrList = new ArrayList<>();
         if(ecgProcessor != null) {
             hrList = ecgProcessor.getHrList();
         }
@@ -643,6 +656,15 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         });
     }
 
+    private void saveEcgFile() throws IOException{
+        for(int signal : ecgRecorder.getEcgSignalList()) {
+            ecgFile.writeData(signal);
+        }
 
+        ecgFile.getEcgFileTail().setHrList(ecgProcessor.getHrList());
+        ecgFile.addAppendix(ecgRecorder.getAppendix());
+
+        ecgFile.saveFileTail();
+    }
 
 }

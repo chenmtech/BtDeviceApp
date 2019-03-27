@@ -118,6 +118,10 @@ public class EcgFileTail {
     // 获取附加信息列表
     public List<EcgAppendix> getAppendixList() { return appendixList; }
 
+    public void setAppendixList(List<EcgAppendix> appendixList) {
+        this.appendixList = appendixList;
+    }
+
     // 获取附加信息数
     public int getAppendixNum() {
         return appendixList.size();
