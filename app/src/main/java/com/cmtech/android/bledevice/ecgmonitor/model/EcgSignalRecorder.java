@@ -23,7 +23,9 @@ public class EcgSignalRecorder {
         void onEcgRecordSecondUpdated(int second); // 更新记录的秒数
     }
 
-    private final List<Integer> ecgSignalList = new ArrayList<>();
+    private final EcgFile ecgFile;
+
+    private int dataNum = 0;
 
     private int sampleRate = 125; // 采样频率
 
@@ -33,30 +35,32 @@ public class EcgSignalRecorder {
 
     // 获取记录的秒数
     public int getRecordSecond() {
-        return ecgSignalList.size()/sampleRate;
+        return dataNum/sampleRate;
     }
 
     // 获取记录的数据个数
     public long getRecordDataNum() {
-        return ecgSignalList.size();
-    }
-
-    public List<Integer> getEcgSignalList() {
-        return ecgSignalList;
+        return dataNum;
     }
 
     public EcgAppendix getAppendix() {
         return appendix;
     }
 
-    public EcgSignalRecorder(int sampleRate) {
+    public EcgSignalRecorder(int sampleRate, EcgFile ecgFile) {
         this.sampleRate = sampleRate;
+        this.ecgFile = ecgFile;
         appendix = EcgAppendix.createDefaultAppendix();
     }
 
     // 记录心电信号
     public synchronized void record(int ecgSignal) {
-        ecgSignalList.add(ecgSignal);
+        try {
+            ecgFile.writeData(ecgSignal);
+            dataNum++;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if(listener != null) listener.onEcgRecordSecondUpdated(getRecordSecond());
     }
 

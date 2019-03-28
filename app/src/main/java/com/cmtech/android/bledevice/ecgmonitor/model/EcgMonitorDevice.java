@@ -19,15 +19,18 @@ import com.vise.utils.file.FileUtil;
 
 import org.litepal.LitePal;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 
 
 /**
@@ -273,6 +276,10 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
     @Override
     public void open() {
         super.open();
+        ecgProcessor = null;
+        ecgRecorder = null;
+        ecgCalibrator = null;
+        ecgFile = null;
     }
 
     // 关闭设备
@@ -288,10 +295,13 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         if(isRecord) {
             isRecord = false;
             ecgRecorder.removeEcgRecordSecondUpdatedListener();
+            ecgRecorder = null;
         }
+
         // 关闭处理器
-        if(ecgProcessor != null)
+        if(ecgProcessor != null) {
             ecgProcessor.close();
+        }
 
         if(ecgCalibrator != null)
             ecgCalibrator.removeCalibrateValueUpdatedListener();
@@ -300,6 +310,10 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
             try {
                 saveEcgFile();
                 ecgFile.close();
+                File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
+                // 将缓存区中的文件移动到ECGFILEDIR目录中
+                FileUtil.moveFile(ecgFile.getFile(), toFile);
+                ecgFile = null;
             } catch (IOException e) {
                 try {
                     FileUtil.deleteFile(ecgFile.getFile());
@@ -308,6 +322,15 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
                 }
             }
         }
+    }
+
+    private void saveEcgFile() throws IOException{
+        ecgFile.getEcgFileTail().setHrList(ecgProcessor.getHrList());
+        ViseLog.e("hrList:" + Arrays.toString(ecgProcessor.getHrList().toArray()));
+
+        ecgFile.addAppendix(ecgRecorder.getAppendix());
+
+        ecgFile.saveFileTail();
     }
 
     @Override
@@ -399,7 +422,7 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         }
 
         if(ecgRecorder == null) {
-            ecgRecorder = new EcgSignalRecorder(sampleRate);
+            ecgRecorder = new EcgSignalRecorder(sampleRate, ecgFile);
             ecgRecorder.setEcgRecordSecondUpdatedListener(this);
         }
 
@@ -656,15 +679,6 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         });
     }
 
-    private void saveEcgFile() throws IOException{
-        for(int signal : ecgRecorder.getEcgSignalList()) {
-            ecgFile.writeData(signal);
-        }
 
-        ecgFile.getEcgFileTail().setHrList(ecgProcessor.getHrList());
-        ecgFile.addAppendix(ecgRecorder.getAppendix());
-
-        ecgFile.saveFileTail();
-    }
 
 }

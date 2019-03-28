@@ -127,7 +127,7 @@ public class EcgSignalProcessor {
     }
 
     public void close() {
-        resetHrProcessor();
+        //resetHrProcessor();
         removeEcgSignalUpdatedListener();
         removeAllHrAbnormalListeners();
         removeEcgHrStatisticsListener();

@@ -85,7 +85,6 @@ public class EcgFile extends RandomAccessBmeFile {
             fileName = toFile.getCanonicalPath();
             ecgFile = EcgFile.create(fileName, bmeFileHead, ecgFileHead);
         } catch (Exception e) {
-            //e.printStackTrace();
             ViseLog.e(e);
         }
         return ecgFile;

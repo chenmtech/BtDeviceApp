@@ -167,22 +167,21 @@ public abstract class BmeFile {
     // 写byte数组
     public void writeData(byte[] data) throws IOException{
         for(byte num : data) {
-            out.writeByte(num);
-            dataNum++;
+            writeData(num);
         }
     }
 
     // 写int数组
     public void writeData(int[] data) throws IOException{
         for(int num : data) {
-            writeInt(out, num);
+            writeData(num);
         }
     }
 
     // 写double数组
 	public void writeData(double[] data) throws IOException{
         for(double num : data) {
-            writeDouble(out, num);
+            writeData(num);
         }
 	}
 
