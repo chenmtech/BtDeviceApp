@@ -5,6 +5,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.bmefile.BmeFileHead30;
+import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -119,7 +120,11 @@ public class EcgFileExplorerModel {
     // 保存留言信息
     public void saveAppendix() {
         if(selectFile != null) {
-            selectFile.saveFileTail();
+            try {
+                selectFile.saveFileTail();
+            } catch (IOException e) {
+                ViseLog.e("保存留言错误。");
+            }
         }
     }
 

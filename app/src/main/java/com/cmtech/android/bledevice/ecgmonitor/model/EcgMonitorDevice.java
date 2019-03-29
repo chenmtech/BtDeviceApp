@@ -12,7 +12,7 @@ import com.cmtech.android.bledevice.core.IBleDataOpCallback;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrAbnormalWarner;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgSignalProcessListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -37,7 +37,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
  * Created by bme on 2018/9/20.
  */
 
-public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IEcgSignalUpdatedListener, EcgSignalProcessor.IEcgHrValueUpdatedListener, EcgHrAbnormalWarner.IEcgHrAbnormalListener, EcgSignalRecorder.IEcgRecordSecondUpdatedListener, EcgSignalCalibrator.ICalibrateValueUpdatedListener, EcgHrRecorder.IEcgHrInfoUpdatedListener {
+public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessListener, EcgSignalRecorder.IEcgRecordSecondUpdatedListener, EcgSignalCalibrator.ICalibrateValueUpdatedListener {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -97,15 +97,15 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
 
     private IEcgMonitorListener listener; // 心电监护仪设备监听器
 
-    private EcgSignalRecorder ecgRecorder; // 心电信号记录器
+    private EcgSignalRecorder ecgRecorder; // 心电信号记录仪
 
     private EcgSignalProcessor ecgProcessor; // 心电信号处理器
 
-    private EcgSignalCalibrator ecgCalibrator; // 心电信号定标器
+    private EcgSignalCalibrator ecgCalibrator; // 心电信号定标仪
 
-    private EcgFile ecgFile;
+    private EcgFile ecgFile; // 心电记录文件，可记录心率信息以及心电信号和留言信息
 
-    private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<Integer>();	//数据缓存
+    private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<>();	//数据缓存
     // 数据处理线程Runnable
     private final Runnable processRunnable = new Runnable() {
         @Override
@@ -168,14 +168,14 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         this.config.setHrHighLimit(config.getHrHighLimit());
         this.config.save();
         if(ecgProcessor != null) {
-            ecgProcessor.changeConfiguration(config);
-            if (config.isWarnWhenHrAbnormal())
-                ecgProcessor.addEcgHrAbnormalListener(this);
+            ecgProcessor.setHrAbnormalWarner(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit(), this);
         }
     }
+
     public int getRecordSecond() {
         return (ecgRecorder == null) ? 0 : ecgRecorder.getRecordSecond();
     }
+
     public long getRecordDataNum() { return (ecgRecorder == null) ? 0 : ecgRecorder.getRecordDataNum(); }
 
     // 构造器
@@ -597,11 +597,8 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         if(ecgProcessor != null) {
             builder.setHrList(ecgProcessor.getHrList());
         }
+        builder.setEcgSignalProcessListener(this);
         ecgProcessor = builder.build();
-        ecgProcessor.setEcgSignalUpdatedListener(this);
-        ecgProcessor.addEcgHrValueUpdatedListener(this);
-        ecgProcessor.setEcgHrStatisticsListener(this);
-        ecgProcessor.addEcgHrAbnormalListener(this);
     }
 
     // 初始化EcgView

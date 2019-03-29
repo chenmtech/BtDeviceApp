@@ -123,18 +123,14 @@ public class EcgFile extends RandomAccessBmeFile {
         return 0;
     }
 
-    public synchronized void saveFileTail() {
-        try {
-            long curPointer = raf.getFilePointer();
+    public synchronized void saveFileTail() throws IOException{
+        long curPointer = raf.getFilePointer();
 
-            dataEndPointer = dataBeginPointer + dataNum * fileHead.getDataType().getTypeLength();
-            raf.seek(dataEndPointer);
-            ecgFileTail.writeToStream(raf);
+        dataEndPointer = dataBeginPointer + dataNum * fileHead.getDataType().getTypeLength();
+        raf.seek(dataEndPointer);
+        ecgFileTail.writeToStream(raf);
 
-            raf.seek(curPointer);
-        } catch (IOException e) {
-            ViseLog.e("文件保存错误:" + this);
-        }
+        raf.seek(curPointer);
     }
 
     // 是否已经到达数据尾部

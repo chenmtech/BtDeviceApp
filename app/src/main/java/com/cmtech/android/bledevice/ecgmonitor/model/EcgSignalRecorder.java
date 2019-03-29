@@ -14,7 +14,7 @@ import java.util.List;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 
 /**
- * EcgSignalRecorder: 心电记录器
+ * EcgSignalRecorder: 心电信号记录仪，包含心电信号的文件记录，以及附加留言信息的管理
  * Created by Chenm, 2018-12-27
  */
 
