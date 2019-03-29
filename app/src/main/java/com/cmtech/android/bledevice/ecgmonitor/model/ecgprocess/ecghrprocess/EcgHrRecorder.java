@@ -24,6 +24,8 @@ public class EcgHrRecorder implements IEcgHrProcessor {
 
     private List<Integer> hrList = new ArrayList<>();
 
+    private boolean isRecord = false;
+
     // 心率直方图的一个单元类
     public static class HrHistogramElement<T> {
         private int minValue;
@@ -71,6 +73,10 @@ public class EcgHrRecorder implements IEcgHrProcessor {
             this.hrList.clear();
         } else
             this.hrList = hrList;
+    }
+
+    public void setRecord(boolean record) {
+        isRecord = record;
     }
 
     // 更新心率信息
@@ -151,7 +157,7 @@ public class EcgHrRecorder implements IEcgHrProcessor {
 
     @Override
     public void process(int hr) {
-        if(hr != INVALID_HR) {
+        if(hr != INVALID_HR && isRecord) {
             hrList.add(hr);
         }
     }

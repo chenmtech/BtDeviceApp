@@ -26,8 +26,9 @@ public class EcgSignalRecorder {
     private final EcgFile ecgFile;
 
     private int dataNum = 0;
+    private int sampleRate; // 采样频率
 
-    private int sampleRate = 125; // 采样频率
+    private boolean isRecord = false;
 
     private EcgAppendix appendix; // 当前信号的留言
 
@@ -47,6 +48,14 @@ public class EcgSignalRecorder {
         return appendix;
     }
 
+    public boolean isRecord() {
+        return isRecord;
+    }
+
+    public void setRecord(boolean record) {
+        isRecord = record;
+    }
+
     public EcgSignalRecorder(int sampleRate, EcgFile ecgFile) {
         this.sampleRate = sampleRate;
         this.ecgFile = ecgFile;
@@ -54,14 +63,17 @@ public class EcgSignalRecorder {
     }
 
     // 记录心电信号
-    public synchronized void record(int ecgSignal) {
-        try {
+    public synchronized void record(int ecgSignal) throws IOException{
+        if(isRecord) {
             ecgFile.writeData(ecgSignal);
             dataNum++;
-        } catch (IOException e) {
-            e.printStackTrace();
+            if (listener != null) listener.onEcgRecordSecondUpdated(getRecordSecond());
         }
-        if(listener != null) listener.onEcgRecordSecondUpdated(getRecordSecond());
+    }
+
+    public void close() {
+        isRecord = false;
+        removeEcgRecordSecondUpdatedListener();
     }
 
     // 添加留言的内容

@@ -1,8 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrateprocess.EcgCalibrateProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrateprocess.EcgCalibrateProcessor65536;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrateprocess.IEcgCalibrateProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.EcgCalibrator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.EcgCalibrator65536;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.EcgPreFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.IEcgFilter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrAbnormalWarner;
@@ -43,7 +43,7 @@ public class EcgSignalProcessor {
 
     private List<IEcgHrValueUpdatedListener> hrValueListeners = new ArrayList<>(); // 心率值更新监听器
 
-    private IEcgCalibrateProcessor ecgCalibrateProcessor; // 标定处理器
+    private IEcgCalibrator ecgCalibrateProcessor; // 标定处理器
 
     private IEcgFilter ecgFilter; // 滤波器
 
@@ -51,7 +51,7 @@ public class EcgSignalProcessor {
 
     private Map<String, IEcgHrProcessor> hrProcessors; // 心率处理器
 
-    private EcgSignalProcessor(IEcgCalibrateProcessor ecgCalibrateProcessor,
+    private EcgSignalProcessor(IEcgCalibrator ecgCalibrateProcessor,
                                IEcgFilter ecgFilter,
                                QrsDetector qrsDetector,
                                Map<String, IEcgHrProcessor> hrProcessors,
@@ -194,11 +194,11 @@ public class EcgSignalProcessor {
         }
 
         public EcgSignalProcessor build() {
-            IEcgCalibrateProcessor ecgCalibrator;
+            IEcgCalibrator ecgCalibrator;
             if(value1mVAfterCalibrate == 65536) {
-                ecgCalibrator = new EcgCalibrateProcessor65536(value1mVBeforeCalibrate);
+                ecgCalibrator = new EcgCalibrator65536(value1mVBeforeCalibrate);
             } else {
-                ecgCalibrator = new EcgCalibrateProcessor(value1mVBeforeCalibrate, value1mVAfterCalibrate);
+                ecgCalibrator = new EcgCalibrator(value1mVBeforeCalibrate, value1mVAfterCalibrate);
             }
 
             IEcgFilter ecgFilter = new EcgPreFilterWith35HzNotch(sampleRate);

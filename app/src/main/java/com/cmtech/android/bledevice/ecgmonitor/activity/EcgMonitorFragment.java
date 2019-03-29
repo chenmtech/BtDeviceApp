@@ -162,8 +162,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean isRecord = !device.isRecord();
-                device.setRecord(isRecord);
+                boolean isRecord = !device.isRecordEcgSignal();
+                device.setRecordEcgSignal(isRecord);
             }
         });
 
@@ -215,7 +215,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         });
 
         // 根据设备的isRecord初始化Record按钮
-        updateRecordStatus(device.isRecord());
+        updateRecordStatus(device.isRecordEcgSignal());
         device.setEcgMonitorListener(EcgMonitorFragment.this);
     }
 

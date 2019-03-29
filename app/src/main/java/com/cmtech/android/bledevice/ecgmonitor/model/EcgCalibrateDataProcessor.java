@@ -5,13 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * EcgSignalCalibrator: 心电信号定标器
+ * EcgCalibrateDataProcessor: 心电标定数据处理器
  * Created by Chenm, 2018-12-27
  */
 
-public class EcgSignalCalibrator {
+public class EcgCalibrateDataProcessor {
     public interface ICalibrateValueUpdatedListener {
-        void onCalibrateValueUpdated(int calibrateValue); // 更新标定值
+        void onUpdateCalibrateValue(int calibrateValue); // 更新标定值
     }
 
     private final List<Integer> calibrationData = new ArrayList<>(250); // 用于保存标定用的数据
@@ -20,7 +20,7 @@ public class EcgSignalCalibrator {
 
     private ICalibrateValueUpdatedListener listener; // 标定值监听器
 
-    public EcgSignalCalibrator(int sampleRate) {
+    public EcgCalibrateDataProcessor(int sampleRate) {
         this.sampleRate = sampleRate;
     }
 
@@ -32,7 +32,7 @@ public class EcgSignalCalibrator {
         }
         else {
             int value = calculateCalibration(calibrationData); // 计算得到实际定标值
-            if(listener != null) listener.onCalibrateValueUpdated(value);
+            if(listener != null) listener.onUpdateCalibrateValue(value);
             calibrationData.clear();
         }
     }
