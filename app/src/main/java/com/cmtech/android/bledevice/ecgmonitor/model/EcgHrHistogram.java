@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * EcgHrProcessor: 心率直方图
+ * EcgHrRecorder: 心率直方图
  * Created by bme on 2019/1/9.
  */
 
@@ -48,7 +49,7 @@ public class EcgHrHistogram extends BarChart {
     }
 
     // 更新
-    public void update(double[] hrHistogram) {
+    public void update(List<EcgHrRecorder.HrHistogramElement<Float>> hrHistogram) {
         updateHrBarData(hrHistogram);
         hrBarDateSet.setValues(hrBarEntries);
         invalidate();
@@ -138,17 +139,17 @@ public class EcgHrHistogram extends BarChart {
         });
     }
 
-    private void updateHrBarData(double[] hrData) {
+    private void updateHrBarData(List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram) {
         hrBarXStrings.clear();
         hrBarEntries.clear();
-        if(hrData == null) {
-            hrBarXStrings.add("无有效心率");
+        if(normHistogram == null) {
+            hrBarXStrings.add("无有效心率统计信息。");
             hrBarEntries.add(new BarEntry(0, 0.0f));
         } else {
-            for (int i = 0; i < hrData.length; i++) {
-                String key = String.valueOf(i * 10) + '-' + String.valueOf((i + 1) * 10);
-                hrBarXStrings.add(key);
-                hrBarEntries.add(new BarEntry(i, (float) hrData[i]));
+            int i = 0;
+            for(EcgHrRecorder.HrHistogramElement<Float> ele : normHistogram) {
+                hrBarXStrings.add(ele.getBarString());
+                hrBarEntries.add(new BarEntry(i++, ele.getHistValue()));
             }
         }
     }

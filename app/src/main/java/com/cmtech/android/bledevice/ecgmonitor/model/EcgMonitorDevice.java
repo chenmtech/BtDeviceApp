@@ -13,7 +13,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrAbnormalWarner;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -38,7 +37,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
  * Created by bme on 2018/9/20.
  */
 
-public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IEcgSignalUpdatedListener, EcgSignalProcessor.IEcgHrValueUpdatedListener, EcgHrAbnormalWarner.IEcgHrAbnormalListener, EcgSignalRecorder.IEcgRecordSecondUpdatedListener, EcgSignalCalibrator.ICalibrateValueUpdatedListener, EcgHrProcessor.IEcgHrStatisticsUpdatedListener {
+public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IEcgSignalUpdatedListener, EcgSignalProcessor.IEcgHrValueUpdatedListener, EcgHrAbnormalWarner.IEcgHrAbnormalListener, EcgSignalRecorder.IEcgRecordSecondUpdatedListener, EcgSignalCalibrator.ICalibrateValueUpdatedListener, EcgHrRecorder.IEcgHrInfoUpdatedListener {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -348,7 +347,7 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
     }
 
     @Override
-    public void onEcgSignalUpdated(final int ecgSignal) {
+    public void onUpdateEcgSignal(final int ecgSignal) {
         // 记录
         if(isRecord) {
             ecgRecorder.record(ecgSignal);
@@ -365,7 +364,7 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
     }
 
     @Override
-    public void onEcgHrValueUpdated(final int hr) {
+    public void onUpdateEcgHrValue(final int hr) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -376,9 +375,9 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
     }
 
     @Override
-    public void onEcgHrStatisticsUpdated(List<Integer> hrAverage, double[] normHistogram, int maxHr, int averageHr) {
-        if(hrAverage != null && !hrAverage.isEmpty() && listener != null) {
-            listener.updateEcgHrStatistics(hrAverage, normHistogram, maxHr, averageHr);
+    public void onUpdateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr) {
+        if(listener != null) {
+            listener.updateEcgHrInfo(filteredHrList, normHistogram, maxHr, averageHr);
         }
     }
 
@@ -469,14 +468,14 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         ecgRecorder.addAppendixContent(content);
     }
 
-    public void updateHrStatistics() {
-        if(ecgProcessor != null) ecgProcessor.updateHrStatistics();
+    public void updateHrInfo() {
+        if(ecgProcessor != null) ecgProcessor.updateHrInfo();
     }
 
-    // 重置统计直方图数据
-    public void resetHrStatistics() {
+    // 重置心率信息
+    public void resetHrInfo() {
         if(ecgProcessor != null)
-            ecgProcessor.resetHrProcessor();
+            ecgProcessor.resetHrRecorder();
     }
 
     // 登记心电监护仪观察者
@@ -595,14 +594,10 @@ public class EcgMonitorDevice extends BleDevice implements EcgSignalProcessor.IE
         builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
         builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
         builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
-        List<Integer> hrList = new ArrayList<>();
         if(ecgProcessor != null) {
-            hrList = ecgProcessor.getHrList();
+            builder.setHrList(ecgProcessor.getHrList());
         }
         ecgProcessor = builder.build();
-
-        ecgProcessor.setHrList(hrList);
-
         ecgProcessor.setEcgSignalUpdatedListener(this);
         ecgProcessor.addEcgHrValueUpdatedListener(this);
         ecgProcessor.setEcgHrStatisticsListener(this);

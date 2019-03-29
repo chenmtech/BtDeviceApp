@@ -481,8 +481,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     private void initWelcomeLayout() {
         /*// 设置欢迎词
-        String welcomeText = getResources().getString(R.string.welcome_text);
-        welcomeText = String.format(welcomeText, getResources().getString(R.string.app_name));
+        String welcomeText = getResources().getBarString(R.string.welcome_text);
+        welcomeText = String.format(welcomeText, getResources().getBarString(R.string.app_name));
         TextView tvWelcomeText = welcomeLayout.findViewById(R.id.tv_welcometext);
         tvWelcomeText.setText(welcomeText);*/
         TextView tvVersionName = welcomeLayout.findViewById(R.id.tv_versionname);

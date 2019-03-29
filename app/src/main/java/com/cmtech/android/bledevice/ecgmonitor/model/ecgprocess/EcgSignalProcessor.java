@@ -7,7 +7,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrateproc
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.EcgPreFilterWith35HzNotch;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.IEcgFilter;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrAbnormalWarner;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrProcessor;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import com.vise.log.ViseLog;
@@ -27,30 +27,30 @@ public class EcgSignalProcessor {
     public final static int INVALID_HR = 0; // 无效心率值
 
     private final static String KEY_HR_WARNER = "hrwarner"; // EcgHrAbnormalWarner的键值
-    private final static String KEY_HR_PROCESSOR = "hrprocessor"; // EcgHrProcessor的键值
+    private final static String KEY_HR_RECORDER = "hrrecorder"; // EcgHrRecorder的键值
 
-    private static final int HR_FILTER_RANGE_IN_SECOND = 10;
-    private static final int HR_HISTOGRAM_BAR_NUM = 5;
+    private static final int SECOND_IN_HR_FILTER = 10;
+    private static final int BAR_NUM_IN_HR_HISTOGRAM = 5;
 
     public interface IEcgSignalUpdatedListener {
-        void onEcgSignalUpdated(int ecgSignal);
+        void onUpdateEcgSignal(int ecgSignal);
     }
 
     public interface IEcgHrValueUpdatedListener {
-        void onEcgHrValueUpdated(int hr);
+        void onUpdateEcgHrValue(int hr);
     }
 
-    private IEcgCalibrateProcessor ecgCalibrateProcessor; // 定标处理器
+    private IEcgSignalUpdatedListener signalListener = null; // 心电信号更新监听器
+
+    private List<IEcgHrValueUpdatedListener> hrValueListeners = new ArrayList<>(); // 心率值监听器数组
+
+    private IEcgCalibrateProcessor ecgCalibrateProcessor; // 标定处理器
 
     private IEcgFilter ecgFilter; // 滤波器
 
     private QrsDetector qrsDetector; // QRS波检测器，可求心率值
 
     private Map<String, IEcgHrProcessor> hrProcessors; // 心率处理器
-
-    private IEcgSignalUpdatedListener signalListener = null; // 心电信号监听器
-
-    private List<IEcgHrValueUpdatedListener> hrValueListenerArray = new ArrayList<>(); // 心率值监听器数组
 
     private EcgSignalProcessor(IEcgCalibrateProcessor ecgCalibrateProcessor, IEcgFilter ecgFilter, QrsDetector qrsDetector, Map<String, IEcgHrProcessor> hrProcessors) {
         this.ecgCalibrateProcessor = ecgCalibrateProcessor;
@@ -64,16 +64,16 @@ public class EcgSignalProcessor {
         // 标定后滤波处理
         ecgSignal = (int) ecgFilter.filter(ecgCalibrateProcessor.process(ecgSignal));
 
-        // 通知信号监听器
-        if(signalListener != null) signalListener.onEcgSignalUpdated(ecgSignal);
+        // 通知心电信号更新监听器
+        if(signalListener != null) signalListener.onUpdateEcgSignal(ecgSignal);
 
         // 检测Qrs波，获取心率
         int currentHr = qrsDetector.outputHR(ecgSignal);
 
-        // 通知心率值监听器
-        notifyEcgHrValueUpdatedListener(currentHr);
+        // 通知心率值更新监听器
+        notifyEcgHrValueUpdatedListeners(currentHr);
 
-        // 处理心率值
+        // 用所有的心率处理器处理心率值
         if(currentHr != INVALID_HR) {
             for(IEcgHrProcessor processor : hrProcessors.values()) {
                 processor.process(currentHr);
@@ -95,39 +95,30 @@ public class EcgSignalProcessor {
         }
     }
 
-    // 重置HR处理器
-    public void resetHrProcessor() {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
-        if(hrProcessor != null) {
-            hrProcessor.clear();
-            ViseLog.e("clear hr processor");
+    // 重置心率记录仪
+    public void resetHrRecorder() {
+        EcgHrRecorder hrRecorder = (EcgHrRecorder) hrProcessors.get(KEY_HR_RECORDER);
+        if(hrRecorder != null) {
+            hrRecorder.reset();
         }
     }
 
-    public void updateHrStatistics() {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
-        if(hrProcessor != null) {
-            hrProcessor.updateHrStatistics(HR_FILTER_RANGE_IN_SECOND, HR_HISTOGRAM_BAR_NUM);
+    public void updateHrInfo() {
+        EcgHrRecorder hrRecorder = (EcgHrRecorder) hrProcessors.get(KEY_HR_RECORDER);
+        if(hrRecorder != null) {
+            hrRecorder.updateHrInfo(SECOND_IN_HR_FILTER, BAR_NUM_IN_HR_HISTOGRAM);
         }
     }
 
     public List<Integer> getHrList() {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
-        if(hrProcessor != null) {
-            return hrProcessor.getHrList();
+        EcgHrRecorder hrRecorder = (EcgHrRecorder) hrProcessors.get(KEY_HR_RECORDER);
+        if(hrRecorder != null) {
+            return hrRecorder.getHrList();
         }
         return null;
     }
 
-    public void setHrList(List<Integer> hrList) {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
-        if(hrProcessor != null) {
-            hrProcessor.setHrList(hrList);
-        }
-    }
-
     public void close() {
-        //resetHrProcessor();
         removeEcgSignalUpdatedListener();
         removeAllHrAbnormalListeners();
         removeEcgHrStatisticsListener();
@@ -143,21 +134,21 @@ public class EcgSignalProcessor {
     }
 
     public void addEcgHrValueUpdatedListener(IEcgHrValueUpdatedListener listener) {
-        if(!hrValueListenerArray.contains(listener)) {
-            hrValueListenerArray.add(listener);
+        if(!hrValueListeners.contains(listener)) {
+            hrValueListeners.add(listener);
         }
     }
 
-    private void notifyEcgHrValueUpdatedListener(int hr) {
+    private void notifyEcgHrValueUpdatedListeners(int hr) {
         if(hr != INVALID_HR) {
-            for (IEcgHrValueUpdatedListener listener : hrValueListenerArray) {
-                listener.onEcgHrValueUpdated(hr);
+            for (IEcgHrValueUpdatedListener listener : hrValueListeners) {
+                listener.onUpdateEcgHrValue(hr);
             }
         }
     }
 
     private void removeAllEcgHrValueUpdatedListener() {
-        hrValueListenerArray.clear();
+        hrValueListeners.clear();
     }
 
     public void addEcgHrAbnormalListener(EcgHrAbnormalWarner.IEcgHrAbnormalListener listener) {
@@ -174,17 +165,17 @@ public class EcgSignalProcessor {
         }
     }
 
-    public void setEcgHrStatisticsListener(EcgHrProcessor.IEcgHrStatisticsUpdatedListener listener) {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
+    public void setEcgHrStatisticsListener(EcgHrRecorder.IEcgHrInfoUpdatedListener listener) {
+        EcgHrRecorder hrProcessor = (EcgHrRecorder) hrProcessors.get(KEY_HR_RECORDER);
         if(hrProcessor != null) {
-            hrProcessor.setEcgHrStatisticsUpdatedListener(listener);
+            hrProcessor.setEcgHrInfoUpdatedListener(listener);
         }
     }
 
     public void removeEcgHrStatisticsListener() {
-        EcgHrProcessor hrProcessor = (EcgHrProcessor) hrProcessors.get(KEY_HR_PROCESSOR);
+        EcgHrRecorder hrProcessor = (EcgHrRecorder) hrProcessors.get(KEY_HR_RECORDER);
         if(hrProcessor != null) {
-            hrProcessor.removeEcgHrStatisticsUpdatedListener();
+            hrProcessor.removeEcgHrInfoUpdatedListener();
         }
     }
 
@@ -196,6 +187,7 @@ public class EcgSignalProcessor {
         private boolean hrWarnEnabled = false; // 是否使能HR警告
         private int hrLowLimit = 0; // HR异常下限
         private int hrHighLimit = 0; // HR异常上限
+        private List<Integer> hrList;
 
         public Builder() {
 
@@ -219,6 +211,10 @@ public class EcgSignalProcessor {
             hrHighLimit = high;
         }
 
+        public void setHrList(List<Integer> hrList) {
+            this.hrList = hrList;
+        }
+
         public EcgSignalProcessor build() {
             IEcgCalibrateProcessor ecgCalibrator;
             if(value1mVAfterCalibrate == 65536) {
@@ -232,7 +228,7 @@ public class EcgSignalProcessor {
             QrsDetector qrsDetector = new QrsDetector(sampleRate, value1mVAfterCalibrate);
 
             Map<String, IEcgHrProcessor> hrProcessors = new HashMap<>();
-            hrProcessors.put(KEY_HR_PROCESSOR, new EcgHrProcessor());
+            hrProcessors.put(KEY_HR_RECORDER, new EcgHrRecorder(hrList));
 
             if(hrWarnEnabled) {
                 hrProcessors.put(KEY_HR_WARNER, new EcgHrAbnormalWarner(hrLowLimit, hrHighLimit));

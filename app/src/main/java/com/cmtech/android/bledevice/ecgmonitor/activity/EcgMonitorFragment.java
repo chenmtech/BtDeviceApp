@@ -29,6 +29,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -116,7 +117,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onClick(View v) {
                 if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
-                    device.updateHrStatistics();
+                    device.updateHrInfo();
                     rlHrStatistics.setVisibility(View.VISIBLE);
                     flEcgView.setVisibility(View.INVISIBLE);
                 }
@@ -209,7 +210,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ibResetHistogram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                device.resetHrStatistics();
+                device.resetHrInfo();
             }
         });
 
@@ -320,7 +321,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateEcgHrStatistics(List<Integer> hrAverage, double[] normHistogram, int maxHr, int averageHr) {
+    public void updateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr) {
         hrHistogram.update(normHistogram);
         tvAverageHr.setText(String.valueOf(averageHr));
         tvMaxHr.setText(String.valueOf(maxHr));
