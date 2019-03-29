@@ -129,13 +129,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         });
 
         ecgView = view.findViewById(R.id.rwv_ecgview);
-        updateEcgView(device.getxPixelPerData(), device.getyValuePerPixel(), device.getPixelPerGrid());
+        onUpdateEcgView(device.getxPixelPerData(), device.getyValuePerPixel(), device.getPixelPerGrid());
 
         tvRecordTime = view.findViewById(R.id.tv_ecg_recordtime);
-        tvRecordTime.setText(DateTimeUtil.secToTime(device.getRecordSecond()));
+        tvRecordTime.setText(DateTimeUtil.secToTime(device.getEcgSignalRecordSecond()));
 
         ibSwitchSampleStatus = view.findViewById(R.id.ib_ecgreplay_startandstop);
-        updateState(device.getState());
+        onUpdateState(device.getState());
         ibSwitchSampleStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -153,7 +153,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onMarkerClicked(EcgAbnormal marker) {
                 if(device != null)
-                    device.addAppendixContent("第" + device.getRecordDataNum() / device.getSampleRate() + "秒，" + marker.getDescription());
+                    device.addAppendixContent("第" + device.getEcgSignalRecordDataNum() / device.getSampleRate() + "秒，" + marker.getDescription());
             }
         });
         rvEcgMarker.setAdapter(markerAdapter);
@@ -163,7 +163,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onClick(View view) {
                 boolean isRecord = !device.isRecordEcgSignal();
-                device.setRecordEcgSignal(isRecord);
+                device.setEcgSignalRecord(isRecord);
             }
         });
 
@@ -184,13 +184,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 switch(motionEvent.getAction()) {
                     case ACTION_DOWN:
                         ecgView.setWaveColor(COLOR_WHEN_REST);
-                        //device.addAppendixContent("开始安静状态" + "@" + device.getRecordDataNum());
-                        begin = (int)(device.getRecordDataNum()/device.getSampleRate());
+                        //device.addAppendixContent("开始安静状态" + "@" + device.getEcgSignalRecordDataNum());
+                        begin = (int)(device.getEcgSignalRecordDataNum()/device.getSampleRate());
                         break;
                     case ACTION_UP:
                     case ACTION_CANCEL:
                         ecgView.restoreDefaultWaveColor();
-                        int end = (int)(device.getRecordDataNum()/device.getSampleRate());
+                        int end = (int)(device.getEcgSignalRecordDataNum()/device.getSampleRate());
                         device.addAppendixContent("第" + begin + '-' + end + "秒，" + "处于安静状态");
                         break;
                     default:
@@ -215,7 +215,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         });
 
         // 根据设备的isRecord初始化Record按钮
-        updateRecordStatus(device.isRecordEcgSignal());
+        onUpdateEcgSignalRecordStatus(device.isRecordEcgSignal());
         device.setEcgMonitorListener(EcgMonitorFragment.this);
     }
 
@@ -250,7 +250,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateState(final EcgMonitorState state) {
+    public void onUpdateState(final EcgMonitorState state) {
         if(state.canStart()) {
             ibSwitchSampleStatus.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_48px));
             ibSwitchSampleStatus.setClickable(true);
@@ -263,22 +263,22 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateSampleRate(final int sampleRate) {
+    public void onUpdateSampleRate(final int sampleRate) {
         tvSampleRate.setText(String.valueOf(sampleRate));
     }
 
     @Override
-    public void updateLeadType(final EcgLeadType leadType) {
+    public void onUpdateLeadType(final EcgLeadType leadType) {
         tvLeadType.setText(String.format("L%s", leadType.getDescription()));
     }
 
     @Override
-    public void updateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
+    public void onUpdateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
         tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", calibrationValueBefore, calibrationValueAfter));
     }
 
     @Override
-    public void updateRecordStatus(final boolean isRecord) {
+    public void onUpdateEcgSignalRecordStatus(final boolean isRecord) {
         int imageId;
         if (isRecord)
             imageId = R.mipmap.ic_ecg_record_start;
@@ -298,7 +298,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
+    public void onUpdateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
         ecgView.setResolution(xPixelPerData, yValuePerPixel);
         ecgView.setGridPixels(gridPixels);
         ecgView.setZeroLocation(0.5);
@@ -306,29 +306,29 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void updateEcgSignal(final int ecgSignal) {
+    public void onUpdateEcgSignal(final int ecgSignal) {
         ecgView.showData(ecgSignal);
     }
 
     @Override
-    public void updateRecordSecond(final int second) {
+    public void onUpdateEcgSignalRecordSecond(final int second) {
         tvRecordTime.setText(DateTimeUtil.secToTime(second));
     }
 
     @Override
-    public void updateEcgHr(final int hr) {
+    public void onUpdateEcgHr(final int hr) {
         tvHeartRate.setText(String.valueOf(hr));
     }
 
     @Override
-    public void updateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr) {
+    public void onUpdateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr) {
         hrHistogram.update(normHistogram);
         tvAverageHr.setText(String.valueOf(averageHr));
         tvMaxHr.setText(String.valueOf(maxHr));
     }
 
     @Override
-    public void notifyHrAbnormal() {
+    public void onNotifyHrAbnormal() {
         ViseLog.e("Hr Warn!");
 
         if(hrWarnAudio == null) {

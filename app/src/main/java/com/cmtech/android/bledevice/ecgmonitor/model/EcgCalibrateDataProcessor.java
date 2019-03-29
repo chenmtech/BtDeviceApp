@@ -20,12 +20,13 @@ public class EcgCalibrateDataProcessor {
 
     private ICalibrateValueUpdatedListener listener; // 标定值监听器
 
-    public EcgCalibrateDataProcessor(int sampleRate) {
+    EcgCalibrateDataProcessor(int sampleRate, ICalibrateValueUpdatedListener listener) {
         this.sampleRate = sampleRate;
+        this.listener = listener;
     }
 
     // 处理标定数据
-    public void process(int calibrateData) {
+    public synchronized void process(int calibrateData) {
         // 采集1个周期的定标信号
         if (calibrationData.size() < sampleRate) {
             calibrationData.add(calibrateData);
@@ -51,11 +52,7 @@ public class EcgCalibrateDataProcessor {
         return (sum2-sum1)/2/len;
     }
 
-    public void setCalibrateValueUpdatedListener(ICalibrateValueUpdatedListener listener) {
-        this.listener = listener;
-    }
-
-    public void removeCalibrateValueUpdatedListener() {
+    public void close() {
         listener = null;
     }
 }

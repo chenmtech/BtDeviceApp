@@ -8,25 +8,25 @@ import java.util.Map;
 
 public interface IEcgMonitorListener {
     // 更新设备状态
-    void updateState(EcgMonitorState state);
+    void onUpdateState(EcgMonitorState state);
     // 更新采样率
-    void updateSampleRate(int sampleRate);
+    void onUpdateSampleRate(int sampleRate);
     // 更新导联类型
-    void updateLeadType(EcgLeadType leadType);
+    void onUpdateLeadType(EcgLeadType leadType);
     // 更新标定值
-    void updateCalibrationValue(int calibrationValueBefore, int calibrationValueAfter);
+    void onUpdateCalibrationValue(int calibrationValueBefore, int calibrationValueAfter);
     // 更新记录状态
-    void updateRecordStatus(boolean isRecord);
+    void onUpdateEcgSignalRecordStatus(boolean isRecord);
     // 更新EcgView
-    void updateEcgView(int xPixelPerData, float yValuePerPixel, int gridPixels);
+    void onUpdateEcgView(int xPixelPerData, float yValuePerPixel, int gridPixels);
     // 更新Ecg信号
-    void updateEcgSignal(int ecgSignal);
+    void onUpdateEcgSignal(int ecgSignal);
     // 更新记录时长，单位秒
-    void updateRecordSecond(int second);
+    void onUpdateEcgSignalRecordSecond(int second);
     // 更新心率值，单位bpm
-    void updateEcgHr(int hr);
+    void onUpdateEcgHr(int hr);
     // 更新心率信息
-    void updateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr);
+    void onUpdateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr);
     // 处理心率异常
-    void notifyHrAbnormal();
+    void onNotifyHrAbnormal();
 }

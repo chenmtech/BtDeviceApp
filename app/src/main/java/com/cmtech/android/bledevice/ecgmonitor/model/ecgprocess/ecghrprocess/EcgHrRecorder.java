@@ -22,9 +22,9 @@ public class EcgHrRecorder implements IEcgHrProcessor {
 
     private IEcgHrInfoUpdatedListener listener;
 
-    private List<Integer> hrList = new ArrayList<>();
+    private final List<Integer> hrList;
 
-    private boolean isRecord = false;
+    private boolean isRecord = true;
 
     // 心率直方图的一个单元类
     public static class HrHistogramElement<T> {
@@ -55,24 +55,20 @@ public class EcgHrRecorder implements IEcgHrProcessor {
         }
     }
 
-    public EcgHrRecorder() {
-
+    private EcgHrRecorder(IEcgHrInfoUpdatedListener listener) {
+        this(null, listener);
     }
 
-    public EcgHrRecorder(List<Integer> hrList) {
+    public EcgHrRecorder(List<Integer> hrList, IEcgHrInfoUpdatedListener listener) {
+        this.listener = listener;
         if(hrList != null)
             this.hrList = hrList;
+        else
+            this.hrList = new ArrayList<>();
     }
 
     public List<Integer> getHrList() {
         return hrList;
-    }
-
-    public void setHrList(List<Integer> hrList) {
-        if(hrList == null) {
-            this.hrList.clear();
-        } else
-            this.hrList = hrList;
     }
 
     public void setRecord(boolean record) {
@@ -102,7 +98,7 @@ public class EcgHrRecorder implements IEcgHrProcessor {
     }
 
     // 重置心率数据
-    public void reset() {
+    public synchronized void reset() {
         hrList.clear();
         if(listener != null)
             listener.onUpdateEcgHrInfo(null, null, 0, 0);
@@ -156,10 +152,15 @@ public class EcgHrRecorder implements IEcgHrProcessor {
     }
 
     @Override
-    public void process(int hr) {
+    public synchronized void process(int hr) {
         if(hr != INVALID_HR && isRecord) {
             hrList.add(hr);
         }
+    }
+
+    public void close() {
+        isRecord = false;
+        listener = null;
     }
 
     private List<Integer> hrFilter(int second) {
@@ -179,14 +180,6 @@ public class EcgHrRecorder implements IEcgHrProcessor {
             }
         }
         return hrFiltered;
-    }
-
-    public void setEcgHrInfoUpdatedListener(IEcgHrInfoUpdatedListener listener) {
-        this.listener = listener;
-    }
-
-    public void removeEcgHrInfoUpdatedListener() {
-        listener = null;
     }
 
 }

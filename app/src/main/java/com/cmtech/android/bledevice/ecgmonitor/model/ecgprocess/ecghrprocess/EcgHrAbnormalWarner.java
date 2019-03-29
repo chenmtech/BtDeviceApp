@@ -14,7 +14,7 @@ public class EcgHrAbnormalWarner implements IEcgHrProcessor {
     private static final int DEFAULT_HR_BUFFLEN = 5; // 心率值缓存长度
 
     public interface IEcgHrAbnormalListener {
-        void onEcgHrAbnormal(); // 通知心率异常
+        void onNotifyEcgHrAbnormal(); // 通知心率异常
     }
 
     private int lowLimit; // 下限
@@ -46,7 +46,7 @@ public class EcgHrAbnormalWarner implements IEcgHrProcessor {
     }
 
     @Override
-    public void process(int hr) {
+    public synchronized void process(int hr) {
         if(hr != INVALID_HR) {
             buff[index++] = hr;
             if(checkHrAbnormal()) {
@@ -64,11 +64,11 @@ public class EcgHrAbnormalWarner implements IEcgHrProcessor {
 
     private void notifyAllListeners() {
         for (IEcgHrAbnormalListener listener : listeners) {
-            listener.onEcgHrAbnormal();
+            listener.onNotifyEcgHrAbnormal();
         }
     }
 
-    public void removeAllListeners() {
+    public void close() {
         listeners.clear();
     }
 

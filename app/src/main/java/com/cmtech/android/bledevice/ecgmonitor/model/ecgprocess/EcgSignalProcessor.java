@@ -99,7 +99,7 @@ public class EcgSignalProcessor {
             hrWarner.addEcgHrAbnormalListener(listener);
         } else {
             if(hrWarner != null) {
-                hrWarner.removeAllListeners();
+                hrWarner.close();
             }
             hrProcessors.remove(KEY_HR_WARNER);
         }
@@ -135,12 +135,12 @@ public class EcgSignalProcessor {
 
         EcgHrRecorder hrRecorder = (EcgHrRecorder) hrProcessors.get(KEY_HR_RECORDER);
         if(hrRecorder != null) {
-            hrRecorder.removeEcgHrInfoUpdatedListener();
+            hrRecorder.close();
         }
 
         EcgHrAbnormalWarner hrWarner = (EcgHrAbnormalWarner) hrProcessors.get(KEY_HR_WARNER);
         if(hrWarner != null) {
-            hrWarner.removeAllListeners();
+            hrWarner.close();
         }
     }
 
@@ -207,8 +207,7 @@ public class EcgSignalProcessor {
 
             Map<String, IEcgHrProcessor> hrProcessors = new HashMap<>();
 
-            EcgHrRecorder hrRecorder = new EcgHrRecorder(hrList);
-            hrRecorder.setEcgHrInfoUpdatedListener(listener);
+            EcgHrRecorder hrRecorder = new EcgHrRecorder(hrList, listener);
             hrProcessors.put(KEY_HR_RECORDER, hrRecorder);
 
             if(hrWarnEnabled) {
