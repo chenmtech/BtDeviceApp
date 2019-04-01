@@ -14,22 +14,23 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * EcgAppendix: 心电留言类
+ * EcgNormalComment: 心电一般留言类
  * Created by bme on 2019/1/9.
  */
 
-public class EcgAppendix{
+public class EcgNormalComment implements IEcgAppendix{
     private static final int CONTENT_CHAR_NUM = 500; // 内容字符数
+    private static final int MODIFY_TIME_BYTE_NUM = 8;
 
     private User creator = new User(); // 创建人
     private long modifyTime = -1; // 修改时间
     private String content = ""; // 内容
 
-    public EcgAppendix() {
+    public EcgNormalComment() {
 
     }
 
-    private EcgAppendix(User creator, long modifyTime) {
+    private EcgNormalComment(User creator, long modifyTime) {
         this();
         try {
             this.creator = (User) creator.clone();
@@ -39,7 +40,7 @@ public class EcgAppendix{
         this.modifyTime = modifyTime;
     }
 
-    public EcgAppendix(User creator, long modifyTime, String content) {
+    public EcgNormalComment(User creator, long modifyTime, String content) {
         this(creator, modifyTime);
         this.content = content;
     }
@@ -48,10 +49,10 @@ public class EcgAppendix{
      * 用当前账户和当前时间创建默认留言
      * @return 默认留言对象
      */
-    public static EcgAppendix createDefaultAppendix() {
+    public static EcgNormalComment createDefaultComment() {
         User creator = AccountManager.getInstance().getAccount();
         long modifyTime = new Date().getTime();
-        return new EcgAppendix(creator, modifyTime);
+        return new EcgNormalComment(creator, modifyTime);
     }
 
     public User getCreator() {
@@ -83,23 +84,24 @@ public class EcgAppendix{
         this.content += (';' + content);
     }
 
+    @Override
+    public EcgAppendixType getType() {
+        return EcgAppendixType.NORMAL_COMMENT;
+    }
+
     /**
      * 从数据输入流读取
      * @param in：数据输入流
      * @return 是否成功读取
      */
-    public boolean readFromStream(DataInput in) {
-        try {
-            // 读创建人
-            creator.readFromStream(in);
-            // 读修改时间
-            modifyTime = ByteUtil.reverseLong(in.readLong());
-            // 读留言内容
-            content = DataIOUtil.readFixedString(CONTENT_CHAR_NUM, in);
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+    @Override
+    public void readFromStream(DataInput in) throws IOException{
+        // 读创建人
+        creator.readFromStream(in);
+        // 读修改时间
+        modifyTime = ByteUtil.reverseLong(in.readLong());
+        // 读留言内容
+        content = DataIOUtil.readFixedString(CONTENT_CHAR_NUM, in);
     }
 
     /**
@@ -107,26 +109,23 @@ public class EcgAppendix{
      * @param out：数据输出流
      * @return 是否成功写出
      */
-    public boolean writeToStream(DataOutput out) {
-        try {
-            // 写创建人
-            creator.writeToStream(out);
-            // 写修改时间
-            out.writeLong(ByteUtil.reverseLong(modifyTime));
-            // 写留言内容
-            DataIOUtil.writeFixedString(content, CONTENT_CHAR_NUM, out);
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+    @Override
+    public void writeToStream(DataOutput out) throws IOException{
+        // 写创建人
+        creator.writeToStream(out);
+        // 写修改时间
+        out.writeLong(ByteUtil.reverseLong(modifyTime));
+        // 写留言内容
+        DataIOUtil.writeFixedString(content, CONTENT_CHAR_NUM, out);
     }
 
     /**
      * 获取留言的字节长度
      * @return 字节长
      */
+    @Override
     public int length() {
-        return  creator.length() + 8 + 2* CONTENT_CHAR_NUM;
+        return  creator.length() + MODIFY_TIME_BYTE_NUM + 2* CONTENT_CHAR_NUM;
     }
 
     @Override
@@ -140,7 +139,7 @@ public class EcgAppendix{
         if(otherObject == null) return false;
         if(getClass() != otherObject.getClass()) return false;
 
-        EcgAppendix other = (EcgAppendix)otherObject;
+        EcgNormalComment other = (EcgNormalComment)otherObject;
 
         // 只要手机号和修改时间相同，就认为是同一条留言
         return  (creator.getPhone().equals(other.creator.getPhone()) && (modifyTime == other.modifyTime));

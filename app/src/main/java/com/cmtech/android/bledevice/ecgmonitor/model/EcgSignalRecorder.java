@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class EcgSignalRecorder {
 
     private boolean isRecord = false;
 
-    private EcgAppendix appendix; // 当前信号的留言
+    private EcgNormalComment appendix; // 当前信号的留言
 
     private IEcgRecordSecondUpdatedListener listener; // 心电信号记录秒数更新监听器
 
@@ -36,7 +36,7 @@ public class EcgSignalRecorder {
         return recordDataNum;
     }
 
-    EcgAppendix getAppendix() {
+    EcgNormalComment getAppendix() {
         return appendix;
     }
 
@@ -51,7 +51,7 @@ public class EcgSignalRecorder {
     EcgSignalRecorder(int sampleRate, EcgFile ecgFile, IEcgRecordSecondUpdatedListener listener) {
         this.sampleRate = sampleRate;
         this.ecgFile = ecgFile;
-        appendix = EcgAppendix.createDefaultAppendix();
+        appendix = EcgNormalComment.createDefaultComment();
         this.listener = listener;
     }
 

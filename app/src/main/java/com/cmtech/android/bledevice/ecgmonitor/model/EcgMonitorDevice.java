@@ -331,7 +331,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         ecgFile.setHrList(ecgProcessor.getHrList());
         ViseLog.e("hrList:" + Arrays.toString(ecgProcessor.getHrList().toArray()));
 
-        ecgFile.addAppendix(ecgRecorder.getAppendix());
+        ecgFile.addComment(ecgRecorder.getAppendix());
 
         ecgFile.saveFileTail();
     }

@@ -13,7 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.ViewHolder> {
-    private List<EcgAppendix> appendixList; // 附加信息列表
+    private List<EcgNormalComment> appendixList; // 附加信息列表
     private final IEcgAppendixOperator appendixOperator; // 附加信息操作者
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -44,7 +44,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         }
     }
 
-    public EcgAppendixAdapter(List<EcgAppendix> appendixList, IEcgAppendixOperator appendixOperator) {
+    public EcgAppendixAdapter(List<EcgNormalComment> appendixList, IEcgAppendixOperator appendixOperator) {
         this.appendixList = appendixList;
         this.appendixOperator = appendixOperator;
     }
@@ -71,7 +71,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
                 User creator = appendixList.get(holder.getAdapterPosition()).getCreator();
                 User account = AccountManager.getInstance().getAccount();
                 if(appendixOperator != null && creator.equals(account)) {
-                    EcgAppendix appendix = appendixList.get(holder.getAdapterPosition());
+                    EcgNormalComment appendix = appendixList.get(holder.getAdapterPosition());
                     appendix.setContent(holder.etContent.getText().toString());
                     appendix.setModifyTime(new Date().getTime());
                     appendixOperator.saveAppendix();
@@ -84,7 +84,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull final EcgAppendixAdapter.ViewHolder holder, final int position) {
-        EcgAppendix appendix = appendixList.get(position);
+        EcgNormalComment appendix = appendixList.get(position);
         User creator = appendix.getCreator();
         User account = AccountManager.getInstance().getAccount();
         if(creator.equals(account)) {
@@ -119,7 +119,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         return appendixList.size();
     }
 
-    public void setAppendixList(List<EcgAppendix> appendixList) {
+    public void setAppendixList(List<EcgNormalComment> appendixList) {
         this.appendixList = appendixList;
     }
 

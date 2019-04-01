@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -181,12 +181,12 @@ public class EcgFileListManager {
 
     // 融合EcgFile的附加留言
     private boolean mergeEcgFileAppendix(EcgFile srcFile, EcgFile destFile) {
-        List<EcgAppendix> srcComments = srcFile.getEcgFileTail().getAppendixList();
-        List<EcgAppendix> destComments = destFile.getEcgFileTail().getAppendixList();
-        List<EcgAppendix> needAddComments = new ArrayList<>();
+        List<EcgNormalComment> srcComments = srcFile.getEcgFileTail().getCommentList();
+        List<EcgNormalComment> destComments = destFile.getEcgFileTail().getCommentList();
+        List<EcgNormalComment> needAddComments = new ArrayList<>();
 
-        for(EcgAppendix srcComment : srcComments) {
-            for(EcgAppendix destComment : destComments) {
+        for(EcgNormalComment srcComment : srcComments) {
+            for(EcgNormalComment destComment : destComments) {
                 if(!srcComment.equals(destComment)) {
                     needAddComments.add(srcComment);
                 }
@@ -196,7 +196,7 @@ public class EcgFileListManager {
         if(needAddComments.isEmpty())
             return false;
         else {
-            destFile.addAppendix(needAddComments);
+            destFile.addComment(needAddComments);
             return true;
         }
     }

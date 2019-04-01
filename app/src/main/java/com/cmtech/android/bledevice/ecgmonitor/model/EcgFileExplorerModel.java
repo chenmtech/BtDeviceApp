@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
@@ -69,20 +69,20 @@ public class EcgFileExplorerModel {
     }
 
     // 获取选中文件的留言列表
-    public List<EcgAppendix> getSelectFileAppendixList() {
+    public List<EcgNormalComment> getSelectFileAppendixList() {
         if(selectFile == null)
             return new ArrayList<>();
         else {
             User account = AccountManager.getInstance().getAccount();
             boolean found = false;
-            for(EcgAppendix appendix : selectFile.getAppendixList()) {
+            for(EcgNormalComment appendix : selectFile.getAppendixList()) {
                 if(appendix.getCreator().equals(account)) {
                     found = true;
                     break;
                 }
             }
             if(!found) {
-                selectFile.addAppendix(EcgAppendix.createDefaultAppendix());
+                selectFile.addComment(EcgNormalComment.createDefaultComment());
             }
             return selectFile.getAppendixList();
         }

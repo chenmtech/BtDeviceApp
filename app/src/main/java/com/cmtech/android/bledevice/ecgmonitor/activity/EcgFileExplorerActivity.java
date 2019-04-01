@@ -21,7 +21,7 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileExplorerObserver;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -237,7 +237,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             tvTotalTime.setText(DateTimeUtil.secToTime(fileExploreModel.getTotalSecond()));
             sbReplay.setMax(fileExploreModel.getTotalSecond());
 
-            List<EcgAppendix> appendixList = fileExploreModel.getSelectFileAppendixList();
+            List<EcgNormalComment> appendixList = fileExploreModel.getSelectFileAppendixList();
             appendixAdapter.setAppendixList(appendixList);
             appendixAdapter.notifyDataSetChanged();
             if(appendixList.size() > 0)
@@ -272,7 +272,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
      * IEcgAppendixOperator接口函数
      */
     @Override
-    public void deleteAppendix(final EcgAppendix appendix) {
+    public void deleteAppendix(final EcgNormalComment appendix) {
         if(ecgView.isReplaying())
             stopReplay();
 
@@ -282,7 +282,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                //fileReplayModel.deleteAppendix(appendix);
+                //fileReplayModel.deleteComment(appendix);
             }
         });
         builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {

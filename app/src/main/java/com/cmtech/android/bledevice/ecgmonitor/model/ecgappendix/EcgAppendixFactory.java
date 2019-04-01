@@ -14,12 +14,10 @@ import java.io.IOException;
 public class EcgAppendixFactory {
     private static IEcgAppendix create(EcgAppendixType type) {
         switch (type) {
+            case HR_INFO:
+                return new EcgHrInfoAppendix();
             case NORMAL_COMMENT:
                 return new EcgNormalComment();
-            case LOCATED_COMMENT:
-                return new EcgLocatedComment();
-            case REST_MARKER:
-                return new EcgRestMarker();
             default:
                 return null;
         }
@@ -32,8 +30,8 @@ public class EcgAppendixFactory {
             if(type != null) {
                 IEcgAppendix appendix = create(type);
                 if(appendix != null) {
-                    if(appendix.readFromStream(in))
-                        return appendix;
+                    appendix.readFromStream(in);
+                    return appendix;
                 }
             }
         } catch (IOException e) {

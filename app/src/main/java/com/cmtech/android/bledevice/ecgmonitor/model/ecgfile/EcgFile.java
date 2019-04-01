@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.bmefile.BmeFileDataType;
@@ -129,7 +129,7 @@ public class EcgFile extends RandomAccessBmeFile {
         dataEndPointer = dataBeginPointer + dataNum * fileHead.getDataType().getTypeLength();
         raf.seek(dataEndPointer);
         ecgFileTail.writeToStream(raf);
-
+        ViseLog.e(ecgFileTail);
         raf.seek(curPointer);
     }
 
@@ -150,8 +150,8 @@ public class EcgFile extends RandomAccessBmeFile {
 
     public EcgFileTail getEcgFileTail() { return ecgFileTail; }
 
-    public List<EcgAppendix> getAppendixList() {
-        return ecgFileTail.getAppendixList();
+    public List<EcgNormalComment> getAppendixList() {
+        return ecgFileTail.getCommentList();
     }
 
     public User getCreator() {
@@ -166,10 +166,6 @@ public class EcgFile extends RandomAccessBmeFile {
         return ((BmeFileHead30)getBmeFileHead()).getCreatedTime();
     }
 
-    public int getAppendixNum() {
-        return ecgFileTail.getAppendixNum();
-    }
-
     // 将文件指针定位到某个数据位置
     public boolean seekData(int dataNum) {
         try {
@@ -181,31 +177,31 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     // 为文件添加一条附加信息
-    public void addAppendix(EcgAppendix appendix) {
-        ecgFileTail.addAppendix(appendix);
+    public void addComment(EcgNormalComment comment) {
+        ecgFileTail.addComment(comment);
     }
 
     // 添加多条附加信息
-    public void addAppendix(List<EcgAppendix> appendices) {
-        for(EcgAppendix appendix : appendices) {
-            ecgFileTail.addAppendix(appendix);
+    public void addComment(List<EcgNormalComment> comments) {
+        for(EcgNormalComment comment : comments) {
+            ecgFileTail.addComment(comment);
         }
     }
 
     // 删除一条附加信息
-    public void deleteAppendix(EcgAppendix appendix) {
-        if(ecgFileTail.getAppendixList().contains(appendix)) {
+    public void deleteComment(EcgNormalComment comment) {
+        if(ecgFileTail.getCommentList().contains(comment)) {
             // 删除留言
-            ecgFileTail.deleteAppendix(appendix);
+            ecgFileTail.deleteComment(comment);
         }
     }
 
-    // 输出所有附加信息字符串，用于调试
-    public String getAppendixString() {
-        if(ecgFileTail.getAppendixNum() == 0) return "";
+    // 输出所有留言信息字符串，用于调试
+    public String getCommentString() {
+        if(ecgFileTail.getCommentNum() == 0) return "";
         StringBuilder builder = new StringBuilder();
-        for(EcgAppendix appendix : ecgFileTail.getAppendixList()) {
-            builder.append(appendix.toString());
+        for(EcgNormalComment comment : ecgFileTail.getCommentList()) {
+            builder.append(comment.toString());
         }
         return builder.toString();
     }

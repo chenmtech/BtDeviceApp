@@ -1,7 +1,6 @@
 package com.cmtech.bmefile;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.vise.log.ViseLog;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -9,8 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import static java.nio.ByteOrder.BIG_ENDIAN;
 

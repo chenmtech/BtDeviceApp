@@ -1,6 +1,9 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendixFactory;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgHrInfoAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.io.IOException;
@@ -9,22 +12,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix.APPENDIX_TYPE_BYTE_NUM;
+
 /**
  * EcgFileTail: 心电文件中的尾部类
  * Created by bme on 2019/1/19.
  */
 
 public class EcgFileTail {
-    private List<Integer> hrList = new ArrayList<>();
-
-    private List<EcgAppendix> appendixList = new ArrayList<>(); // 附加信息列表
+    private EcgHrInfoAppendix hrInfoAppendix = new EcgHrInfoAppendix(); // 心率信息
+    private List<EcgNormalComment> commentList = new ArrayList<>(); // 留言信息列表
 
     public EcgFileTail() {
 
     }
 
     public void setHrList(List<Integer> hrList) {
-        this.hrList = hrList;
+        hrInfoAppendix.setHrList(hrList);
     }
 
     /**
@@ -40,25 +44,17 @@ public class EcgFileTail {
             long appendixLength = tailLength - 8;
             raf.seek(tailEndPointer - appendixLength);
 
-            // 读心率数据
-            int hrLength = ByteUtil.reverseInt(raf.readInt());
-            for(int i = 0; i < hrLength; i++) {
-                hrList.add(ByteUtil.reverseInt(raf.readInt()));
-            }
             // 读留言信息
             while (raf.getFilePointer() < tailEndPointer) {
-                EcgAppendix appendix = new EcgAppendix();
-                if(appendix.readFromStream(raf)) {
-                    addAppendix(appendix);
+                IEcgAppendix appendix = EcgAppendixFactory.readFromStream(raf);
+                if(appendix != null) {
+                    if(appendix instanceof EcgHrInfoAppendix) {
+                        hrInfoAppendix = (EcgHrInfoAppendix)appendix;
+                    } else if(appendix instanceof EcgNormalComment){
+                        addComment((EcgNormalComment) appendix);
+                    }
                 }
             }
-            /*// 按留言时间排序
-            Collections.sort(appendixList, new Comparator<IEcgAppendix>() {
-                @Override
-                public int compare(IEcgAppendix o1, IEcgAppendix o2) {
-                    return (int)(o1.getCreateTime() - o2.getCreateTime());
-                }
-            });*/
         } catch (IOException e) {
             return false;
         }
@@ -77,18 +73,14 @@ public class EcgFileTail {
             raf.setLength(raf.getFilePointer() + length);
             raf.seek(filePointer);
 
-            // 写心率信息
-            raf.writeInt(ByteUtil.reverseInt(hrList.size()));
-            for(int hr : hrList) {
-                raf.writeInt(ByteUtil.reverseInt(hr));
+            // 写附加信息
+            for(EcgNormalComment appendix : commentList) {
+                EcgAppendixFactory.writeToStream(appendix, raf);
             }
 
-            // 写附加信息
-            for(EcgAppendix appendix : appendixList) {
-                if(!appendix.writeToStream(raf)) {
-                    return false;
-                }
-            }
+            // 写心率信息
+            EcgAppendixFactory.writeToStream(hrInfoAppendix, raf);
+
             // 最后写入附加信息总长度
             raf.writeLong(ByteUtil.reverseLong(length));
         } catch (IOException e) {
@@ -100,41 +92,43 @@ public class EcgFileTail {
     @Override
     public String toString() {
         return "[心电文件尾："
-                + "心率值：" + Arrays.toString(hrList.toArray()) + ';'
-                + "留言数：" + appendixList.size() + ";"
-                + "留言：" + Arrays.toString(appendixList.toArray()) + "]";
+                + "心率数：" + hrInfoAppendix.getHrList().size() + ";"
+                + "心率信息：" + hrInfoAppendix + ';'
+                + "留言数：" + commentList.size() + ";"
+                + "留言：" + Arrays.toString(commentList.toArray()) + ";"
+                + "文件尾长度：" + length() + "]";
     }
 
-    // 添加附加信息
-    public void addAppendix(EcgAppendix appendix) {
-        appendixList.add(appendix);
+    // 添加留言信息
+    public void addComment(EcgNormalComment comment) {
+        commentList.add(comment);
     }
 
-    // 删除附加信息
-    public void deleteAppendix(EcgAppendix appendix) {
-        appendixList.remove(appendix);
+    // 删除留言信息
+    public void deleteComment(EcgNormalComment comment) {
+        commentList.remove(comment);
     }
 
-    // 获取附加信息列表
-    public List<EcgAppendix> getAppendixList() { return appendixList; }
+    // 获取留言信息列表
+    public List<EcgNormalComment> getCommentList() { return commentList; }
 
-    public void setAppendixList(List<EcgAppendix> appendixList) {
-        this.appendixList = appendixList;
+    public void setCommentList(List<EcgNormalComment> commentList) {
+        this.commentList = commentList;
     }
 
-    // 获取附加信息数
-    public int getAppendixNum() {
-        return appendixList.size();
+    // 获取留言信息数
+    public int getCommentNum() {
+        return commentList.size();
     }
 
     /**
      * 获取EcgFileTail字节长度：所有留言长度 + 尾部长度（long 8字节）
       */
     public int length() {
-        int length = 4 + 4* hrList.size(); // 心率数据长度
+        int length = hrInfoAppendix.length() + APPENDIX_TYPE_BYTE_NUM; // 心率信息长度
 
-        for(EcgAppendix appendix : appendixList) {
-            length += appendix.length();
+        for(EcgNormalComment appendix : commentList) {
+            length += appendix.length() + APPENDIX_TYPE_BYTE_NUM;
         }
 
         return length + 8; // "加8"是指包含最后的附加信息长度long类型

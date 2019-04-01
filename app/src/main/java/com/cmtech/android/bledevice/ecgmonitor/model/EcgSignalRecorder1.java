@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.vise.log.ViseLog;
@@ -8,7 +8,6 @@ import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
@@ -29,7 +28,7 @@ public class EcgSignalRecorder1 {
 
     private int sampleRate = 125; // 采样频率
 
-    private EcgAppendix appendix; // 当前信号的留言
+    private EcgNormalComment appendix; // 当前信号的留言
 
     private IEcgRecordSecondUpdatedListener listener; // 心电记录秒数更新监听器
 
@@ -59,7 +58,7 @@ public class EcgSignalRecorder1 {
 
         ecgFile = EcgFile.create(sampleRate, calibrationValue, macAddress, leadType);
         if(ecgFile != null) {
-            appendix = EcgAppendix.createDefaultAppendix();
+            appendix = EcgNormalComment.createDefaultComment();
             ViseLog.e(appendix.toString());
             recordDataNum = 0;
             this.sampleRate = sampleRate;
@@ -91,7 +90,7 @@ public class EcgSignalRecorder1 {
                     FileUtil.deleteFile(ecgFile.getFile());
                 } else {    // 如果有数据
                     if (appendix != null) {
-                        ecgFile.addAppendix(appendix);
+                        ecgFile.addComment(appendix);
                     }
 
                     ecgFile.saveFileTail();
