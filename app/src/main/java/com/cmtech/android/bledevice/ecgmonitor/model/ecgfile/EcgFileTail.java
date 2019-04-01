@@ -19,73 +19,64 @@ import java.util.List;
  */
 
 public class EcgFileTail {
+    private static final int FILETAIL_LEN_BYTE_NUM = 8;
+
     private EcgHrInfoAppendix hrInfoAppendix = new EcgHrInfoAppendix(); // 心率信息
+
     private List<EcgNormalComment> commentList = new ArrayList<>(); // 留言信息列表
 
-    public EcgFileTail() {
+    EcgFileTail() {
 
     }
 
-    public void setHrList(List<Integer> hrList) {
+    void setHrList(List<Integer> hrList) {
         hrInfoAppendix.setHrList(hrList);
     }
 
     /**
      * 从数据输入流读取
      * @param raf：数据输入流
-     * @return 是否成功读取
      */
-    public boolean readFromStream(RandomAccessFile raf) {
-        try {
-            raf.seek(raf.length() - 8);
-            long tailEndPointer = raf.getFilePointer();
-            long tailLength = ByteUtil.reverseLong(raf.readLong());
-            long appendixLength = tailLength - 8;
-            raf.seek(tailEndPointer - appendixLength);
+    public void readFromStream(RandomAccessFile raf) throws IOException{
+        raf.seek(raf.length() - FILETAIL_LEN_BYTE_NUM);
+        long tailEndPointer = raf.getFilePointer();
+        long tailLength = ByteUtil.reverseLong(raf.readLong());
+        long appendixLength = tailLength - FILETAIL_LEN_BYTE_NUM;
+        raf.seek(tailEndPointer - appendixLength);
 
-            // 读留言信息
-            while (raf.getFilePointer() < tailEndPointer) {
-                IEcgAppendix appendix = EcgAppendixFactory.readFromStream(raf);
-                if(appendix != null) {
-                    if(appendix instanceof EcgHrInfoAppendix) {
-                        hrInfoAppendix = (EcgHrInfoAppendix)appendix;
-                    } else if(appendix instanceof EcgNormalComment){
-                        addComment((EcgNormalComment) appendix);
-                    }
+        // 读留言信息
+        while (raf.getFilePointer() < tailEndPointer) {
+            IEcgAppendix appendix = EcgAppendixFactory.readFromStream(raf);
+            if(appendix != null) {
+                if(appendix instanceof EcgHrInfoAppendix) {
+                    hrInfoAppendix = (EcgHrInfoAppendix)appendix;
+                } else if(appendix instanceof EcgNormalComment){
+                    commentList.add((EcgNormalComment) appendix);
                 }
             }
-        } catch (IOException e) {
-            return false;
         }
-        return true;
     }
 
     /**
      * 写出到数据输出流当前指针指向的位置
      * @param raf：数据输出流
-     * @return 是否成功写出
      */
-    public boolean writeToStream(RandomAccessFile raf) {
-        try {
-            long filePointer = raf.getFilePointer();
-            long length = length();
-            raf.setLength(raf.getFilePointer() + length);
-            raf.seek(filePointer);
+    public void writeToStream(RandomAccessFile raf) throws IOException{
+        long filePointer = raf.getFilePointer();
+        long length = length();
+        raf.setLength(raf.getFilePointer() + length);
+        raf.seek(filePointer);
 
-            // 写附加信息
-            for(EcgNormalComment appendix : commentList) {
-                EcgAppendixFactory.writeToStream(appendix, raf);
-            }
-
-            // 写心率信息
-            EcgAppendixFactory.writeToStream(hrInfoAppendix, raf);
-
-            // 最后写入附加信息总长度
-            raf.writeLong(ByteUtil.reverseLong(length));
-        } catch (IOException e) {
-            return false;
+        // 写留言信息
+        for(EcgNormalComment comment : commentList) {
+            EcgAppendixFactory.writeToStream(comment, raf);
         }
-        return true;
+
+        // 写心率信息
+        EcgAppendixFactory.writeToStream(hrInfoAppendix, raf);
+
+        // 最后写入附加信息总长度
+        raf.writeLong(ByteUtil.reverseLong(length));
     }
 
     @Override
@@ -99,12 +90,12 @@ public class EcgFileTail {
     }
 
     // 添加留言信息
-    public void addComment(EcgNormalComment comment) {
+    void addComment(EcgNormalComment comment) {
         commentList.add(comment);
     }
 
     // 删除留言信息
-    public void deleteComment(EcgNormalComment comment) {
+    void deleteComment(EcgNormalComment comment) {
         commentList.remove(comment);
     }
 
@@ -116,7 +107,7 @@ public class EcgFileTail {
     }
 
     // 获取留言信息数
-    public int getCommentNum() {
+    int getCommentNum() {
         return commentList.size();
     }
 
@@ -130,6 +121,6 @@ public class EcgFileTail {
             length += appendix.length();
         }
 
-        return length + 8; // "加8"是指包含最后的附加信息长度long类型
+        return length + FILETAIL_LEN_BYTE_NUM;
     }
 }

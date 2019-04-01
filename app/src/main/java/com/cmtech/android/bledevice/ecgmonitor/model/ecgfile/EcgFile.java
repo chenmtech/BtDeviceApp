@@ -42,22 +42,19 @@ public class EcgFile extends RandomAccessBmeFile {
         super(fileName);
 
         try {
-            if (!ecgFileHead.readFromStream(raf)) { // 读EcgFileHead
-                throw new IOException();
-            }
+            ecgFileHead.readFromStream(raf);
 
             dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
 
-            if (!ecgFileTail.readFromStream(raf)) { // 读EcgFileTail
-                throw new IOException();
-            }
+            ecgFileTail.readFromStream(raf);
 
             dataEndPointer = raf.length() - ecgFileTail.length();
 
             raf.seek(dataBeginPointer); // 回到数据开始位置
+
             dataNum = availableData(); // 获取数据个数
         } catch (IOException e) {
-            throw new IOException("打开文件错误:" + fileName);
+            throw new IOException("打开文件错误:" + fileName + ' ' + e.getMessage());
         }
     }
 
@@ -98,17 +95,18 @@ public class EcgFile extends RandomAccessBmeFile {
     // 创建新文件时使用的私有构造器
     private EcgFile(String fileName, BmeFileHead head, EcgFileHead ecgFileHead) throws IOException {
         super(fileName, head);
+        try {
+            this.ecgFileHead = ecgFileHead;
+            ecgFileHead.writeToStream(raf);
 
-        this.ecgFileHead = ecgFileHead;
-        if (!ecgFileHead.writeToStream(raf)) { // 写EcgFileHead
-            throw new IOException("文件写入错误:" + fileName);
+            dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
+
+            dataEndPointer = dataBeginPointer;
+
+            dataNum = 0;
+        } catch (IOException e) {
+            throw new IOException("创建文件错误：" + fileName);
         }
-
-        dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
-
-        dataEndPointer = dataBeginPointer;
-
-        dataNum = 0;
     }
 
     public void setHrList(List<Integer> hrList) {
@@ -167,13 +165,12 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     // 将文件指针定位到某个数据位置
-    public boolean seekData(int dataNum) {
+    public void seekData(int dataNum) {
         try {
             raf.seek(dataBeginPointer + dataNum * getDataType().getTypeLength());
         } catch (IOException e) {
-            return false;
+            ViseLog.e("seekData " + dataNum + "is wrong.");
         }
-        return true;
     }
 
     // 为文件添加一条附加信息
@@ -206,11 +203,16 @@ public class EcgFile extends RandomAccessBmeFile {
         return builder.toString();
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + ";" + ecgFileHead + ";" + ecgFileTail;
+    }
+
     /**
      * 将文件raf的数据块从begin开始，往后推移length个字节
      * 推移时分块进行，每次移动opLengthEachTime个字节
-    */
-    private void pushTerminalBlockBackSomeBytes(RandomAccessFile raf, long begin, int length, int opLengthEachTime) throws IOException{
+     */
+    /*private void pushTerminalBlockBackSomeBytes(RandomAccessFile raf, long begin, int length, int opLengthEachTime) throws IOException{
         raf.setLength(raf.length() + length);        // 先增加文件长度
         raf.seek(raf.length() - length);      // 移动到文件尾
         int blockLen = 0;                // 记录每次要移动的块长度，一般都是等于opLengthEachTime，但是当最后一个块移动时可能小于opLengthEachTime
@@ -230,13 +232,13 @@ public class EcgFile extends RandomAccessBmeFile {
             raf.write(buffer);                      // 写块
             raf.seek(blockBeginPointer);            // 定位到块的开始位置，也就是下次要移动的块的尾部
         }
-    }
+    }*/
 
     /**
      * 将文件raf的数据块从begin开始，向前移动length个字节
      * 移动时分块进行，每次移动opLengthEachTime个字节
      */
-    private void pullTerminalBlockForwardSomeBytes(RandomAccessFile raf, long begin, int length, int opLengthEachTime) throws IOException{
+    /*private void pullTerminalBlockForwardSomeBytes(RandomAccessFile raf, long begin, int length, int opLengthEachTime) throws IOException{
         raf.seek(begin);            // 定位到起始位置
 
         int blockLen = 0;                // 记录每次要移动的块长度，一般都是等于opLengthEachTime，但是当最后一个块移动时可能小于opLengthEachTime
@@ -255,12 +257,7 @@ public class EcgFile extends RandomAccessBmeFile {
             blockBeginPointer += blockLen;          // 修改下一个块的起始位置
         }
         raf.setLength(raf.length() - length);        // 减小文件长度length
-    }
+    }*/
 
-
-    @Override
-    public String toString() {
-        return super.toString() + ";" + ecgFileHead + ";" + ecgFileTail;
-    }
 
 }

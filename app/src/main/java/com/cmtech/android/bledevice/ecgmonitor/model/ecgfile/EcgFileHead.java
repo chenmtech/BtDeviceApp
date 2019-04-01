@@ -52,45 +52,35 @@ public class EcgFileHead {
         this.leadType = leadType;
     }
 
-    public boolean readFromStream(DataInput in) {
-        try {
-            // 读心电文件标识
-            byte[] ecg = new byte[3];
-            in.readFully(ecg);
-            if (!Arrays.equals(ecg, ECGFILE_TAG)) {
-                return false;
-            }
-            // 读版本号
-            byte[] ver = new byte[2];
-            in.readFully(ver);
-            // 读创建人信息
-            creator.readFromStream(in);
-            // 读macAddress
-            macAddress = DataIOUtil.readFixedString(MACADDRESS_CHAR_NUM, in);
-            // 读导联类型
-            leadType = EcgLeadType.getFromCode(ByteUtil.reverseInt(in.readInt()));
-        } catch (IOException e) {
-            return false;
+    public void readFromStream(DataInput in) throws IOException{
+        // 读心电文件标识
+        byte[] ecg = new byte[3];
+        in.readFully(ecg);
+        if (!Arrays.equals(ecg, ECGFILE_TAG)) {
+            throw new IOException("心电文件格式错误");
         }
-        return true;
+        // 读版本号
+        byte[] ver = new byte[2];
+        in.readFully(ver);
+        // 读创建人信息
+        creator.readFromStream(in);
+        // 读macAddress
+        macAddress = DataIOUtil.readFixedString(MACADDRESS_CHAR_NUM, in);
+        // 读导联类型
+        leadType = EcgLeadType.getFromCode(ByteUtil.reverseInt(in.readInt()));
     }
 
-    public boolean writeToStream(DataOutput out) {
-        try {
-            // 写心电文件标识
-            out.write(ECGFILE_TAG);
-            // 写版本号
-            out.write(VER);
-            // 写创建人信息
-            creator.writeToStream(out);
-            // 写macAddress
-            DataIOUtil.writeFixedString(macAddress, MACADDRESS_CHAR_NUM, out);
-            // 写导联类型
-            out.writeInt(ByteUtil.reverseInt(leadType.getCode()));
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+    public void writeToStream(DataOutput out) throws IOException{
+        // 写心电文件标识
+        out.write(ECGFILE_TAG);
+        // 写版本号
+        out.write(VER);
+        // 写创建人信息
+        creator.writeToStream(out);
+        // 写macAddress
+        DataIOUtil.writeFixedString(macAddress, MACADDRESS_CHAR_NUM, out);
+        // 写导联类型
+        out.writeInt(ByteUtil.reverseInt(leadType.getCode()));
     }
 
     @Override
