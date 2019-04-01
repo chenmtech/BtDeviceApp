@@ -18,7 +18,7 @@ import java.util.Date;
  * Created by bme on 2019/1/9.
  */
 
-public class EcgNormalComment implements IEcgAppendix{
+public class EcgNormalComment extends EcgAppendix{
     private static final int CONTENT_CHAR_NUM = 500; // 内容字符数
     private static final int MODIFY_TIME_BYTE_NUM = 8;
 
@@ -34,15 +34,10 @@ public class EcgNormalComment implements IEcgAppendix{
         this();
         try {
             this.creator = (User) creator.clone();
+            this.modifyTime = modifyTime;
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
+            throw new IllegalStateException();
         }
-        this.modifyTime = modifyTime;
-    }
-
-    public EcgNormalComment(User creator, long modifyTime, String content) {
-        this(creator, modifyTime);
-        this.content = content;
     }
 
     /**
@@ -77,11 +72,7 @@ public class EcgNormalComment implements IEcgAppendix{
      * 添加留言内容
       */
     public void appendContent(String content) {
-        if(TextUtils.isEmpty(this.content)) {
-            this.content = content;
-            return;
-        }
-        this.content += (';' + content);
+        this.content += content;
     }
 
     @Override
@@ -92,7 +83,6 @@ public class EcgNormalComment implements IEcgAppendix{
     /**
      * 从数据输入流读取
      * @param in：数据输入流
-     * @return 是否成功读取
      */
     @Override
     public void readFromStream(DataInput in) throws IOException{
@@ -107,7 +97,6 @@ public class EcgNormalComment implements IEcgAppendix{
     /**
      * 写出到数据输出流
      * @param out：数据输出流
-     * @return 是否成功写出
      */
     @Override
     public void writeToStream(DataOutput out) throws IOException{
@@ -125,7 +114,7 @@ public class EcgNormalComment implements IEcgAppendix{
      */
     @Override
     public int length() {
-        return  creator.length() + MODIFY_TIME_BYTE_NUM + 2* CONTENT_CHAR_NUM;
+        return  super.length() + creator.length() + MODIFY_TIME_BYTE_NUM + 2* CONTENT_CHAR_NUM;
     }
 
     @Override

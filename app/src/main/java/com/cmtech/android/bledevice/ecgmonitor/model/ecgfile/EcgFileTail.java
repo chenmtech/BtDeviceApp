@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix.APPENDIX_TYPE_BYTE_NUM;
 
 /**
  * EcgFileTail: 心电文件中的尾部类
@@ -125,10 +124,10 @@ public class EcgFileTail {
      * 获取EcgFileTail字节长度：所有留言长度 + 尾部长度（long 8字节）
       */
     public int length() {
-        int length = hrInfoAppendix.length() + APPENDIX_TYPE_BYTE_NUM; // 心率信息长度
+        int length = hrInfoAppendix.length(); // 心率信息长度
 
         for(EcgNormalComment appendix : commentList) {
-            length += appendix.length() + APPENDIX_TYPE_BYTE_NUM;
+            length += appendix.length();
         }
 
         return length + 8; // "加8"是指包含最后的附加信息长度long类型

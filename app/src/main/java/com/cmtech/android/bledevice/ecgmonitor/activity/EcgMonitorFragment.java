@@ -153,7 +153,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onMarkerClicked(EcgAbnormal marker) {
                 if(device != null)
-                    device.addAppendixContent("第" + device.getEcgSignalRecordDataNum() / device.getSampleRate() + "秒，" + marker.getDescription());
+                    device.addCommentContent("第" + device.getEcgSignalRecordDataNum() / device.getSampleRate() + "秒，" + marker.getDescription() + ';');
             }
         });
         rvEcgMarker.setAdapter(markerAdapter);
@@ -184,14 +184,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 switch(motionEvent.getAction()) {
                     case ACTION_DOWN:
                         ecgView.setWaveColor(COLOR_WHEN_REST);
-                        //device.addAppendixContent("开始安静状态" + "@" + device.getEcgSignalRecordDataNum());
+                        //device.addCommentContent("开始安静状态" + "@" + device.getEcgSignalRecordDataNum());
                         begin = (int)(device.getEcgSignalRecordDataNum()/device.getSampleRate());
                         break;
                     case ACTION_UP:
                     case ACTION_CANCEL:
                         ecgView.restoreDefaultWaveColor();
                         int end = (int)(device.getEcgSignalRecordDataNum()/device.getSampleRate());
-                        device.addAppendixContent("第" + begin + '-' + end + "秒，" + "处于安静状态");
+                        device.addCommentContent("第" + begin + '-' + end + "秒，" + "处于安静状态");
                         break;
                     default:
                         break;

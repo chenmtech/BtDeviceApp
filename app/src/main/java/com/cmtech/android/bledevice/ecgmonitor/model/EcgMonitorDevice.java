@@ -331,7 +331,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         ecgFile.setHrList(ecgProcessor.getHrList());
         ViseLog.e("hrList:" + Arrays.toString(ecgProcessor.getHrList().toArray()));
 
-        ecgFile.addComment(ecgRecorder.getAppendix());
+        ecgFile.addComment(ecgRecorder.getComment());
 
         ecgFile.saveFileTail();
     }
@@ -481,8 +481,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     // 添加留言内容
-    public synchronized void addAppendixContent(String content) {
-        ecgRecorder.addAppendixContent(content);
+    public synchronized void addCommentContent(String content) {
+        ecgRecorder.addCommentContent(content);
     }
 
     public void updateHrInfo() {

@@ -12,7 +12,10 @@ import java.io.IOException;
  */
 
 public class EcgAppendixFactory {
+
     private static IEcgAppendix create(EcgAppendixType type) {
+        if(type == null) return null;
+
         switch (type) {
             case HR_INFO:
                 return new EcgHrInfoAppendix();
@@ -23,31 +26,28 @@ public class EcgAppendixFactory {
         }
     }
 
-    public static IEcgAppendix readFromStream(DataInput in) {
-        try {
-            // 读类型
-            EcgAppendixType type = EcgAppendixType.getFromCode(ByteUtil.reverseInt(in.readInt()));
-            if(type != null) {
-                IEcgAppendix appendix = create(type);
-                if(appendix != null) {
-                    appendix.readFromStream(in);
-                    return appendix;
-                }
-            }
-        } catch (IOException e) {
-            return null;
+    public static IEcgAppendix readFromStream(DataInput in) throws IOException{
+        if(in == null) throw new IllegalArgumentException();
+
+        EcgAppendixType type = EcgAppendixType.getFromCode(ByteUtil.reverseInt(in.readInt()));
+
+        IEcgAppendix appendix = create(type);
+
+        if(appendix != null) {
+            appendix.readFromStream(in);
+            return appendix;
         }
+
         return null;
     }
 
-    public static boolean writeToStream(IEcgAppendix appendix, DataOutput out) {
-        try {
-            // 写类型
-            out.writeInt(ByteUtil.reverseInt(appendix.getType().getCode()));
-            appendix.writeToStream(out);
-        } catch (IOException e) {
-            return false;
-        }
-        return true;
+    public static void writeToStream(IEcgAppendix appendix, DataOutput out) throws IOException{
+        if(out == null) throw new IllegalArgumentException();
+
+        if(appendix == null) return;
+
+        out.writeInt(ByteUtil.reverseInt(appendix.getType().getCode()));
+
+        appendix.writeToStream(out);
     }
 }

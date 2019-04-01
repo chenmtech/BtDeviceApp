@@ -22,7 +22,7 @@ public class EcgSignalRecorder {
 
     private boolean isRecord = false;
 
-    private EcgNormalComment appendix; // 当前信号的留言
+    private EcgNormalComment comment; // 当前信号的留言
 
     private IEcgRecordSecondUpdatedListener listener; // 心电信号记录秒数更新监听器
 
@@ -36,8 +36,8 @@ public class EcgSignalRecorder {
         return recordDataNum;
     }
 
-    EcgNormalComment getAppendix() {
-        return appendix;
+    EcgNormalComment getComment() {
+        return comment;
     }
 
     boolean isRecord() {
@@ -51,7 +51,7 @@ public class EcgSignalRecorder {
     EcgSignalRecorder(int sampleRate, EcgFile ecgFile, IEcgRecordSecondUpdatedListener listener) {
         this.sampleRate = sampleRate;
         this.ecgFile = ecgFile;
-        appendix = EcgNormalComment.createDefaultComment();
+        comment = EcgNormalComment.createDefaultComment();
         this.listener = listener;
     }
 
@@ -70,8 +70,8 @@ public class EcgSignalRecorder {
     }
 
     // 添加留言的内容
-    void addAppendixContent(String content) {
+    void addCommentContent(String content) {
         if(isRecord)
-            appendix.appendContent(content);
+            comment.appendContent(content);
     }
 }

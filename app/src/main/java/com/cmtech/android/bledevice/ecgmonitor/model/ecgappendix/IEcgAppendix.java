@@ -4,8 +4,12 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+/**
+ * IEcgAppendix: 心电附加信息接口
+ * Created by bme on 2019/1/9.
+ */
+
 public interface IEcgAppendix {
-    int APPENDIX_TYPE_BYTE_NUM = 4; // 附加信息类型的字节数
     void readFromStream(DataInput in) throws IOException;
     void writeToStream(DataOutput out) throws IOException;
     int length();
