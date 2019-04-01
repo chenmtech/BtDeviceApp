@@ -139,7 +139,7 @@
                 android:layout_margin="5dp"
                 android:background="@color/secondary"
                 android:src="@mipmap/ic_reset_hrhistogram"
-                android:contentDescription="reset histogram"/>
+                android:contentDescription="@null"/>
         </RelativeLayout>
 
         <TextView
@@ -194,73 +194,61 @@
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:gravity="center_horizontal">
-            <ImageButton
-                android:id="@+id/ib_ecgreplay_startandstop"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical">
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:clickable="false"
-                android:background="@color/primary_dark"
-                android:src="@mipmap/ic_ecg_play_48px"
-                android:contentDescription="startorstop"/>
-        </LinearLayout>
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal">
+                <ImageButton
+                    android:id="@+id/ib_ecg_record"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/primary_dark"
+                    android:src="@mipmap/ic_ecg_record_stop"
+                    android:contentDescription="@null"/>
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_horizontal">
-            <ImageButton
-                android:id="@+id/ib_ecg_record"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:background="@color/primary_dark"
-                android:src="@mipmap/ic_ecg_record_stop"
-                android:contentDescription="record"/>
+                <TextView
+                    android:id="@+id/tv_ecg_recordtime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="#f00"
+                    android:textSize="14sp"
+                    android:text="00:00:00"/>
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/tv_ecg_recordtime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:textColor="#f00"
-                android:textSize="14sp"
-                android:text="00:00:00"/>
-
-
-            <CheckBox
-                android:id="@+id/cb_ecg_filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:checked="true"
-                android:clickable="true"
-                android:focusable="true"
-                android:visibility="gone"
-                android:text="滤波"/>
+                android:layout_gravity="center_horizontal"
+                android:text="采集信号"/>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:gravity="center_horizontal">
-
+            android:orientation="vertical"
+            android:layout_marginEnd="5sp">
             <ImageButton
-                android:id="@+id/ib_stay_rest"
+                android:id="@+id/ib_ecg_exit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
+                android:layout_gravity="center_horizontal"
                 android:background="@color/primary_dark"
-                android:src="@mipmap/ic_fingerprint_32px"
-                android:contentDescription="staying in rest"/>
+                android:src="@mipmap/ic_exit_48px"
+                android:contentDescription="@null"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="退出"/>
         </LinearLayout>
+
 
     </LinearLayout>
 

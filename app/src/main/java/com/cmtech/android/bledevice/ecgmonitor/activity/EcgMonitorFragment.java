@@ -64,10 +64,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private TextView tvValue1mV; // 1mV定标值
     private TextView tvHeartRate; // 心率值
     private TextView tvRecordTime; // 记录时间
-    private ImageButton ibSwitchSampleStatus; // 切换采样状态
     private ImageButton ibRecord; // 切换记录状态
-    private CheckBox cbIsFilter; // 是否滤波
-    private ImageButton ibStayRest; // 是否处于安静状态
     private TextView tvAverageHr; // 平均心率
     private TextView tvMaxHr; // 最大心率
     private ImageButton ibResetHistogram; // 重置心率直方图
@@ -134,14 +131,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvRecordTime = view.findViewById(R.id.tv_ecg_recordtime);
         tvRecordTime.setText(DateTimeUtil.secToTime(device.getEcgSignalRecordSecond()));
 
-        ibSwitchSampleStatus = view.findViewById(R.id.ib_ecgreplay_startandstop);
         onUpdateState(device.getState());
-        ibSwitchSampleStatus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                device.switchSampleState();
-            }
-        });
 
         rvEcgMarker = view.findViewById(R.id.rv_ecg_marker);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
@@ -164,39 +154,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             public void onClick(View view) {
                 boolean isRecord = !device.isRecordEcgSignal();
                 device.setEcgSignalRecord(isRecord);
-            }
-        });
-
-        cbIsFilter = view.findViewById(R.id.cb_ecg_filter);
-        cbIsFilter.setChecked(device.isFilter());
-        cbIsFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                device.setFilter(b);
-            }
-        });
-
-        ibStayRest = view.findViewById(R.id.ib_stay_rest);
-        ibStayRest.setOnTouchListener(new View.OnTouchListener() {
-            private int begin = 0;
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch(motionEvent.getAction()) {
-                    case ACTION_DOWN:
-                        ecgView.setWaveColor(COLOR_WHEN_REST);
-                        //device.addCommentContent("开始安静状态" + "@" + device.getEcgSignalRecordDataNum());
-                        begin = (int)(device.getEcgSignalRecordDataNum()/device.getSampleRate());
-                        break;
-                    case ACTION_UP:
-                    case ACTION_CANCEL:
-                        ecgView.restoreDefaultWaveColor();
-                        int end = (int)(device.getEcgSignalRecordDataNum()/device.getSampleRate());
-                        device.addCommentContent("第" + begin + '-' + end + "秒，" + "处于安静状态");
-                        break;
-                    default:
-                        break;
-                }
-                return true;
             }
         });
 
@@ -251,15 +208,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void onUpdateState(final EcgMonitorState state) {
-        if(state.canStart()) {
-            ibSwitchSampleStatus.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_48px));
-            ibSwitchSampleStatus.setClickable(true);
-        } else if(state.canStop()) {
-            ibSwitchSampleStatus.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_48px));
-            ibSwitchSampleStatus.setClickable(true);
-        } else {
-            ibSwitchSampleStatus.setClickable(false);
-        }
+
     }
 
     @Override
@@ -288,13 +237,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
 
         markerAdapter.setEnabled(isRecord);
-
-        if(isRecord)
-            ibStayRest.setVisibility(View.VISIBLE);
-        else
-            ibStayRest.setVisibility(View.INVISIBLE);
-
-        ibStayRest.setEnabled(isRecord);
     }
 
     @Override
