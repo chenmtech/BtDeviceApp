@@ -39,7 +39,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
  * Created by bme on 2018/11/10.
  */
 
-public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver, EcgFileRollWaveView.IEcgFileRollWaveViewObserver, IEcgAppendixOperator {
+public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver, EcgFileRollWaveView.IEcgFileRollWaveViewListener, IEcgAppendixOperator {
     private static final String TAG = "EcgFileExplorerActivity";
 
     private static EcgFileExplorerModel fileExploreModel;      // 文件浏览器模型实例
@@ -91,7 +91,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         rvAppendixList.setAdapter(appendixAdapter);
 
         ecgView = findViewById(R.id.rwv_ecgview);
-        ecgView.registerEcgFileRollWaveViewObserver(this);
+        ecgView.setListener(this);
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvTotalTime = findViewById(R.id.tv_total_time);
 
@@ -251,7 +251,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
      * EcgFileRollWaveView.IEcgFileRollWaveViewObserver接口函数
      */
     @Override
-    public void updateShowState(boolean isReplay) {
+    public void onUpdateShowState(boolean isReplay) {
         if(isReplay) {
             btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_32px));
             sbReplay.setEnabled(false);
@@ -262,7 +262,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     @Override
-    public void updateDataLocation(long dataLocation) {
+    public void onUpdateDataLocation(long dataLocation) {
         int second = (int)(dataLocation/fileExploreModel.getSelectFileSampleRate());
         tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
         sbReplay.setProgress(second);

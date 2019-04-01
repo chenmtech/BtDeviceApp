@@ -4,11 +4,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.view.ColorRollWaveView;
-import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,8 +53,8 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
                             showData(cacheData, cacheMarked);
                             cacheData.clear();
                             cacheMarked.clear();
-                            if(observer != null) {
-                                observer.updateDataLocation(num);
+                            if(listener != null) {
+                                listener.onUpdateDataLocation(num);
                             }
                         }
                     } catch (IOException e) {
@@ -69,15 +67,15 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
     }
     private Timer showTimer; // 定时器
 
-    // EcgFile滚动波形视图显示观察者接口
-    public interface IEcgFileRollWaveViewObserver {
+    // EcgFile滚动波形视图显示监听器接口
+    public interface IEcgFileRollWaveViewListener {
         // 更新显示状态
-        void updateShowState(boolean isReplay);
+        void onUpdateShowState(boolean isReplay);
         // 更新当前数据位置
-        void updateDataLocation(long dataLocation);
+        void onUpdateDataLocation(long dataLocation);
     }
 
-    private IEcgFileRollWaveViewObserver observer; // 观察者
+    private IEcgFileRollWaveViewListener listener;
 
     private GestureDetector gestureDetector;
     private GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
@@ -160,8 +158,8 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
             showTimer = new Timer();
             showTimer.scheduleAtFixedRate(new ShowTask(), interval, interval);
             replaying = true;
-            if(observer != null) {
-                observer.updateShowState(true);
+            if(listener != null) {
+                listener.onUpdateShowState(true);
             }
         }
     }
@@ -171,8 +169,8 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
             showTimer.cancel();
             showTimer = null;
             replaying = false;
-            if(observer != null) {
-                observer.updateShowState(false);
+            if(listener != null) {
+                listener.onUpdateShowState(false);
             }
         }
     }
@@ -217,19 +215,18 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
 
         num = (int)location;
 
-        if(observer != null) {
-            observer.updateDataLocation(num);
+        if(listener != null) {
+            listener.onUpdateDataLocation(num);
         }
-
     }
 
     // 登记心电回放观察者
-    public void registerEcgFileRollWaveViewObserver(IEcgFileRollWaveViewObserver observer) {
-        this.observer = observer;
+    public void setListener(IEcgFileRollWaveViewListener listener) {
+        this.listener = listener;
     }
 
     // 删除心电回放观察者
-    public void removeEcgFileRollWaveViewObserver() {
-        observer = null;
+    public void removeListener() {
+        listener = null;
     }
 }

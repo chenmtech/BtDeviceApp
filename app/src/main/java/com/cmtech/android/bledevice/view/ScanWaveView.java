@@ -17,6 +17,8 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
@@ -61,6 +63,42 @@ public class ScanWaveView extends View {
     private boolean showGridLine = true; // 是否显示栅格线
     private boolean isFirstData = false; // 是否是第一个数据
 
+    private boolean isUpdated = true;
+
+    private GestureDetector gestureDetector;
+    private GestureDetector.OnGestureListener gestureListener = new GestureDetector.OnGestureListener() {
+        @Override
+        public boolean onDown(MotionEvent motionEvent) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent motionEvent) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent motionEvent) {
+            isUpdated = !isUpdated;
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float v, float v1) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent motionEvent) {
+
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+        }
+    };
+
     // 设置分辨率
     public void setResolution(int xPixelPerData, float yValuePerPixel)
     {
@@ -97,6 +135,9 @@ public class ScanWaveView extends View {
         waveColor = defaultWaveColor = DEFAULT_WAVE_COLOR;
 
         initPaint();
+
+        gestureDetector = new GestureDetector(context, gestureListener);
+        gestureDetector.setIsLongpressEnabled(false);
     }
 
     public ScanWaveView(Context context, AttributeSet attrs) {
@@ -116,11 +157,19 @@ public class ScanWaveView extends View {
         a.recycle();
 
         initPaint();
+
+        gestureDetector = new GestureDetector(context, gestureListener);
+        gestureDetector.setIsLongpressEnabled(false);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return true;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
-
         super.onDraw(canvas);
 
         canvas.drawColor(backgroundColor);
@@ -168,6 +217,8 @@ public class ScanWaveView extends View {
         preY = curY = initY;
 
         isFirstData = true;
+
+        isUpdated = true;
     }
 
     public synchronized void showData(int data) {
@@ -175,8 +226,10 @@ public class ScanWaveView extends View {
             preY = initY - Math.round(data/ yValuePerPixel);
             isFirstData = false;
         } else {
-            drawPointOnForeCanvas(data);
-            postInvalidate();
+            if(isUpdated) {
+                drawPointOnForeCanvas(data);
+                postInvalidate();
+            }
         }
     }
 

@@ -85,7 +85,7 @@ public class EcgFileTail {
                 + "心率数：" + hrInfoAppendix.getHrList().size() + ";"
                 + "心率信息：" + hrInfoAppendix + ';'
                 + "留言数：" + commentList.size() + ";"
-                + "留言：" + Arrays.toString(commentList.toArray()) + ";"
+                + "留言：" + commentList + ";"
                 + "文件尾长度：" + length() + "]";
     }
 
