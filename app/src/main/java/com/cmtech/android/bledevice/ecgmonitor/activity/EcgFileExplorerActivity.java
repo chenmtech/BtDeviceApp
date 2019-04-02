@@ -15,14 +15,17 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgAppendixAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
-import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileExplorerObserver;
+import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileExplorerListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -39,7 +42,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
  * Created by bme on 2018/11/10.
  */
 
-public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerObserver, EcgFileRollWaveView.IEcgFileRollWaveViewListener, IEcgAppendixOperator {
+public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerListener, EcgFileRollWaveView.IEcgFileRollWaveViewListener, IEcgAppendixOperator {
     private static final String TAG = "EcgFileExplorerActivity";
 
     private static EcgFileExplorerModel fileExploreModel;      // 文件浏览器模型实例
@@ -52,6 +55,12 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     private TextView tvCurrentTime; // 当前播放的信号的时刻
     private SeekBar sbReplay; // 播放条
     private ImageButton btnSwitchReplayState; // 转换回放状态
+
+    private EcgHrHistogramChart hrHistChart; // 心率直方图
+
+    private TextView tvAverageHr; // 平均心率
+
+    private TextView tvMaxHr; // 最大心率
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,12 +76,11 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         }
 
         try {
-            fileExploreModel = new EcgFileExplorerModel(ECG_FILE_DIR);
+            fileExploreModel = new EcgFileExplorerModel(ECG_FILE_DIR, this);
         } catch (IOException e) {
             e.printStackTrace();
             finish();
         }
-        fileExploreModel.registerEcgFileExplorerObserver(this);
 
         rvFileList = findViewById(R.id.rv_ecgfile_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -129,6 +137,12 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             }
         });
 
+        hrHistChart = findViewById(R.id.ecgfile_hr_histogram);
+
+        tvAverageHr = findViewById(R.id.tv_average_hr_value);
+
+        tvMaxHr = findViewById(R.id.tv_max_hr_value);
+
 
         if(!fileExploreModel.getFileList().isEmpty()) {
             fileExploreModel.select(fileExploreModel.getFileList().size()-1);
@@ -172,7 +186,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             }
         }
 
-        fileExploreModel.removeEcgFileExplorerObserver();
+        fileExploreModel.removeListener();
     }
 
     private void importFromWechat() {
@@ -222,7 +236,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
 
     @Override
-    public void updateEcgFileList() {
+    public void onUpdateEcgFileList() {
         fileAdapter.notifyDataSetChanged();
 
         if(fileExploreModel.getSelectFile() != null) {
@@ -244,7 +258,16 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
                 rvAppendixList.smoothScrollToPosition(0);
 
             startReplay();
+
+            fileExploreModel.updateHrInfo();
         }
+    }
+
+    @Override
+    public void onUpdateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr) {
+        hrHistChart.update(normHistogram);
+        tvAverageHr.setText(String.valueOf(averageHr));
+        tvMaxHr.setText(String.valueOf(maxHr));
     }
 
     /**

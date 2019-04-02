@@ -67,7 +67,9 @@ public class ColorRollWaveView extends RollWaveView {
         Integer[] data = viewData.toArray(new Integer[0]);
         Boolean[] markers = markerList.toArray(new Boolean[0]);
         int dataNum = data.length;
-        if(dataNum <= 1) return true;
+        if(dataNum <= 1) {
+            return true;
+        }
 
         int begin = dataNum - dataNumXDirection;
         if(begin < 0) {

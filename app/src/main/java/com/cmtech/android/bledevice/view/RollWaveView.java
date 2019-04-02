@@ -193,6 +193,8 @@ public class RollWaveView extends View {
         // 初始化画图起始位置
         preX = initX;
         preY = initY;
+
+        invalidate();
     }
 
     public void clearData() {
@@ -215,7 +217,9 @@ public class RollWaveView extends View {
 
         Integer[] data = viewData.toArray(new Integer[0]);
         int dataNum = data.length;
-        if(dataNum <= 1) return true;
+        if(dataNum <= 1) {
+            return true;
+        }
 
         int begin = dataNum - dataNumXDirection;
         if(begin < 0) {

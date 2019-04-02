@@ -182,6 +182,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         // 根据设备的isRecord初始化Record按钮
         onUpdateEcgSignalRecordStatus(device.isRecordEcgSignal());
+
         device.setEcgMonitorListener(EcgMonitorFragment.this);
     }
 

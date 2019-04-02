@@ -33,6 +33,10 @@ public class EcgFileTail {
         hrInfoAppendix.setHrList(hrList);
     }
 
+    public List<Integer> getHrList() {
+        return hrInfoAppendix.getHrList();
+    }
+
     /**
      * 从数据输入流读取
      * @param raf：数据输入流

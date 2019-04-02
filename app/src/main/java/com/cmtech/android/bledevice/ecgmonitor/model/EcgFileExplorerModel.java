@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.bmefile.BmeFileHead30;
@@ -23,13 +24,18 @@ public class EcgFileExplorerModel {
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
 
     private final File fileDir; // 文件浏览目录
+
     private EcgFile selectFile; // 选中的EcgFile
+
     private EcgFileListManager filesManager; // 文件列表管理器
-    private IEcgFileExplorerObserver observer; // 文件浏览观察者
+
+    private IEcgFileExplorerListener listener; // 文件浏览监听器
+
+    private EcgHrRecorder hrRecorder;
 
     private int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每小格的像素个数
-    private int hPixelPerData; // 横向分辨率
-    private float vValuePerPixel; // 纵向分辨率
+    private int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_HGRID * 125)); // 计算横向分辨率; // 横向分辨率
+    private float vValuePerPixel = 65535 * DEFAULT_MV_PER_VGRID / pixelPerGrid; // 计算纵向分辨率; // 纵向分辨率
     private int totalSecond; // 信号总的秒数
 
     public List<EcgFile> getFileList() { return filesManager.getFileList(); }
@@ -47,7 +53,7 @@ public class EcgFileExplorerModel {
         return totalSecond;
     }
 
-    public EcgFileExplorerModel(File fileDir) throws IOException{
+    public EcgFileExplorerModel(File fileDir, IEcgFileExplorerListener listener) throws IOException{
         if(fileDir == null || !fileDir.isDirectory()) {
             throw new IllegalArgumentException();
         }
@@ -63,9 +69,13 @@ public class EcgFileExplorerModel {
             public void selectFileChanged(EcgFile ecgFile) {
                 selectFile = ecgFile;
                 initReplayPara(selectFile);
-                notifyEcgFileExplorerObserver();
+                notifyListener();
             }
         });
+
+        this.listener = listener;
+
+        hrRecorder = new EcgHrRecorder(listener);
     }
 
     // 获取选中文件的留言列表
@@ -128,20 +138,22 @@ public class EcgFileExplorerModel {
         }
     }
 
-    // 登记心电文件浏览器观察者
-    public void registerEcgFileExplorerObserver(IEcgFileExplorerObserver observer) {
-        this.observer = observer;
-    }
-
     // 删除心电文件浏览器观察者
-    public void removeEcgFileExplorerObserver() {
-        observer = null;
+    public void removeListener() {
+        listener = null;
     }
 
     // 通知心电文件浏览器观察者，更新文件列表
-    private void notifyEcgFileExplorerObserver() {
-        if(observer != null) {
-            observer.updateEcgFileList();
+    private void notifyListener() {
+        if(listener != null) {
+            listener.onUpdateEcgFileList();
+        }
+    }
+
+    public void updateHrInfo() {
+        if(selectFile != null) {
+            hrRecorder.setHrList(selectFile.getEcgFileTail().getHrList());
+            hrRecorder.updateHrInfo(10, 5);
         }
     }
 }

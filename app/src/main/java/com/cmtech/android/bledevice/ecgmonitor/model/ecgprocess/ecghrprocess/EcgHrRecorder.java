@@ -22,7 +22,7 @@ public class EcgHrRecorder implements IEcgHrProcessor {
 
     private IEcgHrInfoUpdatedListener listener;
 
-    private final List<Integer> hrList;
+    private List<Integer> hrList;
 
     private boolean isRecord = true;
 
@@ -55,7 +55,7 @@ public class EcgHrRecorder implements IEcgHrProcessor {
         }
     }
 
-    private EcgHrRecorder(IEcgHrInfoUpdatedListener listener) {
+    public EcgHrRecorder(IEcgHrInfoUpdatedListener listener) {
         this(null, listener);
     }
 
@@ -69,6 +69,10 @@ public class EcgHrRecorder implements IEcgHrProcessor {
 
     public List<Integer> getHrList() {
         return hrList;
+    }
+
+    public void setHrList(List<Integer> hrList) {
+        this.hrList = hrList;
     }
 
     public void setRecord(boolean record) {
