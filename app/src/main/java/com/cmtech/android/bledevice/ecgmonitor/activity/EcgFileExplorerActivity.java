@@ -45,7 +45,8 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
 public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFileExplorerListener, EcgFileRollWaveView.IEcgFileRollWaveViewListener, IEcgAppendixOperator {
     private static final String TAG = "EcgFileExplorerActivity";
 
-    private static EcgFileExplorerModel fileExploreModel;      // 文件浏览器模型实例
+    private EcgFileExplorerModel fileExploreModel;      // 文件浏览器模型实例
+
     private EcgFileRollWaveView ecgView; // ecgView
     private EcgFileAdapter fileAdapter; // 文件列表Adapter
     private RecyclerView rvFileList; // 文件列表RecycleView

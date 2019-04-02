@@ -15,113 +15,90 @@
         toolbar:navigationIcon="@mipmap/ic_ecgexplorer"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id = "@+id/rv_ecgfile_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView
-            android:id="@+id/rwv_ecgview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            cmtech:background_color="#666"
-            cmtech:grid_color="#f00"
-            cmtech:wave_color="#ff0"
-            cmtech:show_gridline="true"/>
-
-        <TextView
-            android:id="@+id/tv_current_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="00:00:00"
-            android:textColor="#fff"
-            android:textSize="16sp"/>
-    </FrameLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/primary_dark">
-
-        <ImageButton
-            android:id="@+id/ib_ecgreplay_startandstop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/primary_dark"
-            android:layout_marginStart="5dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:src="@mipmap/ic_ecg_play_32px"
-            android:minHeight="0dp"
-            android:visibility="gone"/>
-
-        <SeekBar
-            android:id="@+id/sb_ecgfile"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"/>
-
-        <TextView
-            android:id="@+id/tv_total_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="2dp"
-            android:layout_marginEnd="2dp"
-            android:text="00:00:00"
-            android:textColor="@color/primary_text"
-            android:textSize="16sp"/>
-
-    </LinearLayout>
-
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <android.support.v7.widget.RecyclerView
+                android:id = "@+id/rv_ecgfile_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView
+                    android:id="@+id/rwv_ecgview"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    cmtech:background_color="#666"
+                    cmtech:grid_color="#f00"
+                    cmtech:wave_color="#ff0"
+                    cmtech:show_gridline="true"/>
+
+                <TextView
+                    android:id="@+id/tv_current_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="00:00:00"
+                    android:textColor="#fff"
+                    android:textSize="16sp"/>
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_margin="5dp"
-                android:text="信号留言"
-                android:textColor="@color/primary_text"
-                android:background="@drawable/roundtextview"/>
+                android:background="@color/primary_dark">
+
+                <ImageButton
+                    android:id="@+id/ib_ecgreplay_startandstop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@color/primary_dark"
+                    android:layout_marginStart="5dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@mipmap/ic_ecg_play_32px"
+                    android:minHeight="0dp"
+                    android:visibility="gone"
+                    android:contentDescription="@null"/>
+
+                <SeekBar
+                    android:id="@+id/sb_ecgfile"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_gravity="center_vertical"/>
+
+                <TextView
+                    android:id="@+id/tv_total_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:text="00:00:00"
+                    android:textColor="@color/primary_text"
+                    android:textSize="16sp"/>
+
+            </LinearLayout>
 
             <android.support.v7.widget.RecyclerView
                 android:id = "@+id/rv_ecgappendix_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-        </LinearLayout>
-
-    </android.support.v4.widget.NestedScrollView>
-
-    <android.support.v4.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+                android:layout_height="wrap_content"/>
 
             <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart
                 android:id="@+id/ecgfile_hr_histogram"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="150dp"
                 android:layout_gravity="center_horizontal"/>
 
             <LinearLayout
@@ -160,8 +137,10 @@
                     android:textSize="18sp"/>
 
             </LinearLayout>
+
         </LinearLayout>
 
 
     </android.support.v4.widget.NestedScrollView>
+
 </LinearLayout>
