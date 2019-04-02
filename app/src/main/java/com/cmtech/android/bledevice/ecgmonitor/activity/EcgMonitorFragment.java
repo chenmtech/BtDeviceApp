@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -7,22 +9,21 @@ import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.core.BleDeviceFragment;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgMarkerAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogram;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
@@ -33,8 +34,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.Ecg
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledevice.core.BleDeviceFragment;
 import com.cmtech.dsp.seq.RealSeq;
 import com.cmtech.dsp.util.SeqUtil;
 import com.vise.log.ViseLog;
@@ -46,9 +47,6 @@ import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 import static android.graphics.Color.WHITE;
-import static android.view.MotionEvent.ACTION_CANCEL;
-import static android.view.MotionEvent.ACTION_DOWN;
-import static android.view.MotionEvent.ACTION_UP;
 
 /**
  * EcgMonitorFragment: 心电带设备Fragment
@@ -64,10 +62,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private TextView tvValue1mV; // 1mV定标值
     private TextView tvHeartRate; // 心率值
     private TextView tvRecordTime; // 记录时间
-    private ImageButton ibRecord; // 切换记录状态
     private TextView tvAverageHr; // 平均心率
     private TextView tvMaxHr; // 最大心率
+
     private ImageButton ibResetHistogram; // 重置心率直方图
+    private ImageButton ibRecord; // 切换记录状态
+    private ImageButton ibExit;
+
     private ScanWaveView ecgView; // 心电波形View
     private FrameLayout flEcgView;
     private RelativeLayout rlHrStatistics;
@@ -75,7 +76,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private EcgMarkerAdapter markerAdapter; // ecg标记adapter
     private AudioTrack hrWarnAudio; // 心率报警声音
     private EcgMonitorDevice device; // 设备
-    private EcgHrHistogram hrHistogram; // 心率直方图
+    private EcgHrHistogramChart hrHistChart; // 心率直方图
 
     public EcgMonitorFragment() {
 
@@ -159,7 +160,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         flEcgView = view.findViewById(R.id.fl_ecgview);
         rlHrStatistics = view.findViewById(R.id.rl_hr_statistics);
-        hrHistogram = view.findViewById(R.id.bc_hr_histogram);
+        hrHistChart = view.findViewById(R.id.bc_hr_histogram);
         tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
         tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
 
@@ -171,9 +172,49 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
+        ibExit = view.findViewById(R.id.ib_ecg_exit);
+        ibExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                close();
+            }
+        });
+
         // 根据设备的isRecord初始化Record按钮
         onUpdateEcgSignalRecordStatus(device.isRecordEcgSignal());
         device.setEcgMonitorListener(EcgMonitorFragment.this);
+    }
+
+    @Override
+    public void close() {
+        final Dialog alertDialog = new AlertDialog.Builder(getContext()).
+                setTitle("保存记录").
+                setMessage("您要保存本次记录吗？").
+                setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(device != null) {
+                            device.setSaveEcgFile(true);
+                        }
+                        EcgMonitorFragment.super.close();
+                    }
+                }).
+                setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).
+                setNegativeButton("不保存", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(device != null) {
+                            device.setSaveEcgFile(false);
+                        }
+                        EcgMonitorFragment.super.close();
+                    }
+                }).create();
+        alertDialog.show();
     }
 
     @Override
@@ -203,7 +244,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         if(device != null)
             device.removeEcgMonitorListener();
-
     }
 
     @Override
@@ -264,7 +304,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void onUpdateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr) {
-        hrHistogram.update(normHistogram);
+        hrHistChart.update(normHistogram);
         tvAverageHr.setText(String.valueOf(averageHr));
         tvMaxHr.setText(String.valueOf(maxHr));
     }

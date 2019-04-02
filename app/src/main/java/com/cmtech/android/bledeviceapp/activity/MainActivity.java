@@ -312,8 +312,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             case R.id.toolbar_close:
                 fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
-                    deviceService.closeDevice(fragment.getDevice());
-                    deleteFragment(fragment);
+                    fragment.close();
                 } else {
                     requestFinish();
                 }
@@ -321,6 +320,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         }
         return true;
     }
+
+
 
     @Override
     protected void onDestroy() {
@@ -416,6 +417,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     @Override
     public BleDevice findDevice(String macAddress) {
         return (deviceService == null) ? null : deviceService.findDevice(macAddress);
+    }
+
+    @Override
+    public void closeFragment(BleDeviceFragment fragment) {
+        deviceService.closeDevice(fragment.getDevice());
+        deleteFragment(fragment);
     }
 
     // 打开设备：为设备创建并打开Fragment

@@ -86,7 +86,7 @@
             android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:visibility="invisible">
-            <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogram
+            <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart
                 android:id="@+id/bc_hr_histogram"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
@@ -192,52 +192,47 @@
         android:background="@color/primary_dark"
         android:baselineAligned="false">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:orientation="vertical">
+            android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/ib_ecg_record"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:background="@color/primary_dark"
+                android:src="@mipmap/ic_ecg_record_stop"
+                android:contentDescription="@null"/>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_gravity="center_horizontal">
-                <ImageButton
-                    android:id="@+id/ib_ecg_record"
+                android:layout_toEndOf="@id/ib_ecg_record"
+                android:layout_centerVertical="true"
+                android:orientation="vertical">
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@color/primary_dark"
-                    android:src="@mipmap/ic_ecg_record_stop"
-                    android:contentDescription="@null"/>
-
+                    android:text="采集信号" />
                 <TextView
                     android:id="@+id/tv_ecg_recordtime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
+                    android:text="00:00:00"
                     android:textColor="#f00"
-                    android:textSize="14sp"
-                    android:text="00:00:00"/>
+                    android:textSize="14sp" />
             </LinearLayout>
+        </RelativeLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:text="采集信号"/>
-        </LinearLayout>
-
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginEnd="5sp">
+            android:layout_weight="1">
             <ImageButton
                 android:id="@+id/ib_ecg_exit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
                 android:background="@color/primary_dark"
                 android:src="@mipmap/ic_exit_48px"
                 android:contentDescription="@null"/>
@@ -245,11 +240,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
+                android:layout_toEndOf="@id/ib_ecg_exit"
+                android:layout_centerVertical="true"
                 android:text="退出"/>
-        </LinearLayout>
-
-
+        </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout

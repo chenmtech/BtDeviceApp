@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -87,10 +86,11 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private EcgLeadType leadType = DEFAULT_LEADTYPE; // 导联类型
     private int value1mVBeforeCalibrate = 0; // 定标之前1mV对应的数值
     private final int value1mVAfterCalibrate = DEFAULT_CALIBRATIONVALUE; // 定标之后1mV对应的数值
-    private boolean isFilter = true; // 是否对信号进行滤波
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
     private int xPixelPerData = 2; // EcgView的横向分辨率
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
+
+    private boolean isSaveEcgFile = false; // 是否保存心电文件
 
     private EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
 
@@ -148,10 +148,11 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         else
             return ecgsignalRecorder.isRecord();
     }
-    public boolean isFilter() {return isFilter;}
-    public synchronized void setFilter(boolean isFilter) {
-        this.isFilter = isFilter;
-    } // 加载Ecg滤波器
+
+    public void setSaveEcgFile(boolean saveEcgFile) {
+        isSaveEcgFile = saveEcgFile;
+    }
+
     public int getPixelPerGrid() { return pixelPerGrid; }
     public int getxPixelPerData() { return xPixelPerData; }
     public float getyValuePerPixel() { return yValuePerPixel; }
@@ -310,10 +311,15 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
         if(ecgFile != null) {
             try {
-                saveEcgFileTail();
-                ecgFile.close();
-                File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
-                FileUtil.moveFile(ecgFile.getFile(), toFile);
+                if(isSaveEcgFile) {
+                    saveEcgFileTail();
+                    ecgFile.close();
+                    File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
+                    FileUtil.moveFile(ecgFile.getFile(), toFile);
+                } else {
+                    ecgFile.close();
+                    FileUtil.deleteFile(ecgFile.getFile());
+                }
             } catch (IOException e) {
                 try {
                     FileUtil.deleteFile(ecgFile.getFile());

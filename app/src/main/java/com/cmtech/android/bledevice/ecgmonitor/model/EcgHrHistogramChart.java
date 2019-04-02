@@ -28,22 +28,22 @@ import java.util.List;
  * Created by bme on 2019/1/9.
  */
 
-public class EcgHrHistogram extends BarChart {
+public class EcgHrHistogramChart extends BarChart {
     private BarDataSet hrBarDateSet;
     private List<BarEntry> hrBarEntries = new ArrayList<>();
     private List<String> hrBarXStrings = new ArrayList<>();
 
-    public EcgHrHistogram(Context context) {
+    public EcgHrHistogramChart(Context context) {
         super(context);
         initialize();
     }
 
-    public EcgHrHistogram(Context context, AttributeSet attrs) {
+    public EcgHrHistogramChart(Context context, AttributeSet attrs) {
         super(context, attrs);
         initialize();
     }
 
-    public EcgHrHistogram(Context context, AttributeSet attrs, int defStyle) {
+    public EcgHrHistogramChart(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initialize();
     }

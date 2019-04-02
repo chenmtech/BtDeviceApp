@@ -6,8 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
-import com.vise.log.ViseLog;
-
 /**
  * BleDeviceFragment：设备的Fragment
  * Created by bme on 2018/2/27.
@@ -96,6 +94,12 @@ public abstract class BleDeviceFragment extends Fragment{
     }
 
     public abstract void openConfigActivity();
+
+    public void close() {
+        if(activity != null) {
+            activity.closeFragment(this);
+        }
+    }
     //////////////////////////////////////////////////////////////////////////
 
 }
