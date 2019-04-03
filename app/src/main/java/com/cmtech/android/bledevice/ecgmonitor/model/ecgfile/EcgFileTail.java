@@ -9,7 +9,6 @@ import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -26,14 +25,13 @@ public class EcgFileTail {
     private List<EcgNormalComment> commentList = new ArrayList<>(); // 留言信息列表
 
     EcgFileTail() {
-
     }
 
     void setHrList(List<Integer> hrList) {
         hrInfoAppendix.setHrList(hrList);
     }
 
-    public List<Integer> getHrList() {
+    List<Integer> getHrList() {
         return hrInfoAppendix.getHrList();
     }
 
@@ -43,14 +41,19 @@ public class EcgFileTail {
      */
     public void readFromStream(RandomAccessFile raf) throws IOException{
         raf.seek(raf.length() - FILETAIL_LEN_BYTE_NUM);
+
         long tailEndPointer = raf.getFilePointer();
+
         long tailLength = ByteUtil.reverseLong(raf.readLong());
+
         long appendixLength = tailLength - FILETAIL_LEN_BYTE_NUM;
+
         raf.seek(tailEndPointer - appendixLength);
 
         // 读留言信息
         while (raf.getFilePointer() < tailEndPointer) {
             IEcgAppendix appendix = EcgAppendixFactory.readFromStream(raf);
+
             if(appendix != null) {
                 if(appendix instanceof EcgHrInfoAppendix) {
                     hrInfoAppendix = (EcgHrInfoAppendix)appendix;
@@ -67,8 +70,10 @@ public class EcgFileTail {
      */
     public void writeToStream(RandomAccessFile raf) throws IOException{
         long filePointer = raf.getFilePointer();
-        long length = length();
-        raf.setLength(raf.getFilePointer() + length);
+        long tailLength = length();
+
+        raf.setLength(filePointer + tailLength);
+
         raf.seek(filePointer);
 
         // 写留言信息
@@ -80,17 +85,17 @@ public class EcgFileTail {
         EcgAppendixFactory.writeToStream(hrInfoAppendix, raf);
 
         // 最后写入附加信息总长度
-        raf.writeLong(ByteUtil.reverseLong(length));
+        raf.writeLong(ByteUtil.reverseLong(tailLength));
     }
 
     @Override
     public String toString() {
-        return "[心电文件尾："
-                + "心率数：" + hrInfoAppendix.getHrList().size() + ";"
+        return getClass().getSimpleName() + ':'
+                + "心率数：" + hrInfoAppendix.getHrList().size() + ';'
                 + "心率信息：" + hrInfoAppendix + ';'
-                + "留言数：" + commentList.size() + ";"
-                + "留言：" + commentList + ";"
-                + "文件尾长度：" + length() + "]";
+                + "留言数：" + commentList.size() + ';'
+                + "留言：" + commentList + ';'
+                + "文件尾长度：" + length();
     }
 
     // 添加留言信息
@@ -104,16 +109,7 @@ public class EcgFileTail {
     }
 
     // 获取留言信息列表
-    public List<EcgNormalComment> getCommentList() { return commentList; }
-
-    public void setCommentList(List<EcgNormalComment> commentList) {
-        this.commentList = commentList;
-    }
-
-    // 获取留言信息数
-    int getCommentNum() {
-        return commentList.size();
-    }
+    List<EcgNormalComment> getCommentList() { return commentList; }
 
     /**
      * 获取EcgFileTail字节长度：所有留言长度 + 尾部长度（long 8字节）

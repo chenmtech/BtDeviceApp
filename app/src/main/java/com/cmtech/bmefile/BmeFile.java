@@ -1,15 +1,14 @@
 package com.cmtech.bmefile;
 
-import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
-
-import static java.nio.ByteOrder.BIG_ENDIAN;
 
 /**
  * BmeFile: Bme文件
@@ -18,46 +17,47 @@ import static java.nio.ByteOrder.BIG_ENDIAN;
 
 public abstract class BmeFile {
 	//protected static Set<String> fileInOperation = new HashSet<>(); // 已经打开的文件列表
-	protected static final BmeFileHead DEFAULT_BMEFILE_HEAD = BmeFileHeadFactory.createDefault(); // 缺省文件头
-	
+	static final BmeFileHead DEFAULT_BMEFILE_HEAD = BmeFileHeadFactory.createDefault(); // 缺省文件头
 	private static final byte[] BME = {'B', 'M', 'E'}; // BmeFile标识符
 	
 	protected File file; // 文件
+
 	protected DataInput in; // 输入流
+
 	protected DataOutput out; // 输出流
-	protected final BmeFileHead fileHead; // 文件头
+
+	protected BmeFileHead fileHead; // 文件头
+
 	protected int dataNum; // 文件包含的数据个数
-    public int getDataNum() {
-        return dataNum;
-    }
 
     // 为已存在文件生成BmeFile
-	protected BmeFile(String fileName) throws IOException{
-        File tempfile = new File(fileName);
-        if(tempfile.exists() && tempfile.renameTo(tempfile)) {
-            file = tempfile;
-            fileHead = open(file);
+	BmeFile(String fileName) throws IOException{
+        File file = new File(fileName);
+        if(file.exists() && file.renameTo(file)) {
+            this.file = file;
+            fileHead = readFileHead();
             if(fileHead == null) {
-                throw new IOException("打开文件错误:" + fileName);
+                throw new IOException("bmefile format wrong:" + fileName);
             }
         } else {
-            throw new IOException("打开文件错误:" + fileName);
+            throw new IOException();
         }
 	}
 
 	// 为不存在的文件创建BmeFile
-	protected BmeFile(String fileName, BmeFileHead head) throws IOException{
-        File tempfile = new File(fileName);
-        if(!tempfile.exists()) {
-            file = tempfile;
-            fileHead = create(head);
-            if(fileHead == null) {
-                throw new IOException("创建文件错误:" + fileName);
-            }
+	BmeFile(String fileName, BmeFileHead head) throws IOException{
+        File file = new File(fileName);
+        if(!file.exists()) {
+            this.file = file;
+            createNewFileUsingHead(head);
         } else {
-            throw new IOException("创建文件错误:" + fileName);
+            throw new IOException();
         }
 	}
+
+    public int getDataNum() {
+        return dataNum;
+    }
 
     // 判断文件是否在操作中
     public boolean isActive() {
@@ -66,67 +66,48 @@ public abstract class BmeFile {
         return !file.renameTo(file);
     }
 
-	private BmeFileHead open(File file){
-		BmeFileHead fileHead;
-		
-		if(file == null)
-			throw new IllegalArgumentException();
-        if(!file.exists() || in != null || out != null)
+	private BmeFileHead readFileHead() throws IOException{
+        if(in != null || out != null)
             throw new IllegalStateException();
 
-		try	{
-            if(!createInputStream())
-                return null;
-			byte[] bme = new byte[3];
-			in.readFully(bme); // 读BmeFile标识符
-			if(!Arrays.equals(bme, BME))
-			    return null;
-			byte[] ver = new byte[2];
-			in.readFully(ver); // 读版本号
-			fileHead = BmeFileHeadFactory.create(ver);
-			if(!fileHead.readFromStream(in)) // 读BmeFileHead
-			    return null;
-		} catch (IOException e) {
-			return null;
-		}
+        BmeFileHead fileHead;
+        createIOStream();
+        byte[] bme = new byte[3];
+        in.readFully(bme); // 读BmeFile标识符
+        if(!Arrays.equals(bme, BME))
+            return null;
+
+        byte[] ver = new byte[2];
+        in.readFully(ver); // 读版本号
+
+        fileHead = BmeFileHeadFactory.createByVersionCode(ver);
+
+        fileHead.readFromStream(in);
+
 		return fileHead;
 	}
 
-    private BmeFileHead create(BmeFileHead head){
+    private void createNewFileUsingHead(BmeFileHead head) throws IOException{
         if(head == null)
             throw new IllegalArgumentException();
-        if(file == null || in != null || out != null)
+
+        if(in != null || out != null)
             throw new IllegalStateException();
 
-        try {
-            if(file.exists()) {
-                if(!file.delete()) {
-                    throw new IOException();
-                }
-            }
-            if(!file.createNewFile()) {
-                throw new IOException();
-            }
-            if(!createOutputStream())
-                throw new IOException();
-            out.write(BME); // 写BmeFile文件标识符
-            out.write(head.getVersion()); // 写版本号
-            if(!head.writeToStream(out)) { // 写BmeFileHead
-                throw new IOException();
-            }
-        } catch(IOException ioe) {
-            return null;
+        if(!file.createNewFile()) {
+            throw new IOException();
         }
-        return head;
+
+        createIOStream();
+
+        out.write(BME); // 写BmeFile文件标识符
+
+        out.write(head.getVersion()); // 写版本号
+
+        head.writeToStream(out);
+
+        fileHead = head;
     }
-
-    protected abstract boolean createInputStream();
-    protected abstract boolean createOutputStream();
-	protected abstract int availableData();
-    protected abstract boolean isEof() throws IOException;
-    public abstract void close() throws IOException;
-
-
 
     // 读单个byte数据
     public byte readByte() throws IOException{
@@ -135,12 +116,12 @@ public abstract class BmeFile {
 
     // 读单个int数据
     public int readInt() throws IOException {
-        return readInt(in);
+        return DataIOUtil.readInt(in, fileHead.getByteOrder());
     }
 
     // 读单个double数据
     public double readDouble() throws IOException{
-        return readDouble(in);
+        return DataIOUtil.readDouble(in, fileHead.getByteOrder());
     }
 
     // 写单个byte数据
@@ -151,13 +132,13 @@ public abstract class BmeFile {
 
     // 写单个int数据
     public void writeData(int data) throws IOException{
-        writeInt(out, data);
+        DataIOUtil.writeInt(out, data, fileHead.getByteOrder());
         dataNum++;
     }
 
     // 写单个double数据
     public void writeData(double data) throws IOException{
-        writeDouble(out, data);
+        DataIOUtil.writeDouble(out, data, fileHead.getByteOrder());
         dataNum++;
     }
 
@@ -182,62 +163,32 @@ public abstract class BmeFile {
         }
 	}
 
-    private int readInt(DataInput in) throws IOException{
-        return (fileHead.getByteOrder() == BIG_ENDIAN) ? in.readInt() : ByteUtil.reverseInt(in.readInt());
-    }
-
-    private void writeInt(DataOutput out, int data) throws IOException{
-        if ((fileHead.getByteOrder() == BIG_ENDIAN)) {
-            out.writeInt(data);
-        } else {
-            out.writeInt(ByteUtil.reverseInt(data));
-        }
-    }
-
-    private double readDouble(DataInput in) throws IOException{
-        return (fileHead.getByteOrder() == BIG_ENDIAN) ? in.readDouble() : ByteUtil.reverseDouble(in.readDouble());
-    }
-
-    private void writeDouble(DataOutput out, double data) throws IOException{
-        if ((fileHead.getByteOrder() == BIG_ENDIAN)) {
-            out.writeDouble(data);
-        } else {
-            out.writeDouble(ByteUtil.reverseDouble(data));
-        }
-    }
-
 	public File getFile() {
 	    return file;
     }
 
 	public String getFileName() {
-		if(file == null) return "";
-		return file.toString();
+		return (file == null) ? "" : file.toString();
 	}
 	
 	public String getInfo() {
-		if(fileHead == null) return "";
-		return fileHead.getInfo();
+		return (fileHead == null) ? "" : fileHead.getInfo();
 	}
 
 	public BmeFileDataType getDataType() {
-		if(fileHead == null) return null;
-		return fileHead.getDataType();
+		return (fileHead == null) ? null : fileHead.getDataType();
 	}
 
-	public int getFs() {
-		if(fileHead == null) return -1;
-		return fileHead.getFs();
+	public int getSampleRate() {
+		return (fileHead == null) ? -1 : fileHead.getSampleRate();
 	}
 	
 	public byte[] getVersion() {
-		if(fileHead == null) return null;
-		return fileHead.getVersion();
+		return (fileHead == null) ? null : fileHead.getVersion();
 	}
 	
 	public ByteOrder getByteOrder() {
-		if(fileHead == null) return null;
-		return fileHead.getByteOrder();
+		return (fileHead == null) ? null : fileHead.getByteOrder();
 	}
 	
 	public BmeFileHead getBmeFileHead() {
@@ -248,4 +199,9 @@ public abstract class BmeFile {
 	public String toString() {
 		return "[文件名：" + getFileName() + ":"+ fileHead + "; 数据个数：" + getDataNum() + "]";
 	}
+
+    protected abstract void createIOStream() throws FileNotFoundException;
+    protected abstract int availableDataFromCurrentPos();
+    protected abstract boolean isEof() throws IOException;
+    public abstract void close() throws IOException;
 }

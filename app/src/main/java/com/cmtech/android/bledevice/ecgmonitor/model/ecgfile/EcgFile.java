@@ -2,19 +2,16 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.bmefile.AbstractRandomAccessBmeFile;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead;
 import com.cmtech.bmefile.BmeFileHead30;
-import com.cmtech.bmefile.RandomAccessBmeFile;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteOrder;
 import java.util.Date;
 import java.util.List;
 
@@ -25,15 +22,14 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.CACHEDIR;
  * Created by bme on 2018/11/20.
  */
 
-public class EcgFile extends RandomAccessBmeFile {
+public class EcgFile extends AbstractRandomAccessBmeFile {
     private EcgFileHead ecgFileHead = new EcgFileHead(); // EcgFileHead
-    private EcgFileTail ecgFileTail = new EcgFileTail(); // Ecg文件尾
-    private long dataEndPointer;  // 数据结束的文件位置指针
 
-    // 打开已有文件
-    public static EcgFile open(String fileName) throws IOException{
-        return new EcgFile(fileName);
-    }
+    private EcgFileTail ecgFileTail = new EcgFileTail(); // Ecg文件尾
+
+    private final long dataBeginPointer; // 数据起始位置指针
+
+    private long dataEndPointer;  // 数据结束的文件位置指针
 
     /**
      * 打开已有EcgFile文件时使用的私有构造器
@@ -41,49 +37,56 @@ public class EcgFile extends RandomAccessBmeFile {
     private EcgFile(String fileName) throws IOException {
         super(fileName);
 
-        try {
-            ecgFileHead.readFromStream(raf);
+        ecgFileHead.readFromStream(raf);
 
-            dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
+        dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
 
-            ecgFileTail.readFromStream(raf);
+        ecgFileTail.readFromStream(raf);
 
-            dataEndPointer = raf.length() - ecgFileTail.length();
+        dataEndPointer = raf.length() - ecgFileTail.length();
 
-            raf.seek(dataBeginPointer); // 回到数据开始位置
+        raf.seek(dataBeginPointer); // 回到数据开始位置
 
-            dataNum = availableData(); // 获取数据个数
-        } catch (IOException e) {
-            throw new IOException("打开文件错误:" + fileName + ' ' + e.getMessage());
-        }
+        dataNum = availableDataFromCurrentPos(); // 获取数据个数
+    }
+
+    // 创建新文件时使用的私有构造器
+    private EcgFile(String fileName, BmeFileHead head, EcgFileHead ecgFileHead) throws IOException {
+        super(fileName, head);
+
+        this.ecgFileHead = ecgFileHead;
+
+        ecgFileHead.writeToStream(raf);
+
+        dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
+
+        dataEndPointer = dataBeginPointer;
+
+        dataNum = 0;
+    }
+
+    // 打开已有文件
+    public static EcgFile open(String fileName) throws IOException{
+        return new EcgFile(fileName);
     }
 
     // 创建Ecg文件
-    public static EcgFile create(int sampleRate, int calibrationValue, String macAddress, EcgLeadType leadType) {
-        EcgFile ecgFile = null;
-        // 创建bmeFileHead文件头
-        BmeFileHead30 bmeFileHead = new BmeFileHead30();
-        bmeFileHead.setByteOrder(ByteOrder.LITTLE_ENDIAN);
-        bmeFileHead.setDataType(BmeFileDataType.INT32);
-        bmeFileHead.setFs(sampleRate);
-        bmeFileHead.setInfo("这是一个心电文件。");
-        bmeFileHead.setCalibrationValue(calibrationValue);
+    public static EcgFile create(int sampleRate, int calibrationValue, String macAddress, EcgLeadType leadType) throws IOException{
+        EcgFile ecgFile;
+
         long fileCreateTime = new Date().getTime();
-        bmeFileHead.setCreatedTime(fileCreateTime);
+
+        // 创建bmeFileHead文件头
+        BmeFileHead30 bmeFileHead = new BmeFileHead30("an ecg file", BmeFileDataType.INT32, sampleRate, calibrationValue, fileCreateTime);
 
         // 创建ecgFileHead文件头
-        String simpleMacAddress = EcgMonitorUtil.cutColonMacAddress(macAddress);
+        String simpleMacAddress = EcgMonitorUtil.cutColonInMacAddress(macAddress);
         EcgFileHead ecgFileHead = new EcgFileHead(AccountManager.getInstance().getAccount(), simpleMacAddress, leadType);
 
         // 创建ecgFile
         String fileName = EcgMonitorUtil.makeFileName(macAddress, fileCreateTime);
-        File toFile = FileUtil.getFile(CACHEDIR, fileName);
-        try {
-            fileName = toFile.getCanonicalPath();
-            ecgFile = EcgFile.create(fileName, bmeFileHead, ecgFileHead);
-        } catch (Exception e) {
-            ViseLog.e(e);
-        }
+        ecgFile = EcgFile.create(FileUtil.getFile(CACHEDIR, fileName).getCanonicalPath(), bmeFileHead, ecgFileHead);
+
         return ecgFile;
     }
 
@@ -92,21 +95,24 @@ public class EcgFile extends RandomAccessBmeFile {
         return new EcgFile(fileName, head, ecgFileHead);
     }
 
-    // 创建新文件时使用的私有构造器
-    private EcgFile(String fileName, BmeFileHead head, EcgFileHead ecgFileHead) throws IOException {
-        super(fileName, head);
-        try {
-            this.ecgFileHead = ecgFileHead;
-            ecgFileHead.writeToStream(raf);
+    public List<EcgNormalComment> getCommentList() {
+        return ecgFileTail.getCommentList();
+    }
 
-            dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
+    public User getCreator() {
+        return ecgFileHead.getCreator();
+    }
 
-            dataEndPointer = dataBeginPointer;
+    public String getCreatorName() {
+        return getCreator().getUserName();
+    }
 
-            dataNum = 0;
-        } catch (IOException e) {
-            throw new IOException("创建文件错误：" + fileName);
-        }
+    public long getCreateTime() {
+        return ((BmeFileHead30)getBmeFileHead()).getCreateTime();
+    }
+
+    public List<Integer> getHrList() {
+        return ecgFileTail.getHrList();
     }
 
     public void setHrList(List<Integer> hrList) {
@@ -114,9 +120,14 @@ public class EcgFile extends RandomAccessBmeFile {
     }
 
     @Override
-    protected int availableData() {
+    protected int availableDataFromCurrentPos() {
         if(raf != null) {
-            return (int)((dataEndPointer - dataBeginPointer)/fileHead.getDataType().getTypeLength());
+            try {
+                return (int)((dataEndPointer - raf.getFilePointer())/fileHead.getDataType().getByteNum());
+            } catch (IOException e) {
+                e.printStackTrace();
+                return 0;
+            }
         }
         return 0;
     }
@@ -124,11 +135,17 @@ public class EcgFile extends RandomAccessBmeFile {
     public synchronized void saveFileTail() throws IOException{
         long curPointer = raf.getFilePointer();
 
-        dataEndPointer = dataBeginPointer + dataNum * fileHead.getDataType().getTypeLength();
+        dataEndPointer = calculateDataEndPointer();
+
         raf.seek(dataEndPointer);
+
         ecgFileTail.writeToStream(raf);
-        ViseLog.e(ecgFileTail);
+
         raf.seek(curPointer);
+    }
+
+    private long calculateDataEndPointer() {
+        return dataBeginPointer + dataNum * fileHead.getDataType().getByteNum();
     }
 
     // 是否已经到达数据尾部
@@ -142,50 +159,28 @@ public class EcgFile extends RandomAccessBmeFile {
         }
     }
 
-    public EcgFileHead getEcgFileHead() {
-        return ecgFileHead;
-    }
-
-    public EcgFileTail getEcgFileTail() { return ecgFileTail; }
-
-    public List<EcgNormalComment> getAppendixList() {
-        return ecgFileTail.getCommentList();
-    }
-
-    public User getCreator() {
-        return ecgFileHead.getCreator();
-    }
-
-    public String getCreatorName() {
-        return getCreator().getUserName();
-    }
-
-    public long getCreateTime() {
-        return ((BmeFileHead30)getBmeFileHead()).getCreatedTime();
-    }
-
     // 将文件指针定位到某个数据位置
     public void seekData(int dataNum) {
         try {
-            raf.seek(dataBeginPointer + dataNum * getDataType().getTypeLength());
+            raf.seek(dataBeginPointer + dataNum * getDataType().getByteNum());
         } catch (IOException e) {
             ViseLog.e("seekData " + dataNum + "is wrong.");
         }
     }
 
-    // 为文件添加一条附加信息
+    // 添加一条留言
     public void addComment(EcgNormalComment comment) {
         ecgFileTail.addComment(comment);
     }
 
-    // 添加多条附加信息
+    // 多条留言
     public void addComment(List<EcgNormalComment> comments) {
         for(EcgNormalComment comment : comments) {
             ecgFileTail.addComment(comment);
         }
     }
 
-    // 删除一条附加信息
+    // 删除一条留言
     public void deleteComment(EcgNormalComment comment) {
         if(ecgFileTail.getCommentList().contains(comment)) {
             // 删除留言
@@ -193,71 +188,8 @@ public class EcgFile extends RandomAccessBmeFile {
         }
     }
 
-    // 输出所有留言信息字符串，用于调试
-    public String getCommentString() {
-        if(ecgFileTail.getCommentNum() == 0) return "";
-        StringBuilder builder = new StringBuilder();
-        for(EcgNormalComment comment : ecgFileTail.getCommentList()) {
-            builder.append(comment.toString());
-        }
-        return builder.toString();
-    }
-
     @Override
     public String toString() {
         return super.toString() + ";" + ecgFileHead + ";" + ecgFileTail;
     }
-
-    /**
-     * 将文件raf的数据块从begin开始，往后推移length个字节
-     * 推移时分块进行，每次移动opLengthEachTime个字节
-     */
-    /*private void pushTerminalBlockBackSomeBytes(RandomAccessFile raf, long begin, int length, int opLengthEachTime) throws IOException{
-        raf.setLength(raf.length() + length);        // 先增加文件长度
-        raf.seek(raf.length() - length);      // 移动到文件尾
-        int blockLen = 0;                // 记录每次要移动的块长度，一般都是等于opLengthEachTime，但是当最后一个块移动时可能小于opLengthEachTime
-        long blockBeginPointer = 0;      // 记录每次要移动的块开始位置
-        while(raf.getFilePointer() > begin) {    // 保证每次要移动的块尾都在begin后面，否则就不需要移动了
-            if(raf.getFilePointer() - opLengthEachTime < begin) {       // 如果剩下的块不够opLengthEachTime
-                blockLen = (int)(raf.getFilePointer() - begin);
-                blockBeginPointer = begin;    // 只需要从begin开始
-            } else {
-                blockLen = opLengthEachTime;
-                blockBeginPointer = raf.getFilePointer() - opLengthEachTime;
-            }
-            byte[] buffer = new byte[blockLen];     // 建立长度为blockLen的缓存
-            raf.seek(blockBeginPointer);            // 将文件指针移动到块开始位置
-            raf.readFully(buffer);                  // 读块
-            raf.seek(blockBeginPointer + length);     // 往后移动length
-            raf.write(buffer);                      // 写块
-            raf.seek(blockBeginPointer);            // 定位到块的开始位置，也就是下次要移动的块的尾部
-        }
-    }*/
-
-    /**
-     * 将文件raf的数据块从begin开始，向前移动length个字节
-     * 移动时分块进行，每次移动opLengthEachTime个字节
-     */
-    /*private void pullTerminalBlockForwardSomeBytes(RandomAccessFile raf, long begin, int length, int opLengthEachTime) throws IOException{
-        raf.seek(begin);            // 定位到起始位置
-
-        int blockLen = 0;                // 记录每次要移动的块长度，一般都是等于opLengthEachTime，但是当最后一个块移动时可能小于opLengthEachTime
-        long blockBeginPointer = raf.getFilePointer();      // 记录每次要移动的块开始位置
-        while(blockBeginPointer < raf.length()) {     // 保证没有到达文件尾
-            raf.seek(blockBeginPointer);            // 定位到块的开始位置
-            if(blockBeginPointer + opLengthEachTime > raf.length()) {       // 如果剩下的块不够opLengthEachTime
-                blockLen = (int)(raf.length() - blockBeginPointer);
-            } else {
-                blockLen = opLengthEachTime;
-            }
-            byte[] buffer = new byte[blockLen];     // 建立长度为blockLen的缓存
-            raf.readFully(buffer);                  // 读块
-            raf.seek(blockBeginPointer - length);     // 向前移动length
-            raf.write(buffer);                      // 写块
-            blockBeginPointer += blockLen;          // 修改下一个块的起始位置
-        }
-        raf.setLength(raf.length() - length);        // 减小文件长度length
-    }*/
-
-
 }

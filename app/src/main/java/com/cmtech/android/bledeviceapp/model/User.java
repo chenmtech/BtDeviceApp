@@ -67,22 +67,22 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
 
     public boolean readFromStream(DataInput in) throws IOException{
         // 读手机号
-        phone = DataIOUtil.readFixedString(PHONE_CHAR_LEN, in);
+        phone = DataIOUtil.readFixedString(in, PHONE_CHAR_LEN);
         // 读人名
-        userName = DataIOUtil.readFixedString(NAME_CHAR_LEN, in);
+        userName = DataIOUtil.readFixedString(in, NAME_CHAR_LEN);
         // 读备注信息
-        remark = DataIOUtil.readFixedString(REMARK_CHAR_LEN, in);
+        remark = DataIOUtil.readFixedString(in, REMARK_CHAR_LEN);
 
         return true;
     }
 
     public boolean writeToStream(DataOutput out) throws IOException{
         // 写手机号
-        DataIOUtil.writeFixedString(phone, PHONE_CHAR_LEN, out);
+        DataIOUtil.writeFixedString(out, phone, PHONE_CHAR_LEN);
         // 写人名
-        DataIOUtil.writeFixedString(userName, NAME_CHAR_LEN, out);
+        DataIOUtil.writeFixedString(out, userName, NAME_CHAR_LEN);
         // 写备注
-        DataIOUtil.writeFixedString(remark, REMARK_CHAR_LEN, out);
+        DataIOUtil.writeFixedString(out, remark, REMARK_CHAR_LEN);
         return true;
     }
 

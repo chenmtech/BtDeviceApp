@@ -1,68 +1,52 @@
 package com.cmtech.bmefile;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 
 /**
- * RandomwAccessBmeFile: 可随机访问的BmeFile
- * Created by Chenm, 2018-12-03
+ * RandomAccessBmeFile: 一般的可随机访问的BmeFile
+ * Created by Chenm, 2018-12-18
  */
 
-public abstract class RandomAccessBmeFile extends BmeFile {
-    protected long dataBeginPointer = 0; // 文件数据起始位置指针
-    protected RandomAccessFile raf;
+public class RandomAccessBmeFile extends AbstractRandomAccessBmeFile {
+    private final long dataBeginPointer; // 数据起始位置指针
 
-    protected RandomAccessBmeFile(String fileName) throws IOException {
+    private RandomAccessBmeFile(String fileName) throws IOException {
         super(fileName);
+
+        dataBeginPointer = raf.getFilePointer();
+
+        dataNum = availableDataFromCurrentPos();
     }
 
-    protected RandomAccessBmeFile(String fileName, BmeFileHead head) throws IOException{
+    private RandomAccessBmeFile(String fileName, BmeFileHead head) throws IOException{
         super(fileName, head);
+
+        dataBeginPointer = raf.getFilePointer();
+
+        dataNum = 0;
+    }
+
+    // 打开已有文件
+    public static RandomAccessBmeFile open(String fileName) throws IOException{
+        return new RandomAccessBmeFile(fileName);
+    }
+
+    // 用缺省文件头创建新的文件
+    public static RandomAccessBmeFile create(String fileName) throws IOException{
+        return new RandomAccessBmeFile(fileName, DEFAULT_BMEFILE_HEAD);
+    }
+
+    // 用指定的文件头创建新的文件
+    public static RandomAccessBmeFile create(String fileName, BmeFileHead head) throws IOException{
+        return new RandomAccessBmeFile(fileName, head);
     }
 
     @Override
-    protected boolean createInputStream() {
+    protected int availableDataFromCurrentPos() {
         try {
-            raf = new RandomAccessFile(file, "rw");
-        } catch (FileNotFoundException e) {
-            return false;
-        }
-        in = raf;
-        out = raf;
-        return true;
-    }
-
-    @Override
-    protected boolean createOutputStream() {
-        try {
-            raf = new RandomAccessFile(file, "rw");
-        } catch (FileNotFoundException e) {
-            return false;
-        }
-        in = raf;
-        out = raf;
-        return true;
-    }
-
-    @Override
-    protected boolean isEof() throws IOException {
-        return (raf == null ||raf.length() == raf.getFilePointer());
-    }
-
-    @Override
-    public void close() throws IOException {
-        try {
-            if(raf != null) {
-                raf.close();
-            }
-        } catch(IOException ioe) {
-            throw new IOException(file.getName() + "关闭文件错误");
-        } finally {
-            //fileInOperation.remove(file.getCanonicalPath());
-            in = null;
-            out = null;
-            raf = null;
+            return (int)((raf.length()-raf.getFilePointer())/fileHead.getDataType().getByteNum());
+        } catch (IOException e) {
+            return 0;
         }
     }
 }

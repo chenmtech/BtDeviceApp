@@ -97,13 +97,13 @@ public class RealSeq extends Seq<Double>{
 	}
 	
 	public void saveAsBmeFile(String fileName) throws IOException {
-        BmeFile bmeFile = StreamBmeFile.createBmeFile(fileName);
+        BmeFile bmeFile = StreamBmeFile.create(fileName);
         bmeFile.writeData(toArray());
         bmeFile.close();
 	}
 	
 	public void saveAsBmeFile(String fileName, BmeFileHead head) throws IOException {
-	    BmeFile bmeFile = StreamBmeFile.createBmeFile(fileName, head);
+	    BmeFile bmeFile = StreamBmeFile.create(fileName, head);
 	    bmeFile.writeData(toArray());
 	    bmeFile.close();
 	}

@@ -44,7 +44,7 @@ public class EcgFileExplorerModel {
         return selectFile;
     }
     public int getSelectFileSampleRate() {
-        return selectFile.getFs();
+        return selectFile.getSampleRate();
     }
     public int getPixelPerGrid() { return pixelPerGrid; }
     public int gethPixelPerData() { return hPixelPerData; }
@@ -85,7 +85,7 @@ public class EcgFileExplorerModel {
         else {
             User account = AccountManager.getInstance().getAccount();
             boolean found = false;
-            for(EcgNormalComment appendix : selectFile.getAppendixList()) {
+            for(EcgNormalComment appendix : selectFile.getCommentList()) {
                 if(appendix.getCreator().equals(account)) {
                     found = true;
                     break;
@@ -94,7 +94,7 @@ public class EcgFileExplorerModel {
             if(!found) {
                 selectFile.addComment(EcgNormalComment.createDefaultComment());
             }
-            return selectFile.getAppendixList();
+            return selectFile.getCommentList();
         }
     }
 
@@ -120,7 +120,7 @@ public class EcgFileExplorerModel {
 
     // 初始化回放参数
     private void initReplayPara(final EcgFile ecgFile) {
-        int sampleRate = ecgFile.getFs();
+        int sampleRate = ecgFile.getSampleRate();
         totalSecond = ecgFile.getDataNum()/sampleRate;
         int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
         hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_HGRID * sampleRate)); // 计算横向分辨率
@@ -152,7 +152,7 @@ public class EcgFileExplorerModel {
 
     public void updateHrInfo() {
         if(selectFile != null) {
-            hrRecorder.setHrList(selectFile.getEcgFileTail().getHrList());
+            hrRecorder.setHrList(selectFile.getHrList());
             hrRecorder.updateHrInfo(10, 5);
         }
     }

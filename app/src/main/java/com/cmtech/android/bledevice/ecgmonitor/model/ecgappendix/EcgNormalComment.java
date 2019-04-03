@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
-import android.text.TextUtils;
-
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -91,7 +89,7 @@ public class EcgNormalComment extends EcgAppendix{
         // 读修改时间
         modifyTime = ByteUtil.reverseLong(in.readLong());
         // 读留言内容
-        content = DataIOUtil.readFixedString(CONTENT_CHAR_NUM, in);
+        content = DataIOUtil.readFixedString(in, CONTENT_CHAR_NUM);
     }
 
     /**
@@ -105,7 +103,7 @@ public class EcgNormalComment extends EcgAppendix{
         // 写修改时间
         out.writeLong(ByteUtil.reverseLong(modifyTime));
         // 写留言内容
-        DataIOUtil.writeFixedString(content, CONTENT_CHAR_NUM, out);
+        DataIOUtil.writeFixedString(out, content, CONTENT_CHAR_NUM);
     }
 
     /**

@@ -21,8 +21,8 @@ public enum BmeFileDataType {
         return this.code;
     }
 
-    // 获取类型字节长度
-    public int getTypeLength() {
+    // 获取类型字节数
+    public int getByteNum() {
         switch (code) {
             case 0:
                 return 4;
@@ -37,9 +37,9 @@ public enum BmeFileDataType {
 
     // 由code获取对应的BmeFileDataType
     public static BmeFileDataType getFromCode(int code) {
-        for(BmeFileDataType ele : BmeFileDataType.values()) {
-            if(ele.code == code) {
-                return ele;
+        for(BmeFileDataType type : BmeFileDataType.values()) {
+            if(type.code == code) {
+                return type;
             }
         }
         return UNKNOWN;

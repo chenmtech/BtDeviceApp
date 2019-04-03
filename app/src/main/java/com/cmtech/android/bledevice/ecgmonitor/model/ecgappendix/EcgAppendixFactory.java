@@ -42,9 +42,7 @@ public class EcgAppendixFactory {
     }
 
     public static void writeToStream(IEcgAppendix appendix, DataOutput out) throws IOException{
-        if(out == null) throw new IllegalArgumentException();
-
-        if(appendix == null) return;
+        if(out == null || appendix == null) return;
 
         out.writeInt(ByteUtil.reverseInt(appendix.getType().getCode()));
 

@@ -5,7 +5,6 @@ import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * BmeFileHead30: Bme文件头,3.0版本
@@ -13,32 +12,30 @@ import java.util.Arrays;
  */
 
 public class BmeFileHead30 extends BmeFileHead10 {
-    public static final byte[] VER = new byte[] {0x00, 0x03}; // 版本号
+    static final byte[] VER = new byte[] {0x00, 0x03}; // 版本号
+    private static final int CALI_VALUE_BYTE_NUM = 4;
+    private static final int CREATE_TIME_BYTE_NUM = 8;
 
-    private int calibrationValue = 1; // 定标值
+    private int calibrationValue = 1; // 标定值
+
+    private long createTime = 0; // 创建时间
+
+    BmeFileHead30() {
+        super();
+    }
+
+    public BmeFileHead30(String info, BmeFileDataType dataType, int sampleRate, int calibrationValue, long createTime) {
+        super(info, dataType, sampleRate);
+        this.calibrationValue = calibrationValue;
+        this.createTime = createTime;
+    }
+
     public int getCalibrationValue() {
         return calibrationValue;
     }
-    public void setCalibrationValue(int calibrationValue) {
-        this.calibrationValue = calibrationValue;
-    }
 
-    private long createdTime = 0; // 文件创建时间
-    public long getCreatedTime() {
-        return createdTime;
-    }
-    public void setCreatedTime(long createdTime) {
-        this.createdTime = createdTime;
-    }
-
-    public BmeFileHead30() {
-        super();
-    }
-
-    public BmeFileHead30(int calibrationValue, long createdTime) {
-        super();
-        this.calibrationValue = calibrationValue;
-        this.createdTime = createdTime;
+    public long getCreateTime() {
+        return createTime;
     }
 
     @Override
@@ -47,48 +44,28 @@ public class BmeFileHead30 extends BmeFileHead10 {
     }
 
     @Override
-    public boolean readFromStream(DataInput in){
-        boolean result = super.readFromStream(in);
-        if(result) {
-            try {
-                setCalibrationValue(ByteUtil.reverseInt(in.readInt())); // 读定标值
-                setCreatedTime(ByteUtil.reverseLong(in.readLong())); // 读创建时间
-            } catch (IOException e) {
-                result = false;
-            }
-        }
-        return result;
+    public void readFromStream(DataInput in) throws IOException{
+        super.readFromStream(in);
+        calibrationValue = ByteUtil.reverseInt(in.readInt());
+        createTime = ByteUtil.reverseLong(in.readLong());
     }
 
     @Override
-    public boolean writeToStream(DataOutput out) {
-        boolean result = super.writeToStream(out);
-        if(result) {
-            try {
-                out.writeInt(ByteUtil.reverseInt(getCalibrationValue())); // 写定标值
-                out.writeLong(ByteUtil.reverseLong(getCreatedTime())); // 写创建时间
-            } catch (IOException e) {
-                result = false;
-            }
-        }
-        return result;
+    public void writeToStream(DataOutput out) throws IOException{
+        super.writeToStream(out);
+        out.writeInt(ByteUtil.reverseInt(calibrationValue)); // 写定标值
+        out.writeLong(ByteUtil.reverseLong(createTime)); // 写创建时间
     }
 
     @Override
     public String toString() {
-        return "[文件头信息："
-                + getClass().getSimpleName() + ";"
-                + Arrays.toString(getVersion()) + ";"
-                + getByteOrder() + ";"
-                + getInfo() + ";"
-                + getDataType() + ";"
-                + getFs() + ";"
-                + getCalibrationValue() + ";"
-                + getCreatedTime() + "]";
+        return getClass().getSimpleName() + ":"
+                + super.toString()
+                + calibrationValue + ";"
+                + createTime;
     }
 
-    // 文件头字节长度：super.getLength() + calibrationValue(4字节) + createdTime(8字节)
     public int getLength() {
-        return super.getLength() + 12;
+        return super.getLength() + CALI_VALUE_BYTE_NUM + CREATE_TIME_BYTE_NUM;
     }
 }

@@ -429,11 +429,20 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
         // 创建心电记录文件
         if(ecgFile == null) {
-            ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibrate, getMacAddress(), leadType);
+            try {
+                ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibrate, getMacAddress(), leadType);
+            } catch (IOException e) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MyApplication.getContext(), "无法记录心电信息", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
 
         // 创建心电信号记录仪
-        if(signalRecorder == null) {
+        if(ecgFile != null && signalRecorder == null) {
             signalRecorder = new EcgSignalRecorder(sampleRate, ecgFile, this);
         }
 

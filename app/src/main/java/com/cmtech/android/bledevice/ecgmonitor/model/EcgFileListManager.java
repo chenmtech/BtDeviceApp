@@ -181,8 +181,8 @@ public class EcgFileListManager {
 
     // 融合EcgFile的附加留言
     private boolean mergeEcgFileAppendix(EcgFile srcFile, EcgFile destFile) {
-        List<EcgNormalComment> srcComments = srcFile.getEcgFileTail().getCommentList();
-        List<EcgNormalComment> destComments = destFile.getEcgFileTail().getCommentList();
+        List<EcgNormalComment> srcComments = srcFile.getCommentList();
+        List<EcgNormalComment> destComments = destFile.getCommentList();
         List<EcgNormalComment> needAddComments = new ArrayList<>();
 
         for(EcgNormalComment srcComment : srcComments) {

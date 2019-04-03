@@ -2,6 +2,7 @@ package com.cmtech.bmefile;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.IOException;
 import java.nio.ByteOrder;
 
 /**
@@ -10,61 +11,74 @@ import java.nio.ByteOrder;
  */
 
 public abstract class BmeFileHead {
-    // 信息字符串
-	private String info = "Unknown";
-    public String getInfo() {
-        return info;
-    }
-    public void setInfo(String info) {
-        this.info = info;
-    }
+    private static final int INFO_LENGTH_BYTE_NUM = 4;
+    private static final int DATA_TYPE_BYTE_NUM = 1;
+    private static final int SAMPLE_RATE_BYTE_NUM = 4;
 
-	// 数据类型
-	private BmeFileDataType dataType = BmeFileDataType.DOUBLE;
-    public BmeFileDataType getDataType() {
-        return dataType;
-    }
-    public void setDataType(BmeFileDataType dataType) {
-        this.dataType = dataType;
-    }
+	private String info = "Unknown"; // 信息字符串
 
-	// 采样频率
-	private int fs = -1;
-    public int getFs() {
-        return fs;
-    }
-    public void setFs(int fs) {
-        this.fs = fs;
-    }
-	
+	private BmeFileDataType dataType = BmeFileDataType.DOUBLE; // 数据类型
+
+	private int sampleRate = -1; // 采样频率
+
 	public BmeFileHead() {
 	}
 	
-	public BmeFileHead(String info, BmeFileDataType dataType, int fs) {
+	public BmeFileHead(String info, BmeFileDataType dataType, int sampleRate) {
 		this.info = info;
 		this.dataType = dataType;
-		this.fs = fs;
+		this.sampleRate = sampleRate;
 	}
 	
 	public BmeFileHead(BmeFileHead fileHead) {
 		info = fileHead.info;
 		dataType = fileHead.dataType;
-		fs = fileHead.fs;
+		sampleRate = fileHead.sampleRate;
 	}
 
-	// BmeFileHead字节长度：infoLen(4字节) + info + dataType(1字节) + fs(4字节)
-	public int getLength() {
-	    return 4 + info.getBytes().length + 1 + 4;
+    public String getInfo() {
+        return info;
     }
 
-    // 获取文件头版本号
-    public abstract byte[] getVersion();
-    // 获取文件数据字节序
-	public abstract ByteOrder getByteOrder();
-	// 设置文件数据字节序
-	public abstract void setByteOrder(ByteOrder byteOrder);
-	// 从输入流读取文件头
-	public abstract boolean readFromStream(DataInput in);
-	// 将文件头写到输出流
-	public abstract boolean writeToStream(DataOutput out);
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public BmeFileDataType getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(BmeFileDataType dataType) {
+        this.dataType = dataType;
+    }
+
+    public int getSampleRate() {
+        return sampleRate;
+    }
+
+    public void setSampleRate(int fs) {
+        this.sampleRate = fs;
+    }
+
+	public int getLength() {
+	    return INFO_LENGTH_BYTE_NUM + info.getBytes().length + DATA_TYPE_BYTE_NUM + SAMPLE_RATE_BYTE_NUM;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ":"
+                + info + ";"
+                + dataType + ";"
+                + sampleRate;
+    }
+
+    public abstract byte[] getVersion(); // 获取版本号
+
+	public abstract ByteOrder getByteOrder(); // 获取数据字节序
+
+	public abstract void setByteOrder(ByteOrder byteOrder); // 设置数据字节序
+
+	public abstract void readFromStream(DataInput in) throws IOException; // 从输入流读取文件头
+
+	public abstract void writeToStream(DataOutput out) throws IOException; // 将文件头写到输出流
 }

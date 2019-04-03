@@ -18,7 +18,7 @@ public class StreamBmeFile extends BmeFile {
     // 用于打开已有流文件
     private StreamBmeFile(String fileName) throws IOException {
         super(fileName);
-        dataNum = availableData();
+        dataNum = availableDataFromCurrentPos();
     }
 
     // 用于创建新的流文件
@@ -28,55 +28,39 @@ public class StreamBmeFile extends BmeFile {
     }
 
     // 打开已有文件
-    public static StreamBmeFile openBmeFile(String fileName) throws IOException{
+    public static StreamBmeFile open(String fileName) throws IOException{
         return new StreamBmeFile(fileName);
     }
 
     // 用缺省文件头创建新的文件
-    public static StreamBmeFile createBmeFile(String fileName) throws IOException{
+    public static StreamBmeFile create(String fileName) throws IOException{
         return new StreamBmeFile(fileName, DEFAULT_BMEFILE_HEAD);
     }
 
     // 用指定的文件头创建新的文件
-    public static StreamBmeFile createBmeFile(String fileName, BmeFileHead head) throws IOException{
+    public static StreamBmeFile create(String fileName, BmeFileHead head) throws IOException{
         return new StreamBmeFile(fileName, head);
     }
 
     @Override
-    protected boolean createInputStream() {
-        try {
-            in = new DataInputStream(
-                    new BufferedInputStream(
-                            new FileInputStream(file)));
-        } catch (FileNotFoundException e) {
-            return false;
-        }
-        return true;
-    }
+    protected void createIOStream() throws FileNotFoundException{
+        in = new DataInputStream(
+                new BufferedInputStream(
+                        new FileInputStream(file)));
 
-    @Override
-    protected boolean createOutputStream() {
-        try {
-            out = new DataOutputStream(
-                    new BufferedOutputStream(
-                            new FileOutputStream(file)));
-        } catch (FileNotFoundException e) {
-            return false;
-        }
-        return true;
+        out = new DataOutputStream(
+                new BufferedOutputStream(
+                        new FileOutputStream(file)));
     }
 
     // 获取从当前文件指针位置开始，还可获取多少个数据
     @Override
-    protected int availableData() {
-        if(in != null) {
-            try {
-                return ((DataInputStream)in).available()/fileHead.getDataType().getTypeLength();
-            } catch (IOException e) {
-                return 0;
-            }
+    protected int availableDataFromCurrentPos() {
+        try {
+            return ((DataInputStream)in).available()/fileHead.getDataType().getByteNum();
+        } catch (IOException e) {
+            return 0;
         }
-        return 0;
     }
 
     @Override
@@ -93,8 +77,8 @@ public class StreamBmeFile extends BmeFile {
             if(out != null) {
                 ((DataOutputStream)out).close();
             }
-        } catch(IOException ioe) {
-            throw new IOException(file.getName() + "关闭文件错误");
+        } catch(IOException e) {
+            throw new IOException(e);
         } finally {
             //fileInOperation.remove(file.getCanonicalPath());
             in = null;

@@ -137,7 +137,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
     public void setEcgFile(EcgFile ecgFile) {
         stopShow();
         this.ecgFile = ecgFile;
-        int sampleInterval = 1000/ecgFile.getFs();
+        int sampleInterval = 1000/ecgFile.getSampleRate();
         dataNumReadEachUpdate = (int)(Math.ceil((double) MIN_SHOW_INTERVAL /sampleInterval));
         interval = dataNumReadEachUpdate *sampleInterval;
         ecgFile.seekData(0);
@@ -185,7 +185,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
 
     // 显示指定秒数的信号
     public void showAtSecond(int second) {
-        showAt(second*ecgFile.getFs());
+        showAt(second*ecgFile.getSampleRate());
     }
 
     // 显示指定数据位置信号

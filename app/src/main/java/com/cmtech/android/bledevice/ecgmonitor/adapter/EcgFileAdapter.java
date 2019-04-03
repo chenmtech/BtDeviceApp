@@ -81,7 +81,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         }
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
         holder.tvCreateTime.setText(createTime);
-        String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getFs());
+        String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getSampleRate());
         holder.tvLength.setText(fileTimeLength);
 
         int bgdColor;
