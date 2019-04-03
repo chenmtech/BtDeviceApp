@@ -131,7 +131,7 @@ public class EcgFileExplorerModel {
     public void saveAppendix() {
         if(selectFile != null) {
             try {
-                selectFile.saveFileTail();
+                selectFile.save();
             } catch (IOException e) {
                 ViseLog.e("保存留言错误。");
             }

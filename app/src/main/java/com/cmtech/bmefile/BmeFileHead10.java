@@ -69,6 +69,6 @@ public class BmeFileHead10 extends BmeFileHead {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ":" + super.toString();
+		return "BmeFileHead10:" + super.toString();
 	}
 }

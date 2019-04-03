@@ -1,9 +1,13 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendixFactory;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgHrInfoAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.bmefile.AbstractRandomAccessBmeFile;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead;
@@ -12,6 +16,8 @@ import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,13 +29,115 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.CACHEDIR;
  */
 
 public class EcgFile extends AbstractRandomAccessBmeFile {
-    private EcgFileHead ecgFileHead = new EcgFileHead(); // EcgFileHead
+    private final EcgFileHead ecgFileHead;
 
-    private EcgFileTail ecgFileTail = new EcgFileTail(); // Ecg文件尾
+    private final EcgFileTail ecgFileTail;
 
     private final long dataBeginPointer; // 数据起始位置指针
 
     private long dataEndPointer;  // 数据结束的文件位置指针
+
+    private static class EcgFileTail {
+        static final int FILETAIL_LEN_BYTE_NUM = 8;
+
+        EcgHrInfoAppendix hrInfoAppendix = new EcgHrInfoAppendix(); // 心率信息
+
+        List<EcgNormalComment> commentList = new ArrayList<>(); // 留言信息列表
+
+        boolean needWriteHrInfo;
+
+        long hrInfoEndPointer;
+
+        EcgFileTail(boolean needWriteHrInfo) {
+            this.needWriteHrInfo = needWriteHrInfo;
+        }
+
+        /**
+         * 从数据输入流读取
+         * @param raf：数据输入流
+         */
+        void readFromStream(RandomAccessFile raf) throws IOException{
+            raf.seek(raf.length() - FILETAIL_LEN_BYTE_NUM);
+
+            long tailEndPointer = raf.getFilePointer();
+
+            long tailLength = ByteUtil.reverseLong(raf.readLong());
+
+            long appendixLength = tailLength - FILETAIL_LEN_BYTE_NUM;
+
+            raf.seek(tailEndPointer - appendixLength);
+
+            // 读心率信息
+            IEcgAppendix appendix = EcgAppendixFactory.readFromStream(raf);
+            if(!(appendix instanceof EcgHrInfoAppendix)) {
+                throw new IOException();
+            }
+
+            hrInfoAppendix = (EcgHrInfoAppendix)appendix;
+
+            hrInfoEndPointer = raf.getFilePointer();
+
+            // 读留言信息
+            while (raf.getFilePointer() < tailEndPointer) {
+                appendix = EcgAppendixFactory.readFromStream(raf);
+
+                if(appendix instanceof EcgNormalComment) {
+                    commentList.add((EcgNormalComment) appendix);
+                }
+            }
+        }
+
+        /**
+         * 写出到数据输出流指向的dataEndPointer位置
+         * @param raf：数据输出流
+         */
+        void writeToStream(RandomAccessFile raf, long dataEndPointer) throws IOException{
+            long tailLength = length();
+
+            raf.setLength(dataEndPointer + tailLength);
+
+            if(needWriteHrInfo) {
+                raf.seek(dataEndPointer);
+
+                // 写心率信息
+                EcgAppendixFactory.writeToStream(hrInfoAppendix, raf);
+
+                hrInfoEndPointer = raf.getFilePointer();
+
+                needWriteHrInfo = false;
+            } else {
+                raf.seek(hrInfoEndPointer);
+            }
+
+            // 写留言信息
+            for(EcgNormalComment comment : commentList) {
+                EcgAppendixFactory.writeToStream(comment, raf);
+            }
+
+            // 最后写入文件尾总长度
+            raf.writeLong(ByteUtil.reverseLong(tailLength));
+        }
+
+        @Override
+        public String toString() {
+            return "EcgFileTail:"
+                    + "心率数：" + hrInfoAppendix.getHrList().size() + ';'
+                    + "心率信息：" + hrInfoAppendix + ';'
+                    + "留言数：" + commentList.size() + ';'
+                    + "留言：" + commentList + ';'
+                    + "文件尾长度：" + length();
+        }
+
+        int length() {
+            int length = hrInfoAppendix.length(); // 心率信息长度
+
+            for(EcgNormalComment appendix : commentList) {
+                length += appendix.length();
+            }
+
+            return length + FILETAIL_LEN_BYTE_NUM;
+        }
+    }
 
     /**
      * 打开已有EcgFile文件时使用的私有构造器
@@ -37,10 +145,12 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     private EcgFile(String fileName) throws IOException {
         super(fileName);
 
+        ecgFileHead = new EcgFileHead();
         ecgFileHead.readFromStream(raf);
 
         dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
 
+        ecgFileTail = new EcgFileTail(false);
         ecgFileTail.readFromStream(raf);
 
         dataEndPointer = raf.length() - ecgFileTail.length();
@@ -51,7 +161,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     }
 
     // 创建新文件时使用的私有构造器
-    private EcgFile(String fileName, BmeFileHead head, EcgFileHead ecgFileHead) throws IOException {
+    private EcgFile(String fileName, BmeFileHead head, final EcgFileHead ecgFileHead) throws IOException {
         super(fileName, head);
 
         this.ecgFileHead = ecgFileHead;
@@ -63,6 +173,8 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         dataEndPointer = dataBeginPointer;
 
         dataNum = 0;
+
+        ecgFileTail = new EcgFileTail(true);
     }
 
     // 打开已有文件
@@ -70,7 +182,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         return new EcgFile(fileName);
     }
 
-    // 创建Ecg文件
+    // 创建新文件
     public static EcgFile create(int sampleRate, int calibrationValue, String macAddress, EcgLeadType leadType) throws IOException{
         EcgFile ecgFile;
 
@@ -90,13 +202,12 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         return ecgFile;
     }
 
-    // 用指定的文件头创建新的文件
     private static EcgFile create(String fileName, BmeFileHead head, EcgFileHead ecgFileHead) throws IOException{
         return new EcgFile(fileName, head, ecgFileHead);
     }
 
     public List<EcgNormalComment> getCommentList() {
-        return ecgFileTail.getCommentList();
+        return ecgFileTail.commentList;
     }
 
     public User getCreator() {
@@ -112,11 +223,11 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     }
 
     public List<Integer> getHrList() {
-        return ecgFileTail.getHrList();
+        return ecgFileTail.hrInfoAppendix.getHrList();
     }
 
     public void setHrList(List<Integer> hrList) {
-        ecgFileTail.setHrList(hrList);
+        ecgFileTail.hrInfoAppendix.setHrList(hrList);
     }
 
     @Override
@@ -132,19 +243,21 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         return 0;
     }
 
-    public synchronized void saveFileTail() throws IOException{
+    public synchronized void save() throws IOException{
+        saveFileTail();
+    }
+
+    private void saveFileTail() throws IOException {
         long curPointer = raf.getFilePointer();
 
-        dataEndPointer = calculateDataEndPointer();
+        dataEndPointer = updateDataEndPointer();
 
-        raf.seek(dataEndPointer);
-
-        ecgFileTail.writeToStream(raf);
+        ecgFileTail.writeToStream(raf, dataEndPointer);
 
         raf.seek(curPointer);
     }
 
-    private long calculateDataEndPointer() {
+    private long updateDataEndPointer() {
         return dataBeginPointer + dataNum * fileHead.getDataType().getByteNum();
     }
 
@@ -170,22 +283,17 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
 
     // 添加一条留言
     public void addComment(EcgNormalComment comment) {
-        ecgFileTail.addComment(comment);
+        ecgFileTail.commentList.add(comment);
     }
 
     // 多条留言
     public void addComment(List<EcgNormalComment> comments) {
-        for(EcgNormalComment comment : comments) {
-            ecgFileTail.addComment(comment);
-        }
+        ecgFileTail.commentList.addAll(comments);
     }
 
     // 删除一条留言
     public void deleteComment(EcgNormalComment comment) {
-        if(ecgFileTail.getCommentList().contains(comment)) {
-            // 删除留言
-            ecgFileTail.deleteComment(comment);
-        }
+        ecgFileTail.commentList.remove(comment);
     }
 
     @Override

@@ -36,7 +36,7 @@ public class BleDeviceGattOperator {
         }
         commandExecutor = new BleGattCommandExecutor(deviceMirror);
         commandExecutor.start();
-        ViseLog.i("success to createByVersionCode new command executor.");
+        ViseLog.i("success to create new command executor.");
     }
 
     // 停止Gatt命令执行器

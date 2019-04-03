@@ -53,7 +53,7 @@ public class EcgFileListManager {
                 ecgFileList.add(ecgFile);
                 ViseLog.e(ecgFile.toString());
             } catch (IOException e) {
-                ViseLog.e("打开心电文件失败" + file);
+                ViseLog.e("To open ecg file is wrong: " + file);
             } finally {
                 if(ecgFile != null) {
                     try {
@@ -163,7 +163,7 @@ public class EcgFileListManager {
                 }
                 if(toEcgFile != null) {
                     try {
-                        toEcgFile.saveFileTail();
+                        toEcgFile.save();
                         toEcgFile.close();
                     } catch (IOException e) {
                         e.printStackTrace();

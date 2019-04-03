@@ -79,13 +79,13 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private static final byte ECGMONITOR_CTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
 
 
-    /**
-     * 变量
-     */
     private int sampleRate = DEFAULT_SAMPLERATE; // 采样率
+
     private EcgLeadType leadType = DEFAULT_LEADTYPE; // 导联类型
+
     private int value1mVBeforeCalibrate = 0; // 定标之前1mV对应的数值
     private final int value1mVAfterCalibrate = DEFAULT_CALIBRATIONVALUE; // 定标之后1mV对应的数值
+
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
     private int xPixelPerData = 2; // EcgView的横向分辨率
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
@@ -340,7 +340,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
         ecgFile.addComment(signalRecorder.getComment());
 
-        ecgFile.saveFileTail();
+        ecgFile.save();
     }
 
     @Override

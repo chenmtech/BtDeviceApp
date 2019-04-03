@@ -66,7 +66,7 @@ public abstract class BmeFileHead {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + ":"
+        return "BmeFileHead:"
                 + info + ";"
                 + dataType + ";"
                 + sampleRate;

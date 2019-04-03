@@ -59,7 +59,7 @@ public class BmeFileHead30 extends BmeFileHead10 {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + ":"
+        return "BmeFileHead30:"
                 + super.toString()
                 + calibrationValue + ";"
                 + createTime;

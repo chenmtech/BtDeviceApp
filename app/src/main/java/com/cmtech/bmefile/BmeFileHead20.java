@@ -99,7 +99,7 @@ public class BmeFileHead20 extends BmeFileHead {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + ":"
+		return "BmeFileHead20:"
 				+ getByteOrder() + ";"
 				+ super.toString();
 	}
