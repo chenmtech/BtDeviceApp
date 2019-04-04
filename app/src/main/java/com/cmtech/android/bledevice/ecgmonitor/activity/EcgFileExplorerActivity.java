@@ -87,7 +87,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         rvFileList.setLayoutManager(linearLayoutManager);
-        rvFileList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        rvFileList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
         fileAdapter = new EcgFileAdapter(fileExploreModel);
         rvFileList.setAdapter(fileAdapter);
 
