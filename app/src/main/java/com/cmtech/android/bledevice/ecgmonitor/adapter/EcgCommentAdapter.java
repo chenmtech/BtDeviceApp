@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.ViewHolder> {
-    private List<EcgNormalComment> appendixList; // 附加信息列表
+    private List<EcgNormalComment> commentList; // 留言列表
     private final IEcgAppendixOperator appendixOperator; // 附加信息操作者
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -44,8 +44,8 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         }
     }
 
-    public EcgCommentAdapter(List<EcgNormalComment> appendixList, IEcgAppendixOperator appendixOperator) {
-        this.appendixList = appendixList;
+    public EcgCommentAdapter(List<EcgNormalComment> commentList, IEcgAppendixOperator appendixOperator) {
+        this.commentList = commentList;
         this.appendixOperator = appendixOperator;
     }
 
@@ -60,7 +60,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         holder.tvCreatorName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                User creator = appendixList.get(holder.getAdapterPosition()).getCreator();
+                User creator = commentList.get(holder.getAdapterPosition()).getCreator();
                 Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -68,10 +68,10 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         holder.ibSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                User creator = appendixList.get(holder.getAdapterPosition()).getCreator();
+                User creator = commentList.get(holder.getAdapterPosition()).getCreator();
                 User account = AccountManager.getInstance().getAccount();
                 if(appendixOperator != null && creator.equals(account)) {
-                    EcgNormalComment appendix = appendixList.get(holder.getAdapterPosition());
+                    EcgNormalComment appendix = commentList.get(holder.getAdapterPosition());
                     appendix.setContent(holder.etContent.getText().toString());
                     appendix.setModifyTime(new Date().getTime());
                     appendixOperator.saveAppendix();
@@ -84,7 +84,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull final EcgCommentAdapter.ViewHolder holder, final int position) {
-        EcgNormalComment appendix = appendixList.get(position);
+        EcgNormalComment appendix = commentList.get(position);
         User creator = appendix.getCreator();
         User account = AccountManager.getInstance().getAccount();
         if(creator.equals(account)) {
@@ -116,11 +116,11 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
     @Override
     public int getItemCount() {
-        return appendixList.size();
+        return commentList.size();
     }
 
-    public void setAppendixList(List<EcgNormalComment> appendixList) {
-        this.appendixList = appendixList;
+    public void setCommentList(List<EcgNormalComment> commentList) {
+        this.commentList = commentList;
     }
 
 

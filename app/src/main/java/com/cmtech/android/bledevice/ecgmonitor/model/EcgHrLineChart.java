@@ -52,23 +52,12 @@ public class EcgHrLineChart extends LineChart {
 
         /***XY轴的设置***/
         XAxis xAxis = getXAxis();
-        YAxis leftYAxis = getAxisLeft();
-        YAxis rightYaxis = getAxisRight();
+
         //X轴设置显示位置在底部
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setAxisMinimum(0f);
         xAxis.setGranularity(1f);
-        //保证Y轴从0开始，不然会上移一点
-        leftYAxis.setAxisMinimum(0f);
-        rightYaxis.setAxisMinimum(0f);
-
         xAxis.setDrawGridLines(false);
-        rightYaxis.setDrawGridLines(false);
-        leftYAxis.setDrawGridLines(true);
-
-        leftYAxis.enableGridDashedLine(10f, 10f, 0f);
-        rightYaxis.setEnabled(false);
-
 
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
@@ -76,7 +65,22 @@ public class EcgHrLineChart extends LineChart {
                 return DateTimeUtil.secToTime((int)value*10);
             }
         });
+
         xAxis.setLabelCount(4,false);
+
+
+        YAxis leftYAxis = getAxisLeft();
+        YAxis rightYaxis = getAxisRight();
+
+        //保证Y轴从0开始，不然会上移一点
+        leftYAxis.setAxisMinimum(30f);
+        rightYaxis.setAxisMinimum(30f);
+
+        leftYAxis.setDrawGridLines(true);
+        rightYaxis.setDrawGridLines(false);
+
+        leftYAxis.enableGridDashedLine(10f, 10f, 0f);
+        rightYaxis.setEnabled(false);
 
         leftYAxis.setLabelCount(4);
 

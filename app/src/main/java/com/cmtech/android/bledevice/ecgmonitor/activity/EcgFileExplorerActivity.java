@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -75,6 +76,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
     private TextView tvMaxHr; // 最大心率
 
+    private LinearLayout signalLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +97,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             e.printStackTrace();
             finish();
         }
+
+        signalLayout = findViewById(R.id.ecgfile_ecgsignal_layout);
 
         rvFiles = findViewById(R.id.rv_ecgfile_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
@@ -262,17 +267,23 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             signalView.setEcgFile(selectFile);
             initEcgView(fileExploreModel.gethPixelPerData(), fileExploreModel.getvValuePerPixel(), fileExploreModel.getPixelPerGrid(), 0.5);
 
-            tvCurrentTime.setText("00:00:00");
+            tvCurrentTime.setText(DateTimeUtil.secToTime(0));
             tvTotalTime.setText(DateTimeUtil.secToTime(fileExploreModel.getTotalSecond()));
             sbReplay.setMax(fileExploreModel.getTotalSecond());
 
-            List<EcgNormalComment> appendixList = fileExploreModel.getSelectFileCommentList();
-            commentAdapter.setAppendixList(appendixList);
+            List<EcgNormalComment> commentList = fileExploreModel.getSelectFileCommentList();
+            commentAdapter.setCommentList(commentList);
             commentAdapter.notifyDataSetChanged();
-            if(appendixList.size() > 0)
+            if(commentList.size() > 0)
                 rvComments.smoothScrollToPosition(0);
 
             startReplay();
+
+            if(selectFile.getDataNum() == 0) {
+                signalLayout.setVisibility(View.GONE);
+            } else {
+                signalLayout.setVisibility(View.VISIBLE);
+            }
 
             fileExploreModel.updateHrInfo();
         }
