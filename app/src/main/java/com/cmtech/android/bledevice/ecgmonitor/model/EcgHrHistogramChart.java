@@ -22,6 +22,7 @@ import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * EcgHrRecorder: 心率直方图
@@ -73,7 +74,7 @@ public class EcgHrHistogramChart extends BarChart {
         setDrawBarShadow(false);
         setHighlightFullBarEnabled(false);
         //显示边框
-        setDrawBorders(true);
+        setDrawBorders(false);
         //设置动画效果
         animateY(1000, Easing.Linear);
         animateX(1000, Easing.Linear);
@@ -87,8 +88,11 @@ public class EcgHrHistogramChart extends BarChart {
         xAxis.setDrawAxisLine(false);
         xAxis.setValueFormatter(new StringAxisValueFormatter(hrBarXStrings));
 
+
         YAxis leftAxis = getAxisLeft();
+        leftAxis.setEnabled(false);
         YAxis rightAxis = getAxisRight();
+        rightAxis.setEnabled(false);
         //保证Y轴从0开始，不然会上移一点
         leftAxis.setAxisMinimum(0f);
         rightAxis.setAxisMinimum(0f);
@@ -97,6 +101,7 @@ public class EcgHrHistogramChart extends BarChart {
 
         /***折线图例 标签 设置***/
         Legend legend = getLegend();
+        legend.setEnabled(false);
         legend.setForm(Legend.LegendForm.LINE);
         legend.setTextSize(11f);
         //显示位置
@@ -107,14 +112,20 @@ public class EcgHrHistogramChart extends BarChart {
         legend.setDrawInside(false);
 
         Description description = new Description();
+        description.setText("心率统计");
         description.setEnabled(false);
         setDescription(description);
 
         setDrawValueAboveBar(true);
 
+        setTouchEnabled(false);
+
+        setNoDataText("暂无有效统计信息");
+        setNoDataTextColor(Color.BLUE);
+
         //updateHrBarData(null);
 
-        initBarDataSet("心率值统计", Color.BLUE, Color.BLACK);
+        initBarDataSet("心率统计", Color.BLUE, Color.BLACK);
     }
 
     /**
@@ -134,7 +145,7 @@ public class EcgHrHistogramChart extends BarChart {
         hrBarDateSet.setValueFormatter(new IValueFormatter() {
             @Override
             public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                return String.format("%d%%", (int)(value*100));
+                return String.format(Locale.getDefault(), "%d%%", (int)(value*100));
             }
         });
     }
@@ -142,10 +153,7 @@ public class EcgHrHistogramChart extends BarChart {
     private void updateHrBarData(List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram) {
         hrBarXStrings.clear();
         hrBarEntries.clear();
-        if(normHistogram == null) {
-            hrBarXStrings.add("无有效心率统计信息。");
-            hrBarEntries.add(new BarEntry(0, 0.0f));
-        } else {
+        if(normHistogram != null && !normHistogram.isEmpty()) {
             int i = 0;
             for(EcgHrRecorder.HrHistogramElement<Float> ele : normHistogram) {
                 hrBarXStrings.add(ele.getBarString());
@@ -155,7 +163,7 @@ public class EcgHrHistogramChart extends BarChart {
     }
 
 
-    private class StringAxisValueFormatter implements IAxisValueFormatter {
+    private static class StringAxisValueFormatter implements IAxisValueFormatter {
         private List<String> mStrs;
         /**
              * 对字符串类型的坐标轴标记进行格式化

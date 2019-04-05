@@ -176,6 +176,13 @@
 
         </LinearLayout>
 
+        <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrLineChart
+            android:id="@+id/ecgfile_hr_linechart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_horizontal"/>
+
         <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart
             android:id="@+id/ecgfile_hr_histogram"
             android:layout_width="match_parent"

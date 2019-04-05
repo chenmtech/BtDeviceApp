@@ -76,7 +76,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="心跳次数:"
+            android:text="监测心跳:"
             android:textColor="@color/secondary_text"
             android:textSize="12sp"/>
 
@@ -84,8 +84,15 @@
             android:id="@+id/ecgfile_hr_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="未知"
+            android:text="0"
             android:textColor="@color/primary_text"
+            android:textSize="12sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="次"
+            android:textColor="@color/secondary_text"
             android:textSize="12sp"/>
 
     </LinearLayout>

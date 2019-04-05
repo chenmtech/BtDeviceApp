@@ -1,6 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +22,7 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrLineChart;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgFileExplorerListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
@@ -65,6 +68,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     private ImageButton btnSwitchReplayState; // 转换回放状态
 
     private EcgHrHistogramChart hrHistChart; // 心率直方图
+
+    private EcgHrLineChart hrLineChart; // 心率折线图
 
     private TextView tvAverageHr; // 平均心率
 
@@ -146,6 +151,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         });
 
         hrHistChart = findViewById(R.id.ecgfile_hr_histogram);
+
+        hrLineChart = findViewById(R.id.ecgfile_hr_linechart);
 
         tvAverageHr = findViewById(R.id.tv_average_hr_value);
 
@@ -276,6 +283,10 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         hrHistChart.update(normHistogram);
         tvAverageHr.setText(String.valueOf(averageHr));
         tvMaxHr.setText(String.valueOf(maxHr));
+
+        hrLineChart.showLineChart(filteredHrList, "心率时序图", Color.BLUE);
+        Drawable drawable = getResources().getDrawable(R.drawable.hr_linechart_fade);
+        hrLineChart.setChartFillDrawable(drawable);
     }
 
     /**

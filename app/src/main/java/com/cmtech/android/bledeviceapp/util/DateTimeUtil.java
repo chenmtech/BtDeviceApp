@@ -42,6 +42,33 @@ public class DateTimeUtil {
         return timeStr;
     }
 
+    // a integer to xx时xx分xx秒
+    public static String secToTimeInChinese(int time) {
+        String timeStr = null;
+        int hour = 0;
+        int minute = 0;
+        int second = 0;
+        if (time <= 0)
+            return "00:00:00";
+        else {
+            minute = time / 60;
+            if(minute == 0) {
+                timeStr = unitFormat(time) + "秒";
+            } else if (minute < 60) {
+                second = time % 60;
+                timeStr = unitFormat(minute) + "分" + unitFormat(second) + "秒";
+            } else {
+                hour = minute / 60;
+                if (hour > 99)
+                    return "99:59:59";
+                minute = minute % 60;
+                second = time - hour * 3600 - minute * 60;
+                timeStr = unitFormat(hour) + "时" + unitFormat(minute) + "分" + unitFormat(second) + "秒";
+            }
+        }
+        return timeStr;
+    }
+
     private static String todayYesterday(long timeStamp) {
         long curTimeMillis = System.currentTimeMillis();
         Date curDate = new Date(curTimeMillis);

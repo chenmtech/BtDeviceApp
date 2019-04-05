@@ -92,7 +92,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         if(file.getDataNum() == 0) {
             holder.tvLength.setText("无");
         } else {
-            String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum() / file.getSampleRate());
+            String fileTimeLength = DateTimeUtil.secToTimeInChinese(file.getDataNum() / file.getSampleRate());
             holder.tvLength.setText(fileTimeLength);
         }
 
