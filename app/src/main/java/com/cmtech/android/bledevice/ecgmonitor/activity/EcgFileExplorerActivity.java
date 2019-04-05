@@ -15,9 +15,8 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgAppendixAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart;
@@ -47,14 +46,22 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
     private EcgFileExplorerModel fileExploreModel;      // 文件浏览器模型实例
 
-    private EcgFileRollWaveView ecgView; // ecgView
-    private EcgFileAdapter fileAdapter; // 文件列表Adapter
-    private RecyclerView rvFileList; // 文件列表RecycleView
-    private EcgAppendixAdapter appendixAdapter; // 附加信息列表Adapter
-    private RecyclerView rvAppendixList; // 附加信息列表RecycleView
+    private EcgFileRollWaveView signalView; // signalView
+
+    private EcgFileAdapter fileAdapter; // 文件Adapter
+
+    private RecyclerView rvFiles; // 文件RecycleView
+
+    private EcgCommentAdapter commentAdapter; // 留言Adapter
+
+    private RecyclerView rvComments; // 留言RecycleView
+
     private TextView tvTotalTime; // 总时长
+
     private TextView tvCurrentTime; // 当前播放的信号的时刻
+
     private SeekBar sbReplay; // 播放条
+
     private ImageButton btnSwitchReplayState; // 转换回放状态
 
     private EcgHrHistogramChart hrHistChart; // 心率直方图
@@ -83,24 +90,24 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             finish();
         }
 
-        rvFileList = findViewById(R.id.rv_ecgfile_list);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        rvFileList.setLayoutManager(linearLayoutManager);
-        rvFileList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
+        rvFiles = findViewById(R.id.rv_ecgfile_list);
+        LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
+        fileLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        rvFiles.setLayoutManager(fileLayoutManager);
+        rvFiles.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
         fileAdapter = new EcgFileAdapter(fileExploreModel);
-        rvFileList.setAdapter(fileAdapter);
+        rvFiles.setAdapter(fileAdapter);
 
-        rvAppendixList = findViewById(R.id.rv_ecgappendix_list);
-        LinearLayoutManager reportLayoutManager = new LinearLayoutManager(this);
-        reportLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        rvAppendixList.setLayoutManager(reportLayoutManager);
-        rvAppendixList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
-        appendixAdapter = new EcgAppendixAdapter(fileExploreModel.getSelectFileAppendixList(), this);
-        rvAppendixList.setAdapter(appendixAdapter);
+        rvComments = findViewById(R.id.rv_ecgcomment_list);
+        LinearLayoutManager commentLayoutManager = new LinearLayoutManager(this);
+        commentLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        rvComments.setLayoutManager(commentLayoutManager);
+        rvComments.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        commentAdapter = new EcgCommentAdapter(fileExploreModel.getSelectFileCommentList(), this);
+        rvComments.setAdapter(commentAdapter);
 
-        ecgView = findViewById(R.id.rwv_ecgview);
-        ecgView.setListener(this);
+        signalView = findViewById(R.id.rwv_ecgview);
+        signalView.setListener(this);
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvTotalTime = findViewById(R.id.tv_total_time);
 
@@ -108,7 +115,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         btnSwitchReplayState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ecgView.isReplaying()) {
+                if(signalView.isReplaying()) {
                     stopReplay();
                 } else {
                     startReplay();
@@ -123,7 +130,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 if(b) {
-                    ecgView.showAtSecond(i);
+                    signalView.showAtSecond(i);
                 }
             }
 
@@ -220,19 +227,19 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     private void initEcgView(int xRes, float yRes, int viewGridWidth, double zerolocation) {
-        ecgView.setRes(xRes, yRes);
-        ecgView.setGridWidth(viewGridWidth);
-        ecgView.setZeroLocation(zerolocation);
-        ecgView.clearData();
-        ecgView.initView();
+        signalView.setRes(xRes, yRes);
+        signalView.setGridWidth(viewGridWidth);
+        signalView.setZeroLocation(zerolocation);
+        signalView.clearData();
+        signalView.initView();
     }
 
     private void startReplay() {
-        ecgView.startShow();
+        signalView.startShow();
     }
 
     private void stopReplay() {
-        ecgView.stopShow();
+        signalView.stopShow();
     }
 
 
@@ -241,22 +248,22 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         fileAdapter.notifyDataSetChanged();
 
         if(fileExploreModel.getSelectFile() != null) {
-            rvFileList.smoothScrollToPosition(fileExploreModel.getSelectIndex());
+            rvFiles.smoothScrollToPosition(fileExploreModel.getSelectIndex());
             EcgFile selectFile = fileExploreModel.getSelectFile();
             ViseLog.e(selectFile);
 
-            ecgView.setEcgFile(selectFile);
+            signalView.setEcgFile(selectFile);
             initEcgView(fileExploreModel.gethPixelPerData(), fileExploreModel.getvValuePerPixel(), fileExploreModel.getPixelPerGrid(), 0.5);
 
             tvCurrentTime.setText("00:00:00");
             tvTotalTime.setText(DateTimeUtil.secToTime(fileExploreModel.getTotalSecond()));
             sbReplay.setMax(fileExploreModel.getTotalSecond());
 
-            List<EcgNormalComment> appendixList = fileExploreModel.getSelectFileAppendixList();
-            appendixAdapter.setAppendixList(appendixList);
-            appendixAdapter.notifyDataSetChanged();
+            List<EcgNormalComment> appendixList = fileExploreModel.getSelectFileCommentList();
+            commentAdapter.setAppendixList(appendixList);
+            commentAdapter.notifyDataSetChanged();
             if(appendixList.size() > 0)
-                rvAppendixList.smoothScrollToPosition(0);
+                rvComments.smoothScrollToPosition(0);
 
             startReplay();
 
@@ -297,7 +304,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
      */
     @Override
     public void deleteAppendix(final EcgNormalComment appendix) {
-        if(ecgView.isReplaying())
+        if(signalView.isReplaying())
             stopReplay();
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);

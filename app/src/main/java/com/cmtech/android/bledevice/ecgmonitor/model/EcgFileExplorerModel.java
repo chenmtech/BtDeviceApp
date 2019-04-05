@@ -79,7 +79,7 @@ public class EcgFileExplorerModel {
     }
 
     // 获取选中文件的留言列表
-    public List<EcgNormalComment> getSelectFileAppendixList() {
+    public List<EcgNormalComment> getSelectFileCommentList() {
         if(selectFile == null)
             return new ArrayList<>();
         else {

@@ -23,7 +23,7 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import java.util.Date;
 import java.util.List;
 
-public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.ViewHolder> {
+public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.ViewHolder> {
     private List<EcgNormalComment> appendixList; // 附加信息列表
     private final IEcgAppendixOperator appendixOperator; // 附加信息操作者
 
@@ -44,18 +44,18 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
         }
     }
 
-    public EcgAppendixAdapter(List<EcgNormalComment> appendixList, IEcgAppendixOperator appendixOperator) {
+    public EcgCommentAdapter(List<EcgNormalComment> appendixList, IEcgAppendixOperator appendixOperator) {
         this.appendixList = appendixList;
         this.appendixOperator = appendixOperator;
     }
 
     @NonNull
     @Override
-    public EcgAppendixAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public EcgCommentAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_ecg_appendix, parent, false);
+                .inflate(R.layout.recycle_item_ecg_comment, parent, false);
 
-        final EcgAppendixAdapter.ViewHolder holder = new EcgAppendixAdapter.ViewHolder(view);
+        final EcgCommentAdapter.ViewHolder holder = new EcgCommentAdapter.ViewHolder(view);
 
         holder.tvCreatorName.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,7 +83,7 @@ public class EcgAppendixAdapter extends RecyclerView.Adapter<EcgAppendixAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final EcgAppendixAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final EcgCommentAdapter.ViewHolder holder, final int position) {
         EcgNormalComment appendix = appendixList.get(position);
         User creator = appendix.getCreator();
         User account = AccountManager.getInstance().getAccount();

@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:layout_margin="10dp">
+    android:layout_margin="6dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="创建人："
+            android:text="记录人:"
             android:textColor="@color/secondary_text"
             android:textSize="12sp"/>
 
@@ -34,7 +34,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="创建时间："
+            android:text="记录时间:"
             android:textColor="@color/secondary_text"
             android:textSize="12sp"/>
 
@@ -55,12 +55,33 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="信号长："
+            android:text="采集信号:"
             android:textColor="@color/secondary_text"
             android:textSize="12sp"/>
 
         <TextView
             android:id="@+id/ecgfile_length"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="未知"
+            android:textColor="@color/primary_text"
+            android:textSize="12sp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="心跳次数:"
+            android:textColor="@color/secondary_text"
+            android:textSize="12sp"/>
+
+        <TextView
+            android:id="@+id/ecgfile_hr_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="未知"

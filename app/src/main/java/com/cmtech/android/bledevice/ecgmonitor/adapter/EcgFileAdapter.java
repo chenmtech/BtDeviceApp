@@ -20,6 +20,7 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHolder> {
     private EcgFileExplorerModel explorerModel; // 浏览器模型
+
     private Drawable defaultBackground; // 缺省背景
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -27,6 +28,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         TextView tvCreator; // 创建人
         TextView tvCreateTime; // 创建时间
         TextView tvLength; // 信号长度
+        TextView tvHrNum; // 心率次数
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -34,6 +36,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
             tvCreator = fileView.findViewById(R.id.ecgfile_creator);
             tvCreateTime = fileView.findViewById(R.id.ecgfile_createtime);
             tvLength = fileView.findViewById(R.id.ecgfile_length);
+            tvHrNum = fileView.findViewById(R.id.ecgfile_hr_num);
         }
     }
 
@@ -46,7 +49,9 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     public EcgFileAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_ecg_file, parent, false);
+
         final EcgFileAdapter.ViewHolder holder = new EcgFileAdapter.ViewHolder(view);
+
         defaultBackground = holder.fileView.getBackground();
 
         holder.fileView.setOnClickListener(new View.OnClickListener() {
@@ -73,16 +78,26 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         EcgFile file = explorerModel.getFileList().get(position);
 
         User fileCreator = file.getCreator();
+
         User account = AccountManager.getInstance().getAccount();
         if(fileCreator.equals(account)) {
             holder.tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
             holder.tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
         }
+
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
         holder.tvCreateTime.setText(createTime);
-        String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum()/file.getSampleRate());
-        holder.tvLength.setText(fileTimeLength);
+
+        if(file.getDataNum() == 0) {
+            holder.tvLength.setText("无");
+        } else {
+            String fileTimeLength = DateTimeUtil.secToTime(file.getDataNum() / file.getSampleRate());
+            holder.tvLength.setText(fileTimeLength);
+        }
+
+        int hrNum = file.getHrList().size();
+        holder.tvHrNum.setText(String.valueOf(hrNum));
 
         int bgdColor;
         if(explorerModel.getSelectIndex() == position) {

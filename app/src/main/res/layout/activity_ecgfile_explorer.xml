@@ -27,34 +27,43 @@
             android:background="@color/primary_dark"/>
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="记录列表"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textColor="@color/black"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/primary_dark"/>
 
         <android.support.v7.widget.RecyclerView
             android:id = "@+id/rv_ecgfile_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="6sp"
             android:minHeight="50dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:background="@color/primary_dark"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:text="心电信号"
+            android:textSize="16sp"
+            android:textColor="@color/black"/>
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/primary_dark">
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp">
 
             <com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView
                 android:id="@+id/rwv_ecgview"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:layout_margin="6sp"
                 cmtech:background_color="#666"
                 cmtech:grid_color="#f00"
                 cmtech:wave_color="#ff0"
@@ -65,7 +74,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal|bottom"
-                android:layout_margin="6sp"
                 android:text="00:00:00"
                 android:textColor="#fff"
                 android:textSize="16sp"/>
@@ -74,7 +82,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/primary_dark">
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp">
 
             <ImageButton
                 android:id="@+id/ib_ecgreplay_startandstop"
@@ -94,8 +105,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="4sp"/>
+                android:layout_gravity="center_vertical"/>
 
             <TextView
                 android:id="@+id/tv_total_time"
@@ -110,10 +120,24 @@
         </LinearLayout>
 
         <android.support.v7.widget.RecyclerView
-            android:id = "@+id/rv_ecgappendix_list"
+            android:id = "@+id/rv_ecgcomment_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="6sp"/>
+            android:minHeight="50dp"
+            android:layout_margin="8sp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:background="@color/primary_dark"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:text="心率分析"
+            android:textSize="16sp"
+            android:textColor="@color/black"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -123,6 +147,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="平均心率："
+                android:textSize="12sp"
                 android:textColor="@color/primary_text"/>
 
             <TextView
@@ -130,6 +155,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
+                android:textSize="12sp"
                 android:textColor="@color/primary_text"
                 android:layout_marginEnd="10sp"/>
 
@@ -137,6 +163,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="最高心率："
+                android:textSize="12sp"
                 android:textColor="@color/primary_text"/>
 
             <TextView
@@ -144,6 +171,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
+                android:textSize="12sp"
                 android:textColor="@color/primary_text"/>
 
         </LinearLayout>
@@ -152,7 +180,8 @@
             android:id="@+id/ecgfile_hr_histogram"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_margin="10dp"
+            android:layout_gravity="center_horizontal" />
 
     </LinearLayout>
 
