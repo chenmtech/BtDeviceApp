@@ -3,6 +3,8 @@ package com.cmtech.android.bledevice.ecgmonitor.activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -23,6 +25,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgMarkerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrLineChart;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
@@ -68,12 +71,20 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ImageButton ibExit;
 
     private ScanWaveView ecgView; // 心电波形View
+
     private RelativeLayout rlHrStatistics;
+
     private RecyclerView rvEcgMarker; // ecg标记recycleview
+
     private EcgMarkerAdapter markerAdapter; // ecg标记adapter
+
     private AudioTrack hrWarnAudio; // 心率报警声音
+
     private EcgMonitorDevice device; // 设备
+
     private EcgHrHistogramChart hrHistChart; // 心率直方图
+
+    private EcgHrLineChart hrLineChart;
 
     public EcgMonitorFragment() {
 
@@ -111,14 +122,12 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvHeartRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
+                if(rlHrStatistics.getVisibility() == View.GONE) {
                     device.updateHrInfo();
                     rlHrStatistics.setVisibility(View.VISIBLE);
-                    //ecgView.setVisibility(View.INVISIBLE);
                 }
                 else {
                     rlHrStatistics.setVisibility(View.GONE);
-                    //ecgView.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -159,6 +168,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         hrHistChart = view.findViewById(R.id.chart_hr_histogram);
         tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
         tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
+
+        hrLineChart = view.findViewById(R.id.linechart_hr);
 
         ibResetHistogram = view.findViewById(R.id.ib_reset_histogram);
         ibResetHistogram.setOnClickListener(new View.OnClickListener() {
@@ -304,6 +315,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         hrHistChart.update(normHistogram);
         tvAverageHr.setText(String.valueOf(averageHr));
         tvMaxHr.setText(String.valueOf(maxHr));
+
+        hrLineChart.showLineChart(filteredHrList, "心率时序图", Color.BLUE);
+        Drawable drawable = getResources().getDrawable(R.drawable.hr_linechart_fade);
+        hrLineChart.setChartFillDrawable(drawable);
     }
 
     @Override

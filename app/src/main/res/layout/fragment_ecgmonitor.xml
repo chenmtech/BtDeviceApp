@@ -83,8 +83,7 @@
             <RelativeLayout
                 android:id="@+id/rl_hr_statistics"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:visibility="gone">
 
@@ -105,7 +104,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/layout_hr_linechart"
-                    android:layout_centerHorizontal="true"/>
+                    android:layout_centerHorizontal="true"
+                    android:visibility="gone"/>
 
                 <ImageButton
                     android:id="@+id/ib_reset_histogram"
@@ -116,7 +116,8 @@
                     android:layout_margin="5dp"
                     android:background="@color/secondary"
                     android:src="@mipmap/ic_reset_hrhistogram"
-                    android:contentDescription="@null"/>
+                    android:contentDescription="@null"
+                    android:visibility="gone"/>
             </RelativeLayout>
         </LinearLayout>
 
