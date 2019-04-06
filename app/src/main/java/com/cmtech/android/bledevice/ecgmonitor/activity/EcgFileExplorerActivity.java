@@ -155,9 +155,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             }
         });
 
-        hrHistChart = findViewById(R.id.ecgfile_hr_histogram);
+        hrHistChart = findViewById(R.id.chart_hr_histogram);
 
-        hrLineChart = findViewById(R.id.ecgfile_hr_linechart);
+        hrLineChart = findViewById(R.id.linechart_hr);
 
         tvAverageHr = findViewById(R.id.tv_average_hr_value);
 

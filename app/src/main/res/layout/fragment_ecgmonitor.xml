@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     tools:context = "com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorFragment">
 
+    <!--采样率，导联和标定值显示，暂时不要-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -63,60 +64,61 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/primary_dark">
+        android:layout_weight="1">
 
-        <FrameLayout
-            android:id="@+id/fl_ecgview"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
             <com.cmtech.android.bledevice.view.ScanWaveView
                 android:id="@+id/rwv_ecgview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 cmtech:background_color="#666"
                 cmtech:grid_color="#f00"
                 cmtech:wave_color="#ff0"
                 cmtech:show_gridline="true"/>
-        </FrameLayout>
 
-        <RelativeLayout
-            android:id="@+id/rl_hr_statistics"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="5dp"
-            android:visibility="visible">
-
-            <include layout="@layout/layout_hr_commoninfo"
-                android:id="@+id/layout_hr_commoninfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"/>
-
-            <include layout="@layout/layout_hr_linechart"
+            <RelativeLayout
+                android:id="@+id/rl_hr_statistics"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/layout_hr_commoninfo"
-                android:layout_centerHorizontal="true"/>
-
-            <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart
-                android:id="@+id/bc_hr_histogram"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:layout_centerInParent="true"/>
-
-
-            <ImageButton
-                android:id="@+id/ib_reset_histogram"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentEnd="true"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:layout_margin="5dp"
-                android:background="@color/secondary"
-                android:src="@mipmap/ic_reset_hrhistogram"
-                android:contentDescription="@null"/>
-        </RelativeLayout>
+                android:visibility="gone">
+
+                <include layout="@layout/layout_hr_commoninfo"
+                    android:id="@+id/layout_hr_commoninfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"/>
+
+                <include layout="@layout/layout_hr_linechart"
+                    android:id="@+id/layout_hr_linechart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/layout_hr_commoninfo"
+                    android:layout_centerHorizontal="true"/>
+
+                <include layout="@layout/layout_hr_histchart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/layout_hr_linechart"
+                    android:layout_centerHorizontal="true"/>
+
+                <ImageButton
+                    android:id="@+id/ib_reset_histogram"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_margin="5dp"
+                    android:background="@color/secondary"
+                    android:src="@mipmap/ic_reset_hrhistogram"
+                    android:contentDescription="@null"/>
+            </RelativeLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_ecg_hr"

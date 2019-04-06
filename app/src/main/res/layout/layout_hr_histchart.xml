@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrLineChart
-        android:id="@+id/linechart_hr"
+    <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart
+        android:id="@+id/chart_hr_histogram"
         android:layout_width="match_parent"
         android:layout_height="150dp"
         android:layout_marginStart="10dp"

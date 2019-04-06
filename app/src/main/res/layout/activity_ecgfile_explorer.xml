@@ -168,13 +168,8 @@
             android:textSize="12sp"
             android:textColor="@color/primary_text"/>
 
-        <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart
-            android:id="@+id/ecgfile_hr_histogram"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_gravity="center_horizontal" />
+        <include layout="@layout/layout_hr_histchart"/>
+
 
     </LinearLayout>
 

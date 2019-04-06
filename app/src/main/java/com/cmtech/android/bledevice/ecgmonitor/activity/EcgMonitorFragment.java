@@ -16,7 +16,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -34,7 +33,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.Ecg
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.dsp.seq.RealSeq;
 import com.cmtech.dsp.util.SeqUtil;
@@ -70,7 +68,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ImageButton ibExit;
 
     private ScanWaveView ecgView; // 心电波形View
-    private FrameLayout flEcgView;
     private RelativeLayout rlHrStatistics;
     private RecyclerView rvEcgMarker; // ecg标记recycleview
     private EcgMarkerAdapter markerAdapter; // ecg标记adapter
@@ -117,11 +114,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 if(rlHrStatistics.getVisibility() == View.INVISIBLE) {
                     device.updateHrInfo();
                     rlHrStatistics.setVisibility(View.VISIBLE);
-                    flEcgView.setVisibility(View.INVISIBLE);
+                    //ecgView.setVisibility(View.INVISIBLE);
                 }
                 else {
-                    rlHrStatistics.setVisibility(View.INVISIBLE);
-                    flEcgView.setVisibility(View.VISIBLE);
+                    rlHrStatistics.setVisibility(View.GONE);
+                    //ecgView.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -158,9 +155,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        flEcgView = view.findViewById(R.id.fl_ecgview);
         rlHrStatistics = view.findViewById(R.id.rl_hr_statistics);
-        hrHistChart = view.findViewById(R.id.bc_hr_histogram);
+        hrHistChart = view.findViewById(R.id.chart_hr_histogram);
         tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
         tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
 
