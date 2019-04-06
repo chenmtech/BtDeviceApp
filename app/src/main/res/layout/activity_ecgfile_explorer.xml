@@ -149,64 +149,9 @@
             android:textSize="18sp"
             android:textColor="@color/black"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="平均心率："
-                android:textSize="12sp"
-                android:textColor="@color/primary_text"/>
+        <include layout="@layout/layout_hr_commoninfo"/>
 
-            <TextView
-                android:id="@+id/tv_average_hr_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" "
-                android:textSize="12sp"
-                android:textColor="@color/primary_text"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="bpm"
-                android:textSize="12sp"
-                android:textColor="@color/primary_text"
-                android:layout_marginEnd="10dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="最高心率："
-                android:textSize="12sp"
-                android:textColor="@color/primary_text"/>
-
-            <TextView
-                android:id="@+id/tv_max_hr_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" "
-                android:textSize="12sp"
-                android:textColor="@color/primary_text"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="bpm"
-                android:textSize="12sp"
-                android:textColor="@color/primary_text"/>
-
-        </LinearLayout>
-
-        <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrLineChart
-            android:id="@+id/ecgfile_hr_linechart"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_gravity="center_horizontal"/>
+        <include layout="@layout/layout_hr_linechart"/>
 
         <View
             android:layout_width="match_parent"

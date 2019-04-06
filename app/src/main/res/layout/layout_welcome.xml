@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@mipmap/ic_kang"
-            android:contentDescription="welcome image"/>
+            android:contentDescription="@null"/>
     </LinearLayout>
 
     <TextView

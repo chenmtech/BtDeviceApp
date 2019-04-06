@@ -85,50 +85,26 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
-            android:visibility="invisible">
+            android:visibility="visible">
+
+            <include layout="@layout/layout_hr_commoninfo"
+                android:id="@+id/layout_hr_commoninfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"/>
+
+            <include layout="@layout/layout_hr_linechart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/layout_hr_commoninfo"
+                android:layout_centerHorizontal="true"/>
+
             <com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart
                 android:id="@+id/bc_hr_histogram"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
                 android:layout_centerInParent="true"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/bc_hr_histogram"
-                android:gravity="center_horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="平均心率："
-                    android:textColor="@color/primary_text"
-                    android:textSize="18sp"/>
-
-                <TextView
-                    android:id="@+id/tv_average_hr_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="@color/primary_text"
-                    android:textSize="18sp"
-                    android:layout_marginEnd="10sp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="最高心率："
-                    android:textColor="@color/primary_text"
-                    android:textSize="18sp"/>
-
-                <TextView
-                    android:id="@+id/tv_max_hr_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="@color/primary_text"
-                    android:textSize="18sp"/>
-
-            </LinearLayout>
 
             <ImageButton
                 android:id="@+id/ib_reset_histogram"

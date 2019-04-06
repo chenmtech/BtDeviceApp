@@ -99,11 +99,14 @@ public class MyFragmentManager {
         fragManager.addFragment(fragment, "");
 
         TabLayout.Tab tab = tabLayout.newTab();
+
         View view = LayoutInflater.from(MyApplication.getContext()).inflate(R.layout.tablayout_device, null);
         TextView tv = view.findViewById(R.id.tv_device_name);
         tv.setText(tabText);
+
         ImageView imageView = view.findViewById(R.id.iv_device_image);
         imageView.setImageDrawable(drawable);
+
         tab.setCustomView(view);
 
         tabLayout.addTab(tab, true);
