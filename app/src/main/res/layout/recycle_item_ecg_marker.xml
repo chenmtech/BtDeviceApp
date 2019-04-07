@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="@drawable/button_select"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="2dp"
         android:enabled="false"
-        android:text="unknown"/>
+        android:text="标记"/>
 </LinearLayout>

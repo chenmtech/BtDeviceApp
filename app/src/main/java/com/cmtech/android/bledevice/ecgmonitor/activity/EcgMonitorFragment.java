@@ -10,6 +10,7 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
@@ -68,7 +69,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     private ImageButton ibResetHistogram; // 重置心率直方图
     private ImageButton ibRecord; // 切换记录状态
-    private ImageButton ibExit;
+
+    private FloatingActionButton fabExit;
 
     private ScanWaveView ecgView; // 心电波形View
 
@@ -150,7 +152,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             @Override
             public void onMarkerClicked(EcgAbnormal marker) {
                 if(device != null)
-                    device.addCommentContent("第" + device.getEcgSignalRecordDataNum() / device.getSampleRate() + "秒，" + marker.getDescription() + ';');
+                    device.addCommentContent("第" + device.getEcgSignalRecordDataNum() / device.getSampleRate() + "秒，" + marker.getDescription() + '；');
             }
         });
         rvEcgMarker.setAdapter(markerAdapter);
@@ -179,10 +181,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        ibExit = view.findViewById(R.id.ib_ecg_exit);
-        ibExit.setOnClickListener(new View.OnClickListener() {
+        fabExit = view.findViewById(R.id.fab_exit);
+        fabExit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 close();
             }
         });
