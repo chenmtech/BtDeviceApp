@@ -61,6 +61,59 @@
             android:text="未知"/>
     </LinearLayout>
 
+    <!--ecgView及叠加-->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2">
+
+        <com.cmtech.android.bledevice.view.ScanWaveView
+            android:id="@+id/rwv_ecgview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            cmtech:background_color="#666"
+            cmtech:grid_color="#f00"
+            cmtech:wave_color="#ff0"
+            cmtech:show_gridline="true"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="2dp"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/ecg_henxiang"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:layout_alignParentBottom="true"
+                android:textSize="12sp"
+                android:textColor="@color/primary"
+                android:text="横向:25格/秒"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/ecg_henxiang"
+                android:layout_alignParentBottom="true"
+                android:textSize="12sp"
+                android:textColor="@color/primary"
+                android:text="纵向:10格/1mV"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tv_ecg_hr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="2dp"
+            android:drawableStart="@mipmap/ic_ecg_heart"
+            android:text="0"
+            android:textSize="40sp"
+            android:textColor="@color/primary"/>
+    </FrameLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -68,197 +121,70 @@
         android:layout_weight="1">
 
         <LinearLayout
+            android:id="@+id/ll_sample_signal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
-            <FrameLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1">
-
-                <com.cmtech.android.bledevice.view.ScanWaveView
-                    android:id="@+id/rwv_ecgview"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    cmtech:background_color="#666"
-                    cmtech:grid_color="#f00"
-                    cmtech:wave_color="#ff0"
-                    cmtech:show_gridline="true"/>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_margin="2dp"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:id="@+id/ecg_henxiang"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="2dp"
-                        android:layout_alignParentBottom="true"
-                        android:textSize="12sp"
-                        android:textColor="@color/primary"
-                        android:text="横向:25格/秒"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_toEndOf="@id/ecg_henxiang"
-                        android:layout_alignParentBottom="true"
-                        android:textSize="12sp"
-                        android:textColor="@color/primary"
-                        android:text="纵向:10格/1mV"/>
-
-                    <android.support.design.widget.FloatingActionButton
-                        android:id="@+id/fab_exit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_alignParentBottom="true"
-                        android:src="@mipmap/ic_close_32px"
-                        app:backgroundTint="@color/primary"
-                        app:borderWidth="0dp"
-                        app:elevation="8dp"
-                        app:fabSize="normal"
-                        app:pressedTranslationZ="16dp" />
-                </RelativeLayout>
-            </FrameLayout>
-
-
-            <RelativeLayout
-                android:id="@+id/rl_hr_statistics"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:visibility="gone">
-
-                <include layout="@layout/layout_hr_commoninfo"
-                    android:id="@+id/layout_hr_commoninfo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"/>
-
-                <include layout="@layout/layout_hr_linechart"
-                    android:id="@+id/layout_hr_linechart"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/layout_hr_commoninfo"
-                    android:layout_centerHorizontal="true"/>
-
-                <include layout="@layout/layout_hr_histchart"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/layout_hr_linechart"
-                    android:layout_centerHorizontal="true"
-                    android:visibility="gone"/>
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:background="@color/primary_dark"
+                android:baselineAligned="false">
 
                 <ImageButton
-                    android:id="@+id/ib_reset_histogram"
+                    android:id="@+id/ib_ecg_record"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_margin="5dp"
-                    android:background="@color/secondary"
-                    android:src="@mipmap/ic_reset_hrhistogram"
-                    android:contentDescription="@null"
-                    android:visibility="gone"/>
-            </RelativeLayout>
+                    android:layout_gravity="center_horizontal"
+                    android:layout_margin="4dp"
+                    android:background="@color/primary_dark"
+                    android:src="@mipmap/ic_ecg_record_stop"
+                    android:contentDescription="@null"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="采集信号" />
+
+                    <TextView
+                        android:id="@+id/tv_ecg_recordtime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="00:00:00"
+                        android:textColor="#f00"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_ecg_marker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"/>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_ecg_hr"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="start|top"
-            android:layout_marginStart="5sp"
-            android:drawableStart="@mipmap/ic_ecg_heart"
-            android:text="0"
-            android:textSize="40sp"
-            android:textColor="@color/primary"/>
+        <LinearLayout
+            android:id="@+id/ll_hr_statistics"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="invisible">
+
+            <include layout="@layout/layout_hr_commoninfo"/>
+
+            <include layout="@layout/layout_hr_linechart"/>
+        </LinearLayout>
 
     </FrameLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/primary_dark"
-        android:baselineAligned="false">
 
-        <ImageButton
-            android:id="@+id/ib_ecg_record"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="4dp"
-            android:background="@color/primary_dark"
-            android:src="@mipmap/ic_ecg_record_stop"
-            android:contentDescription="@null"/>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="采集信号" />
-            <TextView
-                android:id="@+id/tv_ecg_recordtime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="00:00:00"
-                android:textColor="#f00"
-                android:textSize="14sp" />
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="标记：" />
-
-        <Button
-            android:id="@+id/btn_ecgfeel_0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_select"
-            android:layout_marginEnd="5dp"
-            android:enabled="false"
-            android:text="不舒服" />
-
-        <Button
-            android:id="@+id/btn_ecgfeel_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_select"
-            android:layout_marginEnd="5dp"
-            android:enabled="false"
-            android:text="心跳快" />
-
-        <Button
-            android:id="@+id/btn_ecgfeel_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_select"
-            android:enabled="false"
-            android:text="胸闷" />
-
-    </LinearLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_ecg_marker"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="2dp"/>
 
 </LinearLayout>

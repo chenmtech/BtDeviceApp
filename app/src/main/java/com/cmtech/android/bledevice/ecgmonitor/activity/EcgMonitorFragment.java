@@ -10,7 +10,6 @@ import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
@@ -20,7 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
@@ -70,11 +69,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private ImageButton ibResetHistogram; // 重置心率直方图
     private ImageButton ibRecord; // 切换记录状态
 
-    private FloatingActionButton fabExit;
-
     private ScanWaveView ecgView; // 心电波形View
 
-    private RelativeLayout rlHrStatistics;
+    private LinearLayout llSampleSignal;
+    private LinearLayout llHrStatistics;
 
     private RecyclerView rvEcgMarker; // ecg标记recycleview
 
@@ -124,12 +122,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvHeartRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(rlHrStatistics.getVisibility() == View.GONE) {
+                if(llHrStatistics.getVisibility() == View.INVISIBLE) {
                     device.updateHrInfo();
-                    rlHrStatistics.setVisibility(View.VISIBLE);
+                    llHrStatistics.setVisibility(View.VISIBLE);
+                    llSampleSignal.setVisibility(View.INVISIBLE);
                 }
                 else {
-                    rlHrStatistics.setVisibility(View.GONE);
+                    llHrStatistics.setVisibility(View.INVISIBLE);
+                    llSampleSignal.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -166,28 +166,22 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        rlHrStatistics = view.findViewById(R.id.rl_hr_statistics);
+        llSampleSignal = view.findViewById(R.id.ll_sample_signal);
+        llHrStatistics = view.findViewById(R.id.ll_hr_statistics);
+
         hrHistChart = view.findViewById(R.id.chart_hr_histogram);
         tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
         tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
 
         hrLineChart = view.findViewById(R.id.linechart_hr);
 
-        ibResetHistogram = view.findViewById(R.id.ib_reset_histogram);
+        /*ibResetHistogram = view.findViewById(R.id.ib_reset_histogram);
         ibResetHistogram.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 device.resetHrInfo();
             }
-        });
-
-        fabExit = view.findViewById(R.id.fab_exit);
-        fabExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                close();
-            }
-        });
+        });*/
 
         // 根据设备的isRecord初始化Record按钮
         onUpdateEcgSignalRecordStatus(device.isRecordEcgSignal());

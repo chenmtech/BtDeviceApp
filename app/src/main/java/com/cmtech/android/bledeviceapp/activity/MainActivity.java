@@ -72,20 +72,35 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private final static int REQUESTCODE_MODIFY_DEVICE = 2;       // 修改设备基本信息返回码
     private final static int REQUESTCODE_MODIFY_USERINFO = 3;     // 修改用户信息返回码
 
-    private BleDeviceService deviceService; // 设备管理器
+    private BleDeviceService deviceService; // 设备服务
+
     private BleDeviceListAdapter deviceListAdapter; // 已登记设备列表的Adapter
+
     private RecyclerView rvDeviceList; // 已登记设备列表的RecyclerView
+
     private Toolbar toolbar; // 工具条
+
     private DrawerLayout drawerLayout; // 侧滑界面
+
     private LinearLayout welcomeLayout; // 欢迎界面
+
     private RelativeLayout mainLayout; // 包含设备Fragment和Tablayout的主界面
+
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
+
+    private FloatingActionButton fabExit;
+
     private BleDeviceFragmentManager fragmentManager; // TabLayout和Fragment管理器
+
     private MenuItem menuConfig; // 工具条上的配置菜单
+
     private TextView tvAccountName; // 账户名称控件
+
     private ImageView ivAccountPortrait; // 头像控件
+
     private boolean isFinishService = false; // 是否结束服务
-    private ObjectAnimator fabAnimator; // 浮动动作按钮的动画
+
+    private ObjectAnimator connectFabAnimator; // 连接动作按钮的动画
 
     private ServiceConnection deviceServiceConnect = new ServiceConnection() {
         @Override
@@ -191,6 +206,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 BleDeviceFragment fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.switchDeviceState();
+                }
+            }
+        });
+
+        fabExit = findViewById(R.id.fab_exit);
+        fabExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                BleDeviceFragment fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+                if(fragment != null) {
+                    fragment.close();
                 }
             }
         });
@@ -650,10 +676,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             }
             fabConnect.clearAnimation();
             fabConnect.setImageResource(device.getStateIcon());
-            fabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, degree).setDuration(duration);
-            fabAnimator.setRepeatCount(count);
-            fabAnimator.setAutoCancel(true);
-            fabAnimator.start();
+            connectFabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, degree).setDuration(duration);
+            connectFabAnimator.setRepeatCount(count);
+            connectFabAnimator.setAutoCancel(true);
+            connectFabAnimator.start();
         }
     }
 }
