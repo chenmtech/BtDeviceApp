@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorFragment;
 import com.cmtech.android.bledevice.temphumid.activity.TempHumidFragment;
 import com.cmtech.android.bledevice.core.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevice.core.BleDevice;
@@ -14,7 +15,7 @@ public class TempHumidDeviceFactory extends AbstractBleDeviceFactory {
 
     @Override
     public BleDeviceFragment createFragment() {
-        return TempHumidFragment.newInstance(basicInfo.getMacAddress());
+        return BleDeviceFragment.create(basicInfo.getMacAddress(), TempHumidFragment.class);
     }
 
 

@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorFragment;
+
 /**
  * BleDeviceFragment：设备的Fragment
  * Created by bme on 2018/2/27.
@@ -25,6 +27,17 @@ public abstract class BleDeviceFragment extends Fragment{
     // 构造器
     public BleDeviceFragment() {
 
+    }
+
+    public static BleDeviceFragment create(String macAddress, Class<? extends BleDeviceFragment> fragClass) {
+        BleDeviceFragment fragment = null;
+        try {
+            fragment = fragClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        return BleDeviceFragment.pushMacAddressIntoFragmentArgument(macAddress, fragment);
     }
 
     // 将设备的mac地址添加到Fragment的Argument中

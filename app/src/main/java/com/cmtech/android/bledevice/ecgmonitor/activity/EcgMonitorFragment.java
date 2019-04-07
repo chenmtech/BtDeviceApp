@@ -9,6 +9,7 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -24,7 +25,6 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgMarkerAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrLineChart;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
@@ -47,7 +47,6 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
-import static android.graphics.Color.WHITE;
 
 /**
  * EcgMonitorFragment: 心电带设备Fragment
@@ -56,47 +55,39 @@ import static android.graphics.Color.WHITE;
 
 public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitorListener {
     private static final String TAG = "EcgMonitorFragment";
-    private static final int COLOR_WHEN_REST = WHITE; // 安静状态下的波形颜色
 
     private TextView tvSampleRate; // 采样率
     private TextView tvLeadType; // 导联类型
     private TextView tvValue1mV; // 1mV定标值
     private TextView tvHeartRate; // 心率值
-    private TextView tvRecordTime; // 记录时间
+    private TextView tvRecordTime; // 记录信号时长
     private TextView tvAverageHr; // 平均心率
     private TextView tvMaxHr; // 最大心率
 
-    private ImageButton ibResetHistogram; // 重置心率直方图
-    private ImageButton ibRecord; // 切换记录状态
+    private ImageButton ibResetHrLineChart; // 重置心率图
+    private ImageButton ibRecord; // 切换记录信号状态
 
     private ScanWaveView ecgView; // 心电波形View
 
-    private LinearLayout llSampleSignal;
-    private LinearLayout llHrStatistics;
+    private LinearLayout llSignalOperator; // 信号操控布局
+    private LinearLayout llHrAnalysis; // 心率分析布局
 
-    private RecyclerView rvEcgMarker; // ecg标记recycleview
+    private RecyclerView rvMarker; // 标记recycleview
 
     private EcgMarkerAdapter markerAdapter; // ecg标记adapter
+
+    private EcgHrLineChart hrLineChart;
 
     private AudioTrack hrWarnAudio; // 心率报警声音
 
     private EcgMonitorDevice device; // 设备
 
-    private EcgHrHistogramChart hrHistChart; // 心率直方图
-
-    private EcgHrLineChart hrLineChart;
-
     public EcgMonitorFragment() {
 
     }
 
-    public static BleDeviceFragment newInstance(String macAddress) {
-        BleDeviceFragment fragment = new EcgMonitorFragment();
-        return BleDeviceFragment.pushMacAddressIntoFragmentArgument(macAddress, fragment);
-    }
-
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (EcgMonitorDevice) getDevice();
@@ -105,59 +96,69 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         tvSampleRate = view.findViewById(R.id.tv_ecg_samplerate);
+        tvLeadType = view.findViewById(R.id.tv_ecg_leadtype);
+        tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
+        tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
+        ecgView = view.findViewById(R.id.rwv_ecgview);
+        tvRecordTime = view.findViewById(R.id.tv_ecg_recordtime);
+        rvMarker = view.findViewById(R.id.rv_ecg_marker);
+        ibRecord = view.findViewById(R.id.ib_ecg_record);
+        llSignalOperator = view.findViewById(R.id.ll_signal_operator);
+        llHrAnalysis = view.findViewById(R.id.ll_hr_statistics);
+        hrLineChart = view.findViewById(R.id.linechart_hr);
+
+
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
 
-        tvLeadType = view.findViewById(R.id.tv_ecg_leadtype);
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
 
-        tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mVBeforeCalibrate(), device.getValue1mVAfterCalibrate()));
 
-        tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
         tvHeartRate.setText(String.valueOf(0));
         tvHeartRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(llHrStatistics.getVisibility() == View.INVISIBLE) {
+                if(llHrAnalysis.getVisibility() == View.INVISIBLE) {
                     device.updateHrInfo();
-                    llHrStatistics.setVisibility(View.VISIBLE);
-                    llSampleSignal.setVisibility(View.INVISIBLE);
+
+                    llHrAnalysis.setVisibility(View.VISIBLE);
+                    llSignalOperator.setVisibility(View.INVISIBLE);
                 }
                 else {
-                    llHrStatistics.setVisibility(View.INVISIBLE);
-                    llSampleSignal.setVisibility(View.VISIBLE);
+                    llHrAnalysis.setVisibility(View.INVISIBLE);
+                    llSignalOperator.setVisibility(View.VISIBLE);
                 }
             }
         });
 
-        ecgView = view.findViewById(R.id.rwv_ecgview);
         onUpdateEcgView(device.getxPixelPerData(), device.getyValuePerPixel(), device.getPixelPerGrid());
 
-        tvRecordTime = view.findViewById(R.id.tv_ecg_recordtime);
         tvRecordTime.setText(DateTimeUtil.secToTime(device.getEcgSignalRecordSecond()));
 
         onUpdateState(device.getState());
+        
+        LinearLayoutManager markerLayoutManager = new LinearLayoutManager(getContext());
+        markerLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
 
-        rvEcgMarker = view.findViewById(R.id.rv_ecg_marker);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-        rvEcgMarker.setLayoutManager(linearLayoutManager);
-        rvEcgMarker.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        rvMarker.setLayoutManager(markerLayoutManager);
+        rvMarker.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+
         List<EcgAbnormal> ecgAbnormals = new ArrayList<>(Arrays.asList(EcgAbnormal.values()));
         markerAdapter = new EcgMarkerAdapter(ecgAbnormals, new EcgMarkerAdapter.OnMarkerClickListener() {
             @Override
             public void onMarkerClicked(EcgAbnormal marker) {
                 if(device != null)
-                    device.addCommentContent("第" + device.getEcgSignalRecordDataNum() / device.getSampleRate() + "秒，" + marker.getDescription() + '；');
+                    device.addCommentContent(DateTimeUtil.secToTimeInChinese((int)(device.getEcgSignalRecordDataNum() / device.getSampleRate())) + '，' + marker.getDescription() + '；');
             }
         });
-        rvEcgMarker.setAdapter(markerAdapter);
 
-        ibRecord = view.findViewById(R.id.ib_ecg_record);
+        rvMarker.setAdapter(markerAdapter);
+
+
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -166,17 +167,15 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        llSampleSignal = view.findViewById(R.id.ll_sample_signal);
-        llHrStatistics = view.findViewById(R.id.ll_hr_statistics);
 
-        hrHistChart = view.findViewById(R.id.chart_hr_histogram);
+
         tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
         tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
 
-        hrLineChart = view.findViewById(R.id.linechart_hr);
 
-        /*ibResetHistogram = view.findViewById(R.id.ib_reset_histogram);
-        ibResetHistogram.setOnClickListener(new View.OnClickListener() {
+
+        /*ibResetHrLineChart = view.findViewById(R.id.ib_reset_histogram);
+        ibResetHrLineChart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 device.resetHrInfo();
@@ -308,7 +307,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void onUpdateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr) {
-        hrHistChart.update(normHistogram);
         tvAverageHr.setText(String.valueOf(averageHr));
         tvMaxHr.setText(String.valueOf(maxHr));
 
