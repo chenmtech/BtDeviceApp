@@ -140,7 +140,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvRecordTime.setText(DateTimeUtil.secToTime(device.getEcgSignalRecordSecond()));
 
         onUpdateState(device.getState());
-        
+
         LinearLayoutManager markerLayoutManager = new LinearLayoutManager(getContext());
         markerLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
 
