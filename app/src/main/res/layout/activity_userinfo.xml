@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@color/primary"
         toolbar:title="修改账户信息"
-        toolbar:navigationIcon="@mipmap/ic_user_info_48px"
+        toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <View

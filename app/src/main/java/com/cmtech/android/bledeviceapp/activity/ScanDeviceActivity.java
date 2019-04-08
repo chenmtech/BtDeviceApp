@@ -27,6 +27,7 @@ import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.core.UuidUtil;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,6 +166,11 @@ public class ScanDeviceActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED, null);
+                finish();
+                break;
+
             case R.id.scan_device:
                 startScan();
                 srlScanDevice.setRefreshing(true);
@@ -176,9 +182,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            // 设备登记返回
-            case 1:
-                if ( resultCode == RESULT_OK) {
+            case 1: // 设备登记返回码
+                if (resultCode == RESULT_OK) {
                     setResult(RESULT_OK, data);
                     finish();
                 }

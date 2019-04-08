@@ -39,6 +39,8 @@ public class MyFragmentManager {
     // 当前显示的Fragment和Tab的位置
     private int curPos = -1;
 
+    private boolean isShowTabText = false;
+
     // fragment改变监听器接口
     public interface OnFragmentChangedListener {
         void onFragmentchanged();
@@ -102,7 +104,10 @@ public class MyFragmentManager {
 
         View view = LayoutInflater.from(MyApplication.getContext()).inflate(R.layout.tablayout_device, null);
         TextView tv = view.findViewById(R.id.tv_device_name);
-        tv.setText(tabText);
+        if(isShowTabText)
+            tv.setText(tabText);
+        else
+            tv.setText("");
 
         ImageView imageView = view.findViewById(R.id.iv_device_image);
         imageView.setImageDrawable(drawable);

@@ -178,6 +178,11 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED, null);
+                finish();
+                break;
+
             case R.id.explorer_update:
                 importFromWechat();
                 break;

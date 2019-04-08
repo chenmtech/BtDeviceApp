@@ -15,7 +15,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -148,10 +147,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         // 创建ToolBar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        //updateToolBar(null);
-        //setTitle(R.string.app_name);
-        //Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.ic_kang);
-        //toolbar.setLogo(drawable);
 
         // 设置设备信息RecycleView
         rvDeviceList = findViewById(R.id.rv_registed_device);
@@ -163,18 +158,18 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 导航菜单设置
         NavigationView navView = findViewById(R.id.nav_view);
-        navView.setCheckedItem(R.id.nav_registerdevice);
+        navView.setCheckedItem(R.id.nav_register_device);
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.nav_registerdevice:
+                    case R.id.nav_register_device:
                         startScanDevice();
                         return true;
-                    case R.id.nav_explorerecord:
+                    case R.id.nav_explore_record:
                         replayEcg();
                         return true;
-                    case R.id.nav_changeuser:
+                    case R.id.nav_change_user:
                         changeUser();
                         return true;
                     case R.id.nav_exit:
@@ -233,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             @Override
             public void onFragmentchanged() {
                 BleDevice device = ((BleDeviceFragment) fragmentManager.getCurrentFragment()).getDevice();
-                updateToolBar();
+                updateToolBar(device);
                 updateFloatingActionButton(device);
             }
         });
@@ -241,8 +236,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         // 初始化欢迎界面
         initNoDeviceOpenedLayout();
 
-        // 更新主界面
-        updateMainLayout();
+        updateToolBar(null);
+
+        // 更新主界面可视性
+        updateMainLayoutVisibility();
 
         // 为已经打开的设备创建并打开Fragment
         for(BleDevice device : deviceService.getDeviceList()) {
@@ -468,7 +465,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
         if(factory != null) {
             openFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
-            updateMainLayout();
+            updateMainLayoutVisibility();
+            updateToolBar(device);
         }
     }
 
@@ -582,8 +580,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     // 删除Fragment
     private void deleteFragment(BleDeviceFragment fragment) {
         fragmentManager.deleteFragment(fragment);
-
-        updateMainLayout();
+        updateMainLayoutVisibility();
+        invalidateOptionsMenu();
     }
 
     // 更新导航视图
@@ -596,16 +594,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountPortrait);
     }
 
-    private void updateMainLayout() {
-        updateToolBar();
-        updateMainLayoutVisibility();
-    }
-
     // 更新主Layout的可视性
     private void updateMainLayoutVisibility() {
         if(fragmentManager == null || fragmentManager.size() == 0) {
             noDeviceOpenedLayout.setVisibility(View.VISIBLE);
             mainLayout.setVisibility(View.INVISIBLE);
+            updateToolBar(null);
         } else {
             noDeviceOpenedLayout.setVisibility(View.INVISIBLE);
             mainLayout.setVisibility(View.VISIBLE);
@@ -622,12 +616,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     // 更新工具条
-    private void updateToolBar() {
-        if(fragmentManager == null || fragmentManager.size() == 0) {
+    private void updateToolBar(BleDevice device) {
+        if(device == null) {
             toolbar.setTitle("无设备打开");
         } else {
-            BleDeviceFragment fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
-            toolbar.setTitle(fragment.getDevice().getNickName());
+            toolbar.setTitle(device.getNickName());
         }
 
         // 更新工具条菜单
