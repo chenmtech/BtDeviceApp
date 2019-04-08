@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class EcgSignalRecorder {
     public interface IEcgRecordSecondUpdatedListener {
-        void onUpdateEcgRecordSecond(int second); // 更新心电信号记录的秒数
+        void onUpdateSignalSecNum(int second); // 更新心电信号记录的秒数
     }
 
     private final EcgFile ecgFile;
@@ -60,7 +60,7 @@ public class EcgSignalRecorder {
         if(isRecord) {
             ecgFile.writeData(ecgSignal);
             recordDataNum++;
-            if (listener != null) listener.onUpdateEcgRecordSecond(getSecond());
+            if (listener != null) listener.onUpdateSignalSecNum(getSecond());
         }
     }
 

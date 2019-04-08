@@ -36,6 +36,9 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
 /**
  * EcgMonitorDevice: 心电带设备类
  * Created by bme on 2018/9/20.
+ *
+ * Updated by chenm on 2019/4/8
+ * 优化代码
  */
 
 public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessListener, EcgSignalRecorder.IEcgRecordSecondUpdatedListener, EcgCalibrateDataProcessor.ICalibrateValueUpdatedListener {
@@ -50,9 +53,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
 
     // GATT消息常量
-    private static final int MSG_OBTAINSAMPLERATE = 1;                          // 获取采样率
-    private static final int MSG_OBTAINLEADTYPE = 2;                            // 获取导联类型
-    private static final int MSG_STARTSAMPLINGSIGNAL = 3;                       // 开始采集Ecg信号
+    private static final int MSG_SAMPLERATE_OBTAINED = 1;                          // 获取到采样率
+    private static final int MSG_LEADTYPE_OBTAINED = 2;                            // 获取导联类型
+    private static final int MSG_START_SAMPLINGSIGNAL = 3;                       // 开始采集Ecg信号
 
     // 心电监护仪Service UUID常量
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
@@ -78,7 +81,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private static final byte ECGMONITOR_CTRL_STARTSIGNAL =      (byte) 0x01;        // 启动采集Ecg信号
     private static final byte ECGMONITOR_CTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
 
-
     private int sampleRate = DEFAULT_SAMPLERATE; // 采样率
 
     private EcgLeadType leadType = DEFAULT_LEADTYPE; // 导联类型
@@ -98,15 +100,16 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
     private IEcgMonitorListener listener; // 心电监护仪设备监听器
 
-    private EcgCalibrateDataProcessor calibrateDataProcessor; // 心电标定数据处理器
+    private EcgCalibrateDataProcessor calibrateDataProcessor; // 标定数据处理器
 
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
 
     private EcgSignalProcessor signalProcessor; // 心电信号处理器
 
-    private EcgFile ecgFile; // 心电记录文件，可记录心率信息以及心电信号和留言信息
+    private EcgFile ecgFile; // 心电记录文件，可记录心电信号以及留言和心率信息
 
     private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<>();	//数据缓存
+
     // 数据处理线程Runnable
     private final Runnable processRunnable = new Runnable() {
         @Override
@@ -135,18 +138,32 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     // 数据处理线程
     private Thread processThread;
 
+    // 构造器
+    EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
+        super(basicInfo);
+
+        // 从数据库获取设备的配置信息
+        List<EcgMonitorDeviceConfig> foundConfig = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);
+        if(foundConfig == null || foundConfig.isEmpty()) {
+            config = new EcgMonitorDeviceConfig();
+            config.setMacAddress(basicInfo.getMacAddress());
+            config.save();
+        } else {
+            config = foundConfig.get(0);
+        }
+    }
 
     public int getSampleRate() { return sampleRate; }
+
     public EcgLeadType getLeadType() {
         return leadType;
     }
+
     public int getValue1mVBeforeCalibrate() { return value1mVBeforeCalibrate; }
     public int getValue1mVAfterCalibrate() { return value1mVAfterCalibrate; }
+
     public boolean isRecordEcgSignal() {
-        if(signalRecorder == null)
-            return false;
-        else
-            return signalRecorder.isRecord();
+        return ((signalRecorder != null) && signalRecorder.isRecord());
     }
 
     public void setSaveEcgFile(boolean saveEcgFile) {
@@ -154,8 +171,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     public int getPixelPerGrid() { return pixelPerGrid; }
-    public int getxPixelPerData() { return xPixelPerData; }
-    public float getyValuePerPixel() { return yValuePerPixel; }
+    public int getXPixelPerData() { return xPixelPerData; }
+    public float getYValuePerPixel() { return yValuePerPixel; }
+
     public EcgMonitorState getState() {
         return state;
     }
@@ -165,10 +183,10 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             updateEcgMonitorState();
         }
     }
+
     public EcgMonitorDeviceConfig getConfig() {
         return config;
     }
-
     public void setConfig(EcgMonitorDeviceConfig config) {
         this.config.setWarnWhenHrAbnormal(config.isWarnWhenHrAbnormal());
         this.config.setHrLowLimit(config.getHrLowLimit());
@@ -185,21 +203,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
     public long getEcgSignalRecordDataNum() { return (signalRecorder == null) ? 0 : signalRecorder.getDataNum(); }
 
-    // 构造器
-    public EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
-        super(basicInfo);
-
-        // 从数据库获取设备的配置信息
-        List<EcgMonitorDeviceConfig> find = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);
-        if(find == null || find.size() == 0) {
-            config = new EcgMonitorDeviceConfig();
-            config.setMacAddress(basicInfo.getMacAddress());
-            config.save();
-        } else {
-            config = find.get(0);
-        }
-    }
-
     @Override
     public boolean executeAfterConnectSuccess() {
         updateSampleRate(DEFAULT_SAMPLERATE);
@@ -208,6 +211,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
         // 启动gattOperator
         gattOperator.start();
+
         // 验证Gatt Elements
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
         if(!gattOperator.checkElements(elements)) {
@@ -215,8 +219,10 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         }
         // 先停止采样
         stopSampleData();
+
         // 读采样率
         readSampleRate();
+
         // 读导联类型
         readLeadType();
 
@@ -225,12 +231,14 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
         // 启动1mV采样进行定标
         startSample1mV();
+
         return true;
     }
 
     @Override
     public void executeAfterDisconnect() {
         gattOperator.stop();
+
         if(processThread != null) {
             processThread.interrupt();
         }
@@ -239,6 +247,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     @Override
     public void executeAfterConnectFailure() {
         gattOperator.stop();
+
         if(processThread != null) {
             processThread.interrupt();
         }
@@ -248,8 +257,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     public synchronized void processGattMessage(Message msg)
     {
         switch (msg.what) {
-            // 接收到采样率数据
-            case MSG_OBTAINSAMPLERATE:
+            // 接收到采样率
+            case MSG_SAMPLERATE_OBTAINED:
                 if(msg.obj != null) {
                     sampleRate = (Integer) msg.obj;
                     updateSampleRate(sampleRate);
@@ -258,8 +267,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
                 }
                 break;
 
-            // 接收到导联类型数据
-            case MSG_OBTAINLEADTYPE:
+            // 接收到导联类型
+            case MSG_LEADTYPE_OBTAINED:
                 if(msg.obj != null) {
                     Number num = (Number)msg.obj;
                     leadType = EcgLeadType.getFromCode(num.intValue());
@@ -268,7 +277,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
                 break;
 
             // 启动采集ECG信号
-            case MSG_STARTSAMPLINGSIGNAL:
+            case MSG_START_SAMPLINGSIGNAL:
                 dataBuff.clear();
                 setState(EcgMonitorState.SAMPLE);
                 break;
@@ -281,6 +290,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     @Override
     public void open() {
         super.open();
+
         signalProcessor = null;
         signalRecorder = null;
         calibrateDataProcessor = null;
@@ -314,17 +324,18 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
                 if(isSaveEcgFile) {
                     saveEcgFileTail();
                     ecgFile.close();
+
                     File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
                     FileUtil.moveFile(ecgFile.getFile(), toFile);
-                } else {
-                    ecgFile.close();
-                    FileUtil.deleteFile(ecgFile.getFile());
                 }
             } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
                 try {
+                    ecgFile.close();
                     FileUtil.deleteFile(ecgFile.getFile());
-                } catch (IOException e1) {
-                    e1.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -349,12 +360,27 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         if(isConnected()) {
             stopSampleData();
         }
-        postDelayed(new Runnable() {
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        EcgMonitorDevice.super.disconnect();
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        /*postDelayed(new Runnable() {
             @Override
             public void run() {
                 EcgMonitorDevice.super.disconnect();
             }
-        }, 500);
+        }, 500);*/
     }
 
     @Override
@@ -369,53 +395,62 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         }
 
         // 通知观察者
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
+        if(listener != null) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
                     listener.onUpdateEcgSignal(ecgSignal);
-            }
-        });
+                }
+            });
+        }
     }
 
     @Override
     public void onUpdateEcgHrValue(final short hr) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
+        if(listener != null) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
                     listener.onUpdateEcgHr(hr);
-            }
-        });
+                }
+            });
+        }
     }
 
     @Override
-    public void onUpdateEcgHrInfo(List<Short> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr) {
+    public void onUpdateEcgHrInfo(final List<Short> filteredHrList, final List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, final short maxHr, final short averageHr) {
         if(listener != null) {
-            listener.onUpdateEcgHrInfo(filteredHrList, normHistogram, maxHr, averageHr);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onUpdateEcgHrInfo(filteredHrList, normHistogram, maxHr, averageHr);
+                }
+            });
         }
     }
 
     @Override
     public void onNotifyEcgHrAbnormal() {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
+        if(listener != null) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
                     listener.onNotifyHrAbnormal();
-            }
-        });
+                }
+            });
+        }
     }
 
     @Override
-    public void onUpdateEcgRecordSecond(final int second) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
+    public void onUpdateSignalSecNum(final int second) {
+        if(listener != null) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
                     listener.onUpdateSignalSecNum(second);
-            }
-        });
+                }
+            });
+        }
     }
 
     @Override
@@ -536,7 +571,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         gattOperator.read(ECGMONITOR_SAMPLERATE, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_OBTAINSAMPLERATE, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
+                sendGattMessage(MSG_SAMPLERATE_OBTAINED, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
             }
 
             @Override
@@ -551,7 +586,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         gattOperator.read(ECGMONITOR_LEADTYPE, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_OBTAINLEADTYPE, data[0]);
+                sendGattMessage(MSG_LEADTYPE_OBTAINED, data[0]);
             }
 
             @Override
@@ -579,7 +614,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IBleDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_STARTSAMPLINGSIGNAL, null);
+                sendGattMessage(MSG_START_SAMPLINGSIGNAL, null);
             }
 
             @Override
