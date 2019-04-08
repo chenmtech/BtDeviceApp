@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <!--  欢迎界面  -->
-            <include layout = "@layout/layout_welcome"/>
+            <include layout = "@layout/layout_nodevice_opened"/>
 
             <!--  设备界面  -->
             <RelativeLayout

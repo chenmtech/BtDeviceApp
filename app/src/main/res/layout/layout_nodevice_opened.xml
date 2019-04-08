@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:id="@+id/welcome_layout"
+    android:id="@+id/layout_nodeivce_opened"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/window_background"
@@ -13,12 +13,14 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_gravity="center_horizontal">
+
         <com.cmtech.android.bledevice.view.RoundImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:src="@mipmap/ic_kang"
             android:contentDescription="@null"/>
+
     </LinearLayout>
 
     <TextView

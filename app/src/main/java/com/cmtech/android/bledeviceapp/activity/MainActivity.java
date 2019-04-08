@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     private DrawerLayout drawerLayout; // 侧滑界面
 
-    private LinearLayout welcomeLayout; // 欢迎界面
+    private LinearLayout noDeviceOpenedLayout; // 无设备打开时的界面
 
     private RelativeLayout mainLayout; // 包含设备Fragment和Tablayout的主界面
 
@@ -148,9 +148,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         // 创建ToolBar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        setTitle(R.string.app_name);
-        Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.ic_kang);
-        toolbar.setLogo(drawable);
+        //updateToolBar(null);
+        //setTitle(R.string.app_name);
+        //Drawable drawable = ContextCompat.getDrawable(this, R.mipmap.ic_kang);
+        //toolbar.setLogo(drawable);
 
         // 设置设备信息RecycleView
         rvDeviceList = findViewById(R.id.rv_registed_device);
@@ -222,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         });
 
         drawerLayout = findViewById(R.id.drawer_layout);
-        welcomeLayout = findViewById(R.id.welcome_layout);
+        noDeviceOpenedLayout = findViewById(R.id.layout_nodeivce_opened);
         mainLayout = findViewById(R.id.main_layout);
 
         // 创建Fragment管理器
@@ -232,16 +233,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             @Override
             public void onFragmentchanged() {
                 BleDevice device = ((BleDeviceFragment) fragmentManager.getCurrentFragment()).getDevice();
-                updateToolBar(device);
+                updateToolBar();
                 updateFloatingActionButton(device);
             }
         });
 
         // 初始化欢迎界面
-        initWelcomeLayout();
+        initNoDeviceOpenedLayout();
 
-        // 更新主界面可视性
-        updateMainLayoutVisibility();
+        // 更新主界面
+        updateMainLayout();
 
         // 为已经打开的设备创建并打开Fragment
         for(BleDevice device : deviceService.getDeviceList()) {
@@ -467,8 +468,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
         if(factory != null) {
             openFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
-            updateMainLayoutVisibility();
-            updateToolBar(device);
+            updateMainLayout();
         }
     }
 
@@ -512,25 +512,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         startActivityForResult(intent, REQUESTCODE_MODIFY_DEVICE);
     }
 
-    private void initWelcomeLayout() {
+    private void initNoDeviceOpenedLayout() {
         /*// 设置欢迎词
         String welcomeText = getResources().getBarString(R.string.welcome_text);
         welcomeText = String.format(welcomeText, getResources().getBarString(R.string.app_name));
-        TextView tvWelcomeText = welcomeLayout.findViewById(R.id.tv_welcometext);
+        TextView tvWelcomeText = noDeviceOpenedLayout.findViewById(R.id.tv_welcometext);
         tvWelcomeText.setText(welcomeText);*/
-        TextView tvVersionName = welcomeLayout.findViewById(R.id.tv_versionname);
+        TextView tvVersionName = noDeviceOpenedLayout.findViewById(R.id.tv_versionname);
         tvVersionName.setText(String.format("Ver%s", APKVersionCodeUtils.getVerName(this)));
-    }
-
-    // 更新主Layout的可视性
-    private void updateMainLayoutVisibility() {
-        if(fragmentManager.size() == 0) {
-            welcomeLayout.setVisibility(View.VISIBLE);
-            mainLayout.setVisibility(View.INVISIBLE);
-        } else {
-            welcomeLayout.setVisibility(View.INVISIBLE);
-            mainLayout.setVisibility(View.VISIBLE);
-        }
     }
 
     // 打开或关闭侧滑菜单
@@ -593,8 +582,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     // 删除Fragment
     private void deleteFragment(BleDeviceFragment fragment) {
         fragmentManager.deleteFragment(fragment);
-        updateMainLayoutVisibility();
-        invalidateOptionsMenu();
+
+        updateMainLayout();
     }
 
     // 更新导航视图
@@ -607,43 +596,39 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountPortrait);
     }
 
+    private void updateMainLayout() {
+        updateToolBar();
+        updateMainLayoutVisibility();
+    }
+
+    // 更新主Layout的可视性
+    private void updateMainLayoutVisibility() {
+        if(fragmentManager == null || fragmentManager.size() == 0) {
+            noDeviceOpenedLayout.setVisibility(View.VISIBLE);
+            mainLayout.setVisibility(View.INVISIBLE);
+        } else {
+            noDeviceOpenedLayout.setVisibility(View.INVISIBLE);
+            mainLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
     // 更新主菜单
     private void updateMainMenu() {
         if(fragmentManager.size() == 0) {
             menuConfig.setVisible(false);
         } else {
             menuConfig.setVisible(true);
-            /*
-            BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
-
-            if(currentFrag != null && currentFrag.getDevice() != null) {
-                // 更新连接转换菜单menuSwitch
-                // menuSwitch图标如果是动画，先停止动画
-                if(menuSwitch.getIcon() instanceof AnimationDrawable) {
-                    AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
-                    if(connectingDrawable.isRunning())
-                        connectingDrawable.stop();
-                }
-                menuSwitch.setIcon(currentFrag.getDevice().getStateIcon());
-                // 如果menuSwitch图标是动画，则启动动画
-                if(menuSwitch.getIcon() instanceof AnimationDrawable) {
-                    AnimationDrawable connectingDrawable = (AnimationDrawable) menuSwitch.getIcon();
-                    if(!connectingDrawable.isRunning())
-                        connectingDrawable.start();
-                }
-            }
-            */
         }
     }
 
-    // 更新设备列表
-    private void updateDeviceListAdapter() {
-        if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
-    }
-
     // 更新工具条
-    private void updateToolBar(BleDevice device) {
-        if(device == null) return;
+    private void updateToolBar() {
+        if(fragmentManager == null || fragmentManager.size() == 0) {
+            toolbar.setTitle("无设备打开");
+        } else {
+            BleDeviceFragment fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+            toolbar.setTitle(fragment.getDevice().getNickName());
+        }
 
         // 更新工具条菜单
         invalidateOptionsMenu();
@@ -682,4 +667,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             connectFabAnimator.start();
         }
     }
+
+    // 更新设备列表
+    private void updateDeviceListAdapter() {
+        if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
+    }
+
 }
