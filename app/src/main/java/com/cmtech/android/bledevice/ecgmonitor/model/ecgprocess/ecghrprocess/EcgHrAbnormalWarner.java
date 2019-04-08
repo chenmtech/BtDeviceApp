@@ -46,7 +46,7 @@ public class EcgHrAbnormalWarner implements IEcgHrProcessor {
     }
 
     @Override
-    public synchronized void process(int hr) {
+    public synchronized void process(short hr) {
         if(hr != INVALID_HR) {
             buff[index++] = hr;
             if(checkHrAbnormal()) {

@@ -49,7 +49,7 @@ public class DateTimeUtil {
         int minute = 0;
         int second = 0;
         if (time <= 0)
-            return "00:00:00";
+            return "00分00秒";
         else {
             minute = time / 60;
             if(minute == 0) {

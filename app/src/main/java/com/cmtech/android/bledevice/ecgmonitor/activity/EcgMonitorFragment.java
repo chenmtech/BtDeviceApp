@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -37,9 +36,6 @@ import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.dsp.seq.RealSeq;
-import com.cmtech.dsp.util.SeqUtil;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +47,9 @@ import static android.app.Activity.RESULT_OK;
 /**
  * EcgMonitorFragment: 心电带设备Fragment
  * Created by bme on 2018/3/13.
+ *
+ * Updated by chenm on 2019/4/8
+ * 优化代码
  */
 
 public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitorListener {
@@ -104,7 +103,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
         ecgView = view.findViewById(R.id.rwv_ecgview);
-        tvRecordTime = view.findViewById(R.id.tv_ecg_recordtime);
+        tvRecordTime = view.findViewById(R.id.tv_ecg_signal_recordtime);
         rvMarker = view.findViewById(R.id.rv_ecg_marker);
         ibRecord = view.findViewById(R.id.ib_ecg_record);
         llSignalOperator = view.findViewById(R.id.ll_signal_operator);
@@ -116,7 +115,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
 
-        tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mVBeforeCalibrate(), device.getValue1mVAfterCalibrate()));
+        updateCalibrationValue(device.getValue1mVBeforeCalibrate(), device.getValue1mVAfterCalibrate());
 
         tvHeartRate.setText(String.valueOf(0));
         tvHeartRate.setOnClickListener(new View.OnClickListener() {
@@ -135,11 +134,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        onUpdateEcgView(device.getxPixelPerData(), device.getyValuePerPixel(), device.getPixelPerGrid());
+        updateEcgView(device.getxPixelPerData(), device.getyValuePerPixel(), device.getPixelPerGrid());
 
-        tvRecordTime.setText(DateTimeUtil.secToTime(device.getEcgSignalRecordSecond()));
+        updateSignalSecNum(device.getEcgSignalRecordSecond());
 
-        onUpdateState(device.getState());
+        updateDeviceState(device.getState());
 
         LinearLayoutManager markerLayoutManager = new LinearLayoutManager(getContext());
         markerLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -158,21 +157,17 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         rvMarker.setAdapter(markerAdapter);
 
-
+        // 根据设备的isRecord初始化Record按钮
+        updateSignalRecordStatus(device.isRecordEcgSignal());
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean isRecord = !device.isRecordEcgSignal();
-                device.setEcgSignalRecord(isRecord);
+                device.setEcgSignalRecord(!device.isRecordEcgSignal());
             }
         });
 
-
-
         tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
         tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
-
-
 
         /*ibResetHrLineChart = view.findViewById(R.id.ib_reset_histogram);
         ibResetHrLineChart.setOnClickListener(new View.OnClickListener() {
@@ -182,9 +177,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });*/
 
-        // 根据设备的isRecord初始化Record按钮
-        onUpdateEcgSignalRecordStatus(device.isRecordEcgSignal());
-
         device.setEcgMonitorListener(EcgMonitorFragment.this);
     }
 
@@ -192,7 +184,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     public void close() {
         final Dialog alertDialog = new AlertDialog.Builder(getContext()).
                 setTitle("保存记录").
-                setMessage("您要保存本次记录吗？").
+                setMessage("是否保存记录？").
                 setPositiveButton("保存", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -232,7 +224,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case 1: // 修改设备配置返回
+            case 1: // 设置设备配置返回码
                 if(resultCode == RESULT_OK) {
                     EcgMonitorDeviceConfig config = (EcgMonitorDeviceConfig) data.getSerializableExtra("configuration");
                     device.setConfig(config);
@@ -247,10 +239,17 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         if(device != null)
             device.removeEcgMonitorListener();
+
+        if(hrWarnAudio != null)
+            hrWarnAudio.stop();
     }
 
     @Override
-    public void onUpdateState(final EcgMonitorState state) {
+    public void onUpdateDeviceState(final EcgMonitorState state) {
+        updateDeviceState(state);
+    }
+
+    private void updateDeviceState(final EcgMonitorState state) {
 
     }
 
@@ -266,16 +265,20 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void onUpdateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
+        updateCalibrationValue(calibrationValueBefore, calibrationValueAfter);
+    }
+
+    private void updateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
         tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", calibrationValueBefore, calibrationValueAfter));
     }
 
     @Override
-    public void onUpdateEcgSignalRecordStatus(final boolean isRecord) {
-        int imageId;
-        if (isRecord)
-            imageId = R.mipmap.ic_ecg_record_start;
-        else
-            imageId = R.mipmap.ic_ecg_record_stop;
+    public void onUpdateSignalRecordStatus(final boolean isRecord) {
+        updateSignalRecordStatus(isRecord);
+    }
+
+    private void updateSignalRecordStatus(final boolean isRecord) {
+        int imageId = (isRecord) ? R.mipmap.ic_ecg_record_start : R.mipmap.ic_ecg_record_stop;
 
         ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
 
@@ -284,6 +287,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void onUpdateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
+        updateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
+    }
+
+    private void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
         ecgView.setResolution(xPixelPerData, yValuePerPixel);
         ecgView.setGridPixels(gridPixels);
         ecgView.setZeroLocation(0.5);
@@ -296,8 +303,12 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void onUpdateEcgSignalRecordSecond(final int second) {
-        tvRecordTime.setText(DateTimeUtil.secToTime(second));
+    public void onUpdateSignalSecNum(final int second) {
+        updateSignalSecNum(second);
+    }
+
+    private void updateSignalSecNum(final int second) {
+        tvRecordTime.setText(DateTimeUtil.secToTimeInChinese(second));
     }
 
     @Override
@@ -306,48 +317,42 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void onUpdateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr) {
+    public void onUpdateEcgHrInfo(List<Short> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr) {
         tvAverageHr.setText(String.valueOf(averageHr));
         tvMaxHr.setText(String.valueOf(maxHr));
 
-        hrLineChart.showLineChart(filteredHrList, "心率时序图", Color.BLUE);
-        Drawable drawable = getResources().getDrawable(R.drawable.hr_linechart_fade);
-        hrLineChart.setChartFillDrawable(drawable);
+        hrLineChart.showLineChart(filteredHrList, "心率变化图", Color.BLUE);
     }
 
     @Override
     public void onNotifyHrAbnormal() {
-        ViseLog.e("Hr Warn!");
-
         if(hrWarnAudio == null) {
             initHrWarnAudioTrack();
-            hrWarnAudio.play();
         } else {
             switch(hrWarnAudio.getPlayState()) {
                 case AudioTrack.PLAYSTATE_PAUSED:
                 case AudioTrack.PLAYSTATE_PLAYING:
                     hrWarnAudio.stop();
-                    hrWarnAudio.reloadStaticData();
-                    hrWarnAudio.play();
-                    break;
-                case AudioTrack.PLAYSTATE_STOPPED:
-                    hrWarnAudio.reloadStaticData();
-                    hrWarnAudio.play();
                     break;
             }
+            hrWarnAudio.reloadStaticData();
         }
+        hrWarnAudio.play();
     }
 
     private void initHrWarnAudioTrack() {
         int length = 4000;
-        int fs = 1000;
-        RealSeq sinSeq = SeqUtil.createSinSeq(127.0, fs, 0, 44100, length);
+        int f = 1000;
+        int fs = 44100;
+        float mag = 127.0f;
+        double omega = 2 * Math.PI * f/fs;
+
         byte[] wave = new byte[length];
-        for(int i = 0; i < wave.length; i++) {
-            wave[i] = (byte)(double)sinSeq.get(i);
+        for(int i = 0; i < length; i++) {
+            wave[i] = (byte) (mag * Math.sin(omega * i));
         }
 
-        hrWarnAudio = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+        hrWarnAudio = new AudioTrack(AudioManager.STREAM_MUSIC, fs,
                 AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, length, AudioTrack.MODE_STATIC);
         hrWarnAudio.write(wave, 0, wave.length);
         hrWarnAudio.write(wave, 0, wave.length);

@@ -23,7 +23,7 @@ import java.util.Map;
  */
 
 public class EcgSignalProcessor {
-    public final static int INVALID_HR = 0; // 无效心率值
+    public final static short INVALID_HR = 0; // 无效心率值
 
     private final static String KEY_HR_WARNER = "hrwarner"; // EcgHrAbnormalWarner的键值
     private final static String KEY_HR_RECORDER = "hrrecorder"; // EcgHrRecorder的键值
@@ -36,7 +36,7 @@ public class EcgSignalProcessor {
     }
 
     public interface IEcgHrValueUpdatedListener {
-        void onUpdateEcgHrValue(int hr);
+        void onUpdateEcgHrValue(short hr);
     }
 
     private IEcgSignalUpdatedListener signalListener = null; // 心电信号更新监听器
@@ -74,7 +74,7 @@ public class EcgSignalProcessor {
         if(signalListener != null) signalListener.onUpdateEcgSignal(ecgSignal);
 
         // 检测Qrs波，获取心率
-        int currentHr = qrsDetector.outputHR(ecgSignal);
+        short currentHr = (short) qrsDetector.outputHR(ecgSignal);
 
         // 通知心率值更新监听器
         notifyEcgHrValueUpdatedListeners(currentHr);
@@ -120,7 +120,7 @@ public class EcgSignalProcessor {
         }
     }
 
-    public List<Integer> getHrList() {
+    public List<Short> getHrList() {
         EcgHrRecorder hrRecorder = (EcgHrRecorder) hrProcessors.get(KEY_HR_RECORDER);
         if(hrRecorder != null) {
             return hrRecorder.getHrList();
@@ -144,7 +144,7 @@ public class EcgSignalProcessor {
         }
     }
 
-    private void notifyEcgHrValueUpdatedListeners(int hr) {
+    private void notifyEcgHrValueUpdatedListeners(short hr) {
         if(hr != INVALID_HR) {
             for (IEcgHrValueUpdatedListener listener : hrValueListeners) {
                 listener.onUpdateEcgHrValue(hr);
@@ -160,7 +160,7 @@ public class EcgSignalProcessor {
         private boolean hrWarnEnabled = false; // 是否使能HR警告
         private int hrLowLimit = 0; // HR异常下限
         private int hrHighLimit = 0; // HR异常上限
-        private List<Integer> hrList;
+        private List<Short> hrList;
         private IEcgSignalProcessListener listener;
 
         public Builder() {
@@ -185,7 +185,7 @@ public class EcgSignalProcessor {
             hrHighLimit = high;
         }
 
-        public void setHrList(List<Integer> hrList) {
+        public void setHrList(List<Short> hrList) {
             this.hrList = hrList;
         }
 

@@ -15,8 +15,8 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
-import com.vise.utils.assist.DateUtil;
 
+import com.cmtech.android.bledeviceapp.R;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -138,15 +138,11 @@ public class EcgHrLineChart extends LineChart {
      * @param name     曲线名称
      * @param color    曲线颜色
      */
-    public void showLineChart(List<Integer> dataList, String name, int color) {
+    public void showLineChart(List<Short> dataList, String name, int color) {
         List<Entry> entries = new ArrayList<>();
         for (int i = 0; i < dataList.size(); i++) {
-            int data = dataList.get(i);
-            /**
-             * 在此可查看 Entry构造方法，可发现 可传入数值 Entry(float x, float y)
-             * 也可传入Drawable， Entry(float x, float y, Drawable icon) 可在XY轴交点 设置Drawable图像展示
-             */
-            Entry entry = new Entry(i, (float) data);
+            float data = dataList.get(i);
+            Entry entry = new Entry(i, data);
             entries.add(entry);
         }
         // 每一个LineDataSet代表一条线
@@ -154,6 +150,8 @@ public class EcgHrLineChart extends LineChart {
         initLineDataSet(lineDataSet, color, LineDataSet.Mode.LINEAR);
         LineData lineData = new LineData(lineDataSet);
         setData(lineData);
+        Drawable drawable = getResources().getDrawable(R.drawable.hr_linechart_fade);
+        setChartFillDrawable(drawable);
     }
 
     /**

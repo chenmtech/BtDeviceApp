@@ -10,19 +10,19 @@ import java.util.List;
 
 public class EcgHrInfoAppendix extends EcgAppendix{
     private static final int HR_LIST_LEN_BYTE_NUM = 4;
-    private static final int BYTE_NUM_PER_HR_VALUE = 4;
+    private static final int BYTE_NUM_PER_HR_VALUE = 2;
 
-    private List<Integer> hrList = new ArrayList<>();
+    private List<Short> hrList = new ArrayList<>();
 
     public EcgHrInfoAppendix() {
 
     }
 
-    public void setHrList(List<Integer> hrList) {
+    public void setHrList(List<Short> hrList) {
         this.hrList = hrList;
     }
 
-    public List<Integer> getHrList() {
+    public List<Short> getHrList() {
         return hrList;
     }
 
@@ -33,7 +33,7 @@ public class EcgHrInfoAppendix extends EcgAppendix{
         int hrLength = ByteUtil.reverseInt(in.readInt());
 
         for(int i = 0; i < hrLength; i++) {
-            hrList.add(ByteUtil.reverseInt(in.readInt()));
+            hrList.add(ByteUtil.reverseShort(in.readShort()));
         }
     }
 
@@ -43,8 +43,8 @@ public class EcgHrInfoAppendix extends EcgAppendix{
 
         out.writeInt(ByteUtil.reverseInt(hrList.size()));
 
-        for(int hr : hrList) {
-            out.writeInt(ByteUtil.reverseInt(hr));
+        for(short hr : hrList) {
+            out.writeShort(ByteUtil.reverseShort(hr));
         }
     }
 

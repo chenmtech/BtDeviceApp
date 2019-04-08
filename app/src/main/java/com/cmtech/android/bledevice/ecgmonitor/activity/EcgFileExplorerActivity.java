@@ -290,14 +290,12 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
     }
 
     @Override
-    public void onUpdateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr) {
+    public void onUpdateEcgHrInfo(List<Short> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr) {
         hrHistChart.update(normHistogram);
         tvAverageHr.setText(String.valueOf(averageHr));
         tvMaxHr.setText(String.valueOf(maxHr));
 
         hrLineChart.showLineChart(filteredHrList, "心率时序图", Color.BLUE);
-        Drawable drawable = getResources().getDrawable(R.drawable.hr_linechart_fade);
-        hrLineChart.setChartFillDrawable(drawable);
     }
 
     /**

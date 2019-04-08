@@ -17,22 +17,22 @@ public class EcgHrRecorder implements IEcgHrProcessor {
 
     // 心率信息更新监听器
     public interface IEcgHrInfoUpdatedListener {
-        void onUpdateEcgHrInfo(List<Integer> filteredHrList, List<HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr);
+        void onUpdateEcgHrInfo(List<Short> filteredHrList, List<HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr);
     }
 
     private IEcgHrInfoUpdatedListener listener;
 
-    private List<Integer> hrList;
+    private List<Short> hrList;
 
     private boolean isRecord = true;
 
     // 心率直方图的一个单元类
     public static class HrHistogramElement<T> {
-        private int minValue;
-        private int maxValue;
+        private short minValue;
+        private short maxValue;
         private T histValue;
 
-        HrHistogramElement(int minValue, int maxValue, T histValue) {
+        HrHistogramElement(short minValue, short maxValue, T histValue) {
             this.minValue = minValue;
             this.maxValue = maxValue;
             this.histValue = histValue;
@@ -46,11 +46,11 @@ public class EcgHrRecorder implements IEcgHrProcessor {
             return histValue;
         }
 
-        int getMinValue() {
+        short getMinValue() {
             return minValue;
         }
 
-        int getMaxValue() {
+        short getMaxValue() {
             return maxValue;
         }
     }
@@ -59,7 +59,7 @@ public class EcgHrRecorder implements IEcgHrProcessor {
         this(null, listener);
     }
 
-    public EcgHrRecorder(List<Integer> hrList, IEcgHrInfoUpdatedListener listener) {
+    public EcgHrRecorder(List<Short> hrList, IEcgHrInfoUpdatedListener listener) {
         this.listener = listener;
         if(hrList != null)
             this.hrList = hrList;
@@ -67,11 +67,11 @@ public class EcgHrRecorder implements IEcgHrProcessor {
             this.hrList = new ArrayList<>();
     }
 
-    public List<Integer> getHrList() {
+    public List<Short> getHrList() {
         return hrList;
     }
 
-    public void setHrList(List<Integer> hrList) {
+    public void setHrList(List<Short> hrList) {
         this.hrList = hrList;
     }
 
@@ -81,12 +81,12 @@ public class EcgHrRecorder implements IEcgHrProcessor {
 
     // 更新心率信息
     public void updateHrInfo(int secondInHrFilter, int barNumInHistogram) {
-        List<Integer> hrFiltered = hrFilter(secondInHrFilter);
+        List<Short> hrFiltered = hrFilter(secondInHrFilter);
 
         List<HrHistogramElement<Float>> normHistogram = createNormHistogram(hrFiltered, barNumInHistogram);
 
-        int maxHr = 0;
-        int averageHr = 0;
+        short maxHr = 0;
+        short averageHr = 0;
         if(!hrFiltered.isEmpty()) {
             maxHr = Collections.max(hrFiltered);
 
@@ -94,7 +94,7 @@ public class EcgHrRecorder implements IEcgHrProcessor {
             for (int hr : hrFiltered) {
                 hrSum += hr;
             }
-            averageHr = hrSum / hrFiltered.size();
+            averageHr = (short) (hrSum / hrFiltered.size());
         }
 
         if(listener != null)
@@ -105,12 +105,12 @@ public class EcgHrRecorder implements IEcgHrProcessor {
     public synchronized void reset() {
         hrList.clear();
         if(listener != null)
-            listener.onUpdateEcgHrInfo(null, null, 0, 0);
+            listener.onUpdateEcgHrInfo(null, null, (short) 0, (short) 0);
     }
 
 
     // 产生归一化直方图
-    private List<HrHistogramElement<Float>> createNormHistogram(List<Integer> hrList, int barNum) {
+    private List<HrHistogramElement<Float>> createNormHistogram(List<Short> hrList, int barNum) {
         List<HrHistogramElement<Integer>> histogram = createHistogram(hrList, barNum);
         if(histogram == null) return null;
 
@@ -128,18 +128,18 @@ public class EcgHrRecorder implements IEcgHrProcessor {
         return normHist;
     }
 
-    private List<HrHistogramElement<Integer>> createHistogram(List<Integer> hrList, int barNumInHistogram) {
+    private List<HrHistogramElement<Integer>> createHistogram(List<Short> hrList, int barNumInHistogram) {
         if(hrList.size() < 1) return null;
 
-        int minValue = Collections.min(hrList);
-        int maxValue = Collections.max(hrList);
+        short minValue = Collections.min(hrList);
+        short maxValue = Collections.max(hrList);
         int interval = (maxValue-minValue)/barNumInHistogram+1;
         if(interval < MIN_INTERVAL_IN_HISTOGRAM) interval = MIN_INTERVAL_IN_HISTOGRAM; // 直方图统计的心率最小间隔为10
 
         int[] histData = new int[barNumInHistogram];
 
         int num;
-        for(int hr : hrList) {
+        for(short hr : hrList) {
             num = (hr-minValue)/interval;
             if(num >= barNumInHistogram) num = barNumInHistogram-1;
             histData[num]++;
@@ -147,8 +147,8 @@ public class EcgHrRecorder implements IEcgHrProcessor {
 
         List<HrHistogramElement<Integer>> histogram = new ArrayList<>();
         for(int i = 0; i < barNumInHistogram; i++) {
-            int min = minValue + i*interval;
-            HrHistogramElement<Integer> tmp = new HrHistogramElement<>(min, min+interval-1, histData[i]);
+            short min = (short) (minValue + i*interval);
+            HrHistogramElement<Integer> tmp = new HrHistogramElement<>(min, (short) (min+interval-1), histData[i]);
             histogram.add(tmp);
         }
 
@@ -156,7 +156,7 @@ public class EcgHrRecorder implements IEcgHrProcessor {
     }
 
     @Override
-    public synchronized void process(int hr) {
+    public synchronized void process(short hr) {
         if(hr != INVALID_HR && isRecord) {
             hrList.add(hr);
         }
@@ -167,17 +167,17 @@ public class EcgHrRecorder implements IEcgHrProcessor {
         listener = null;
     }
 
-    private List<Integer> hrFilter(int second) {
-        List<Integer> hrFiltered = new ArrayList<>();
+    private List<Short> hrFilter(int second) {
+        List<Short> hrFiltered = new ArrayList<>();
         double sum = 0.0;
         int num = 0;
         double period = 0.0;
-        for(int hr : hrList) {
+        for(short hr : hrList) {
             sum += hr;
             num++;
             period += 60.0/hr;
             if(period >= second) {
-                hrFiltered.add((int)sum/num);
+                hrFiltered.add((short)(sum/num));
                 period -= second;
                 sum = 0;
                 num = 0;

@@ -222,11 +222,11 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         return ((BmeFileHead30)getBmeFileHead()).getCreateTime();
     }
 
-    public List<Integer> getHrList() {
+    public List<Short> getHrList() {
         return ecgFileTail.hrInfoAppendix.getHrList();
     }
 
-    public void setHrList(List<Integer> hrList) {
+    public void setHrList(List<Short> hrList) {
         ecgFileTail.hrInfoAppendix.setHrList(hrList);
     }
 

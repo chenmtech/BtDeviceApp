@@ -150,13 +150,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
                         android:text="采集信号" />
 
                     <TextView
-                        android:id="@+id/tv_ecg_recordtime"
+                        android:id="@+id/tv_ecg_signal_recordtime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="00:00:00"
+                        android:layout_gravity="center_horizontal"
                         android:textColor="#f00"
                         android:textSize="14sp" />
                 </LinearLayout>

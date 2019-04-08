@@ -379,7 +379,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     @Override
-    public void onUpdateEcgHrValue(final int hr) {
+    public void onUpdateEcgHrValue(final short hr) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -390,7 +390,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     @Override
-    public void onUpdateEcgHrInfo(List<Integer> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, int maxHr, int averageHr) {
+    public void onUpdateEcgHrInfo(List<Short> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr) {
         if(listener != null) {
             listener.onUpdateEcgHrInfo(filteredHrList, normHistogram, maxHr, averageHr);
         }
@@ -413,7 +413,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             @Override
             public void run() {
                 if(listener != null)
-                    listener.onUpdateEcgSignalRecordSecond(second);
+                    listener.onUpdateSignalSecNum(second);
             }
         });
     }
@@ -424,7 +424,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
         // 重新创建Ecg信号处理器
-        List<Integer> hrList = ((signalProcessor != null) ? signalProcessor.getHrList() : null);
+        List<Short> hrList = ((signalProcessor != null) ? signalProcessor.getHrList() : null);
         createEcgSignalProcessor(hrList); // 这里每次连接都会重新创建处理器，有问题。
 
         // 创建心电记录文件
@@ -462,7 +462,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     // 创建心电信号处理器
-    private void createEcgSignalProcessor(List<Integer> hrList) {
+    private void createEcgSignalProcessor(List<Short> hrList) {
         EcgSignalProcessor.Builder builder = new EcgSignalProcessor.Builder();
         builder.setSampleRate(sampleRate);
         builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
@@ -642,7 +642,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             @Override
             public void run() {
                 if(listener != null)
-                    listener.onUpdateState(state);
+                    listener.onUpdateDeviceState(state);
             }
         });
     }
@@ -682,7 +682,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             @Override
             public void run() {
                 if(listener != null)
-                    listener.onUpdateEcgSignalRecordStatus(isRecord);
+                    listener.onUpdateSignalRecordStatus(isRecord);
             }
         });
     }
