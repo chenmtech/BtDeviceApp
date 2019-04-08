@@ -14,7 +14,7 @@ public class EcgCalibrateDataProcessor {
         void onUpdateCalibrateValue(int calibrateValue); // 更新标定值
     }
 
-    private final List<Integer> calibrationData = new ArrayList<>(250); // 用于保存标定用的数据
+    private final List<Integer> calibrationData; // 用于保存标定用的数据
 
     private final int sampleRate; // 采样率
 
@@ -23,6 +23,7 @@ public class EcgCalibrateDataProcessor {
     EcgCalibrateDataProcessor(int sampleRate, ICalibrateValueUpdatedListener listener) {
         this.sampleRate = sampleRate;
         this.listener = listener;
+        calibrationData = new ArrayList<>(2 * sampleRate);
     }
 
     // 处理标定数据

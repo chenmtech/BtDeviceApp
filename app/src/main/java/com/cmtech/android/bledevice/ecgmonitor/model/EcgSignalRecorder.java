@@ -6,25 +6,36 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import java.io.IOException;
 
 /**
- * EcgSignalRecorder: 心电信号记录仪，包含心电信号的文件记录，以及附加留言信息的管理
+ * EcgSignalRecorder: 心电信号记录仪，包含心电信号的文件记录，以及留言信息的管理
  * Created by Chenm, 2018-12-27
  */
 
 public class EcgSignalRecorder {
-    public interface IEcgRecordSecondUpdatedListener {
+    public interface IEcgSignalSecNumUpdatedListener {
         void onUpdateSignalSecNum(int second); // 更新心电信号记录的秒数
     }
 
     private final EcgFile ecgFile;
 
     private int recordDataNum = 0;
+
     private int sampleRate; // 采样频率
 
     private boolean isRecord = false;
 
-    private EcgNormalComment comment; // 当前信号的留言
+    private final EcgNormalComment comment; // 当前信号的留言
 
-    private IEcgRecordSecondUpdatedListener listener; // 心电信号记录秒数更新监听器
+    private IEcgSignalSecNumUpdatedListener listener; // 心电信号记录秒数更新监听器
+
+    EcgSignalRecorder(int sampleRate, EcgFile ecgFile, IEcgSignalSecNumUpdatedListener listener) {
+        this.sampleRate = sampleRate;
+
+        this.ecgFile = ecgFile;
+
+        this.listener = listener;
+
+        comment = EcgNormalComment.createDefaultComment();
+    }
 
     // 获取记录的秒数
     int getSecond() {
@@ -46,13 +57,6 @@ public class EcgSignalRecorder {
 
     void setRecord(boolean record) {
         isRecord = record;
-    }
-
-    EcgSignalRecorder(int sampleRate, EcgFile ecgFile, IEcgRecordSecondUpdatedListener listener) {
-        this.sampleRate = sampleRate;
-        this.ecgFile = ecgFile;
-        comment = EcgNormalComment.createDefaultComment();
-        this.listener = listener;
     }
 
     // 记录心电信号

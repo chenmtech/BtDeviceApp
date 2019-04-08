@@ -41,7 +41,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
  * 优化代码
  */
 
-public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessListener, EcgSignalRecorder.IEcgRecordSecondUpdatedListener, EcgCalibrateDataProcessor.ICalibrateValueUpdatedListener {
+public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessListener, EcgSignalRecorder.IEcgSignalSecNumUpdatedListener, EcgCalibrateDataProcessor.ICalibrateValueUpdatedListener {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -485,7 +485,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         initializeEcgView(sampleRate, value1mVAfterCalibrate);
 
         setState(EcgMonitorState.CALIBRATED);
+
         stopSampleData();
+
         startSampleEcg();
 
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -557,6 +559,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     public void setEcgMonitorListener(IEcgMonitorListener listener) {
         this.listener = listener;
     }
+
     // 删除心电监护仪观察者
     public void removeEcgMonitorListener() {
         listener = null;
