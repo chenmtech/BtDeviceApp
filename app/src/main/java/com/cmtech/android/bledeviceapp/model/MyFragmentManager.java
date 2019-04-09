@@ -135,11 +135,17 @@ public class MyFragmentManager {
 
         if(tab != null) {
             View view = tab.getCustomView();
-            TextView tv = view.findViewById(R.id.tv_device_name);
-            tv.setText(tabText);
-            ImageView imageView = view.findViewById(R.id.iv_device_image);
-            imageView.setImageDrawable(drawable);
-            tab.setCustomView(view);
+            if(view != null) {
+                if(isShowTabText) {
+                    TextView tv = view.findViewById(R.id.tv_device_name);
+                    tv.setText(tabText);
+                }
+
+                ImageView imageView = view.findViewById(R.id.iv_device_image);
+                imageView.setImageDrawable(drawable);
+
+                tab.setCustomView(view);
+            }
         }
     }
 
@@ -152,6 +158,10 @@ public class MyFragmentManager {
         TabLayout.Tab tab = tabLayout.getTabAt(index);
         if(tab != null)
             tabLayout.removeTab(tab);
+
+        if(size() == 0 && listener != null) {
+            listener.onFragmentchanged();
+        }
     }
 
     // 显示Fragment

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/devices_main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="invisible">
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/main_tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/accent"
+        app:tabIndicatorHeight="3dp"
+        app:tabMode="fixed"
+        app:tabPadding="0dp"
+        app:tabSelectedTextColor="@color/accent"
+        app:tabTextColor="@color/primary_text"
+        app:tabTextAppearance="@style/MainTabLayoutTextAppearance"
+        android:background="@color/primary"/>
+
+    <FrameLayout
+        android:id="@+id/main_fragment_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/main_tab_layout">
+    </FrameLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_exit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/main_tab_layout"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="5dp"
+        android:src="@mipmap/ic_close_32px"
+        app:backgroundTint="@color/primary"
+        app:borderWidth="0dp"
+        app:elevation="8dp"
+        app:fabSize="mini"
+        app:pressedTranslationZ="16dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_connect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/main_tab_layout"
+        android:layout_toStartOf="@id/fab_exit"
+        android:layout_margin="5dp"
+        android:src="@mipmap/ic_connect_disconnect"
+        app:backgroundTint="@color/primary"
+        app:fabSize="mini"
+        app:borderWidth="0dp"
+        app:elevation="8dp"
+        app:pressedTranslationZ="16dp"/>
+
+</RelativeLayout>

@@ -21,78 +21,24 @@
             android:background="?attr/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Light"
             toolbar:navigationIcon="@mipmap/ic_menu"
-            app:titleTextAppearance="@style/MainToolbarTextAppearance"/>
+            app:titleTextAppearance="@style/MainToolbarTextAppearance"
+            app:subtitleTextAppearance="@style/MainToolbarSubTextAppearance"/>
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <!--  无设备打开界面  -->
+            <!--  无设备打开时的界面  -->
             <include layout = "@layout/layout_nodevice_opened"/>
 
-            <!--  设备界面  -->
-            <RelativeLayout
-                android:id="@+id/main_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="invisible">
+            <!-- 有设备打开时的界面 -->
+            <include layout = "@layout/layout_hasdevice_opened"/>
 
-                <android.support.design.widget.TabLayout
-                    android:id="@+id/main_tab_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:tabGravity="fill"
-                    app:tabIndicatorColor="@color/accent"
-                    app:tabIndicatorHeight="3dp"
-                    app:tabMode="fixed"
-                    app:tabPadding="0dp"
-                    app:tabSelectedTextColor="@color/accent"
-                    app:tabTextColor="@color/primary_text"
-                    app:tabTextAppearance="@style/MainTabLayoutTextAppearance"
-                    android:background="@color/primary"/>
-
-                <FrameLayout
-                    android:id="@+id/main_fragment_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/main_tab_layout">
-                </FrameLayout>
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/fab_connect"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/main_tab_layout"
-                    android:layout_alignParentStart="true"
-                    android:layout_margin="5dp"
-                    android:src="@mipmap/ic_connect_disconnect"
-                    app:backgroundTint="@color/primary"
-                    app:fabSize="normal"
-                    app:borderWidth="0dp"
-                    app:elevation="8dp"
-                    app:pressedTranslationZ="16dp"/>
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/fab_exit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/main_tab_layout"
-                    android:layout_alignParentEnd="true"
-                    android:layout_margin="5dp"
-                    android:src="@mipmap/ic_close_32px"
-                    app:backgroundTint="@color/primary"
-                    app:borderWidth="0dp"
-                    app:elevation="8dp"
-                    app:fabSize="normal"
-                    app:pressedTranslationZ="16dp" />
-
-            </RelativeLayout>
         </FrameLayout>
 
     </LinearLayout>
 
 
-    <!--这是NavigationView-->
-
+    <!--这是导航视图-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -103,13 +49,12 @@
 
         <android.support.design.widget.NavigationView
             android:id="@+id/nav_view"
-            app:theme ="@style/navigationDrawerStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:theme ="@style/navigationDrawerStyle"
             app:headerLayout="@layout/navigation_header"
             app:menu="@menu/navigation_menu">
         </android.support.design.widget.NavigationView>
-
 
         <include layout="@layout/activity_registered_device"
             android:layout_width="match_parent"
