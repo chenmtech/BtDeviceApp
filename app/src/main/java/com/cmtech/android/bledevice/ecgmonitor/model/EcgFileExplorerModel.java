@@ -68,8 +68,12 @@ public class EcgFileExplorerModel {
             @Override
             public void selectFileChanged(EcgFile ecgFile) {
                 selectFile = ecgFile;
+
                 initReplayPara(selectFile);
-                notifyListener();
+
+                if(EcgFileExplorerModel.this.listener != null) {
+                    EcgFileExplorerModel.this.listener.onUpdateEcgFileList();
+                }
             }
         });
 
@@ -120,6 +124,7 @@ public class EcgFileExplorerModel {
 
     // 初始化回放参数
     private void initReplayPara(final EcgFile ecgFile) {
+        if(ecgFile == null) return;
         int sampleRate = ecgFile.getSampleRate();
         totalSecond = ecgFile.getDataNum()/sampleRate;
         int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
@@ -141,13 +146,6 @@ public class EcgFileExplorerModel {
     // 删除心电文件浏览器观察者
     public void removeListener() {
         listener = null;
-    }
-
-    // 通知心电文件浏览器观察者，更新文件列表
-    private void notifyListener() {
-        if(listener != null) {
-            listener.onUpdateEcgFileList();
-        }
     }
 
     public void updateHrInfo() {

@@ -86,6 +86,7 @@ public class EcgFileListManager {
     // 选中某个文件
     public void select(int index) {
         if(index < 0 || index > fileList.size()-1) return;
+        if(selectIndex == index) return;
 
         // 关闭之前的文件
         if (selectIndex >= 0 && selectIndex < fileList.size()) {
@@ -110,6 +111,7 @@ public class EcgFileListManager {
 
     // 删除所选文件
     public void deleteSelectFile() {
+
         if(selectIndex >= 0 && selectIndex < fileList.size()) {
             try {
                 FileUtil.deleteFile(fileList.get(selectIndex).getFile());
@@ -117,10 +119,16 @@ public class EcgFileListManager {
 
                 int index = (selectIndex > fileList.size()-1) ? fileList.size()-1 : selectIndex;
                 select(index);
+                return;
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+
+        if(fileList.size() == 0) {
+            selectIndex = -1;
+            if(listener != null) listener.selectFileChanged(null);
         }
     }
 
