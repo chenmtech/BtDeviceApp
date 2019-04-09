@@ -361,19 +361,18 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             stopSampleData();
         }
 
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        gattOperator.instExecute(new IBleDataOpCallback() {
+            @Override
+            public void onSuccess(byte[] data) {
+                ViseLog.e("call EcgMonitorDevice.super.disconnect()");
+                EcgMonitorDevice.super.disconnect();
+            }
 
-        EcgMonitorDevice.super.disconnect();
+            @Override
+            public void onFailure(BleDataOpException exception) {
 
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            }
+        });
 
         /*postDelayed(new Runnable() {
             @Override

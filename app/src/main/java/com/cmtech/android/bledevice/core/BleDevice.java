@@ -168,11 +168,13 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 断开连接
     protected synchronized void disconnect() {
         executeAfterDisconnect();
+
         removeCallbacksAndMessages();
+
         workHandler.post(new Runnable() {
             @Override
             public void run() {
-                ViseLog.i("disconnect in " + Thread.currentThread());
+                ViseLog.e("disconnect in " + Thread.currentThread());
                 BleDeviceUtil.disconnect(BleDevice.this);
             }
         });
