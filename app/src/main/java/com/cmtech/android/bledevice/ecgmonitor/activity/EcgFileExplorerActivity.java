@@ -78,6 +78,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
     private LinearLayout signalLayout;
 
+    private LinearLayout hrLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +101,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         }
 
         signalLayout = findViewById(R.id.ecgfile_ecgsignal_layout);
+
+        hrLayout = findViewById(R.id.ecgfile_ecghr_layout);
 
         rvFiles = findViewById(R.id.rv_ecgfile_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
@@ -164,9 +168,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         tvMaxHr = findViewById(R.id.tv_max_hr_value);
 
 
-        if(!fileExploreModel.getFileList().isEmpty()) {
-            fileExploreModel.select(fileExploreModel.getFileList().size()-1);
-        }
+        fileExploreModel.select(fileExploreModel.getFileNumber()-1);
     }
 
     @Override
@@ -220,6 +222,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
     public void deleteSelectedFile() {
         if(fileExploreModel.getSelectFile() != null) {
+
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("删除Ecg信号");
             builder.setMessage("确定删除该Ecg信号吗？");
@@ -236,6 +239,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
                 }
             });
             builder.show();
+
         }
     }
 
@@ -290,7 +294,19 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
                 signalLayout.setVisibility(View.VISIBLE);
             }
 
+            if(selectFile.getHrList().size() == 0) {
+                hrLayout.setVisibility(View.GONE);
+            } else {
+                hrLayout.setVisibility(View.VISIBLE);
+            }
+
             fileExploreModel.updateHrInfo();
+        } else {
+            signalView.stopShow();
+
+            signalLayout.setVisibility(View.GONE);
+
+            hrLayout.setVisibility(View.GONE);
         }
     }
 

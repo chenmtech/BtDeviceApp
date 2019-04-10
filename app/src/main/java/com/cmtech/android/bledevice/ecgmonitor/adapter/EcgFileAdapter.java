@@ -18,6 +18,8 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
+
 public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHolder> {
     private EcgFileExplorerModel explorerModel; // 浏览器模型
 
@@ -64,7 +66,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.tvCreator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EcgFile file = explorerModel.getFileList().get(holder.getAdapterPosition());
+                EcgFile file = explorerModel.getFile(holder.getAdapterPosition());
                 User creator = file.getCreator();
                 Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
@@ -75,7 +77,9 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(EcgFileAdapter.ViewHolder holder, final int position) {
-        EcgFile file = explorerModel.getFileList().get(position);
+        EcgFile file = explorerModel.getFile(position);
+
+        if(file == null) return;
 
         User fileCreator = file.getCreator();
 
@@ -110,7 +114,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return explorerModel.getFileList().size();
+        return explorerModel.getFileNumber();
     }
 
 }

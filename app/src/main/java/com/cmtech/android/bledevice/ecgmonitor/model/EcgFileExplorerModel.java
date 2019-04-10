@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
@@ -23,7 +24,9 @@ public class EcgFileExplorerModel {
     private static final float DEFAULT_MV_PER_VGRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
 
-    private final File fileDir; // 文件浏览目录
+    private final File ecgFileDir; // 文件浏览目录
+
+    private final File[] allEcgFiles;
 
     private EcgFile selectFile; // 选中的EcgFile
 
@@ -36,37 +39,26 @@ public class EcgFileExplorerModel {
     private int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每小格的像素个数
     private int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_HGRID * 125)); // 计算横向分辨率; // 横向分辨率
     private float vValuePerPixel = 65535 * DEFAULT_MV_PER_VGRID / pixelPerGrid; // 计算纵向分辨率; // 纵向分辨率
+
     private int totalSecond; // 信号总的秒数
 
-    public List<EcgFile> getFileList() { return filesManager.getFileList(); }
-    public int getSelectIndex() { return filesManager.getSelectIndex(); }
-    public EcgFile getSelectFile() {
-        return selectFile;
-    }
-    public int getSelectFileSampleRate() {
-        return selectFile.getSampleRate();
-    }
-    public int getPixelPerGrid() { return pixelPerGrid; }
-    public int gethPixelPerData() { return hPixelPerData; }
-    public float getvValuePerPixel() { return vValuePerPixel; }
-    public int getTotalSecond() {
-        return totalSecond;
-    }
-
-    public EcgFileExplorerModel(File fileDir, IEcgFileExplorerListener listener) throws IOException{
-        if(fileDir == null || !fileDir.isDirectory()) {
+    public EcgFileExplorerModel(File ecgFileDir, IEcgFileExplorerListener listener) throws IOException{
+        if(ecgFileDir == null || !ecgFileDir.isDirectory()) {
             throw new IllegalArgumentException();
         }
 
-        this.fileDir = fileDir;
+        this.ecgFileDir = ecgFileDir;
 
-        if(!fileDir.exists() && !fileDir.mkdir()) {
+
+        if(!ecgFileDir.exists() && !ecgFileDir.mkdir()) {
             throw new IOException("磁盘空间不足");
         }
 
-        filesManager = new EcgFileListManager(fileDir, new EcgFileListManager.OnSelectFileChangedListener() {
+        allEcgFiles = BleDeviceUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
+
+        filesManager = new EcgFileListManager(new EcgFileListManager.OnSelectFileChangedListener() {
             @Override
-            public void selectFileChanged(EcgFile ecgFile) {
+            public void onSelectFileChanged(EcgFile ecgFile) {
                 selectFile = ecgFile;
 
                 initReplayPara(selectFile);
@@ -80,7 +72,35 @@ public class EcgFileExplorerModel {
         this.listener = listener;
 
         hrRecorder = new EcgHrRecorder(listener);
+
+        filesManager.openEcgFiles(allEcgFiles);
     }
+
+    public int getFileNumber() {
+        return filesManager.getFileNumber();
+    }
+
+    public EcgFile getFile(int index) {
+        if(index < 0 || index >= getFileNumber()) return null;
+
+        return filesManager.getFile(index);
+    }
+
+    public int getSelectIndex() { return filesManager.getSelectIndex(); }
+
+    public EcgFile getSelectFile() {
+        return selectFile;
+    }
+    public int getSelectFileSampleRate() {
+        return selectFile.getSampleRate();
+    }
+    public int getPixelPerGrid() { return pixelPerGrid; }
+    public int gethPixelPerData() { return hPixelPerData; }
+    public float getvValuePerPixel() { return vValuePerPixel; }
+    public int getTotalSecond() {
+        return totalSecond;
+    }
+
 
     // 获取选中文件的留言列表
     public List<EcgNormalComment> getSelectFileCommentList() {
@@ -114,7 +134,7 @@ public class EcgFileExplorerModel {
 
     // 从微信导入文件
     public void importFromWechat() {
-        filesManager.importToFromWechat(fileDir);
+        filesManager.importToFromWechat(ecgFileDir);
     }
 
     // 通过微信分享选中文件
@@ -125,6 +145,7 @@ public class EcgFileExplorerModel {
     // 初始化回放参数
     private void initReplayPara(final EcgFile ecgFile) {
         if(ecgFile == null) return;
+
         int sampleRate = ecgFile.getSampleRate();
         totalSecond = ecgFile.getDataNum()/sampleRate;
         int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();

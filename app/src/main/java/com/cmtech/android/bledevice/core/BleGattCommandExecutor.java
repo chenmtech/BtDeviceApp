@@ -207,8 +207,6 @@ public class BleGattCommandExecutor{
                     while (!Thread.currentThread().isInterrupted()) {
                         executeNextCommand();
                     }
-                }catch (InterruptedException e) {
-                    ViseLog.e("The serial executor is interrupted!!!!!!");
                 } finally {
                     commandList.clear();
                     currentCommand = null;
@@ -222,20 +220,23 @@ public class BleGattCommandExecutor{
         executeThread.start();
     }
 
-    private void executeNextCommand() throws InterruptedException{
+    private void executeNextCommand() {
         /*// 如果当前命令还没有执行完毕，或者命令队列为空，就等待
         while(!currentCommandDone || commandList.isEmpty()) {
             wait();
         }*/
 
-        if(currentCommandDone && !commandList.isEmpty()) {
+        if(currentCommandDone) {
             // 取出一条命令执行
             currentCommand = commandList.poll();
-            currentCommand.execute();
 
-            // 设置未完成标记
-            if (!currentCommand.isInstantCommand())
-                currentCommandDone = false;
+            if(currentCommand != null) {
+                currentCommand.execute();
+
+                // 设置未完成标记
+                if (!currentCommand.isInstantCommand())
+                    currentCommandDone = false;
+            }
         }
     }
 
