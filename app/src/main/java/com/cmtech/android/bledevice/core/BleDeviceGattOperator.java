@@ -23,17 +23,19 @@ public class BleDeviceGattOperator {
         for(BleGattElement element : elements) {
             if(BleDeviceUtil.getGattObject(device, element) == null) return false;
         }
-        ViseLog.i("EcgMonitor Services is ok!");
+
         return true;
     }
 
     // 启动Gatt命令执行器
     public void start() {
         if((commandExecutor != null) && commandExecutor.isAlive()) return;
+
         DeviceMirror deviceMirror = BleDeviceUtil.getDeviceMirror(device);
         if(deviceMirror == null) {
             throw new NullPointerException();
         }
+
         commandExecutor = new BleGattCommandExecutor(deviceMirror);
         commandExecutor.start();
         ViseLog.i("success to create new command executor.");
@@ -42,7 +44,6 @@ public class BleDeviceGattOperator {
     // 停止Gatt命令执行器
     public void stop() {
         if((commandExecutor != null) && commandExecutor.isAlive()) {
-            ViseLog.i("stop command executor.");
             commandExecutor.stop();
         }
     }

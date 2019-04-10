@@ -11,6 +11,7 @@ import com.vise.log.ViseLog;
 
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * BleGattCommandExecutor: Ble Gatt命令执行器
@@ -22,11 +23,16 @@ public class BleGattCommandExecutor{
     private final static int CMD_ERROR_RETRY_TIMES = 3;      // Gatt命令执行错误可重复的次数
 
     private final DeviceMirror deviceMirror; // 命令执行的设备镜像
-    private final Queue<BleGattCommand> commandList = new LinkedList<>(); // 要执行的命令队列
+
+    private final Queue<BleGattCommand> commandList = new LinkedBlockingQueue<>(); // 要执行的命令队列
+
     private BleGattCommand currentCommand; // 当前在执行的命令
+
     private volatile boolean currentCommandDone = true; // 标记当前命令是否执行完毕
+
     private Thread executeThread; // 执行命令的线程
-    private int cmdErrorTimes = 0; // 命令执行错误的次数
+
+    private volatile int cmdErrorTimes = 0; // 命令执行错误的次数
 
 
     // IBleCallback的装饰类，在一般的回调任务完成后，执行串行命令所需动作
@@ -54,8 +60,6 @@ public class BleGattCommandExecutor{
                 currentCommandDone = true;
                 // 命令错误次数归零
                 cmdErrorTimes = 0;
-                // 通知执行线程执行下一条
-                BleGattCommandExecutor.this.notifyAll();
 
                 ViseLog.i("Command return " + HexUtil.encodeHexStr(data));
             }
@@ -185,17 +189,14 @@ public class BleGattCommandExecutor{
             addCommandToList(command);
     }
 
-    private synchronized void addCommandToList(BleGattCommand command) {
+    private void addCommandToList(BleGattCommand command) {
         if(!commandList.offer(command)) {
             throw new IllegalStateException();
         }
-        // 添加成功，通知执行线程
-        notifyAll();
-        return;
     }
 
     // 开始执行命令
-    public synchronized void start() {
+    public void start() {
         if(executeThread != null && executeThread.isAlive()) return;
 
         executeThread = new Thread(new Runnable() {
@@ -203,16 +204,17 @@ public class BleGattCommandExecutor{
             public void run() {
                 ViseLog.i("Start Command Execution Thread: "+Thread.currentThread().getName());
                 try {
-                    while (!executeThread.isInterrupted()) {
+                    while (!Thread.currentThread().isInterrupted()) {
                         executeNextCommand();
                     }
                 }catch (InterruptedException e) {
-                    ViseLog.i("The serial executor is interrupted!!!!!!");
+                    ViseLog.e("The serial executor is interrupted!!!!!!");
                 } finally {
                     commandList.clear();
                     currentCommand = null;
                     currentCommandDone = false;
                     cmdErrorTimes = 0;
+                    ViseLog.e("executeThread finished!!!!!!");
                 }
             }
         });
@@ -220,21 +222,21 @@ public class BleGattCommandExecutor{
         executeThread.start();
     }
 
-    private synchronized void executeNextCommand() throws InterruptedException{
-        // 如果当前命令还没有执行完毕，或者命令队列为空，就等待
+    private void executeNextCommand() throws InterruptedException{
+        /*// 如果当前命令还没有执行完毕，或者命令队列为空，就等待
         while(!currentCommandDone || commandList.isEmpty()) {
             wait();
+        }*/
+
+        if(currentCommandDone && !commandList.isEmpty()) {
+            // 取出一条命令执行
+            currentCommand = commandList.poll();
+            currentCommand.execute();
+
+            // 设置未完成标记
+            if (!currentCommand.isInstantCommand())
+                currentCommandDone = false;
         }
-
-        // 取出一条命令执行
-        currentCommand = commandList.poll();
-        currentCommand.execute();
-
-        ViseLog.i(currentCommand);
-
-        // 设置未完成标记
-        if(!currentCommand.isInstantCommand())
-            currentCommandDone = false;
     }
 
     // 停止执行命令
@@ -245,7 +247,7 @@ public class BleGattCommandExecutor{
     }
 
     // 命令执行器是否存活
-    public synchronized boolean isAlive() {
+    public boolean isAlive() {
         return ((executeThread != null) && executeThread.isAlive());
     }
 }
