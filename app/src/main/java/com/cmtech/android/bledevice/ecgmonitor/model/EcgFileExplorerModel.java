@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import android.os.Looper;
+
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Handler;
 
 /**
  * EcgFileExplorerModel: 心电文件浏览模型类
@@ -59,6 +62,14 @@ public class EcgFileExplorerModel implements EcgFileListManager.OnSelectFileChan
                     try {
                         ecgFile = EcgFile.open(file.getCanonicalPath());
                         filesManager.addFile(ecgFile);
+                        if(listener !=null) {
+                            new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    listener.onUpdateEcgFileList();
+                                }
+                            });
+                        }
                         ViseLog.e(ecgFile.toString());
                     } catch (IOException e) {
                         ViseLog.e("To open ecg file is wrong." + file);
@@ -102,11 +113,11 @@ public class EcgFileExplorerModel implements EcgFileListManager.OnSelectFileChan
     public void openAllFiles() {
         Thread t = new Thread(new OpenFileRunnable(allEcgFiles));
         t.start();
-        try {
+        /*try {
             t.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     @Override

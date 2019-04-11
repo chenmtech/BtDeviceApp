@@ -30,6 +30,11 @@ import cn.sharesdk.wechat.friends.Wechat;
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
 
+/**
+ * EcgFileExplorerModel: 心电文件浏览模型类
+ * Created by bme on 2018/11/10.
+ */
+
 public class EcgFileListManager {
     private final List<EcgFile> fileList = Collections.synchronizedList(new ArrayList<EcgFile>()); // 文件目录中包含的心电文件列表
 
