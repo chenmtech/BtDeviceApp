@@ -300,4 +300,19 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     public String toString() {
         return super.toString() + ";" + ecgFileHead + ";" + ecgFileTail;
     }
+
+    @Override
+    public boolean equals(Object otherObject) {
+        if(this == otherObject) return true;
+        if(otherObject == null) return false;
+        if(getClass() != otherObject.getClass()) return false;
+
+        EcgFile other = (EcgFile) otherObject;
+        return getFileName().equals(other.getFileName());
+    }
+
+    @Override
+    public int hashCode() {
+        return getFileName().hashCode();
+    }
 }

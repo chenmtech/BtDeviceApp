@@ -167,9 +167,12 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
         tvMaxHr = findViewById(R.id.tv_max_hr_value);
 
+        fileExploreModel.select(null);
 
-        fileExploreModel.select(fileExploreModel.getFileNumber()-1);
+        fileExploreModel.openAllFiles();
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

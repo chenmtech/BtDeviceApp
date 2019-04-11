@@ -104,7 +104,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         holder.tvHrNum.setText(String.valueOf(hrNum));
 
         int bgdColor;
-        if(explorerModel.getSelectIndex() == position) {
+        if(explorerModel.getSelectFile() == file) {
             bgdColor = MyApplication.getContext().getResources().getColor(R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
         } else {

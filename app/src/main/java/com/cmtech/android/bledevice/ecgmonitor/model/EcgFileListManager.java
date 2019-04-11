@@ -18,6 +18,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
@@ -28,11 +31,9 @@ import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
 
 public class EcgFileListManager {
-    public final static int NO_SELECT_FILE = -1;
+    private final List<EcgFile> fileList = Collections.synchronizedList(new ArrayList<EcgFile>()); // 文件目录中包含的心电文件列表
 
-    private final List<EcgFile> fileList = new ArrayList<>(); // 文件目录中包含的心电文件列表
-
-    private int selectIndex = NO_SELECT_FILE; // 当前选择的文件在文件列表中的索引号
+    private EcgFile selectFile;
 
     public interface OnSelectFileChangedListener {
         void onSelectFileChanged(EcgFile ecgFile);
@@ -40,71 +41,14 @@ public class EcgFileListManager {
 
     private final OnSelectFileChangedListener listener;
 
-    private class OpenFileRunnable implements Runnable {
-        private File file;
 
-        OpenFileRunnable(File file) {
-            this.file = file;
-        }
-
-        @Override
-        public void run() {
-            EcgFile ecgFile = null;
-            try {
-                ecgFile = EcgFile.open(file.getCanonicalPath());
-                fileList.add(ecgFile);
-                ViseLog.e(ecgFile.toString());
-            } catch (IOException e) {
-                ViseLog.e("To open ecg file is wrong: " + file);
-            } finally {
-                if(ecgFile != null) {
-                    try {
-                        ecgFile.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
 
     public EcgFileListManager(OnSelectFileChangedListener listener) {
         this.listener = listener;
-        //File[] files = BleDeviceUtil.listDirBmeFiles(fileDir); // 列出所有bme文件
-        //fileList = createEcgFileList(files); // 创建相应的EcgFile文件List
-        //sortFileList(fileList); // 按照修改时间排序
-
-
     }
 
-    public void openEcgFiles(File[] files) {
-        for(File file : files) {
-            new Thread(new OpenFileRunnable(file)).start();
-        }
-    }
-
-    // 创建相应的EcgFile列表
-    private List<EcgFile> createEcgFileList(File[] files) {
-        List<EcgFile> ecgFileList = new ArrayList<>();
-        for(File file : files) {
-            EcgFile ecgFile = null;
-            try {
-                ecgFile = EcgFile.open(file.getCanonicalPath());
-                ecgFileList.add(ecgFile);
-                ViseLog.e(ecgFile.toString());
-            } catch (IOException e) {
-                ViseLog.e("To open ecg file is wrong: " + file);
-            } finally {
-                if(ecgFile != null) {
-                    try {
-                        ecgFile.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return ecgFileList;
+    public void addFile(EcgFile ecgFile) {
+        fileList.add(ecgFile);
     }
 
     // 按照创建时间给EcgFile文件列表排序
@@ -119,7 +63,9 @@ public class EcgFileListManager {
         });
     }
 
-    public int getSelectIndex() { return selectIndex; }
+    public EcgFile getSelectFile() {
+        return selectFile;
+    }
 
     public int getFileNumber() {
         return fileList.size();
@@ -130,29 +76,40 @@ public class EcgFileListManager {
         return fileList.get(index);
     }
 
-    // 选中某个文件
+    public int getSelectIndex() {
+        return fileList.indexOf(selectFile);
+    }
+
     public void select(int index) {
+        if(index < 0 || index >= fileList.size()) select(null);
+        else select(fileList.get(index));
+    }
+
+    // 选中某个文件
+    public void select(EcgFile file) {
+        if(file != null && file.equals(selectFile)) return;
+
         // 关闭之前的文件
-        if (selectIndex >= 0 && selectIndex < fileList.size()) {
+        if (selectFile != null) {
             try {
-                fileList.get(selectIndex).close();
+                selectFile.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        EcgFile selectFile = null;
-        if(index < 0 || index > fileList.size()-1) {
-            selectIndex = NO_SELECT_FILE;
-        } else {
-            selectIndex = index;
+        selectFile = file;
 
-            // 打开当前选中的文件
-            try {
-                selectFile = EcgFile.open(fileList.get(selectIndex).getFileName());
-                fileList.set(selectIndex, selectFile);
-            } catch (IOException e) {
-                e.printStackTrace();
+        if(selectFile != null) {
+            int index = fileList.indexOf(selectFile);
+            if(index != -1) {
+                // 打开当前选中的文件
+                try {
+                    selectFile = EcgFile.open(selectFile.getFileName());
+                    fileList.set(index, selectFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -161,13 +118,17 @@ public class EcgFileListManager {
 
     // 删除所选文件
     public void deleteSelectFile() {
-        if(selectIndex >= 0 && selectIndex < fileList.size()) {
+        if(selectFile != null) {
             try {
-                FileUtil.deleteFile(fileList.get(selectIndex).getFile());
-                fileList.remove(selectIndex);
+                int index = fileList.indexOf(selectFile);
 
-                int index = (selectIndex > fileList.size()-1) ? fileList.size()-1 : selectIndex;
-                select(index);
+                if(index != -1) {
+                    FileUtil.deleteFile(selectFile.getFile());
+                    fileList.remove(selectFile);
+
+                    index = (index > fileList.size() - 1) ? fileList.size() - 1 : index;
+                    select(fileList.get(index));
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -226,7 +187,7 @@ public class EcgFileListManager {
         if(updated) {
             sortFileList(fileList);
 
-            select(fileList.size() - 1);
+            select(fileList.get(fileList.size() - 1));
         }
     }
 
@@ -254,9 +215,9 @@ public class EcgFileListManager {
 
     // 用微信分享BME文件
     public void shareSelectFileThroughWechat() {
-        if(selectIndex < 0 || selectIndex >= fileList.size()) return;
+        if(selectFile == null) return;
 
-        EcgFile sharedFile = fileList.get(selectIndex);
+        EcgFile sharedFile = selectFile;
 
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
