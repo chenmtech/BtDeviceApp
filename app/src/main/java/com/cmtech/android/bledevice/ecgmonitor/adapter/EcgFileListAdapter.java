@@ -18,12 +18,15 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.ViewHolder> {
     private EcgFileExplorerModel explorerModel; // 浏览器模型
 
-    private final List<EcgFile> fileList;
+    private List<EcgFile> fileList;
+
+    private EcgFile selectFile;
 
     private Drawable defaultBackground; // 缺省背景
 
@@ -46,7 +49,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
     public EcgFileListAdapter(EcgFileExplorerModel explorerModel) {
         this.explorerModel = explorerModel;
-        this.fileList = explorerModel.getFileList();
+        this.fileList = new ArrayList<>();
     }
 
     @NonNull
@@ -107,7 +110,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         holder.tvHrNum.setText(String.valueOf(hrNum));
 
         int bgdColor;
-        if(explorerModel.getSelectFile() == file) {
+        if(file.equals(selectFile)) {
             bgdColor = MyApplication.getContext().getResources().getColor(R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
         } else {
@@ -118,6 +121,18 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
     @Override
     public int getItemCount() {
         return fileList.size();
+    }
+
+
+    public void updateFileList(List<EcgFile> fileList) {
+        this.fileList = fileList;
+        notifyDataSetChanged();
+    }
+
+
+    public void updateSelectFile(EcgFile selectFile) {
+        this.selectFile = selectFile;
+        notifyDataSetChanged();
     }
 
 }

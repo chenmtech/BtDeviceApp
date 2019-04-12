@@ -407,7 +407,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     @Override
-    public void onUpdateEcgHrInfo(final List<Short> filteredHrList, final List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, final short maxHr, final short averageHr) {
+    public void onEcgHrInfoUpdated(final List<Short> filteredHrList, final List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, final short maxHr, final short averageHr) {
         if(listener != null) {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override

@@ -9,5 +9,5 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.Ecg
  *
  */
 
-public interface IEcgSignalProcessListener extends EcgSignalProcessor.IEcgSignalUpdatedListener, EcgSignalProcessor.IEcgHrValueUpdatedListener, EcgHrAbnormalWarner.IEcgHrAbnormalListener, EcgHrRecorder.IEcgHrInfoUpdatedListener {
+public interface IEcgSignalProcessListener extends EcgSignalProcessor.IEcgSignalUpdatedListener, EcgSignalProcessor.IEcgHrValueUpdatedListener, EcgHrAbnormalWarner.IEcgHrAbnormalListener, EcgHrRecorder.OnEcgHrInfoUpdateListener {
 }

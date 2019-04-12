@@ -12,7 +12,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.IEcgAppendixOperator;
+import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgCommentOperateListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -25,7 +25,7 @@ import java.util.List;
 
 public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.ViewHolder> {
     private List<EcgNormalComment> commentList; // 留言列表
-    private final IEcgAppendixOperator appendixOperator; // 附加信息操作者
+    private final OnEcgCommentOperateListener listener; // 附加信息操作者
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View appendixView;
@@ -44,9 +44,9 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         }
     }
 
-    public EcgCommentAdapter(List<EcgNormalComment> commentList, IEcgAppendixOperator appendixOperator) {
+    public EcgCommentAdapter(List<EcgNormalComment> commentList, OnEcgCommentOperateListener listener) {
         this.commentList = commentList;
-        this.appendixOperator = appendixOperator;
+        this.listener = listener;
     }
 
     @NonNull
@@ -70,11 +70,11 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             public void onClick(View view) {
                 User creator = commentList.get(holder.getAdapterPosition()).getCreator();
                 User account = AccountManager.getInstance().getAccount();
-                if(appendixOperator != null && creator.equals(account)) {
+                if(listener != null && creator.equals(account)) {
                     EcgNormalComment appendix = commentList.get(holder.getAdapterPosition());
                     appendix.setContent(holder.etContent.getText().toString());
                     appendix.setModifyTime(new Date().getTime());
-                    appendixOperator.saveAppendix();
+                    listener.onCommentSaved();
                 }
             }
         });
@@ -96,7 +96,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getModifyTime()));
         holder.etContent.setText(appendix.getContent());
 
-        if(appendixOperator != null && creator.equals(account)) {
+        if(listener != null && creator.equals(account)) {
             holder.ibSave.setVisibility(View.VISIBLE);
             holder.etContent.setOnTouchListener(new View.OnTouchListener() {
                 @Override

@@ -40,12 +40,12 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_
 
 class EcgFilesManager {
 
-    private final List<EcgFile> fileList = new ArrayList<>(); // 文件目录中包含的心电文件列表
-
     public interface OnEcgFilesChangeListener {
         void onSelectFileChanged(EcgFile ecgFile);
-        void onEcgFilesUpdated(List<EcgFile> fileList);
+        void onFileListChanged(List<EcgFile> fileList);
     }
+
+    private final List<EcgFile> fileList = new ArrayList<>(); // 文件目录中包含的心电文件列表
 
     private final OnEcgFilesChangeListener listener;
 
@@ -58,11 +58,6 @@ class EcgFilesManager {
         this.listener = listener;
     }
 
-    // 获取文件列表
-    List<EcgFile> getFileList() {
-        return fileList;
-    }
-
     // 添加一个文件
     void add(EcgFile file) {
         if(file != null && !fileList.contains(file)) {
@@ -70,7 +65,7 @@ class EcgFilesManager {
 
             sortFilesUsingCreateTime(fileList);
 
-            listener.onEcgFilesUpdated(fileList);
+            listener.onFileListChanged(fileList);
         }
     }
 
@@ -107,7 +102,7 @@ class EcgFilesManager {
                 if(index != -1) {
                     FileUtil.deleteFile(file.getFile());
                     if(fileList.remove(file)) {
-                        listener.onEcgFilesUpdated(fileList);
+                        listener.onFileListChanged(fileList);
                     }
 
                     index = (index > fileList.size() - 1) ? fileList.size() - 1 : index;
@@ -178,7 +173,7 @@ class EcgFilesManager {
                 } else {
                     FileUtil.moveFile(wxFile, toFile);
                     toEcgFile = EcgFile.open(toFile.getCanonicalPath());
-                    fileList.add(toEcgFile);
+                    add(toEcgFile);
                     updated = true;
                 }
             } catch (IOException e) {

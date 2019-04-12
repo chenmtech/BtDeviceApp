@@ -16,11 +16,11 @@ public class EcgHrRecorder implements IEcgHrProcessor {
     private static final int MIN_INTERVAL_IN_HISTOGRAM = 10;
 
     // 心率信息更新监听器
-    public interface IEcgHrInfoUpdatedListener {
-        void onUpdateEcgHrInfo(List<Short> filteredHrList, List<HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr);
+    public interface OnEcgHrInfoUpdateListener {
+        void onEcgHrInfoUpdated(List<Short> filteredHrList, List<HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr);
     }
 
-    private IEcgHrInfoUpdatedListener listener;
+    private OnEcgHrInfoUpdateListener listener;
 
     private List<Short> hrList;
 
@@ -55,11 +55,11 @@ public class EcgHrRecorder implements IEcgHrProcessor {
         }
     }
 
-    public EcgHrRecorder(IEcgHrInfoUpdatedListener listener) {
+    public EcgHrRecorder(OnEcgHrInfoUpdateListener listener) {
         this(null, listener);
     }
 
-    public EcgHrRecorder(List<Short> hrList, IEcgHrInfoUpdatedListener listener) {
+    public EcgHrRecorder(List<Short> hrList, OnEcgHrInfoUpdateListener listener) {
         this.listener = listener;
         if(hrList != null)
             this.hrList = hrList;
@@ -98,14 +98,14 @@ public class EcgHrRecorder implements IEcgHrProcessor {
         }
 
         if(listener != null)
-            listener.onUpdateEcgHrInfo(hrFiltered, normHistogram, maxHr, averageHr);
+            listener.onEcgHrInfoUpdated(hrFiltered, normHistogram, maxHr, averageHr);
     }
 
     // 重置心率数据
     public synchronized void reset() {
         hrList.clear();
         if(listener != null)
-            listener.onUpdateEcgHrInfo(null, null, (short) 0, (short) 0);
+            listener.onEcgHrInfoUpdated(null, null, (short) 0, (short) 0);
     }
 
 
