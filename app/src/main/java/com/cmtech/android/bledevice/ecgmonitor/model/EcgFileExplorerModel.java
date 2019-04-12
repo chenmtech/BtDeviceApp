@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import android.os.Handler;
 import android.os.Looper;
 
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
@@ -14,31 +15,31 @@ import com.vise.log.ViseLog;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Handler;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * EcgFileExplorerModel: 心电文件浏览模型类
  * Created by bme on 2018/11/10.
  */
 
-public class EcgFileExplorerModel implements EcgFileListManager.OnSelectFileChangedListener{
+public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeListener {
     private static final float DEFAULT_SECOND_PER_HGRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_VGRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
 
-    private final File ecgFileDir; // 文件浏览目录
+    private final File ecgFileDir; // Ecg文件目录
 
-    private final File[] allEcgFiles;
+    private final File[] ecgFiles;
 
     private EcgFile selectFile; // 选中的EcgFile
 
-    private EcgFileListManager filesManager; // 文件列表管理器
-
-    private IEcgFileExplorerListener listener; // 文件浏览监听器
+    private EcgFilesManager filesManager; // 文件列表管理器
 
     private EcgHrRecorder hrRecorder;
+
+    private IEcgFileExplorerListener listener; // 文件浏览监听器
 
     private int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每小格的像素个数
     private int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_HGRID * 125)); // 计算横向分辨率; // 横向分辨率
@@ -46,11 +47,13 @@ public class EcgFileExplorerModel implements EcgFileListManager.OnSelectFileChan
 
     private int totalSecond; // 信号总的秒数
 
-    private class OpenFileRunnable implements Runnable {
-        private File[] files;
+    private final ExecutorService openFileService = Executors.newSingleThreadExecutor();
 
-        OpenFileRunnable(File[] files) {
-            this.files = files;
+    private class OpenFileRunnable implements Runnable {
+        private File file;
+
+        OpenFileRunnable(File file) {
+            this.file = file;
         }
 
         @Override
@@ -58,33 +61,21 @@ public class EcgFileExplorerModel implements EcgFileListManager.OnSelectFileChan
             EcgFile ecgFile = null;
 
             try {
-                for(File file : files) {
+                ecgFile = EcgFile.open(file.getCanonicalPath());
+
+                filesManager.add(ecgFile);
+
+                ViseLog.e(ecgFile.toString());
+            } catch (IOException e) {
+                ViseLog.e("To open ecg file is wrong." + file);
+            } finally {
+                if (ecgFile != null) {
                     try {
-                        ecgFile = EcgFile.open(file.getCanonicalPath());
-                        filesManager.addFile(ecgFile);
-                        if(listener !=null) {
-                            new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    listener.onUpdateEcgFileList();
-                                }
-                            });
-                        }
-                        ViseLog.e(ecgFile.toString());
+                        ecgFile.close();
                     } catch (IOException e) {
-                        ViseLog.e("To open ecg file is wrong." + file);
-                    } finally {
-                        if (ecgFile != null) {
-                            try {
-                                ecgFile.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
+                        e.printStackTrace();
                     }
                 }
-            } finally {
-                ViseLog.e("open file thread is interrupted.");
             }
         }
     }
@@ -96,28 +87,28 @@ public class EcgFileExplorerModel implements EcgFileListManager.OnSelectFileChan
 
         this.ecgFileDir = ecgFileDir;
 
-
         if(!ecgFileDir.exists() && !ecgFileDir.mkdir()) {
             throw new IOException("磁盘空间不足");
         }
 
-        allEcgFiles = BleDeviceUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
+        ecgFiles = BleDeviceUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
 
-        filesManager = new EcgFileListManager(this);
+        filesManager = new EcgFilesManager(this);
+
+        hrRecorder = new EcgHrRecorder(listener);
 
         this.listener = listener;
 
-        hrRecorder = new EcgHrRecorder(listener);
     }
 
-    public void openAllFiles() {
-        Thread t = new Thread(new OpenFileRunnable(allEcgFiles));
-        t.start();
-        /*try {
-            t.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
+    public void openFiles() {
+        for(File file : ecgFiles) {
+            openFileService.submit(new OpenFileRunnable(file));
+        }
+    }
+
+    public List<EcgFile> getFileList() {
+        return filesManager.getFileList();
     }
 
     @Override
@@ -126,22 +117,24 @@ public class EcgFileExplorerModel implements EcgFileListManager.OnSelectFileChan
 
         initReplayPara(selectFile);
 
-        if(EcgFileExplorerModel.this.listener != null) {
-            EcgFileExplorerModel.this.listener.onUpdateEcgFileList();
+        notifyUpdateEcgFileList();
+    }
+
+    @Override
+    public void onEcgFilesUpdated(List<EcgFile> fileList) {
+        notifyUpdateEcgFileList();
+    }
+
+    public void notifyUpdateEcgFileList() {
+        if(listener != null) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onUpdateEcgFileList();
+                }
+            });
         }
     }
-
-    public int getFileNumber() {
-        return filesManager.getFileNumber();
-    }
-
-    public EcgFile getFile(int index) {
-        if(index < 0 || index >= getFileNumber()) return null;
-
-        return filesManager.getFile(index);
-    }
-
-    public int getSelectIndex() { return filesManager.getSelectIndex(); }
 
     public EcgFile getSelectFile() {
         return selectFile;
@@ -177,18 +170,22 @@ public class EcgFileExplorerModel implements EcgFileListManager.OnSelectFileChan
         }
     }
 
-    public void select(int index) {
-        filesManager.select(index);
-    }
-
     // 选中一个文件
     public void select(EcgFile ecgFile) {
+        if(ecgFile == null) return;
+
+        try {
+            ecgFile.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         filesManager.select(ecgFile);
     }
 
     // 删除选中文件
     public void deleteSelectFile() {
-        filesManager.deleteSelectFile();
+        filesManager.delete(selectFile);
     }
 
     // 从微信导入文件
@@ -198,7 +195,7 @@ public class EcgFileExplorerModel implements EcgFileListManager.OnSelectFileChan
 
     // 通过微信分享选中文件
     public void shareSelectFileThroughWechat() {
-        filesManager.shareSelectFileThroughWechat();
+        filesManager.shareThroughWechat(selectFile);
     }
 
     // 初始化回放参数
@@ -223,9 +220,9 @@ public class EcgFileExplorerModel implements EcgFileListManager.OnSelectFileChan
         }
     }
 
-    // 删除心电文件浏览器观察者
-    public void removeListener() {
+    public void close() {
         listener = null;
+        openFileService.shutdownNow();
     }
 
     public void updateHrInfo() {

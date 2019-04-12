@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.ecgmonitor.activity;
 
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -20,7 +19,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrHistogramChart;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrLineChart;
@@ -52,7 +51,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
     private EcgFileRollWaveView signalView; // signalView
 
-    private EcgFileAdapter fileAdapter; // 文件Adapter
+    private EcgFileListAdapter fileAdapter; // 文件Adapter
 
     private RecyclerView rvFiles; // 文件RecycleView
 
@@ -109,7 +108,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         fileLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         rvFiles.setLayoutManager(fileLayoutManager);
         rvFiles.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
-        fileAdapter = new EcgFileAdapter(fileExploreModel);
+        fileAdapter = new EcgFileListAdapter(fileExploreModel);
         rvFiles.setAdapter(fileAdapter);
 
         rvComments = findViewById(R.id.rv_ecgcomment_list);
@@ -167,9 +166,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
 
         tvMaxHr = findViewById(R.id.tv_max_hr_value);
 
-        fileExploreModel.select(null);
-
-        fileExploreModel.openAllFiles();
+        fileExploreModel.openFiles();
     }
 
 
@@ -216,7 +213,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
             }
         }
 
-        fileExploreModel.removeListener();
+        fileExploreModel.close();
     }
 
     private void importFromWechat() {
@@ -272,7 +269,6 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements IEcgFi
         fileAdapter.notifyDataSetChanged();
 
         if(fileExploreModel.getSelectFile() != null) {
-            rvFiles.smoothScrollToPosition(fileExploreModel.getSelectIndex());
             EcgFile selectFile = fileExploreModel.getSelectFile();
             ViseLog.e(selectFile);
 

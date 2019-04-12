@@ -18,10 +18,12 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
+import java.util.List;
 
-public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHolder> {
+public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.ViewHolder> {
     private EcgFileExplorerModel explorerModel; // 浏览器模型
+
+    private final List<EcgFile> fileList;
 
     private Drawable defaultBackground; // 缺省背景
 
@@ -42,31 +44,32 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
         }
     }
 
-    public EcgFileAdapter(EcgFileExplorerModel explorerModel) {
+    public EcgFileListAdapter(EcgFileExplorerModel explorerModel) {
         this.explorerModel = explorerModel;
+        this.fileList = explorerModel.getFileList();
     }
 
     @NonNull
     @Override
-    public EcgFileAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public EcgFileListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_ecg_file, parent, false);
 
-        final EcgFileAdapter.ViewHolder holder = new EcgFileAdapter.ViewHolder(view);
+        final EcgFileListAdapter.ViewHolder holder = new EcgFileListAdapter.ViewHolder(view);
 
         defaultBackground = holder.fileView.getBackground();
 
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                explorerModel.select(holder.getAdapterPosition());
+                explorerModel.select(fileList.get(holder.getAdapterPosition()));
             }
         });
 
         holder.tvCreator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EcgFile file = explorerModel.getFile(holder.getAdapterPosition());
+                EcgFile file = fileList.get(holder.getAdapterPosition());
                 User creator = file.getCreator();
                 Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
@@ -76,8 +79,8 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(EcgFileAdapter.ViewHolder holder, final int position) {
-        EcgFile file = explorerModel.getFile(position);
+    public void onBindViewHolder(EcgFileListAdapter.ViewHolder holder, final int position) {
+        EcgFile file = fileList.get(position);
 
         if(file == null) return;
 
@@ -114,7 +117,7 @@ public class EcgFileAdapter extends RecyclerView.Adapter<EcgFileAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return explorerModel.getFileNumber();
+        return fileList.size();
     }
 
 }
