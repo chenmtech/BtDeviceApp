@@ -43,7 +43,7 @@
 
         <!--心电信号部分-->
         <LinearLayout
-            android:id="@+id/ecgfile_ecgsignal_layout"
+            android:id="@+id/layout_ecgfile_ecgsignal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -138,7 +138,7 @@
 
         <!--心率部分-->
         <LinearLayout
-            android:id="@+id/ecgfile_ecghr_layout"
+            android:id="@+id/layout_ecgfile_hr"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"

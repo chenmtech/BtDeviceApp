@@ -45,7 +45,7 @@ class EcgFilesManager {
         void onFileListChanged(List<EcgFile> fileList);
     }
 
-    private final List<EcgFile> fileList = new ArrayList<>(); // 文件目录中包含的心电文件列表
+    private final List<EcgFile> fileList = Collections.synchronizedList(new ArrayList<EcgFile>()); // 文件目录中包含的心电文件列表
 
     private final OnEcgFilesChangeListener listener;
 
@@ -75,17 +75,14 @@ class EcgFilesManager {
 
         int index = fileList.indexOf(file);
         if(index != -1) {
-            EcgFile selectFile = null;
             try {
-                selectFile = EcgFile.open(file.getFileName());
+                file = EcgFile.open(file.getFileName());
 
-                fileList.set(index, selectFile);
-
-                listener.onSelectFileChanged(selectFile);
+                listener.onSelectFileChanged(file);
             } catch (IOException e) {
                 e.printStackTrace();
                 try {
-                    selectFile.close();
+                    file.close();
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }

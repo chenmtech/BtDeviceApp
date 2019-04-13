@@ -26,10 +26,8 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
 
     // EcgFile滚动波形视图显示监听器接口
     public interface OnEcgFileRollWaveViewListener {
-        // 更新显示状态
-        void onShowStateUpdated(boolean isReplay);
-        // 更新当前数据位置
-        void onDataLocationUpdated(long dataLocation);
+        void onShowStateUpdated(boolean isReplay); // 更新显示状态
+        void onDataLocationUpdated(long dataLocation); // 更新当前数据位置
     }
 
     private OnEcgFileRollWaveViewListener listener;
@@ -41,6 +39,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
     private int dataNumReadEachUpdate = 1; // 每次更新显示时需要读取的数据个数
     private final List<Integer> cacheData = new ArrayList<>(); // 每次更新显示时需要读取的数据缓存
     private final List<Boolean> cacheMarked = new ArrayList<>(); // 标记缓存
+
     // 定时周期显示任务
     private class ShowTask extends TimerTask {
         @Override
@@ -91,7 +90,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
 
         @Override
         public boolean onSingleTapUp(MotionEvent motionEvent) {
-            if(isReplaying()) {
+            if(isStart()) {
                 stopShow();
             } else {
                 startShow();
@@ -144,7 +143,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
         num = 0;
     }
 
-    public boolean isReplaying() {
+    public boolean isStart() {
         return replaying;
     }
 
@@ -221,12 +220,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
     }
 
     // 登记心电回放观察者
-    public void setListener(OnEcgFileRollWaveViewListener listener) {
+    public void setOnEcgFileRollWaveViewListener(OnEcgFileRollWaveViewListener listener) {
         this.listener = listener;
-    }
-
-    // 删除心电回放观察者
-    public void removeListener() {
-        listener = null;
     }
 }

@@ -25,6 +25,7 @@ import java.util.List;
 
 public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.ViewHolder> {
     private List<EcgNormalComment> commentList; // 留言列表
+
     private final OnEcgCommentOperateListener listener; // 附加信息操作者
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -71,9 +72,9 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
                 User creator = commentList.get(holder.getAdapterPosition()).getCreator();
                 User account = AccountManager.getInstance().getAccount();
                 if(listener != null && creator.equals(account)) {
-                    EcgNormalComment appendix = commentList.get(holder.getAdapterPosition());
-                    appendix.setContent(holder.etContent.getText().toString());
-                    appendix.setModifyTime(new Date().getTime());
+                    EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
+                    comment.setContent(holder.etContent.getText().toString());
+                    comment.setModifyTime(new Date().getTime());
                     listener.onCommentSaved();
                 }
             }
@@ -110,8 +111,6 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             holder.ibSave.setVisibility(View.GONE);
 
         }
-
-
     }
 
     @Override
@@ -119,9 +118,9 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         return commentList.size();
     }
 
-    public void setCommentList(List<EcgNormalComment> commentList) {
+    public void updateCommentList(List<EcgNormalComment> commentList) {
         this.commentList = commentList;
+        notifyDataSetChanged();
     }
-
 
 }

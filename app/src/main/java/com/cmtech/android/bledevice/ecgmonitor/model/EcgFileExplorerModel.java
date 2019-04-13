@@ -22,11 +22,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * EcgFileExplorerModel: 心电文件浏览模型类
- * Created by bme on 2018/11/10.
- */
-
-/**
   *
   * ClassName:      EcgFileExplorerModel
   * Description:    Ecg文件浏览器模型类
@@ -85,15 +80,19 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
     }
 
     public EcgFileExplorerModel(File ecgFileDir, OnEcgFileExploreListener listener) throws IOException{
-        if(ecgFileDir == null || !ecgFileDir.isDirectory()) {
-            throw new IllegalArgumentException();
+        if(ecgFileDir == null) {
+            throw new IOException();
+        }
+
+        if(!ecgFileDir.exists() && !ecgFileDir.mkdir()) {
+            throw new IOException();
+        }
+
+        if(ecgFileDir.exists() && !ecgFileDir.isDirectory()) {
+            throw new IOException();
         }
 
         this.ecgFileDir = ecgFileDir;
-
-        if(!ecgFileDir.exists() && !ecgFileDir.mkdir()) {
-            throw new IOException("磁盘空间不足");
-        }
 
         allEcgFiles = BleDeviceUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
 
@@ -108,8 +107,12 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
     // 打开所有文件
     public void openAllFiles() {
         for(File file : allEcgFiles) {
-            openFileService.submit(new OpenFileRunnable(file));
+            openFile(file);
         }
+    }
+
+    private void openFile(File file) {
+        openFileService.submit(new OpenFileRunnable(file));
     }
 
     // 选中一个文件
@@ -157,27 +160,6 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
     // 通过微信分享选中文件
     public void shareSelectFileThroughWechat() {
         filesManager.shareThroughWechat(selectFile);
-    }
-
-
-    // 获取选中文件的留言列表
-    public List<EcgNormalComment> getSelectFileCommentList() {
-        if(selectFile == null)
-            return new ArrayList<>();
-        else {
-            User account = AccountManager.getInstance().getAccount();
-            boolean found = false;
-            for(EcgNormalComment appendix : selectFile.getCommentList()) {
-                if(appendix.getCreator().equals(account)) {
-                    found = true;
-                    break;
-                }
-            }
-            if(!found) {
-                selectFile.addComment(EcgNormalComment.createDefaultComment());
-            }
-            return selectFile.getCommentList();
-        }
     }
 
     // 保存留言信息

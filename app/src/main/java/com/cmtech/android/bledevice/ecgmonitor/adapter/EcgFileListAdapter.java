@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -21,8 +21,21 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+  *
+  * ClassName:      EcgFileListAdapter
+  * Description:    Ecg文件列表Adapter
+  * Author:         chenm
+  * CreateDate:     2018/11/10 下午4:09
+  * UpdateUser:     chenm
+  * UpdateDate:     2018/11/10 下午4:09
+  * UpdateRemark:   更新说明
+  * Version:        1.0
+ */
+
 public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.ViewHolder> {
-    private EcgFileExplorerModel explorerModel; // 浏览器模型
+    private EcgFileExplorerActivity activity;
 
     private List<EcgFile> fileList;
 
@@ -47,8 +60,8 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         }
     }
 
-    public EcgFileListAdapter(EcgFileExplorerModel explorerModel) {
-        this.explorerModel = explorerModel;
+    public EcgFileListAdapter(EcgFileExplorerActivity activity) {
+        this.activity = activity;
         this.fileList = new ArrayList<>();
     }
 
@@ -65,7 +78,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                explorerModel.select(fileList.get(holder.getAdapterPosition()));
+                activity.select(fileList.get(holder.getAdapterPosition()));
             }
         });
 
@@ -82,7 +95,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
     }
 
     @Override
-    public void onBindViewHolder(EcgFileListAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull EcgFileListAdapter.ViewHolder holder, final int position) {
         EcgFile file = fileList.get(position);
 
         if(file == null) return;
@@ -91,7 +104,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
         User account = AccountManager.getInstance().getAccount();
         if(fileCreator.equals(account)) {
-            holder.tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
+            holder.tvCreator.setText(Html.fromHtml("<u>您</u>"));
         } else {
             holder.tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
         }

@@ -17,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
@@ -31,11 +32,14 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.Ecg
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
@@ -58,8 +62,6 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
     private static final float DEFAULT_SECOND_PER_HGRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_VGRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
-
-    private int secondInSignal; // 信号总的秒数
 
     private int sampleRate;
 
@@ -104,27 +106,24 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         Toolbar toolbar = findViewById(R.id.tb_ecgexplorer);
         setSupportActionBar(toolbar);
 
-        if(ECG_FILE_DIR == null) {
-            throw new IllegalStateException();
-        }
-
         try {
             model = new EcgFileExplorerModel(ECG_FILE_DIR, this);
         } catch (IOException e) {
             e.printStackTrace();
+            Toast.makeText(this, "心电文件目录错误。", Toast.LENGTH_SHORT).show();
             finish();
         }
 
-        signalLayout = findViewById(R.id.ecgfile_ecgsignal_layout);
+        signalLayout = findViewById(R.id.layout_ecgfile_ecgsignal);
 
-        hrLayout = findViewById(R.id.ecgfile_ecghr_layout);
+        hrLayout = findViewById(R.id.layout_ecgfile_hr);
 
         rvFiles = findViewById(R.id.rv_ecgfile_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
         fileLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         rvFiles.setLayoutManager(fileLayoutManager);
         rvFiles.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
-        fileAdapter = new EcgFileListAdapter(model);
+        fileAdapter = new EcgFileListAdapter(this);
         rvFiles.setAdapter(fileAdapter);
 
         rvComments = findViewById(R.id.rv_ecgcomment_list);
@@ -132,11 +131,12 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         commentLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvComments.setLayoutManager(commentLayoutManager);
         rvComments.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        commentAdapter = new EcgCommentAdapter(model.getSelectFileCommentList(), this);
+        commentAdapter = new EcgCommentAdapter(new ArrayList<EcgNormalComment>(), this);
         rvComments.setAdapter(commentAdapter);
 
         signalView = findViewById(R.id.rwv_ecgview);
-        signalView.setListener(this);
+        signalView.setOnEcgFileRollWaveViewListener(this);
+
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvTotalTime = findViewById(R.id.tv_total_time);
 
@@ -144,16 +144,15 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         btnSwitchReplayState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(signalView.isReplaying()) {
-                    stopReplay();
+                if(signalView.isStart()) {
+                    signalView.stopShow();
                 } else {
-                    startReplay();
+                    signalView.startShow();
                 }
             }
         });
 
         sbReplay = findViewById(R.id.sb_ecgfile);
-
         sbReplay.setEnabled(false);
         sbReplay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -184,7 +183,6 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
 
         model.openAllFiles();
     }
-
 
 
     @Override
@@ -221,7 +219,15 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
     protected void onDestroy() {
         super.onDestroy();
 
+        signalView.stopShow();
+
         model.close();
+    }
+
+    public void select(EcgFile ecgFile) {
+        signalView.stopShow();
+
+        model.select(ecgFile);
     }
 
     private void importFromWechat() {
@@ -237,15 +243,48 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
     }
 
 
+    private void initEcgView(EcgFile ecgFile, double zeroLocation) {
+        if(ecgFile == null) return;
 
-    private void startReplay() {
-        signalView.startShow();
-    }
+        int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;
 
-    private void stopReplay() {
+        int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
+
+        int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_HGRID * ecgFile.getSampleRate())); // 计算横向分辨率
+
+        float vValuePerPixel = value1mV * DEFAULT_MV_PER_VGRID / pixelPerGrid; // 计算纵向分辨率
+
         signalView.stopShow();
+
+        signalView.setRes(hPixelPerData, vValuePerPixel);
+        signalView.setGridWidth(pixelPerGrid);
+        signalView.setZeroLocation(zeroLocation);
+        signalView.clearData();
+        signalView.initView();
+
+        signalView.setEcgFile(ecgFile);
     }
 
+
+    // 获取选中文件的留言列表
+    private List<EcgNormalComment> getCommentListInFile(EcgFile ecgFile) {
+        if(ecgFile == null)
+            return new ArrayList<>();
+        else {
+            User account = AccountManager.getInstance().getAccount();
+            boolean found = false;
+            for(EcgNormalComment appendix : ecgFile.getCommentList()) {
+                if(appendix.getCreator().equals(account)) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                ecgFile.addComment(EcgNormalComment.createDefaultComment());
+            }
+            return ecgFile.getCommentList();
+        }
+    }
 
     @Override
     public void onSelectFileChanged(EcgFile selectFile) {
@@ -254,20 +293,22 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         if(selectFile != null) {
             ViseLog.e(selectFile);
 
-            initForReplaySignal(selectFile);
-            signalView.setEcgFile(selectFile);
+            initEcgView(selectFile, 0.5);
+
+            sampleRate = selectFile.getSampleRate();
+
+            int secondInSignal = selectFile.getDataNum()/sampleRate;
 
             tvCurrentTime.setText(DateTimeUtil.secToTime(0));
             tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
             sbReplay.setMax(secondInSignal);
 
-            List<EcgNormalComment> commentList = model.getSelectFileCommentList();
-            commentAdapter.setCommentList(commentList);
-            commentAdapter.notifyDataSetChanged();
+            List<EcgNormalComment> commentList = getCommentListInFile(selectFile);
+            commentAdapter.updateCommentList(commentList);
             if(commentList.size() > 0)
                 rvComments.smoothScrollToPosition(0);
 
-            startReplay();
+            signalView.startShow();
 
             if(selectFile.getDataNum() == 0) {
                 signalLayout.setVisibility(View.GONE);
@@ -334,8 +375,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
 
     @Override
     public void onCommentDeleted(final EcgNormalComment comment) {
-        if(signalView.isReplaying())
-            stopReplay();
+        if(signalView.isStart())
+            signalView.stopShow();
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("删除一条Ecg附加信息");
@@ -355,27 +396,4 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         builder.show();
     }
 
-    // 初始化回放参数
-    private void initForReplaySignal(final EcgFile ecgFile) {
-        if(ecgFile == null) return;
-
-        sampleRate = ecgFile.getSampleRate();
-
-        secondInSignal = ecgFile.getDataNum()/sampleRate;
-
-        initEcgView(ecgFile, 0.5);
-    }
-
-    private void initEcgView(EcgFile ecgFile, double zeroLocation) {
-        int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;
-        int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
-        int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_HGRID * sampleRate)); // 计算横向分辨率
-        float vValuePerPixel = value1mV * DEFAULT_MV_PER_VGRID / pixelPerGrid; // 计算纵向分辨率
-
-        signalView.setRes(hPixelPerData, vValuePerPixel);
-        signalView.setGridWidth(pixelPerGrid);
-        signalView.setZeroLocation(zeroLocation);
-        signalView.clearData();
-        signalView.initView();
-    }
 }
