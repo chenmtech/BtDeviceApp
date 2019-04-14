@@ -10,7 +10,10 @@ import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgControllerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgMarkerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrLineChart;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
@@ -63,25 +67,36 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private TextView tvLeadType; // 导联类型
     private TextView tvValue1mV; // 1mV定标值
     private TextView tvHeartRate; // 心率值
-    private TextView tvRecordTime; // 记录信号时长
-    private TextView tvAverageHr; // 平均心率
-    private TextView tvMaxHr; // 最大心率
+    //private TextView tvRecordTime; // 记录信号时长
+    //private TextView tvAverageHr; // 平均心率
+    //private TextView tvMaxHr; // 最大心率
 
     private ImageButton ibResetHrLineChart; // 重置心率图
-    private ImageButton ibRecord; // 切换记录信号状态
+    //private ImageButton ibRecord; // 切换记录信号状态
 
     private ScanWaveView ecgView; // 心电波形View
 
-    private LinearLayout llSignalOperator; // 信号操控布局
-    private LinearLayout llHrAnalysis; // 心率分析布局
+    //private LinearLayout llSignalOperator; // 信号操控布局
+    //private LinearLayout llHrAnalysis; // 心率分析布局
 
-    private RecyclerView rvMarker; // 标记recycleview
+    //private RecyclerView rvMarker; // 标记recycleview
 
-    private EcgMarkerAdapter markerAdapter; // ecg标记adapter
+    //private EcgMarkerAdapter markerAdapter; // ecg标记adapter
 
-    private EcgHrLineChart hrLineChart;
+    //private EcgHrLineChart hrLineChart;
 
     private AudioTrack hrWarnAudio; // 心率报警声音
+
+    private EcgControllerAdapter controllerAdapter;
+    private ViewPager viewPager;
+    private TabLayout tabLayout;
+
+    private List<Fragment> fragmentList = new ArrayList<>();
+
+    private List<String> titleList = new ArrayList<>();
+
+    private EcgSamplingSignalFragment samplingSignalFragment = new EcgSamplingSignalFragment();
+    private EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment();
 
     private EcgMonitorDevice device; // 设备
 
@@ -107,12 +122,12 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
         ecgView = view.findViewById(R.id.rwv_ecgview);
-        tvRecordTime = view.findViewById(R.id.tv_ecg_signal_recordtime);
-        rvMarker = view.findViewById(R.id.rv_ecg_marker);
-        ibRecord = view.findViewById(R.id.ib_ecg_record);
-        llSignalOperator = view.findViewById(R.id.ll_signal_operator);
-        llHrAnalysis = view.findViewById(R.id.ll_hr_statistics);
-        hrLineChart = view.findViewById(R.id.linechart_hr);
+        //tvRecordTime = view.findViewById(R.id.tv_ecg_signal_recordtime);
+        //rvMarker = view.findViewById(R.id.rv_ecg_marker);
+        //ibRecord = view.findViewById(R.id.ib_ecg_record);
+        //llSignalOperator = view.findViewById(R.id.ll_sample_ecgsignal);
+        //llHrAnalysis = view.findViewById(R.id.ll_hr_statistics);
+        //hrLineChart = view.findViewById(R.id.linechart_hr);
 
 
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
@@ -125,7 +140,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvHeartRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(llHrAnalysis.getVisibility() == View.INVISIBLE) {
+                /*if(llHrAnalysis.getVisibility() == View.INVISIBLE) {
                     device.updateHrInfo();
 
                     llHrAnalysis.setVisibility(View.VISIBLE);
@@ -134,17 +149,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 else {
                     llHrAnalysis.setVisibility(View.INVISIBLE);
                     llSignalOperator.setVisibility(View.VISIBLE);
-                }
+                }*/
             }
         });
 
         initialEcgView();
 
-        setSignalSecNum(device.getEcgSignalRecordSecond());
 
-        setDeviceState(device.getState());
-
-        LinearLayoutManager markerLayoutManager = new LinearLayoutManager(getContext());
+        /*LinearLayoutManager markerLayoutManager = new LinearLayoutManager(getContext());
         markerLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
 
         rvMarker.setLayoutManager(markerLayoutManager);
@@ -169,10 +181,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             public void onClick(View view) {
                 device.setEcgSignalRecord(!device.isRecordEcgSignal());
             }
-        });
+        });*/
 
-        tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
-        tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
+        //tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
+        //tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
 
         /*ibResetHrLineChart = view.findViewById(R.id.ib_reset_histogram);
         ibResetHrLineChart.setOnClickListener(new View.OnClickListener() {
@@ -181,6 +193,21 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
                 device.resetHrInfo();
             }
         });*/
+
+        viewPager = view.findViewById(R.id.vp_ecg_controller);
+        tabLayout = view.findViewById(R.id.tl_ecg_controller);
+        fragmentList.add(samplingSignalFragment);
+        fragmentList.add(hrStatisticsFragment);
+        titleList.add("信号采集");
+        titleList.add("心率信息");
+        controllerAdapter = new EcgControllerAdapter(getChildFragmentManager(), getContext(), fragmentList, titleList);
+        viewPager.setAdapter(controllerAdapter);
+        tabLayout.setupWithViewPager(viewPager);
+        samplingSignalFragment.setDevice(device);
+
+        //setSignalSecNum(device.getEcgSignalRecordSecond());
+
+        setDeviceState(device.getState());
 
         device.setEcgMonitorListener(this);
     }
@@ -279,16 +306,16 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void onSignalRecordStateUpdated(final boolean isRecord) {
-        setSignalRecordStatus(isRecord);
+        samplingSignalFragment.setSignalRecordStatus(isRecord);
     }
 
-    private void setSignalRecordStatus(final boolean isRecord) {
+    /*private void setSignalRecordStatus(final boolean isRecord) {
         int imageId = (isRecord) ? R.mipmap.ic_ecg_record_start : R.mipmap.ic_ecg_record_stop;
 
         ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
 
         markerAdapter.setEnabled(isRecord);
-    }
+    }*/
 
     @Override
     public void onEcgViewUpdated(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
@@ -317,7 +344,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     private void setSignalSecNum(final int second) {
-        tvRecordTime.setText(DateTimeUtil.secToTimeInChinese(second));
+        samplingSignalFragment.setSignalSecNum(second);
     }
 
     @Override
@@ -327,10 +354,10 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     @Override
     public void onEcgHrInfoUpdated(List<Short> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr) {
-        tvAverageHr.setText(String.valueOf(averageHr));
-        tvMaxHr.setText(String.valueOf(maxHr));
+        //tvAverageHr.setText(String.valueOf(averageHr));
+        //tvMaxHr.setText(String.valueOf(maxHr));
 
-        hrLineChart.showLineChart(filteredHrList, "心率变化图", Color.BLUE);
+        //hrLineChart.showLineChart(filteredHrList, "心率变化图", Color.BLUE);
     }
 
     @Override

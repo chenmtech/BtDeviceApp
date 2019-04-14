@@ -6,8 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorFragment;
-
 /**
  * BleDeviceFragment：设备的Fragment
  * Created by bme on 2018/2/27.

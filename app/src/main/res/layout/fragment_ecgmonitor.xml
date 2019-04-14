@@ -88,76 +88,29 @@
             android:textColor="@color/primary"/>
     </FrameLayout>
 
-    <FrameLayout
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tl_ecg_controller"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="4dp">
+        android:layout_height="20dp"
+        app:tabGravity="center"
+        app:tabIndicatorColor="@color/accent"
+        app:tabIndicatorHeight="1dp"
+        app:tabMode="scrollable"
+        app:tabPadding="0dp"
+        app:tabSelectedTextColor="@color/accent"
+        app:tabTextColor="@color/primary_text"
+        app:tabTextAppearance="@style/ControllerTabLayoutTextAppearance"
+        android:background="@color/primary"/>
 
-        <LinearLayout
-            android:id="@+id/ll_signal_operator"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2"
-                android:layout_margin="6dp"
-                android:orientation="vertical"
-                android:baselineAligned="false">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/primary_dark"/>
 
-                <ImageButton
-                    android:id="@+id/ib_ecg_record"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_margin="4dp"
-                    android:background="@color/primary_dark"
-                    android:src="@mipmap/ic_ecg_record_stop"
-                    android:contentDescription="@null"/>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:text="采集信号" />
-
-                    <TextView
-                        android:id="@+id/tv_ecg_signal_recordtime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:textColor="#f00"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_ecg_marker"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_hr_statistics"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="invisible">
-
-            <include layout="@layout/layout_hr_commoninfo"/>
-
-            <include layout="@layout/layout_hr_linechart"/>
-        </LinearLayout>
-
-    </FrameLayout>
-
-
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_ecg_controller"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 
 </LinearLayout>

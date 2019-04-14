@@ -27,6 +27,12 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
+    <!-- Controller Tablayout的文本风格 -->
+    <style name="ControllerTabLayoutTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
     <!-- Ecg Comment的文本风格 -->
     <style name="EcgCommentTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textSize">16sp</item>
