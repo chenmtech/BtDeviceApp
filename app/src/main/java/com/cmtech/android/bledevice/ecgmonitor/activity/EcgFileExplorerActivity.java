@@ -322,7 +322,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
                 hrLayout.setVisibility(View.VISIBLE);
             }
 
-            model.updateHrInfo();
+            model.getHrInfo();
         } else {
             signalView.stopShow();
 

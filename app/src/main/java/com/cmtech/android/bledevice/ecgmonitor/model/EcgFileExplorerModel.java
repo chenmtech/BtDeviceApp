@@ -215,7 +215,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
         }
     }
 
-    public void updateHrInfo() {
+    public void getHrInfo() {
         if(selectFile != null) {
             hrRecorder.setHrList(selectFile.getHrList());
             hrRecorder.updateHrInfo(10, 5);
