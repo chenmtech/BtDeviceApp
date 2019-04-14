@@ -45,11 +45,15 @@ import java.util.Locale;
 import static android.app.Activity.RESULT_OK;
 
 /**
- * EcgMonitorFragment: 心电带设备Fragment
- * Created by bme on 2018/3/13.
- *
- * Updated by chenm on 2019/4/8
- * 优化代码
+  *
+  * ClassName:      EcgMonitorFragment
+  * Description:    心电监护仪界面
+  * Author:         chenm
+  * CreateDate:     2018/3/13 下午4:52
+  * UpdateUser:     chenm
+  * UpdateDate:     2019/4/8 下午4:52
+  * UpdateRemark:   优化代码
+  * Version:        1.0
  */
 
 public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitorListener {
@@ -115,9 +119,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
 
-        updateCalibrationValue(device.getValue1mVBeforeCalibrate(), device.getValue1mVAfterCalibrate());
+        setCalibrationValue(device.getValue1mVBeforeCalibrate(), device.getValue1mVAfterCalibrate());
 
-        tvHeartRate.setText(String.valueOf(0));
+        tvHeartRate.setText("");
         tvHeartRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,17 +138,18 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });
 
-        updateEcgView(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
+        initialEcgView();
 
-        updateSignalSecNum(device.getEcgSignalRecordSecond());
+        setSignalSecNum(device.getEcgSignalRecordSecond());
 
-        updateDeviceState(device.getState());
+        setDeviceState(device.getState());
 
         LinearLayoutManager markerLayoutManager = new LinearLayoutManager(getContext());
         markerLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
 
         rvMarker.setLayoutManager(markerLayoutManager);
-        rvMarker.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        if(getContext() != null)
+            rvMarker.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
         List<EcgAbnormal> ecgAbnormals = new ArrayList<>(Arrays.asList(EcgAbnormal.values()));
         markerAdapter = new EcgMarkerAdapter(ecgAbnormals, new EcgMarkerAdapter.OnMarkerClickListener() {
@@ -158,7 +163,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         rvMarker.setAdapter(markerAdapter);
 
         // 根据设备的isRecord初始化Record按钮
-        updateSignalRecordStatus(device.isRecordEcgSignal());
+        setSignalRecordStatus(device.isRecordEcgSignal());
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -177,7 +182,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
             }
         });*/
 
-        device.setEcgMonitorListener(EcgMonitorFragment.this);
+        device.setEcgMonitorListener(this);
     }
 
     @Override
@@ -245,39 +250,39 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void onUpdateDeviceState(final EcgMonitorState state) {
-        updateDeviceState(state);
+    public void onDeviceStateUpdated(final EcgMonitorState state) {
+        setDeviceState(state);
     }
 
-    private void updateDeviceState(final EcgMonitorState state) {
+    private void setDeviceState(final EcgMonitorState state) {
 
     }
 
     @Override
-    public void onUpdateSampleRate(final int sampleRate) {
+    public void onSampleRateChanged(final int sampleRate) {
         tvSampleRate.setText(String.valueOf(sampleRate));
     }
 
     @Override
-    public void onUpdateLeadType(final EcgLeadType leadType) {
+    public void onLeadTypeChanged(final EcgLeadType leadType) {
         tvLeadType.setText(String.format("L%s", leadType.getDescription()));
     }
 
     @Override
-    public void onUpdateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
-        updateCalibrationValue(calibrationValueBefore, calibrationValueAfter);
+    public void onCalibrationValueChanged(final int calibrationValueBefore, final int calibrationValueAfter) {
+        setCalibrationValue(calibrationValueBefore, calibrationValueAfter);
     }
 
-    private void updateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
+    private void setCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
         tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", calibrationValueBefore, calibrationValueAfter));
     }
 
     @Override
-    public void onUpdateSignalRecordStatus(final boolean isRecord) {
-        updateSignalRecordStatus(isRecord);
+    public void onSignalRecordStateUpdated(final boolean isRecord) {
+        setSignalRecordStatus(isRecord);
     }
 
-    private void updateSignalRecordStatus(final boolean isRecord) {
+    private void setSignalRecordStatus(final boolean isRecord) {
         int imageId = (isRecord) ? R.mipmap.ic_ecg_record_start : R.mipmap.ic_ecg_record_stop;
 
         ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
@@ -286,7 +291,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void onUpdateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
+    public void onEcgViewUpdated(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
         updateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
     }
 
@@ -297,27 +302,31 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         ecgView.initView();
     }
 
+    private void initialEcgView() {
+        updateEcgView(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
+    }
+
     @Override
-    public void onUpdateEcgSignal(final int ecgSignal) {
+    public void onEcgSignalChanged(final int ecgSignal) {
         ecgView.showData(ecgSignal);
     }
 
     @Override
-    public void onUpdateSignalSecNum(final int second) {
-        updateSignalSecNum(second);
+    public void onSignalSecNumChanged(final int second) {
+        setSignalSecNum(second);
     }
 
-    private void updateSignalSecNum(final int second) {
+    private void setSignalSecNum(final int second) {
         tvRecordTime.setText(DateTimeUtil.secToTimeInChinese(second));
     }
 
     @Override
-    public void onUpdateEcgHr(final int hr) {
+    public void onEcgHrChanged(final int hr) {
         tvHeartRate.setText(String.valueOf(hr));
     }
 
     @Override
-    public void onUpdateEcgHrInfo(List<Short> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr) {
+    public void onEcgHrInfoUpdated(List<Short> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr) {
         tvAverageHr.setText(String.valueOf(averageHr));
         tvMaxHr.setText(String.valueOf(maxHr));
 

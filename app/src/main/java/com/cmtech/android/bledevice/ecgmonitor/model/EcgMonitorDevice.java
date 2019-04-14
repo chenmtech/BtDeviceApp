@@ -388,7 +388,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onUpdateEcgSignal(ecgSignal);
+                    listener.onEcgSignalChanged(ecgSignal);
                 }
             });
         }
@@ -400,7 +400,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onUpdateEcgHr(hr);
+                    listener.onEcgHrChanged(hr);
                 }
             });
         }
@@ -412,7 +412,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onUpdateEcgHrInfo(filteredHrList, normHistogram, maxHr, averageHr);
+                    listener.onEcgHrInfoUpdated(filteredHrList, normHistogram, maxHr, averageHr);
                 }
             });
         }
@@ -436,7 +436,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onUpdateSignalSecNum(second);
+                    listener.onSignalSecNumChanged(second);
                 }
             });
         }
@@ -669,7 +669,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             @Override
             public void run() {
                 if(listener != null)
-                    listener.onUpdateDeviceState(state);
+                    listener.onDeviceStateUpdated(state);
             }
         });
     }
@@ -679,7 +679,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             @Override
             public void run() {
                 if(listener != null)
-                    listener.onUpdateSampleRate(sampleRate);
+                    listener.onSampleRateChanged(sampleRate);
             }
         });
     }
@@ -689,7 +689,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             @Override
             public void run() {
                 if(listener != null)
-                    listener.onUpdateLeadType(leadType);
+                    listener.onLeadTypeChanged(leadType);
             }
         });
     }
@@ -699,7 +699,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             @Override
             public void run() {
                 if(listener != null)
-                    listener.onUpdateCalibrationValue(calibrationValueBefore, calibrationValueAfter);
+                    listener.onCalibrationValueChanged(calibrationValueBefore, calibrationValueAfter);
             }
         });
     }
@@ -709,7 +709,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             @Override
             public void run() {
                 if(listener != null)
-                    listener.onUpdateSignalRecordStatus(isRecord);
+                    listener.onSignalRecordStateUpdated(isRecord);
             }
         });
     }
@@ -719,7 +719,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             @Override
             public void run() {
                 if(listener != null)
-                    listener.onUpdateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
+                    listener.onEcgViewUpdated(xPixelPerData, yValuePerPixel, gridPixels);
             }
         });
     }
