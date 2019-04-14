@@ -15,18 +15,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignal
 public class EcgHrRecorder implements IEcgHrProcessor {
     private static final int MIN_INTERVAL_IN_HISTOGRAM = 10;
 
-    // 心率信息更新监听器
-    public interface OnEcgHrInfoUpdateListener {
-        void onEcgHrInfoUpdated(List<Short> filteredHrList, List<HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr);
-    }
-
-    private OnEcgHrInfoUpdateListener listener;
-
-    private List<Short> hrList;
-
-    private boolean isRecord = true;
-
-    // 心率直方图的一个单元类
+    // 心率直方图的Element类
     public static class HrHistogramElement<T> {
         private short minValue;
         private short maxValue;
@@ -54,6 +43,17 @@ public class EcgHrRecorder implements IEcgHrProcessor {
             return maxValue;
         }
     }
+
+    // 心率信息更新监听器
+    public interface OnEcgHrInfoUpdateListener {
+        void onEcgHrInfoUpdated(List<Short> filteredHrList, List<HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr);
+    }
+
+    private OnEcgHrInfoUpdateListener listener;
+
+    private List<Short> hrList;
+
+    private boolean isRecord = true;
 
     public EcgHrRecorder(OnEcgHrInfoUpdateListener listener) {
         this(null, listener);
@@ -107,7 +107,6 @@ public class EcgHrRecorder implements IEcgHrProcessor {
         if(listener != null)
             listener.onEcgHrInfoUpdated(null, null, (short) 0, (short) 0);
     }
-
 
     // 产生归一化直方图
     private List<HrHistogramElement<Float>> createNormHistogram(List<Short> hrList, int barNum) {

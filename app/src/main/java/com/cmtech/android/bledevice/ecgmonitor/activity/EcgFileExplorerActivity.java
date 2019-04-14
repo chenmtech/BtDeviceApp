@@ -224,10 +224,10 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         model.close();
     }
 
-    public void select(EcgFile ecgFile) {
+    public void changeSelectFile(EcgFile ecgFile) {
         signalView.stopShow();
 
-        model.select(ecgFile);
+        model.changeSelectFile(ecgFile);
     }
 
     private void importFromWechat() {
@@ -235,11 +235,11 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
     }
 
     private void deleteSelectedFile() {
-        model.deleteSelectFile();
+        model.deleteSelectFile(this);
     }
 
     private void shareFileThroughWechat() {
-        model.shareSelectFileThroughWechat();
+        model.shareSelectFileThroughWechat(this);
     }
 
 

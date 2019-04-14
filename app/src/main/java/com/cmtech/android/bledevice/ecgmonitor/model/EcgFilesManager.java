@@ -71,22 +71,8 @@ class EcgFilesManager {
 
     // 选中一个文件
     void select(EcgFile file) {
-        if(file == null || file.isActive()) return;
-
-        int index = fileList.indexOf(file);
-        if(index != -1) {
-            try {
-                file = EcgFile.open(file.getFileName());
-
-                listener.onSelectFileChanged(file);
-            } catch (IOException e) {
-                e.printStackTrace();
-                try {
-                    file.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
+        if(fileList.contains(file)) {
+            listener.onSelectFileChanged(file);
         }
     }
 
@@ -112,43 +98,10 @@ class EcgFilesManager {
         }
     }
 
-    // 用微信分享一个文件
-    void shareThroughWechat(EcgFile file) {
-        if(file == null) return;
-
-        Platform.ShareParams sp = new Platform.ShareParams();
-        sp.setShareType(SHARE_FILE);
-        String fileShortName = file.getFile().getName();
-        sp.setTitle(fileShortName);
-        sp.setText(fileShortName);
-        Bitmap bmp = BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_kang);
-        sp.setImageData(bmp);
-        sp.setFilePath(file.getFileName());
-
-        Platform wxPlatform = ShareSDK.getPlatform(Wechat.NAME);
-        wxPlatform.setPlatformActionListener(new PlatformActionListener() {
-            @Override
-            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                //Toast.makeText(EcgFileExplorerActivity.this, "分享成功", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(Platform platform, int i, Throwable throwable) {
-                //Toast.makeText(EcgFileExplorerActivity.this, "分享错误", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onCancel(Platform platform, int i) {
-                //Toast.makeText(EcgFileExplorerActivity.this, "分享取消", Toast.LENGTH_SHORT).show();
-            }
-        });
-        // 执行分享
-        wxPlatform.share(sp);
-    }
-
     // 从微信导入文件到ecgFileDir目录
     void importToFromWechat(File ecgFileDir) {
         File wxFileDir = new File(WECHAT_DOWNLOAD_DIR);
+
         File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
 
         boolean updated = false;
@@ -199,6 +152,17 @@ class EcgFilesManager {
 
             select(fileList.get(fileList.size() - 1));
         }
+    }
+
+    void close() {
+        for(EcgFile file : fileList) {
+            try {
+                file.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        fileList.clear();
     }
 
 

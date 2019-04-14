@@ -78,7 +78,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activity.select(fileList.get(holder.getAdapterPosition()));
+                activity.changeSelectFile(fileList.get(holder.getAdapterPosition()));
             }
         });
 

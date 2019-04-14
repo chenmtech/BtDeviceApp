@@ -14,7 +14,7 @@ import java.util.Arrays;
  */
 
 public class EcgFileHead {
-    private static final int MACADDRESS_CHAR_NUM = 12; // 蓝牙设备mac地址字符数
+    public static final int MACADDRESS_CHAR_NUM = 12; // 蓝牙设备mac地址字符数
     private static final byte[] TAG = {'E', 'C', 'G'}; // 心电文件标识
     private static final byte[] VER = new byte[] {0x01, 0x01}; // 心电文件头版本号1.1，便于以后升级
     private static final int LEAD_TYPE_BYTE_NUM = 1;
