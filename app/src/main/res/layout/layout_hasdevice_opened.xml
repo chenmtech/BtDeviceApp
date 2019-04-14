@@ -47,7 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/main_tab_layout"
-        android:layout_toStartOf="@id/fab_exit"
+        android:layout_alignParentStart="true"
         android:layout_margin="5dp"
         android:src="@mipmap/ic_connect_disconnect"
         app:backgroundTint="@color/primary"
