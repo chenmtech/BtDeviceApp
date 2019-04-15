@@ -64,6 +64,13 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private static final String ecgMonitorSampleRateUuid    = "aa44";           // 采样率UUID:aa44
     private static final String ecgMonitorLeadTypeUuid      = "aa45";           // 导联类型UUID:aa45
 
+    // 电池电量Service UUID常量
+    private static final String batteryServiceUuid       = "aa90";           // 电池电量服务UUID:aa90
+    private static final String batteryDataUuid          = "aa91";           // 电池电量数据特征UUID:aa91
+    private static final String batteryCtrlUuid          = "aa92";           // 电池电量测量控制UUID:aa92
+    private static final String batteryPeriodUuid        = "aa93";           // 电池电量测量周期UUID:aa93
+
+
     // Gatt Element常量
     private static final BleGattElement ECGMONITOR_DATA =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null, MY_BASE_UUID, "心电数据");
@@ -76,10 +83,24 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private static final BleGattElement ECGMONITOR_LEADTYPE =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null, MY_BASE_UUID, "导联类型");
 
+    private static final BleGattElement BATTERY_DATA =
+            new BleGattElement(batteryServiceUuid, batteryDataUuid, null, MY_BASE_UUID, "电池电量数据");
+    private static final BleGattElement BATTERY_DATA_CCC =
+            new BleGattElement(batteryServiceUuid, batteryDataUuid, CCCUUID, MY_BASE_UUID, "电池电量数据CCC");
+    private static final BleGattElement BATTERY_CTRL =
+            new BleGattElement(batteryServiceUuid, batteryCtrlUuid, null, MY_BASE_UUID, "电池电量Ctrl");
+    private static final BleGattElement BATTERY_PERIOD =
+            new BleGattElement(batteryServiceUuid, batteryPeriodUuid, null, MY_BASE_UUID, "电池电量测量周期");
+
+
     // ECGMONITOR_CTRL Element的控制常量
     private static final byte ECGMONITOR_CTRL_STOP =             (byte) 0x00;        // 停止采集
     private static final byte ECGMONITOR_CTRL_STARTSIGNAL =      (byte) 0x01;        // 启动采集Ecg信号
     private static final byte ECGMONITOR_CTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
+
+    // BATTERY_CTRL Element的控制常量
+    private static final byte BATTERY_CTRL_STOP =             (byte) 0x00;        // 停止测量电池电量
+    private static final byte BATTERY_CTRL_START =            (byte) 0x01;        // 开始测量电池电量
 
     private int sampleRate = DEFAULT_SAMPLERATE; // 采样率
 
@@ -93,6 +114,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
 
     private boolean isSaveEcgFile = false; // 是否保存心电文件
+
+    private boolean isMeasureBattery = false;
 
     private EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
 
@@ -217,6 +240,17 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         if(!gattOperator.checkElements(elements)) {
             return false;
         }
+
+        // 验证Gatt Elements
+        BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA, BATTERY_DATA_CCC, BATTERY_CTRL, BATTERY_PERIOD};
+        if(gattOperator.checkElements(elements)) {
+            isMeasureBattery = true;
+        }
+
+        if(isMeasureBattery) {
+            startMeasureBattery();
+        }
+
         // 先停止采样
         stopSampleData();
 
@@ -361,6 +395,11 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         int delay = 0;
         if(isConnected()) {
             stopSampleData();
+            delay = 100;
+        }
+
+        if(isMeasureBattery) {
+            stopMeasureBattery();
             delay = 100;
         }
 
@@ -640,6 +679,36 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         // disable ECG data indication
         gattOperator.indicate(ECGMONITOR_DATA_CCC, false, null);
         gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, null);
+    }
+
+    // 开始测量电池电量
+    private void startMeasureBattery() {
+        IBleDataOpCallback notificationCallback = new IBleDataOpCallback() {
+            @Override
+            public void onSuccess(final byte[] data) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MyApplication.getContext(), "电池电量数据为" + data[0], Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(BleDataOpException exception) {
+
+            }
+        };
+        // enable BATTERY data notification
+        gattOperator.notify(BATTERY_DATA_CCC, true, notificationCallback);
+        gattOperator.write(BATTERY_CTRL, BATTERY_CTRL_START, null);
+    }
+
+    // 停止测量电池电量
+    private void stopMeasureBattery() {
+        // disable battery data notification
+        gattOperator.notify(BATTERY_DATA_CCC, false, null);
+        gattOperator.write(BATTERY_CTRL, BATTERY_CTRL_STOP, null);
     }
 
     // 解析数据包
