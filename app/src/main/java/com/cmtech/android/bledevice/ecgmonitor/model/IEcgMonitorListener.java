@@ -15,7 +15,7 @@ public interface IEcgMonitorListener {
     void onEcgSignalChanged(int ecgSignal); // 更新Ecg信号
     void onSignalSecNumChanged(int second); // 更新信号记录秒数
     void onEcgHrChanged(int hr); // 更新心率值，单位bpm
-    void onEcgHrInfoUpdated(List<Short> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr); // 更新心率信息
+    void onEcgHrInfoUpdated(EcgHrRecorder.EcgHrInfoObject hrInfoObject); // 更新心率信息
     void onNotifyHrAbnormal(); // 通知心率值异常
     void onBatteryChanged(Byte bat);
 }

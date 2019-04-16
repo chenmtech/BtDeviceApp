@@ -339,12 +339,14 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
     }
 
     @Override
-    public void onEcgHrInfoUpdated(List<Short> filteredHrList, List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram, short maxHr, short averageHr) {
-        hrHistChart.update(normHistogram);
-        tvAverageHr.setText(String.valueOf(averageHr));
-        tvMaxHr.setText(String.valueOf(maxHr));
+    public void onEcgHrInfoUpdated(EcgHrRecorder.EcgHrInfoObject hrInfoObject) {
+        tvAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));
 
-        hrLineChart.showLineChart(filteredHrList, "心率时序图", Color.BLUE);
+        tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
+
+        hrLineChart.showLineChart(hrInfoObject.getFilteredHrList(), "心率时序图", Color.BLUE);
+
+        hrHistChart.update(hrInfoObject.getNormHistogram());
     }
 
     @Override

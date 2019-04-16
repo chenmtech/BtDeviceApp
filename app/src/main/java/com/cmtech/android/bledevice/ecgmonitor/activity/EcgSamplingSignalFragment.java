@@ -61,18 +61,22 @@ public class EcgSamplingSignalFragment extends Fragment{
         super.onViewCreated(view, savedInstanceState);
 
         tvRecordTime = view.findViewById(R.id.tv_ecg_signal_recordtime);
+
         setSignalSecNum(device.getEcgSignalRecordSecond());
 
         rvMarker = view.findViewById(R.id.rv_ecg_marker);
 
         LinearLayoutManager markerLayoutManager = new LinearLayoutManager(getContext());
+
         markerLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
 
         rvMarker.setLayoutManager(markerLayoutManager);
+
         if(getContext() != null)
             rvMarker.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
         List<EcgAbnormal> ecgAbnormals = new ArrayList<>(Arrays.asList(EcgAbnormal.values()));
+
         markerAdapter = new EcgMarkerAdapter(ecgAbnormals, new EcgMarkerAdapter.OnMarkerClickListener() {
             @Override
             public void onMarkerClicked(EcgAbnormal marker) {
@@ -84,8 +88,10 @@ public class EcgSamplingSignalFragment extends Fragment{
         rvMarker.setAdapter(markerAdapter);
 
         ibRecord = view.findViewById(R.id.ib_ecg_record);
+
         // 根据设备的isRecord初始化Record按钮
         setSignalRecordStatus(device.isRecordEcgSignal());
+
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

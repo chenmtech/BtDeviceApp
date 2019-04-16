@@ -10,21 +10,13 @@ import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.User;
 import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -36,7 +28,6 @@ import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.MACADDRESS_CHAR_NUM;
 
 /**
   *
@@ -218,7 +209,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
     public void getHrInfo() {
         if(selectFile != null) {
             hrRecorder.setHrList(selectFile.getHrList());
-            hrRecorder.updateHrInfo(10, 5);
+            hrRecorder.getHrInfo(10, 5);
         }
     }
 

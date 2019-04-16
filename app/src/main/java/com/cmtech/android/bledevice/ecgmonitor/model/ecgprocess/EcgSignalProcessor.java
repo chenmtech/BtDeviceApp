@@ -116,7 +116,7 @@ public class EcgSignalProcessor {
     public void updateHrInfo() {
         EcgHrRecorder hrRecorder = (EcgHrRecorder) hrProcessors.get(KEY_HR_RECORDER);
         if(hrRecorder != null) {
-            hrRecorder.updateHrInfo(SECOND_IN_HR_FILTER, BAR_NUM_IN_HR_HISTOGRAM);
+            hrRecorder.getHrInfo(SECOND_IN_HR_FILTER, BAR_NUM_IN_HR_HISTOGRAM);
         }
     }
 
