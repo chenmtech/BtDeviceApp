@@ -236,20 +236,19 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         gattOperator.start();
 
         // 验证Gatt Elements
+        BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA, BATTERY_DATA_CCC, BATTERY_CTRL, BATTERY_PERIOD};
+        if(gattOperator.checkElements(batteryElements)) {
+            isMeasureBattery = true;
+        }
+
+
+
+        // 验证Gatt Elements
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
         if(!gattOperator.checkElements(elements)) {
             return false;
         }
 
-        // 验证Gatt Elements
-        BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA, BATTERY_DATA_CCC, BATTERY_CTRL, BATTERY_PERIOD};
-        if(gattOperator.checkElements(elements)) {
-            isMeasureBattery = true;
-        }
-
-        if(isMeasureBattery) {
-            startMeasureBattery();
-        }
 
         // 先停止采样
         stopSampleData();
@@ -265,6 +264,11 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
         // 启动1mV采样进行定标
         startSample1mV();
+
+        if(isMeasureBattery) {
+            startMeasureBattery();
+        }
+
 
         return true;
     }
@@ -401,6 +405,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         if(isMeasureBattery) {
             stopMeasureBattery();
             delay = 100;
+            isMeasureBattery = false;
         }
 
         postDelayed(new Runnable() {
@@ -689,7 +694,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(MyApplication.getContext(), "电池电量数据为" + data[0], Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(MyApplication.getContext(), "电池电量数据为" + data[0], Toast.LENGTH_SHORT).show();
+                        ViseLog.e("电池电量数据为" + data[0]);
                     }
                 });
             }
@@ -700,8 +706,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             }
         };
         // enable BATTERY data notification
-        gattOperator.notify(BATTERY_DATA_CCC, true, notificationCallback);
-        gattOperator.write(BATTERY_CTRL, BATTERY_CTRL_START, null);
+        //gattOperator.notify(BATTERY_DATA_CCC, true, notificationCallback);
+        //gattOperator.write(BATTERY_CTRL, BATTERY_CTRL_START, null);
     }
 
     // 停止测量电池电量
