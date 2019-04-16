@@ -26,7 +26,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
@@ -67,8 +70,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     // 电池电量Service UUID常量
     private static final String batteryServiceUuid       = "aa90";           // 电池电量服务UUID:aa90
     private static final String batteryDataUuid          = "aa91";           // 电池电量数据特征UUID:aa91
-    private static final String batteryCtrlUuid          = "aa92";           // 电池电量测量控制UUID:aa92
-    private static final String batteryPeriodUuid        = "aa93";           // 电池电量测量周期UUID:aa93
 
 
     // Gatt Element常量
@@ -85,22 +86,12 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
     private static final BleGattElement BATTERY_DATA =
             new BleGattElement(batteryServiceUuid, batteryDataUuid, null, MY_BASE_UUID, "电池电量数据");
-    private static final BleGattElement BATTERY_DATA_CCC =
-            new BleGattElement(batteryServiceUuid, batteryDataUuid, CCCUUID, MY_BASE_UUID, "电池电量数据CCC");
-    private static final BleGattElement BATTERY_CTRL =
-            new BleGattElement(batteryServiceUuid, batteryCtrlUuid, null, MY_BASE_UUID, "电池电量Ctrl");
-    private static final BleGattElement BATTERY_PERIOD =
-            new BleGattElement(batteryServiceUuid, batteryPeriodUuid, null, MY_BASE_UUID, "电池电量测量周期");
-
 
     // ECGMONITOR_CTRL Element的控制常量
     private static final byte ECGMONITOR_CTRL_STOP =             (byte) 0x00;        // 停止采集
     private static final byte ECGMONITOR_CTRL_STARTSIGNAL =      (byte) 0x01;        // 启动采集Ecg信号
     private static final byte ECGMONITOR_CTRL_START1MV =         (byte) 0x02;        // 启动采集1mV定标
 
-    // BATTERY_CTRL Element的控制常量
-    private static final byte BATTERY_CTRL_STOP =             (byte) 0x00;        // 停止测量电池电量
-    private static final byte BATTERY_CTRL_START =            (byte) 0x01;        // 开始测量电池电量
 
     private int sampleRate = DEFAULT_SAMPLERATE; // 采样率
 
@@ -132,6 +123,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private EcgFile ecgFile; // 心电记录文件，可记录心电信号以及留言和心率信息
 
     private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<>();	//数据缓存
+
+    private ScheduledExecutorService readBatteryService;
 
     // 数据处理线程Runnable
     private final Runnable processRunnable = new Runnable() {
@@ -236,19 +229,20 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         gattOperator.start();
 
         // 验证Gatt Elements
-        BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA, BATTERY_DATA_CCC, BATTERY_CTRL, BATTERY_PERIOD};
+        BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA};
         if(gattOperator.checkElements(batteryElements)) {
             isMeasureBattery = true;
         }
 
-
+        if(isMeasureBattery) {
+            startMeasureBattery();
+        }
 
         // 验证Gatt Elements
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
         if(!gattOperator.checkElements(elements)) {
             return false;
         }
-
 
         // 先停止采样
         stopSampleData();
@@ -264,11 +258,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
         // 启动1mV采样进行定标
         startSample1mV();
-
-        if(isMeasureBattery) {
-            startMeasureBattery();
-        }
-
 
         return true;
     }
@@ -688,33 +677,31 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
     // 开始测量电池电量
     private void startMeasureBattery() {
-        IBleDataOpCallback notificationCallback = new IBleDataOpCallback() {
+        readBatteryService = Executors.newSingleThreadScheduledExecutor();
+        readBatteryService.scheduleAtFixedRate(new Runnable() {
             @Override
-            public void onSuccess(final byte[] data) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
+            public void run() {
+                gattOperator.read(BATTERY_DATA, new IBleDataOpCallback() {
                     @Override
-                    public void run() {
-                        //Toast.makeText(MyApplication.getContext(), "电池电量数据为" + data[0], Toast.LENGTH_SHORT).show();
-                        ViseLog.e("电池电量数据为" + data[0]);
+                    public void onSuccess(byte[] data) {
+                        updateBattery(data[0]);
+                    }
+
+                    @Override
+                    public void onFailure(BleDataOpException exception) {
+
                     }
                 });
             }
+        }, 0, 10000L, TimeUnit.MILLISECONDS);
 
-            @Override
-            public void onFailure(BleDataOpException exception) {
-
-            }
-        };
-        // enable BATTERY data notification
-        //gattOperator.notify(BATTERY_DATA_CCC, true, notificationCallback);
-        //gattOperator.write(BATTERY_CTRL, BATTERY_CTRL_START, null);
     }
 
     // 停止测量电池电量
     private void stopMeasureBattery() {
-        // disable battery data notification
-        gattOperator.notify(BATTERY_DATA_CCC, false, null);
-        gattOperator.write(BATTERY_CTRL, BATTERY_CTRL_STOP, null);
+        if(readBatteryService != null) {
+            readBatteryService.shutdownNow();
+        }
     }
 
     // 解析数据包
@@ -799,6 +786,14 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         });
     }
 
-
+    private void updateBattery(final byte bat) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(listener != null)
+                    listener.onBatteryChanged(bat);
+            }
+        });
+    }
 
 }

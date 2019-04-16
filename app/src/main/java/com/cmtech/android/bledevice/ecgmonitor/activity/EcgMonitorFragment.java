@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgControllerAdapter;
@@ -55,6 +56,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     private TextView tvLeadType; // 导联类型
     private TextView tvValue1mV; // 1mV定标值
     private TextView tvHeartRate; // 心率值
+    private TextView tvBattery;
     //private TextView tvRecordTime; // 记录信号时长
     //private TextView tvAverageHr; // 平均心率
     //private TextView tvMaxHr; // 最大心率
@@ -110,6 +112,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
         ecgView = view.findViewById(R.id.rwv_ecgview);
+        tvBattery = view.findViewById(R.id.tv_ecg_battery);
         //tvRecordTime = view.findViewById(R.id.tv_ecg_signal_recordtime);
         //rvMarker = view.findViewById(R.id.rv_ecg_marker);
         //ibRecord = view.findViewById(R.id.ib_ecg_record);
@@ -346,6 +349,14 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         //tvMaxHr.setText(String.valueOf(maxHr));
 
         //hrLineChart.showLineChart(filteredHrList, "心率变化图", Color.BLUE);
+    }
+
+    @Override
+    public void onBatteryChanged(Byte bat) {
+        if(tvBattery.getVisibility() == View.GONE) {
+            tvBattery.setVisibility(View.VISIBLE);
+        }
+        tvBattery.setText(String.valueOf(bat));
     }
 
     @Override
