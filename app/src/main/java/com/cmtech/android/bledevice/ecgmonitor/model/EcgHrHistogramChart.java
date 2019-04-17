@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -24,8 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject.HrHistogramElement;
+
 /**
- * EcgHrRecorder: 心率直方图
+ * EcgHrProcessor: 心率直方图
  * Created by bme on 2019/1/9.
  */
 
@@ -50,7 +51,7 @@ public class EcgHrHistogramChart extends BarChart {
     }
 
     // 更新
-    public void update(List<EcgHrRecorder.HrHistogramElement<Float>> hrHistogram) {
+    public void update(List<HrHistogramElement<Float>> hrHistogram) {
         updateHrBarData(hrHistogram);
         hrBarDateSet.setValues(hrBarEntries);
         invalidate();
@@ -150,12 +151,12 @@ public class EcgHrHistogramChart extends BarChart {
         });
     }
 
-    private void updateHrBarData(List<EcgHrRecorder.HrHistogramElement<Float>> normHistogram) {
+    private void updateHrBarData(List<HrHistogramElement<Float>> normHistogram) {
         hrBarXStrings.clear();
         hrBarEntries.clear();
         if(normHistogram != null && !normHistogram.isEmpty()) {
             int i = 0;
-            for(EcgHrRecorder.HrHistogramElement<Float> ele : normHistogram) {
+            for(HrHistogramElement<Float> ele : normHistogram) {
                 hrBarXStrings.add(ele.getBarString());
                 hrBarEntries.add(new BarEntry(i++, ele.getHistValue()));
             }

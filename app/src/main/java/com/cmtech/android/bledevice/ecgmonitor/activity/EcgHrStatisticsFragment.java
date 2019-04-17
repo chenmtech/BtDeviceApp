@@ -1,26 +1,19 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgMarkerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrLineChart;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledeviceapp.R;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -42,6 +35,8 @@ public class EcgHrStatisticsFragment extends Fragment {
 
     private EcgHrLineChart hrLineChart;
 
+    private EcgMonitorDevice device;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -61,4 +56,11 @@ public class EcgHrStatisticsFragment extends Fragment {
         hrLineChart = view.findViewById(R.id.linechart_hr);
     }
 
+    public void updateHrInfo(EcgHrInfoObject hrInfoObject) {
+        tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
+
+        tvAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));
+
+        hrLineChart.showLineChart(hrInfoObject.getFilteredHrList(), "心率变化图", Color.BLUE);
+    }
 }

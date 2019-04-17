@@ -18,7 +18,7 @@ import java.util.List;
  * Version:        1.0
  */
 public class EcgHrInfoObject {
-    private static final int MIN_INTERVAL_IN_HISTOGRAM = 10;
+    private static final int HR_MIN_INTERVAL_IN_HISTOGRAM = 10;
 
     // 心率直方图的Element类
     public static class HrHistogramElement<T> {
@@ -74,6 +74,7 @@ public class EcgHrInfoObject {
             process(hr);
     }
 
+    // 返回值：对hr滤波后，是否更新了filteredHrList
     public boolean process(short hr) {
         boolean updated = false;
 
@@ -84,13 +85,13 @@ public class EcgHrInfoObject {
         periodTmp += 60.0/hr;
 
         if(periodTmp >= secondInHrFilter) {
-            short filtered = (short)(sumTmp / numTmp);
+            short average = (short)(sumTmp / numTmp);
 
-            filteredHrList.add(filtered);
+            filteredHrList.add(average);
 
-            if(maxHr < filtered) maxHr = filtered;
+            if(maxHr < average) maxHr = average;
 
-            sumHr += filtered;
+            sumHr += average;
 
             periodTmp -= secondInHrFilter;
 
@@ -117,7 +118,7 @@ public class EcgHrInfoObject {
     }
 
     public List<HrHistogramElement<Float>> getNormHistogram(int barNumInHistogram) {
-        return createNormHistogram(filteredHrList, barNumInHistogram);
+        return EcgHrInfoObject.createNormHistogram(filteredHrList, barNumInHistogram);
     }
 
     public short getMaxHr() {
@@ -154,7 +155,7 @@ public class EcgHrInfoObject {
         short minValue = Collections.min(hrList);
         short maxValue = Collections.max(hrList);
         int interval = (maxValue-minValue)/barNumInHistogram+1;
-        if(interval < MIN_INTERVAL_IN_HISTOGRAM) interval = MIN_INTERVAL_IN_HISTOGRAM; // 直方图统计的心率最小间隔为10
+        if(interval < HR_MIN_INTERVAL_IN_HISTOGRAM) interval = HR_MIN_INTERVAL_IN_HISTOGRAM; // 直方图统计的心率最小间隔为10
 
         int[] histData = new int[barNumInHistogram];
 

@@ -14,7 +14,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgSignalProcessListener;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -440,7 +441,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     @Override
-    public void onEcgHrInfoUpdated(final EcgHrRecorder.EcgHrInfoObject hrInfoObject) {
+    public void onEcgHrInfoUpdated(final EcgHrInfoObject hrInfoObject) {
         if(listener != null) {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
@@ -481,8 +482,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
         // 重新创建Ecg信号处理器
-        List<Short> hrList = ((signalProcessor != null) ? signalProcessor.getHrList() : null);
-        createEcgSignalProcessor(hrList); // 这里每次连接都会重新创建处理器，有问题。
+        createEcgSignalProcessor(); // 这里每次连接都会重新创建处理器，有问题。
 
         // 创建心电记录文件
         if(ecgFile == null) {
@@ -521,15 +521,19 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     // 创建心电信号处理器
-    private void createEcgSignalProcessor(List<Short> hrList) {
+    private void createEcgSignalProcessor() {
         EcgSignalProcessor.Builder builder = new EcgSignalProcessor.Builder();
         builder.setSampleRate(sampleRate);
         builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
         builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
         builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
-        builder.setHrList(hrList);
         builder.setEcgSignalProcessListener(this);
+        EcgHrProcessor hrProcessor = null;
+        if(signalProcessor != null)
+            hrProcessor = signalProcessor.getHrProcessor();
         signalProcessor = builder.build();
+        if(hrProcessor != null)
+            signalProcessor.setHrProcessor(hrProcessor);
     }
 
     // 设置是否记录心电信号

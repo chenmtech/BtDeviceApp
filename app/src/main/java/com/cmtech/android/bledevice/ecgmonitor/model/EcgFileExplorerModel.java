@@ -11,12 +11,15 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -28,6 +31,8 @@ import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.MACADDRESS_CHAR_NUM;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor.SECOND_IN_HR_FILTER;
 
 /**
   *
@@ -72,8 +77,6 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     private EcgFilesManager filesManager; // 文件列表管理器
 
-    private EcgHrRecorder hrRecorder;
-
     private OnEcgFileExploreListener listener; // 文件浏览监听器
 
     private final ExecutorService openFileService = Executors.newSingleThreadExecutor();
@@ -95,7 +98,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
         allEcgFiles = BleDeviceUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
 
-        /*Arrays.sort(allEcgFiles, new Comparator<File>() {
+        Arrays.sort(allEcgFiles, new Comparator<File>() {
             @Override
             public int compare(File o1, File o2) {
                 String f1 = o1.getName();
@@ -105,14 +108,11 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
                 if(createTime1 == createTime2) return 0;
                 return (createTime2 > createTime1) ? 1 : -1;
             }
-        });*/
+        });
 
         filesManager = new EcgFilesManager(this);
 
-        hrRecorder = new EcgHrRecorder(listener);
-
         this.listener = listener;
-
     }
 
     // 打开所有文件
@@ -208,8 +208,15 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     public void getHrInfo() {
         if(selectFile != null) {
-            hrRecorder.setHrList(selectFile.getHrList());
-            hrRecorder.getHrInfo(10, 5);
+            final EcgHrInfoObject hrInfoObject = new EcgHrInfoObject(selectFile.getHrList(), SECOND_IN_HR_FILTER);
+            if(listener != null) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onEcgHrInfoUpdated(hrInfoObject);
+                    }
+                });
+            }
         }
     }
 

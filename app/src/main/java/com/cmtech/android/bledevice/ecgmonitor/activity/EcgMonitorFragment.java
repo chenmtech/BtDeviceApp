@@ -16,7 +16,6 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
@@ -26,7 +25,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.IEcgMonitorListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
 
@@ -275,11 +274,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void onEcgHrInfoUpdated(EcgHrRecorder.EcgHrInfoObject hrInfoObject) {
-        //tvAverageHr.setText(String.valueOf(averageHr));
-        //tvMaxHr.setText(String.valueOf(maxHr));
-
-        //hrLineChart.showLineChart(filteredHrList, "心率变化图", Color.BLUE);
+    public void onEcgHrInfoUpdated(EcgHrInfoObject hrInfoObject) {
+        hrStatisticsFragment.updateHrInfo(hrInfoObject);
     }
 
     @Override

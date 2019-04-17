@@ -158,7 +158,9 @@
 
             <include layout="@layout/layout_hr_commoninfo"/>
 
-            <include layout="@layout/layout_hr_linechart"/>
+            <include layout="@layout/layout_hr_linechart"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
 
             <View
                 android:layout_width="match_parent"
@@ -175,7 +177,9 @@
                 android:textSize="12sp"
                 android:textColor="@color/primary_text"/>
 
-            <include layout="@layout/layout_hr_histchart"/>
+            <include layout="@layout/layout_hr_histchart"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
 
         </LinearLayout>
 

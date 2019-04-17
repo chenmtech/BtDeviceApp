@@ -1,9 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrRecorder;
-
-import java.util.List;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 
 public interface IEcgMonitorListener {
     void onDeviceStateUpdated(EcgMonitorState state); // 更新设备状态
@@ -15,7 +13,7 @@ public interface IEcgMonitorListener {
     void onEcgSignalChanged(int ecgSignal); // 更新Ecg信号
     void onSignalSecNumChanged(int second); // 更新信号记录秒数
     void onEcgHrChanged(int hr); // 更新心率值，单位bpm
-    void onEcgHrInfoUpdated(EcgHrRecorder.EcgHrInfoObject hrInfoObject); // 更新心率信息
+    void onEcgHrInfoUpdated(EcgHrInfoObject hrInfoObject); // 更新心率信息
     void onNotifyHrAbnormal(); // 通知心率值异常
     void onBatteryChanged(Byte bat);
 }
