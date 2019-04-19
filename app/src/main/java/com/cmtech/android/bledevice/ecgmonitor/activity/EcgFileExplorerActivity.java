@@ -323,7 +323,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
                 hrLayout.setVisibility(View.VISIBLE);
             }
 
-            model.getHrInfo();
+            model.getSelectFileHrInfo();
         } else {
             signalView.stopShow();
 
@@ -373,7 +373,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
 
     @Override
     public void onCommentSaved() {
-        model.saveAppendix();
+        model.saveSelectFileComment();
     }
 
     @Override

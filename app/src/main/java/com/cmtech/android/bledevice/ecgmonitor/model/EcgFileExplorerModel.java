@@ -142,10 +142,10 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
     // 删除选中文件
     public void deleteSelectFile(Context context) {
         if(selectFile != null) {
-
             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("删除Ecg信号");
-            builder.setMessage("确定删除该Ecg信号吗？");
+
+            builder.setTitle("删除心电信号");
+            builder.setMessage("确定删除该心电信号吗？");
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -158,6 +158,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
                 }
             });
+
             builder.show();
         }
     }
@@ -202,7 +203,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
     }
 
     // 保存留言信息
-    public void saveAppendix() {
+    public void saveSelectFileComment() {
         if(selectFile != null) {
             try {
                 selectFile.save();
@@ -212,17 +213,11 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
         }
     }
 
-    public void getHrInfo() {
+    public void getSelectFileHrInfo() {
         if(selectFile != null) {
             final EcgHrInfoObject hrInfoObject = new EcgHrInfoObject(selectFile.getHrList(), SECOND_IN_HR_FILTER);
-            if(listener != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onEcgHrInfoUpdated(hrInfoObject);
-                    }
-                });
-            }
+
+            listener.onEcgHrInfoUpdated(hrInfoObject);
         }
     }
 

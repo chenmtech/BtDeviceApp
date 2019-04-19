@@ -244,10 +244,6 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     }
 
     public synchronized void save() throws IOException{
-        saveFileTail();
-    }
-
-    private void saveFileTail() throws IOException {
         long curPointer = raf.getFilePointer();
 
         dataEndPointer = updateDataEndPointer();
