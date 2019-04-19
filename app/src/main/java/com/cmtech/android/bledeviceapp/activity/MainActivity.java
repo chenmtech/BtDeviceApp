@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -44,13 +46,15 @@ import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceFragmentManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceService;
+import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.MyFragmentManager;
 import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.vise.log.ViseLog;
+import com.vise.utils.view.BitmapUtil;
 
 import java.io.Serializable;
 import java.util.List;
@@ -69,9 +73,9 @@ import static com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity.REGIST
 public class MainActivity extends AppCompatActivity implements IBleDeviceFragmentActivity {
     private static final String TAG = "MainActivity";
 
-    private final static int REQUESTCODE_REGISTER_DEVICE = 1;     // 登记设备返回码
-    private final static int REQUESTCODE_MODIFY_DEVICE = 2;       // 修改设备基本信息返回码
-    private final static int REQUESTCODE_MODIFY_USERINFO = 3;     // 修改用户信息返回码
+    private final static int RC_REGISTER_DEVICE = 1;     // 登记设备返回码
+    private final static int RC_MODIFY_DEVICEINFO = 2;       // 修改设备基本信息返回码
+    private final static int RC_MODIFY_USERINFO = 3;     // 修改用户信息返回码
 
     private BleDeviceService deviceService; // 设备服务
 
@@ -97,15 +101,19 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     private MenuItem menuClose;
 
-    private TextView tvAccountName; // 账户名称控件
+    private TextView tvUserName; // 账户名称控件
 
-    private ImageView ivAccountPortrait; // 头像控件
+    private ImageView ivUserPortrait; // 头像控件
 
     private boolean isFinishService = false; // 是否结束服务
 
     private ObjectAnimator connectFabAnimator; // 连接动作按钮的动画
 
     private TextView tvDeviceBattery;
+
+    private NavigationView navView;
+
+    private MainToolbarManager toolbarManager;
 
     private ServiceConnection deviceServiceConnect = new ServiceConnection() {
         @Override
@@ -136,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
-        if(!AccountManager.getInstance().isSignIn()) {
+        if(!UserManager.getInstance().isSignIn()) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -150,11 +158,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 主界面初始化
     private void initializeView() {
-        // 创建ToolBar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // 设置设备信息RecycleView
+        tvDeviceBattery = findViewById(R.id.tv_device_battery);
+
+        toolbarManager = new MainToolbarManager(this, toolbar, tvDeviceBattery);
+
         rvDeviceList = findViewById(R.id.rv_registed_device);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDeviceList.setLayoutManager(layoutManager);
@@ -162,50 +172,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         deviceListAdapter = new BleDeviceListAdapter(deviceService.getDeviceList(), this);
         rvDeviceList.setAdapter(deviceListAdapter);
 
-        // 导航菜单设置
-        NavigationView navView = findViewById(R.id.nav_view);
-        navView.setCheckedItem(R.id.nav_register_device);
-        navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Intent intent;
-                switch (item.getItemId()) {
-                    case R.id.nav_register_device:
-                        List<String> deviceMacList = deviceService.getDeviceMacList();
 
-                        intent = new Intent(MainActivity.this, ScanDeviceActivity.class);
-                        intent.putExtra(REGISTED_DEVICE_MAC_LIST, (Serializable) deviceMacList);
+        navView = findViewById(R.id.nav_view);
 
-                        startActivityForResult(intent, REQUESTCODE_REGISTER_DEVICE);
-                        return true;
-                    case R.id.nav_explore_record:
-                        intent = new Intent(MainActivity.this, EcgFileExplorerActivity.class);
-                        startActivity(intent);
-                        return true;
-                    case R.id.nav_change_user:
-                        changeUser();
-                        return true;
-                    case R.id.nav_exit:
-                        requestFinish();
-                        return true;
-                }
-                return false;
-            }
-        });
+        initNavigation();
 
-        // 设置导航视图
-        View headerView = navView.getHeaderView(0);
-        tvAccountName = headerView.findViewById(R.id.tv_user_name);
-        ivAccountPortrait = headerView.findViewById(R.id.iv_user_portrait);
-        headerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
-                startActivityForResult(intent, REQUESTCODE_MODIFY_USERINFO);
-            }
-        });
-        // 更新导航视图
-        updateNavigationViewUsingUserInfo();
+        updateNavigationView();
+
+        toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortrait());
 
         // 设置FAB，FloatingActionButton
         fabConnect = findViewById(R.id.fab_connect);
@@ -246,7 +220,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             }
         });
 
-        tvDeviceBattery = findViewById(R.id.tv_device_battery);
 
         // 初始化主界面
         initMainLayout();
@@ -257,26 +230,86 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 createAndOpenFragment(device);
             }
         }
+
+        User user = UserManager.getInstance().getUser();
+        if(user.getNickname() == null || "".equals(user.getNickname().trim())) {
+            Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
+
+            startActivityForResult(intent, RC_MODIFY_USERINFO);
+        }
+    }
+
+    private void initNavigation() {
+        View headerView = navView.getHeaderView(0);
+
+        tvUserName = headerView.findViewById(R.id.tv_user_name);
+
+        ivUserPortrait = headerView.findViewById(R.id.iv_user_portrait);
+
+        headerView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
+
+                startActivityForResult(intent, RC_MODIFY_USERINFO);
+            }
+        });
+
+        navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.nav_register_device:
+                        List<String> deviceMacList = deviceService.getDeviceMacList();
+
+                        Intent scanIntent = new Intent(MainActivity.this, ScanDeviceActivity.class);
+
+                        scanIntent.putExtra(REGISTED_DEVICE_MAC_LIST, (Serializable) deviceMacList);
+
+                        startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
+
+                        return true;
+                    case R.id.nav_explore_record:
+                        Intent recordIntent = new Intent(MainActivity.this, EcgFileExplorerActivity.class);
+
+                        startActivity(recordIntent);
+
+                        return true;
+                    case R.id.nav_change_user:
+                        changeUser();
+
+                        return true;
+                    case R.id.nav_exit:
+                        requestFinish();
+
+                        return true;
+                }
+                return false;
+            }
+        });
+
     }
 
     private void updateMainLayout(BleDevice device) {
         if(device == null) {
             String appName = getResources().getString(R.string.app_name);
 
-            updateToolBar(appName, "无设备打开");
+            toolbarManager.setTitle(appName, "无设备打开");
+            toolbarManager.setBattery(-1);
 
-            updateDeviceBattery(-1);
 
             updateConnectFloatingActionButton(CONNECT_CLOSED);
 
-            // 更新主界面可视性
+            invalidateOptionsMenu();
+
             updateMainLayoutVisibility(false);
         } else {
-            updateToolBar(device.getNickName(), device.getMacAddress());
-
-            updateDeviceBattery(device.getBattery());
+            toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
+            toolbarManager.setBattery(device.getBattery());
 
             updateConnectFloatingActionButton(device.getConnectState());
+
+            invalidateOptionsMenu();
 
             updateMainLayoutVisibility(true);
         }
@@ -286,9 +319,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-
-            // 登记设备返回
-            case REQUESTCODE_REGISTER_DEVICE:
+            case RC_REGISTER_DEVICE:
 
                 if(resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
@@ -307,9 +338,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 }
                 break;
 
-
-            // 修改设备基本信息返回
-            case REQUESTCODE_MODIFY_DEVICE:
+            case RC_MODIFY_DEVICEINFO:
 
                 if ( resultCode == RESULT_OK) {
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
@@ -317,13 +346,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
                     if(device != null && basicInfo.saveToPref()) {
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
-                        device.setBasicInfo(basicInfo);
-                        if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
-                        fragmentManager.updateTabInfo(fragmentManager.findOpenedFragment(device), device.getImageDrawable(), device.getNickName());
-                        if(fragmentManager.findOpenedFragment(device) == fragmentManager.getCurrentFragment()) {
-                            updateToolBar(device.getNickName(), device.getMacAddress());
 
-                            updateDeviceBattery(device.getBattery());
+                        device.setBasicInfo(basicInfo);
+
+                        if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
+
+                        fragmentManager.updateTabInfo(fragmentManager.findOpenedFragment(device), device.getImageDrawable(), device.getNickName());
+
+                        if(fragmentManager.findOpenedFragment(device) == fragmentManager.getCurrentFragment()) {
+                            toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
+
+                            toolbarManager.setBattery(device.getBattery());
                         }
                     } else {
                         Toast.makeText(MainActivity.this, "设备信息修改失败", Toast.LENGTH_SHORT).show();
@@ -331,29 +364,36 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 }
                 break;
 
-            // 修改用户信息
-            case REQUESTCODE_MODIFY_USERINFO:
-
+            case RC_MODIFY_USERINFO:
                 if(resultCode == RESULT_OK) {
-                    updateNavigationViewUsingUserInfo();
-                }
-                break;
+                    updateNavigationView();
 
+                    toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortrait());
+                }
+
+                break;
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
+
         menuConfig = menu.findItem(R.id.toolbar_config);
+
         menuClose = menu.findItem(R.id.toolbar_close);
+
+        toolbarManager.setMenuItems(menuConfig, menuClose);
+
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        updateMainMenu();
+
+        toolbarManager.updateMenuItem(fragmentManager.size());
+
         return true;
     }
 
@@ -479,7 +519,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
 
         if(currentFrag != null && deviceFrag == currentFrag) {
-            updateDeviceBattery(device.getBattery());
+            toolbarManager.setBattery(device.getBattery());
         }
     }
 
@@ -557,15 +597,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         Intent intent = new Intent(this, DeviceBasicInfoActivity.class);
         intent.putExtra(DEVICE_BASICINFO, basicInfo);
 
-        startActivityForResult(intent, REQUESTCODE_MODIFY_DEVICE);
+        startActivityForResult(intent, RC_MODIFY_DEVICEINFO);
     }
 
     private void initMainLayout() {
-        /*// 设置欢迎词
-        String welcomeText = getResources().getBarString(R.string.welcome_text);
-        welcomeText = String.format(welcomeText, getResources().getBarString(R.string.app_name));
-        TextView tvWelcomeText = noDeviceOpenedLayout.findViewById(R.id.tv_welcometext);
-        tvWelcomeText.setText(welcomeText);*/
         TextView tvVersionName = noDeviceOpenedLayout.findViewById(R.id.tv_versionname);
         tvVersionName.setText(String.format("Ver%s", APKVersionCodeUtils.getVerName(this)));
 
@@ -588,7 +623,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             return;
         }
 
-        AccountManager.getInstance().signOut();
+        UserManager.getInstance().signOut();
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = pref.edit();
@@ -600,14 +635,23 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         requestFinish();
     }
 
-    // 更新导航视图
-    private void updateNavigationViewUsingUserInfo() {
-        User account = AccountManager.getInstance().getAccount();
-        if(account == null) return;
-        tvAccountName.setText(account.getUserName());
-        String imagePath = account.getPortraitFilePath();
-        if(!"".equals(imagePath))
-            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountPortrait);
+    private void updateNavigationView() {
+        User user = UserManager.getInstance().getUser();
+
+        if(user == null) {
+            throw new IllegalStateException();
+        }
+
+        if(user.getNickname() == null || "".equals(user.getNickname().trim())) {
+            tvUserName.setText("请设置");
+        } else {
+            tvUserName.setText(user.getNickname());
+        }
+
+        String imagePath = user.getPortrait();
+
+        if(imagePath != null && !"".equals(imagePath))
+            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivUserPortrait);
     }
 
     // 更新MainLayout的可视性
@@ -621,59 +665,31 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         }
     }
 
-    // 更新主菜单
-    private void updateMainMenu() {
-        if(fragmentManager.size() == 0) {
-            menuConfig.setVisible(false);
-            menuClose.setVisible(true);
-        } else {
-            menuConfig.setVisible(true);
-            menuClose.setVisible(false);
-        }
-    }
-
-    // 更新工具条
-    private void updateToolBar(String title, String subTitle) {
-        toolbar.setTitle(title);
-        toolbar.setSubtitle(subTitle);
-
-        // 更新工具条菜单
-        invalidateOptionsMenu();
-    }
-
-    private void updateDeviceBattery(int battery) {
-        if(battery < 0) {
-            tvDeviceBattery.setVisibility(View.GONE);
-        } else {
-            tvDeviceBattery.setVisibility(View.VISIBLE);
-
-            tvDeviceBattery.setText(String.valueOf(battery));
-
-            Drawable drawable = getResources().getDrawable(R.drawable.battery_list_drawable);
-
-            drawable.setLevel(battery % 4);
-
-            drawable.setBounds(0,0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-
-            tvDeviceBattery.setCompoundDrawables(drawable, null, null, null);
-        }
-    }
-
     // 更新浮动动作按钮
     private void updateConnectFloatingActionButton(BleDeviceConnectState deviceConnectState) {
         float degree = 360.0f;
+
         long duration = 3000;
+
         int count = ValueAnimator.INFINITE;
+
         if(deviceConnectState != CONNECT_PROCESS && deviceConnectState != CONNECT_SCAN) {
             degree = 0.0f;
+
             duration = 100;
+
             count = 0;
         }
         fabConnect.clearAnimation();
+
         fabConnect.setImageResource(deviceConnectState.getIcon());
+
         connectFabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, degree).setDuration(duration);
+
         connectFabAnimator.setRepeatCount(count);
+
         connectFabAnimator.setAutoCancel(true);
+
         connectFabAnimator.start();
     }
 

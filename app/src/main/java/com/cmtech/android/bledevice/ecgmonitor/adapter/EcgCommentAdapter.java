@@ -16,7 +16,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgCommentOperateListener
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
@@ -70,7 +70,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             @Override
             public void onClick(View view) {
                 User creator = commentList.get(holder.getAdapterPosition()).getCreator();
-                User account = AccountManager.getInstance().getAccount();
+                User account = UserManager.getInstance().getUser();
                 if(listener != null && creator.equals(account)) {
                     EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
                     comment.setContent(holder.etContent.getText().toString());
@@ -87,11 +87,11 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     public void onBindViewHolder(@NonNull final EcgCommentAdapter.ViewHolder holder, final int position) {
         EcgNormalComment appendix = commentList.get(position);
         User creator = appendix.getCreator();
-        User account = AccountManager.getInstance().getAccount();
+        User account = UserManager.getInstance().getUser();
         if(creator.equals(account)) {
             holder.tvCreatorName.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
-            holder.tvCreatorName.setText(Html.fromHtml("<u>" + appendix.getCreator().getUserName() + "</u>"));
+            holder.tvCreatorName.setText(Html.fromHtml("<u>" + appendix.getCreator().getNickname() + "</u>"));
         }
 
         holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getModifyTime()));

@@ -14,7 +14,7 @@ import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
@@ -102,7 +102,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
         User fileCreator = file.getCreator();
 
-        User account = AccountManager.getInstance().getAccount();
+        User account = UserManager.getInstance().getUser();
         if(fileCreator.equals(account)) {
             holder.tvCreator.setText(Html.fromHtml("<u>您</u>"));
         } else {

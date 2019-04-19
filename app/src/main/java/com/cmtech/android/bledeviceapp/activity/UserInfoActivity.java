@@ -23,7 +23,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
@@ -53,7 +53,7 @@ public class UserInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_userinfo);
 
-        if(!AccountManager.getInstance().isSignIn()) finish();
+        if(!UserManager.getInstance().isSignIn()) finish();
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_setuserinfo);
@@ -66,35 +66,35 @@ public class UserInfoActivity extends AppCompatActivity {
         btnOk = findViewById(R.id.btn_userinfo_ok);
         btnCancel = findViewById(R.id.btn_userinfo_cancel);
 
-        User account = AccountManager.getInstance().getAccount();
+        User account = UserManager.getInstance().getUser();
         String phoneNum = account.getPhone();
         tvPhone.setText(phoneNum.substring(0,3)+"****"+phoneNum.substring(7));
-        etName.setText(account.getUserName());
-        cachePortraitPath = account.getPortraitFilePath();
+        etName.setText(account.getNickname());
+        cachePortraitPath = account.getPortrait();
         if("".equals(cachePortraitPath)) {
             Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivPortrait);
         } else {
             Glide.with(MyApplication.getContext()).load(cachePortraitPath)
                     .skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivPortrait);
         }
-        etRemark.setText(account.getRemark());
+        etRemark.setText(account.getPersonalInfo());
 
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                User account = AccountManager.getInstance().getAccount();
-                account.setUserName(etName.getText().toString());
+                User account = UserManager.getInstance().getUser();
+                account.setNickname(etName.getText().toString());
 
-                if(!cachePortraitPath.equals(account.getPortraitFilePath())) {
+                if(!cachePortraitPath.equals(account.getPortrait())) {
                     // 把原来的图像文件删除
-                    if(!"".equals(account.getPortraitFilePath())) {
-                        File imageFile = new File(account.getPortraitFilePath());
+                    if(!"".equals(account.getPortrait())) {
+                        File imageFile = new File(account.getPortrait());
                         imageFile.delete();
                     }
 
                     // 把当前图像保存，以手机号为文件名
                     if("".equals(cachePortraitPath)) {
-                        account.setPortraitFilePath("");
+                        account.setPortrait("");
                     } else {
                         try {
                             ivPortrait.setDrawingCacheEnabled(true);
@@ -103,15 +103,15 @@ public class UserInfoActivity extends AppCompatActivity {
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivPortrait.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();
-                            account.setPortraitFilePath(filePath);
+                            account.setPortrait(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            account.setPortraitFilePath("");
+                            account.setPortrait("");
                         }
                     }
                 }
 
-                account.setRemark(etRemark.getText().toString());
+                account.setPersonalInfo(etRemark.getText().toString());
                 account.save();
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);

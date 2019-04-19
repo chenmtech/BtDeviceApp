@@ -32,7 +32,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.Ecg
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.BmeFileHead30;
@@ -272,7 +272,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         if(ecgFile == null)
             return new ArrayList<>();
         else {
-            User account = AccountManager.getInstance().getAccount();
+            User account = UserManager.getInstance().getUser();
             boolean found = false;
             for(EcgNormalComment appendix : ecgFile.getCommentList()) {
                 if(appendix.getCreator().equals(account)) {

@@ -109,7 +109,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
         stopWarnRingtone();
 
-        AccountManager.getInstance().signOut();
+        UserManager.getInstance().signOut();
 
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override

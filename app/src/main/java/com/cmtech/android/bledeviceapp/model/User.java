@@ -10,20 +10,31 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- *  User: 用户类
- *  Created by bme on 2018/10/27.
+  *
+  * ClassName:      User
+  * Description:    用户类
+  * Author:         chenm
+  * CreateDate:     2018/10/27 上午3:57
+  * UpdateUser:     chenm
+  * UpdateDate:     2019/4/20 上午3:57
+  * UpdateRemark:   更新说明
+  * Version:        1.0
  */
 
 public class User extends LitePalSupport implements Serializable, Cloneable{
-    private static final int PHONE_CHAR_LEN = 15; // 手机号字符数
-    private static final int NAME_CHAR_LEN = 10; // 人名字符数
-    private static final int REMARK_CHAR_LEN = 50; // 备注字符数
+    private static final int PHONE_CHAR_LEN = 15;
+    private static final int NICKNAME_CHAR_LEN = 10;
+    private static final int PERSONALINFO_CHAR_LEN = 50;
 
     private int id; // id
-    private String phone = ""; // 手机号
-    private String userName = "未设置"; // 网络名称
-    private String portraitFilePath = ""; // 头像文件路径
-    private String remark = ""; // 备注
+
+    private String phone = "";
+
+    private String nickname = "";
+
+    private String portrait = "";
+
+    private String personalInfo = "";
 
     public int getId() {
         return id;
@@ -41,62 +52,56 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
         this.phone = phone;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
-    public String getPortraitFilePath() {
-        return portraitFilePath;
+    public String getPortrait() {
+        return portrait;
     }
 
-    public void setPortraitFilePath(String portraitFilePath) {
-        this.portraitFilePath = portraitFilePath;
+    public void setPortrait(String portrait) {
+        this.portrait = portrait;
     }
 
-    public String getRemark() {
-        return remark;
+    public String getPersonalInfo() {
+        return personalInfo;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setPersonalInfo(String personalInfo) {
+        this.personalInfo = personalInfo;
     }
 
     public boolean readFromStream(DataInput in) throws IOException{
-        // 读手机号
         phone = DataIOUtil.readFixedString(in, PHONE_CHAR_LEN);
-        // 读人名
-        userName = DataIOUtil.readFixedString(in, NAME_CHAR_LEN);
-        // 读备注信息
-        remark = DataIOUtil.readFixedString(in, REMARK_CHAR_LEN);
+
+        nickname = DataIOUtil.readFixedString(in, NICKNAME_CHAR_LEN);
+
+        personalInfo = DataIOUtil.readFixedString(in, PERSONALINFO_CHAR_LEN);
 
         return true;
     }
 
     public boolean writeToStream(DataOutput out) throws IOException{
-        // 写手机号
         DataIOUtil.writeFixedString(out, phone, PHONE_CHAR_LEN);
-        // 写人名
-        DataIOUtil.writeFixedString(out, userName, NAME_CHAR_LEN);
-        // 写备注
-        DataIOUtil.writeFixedString(out, remark, REMARK_CHAR_LEN);
+
+        DataIOUtil.writeFixedString(out, nickname, NICKNAME_CHAR_LEN);
+
+        DataIOUtil.writeFixedString(out, personalInfo, PERSONALINFO_CHAR_LEN);
         return true;
     }
 
-    /**
-     * 获取用户对象占用的字符长度
-     * @return 字符长度
-     */
     public int length() {
-        return (PHONE_CHAR_LEN + NAME_CHAR_LEN + REMARK_CHAR_LEN)*2;
+        return (PHONE_CHAR_LEN + NICKNAME_CHAR_LEN + PERSONALINFO_CHAR_LEN)*2;
     }
 
     @Override
     public String toString() {
-        return "用户名：" + userName + ' ' + "备注：" + remark;
+        return "用户名：" + nickname + ' ' + "个人信息：" + personalInfo;
     }
 
     @Override
@@ -107,21 +112,28 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
     @Override
     public boolean equals(Object otherObject) {
         if(this == otherObject) return true;
+
         if(otherObject == null) return false;
+
         if(getClass() != otherObject.getClass()) return false;
 
         User other = (User) otherObject;
-        // 只要电话相同，就是同一个用户
-        return  (phone.equals(other.phone));
+
+        return  phone.equals(other.phone);
     }
 
     @Override
     public Object clone() throws CloneNotSupportedException {
         User account = (User) super.clone();
+
         account.phone = phone;
-        account.userName = userName;
-        account.portraitFilePath = portraitFilePath;
-        account.remark = remark;
+
+        account.nickname = nickname;
+
+        account.portrait = portrait;
+
+        account.personalInfo = personalInfo;
+
         return account;
     }
 

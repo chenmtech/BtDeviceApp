@@ -22,7 +22,7 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -193,12 +193,15 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         switch (requestCode) {
             case REQUESTCODE_ENABLEBLUETOOTH:
                 if (resultCode == RESULT_OK) {
                     enableBluetooth();
+
                 } else if (resultCode == RESULT_CANCELED) { // 不同意
                     Toast.makeText(this, "蓝牙不打开，程序无法运行", Toast.LENGTH_SHORT).show();
+
                     finish();
                 }
                 break;
@@ -239,7 +242,7 @@ public class LoginActivity extends AppCompatActivity {
 
     // 登录
     private void signIn(String phone, boolean isSave) {
-        AccountManager manager = AccountManager.getInstance();
+        UserManager manager = UserManager.getInstance();
         if(manager.signIn(phone) || manager.signUp(phone)) {
             //Toast.makeText(LoginActivity.this, "登录成功。", Toast.LENGTH_LONG).show();
             if(isSave)

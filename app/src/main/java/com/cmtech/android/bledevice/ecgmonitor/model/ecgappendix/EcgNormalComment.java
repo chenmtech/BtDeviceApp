@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
-import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
@@ -43,7 +43,7 @@ public class EcgNormalComment extends EcgAppendix{
      * @return 默认留言对象
      */
     public static EcgNormalComment createDefaultComment() {
-        User creator = AccountManager.getInstance().getAccount();
+        User creator = UserManager.getInstance().getUser();
         long modifyTime = new Date().getTime();
         return new EcgNormalComment(creator, modifyTime);
     }
@@ -117,7 +117,7 @@ public class EcgNormalComment extends EcgAppendix{
 
     @Override
     public String toString() {
-        return creator.getUserName() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + ' ' + content;
+        return creator.getNickname() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + ' ' + content;
     }
 
     @Override
