@@ -75,23 +75,23 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     private EcgFile selectFile; // 选中的EcgFile
 
-    private EcgFilesManager filesManager; // 文件列表管理器
+    private final EcgFilesManager filesManager; // 文件列表管理器
 
-    private OnEcgFileExploreListener listener; // 文件浏览监听器
+    private final OnEcgFileExploreListener listener; // 文件浏览监听器
 
     private final ExecutorService openFileService = Executors.newSingleThreadExecutor();
 
-    public EcgFileExplorerModel(File ecgFileDir, OnEcgFileExploreListener listener) throws IOException{
+    private EcgFileExplorerModel(File ecgFileDir, OnEcgFileExploreListener listener) throws IOException{
         if(ecgFileDir == null) {
-            throw new IOException();
+            throw new IOException("The ecg file dir can't be null");
         }
 
         if(!ecgFileDir.exists() && !ecgFileDir.mkdir()) {
-            throw new IOException();
+            throw new IOException("The ecg file dir doesn't exist.");
         }
 
         if(ecgFileDir.exists() && !ecgFileDir.isDirectory()) {
-            throw new IOException();
+            throw new IOException("The ecg file dir is invalid.");
         }
 
         this.ecgFileDir = ecgFileDir;
@@ -110,9 +110,15 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
             }
         });
 
-        filesManager = new EcgFilesManager(this);
+        filesManager = new EcgFilesManager();
 
         this.listener = listener;
+    }
+
+    public static EcgFileExplorerModel newInstance(File ecgFileDir, OnEcgFileExploreListener listener) throws IOException{
+        EcgFileExplorerModel model = new EcgFileExplorerModel(ecgFileDir, listener);
+        model.filesManager.setListener(model);
+        return model;
     }
 
     // 打开所有文件
@@ -226,32 +232,16 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
         openFileService.shutdownNow();
     }
 
+    @Override
+    public void onFileListChanged(final List<EcgFile> fileList) {
+        listener.onFileListChanged(fileList);
+    }
 
     @Override
     public void onSelectFileChanged(final EcgFile ecgFile) {
         selectFile = ecgFile;
 
-        if(listener != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onSelectFileChanged(ecgFile);
-                }
-            });
-        }
+        listener.onSelectFileChanged(ecgFile);
     }
-
-    @Override
-    public void onFileListChanged(final List<EcgFile> fileList) {
-        if(listener != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onFileListChanged(fileList);
-                }
-            });
-        }
-    }
-
 
 }

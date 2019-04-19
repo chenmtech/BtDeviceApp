@@ -108,7 +108,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         setSupportActionBar(toolbar);
 
         try {
-            model = new EcgFileExplorerModel(ECG_FILE_DIR, this);
+            model = EcgFileExplorerModel.newInstance(ECG_FILE_DIR, this);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "心电文件目录错误。", Toast.LENGTH_SHORT).show();
