@@ -571,16 +571,6 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         signalRecorder.addCommentContent(content);
     }
 
-    public void updateHrInfo() {
-        if(signalProcessor != null) signalProcessor.updateHrInfo();
-    }
-
-    // 重置心率信息
-    public void resetHrInfo() {
-        if(signalProcessor != null)
-            signalProcessor.resetHrRecorder();
-    }
-
     // 登记心电监护仪观察者
     public void setEcgMonitorListener(IEcgMonitorListener listener) {
         this.listener = listener;
@@ -682,13 +672,15 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     // 开始测量电池电量
     private void startMeasureBattery() {
         readBatteryService = Executors.newSingleThreadScheduledExecutor();
+
         readBatteryService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 gattOperator.read(BATTERY_DATA, new IBleDataOpCallback() {
                     @Override
                     public void onSuccess(byte[] data) {
-                        updateBattery(data[0]);
+                        int battery = data[0];
+                        updateBattery(battery);
                     }
 
                     @Override
@@ -790,7 +782,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         });
     }
 
-    private void updateBattery(final byte bat) {
+    private void updateBattery(final int bat) {
+        setBattery(bat);
+
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {

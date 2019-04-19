@@ -29,36 +29,59 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     private final static String TAG = "BleDevice";
 
     private BleDeviceBasicInfo basicInfo; // 设备基本信息对象
+
+    private int battery = -1;
+
     private BluetoothLeDevice bluetoothLeDevice = null; // 设备BluetoothLeDevice，当扫描到后会赋值，并一直保留，直到程序关闭
+
     private boolean closing = false; // 标记设备是否正在关闭，如果是，则对设备的所有回调都不会响应
+
     private final ScanCallback scanCallback; // 扫描回调适配器，将IScanCallback适配为BluetoothAdapter.LeScanCallback
+
     private final MyConnectCallback connectCallback = new MyConnectCallback(this); // 连接回调
+
     private final Handler workHandler; // 工作Handler，包括连接相关的处理和Gatt命令和数据的处理，都在Handler线程中执行
+
     private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED; // 设备连接状态，初始化为关闭状态
-    private final List<IBleDeviceStateObserver> stateObserverList = new LinkedList<>(); // 设备状态观察者列表
+
+    private final List<OnBleDeviceStateListener> deviceStateListeners = new LinkedList<>(); // 设备状态观察者列表
+
     protected final BleDeviceGattOperator gattOperator = new BleDeviceGattOperator(this); // Gatt命令执行器
+
+    public BleDevice(BleDeviceBasicInfo basicInfo) {
+        this.basicInfo = basicInfo;
+        workHandler = createWorkHandler("Device:" + basicInfo.getMacAddress());
+        scanCallback = new SingleFilterScanCallback(new MyScanCallback(this)).setDeviceMac(basicInfo.getMacAddress());
+    }
 
     public BleDeviceBasicInfo getBasicInfo() {
         return basicInfo;
     }
+
     public void setBasicInfo(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
     }
+
     public String getMacAddress() {
         return basicInfo.getMacAddress();
     }
+
     public String getNickName() {
         return basicInfo.getNickName();
     }
+
     public String getUuidString() {
         return basicInfo.getUuidString();
     }
+
     private boolean autoConnect() {
         return basicInfo.autoConnect();
     }
+
     public String getImagePath() {
         return basicInfo.getImagePath();
     }
+
     public Drawable getImageDrawable() {
         if(getImagePath().equals("")) {
             int imageId = SupportedDeviceType.getDeviceTypeFromUuid(getUuidString()).getDefaultImage();
@@ -67,42 +90,61 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
             return new BitmapDrawable(MyApplication.getContext().getResources(), getImagePath());
         }
     }
+
     public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
+
     public BluetoothLeDevice getBluetoothLeDevice() { return bluetoothLeDevice; }
+
     public void setBluetoothLeDevice(BluetoothLeDevice bluetoothLeDevice) { this.bluetoothLeDevice = bluetoothLeDevice; }
+
     public String getStateDescription() {
         return connectState.getDescription();
     } // 获取设备状态描述信息
+
     public int getStateIcon() {
         return connectState.getIcon();
     } // 获取设备状态图标
+
     public boolean isClosing() {
         return closing;
     } // 是否关闭中
+
     public boolean isClosed() {
         return connectState == BleDeviceConnectState.CONNECT_CLOSED;
-    } // 设备是否已关闭
+    }
+
     public boolean isConnected() {
         return connectState == BleDeviceConnectState.CONNECT_SUCCESS;
-    } // 设备是否已连接
+    }
+
     public BleDeviceConnectState getConnectState() {
         return connectState;
     }
+
     public void setConnectState(BleDeviceConnectState connectState) {
         if(this.connectState != connectState) {
             this.connectState = connectState;
-            notifyDeviceStateObservers();
+            updateDeviceConnectState();
         }
-    } // 设置设备连接状态，并通知状态观察者
+    }
 
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////
-    // 构造器
-    public BleDevice(BleDeviceBasicInfo basicInfo) {
-        this.basicInfo = basicInfo;
-        workHandler = createWorkHandler("Device:" + basicInfo.getMacAddress());
-        scanCallback = new SingleFilterScanCallback(new MyScanCallback(this)).setDeviceMac(basicInfo.getMacAddress());
+    public int getBattery() {
+        return battery;
+    }
+
+    public void setBattery(final int battery) {
+        this.battery = battery;
+
+        for(final OnBleDeviceStateListener listener : deviceStateListeners) {
+            if(listener != null) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onDeviceBatteryUpdated(BleDevice.this);
+                    }
+                });
+            }
+        }
     }
 
     // 打开设备
@@ -189,26 +231,26 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     }
 
     // 登记设备状态观察者
-    public final void registerDeviceStateObserver(IBleDeviceStateObserver observer) {
+    public final void registerDeviceStateObserver(OnBleDeviceStateListener observer) {
         ViseLog.e("register device observer:" + observer);
-        if(!stateObserverList.contains(observer)) {
-            stateObserverList.add(observer);
+        if(!deviceStateListeners.contains(observer)) {
+            deviceStateListeners.add(observer);
         }
     }
 
     // 删除设备状态观察者
-    public final void removeDeviceStateObserver(IBleDeviceStateObserver observer) {
-        stateObserverList.remove(observer);
+    public final void removeDeviceStateObserver(OnBleDeviceStateListener observer) {
+        deviceStateListeners.remove(observer);
     }
 
     // 通知设备状态观察者
-    public final void notifyDeviceStateObservers() {
-        for(final IBleDeviceStateObserver observer : stateObserverList) {
-            if(observer != null) {
+    public final void updateDeviceConnectState() {
+        for(final OnBleDeviceStateListener listener : deviceStateListeners) {
+            if(listener != null) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        observer.updateDeviceState(BleDevice.this);
+                        listener.onDeviceConnectStateUpdated(BleDevice.this);
                     }
                 });
             }
@@ -217,12 +259,12 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     // 通知设备状态观察者重连失败，是否报警
     public final void notifyReconnectFailureObservers(final boolean isWarn) {
-        for(final IBleDeviceStateObserver observer : stateObserverList) {
+        for(final OnBleDeviceStateListener observer : deviceStateListeners) {
             if(observer != null) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        observer.notifyReconnectFailure(BleDevice.this, isWarn);
+                        observer.onNotifyReconnectFailure(BleDevice.this, isWarn);
                     }
                 });
             }

@@ -126,7 +126,8 @@ public class EcgHrInfoObject {
     }
 
     public short getAverageHr() {
-        return (short) (sumHr/filteredHrList.size());
+        if(filteredHrList.isEmpty()) return 0;
+        else return (short) (sumHr/filteredHrList.size());
     }
 
 

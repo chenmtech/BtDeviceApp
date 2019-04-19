@@ -15,5 +15,5 @@ public interface IEcgMonitorListener {
     void onEcgHrChanged(int hr); // 更新心率值，单位bpm
     void onEcgHrInfoUpdated(EcgHrInfoObject hrInfoObject); // 更新心率信息
     void onNotifyHrAbnormal(); // 通知心率值异常
-    void onBatteryChanged(Byte bat);
+    void onBatteryChanged(int bat);
 }

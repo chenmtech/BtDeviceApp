@@ -105,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     private ObjectAnimator connectFabAnimator; // 连接动作按钮的动画
 
+    private TextView tvDeviceBattery;
+
     private ServiceConnection deviceServiceConnect = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -244,6 +246,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             }
         });
 
+        tvDeviceBattery = findViewById(R.id.tv_device_battery);
+
         // 初始化主界面
         initMainLayout();
 
@@ -257,7 +261,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     private void updateMainLayout(BleDevice device) {
         if(device == null) {
-            updateToolBar("无设备打开", "");
+            String appName = getResources().getString(R.string.app_name);
+
+            updateToolBar(appName, "无设备打开");
+
+            updateDeviceBattery(-1);
 
             updateConnectFloatingActionButton(CONNECT_CLOSED);
 
@@ -265,6 +273,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             updateMainLayoutVisibility(false);
         } else {
             updateToolBar(device.getNickName(), device.getMacAddress());
+
+            updateDeviceBattery(device.getBattery());
 
             updateConnectFloatingActionButton(device.getConnectState());
 
@@ -312,6 +322,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                         fragmentManager.updateTabInfo(fragmentManager.findOpenedFragment(device), device.getImageDrawable(), device.getNickName());
                         if(fragmentManager.findOpenedFragment(device) == fragmentManager.getCurrentFragment()) {
                             updateToolBar(device.getNickName(), device.getMacAddress());
+
+                            updateDeviceBattery(device.getBattery());
                         }
                     } else {
                         Toast.makeText(MainActivity.this, "设备信息修改失败", Toast.LENGTH_SHORT).show();
@@ -425,29 +437,26 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
 
-    ////////////////////////////////////////////////////////////
-    // IBleDeviceStateObserver接口函数
-    ////////////////////////////////////////////////////////////
 
     // 更新设备状态
     @Override
-    public void updateDeviceState(final BleDevice device) {
+    public void onDeviceConnectStateUpdated(final BleDevice device) {
         // 更新设备列表Adapter
         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
 
         // 更新设备的Fragment界面
         BleDeviceFragment deviceFrag = fragmentManager.findOpenedFragment(device);
-        if(deviceFrag != null) deviceFrag.updateState();  // 暂时没有处理
+        if(deviceFrag != null) deviceFrag.updateState();
 
-        // 更新Activity的ToolBar
         BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+
         if(currentFrag != null && deviceFrag == currentFrag) {
             updateConnectFloatingActionButton(device.getConnectState());
         }
     }
 
     @Override
-    public void notifyReconnectFailure(final BleDevice device, boolean warn) {
+    public void onNotifyReconnectFailure(final BleDevice device, boolean warn) {
         if(!warn) return;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -461,6 +470,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         });
         builder.setCancelable(false);
         builder.show();
+    }
+
+    @Override
+    public void onDeviceBatteryUpdated(final BleDevice device) {
+        BleDeviceFragment deviceFrag = fragmentManager.findOpenedFragment(device);
+
+        BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+
+        if(currentFrag != null && deviceFrag == currentFrag) {
+            updateDeviceBattery(device.getBattery());
+        }
     }
 
     @Override
@@ -619,6 +639,24 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 更新工具条菜单
         invalidateOptionsMenu();
+    }
+
+    private void updateDeviceBattery(int battery) {
+        if(battery < 0) {
+            tvDeviceBattery.setVisibility(View.GONE);
+        } else {
+            tvDeviceBattery.setVisibility(View.VISIBLE);
+
+            tvDeviceBattery.setText(String.valueOf(battery));
+
+            Drawable drawable = getResources().getDrawable(R.drawable.battery_list_drawable);
+
+            drawable.setLevel(battery % 4);
+
+            drawable.setBounds(0,0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+
+            tvDeviceBattery.setCompoundDrawables(drawable, null, null, null);
+        }
     }
 
     // 更新浮动动作按钮

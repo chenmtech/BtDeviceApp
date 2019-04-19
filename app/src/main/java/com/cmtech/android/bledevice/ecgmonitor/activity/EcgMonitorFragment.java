@@ -61,13 +61,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     private TextView tvBattery;
 
-    //private TextView tvAverageHr; // 平均心率
-
-    //private TextView tvMaxHr; // 最大心率
-
     private ScanWaveView ecgView; // 心电波形View
-
-    //private EcgHrLineChart hrLineChart;
 
     private AudioTrack hrWarnAudio; // 心率报警声音
 
@@ -112,8 +106,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
         tvBattery = view.findViewById(R.id.tv_ecg_battery);
 
-        //hrLineChart = view.findViewById(R.id.linechart_hr);
-
 
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
 
@@ -124,9 +116,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
         tvHeartRate.setText("");
 
         initialEcgView();
-
-        //tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
-        //tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
 
         ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
 
@@ -279,7 +268,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
     }
 
     @Override
-    public void onBatteryChanged(Byte bat) {
+    public void onBatteryChanged(int bat) {
         if(tvBattery.getVisibility() == View.GONE) {
             tvBattery.setVisibility(View.VISIBLE);
         }

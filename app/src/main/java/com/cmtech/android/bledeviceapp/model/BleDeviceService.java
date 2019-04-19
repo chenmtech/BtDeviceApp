@@ -14,6 +14,7 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
+import com.cmtech.android.bledevice.core.OnBleDeviceStateListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledevice.core.BleDevice;
@@ -21,7 +22,6 @@ import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledevice.core.BleDeviceConnectState;
 import com.cmtech.android.bledevice.core.BleDeviceManager;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
-import com.cmtech.android.bledevice.core.IBleDeviceStateObserver;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ import java.util.TimerTask;
  *  Created by bme on 2018/12/09.
  */
 
-public class BleDeviceService extends Service implements IBleDeviceStateObserver {
+public class BleDeviceService extends Service implements OnBleDeviceStateListener {
     private final static String TAG = "BleDeviceService";
 
     private final int WARN_TIME_INTERVAL = 5000;
@@ -128,7 +128,7 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     }
 
     @Override
-    public void updateDeviceState(final BleDevice device) {
+    public void onDeviceConnectStateUpdated(final BleDevice device) {
         List<String> info = new ArrayList<>();
         for(BleDevice dev : deviceManager.getDeviceList()) {
             if(dev.getConnectState() != BleDeviceConnectState.CONNECT_CLOSED) {
@@ -146,12 +146,17 @@ public class BleDeviceService extends Service implements IBleDeviceStateObserver
     }
 
     @Override
-    public void notifyReconnectFailure(BleDevice device, boolean warn) {
+    public void onNotifyReconnectFailure(BleDevice device, boolean warn) {
         if(warn) {
             playWarnRingtone();
         } else {
             stopWarnRingtone();
         }
+    }
+
+    @Override
+    public void onDeviceBatteryUpdated(BleDevice device) {
+
     }
 
     // 创建并添加一个设备

@@ -22,7 +22,19 @@
             android:theme="@style/ThemeOverlay.AppCompat.Light"
             toolbar:navigationIcon="@mipmap/ic_menu"
             app:titleTextAppearance="@style/MainToolbarTextAppearance"
-            app:subtitleTextAppearance="@style/MainToolbarSubTextAppearance"/>
+            app:subtitleTextAppearance="@style/MainToolbarSubTextAppearance">
+
+            <TextView
+                android:id="@+id/tv_device_battery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:layout_margin="2dp"
+                android:drawableStart="@mipmap/ic_battery_0_24px"
+                android:text="电量"
+                app:titleTextAppearance="@style/MainToolbarTextAppearance"/>
+
+        </android.support.v7.widget.Toolbar>
 
         <FrameLayout
             android:layout_width="match_parent"
