@@ -3,36 +3,47 @@ package com.cmtech.android.bledevice.core;
 import com.cmtech.android.bledeviceapp.R;
 
 /**
- * BleDeviceConnectState: BleDevice连接状态类型，在BLE包基础上增加了扫描和关闭两个状态
- * Created by bme on 2018/4/21.
+  *
+  * ClassName:      BleDeviceConnectState
+  * Description:    BleDevice连接状态类型，在BLE包基础上增加了扫描和关闭两个状态
+  * Author:         chenm
+  * CreateDate:     2018/4/21 下午4:47
+  * UpdateUser:     chenm
+  * UpdateDate:     2019/4/19 下午4:47
+  * UpdateRemark:   更新说明
+  * Version:        1.0
  */
-
 public enum BleDeviceConnectState {
-    CONNECT_INIT(-1, "连接初始化", R.mipmap.ic_connect_disconnect),
-    CONNECT_PROCESS(0x00, "正在连接", R.mipmap.ic_connect_5),
-    CONNECT_SUCCESS(0x01, "已连接", R.mipmap.ic_connect_connected),
-    CONNECT_FAILURE(0x02, "连接错误", R.mipmap.ic_connect_disconnect),
-    CONNECT_TIMEOUT(0x03, "连接超时", R.mipmap.ic_connect_disconnect),
-    CONNECT_DISCONNECT(0x04, "连接断开", R.mipmap.ic_connect_disconnect),
+    CONNECT_INIT(-1, "连接初始化", R.mipmap.ic_disconnect_32px),
 
-    CONNECT_SCAN(0x05, "正在扫描", R.mipmap.ic_connect_4),
-    CONNECT_CLOSED(0x06, "设备关闭", R.mipmap.ic_connect_disconnect);
+    CONNECT_PROCESS(0x00, "正在连接", R.mipmap.ic_connecting_32px),
 
-    /**
-     *
-     * @param code
-     * @param description
-     * @param icon：该状态下在Toobar上显示的图标或动画
-     */
+    CONNECT_SUCCESS(0x01, "已连接", R.mipmap.ic_connected_32px),
+
+    CONNECT_FAILURE(0x02, "连接错误", R.mipmap.ic_disconnect_32px),
+
+    CONNECT_TIMEOUT(0x03, "连接超时", R.mipmap.ic_disconnect_32px),
+
+    CONNECT_DISCONNECT(0x04, "连接断开", R.mipmap.ic_disconnect_32px),
+
+    CONNECT_SCAN(0x05, "正在扫描", R.mipmap.ic_scanning),
+
+    CONNECT_CLOSED(0x06, "设备关闭", R.mipmap.ic_disconnect_32px);
+
+    private int code;
+
+    private String description;
+
+    private int icon;
+
     BleDeviceConnectState(int code, String description, int icon) {
         this.code = code;
+
         this.description = description;
+
         this.icon = icon;
     }
 
-    private int code;
-    private String description;
-    private int icon;
 
     public int getCode() {
         return code;
