@@ -33,4 +33,13 @@ public class BleDeviceFragmentManager extends MyFragmentManager {
     public boolean isDeviceFragmentOpened(BleDevice device) {
         return (findOpenedFragment(device) != null);
     }
+
+    // 设备的Fragment是否被选中
+    public boolean isDeviceFragmentSelected(BleDevice device) {
+        Fragment fragment = findOpenedFragment(device);
+
+        if(fragment == null) return false;
+
+        return (fragment == getCurrentFragment());
+    }
 }

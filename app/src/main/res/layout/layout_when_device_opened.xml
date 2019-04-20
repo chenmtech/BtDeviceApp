@@ -2,13 +2,13 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/devices_main_layout"
+    android:id="@+id/layout_when_device_opened"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:visibility="invisible">
 
     <android.support.design.widget.TabLayout
-        android:id="@+id/main_tab_layout"
+        android:id="@+id/tablayout_device"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:tabGravity="fill"
@@ -22,17 +22,17 @@
         android:background="@color/primary"/>
 
     <FrameLayout
-        android:id="@+id/main_fragment_layout"
+        android:id="@+id/layout_main_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/main_tab_layout">
+        android:layout_below="@id/tablayout_device">
     </FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_exit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/main_tab_layout"
+        android:layout_below="@id/tablayout_device"
         android:layout_alignParentEnd="true"
         android:layout_margin="5dp"
         android:src="@mipmap/ic_close_32px"
@@ -46,7 +46,7 @@
         android:id="@+id/fab_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/main_tab_layout"
+        android:layout_below="@id/tablayout_device"
         android:layout_alignParentStart="true"
         android:layout_margin="5dp"
         android:src="@mipmap/ic_disconnect_32px"

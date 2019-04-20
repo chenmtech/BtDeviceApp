@@ -7,9 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -54,7 +51,6 @@ import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.vise.log.ViseLog;
-import com.vise.utils.view.BitmapUtil;
 
 import java.io.Serializable;
 import java.util.List;
@@ -206,11 +202,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         drawerLayout = findViewById(R.id.drawer_layout);
         noDeviceOpenedLayout = findViewById(R.id.layout_nodeivce_opened);
-        deviceOpenedLayout = findViewById(R.id.devices_main_layout);
+        deviceOpenedLayout = findViewById(R.id.layout_when_device_opened);
 
         // 创建Fragment管理器
-        TabLayout tabLayout = findViewById(R.id.main_tab_layout);
-        fragmentManager = new BleDeviceFragmentManager(getSupportFragmentManager(), tabLayout, R.id.main_fragment_layout);
+        TabLayout tabLayout = findViewById(R.id.tablayout_device);
+
+        fragmentManager = new BleDeviceFragmentManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
+
         fragmentManager.setOnFragmentChangedListener(new MyFragmentManager.OnFragmentChangedListener() {
             @Override
             public void onFragmentchanged() {
@@ -353,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
                         fragmentManager.updateTabInfo(fragmentManager.findOpenedFragment(device), device.getImageDrawable(), device.getNickName());
 
-                        if(fragmentManager.findOpenedFragment(device) == fragmentManager.getCurrentFragment()) {
+                        if(fragmentManager.isDeviceFragmentSelected(device)) {
                             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
 
                             toolbarManager.setBattery(device.getBattery());
@@ -392,7 +390,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        toolbarManager.updateMenuItem(fragmentManager.size());
+        if(fragmentManager.size() == 0) {
+            toolbarManager.updateMenuItem(false, true);
+        } else {
+            toolbarManager.updateMenuItem(true, false);
+        }
 
         return true;
     }
@@ -486,11 +488,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 更新设备的Fragment界面
         BleDeviceFragment deviceFrag = fragmentManager.findOpenedFragment(device);
+
         if(deviceFrag != null) deviceFrag.updateState();
 
-        BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
-
-        if(currentFrag != null && deviceFrag == currentFrag) {
+        if(fragmentManager.isDeviceFragmentSelected(device)) {
             updateConnectFloatingActionButton(device.getConnectState());
         }
     }
@@ -514,11 +515,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     @Override
     public void onDeviceBatteryUpdated(final BleDevice device) {
-        BleDeviceFragment deviceFrag = fragmentManager.findOpenedFragment(device);
-
-        BleDeviceFragment currentFrag = (BleDeviceFragment) fragmentManager.getCurrentFragment();
-
-        if(currentFrag != null && deviceFrag == currentFrag) {
+        if(fragmentManager.isDeviceFragmentSelected(device)) {
             toolbarManager.setBattery(device.getBattery());
         }
     }
@@ -602,6 +599,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     private void initMainLayout() {
         TextView tvVersionName = noDeviceOpenedLayout.findViewById(R.id.tv_versionname);
+
         tvVersionName.setText(String.format("Ver%s", APKVersionCodeUtils.getVerName(this)));
 
         updateMainLayout(null);

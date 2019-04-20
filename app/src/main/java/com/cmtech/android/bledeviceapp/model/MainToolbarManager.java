@@ -69,8 +69,8 @@ public class MainToolbarManager {
         }
 
         if((flag & MENU_FLAG) != 0) {
-            int fragSize = (int) objects[i];
-            updateMenuItem(fragSize);
+            boolean[] showMenu = (boolean[]) objects[i];
+            updateMenuItem(showMenu[0], showMenu[1]);
         }
     }
 
@@ -111,17 +111,11 @@ public class MainToolbarManager {
         toolbar.setNavigationIcon(drawable);
     }
 
-    public void updateMenuItem(int fragmentSize) {
+    public void updateMenuItem(boolean showMenuConfig, boolean showMenuClose) {
         if(menuConfig == null || menuClose == null) return;
 
-        if(fragmentSize == 0) {
-            menuConfig.setVisible(false);
+        menuConfig.setVisible(showMenuConfig);
 
-            menuClose.setVisible(true);
-        } else {
-            menuConfig.setVisible(true);
-
-            menuClose.setVisible(false);
-        }
+        menuClose.setVisible(showMenuClose);
     }
 }
