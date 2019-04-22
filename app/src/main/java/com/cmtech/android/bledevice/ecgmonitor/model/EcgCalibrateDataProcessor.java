@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import com.vise.log.ViseLog;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +36,7 @@ public class EcgCalibrateDataProcessor {
         }
         else {
             int value = calculateCalibration(calibrationData); // 计算得到实际定标值
+            ViseLog.e(calibrationData.toString() + " " + String.valueOf(value));
             if(listener != null) listener.onUpdateCalibrateValue(value);
             calibrationData.clear();
         }

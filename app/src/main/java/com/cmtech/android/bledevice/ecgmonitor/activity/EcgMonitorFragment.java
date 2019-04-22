@@ -69,9 +69,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements IEcgMonitor
 
     private EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment();
 
-    private List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(samplingSignalFragment, hrStatisticsFragment));
+    private List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(hrStatisticsFragment, samplingSignalFragment));
 
-    private List<String> titleList = new ArrayList<>(Arrays.asList("信号采集", "心率分析"));
+    private List<String> titleList = new ArrayList<>(Arrays.asList("心率分析", "信号采集"));
 
     private EcgMonitorDevice device; // 设备
 

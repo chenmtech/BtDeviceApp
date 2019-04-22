@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -27,7 +28,7 @@ import com.cmtech.android.bledeviceapp.model.UserManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
+
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 

@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
 import android.graphics.Paint;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextPaint;
 import android.view.LayoutInflater;
@@ -17,7 +18,6 @@ import com.cmtech.android.bledevice.core.UuidUtil;
 
 import java.util.List;
 
-import androidx.annotation.NonNull;
 
 /**
  * ScanDeviceAdapter : 扫描设备Adapter
