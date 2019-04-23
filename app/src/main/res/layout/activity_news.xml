@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:toolbar="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -17,11 +16,30 @@
         toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
-    <WebView
-        android:id="@+id/wv_news"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    </WebView>
+        <WebView
+            android:id="@+id/wv_news"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </WebView>
+
+        <ProgressBar
+            android:id="@+id/pb_news_loading"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="50dp"
+            android:max="100"
+            android:progress="0"
+            android:visibility="visible"/>
+
+    </FrameLayout>
+
 
 </LinearLayout>

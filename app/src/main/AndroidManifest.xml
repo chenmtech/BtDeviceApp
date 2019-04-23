@@ -62,7 +62,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.ScanDeviceActivity"
+            android:name=".activity.SearchDeviceActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait" />
 

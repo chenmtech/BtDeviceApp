@@ -13,7 +13,7 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity;
+import com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity;
 import com.cmtech.android.bledevice.core.UuidUtil;
 
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.List;
 public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.ViewHolder> {
     private final List<BluetoothLeDevice> deviceList; // 扫描到的设备列表
     private final List<String> registedMacList; // 已登记设备Mac List
-    private final ScanDeviceActivity activity; // 扫描设备的Activiy
+    private final SearchDeviceActivity activity; // 扫描设备的Activiy
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView; // 设备视图
@@ -46,7 +46,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         }
     }
 
-    public ScanDeviceAdapter(List<BluetoothLeDevice> deviceList, List<String> registedMacList, ScanDeviceActivity activity) {
+    public ScanDeviceAdapter(List<BluetoothLeDevice> deviceList, List<String> registedMacList, SearchDeviceActivity activity) {
         this.deviceList = deviceList;
         this.registedMacList = registedMacList;
         this.activity = activity;

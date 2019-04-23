@@ -36,13 +36,21 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.SCAN_DEVICE_NA
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 
 /**
- *  ScanDeviceActivity: 扫描设备界面
- *  Created by bme on 2018/2/28.
+  *
+  * ClassName:      SearchDeviceActivity
+  * Description:    搜索设备Activiy
+  * Author:         chenm
+  * CreateDate:     2018/2/28 18:07
+  * UpdateUser:     chenm
+  * UpdateDate:     2019-04-23 18:07
+  * UpdateRemark:   更新说明
+  * Version:        1.0
  */
 
-public class ScanDeviceActivity extends AppCompatActivity {
-    private static final String TAG = "ScanDeviceActivity";
-    public static final String REGISTED_DEVICE_MAC_LIST = "registered_device_mac_list";
+public class SearchDeviceActivity extends AppCompatActivity {
+    private static final String TAG = "SearchDeviceActivity";
+
+    public static final String REGISTED_DEVICE_MAC_LIST = "register_device_mac_list";
 
     // 扫描设备回调类
     private class ScanDeviceCallback implements IScanCallback {
@@ -53,12 +61,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         @Override
         public void onDeviceFound(final BluetoothLeDevice bluetoothLeDevice) {
             if(bluetoothLeDevice != null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        addDevice(bluetoothLeDevice);
-                    }
-                });
+                addDeviceToList(bluetoothLeDevice);
             }
         }
 
@@ -68,7 +71,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     srlScanDevice.setRefreshing(false);
-                    Toast.makeText(ScanDeviceActivity.this, "搜索结束。", Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(SearchDeviceActivity.this, "搜索结束。", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -76,7 +80,8 @@ public class ScanDeviceActivity extends AppCompatActivity {
         @Override
         public void onScanTimeout() {
             srlScanDevice.setRefreshing(false);
-            Toast.makeText(ScanDeviceActivity.this, "请将设备靠近您的手机。", Toast.LENGTH_SHORT).show();
+
+            Toast.makeText(SearchDeviceActivity.this, "搜索结束，未找到设备。", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -86,13 +91,15 @@ public class ScanDeviceActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
                 switch (device.getBondState()) {
                     // 设备已绑定
                     case BluetoothDevice.BOND_BONDED:
                         // 登记设备
-                        for (BluetoothLeDevice leDevice : deviceList) {
-                            if(leDevice.getAddress().equalsIgnoreCase(device.getAddress())) {
-                                registerBondedDevice(leDevice);
+                        for (BluetoothLeDevice ele : deviceList) {
+                            if(ele.getAddress().equalsIgnoreCase(device.getAddress())) {
+                                startConfigBondedDevice(ele);
+
                                 break;
                             }
                         }
@@ -109,12 +116,18 @@ public class ScanDeviceActivity extends AppCompatActivity {
     }
 
     private final ScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(SCAN_DEVICE_NAME); // 扫描回调
-    private SwipeRefreshLayout srlScanDevice; // 用于显示扫描到的设备
+
+    private SwipeRefreshLayout srlScanDevice;
+
     private ScanDeviceAdapter scanDeviceAdapter;
+
     private RecyclerView rvScanDevice;
-    private List<BluetoothLeDevice> deviceList = new ArrayList<>();    // 扫描到的设备列表
-    private List<String> registedMacList = new ArrayList<>(); // 已登记的设备Mac地址列表
-    private BleDeviceBondReceiver bondReceiver; // 绑定接收器
+
+    private List<BluetoothLeDevice> deviceList = new ArrayList<>();
+
+    private List<String> registedDeviceMacList = new ArrayList<>();
+
+    private BleDeviceBondReceiver bondReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,7 +143,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         if(intent != null) {
-            registedMacList = (List<String>) intent.getSerializableExtra(REGISTED_DEVICE_MAC_LIST);
+            registedDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTED_DEVICE_MAC_LIST);
         }
 
         rvScanDevice = findViewById(R.id.rv_scandevice);
@@ -139,7 +152,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
         rvScanDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-        scanDeviceAdapter = new ScanDeviceAdapter(deviceList, registedMacList, this);
+        scanDeviceAdapter = new ScanDeviceAdapter(deviceList, registedDeviceMacList, this);
 
         rvScanDevice.setAdapter(scanDeviceAdapter);
 
@@ -155,11 +168,15 @@ public class ScanDeviceActivity extends AppCompatActivity {
         });
 
         IntentFilter bondIntent = new IntentFilter();
+
         bondIntent.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+
         bondReceiver = new BleDeviceBondReceiver();
+
         registerReceiver(bondReceiver, bondIntent);
 
         startScan();
+
         srlScanDevice.setRefreshing(true);
     }
 
@@ -174,12 +191,16 @@ public class ScanDeviceActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 setResult(RESULT_CANCELED, null);
+
                 finish();
+
                 break;
 
             case R.id.scan_device:
                 startScan();
+
                 srlScanDevice.setRefreshing(true);
+
                 break;
         }
         return true;
@@ -191,6 +212,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
             case 1: // 设备登记返回码
                 if (resultCode == RESULT_OK) {
                     setResult(RESULT_OK, data);
+
                     finish();
                 }
                 break;
@@ -211,68 +233,88 @@ public class ScanDeviceActivity extends AppCompatActivity {
         BleDeviceUtil.stopScan(scanCallback);
     }
 
-    // 开始扫描
-    private void startScan() {
-        if(!scanCallback.isScanning()) {
-            deviceList.clear();
-            scanDeviceAdapter.notifyDataSetChanged();
-            BleDeviceUtil.startScan(scanCallback);
-        }
-    }
 
-    // 添加一个设备到发现的设备列表中
-    private void addDevice(final BluetoothLeDevice device) {
-        if(device == null) return;
-
-        boolean isNewDevice = true;
-        for(BluetoothLeDevice dv : deviceList) {
-            if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
-                isNewDevice = false;
-                break;
-            }
-        }
-        if(isNewDevice) {
-            deviceList.add(device);
-            scanDeviceAdapter.notifyItemInserted(deviceList.size()-1);
-            scanDeviceAdapter.notifyDataSetChanged();
-            rvScanDevice.scrollToPosition(deviceList.size()-1);
-        }
-    }
-
-    // 登记一个设备
     public void registerDevice(final BluetoothLeDevice device) {
         // 先停止扫描
         if(scanCallback.isScanning()) {
             BleDeviceUtil.stopScan(scanCallback);
+
             srlScanDevice.setRefreshing(false);
         }
 
         if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
             device.getDevice().createBond();
         } else {
-            registerBondedDevice(device);
+            startConfigBondedDevice(device);
         }
     }
 
-    // 登记已经绑定的设备
-    private void registerBondedDevice(final BluetoothLeDevice device) {
+
+    // 开始扫描
+    private void startScan() {
+        if(!scanCallback.isScanning()) {
+            deviceList.clear();
+
+            scanDeviceAdapter.notifyDataSetChanged();
+
+            BleDeviceUtil.startScan(scanCallback);
+        }
+    }
+
+    private void addDeviceToList(final BluetoothLeDevice device) {
+        if(device == null) return;
+
+        boolean isNewDevice = true;
+
+        for(BluetoothLeDevice dv : deviceList) {
+            if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
+                isNewDevice = false;
+
+                break;
+            }
+        }
+
+        if(isNewDevice) {
+            deviceList.add(device);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    scanDeviceAdapter.notifyDataSetChanged();
+
+                    rvScanDevice.scrollToPosition(deviceList.size()-1);
+                }
+            });
+
+        }
+    }
+
+    private void startConfigBondedDevice(final BluetoothLeDevice device) {
         if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
             throw new IllegalStateException("设备未绑定");
         }
 
         String macAddress = device.getAddress();
+
         // 获取设备广播数据中的UUID的短串
         AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
+
         if(record == null) {
             throw new IllegalStateException("设备未绑定");
         }
+
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
 
-        Intent intent = new Intent(ScanDeviceActivity.this, DeviceBasicInfoActivity.class);
+        Intent intent = new Intent(SearchDeviceActivity.this, DeviceBasicInfoActivity.class);
+
         BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo();
+
         basicInfo.setMacAddress(macAddress);
+
         basicInfo.setUuidString(uuidShortString);
+
         intent.putExtra(DEVICE_BASICINFO, basicInfo);
+
         startActivityForResult(intent, 1);
     }
 

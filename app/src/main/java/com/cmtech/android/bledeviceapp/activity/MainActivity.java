@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -60,7 +59,7 @@ import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_CL
 import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_PROCESS;
 import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_SCAN;
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
-import static com.cmtech.android.bledeviceapp.activity.ScanDeviceActivity.REGISTED_DEVICE_MAC_LIST;
+import static com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity.REGISTED_DEVICE_MAC_LIST;
 
 /**
  *  MainActivity: 主界面
@@ -261,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     case R.id.nav_search_device:
                         List<String> deviceMacList = deviceService.getDeviceMacList();
 
-                        Intent scanIntent = new Intent(MainActivity.this, ScanDeviceActivity.class);
+                        Intent scanIntent = new Intent(MainActivity.this, SearchDeviceActivity.class);
 
                         scanIntent.putExtra(REGISTED_DEVICE_MAC_LIST, (Serializable) deviceMacList);
 
