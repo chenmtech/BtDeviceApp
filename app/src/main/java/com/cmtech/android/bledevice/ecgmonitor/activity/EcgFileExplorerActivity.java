@@ -98,6 +98,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
 
     private LinearLayout hrLayout;
 
+    private TextView tvNoRecord;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,6 +183,8 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         tvAverageHr = findViewById(R.id.tv_average_hr_value);
 
         tvMaxHr = findViewById(R.id.tv_max_hr_value);
+
+        tvNoRecord = findViewById(R.id.tv_no_record);
 
         model.openAllFiles();
     }
@@ -336,6 +340,14 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
 
     @Override
     public void onFileListChanged(List<EcgFile> fileList) {
+        if(fileList == null || fileList.isEmpty()) {
+            rvFiles.setVisibility(View.INVISIBLE);
+            tvNoRecord.setVisibility(View.VISIBLE);
+        }else {
+            rvFiles.setVisibility(View.VISIBLE);
+            tvNoRecord.setVisibility(View.INVISIBLE);
+        }
+
         fileAdapter.updateFileList(fileList);
     }
 

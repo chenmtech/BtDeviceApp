@@ -22,19 +22,18 @@ import com.cmtech.android.ble.callback.scan.ScanCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.core.UuidUtil;
-import com.vise.log.ViseLog;
+import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
-import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.SCAN_DEVICE_NAME;
+import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 
 /**
  *  ScanDeviceActivity: 扫描设备界面
@@ -124,23 +123,30 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_device_register);
+
         setSupportActionBar(toolbar);
 
         // 获取已登记过的设备Mac列表
         Intent intent = getIntent();
+
         if(intent != null) {
             registedMacList = (List<String>) intent.getSerializableExtra(REGISTED_DEVICE_MAC_LIST);
         }
 
         rvScanDevice = findViewById(R.id.rv_scandevice);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        rvScanDevice.setLayoutManager(layoutManager);
+
+        rvScanDevice.setLayoutManager(new LinearLayoutManager(this));
+
         rvScanDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
         scanDeviceAdapter = new ScanDeviceAdapter(deviceList, registedMacList, this);
+
         rvScanDevice.setAdapter(scanDeviceAdapter);
 
         srlScanDevice = findViewById(R.id.srl_scandevice);
-        srlScanDevice.setProgressViewOffset(true, 0, 50);
+
+        srlScanDevice.setProgressViewOffset(true, 250, 350);
+
         srlScanDevice.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {

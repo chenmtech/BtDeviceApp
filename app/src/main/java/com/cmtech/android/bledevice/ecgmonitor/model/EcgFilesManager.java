@@ -6,7 +6,6 @@ import android.os.Looper;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
@@ -17,11 +16,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
-import cn.sharesdk.framework.Platform;
-import cn.sharesdk.framework.PlatformActionListener;
-import cn.sharesdk.framework.ShareSDK;
-
-import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
 
 /**
@@ -83,7 +77,9 @@ class EcgFilesManager {
 
     // 选中一个文件
     synchronized void select(EcgFile file) {
-        if(fileList.contains(file)) {
+        if(file == null) {
+            notifySelectFileChanged(null);
+        } else if(fileList.contains(file)) {
             notifySelectFileChanged(file);
         }
     }
@@ -104,7 +100,11 @@ class EcgFilesManager {
                 }
 
                 index = (index > fileList.size() - 1) ? fileList.size() - 1 : index;
-                select(fileList.get(index));
+                if(index < 0) {
+                    select(null);
+                } else {
+                    select(fileList.get(index));
+                }
             }
 
         } catch (IOException e) {
