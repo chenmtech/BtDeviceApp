@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -257,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.nav_register_device:
+                    case R.id.nav_search_device:
                         List<String> deviceMacList = deviceService.getDeviceMacList();
 
                         Intent scanIntent = new Intent(MainActivity.this, ScanDeviceActivity.class);
@@ -267,14 +268,16 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                         startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
 
                         return true;
-                    case R.id.nav_explore_record:
+                    case R.id.nav_query_record:
                         Intent recordIntent = new Intent(MainActivity.this, EcgFileExplorerActivity.class);
 
                         startActivity(recordIntent);
 
                         return true;
-                    case R.id.nav_change_user:
-                        changeUser();
+                    case R.id.nav_open_news:
+                        Intent newsIntent = new Intent(MainActivity.this, NewsActivity.class);
+
+                        startActivity(newsIntent);
 
                         return true;
                     case R.id.nav_exit:
@@ -367,6 +370,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     updateNavigationView();
 
                     toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortrait());
+                } else {
+                    boolean logout = data.getBooleanExtra("logout", false);
+
+                    if(logout) {
+                        logoutUser();
+                    }
                 }
 
                 break;
@@ -375,7 +384,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.mainactivity_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_main_activity, menu);
 
         menuConfig = menu.findItem(R.id.toolbar_config);
 
@@ -614,8 +623,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         }
     }
 
-    // 切换用户
-    private void changeUser() {
+    private void logoutUser() {
         if(deviceService.hasDeviceOpened()) {
             Toast.makeText(this, "请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
@@ -625,11 +633,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = pref.edit();
+
         editor.putString("phone", "");
-        editor.putLong("logintime", -1);
+
+        editor.putLong("login_time", -1);
+
         editor.commit();
+
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+
         startActivity(intent);
+
         requestFinish();
     }
 

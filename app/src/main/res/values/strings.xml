@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">康明智联</string>
 
@@ -8,6 +9,12 @@
     <string name="ecgfile_createinfo">创建于%1$s [%2$s]</string>
 
     <string name="lastecgcomment">%1$s %2$s说“%3$s”</string>
+
+    <string name="search_device">搜索设备</string>
+
+    <string name="query_record">查阅记录</string>
+
+    <string name="open_news">康明新闻</string>
 
     <drawable name="clr_normal">@color/accent</drawable>
 

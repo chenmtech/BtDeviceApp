@@ -192,7 +192,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.ecgexplorer_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_explore_record, menu);
         return true;
     }
 

@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/primary"
-        toolbar:title="修改账户信息"
+        toolbar:title="修改用户信息"
         toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
@@ -40,12 +40,19 @@
                 android:text="手机号："/>
             <TextView
                 android:id="@+id/et_userinfo_phone"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_gravity="center_vertical"
                 android:text="未知"
                 android:textSize="18sp"/>
+            <Button
+                android:id="@+id/btn_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@color/accent"
+                android:text="退出登录"
+                android:layout_marginStart="10dp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -54,7 +61,7 @@
             android:layout_height="0dp"
             android:layout_weight="1">
             <TextView
-                android:labelFor="@id/et_userinfo_username"
+                android:labelFor="@id/et_userinfo_nickname"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -63,7 +70,7 @@
                 android:text="昵称："/>
 
             <EditText
-                android:id="@+id/et_userinfo_username"
+                android:id="@+id/et_userinfo_nickname"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -121,7 +128,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="*请注意保护您的个人身份敏感信息。"
+            android:text="*请注意保护您的私人敏感信息。"
             android:textColor="@color/red"/>
 
     </LinearLayout>

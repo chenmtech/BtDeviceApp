@@ -119,7 +119,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scan_device);
+        setContentView(R.layout.activity_search_device);
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_device_register);
@@ -165,7 +165,7 @@ public class ScanDeviceActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.scandevice_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_search_device, menu);
         return true;
     }
 

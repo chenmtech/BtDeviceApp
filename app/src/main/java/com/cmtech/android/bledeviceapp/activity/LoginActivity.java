@@ -148,7 +148,7 @@ public class LoginActivity extends AppCompatActivity {
         phone = pref.getString("phone", "");
         etPhone.setText(phone);
 
-        long lastLoginTime = pref.getLong("logintime", -1);
+        long lastLoginTime = pref.getLong("login_time", -1);
         int oneDayMillis = 24 * 60 * 60 * 1000;
         // 当前时间与上次登录时间位于一天之内，则自动登录
         if(System.currentTimeMillis() - lastLoginTime < oneDayMillis) {
@@ -262,7 +262,7 @@ public class LoginActivity extends AppCompatActivity {
     private void saveLoginInfoToPref() {
         editor = pref.edit();
         editor.putString("phone", phone);
-        editor.putLong("logintime", System.currentTimeMillis());
+        editor.putLong("login_time", System.currentTimeMillis());
         editor.commit();
     }
 

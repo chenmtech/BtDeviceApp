@@ -47,7 +47,7 @@
 
 
     <!-- 侧边栏中菜单的文本风格 -->
-    <style name="navigationDrawerStyle" >
+    <style name="navigationDrawerStyle">
         <item name="android:textSize">16sp</item>
         <item name="android:actionMenuTextColor">@color/primary_dark</item>
     </style>
@@ -58,5 +58,14 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:minWidth">0dp</item>
     </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

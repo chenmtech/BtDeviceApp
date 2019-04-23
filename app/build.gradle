@@ -27,15 +27,15 @@ MobSDK {
         //平台配置信息
         devInfo {
             Wechat {
-                Id="1"
-                SortId="1"
-                AppId="wxd04c4aa20ef139d4"
-                AppSecret="dd5f65b0b23333b9b2c1ba21a32ff2cf"
-                UserName="gh_b0c6a9ca668a"
-                BypassApproval="false"
+                Id = "1"
+                SortId = "1"
+                AppId = "wxd04c4aa20ef139d4"
+                AppSecret = "dd5f65b0b23333b9b2c1ba21a32ff2cf"
+                UserName = "gh_b0c6a9ca668a"
+                BypassApproval = "false"
                 WithShareTicket = "true"
                 MiniprogramType = "2"
-                Enable="true"
+                Enable = "true"
             }
             WechatMoments {
                 Id = "2"
@@ -46,13 +46,13 @@ MobSDK {
                 Enable = "true"
             }
             QQ {
-                Id="3"
-                SortId="3"
-                AppId="1107924092"
-                AppKey="4jXh8LftCT1SPKxn"
-                BypassApproval="true"
-                ShareByAppClient="true"
-                Enable="true"
+                Id = "3"
+                SortId = "3"
+                AppId = "1107924092"
+                AppKey = "4jXh8LftCT1SPKxn"
+                BypassApproval = "true"
+                ShareByAppClient = "true"
+                Enable = "true"
             }
         }
 

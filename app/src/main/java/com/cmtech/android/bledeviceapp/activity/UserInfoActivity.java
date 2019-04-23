@@ -40,10 +40,17 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGEDIR;
 
 public class UserInfoActivity extends AppCompatActivity {
     private TextView tvPhone;
-    private EditText etName;
+
+    private EditText etNickname;
+
     private ImageView ivPortrait;
+
     private EditText etRemark;
+
+    private Button btnLogout;
+
     private Button btnOk;
+
     private Button btnCancel;
 
     private String cachePortraitPath = ""; // 头像文件路径缓存
@@ -60,30 +67,45 @@ public class UserInfoActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         tvPhone = findViewById(R.id.et_userinfo_phone);
-        etName = findViewById(R.id.et_userinfo_username);
+
+        etNickname = findViewById(R.id.et_userinfo_nickname);
+
         ivPortrait = findViewById(R.id.iv_userinfo_portrait);
+
         etRemark = findViewById(R.id.et_userinfo_remark);
+
+        btnLogout = findViewById(R.id.btn_logout);
+
         btnOk = findViewById(R.id.btn_userinfo_ok);
+
         btnCancel = findViewById(R.id.btn_userinfo_cancel);
 
-        User account = UserManager.getInstance().getUser();
-        String phoneNum = account.getPhone();
-        tvPhone.setText(phoneNum.substring(0,3)+"****"+phoneNum.substring(7));
-        etName.setText(account.getNickname());
-        cachePortraitPath = account.getPortrait();
+        User user = UserManager.getInstance().getUser();
+
+        String phoneNum = user.getPhone();
+
+        String secretPhone = String.format("%s****%s", phoneNum.substring(0,3), phoneNum.substring(7));
+
+        tvPhone.setText(secretPhone);
+
+        etNickname.setText(user.getNickname());
+
+        cachePortraitPath = user.getPortrait();
+
         if("".equals(cachePortraitPath)) {
             Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivPortrait);
         } else {
             Glide.with(MyApplication.getContext()).load(cachePortraitPath)
                     .skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivPortrait);
         }
-        etRemark.setText(account.getPersonalInfo());
+
+        etRemark.setText(user.getPersonalInfo());
 
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 User account = UserManager.getInstance().getUser();
-                account.setNickname(etName.getText().toString());
+                account.setNickname(etNickname.getText().toString());
 
                 if(!cachePortraitPath.equals(account.getPortrait())) {
                     // 把原来的图像文件删除
@@ -123,6 +145,7 @@ public class UserInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
+                intent.putExtra("logout", false);
                 setResult(RESULT_CANCELED, intent);
                 finish();
             }
@@ -132,6 +155,17 @@ public class UserInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 openAlbum();
+            }
+        });
+
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.putExtra("logout", true);
+                setResult(RESULT_CANCELED, intent);
+                finish();
+
             }
         });
     }
