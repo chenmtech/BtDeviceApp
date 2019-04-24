@@ -28,6 +28,7 @@ import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
@@ -35,27 +36,40 @@ import cn.smssdk.SMSSDK;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
 /**
- *  LoginActivity: 登录界面
- *  Created by bme on 2018/10/27.
+  *
+  * ClassName:      LoginActivity
+  * Description:    登录界面Activity
+  * Author:         chenm
+  * CreateDate:     2018/10/27 09:18
+  * UpdateUser:     chenm
+  * UpdateDate:     2019-04-24 09:18
+  * UpdateRemark:   更新说明
+  * Version:        1.0
  */
-
 public class LoginActivity extends AppCompatActivity {
-    // 使能蓝牙权限返回码
-    private final static int REQUESTCODE_ENABLEBLUETOOTH = 1;
-    private final static String PHONENUMBER_CHINA = "86";
-    private final static int MSG_ONESECOND = 1;
+    private final static int RC_ENABLE_BLUETOOTH = 1;
 
-    private TextView tvWelcome;
+    private final static String CHINA_PHONE_NUMBER = "86";
+
+    private final static int MSG_WAIT_SECOND = 1;
+
     private EditText etPhone;
+
     private EditText etVeriCode;
+
     private Button btnGetVeriCode;
-    private Button btnPhoneSignin;
-    private SharedPreferences pref;
-    private SharedPreferences.Editor editor;
+
+    private final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
 
     private String phone; // 手机号
+
     private String veriCode; // 验证码
-    // 验证回调处理器
+
+    //private final ScheduledExecutorService oneSecondService = Executors.newSingleThreadScheduledExecutor();
+
+    private Thread timerThread;
+
+    // 手机短信验证回调事件处理器
     private EventHandler eventHandler = new EventHandler() {
         public void afterEvent(int event, int result, Object data) {
             // afterEvent会在子线程被调用，因此如果后续有UI相关操作，需要将数据发送到UI线程
@@ -102,55 +116,58 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-    private Handler handler = new Handler() {
+    private Handler handler = new Handler(new Handler.Callback() {
         @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case MSG_ONESECOND:
-                    int i = msg.arg1;
-                    if(i != 0)
-                        LoginActivity.this.btnGetVeriCode.setText(i + "秒后\n重新获取");
-                    else {
-                        LoginActivity.this.btnGetVeriCode.setText("获取验证码");
-                        LoginActivity.this.btnGetVeriCode.setEnabled(true);
-                    }
-                    break;
+        public boolean handleMessage(Message msg) {
+            if(msg.what == MSG_WAIT_SECOND) {
+                int second = msg.arg1;
+
+                if(second != 0)
+                    LoginActivity.this.btnGetVeriCode.setText(String.format(Locale.getDefault(), "%d秒后\n重新获取", second));
+                else {
+                    LoginActivity.this.btnGetVeriCode.setText("获取验证码");
+
+                    LoginActivity.this.btnGetVeriCode.setEnabled(true);
+                }
             }
+
+            return false;
         }
-    };
-    private Thread timerThread;
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        tvWelcome = findViewById(R.id.tv_welcometext);
+        // 检查权限
+        checkPermissions();
+
         etPhone = findViewById(R.id.phone);
+
         etVeriCode = findViewById(R.id.verficationcode);
+
         btnGetVeriCode = findViewById(R.id.btn_get_vericode);
-        btnPhoneSignin = findViewById(R.id.btn_phone_signin);
+
+        Button btnSignin = findViewById(R.id.btn_signin);
 
         // 注册一个事件回调，用于处理SMSSDK接口请求的结果
         SMSSDK.registerEventHandler(eventHandler);
 
-        // 检查权限
-        checkPermissions();
+        TextView tvWelcome = findViewById(R.id.tv_welcometext);
 
-        // 设置欢迎词
-        String welcomeText = getResources().getString(R.string.welcome_text);
-        welcomeText = String.format(welcomeText, getResources().getString(R.string.app_name));
+        String welcomeText = String.format(getResources().getString(R.string.welcome_text_format), getResources().getString(R.string.app_name));
+
         tvWelcome.setText(welcomeText);
 
-        // 读上次记录的手机号
-        pref = PreferenceManager.getDefaultSharedPreferences(this);
         phone = pref.getString("phone", "");
+
         etPhone.setText(phone);
 
         long lastLoginTime = pref.getLong("login_time", -1);
-        int oneDayMillis = 24 * 60 * 60 * 1000;
-        // 当前时间与上次登录时间位于一天之内，则自动登录
+
+        long oneDayMillis = 24 * 60 * 60 * 1000;
+
         if(System.currentTimeMillis() - lastLoginTime < oneDayMillis) {
             signIn(phone, false);
         }
@@ -159,8 +176,11 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 phone = etPhone.getText().toString();
+
                 getVeriCode(phone); // 获取验证码
+
                 btnGetVeriCode.setEnabled(false);
+
                 timerThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -169,7 +189,7 @@ public class LoginActivity extends AppCompatActivity {
                             try {
                                 Thread.sleep(1000);
                                 Message msg = new Message();
-                                msg.what = MSG_ONESECOND;
+                                msg.what = MSG_WAIT_SECOND;
                                 msg.arg1 = i;
                                 handler.sendMessage(msg);
                             } catch (InterruptedException e) {
@@ -179,14 +199,23 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 });
                 timerThread.start();
+
+                /*oneSecondService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+
+                    }
+                });*/
             }
         });
 
-        btnPhoneSignin.setOnClickListener(new View.OnClickListener() {
+        btnSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 phone = etPhone.getText().toString();
+
                 veriCode = etVeriCode.getText().toString();
+
                 verify(phone, veriCode); // 验证
             }
         });
@@ -198,7 +227,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case REQUESTCODE_ENABLEBLUETOOTH:
+            case RC_ENABLE_BLUETOOTH:
                 if (resultCode == RESULT_OK) {
                     enableBluetooth();
 
@@ -241,6 +270,10 @@ public class LoginActivity extends AppCompatActivity {
             timerThread.interrupt();
             timerThread = null;
         }
+
+        /*if(!oneSecondService.isShutdown()) {
+            oneSecondService.shutdownNow();
+        }*/
     }
 
     // 登录
@@ -260,9 +293,12 @@ public class LoginActivity extends AppCompatActivity {
 
     // 将登录信息保存到Pref
     private void saveLoginInfoToPref() {
-        editor = pref.edit();
+        SharedPreferences.Editor editor = pref.edit();
+
         editor.putString("phone", phone);
+
         editor.putLong("login_time", System.currentTimeMillis());
+
         editor.commit();
     }
 
@@ -298,20 +334,20 @@ public class LoginActivity extends AppCompatActivity {
     // 使能蓝牙
     private void enableBluetooth() {
         if (!BleDeviceUtil.isBleEnable(MyApplication.getContext())) {
-            BleDeviceUtil.enableBluetooth(this, REQUESTCODE_ENABLEBLUETOOTH);
+            BleDeviceUtil.enableBluetooth(this, RC_ENABLE_BLUETOOTH);
         }
     }
 
     // 获取验证码
     private void getVeriCode(final String phone) {
         // 请求验证码，其中country表示国家代码，如“86”；phone表示手机号码，如“13800138000”
-        SMSSDK.getVerificationCode(PHONENUMBER_CHINA, phone);
+        SMSSDK.getVerificationCode(CHINA_PHONE_NUMBER, phone);
     }
 
     // 提交验证
     private void verify(final String phone, final String veriCode) {
         // 提交验证码，其中的code表示验证码，如“1357”
-        SMSSDK.submitVerificationCode(PHONENUMBER_CHINA, phone, veriCode);
+        SMSSDK.submitVerificationCode(CHINA_PHONE_NUMBER, phone, veriCode);
     }
 
 }

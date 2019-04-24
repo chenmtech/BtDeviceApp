@@ -2,13 +2,7 @@
 <resources>
     <string name="app_name">康明智联</string>
 
-    <string name="welcome_text">欢迎使用%1$s</string>
-
-    <string name="comment_with_second">第%1$s秒，%2$s。</string>
-
-    <string name="ecgfile_createinfo">创建于%1$s [%2$s]</string>
-
-    <string name="lastecgcomment">%1$s %2$s说“%3$s”</string>
+    <string name="welcome_text_format">欢迎使用%1$s</string>
 
     <string name="search_device">搜索设备</string>
 
