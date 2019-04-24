@@ -117,7 +117,9 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     public static EcgFileExplorerModel newInstance(File ecgFileDir, OnEcgFileExploreListener listener) throws IOException{
         EcgFileExplorerModel model = new EcgFileExplorerModel(ecgFileDir, listener);
+
         model.filesManager.setListener(model);
+
         return model;
     }
 
@@ -129,7 +131,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
     }
 
     private void openFile(File file) {
-        openFileService.submit(new OpenFileRunnable(file));
+        openFileService.execute(new OpenFileRunnable(file));
     }
 
     // 选中一个文件
@@ -145,13 +147,16 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
             builder.setTitle("删除心电信号");
+
             builder.setMessage("确定删除该心电信号吗？");
+
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     filesManager.delete(selectFile);
                 }
             });
+
             builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
