@@ -45,14 +45,15 @@
                 android:layout_gravity="center_vertical"
                 android:text="未知"
                 android:textSize="18sp"/>
-            <Button
-                android:id="@+id/btn_logout"
+
+            <ImageButton
+                android:id="@+id/ib_logout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:background="@color/accent"
-                android:text="退出登录"
+                android:src="@mipmap/ic_change_user"
                 android:layout_marginStart="10dp"/>
+
         </LinearLayout>
 
         <LinearLayout

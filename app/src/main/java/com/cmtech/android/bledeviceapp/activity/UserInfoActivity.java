@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,7 +48,7 @@ public class UserInfoActivity extends AppCompatActivity {
 
     private EditText etRemark;
 
-    private Button btnLogout;
+    private ImageButton ibLogout;
 
     private Button btnOk;
 
@@ -74,7 +75,7 @@ public class UserInfoActivity extends AppCompatActivity {
 
         etRemark = findViewById(R.id.et_userinfo_remark);
 
-        btnLogout = findViewById(R.id.btn_logout);
+        ibLogout = findViewById(R.id.ib_logout);
 
         btnOk = findViewById(R.id.btn_userinfo_ok);
 
@@ -158,7 +159,7 @@ public class UserInfoActivity extends AppCompatActivity {
             }
         });
 
-        btnLogout.setOnClickListener(new View.OnClickListener() {
+        ibLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();

@@ -53,19 +53,19 @@ public class LoginActivity extends AppCompatActivity {
 
     private final static int MSG_WAIT_SECOND = 1;
 
+    private final static long MS_PER_DAY = 24 * 60 * 60 * 1000;
+
     private EditText etPhone;
 
     private EditText etVeriCode;
 
     private Button btnGetVeriCode;
 
-    private final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+    private SharedPreferences pref;
 
     private String phone; // 手机号
 
     private String veriCode; // 验证码
-
-    //private final ScheduledExecutorService oneSecondService = Executors.newSingleThreadScheduledExecutor();
 
     private Thread timerThread;
 
@@ -84,8 +84,8 @@ public class LoginActivity extends AppCompatActivity {
                     int result = msg.arg2;
                     Object data = msg.obj;
                     if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
-                        ViseLog.e("result = " + result);
-                        ViseLog.e("data = " + data);
+                        //ViseLog.e("result = " + result);
+                        //ViseLog.e("data = " + data);
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // TODO 处理成功得到验证码的结果
                             // 请注意，此时只是完成了发送验证码的请求，验证码短信还需要几秒钟之后才送达
@@ -120,10 +120,10 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public boolean handleMessage(Message msg) {
             if(msg.what == MSG_WAIT_SECOND) {
-                int second = msg.arg1;
+                int nSecond = msg.arg1;
 
-                if(second != 0)
-                    LoginActivity.this.btnGetVeriCode.setText(String.format(Locale.getDefault(), "%d秒后\n重新获取", second));
+                if(nSecond != 0)
+                    LoginActivity.this.btnGetVeriCode.setText(String.format(Locale.getDefault(), "%d秒后\n重新获取", nSecond));
                 else {
                     LoginActivity.this.btnGetVeriCode.setText("获取验证码");
 
@@ -139,6 +139,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
 
         // 检查权限
         checkPermissions();
@@ -166,9 +168,7 @@ public class LoginActivity extends AppCompatActivity {
 
         long lastLoginTime = pref.getLong("login_time", -1);
 
-        long oneDayMillis = 24 * 60 * 60 * 1000;
-
-        if(System.currentTimeMillis() - lastLoginTime < oneDayMillis) {
+        if(System.currentTimeMillis() - lastLoginTime < MS_PER_DAY) {
             signIn(phone, false);
         }
 
@@ -184,34 +184,43 @@ public class LoginActivity extends AppCompatActivity {
                 timerThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        int i = 60;
-                        while (--i >= 0) {
-                            try {
+                        int nSecond = 60;
+
+                        try {
+                            while (--nSecond >= 0) {
                                 Thread.sleep(1000);
+
                                 Message msg = new Message();
+
                                 msg.what = MSG_WAIT_SECOND;
-                                msg.arg1 = i;
+
+                                msg.arg1 = nSecond;
+
                                 handler.sendMessage(msg);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
                             }
+                        } catch (InterruptedException e) {
+                            ViseLog.e("The timer of getting veri code is interrupted.");
+                            Thread.currentThread().interrupt();
                         }
                     }
                 });
+
                 timerThread.start();
-
-                /*oneSecondService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-
-                    }
-                });*/
             }
         });
 
         btnSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(timerThread != null && timerThread.isAlive()) {
+                    timerThread.interrupt();
+                    try {
+                        timerThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 phone = etPhone.getText().toString();
 
                 veriCode = etVeriCode.getText().toString();
@@ -229,6 +238,7 @@ public class LoginActivity extends AppCompatActivity {
         switch (requestCode) {
             case RC_ENABLE_BLUETOOTH:
                 if (resultCode == RESULT_OK) {
+
                     enableBluetooth();
 
                 } else if (resultCode == RESULT_CANCELED) { // 不同意
@@ -266,25 +276,28 @@ public class LoginActivity extends AppCompatActivity {
 
         SMSSDK.unregisterEventHandler(eventHandler);
 
-        if(timerThread != null) {
-            timerThread.interrupt();
-            timerThread = null;
-        }
+        try {
+            if (timerThread != null) {
+                timerThread.interrupt();
+                timerThread.join();
+            }
+        } catch (InterruptedException ignored) {
 
-        /*if(!oneSecondService.isShutdown()) {
-            oneSecondService.shutdownNow();
-        }*/
+        }
     }
 
     // 登录
     private void signIn(String phone, boolean isSave) {
         UserManager manager = UserManager.getInstance();
         if(manager.signIn(phone) || manager.signUp(phone)) {
-            //Toast.makeText(LoginActivity.this, "登录成功。", Toast.LENGTH_LONG).show();
+
             if(isSave)
                 saveLoginInfoToPref();
+
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+
             startActivity(intent);
+
             finish();
         } else {
             Toast.makeText(LoginActivity.this, "登录错误。", Toast.LENGTH_SHORT).show();

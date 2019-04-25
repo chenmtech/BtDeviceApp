@@ -370,7 +370,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
                     toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortrait());
                 } else {
-                    boolean logout = data.getBooleanExtra("logout", false);
+                    boolean logout = (data != null && data.getBooleanExtra("logout", false));
 
                     if(logout) {
                         logoutUser();
