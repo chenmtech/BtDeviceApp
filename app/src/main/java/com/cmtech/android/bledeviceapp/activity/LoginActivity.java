@@ -181,44 +181,17 @@ public class LoginActivity extends AppCompatActivity {
 
                 btnGetVeriCode.setEnabled(false);
 
-                timerThread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        int nSecond = 60;
-
-                        try {
-                            while (--nSecond >= 0) {
-                                Thread.sleep(1000);
-
-                                Message msg = new Message();
-
-                                msg.what = MSG_WAIT_SECOND;
-
-                                msg.arg1 = nSecond;
-
-                                handler.sendMessage(msg);
-                            }
-                        } catch (InterruptedException e) {
-                            ViseLog.e("The timer of getting veri code is interrupted.");
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                });
-
-                timerThread.start();
+                startTimerWhenGettingVeriCode();
             }
         });
 
         btnSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(timerThread != null && timerThread.isAlive()) {
-                    timerThread.interrupt();
-                    try {
-                        timerThread.join();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    stopTimerWhenGettingVeriCode();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
 
                 phone = etPhone.getText().toString();
@@ -277,12 +250,8 @@ public class LoginActivity extends AppCompatActivity {
         SMSSDK.unregisterEventHandler(eventHandler);
 
         try {
-            if (timerThread != null) {
-                timerThread.interrupt();
-                timerThread.join();
-            }
+            stopTimerWhenGettingVeriCode();
         } catch (InterruptedException ignored) {
-
         }
     }
 
@@ -361,6 +330,44 @@ public class LoginActivity extends AppCompatActivity {
     private void verify(final String phone, final String veriCode) {
         // 提交验证码，其中的code表示验证码，如“1357”
         SMSSDK.submitVerificationCode(CHINA_PHONE_NUMBER, phone, veriCode);
+    }
+
+    private void startTimerWhenGettingVeriCode() {
+
+        timerThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int nSecond = 60;
+
+                try {
+                    while (--nSecond >= 0) {
+                        Thread.sleep(1000);
+
+                        Message msg = new Message();
+
+                        msg.what = MSG_WAIT_SECOND;
+
+                        msg.arg1 = nSecond;
+
+                        handler.sendMessage(msg);
+                    }
+                } catch (InterruptedException e) {
+                    ViseLog.e("The timer of getting veri code is interrupted.");
+
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+
+        timerThread.start();
+    }
+
+    private void stopTimerWhenGettingVeriCode() throws InterruptedException{
+        if (timerThread != null && timerThread.isAlive()) {
+            timerThread.interrupt();
+
+            timerThread.join();
+        }
     }
 
 }
