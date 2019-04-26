@@ -1,39 +1,16 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Handler;
-import android.os.Looper;
-import android.support.v7.app.AlertDialog;
-import android.widget.Toast;
 
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
-import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import cn.sharesdk.framework.Platform;
-import cn.sharesdk.framework.PlatformActionListener;
-import cn.sharesdk.framework.ShareSDK;
-import cn.sharesdk.wechat.friends.Wechat;
-
-import static cn.sharesdk.framework.Platform.SHARE_FILE;
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.MACADDRESS_CHAR_NUM;
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor.SECOND_IN_HR_FILTER;
 
 /**
   *
@@ -70,10 +47,6 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
         }
     }
 
-    private final File ecgFileDir; // Ecg文件目录
-
-    private final File[] allEcgFiles;
-
     private final EcgFilesManager filesManager; // 文件列表管理器
 
     private final OnEcgFileExploreListener listener; // 文件浏览监听器
@@ -93,23 +66,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
             throw new IOException("The ecg file dir is invalid.");
         }
 
-        this.ecgFileDir = ecgFileDir;
-
-        allEcgFiles = BleDeviceUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
-
-        Arrays.sort(allEcgFiles, new Comparator<File>() {
-            @Override
-            public int compare(File o1, File o2) {
-                String f1 = o1.getName();
-                String f2 = o2.getName();
-                long createTime1 = Long.parseLong(f1.substring(MACADDRESS_CHAR_NUM, f1.length()-4));
-                long createTime2 = Long.parseLong(f2.substring(MACADDRESS_CHAR_NUM, f2.length()-4));
-                if(createTime1 == createTime2) return 0;
-                return (createTime2 > createTime1) ? 1 : -1;
-            }
-        });
-
-        filesManager = new EcgFilesManager();
+        filesManager = new EcgFilesManager(ecgFileDir);
 
         this.listener = listener;
     }
@@ -124,7 +81,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     // 打开所有文件
     public void openAllFiles() {
-        for(File file : allEcgFiles) {
+        for(File file : filesManager.getFileList()) {
             openFile(file);
         }
     }
@@ -134,7 +91,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
     }
 
     // 选中一个文件
-    public void changeSelectFile(EcgFile ecgFile) {
+    public void selectFile(EcgFile ecgFile) {
         if(ecgFile == null) return;
 
         filesManager.select(ecgFile);
@@ -147,7 +104,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     // 从微信导入文件
     public void importFromWechat() {
-        filesManager.importToFromWechat(ecgFileDir);
+        filesManager.importFromWechat();
     }
 
     // 用微信分享一个文件
@@ -166,7 +123,8 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
     }
 
     public void getSelectFileHrInfo() {
-        listener.onEcgHrInfoUpdated(filesManager.getSelectFileHrInfo());
+        if(listener != null)
+            listener.onEcgHrInfoUpdated(filesManager.getSelectFileHrInfo());
 
     }
 
@@ -184,12 +142,14 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     @Override
     public void onFileListChanged(final List<EcgFile> fileList) {
-        listener.onFileListChanged(fileList);
+        if(listener != null)
+            listener.onFileListChanged(fileList);
     }
 
     @Override
     public void onSelectFileChanged(final EcgFile ecgFile) {
-        listener.onSelectFileChanged(ecgFile);
+        if(listener != null)
+            listener.onSelectFileChanged(ecgFile);
 
     }
 

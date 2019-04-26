@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
@@ -14,17 +12,16 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalCommen
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledeviceapp.R;
-import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
@@ -33,6 +30,7 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.MACADDRESS_CHAR_NUM;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor.SECOND_IN_HR_FILTER;
 
 /**
@@ -54,19 +52,45 @@ class EcgFilesManager {
         void onFileListChanged(List<EcgFile> fileList);
     }
 
-    private final List<EcgFile> fileList = new Vector<>(); // 文件目录中包含的心电文件列表
+    private final File ecgFileDir; // Ecg文件路径
 
-    private final List<EcgFile> unmodifiedFileList = Collections.unmodifiableList(fileList);
+    private final List<File> fileList;
 
+    // 锁保护
+    private final List<EcgFile> ecgFileList = new ArrayList<>(); // 文件目录中包含的心电文件列表
+
+    private final List<EcgFile> unmodifiedFileList = Collections.unmodifiableList(ecgFileList);
+
+    // 锁保护
     private EcgFile selectFile; // 选中的EcgFile
 
     private OnEcgFilesChangeListener listener;
 
-    EcgFilesManager() {
+    EcgFilesManager(File ecgFileDir) {
+        this.ecgFileDir = ecgFileDir;
 
+        File[] files = BleDeviceUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
+
+        Arrays.sort(files, new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                String f1 = o1.getName();
+                String f2 = o2.getName();
+                long createTime1 = Long.parseLong(f1.substring(MACADDRESS_CHAR_NUM, f1.length()-4));
+                long createTime2 = Long.parseLong(f2.substring(MACADDRESS_CHAR_NUM, f2.length()-4));
+                if(createTime1 == createTime2) return 0;
+                return (createTime2 > createTime1) ? 1 : -1;
+            }
+        });
+
+        fileList = new ArrayList<>(Arrays.asList(files));
     }
 
-    synchronized void setListener(OnEcgFilesChangeListener listener) {
+    List<File> getFileList() {
+        return fileList;
+    }
+
+    void setListener(OnEcgFilesChangeListener listener) {
         this.listener = listener;
     }
 
@@ -78,14 +102,14 @@ class EcgFilesManager {
 
         boolean isAdded = false;
 
-        if(!fileList.contains(file)) {
-            fileList.add(file);
+        if(!ecgFileList.contains(file)) {
+            ecgFileList.add(file);
 
-            sortFilesAsCreateTime(fileList);
+            sortFilesAsCreateTime(ecgFileList);
 
             notifyFileListChanged();
 
-            if(fileList.size() == 1) {
+            if(ecgFileList.size() == 1) {
                 select(file);
             }
 
@@ -102,7 +126,7 @@ class EcgFilesManager {
 
             notifySelectFileChanged(null);
 
-        } else if(fileList.contains(file)) {
+        } else if(ecgFileList.contains(file)) {
             selectFile = file;
 
             notifySelectFileChanged(file);
@@ -137,8 +161,9 @@ class EcgFilesManager {
         }
     }
 
+    // ******这个功能还没有完成
     // 从微信导入文件到ecgFileDir目录
-    synchronized void importToFromWechat(final File ecgFileDir) {
+    synchronized void importFromWechat() {
         File wxFileDir = new File(WECHAT_DOWNLOAD_DIR);
 
         File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
@@ -150,19 +175,25 @@ class EcgFilesManager {
             EcgFile toEcgFile = null;
             try {
                 tmpEcgFile = EcgFile.open(wxFile.getCanonicalPath());
+
                 tmpEcgFile.close();
 
                 File toFile = FileUtil.getFile(ecgFileDir, wxFile.getName());
 
                 if(toFile.exists()) {
                     toEcgFile = EcgFile.open(toFile.getCanonicalPath());
+
                     if(mergeEcgFileAppendix(tmpEcgFile, toEcgFile))
                         updated = true;
+
                     wxFile.delete();
                 } else {
                     FileUtil.moveFile(wxFile, toFile);
+
                     toEcgFile = EcgFile.open(toFile.getCanonicalPath());
+
                     add(toEcgFile);
+
                     updated = true;
                 }
             } catch (IOException e) {
@@ -187,14 +218,15 @@ class EcgFilesManager {
         }
 
         if(updated) {
-            sortFilesAsCreateTime(fileList);
+            sortFilesAsCreateTime(ecgFileList);
 
-            select(fileList.get(fileList.size() - 1));
+            select(ecgFileList.get(ecgFileList.size() - 1));
         }
     }
 
     synchronized void saveSelectFileComment() throws IOException{
         if(selectFile != null) {
+
             selectFile.save();
 
         }
@@ -207,7 +239,7 @@ class EcgFilesManager {
         return null;
     }
 
-    // 用微信分享一个文件
+    // 通过微信分享一个文件
     synchronized void shareSelectFileThroughWechat(final Context context) {
         if(selectFile == null) return;
 
@@ -250,14 +282,14 @@ class EcgFilesManager {
     }
 
     synchronized void close() {
-        for(EcgFile file : fileList) {
+        for(EcgFile file : ecgFileList) {
             try {
                 file.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        fileList.clear();
+        ecgFileList.clear();
     }
 
 
@@ -268,17 +300,20 @@ class EcgFilesManager {
         }
 
         try {
-            int index = fileList.indexOf(file);
+            int index = ecgFileList.indexOf(file);
 
             if(index != -1) {
                 FileUtil.deleteFile(file.getFile());
-                if(fileList.remove(file)) {
+
+                fileList.remove(file.getFile());
+
+                if(ecgFileList.remove(file)) {
                     notifyFileListChanged();
                 }
 
-                index = (index > fileList.size() - 1) ? fileList.size() - 1 : index;
+                index = (index > ecgFileList.size() - 1) ? ecgFileList.size() - 1 : index;
 
-                select((index < 0) ? null : fileList.get(index));
+                select((index < 0) ? null : ecgFileList.get(index));
             }
 
         } catch (IOException e) {
@@ -288,23 +323,13 @@ class EcgFilesManager {
 
     private void notifyFileListChanged() {
         if(listener != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onFileListChanged(unmodifiedFileList);
-                }
-            });
+            listener.onFileListChanged(unmodifiedFileList);
         }
     }
 
-    private void notifySelectFileChanged(final EcgFile selectFile) {
+    private void notifySelectFileChanged(final EcgFile file) {
         if(listener != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onSelectFileChanged(selectFile);
-                }
-            });
+            listener.onSelectFileChanged(file);
         }
     }
 

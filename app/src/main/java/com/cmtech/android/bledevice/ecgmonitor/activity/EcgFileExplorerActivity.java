@@ -232,7 +232,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
     public void changeSelectFile(EcgFile ecgFile) {
         signalView.stopShow();
 
-        model.changeSelectFile(ecgFile);
+        model.selectFile(ecgFile);
     }
 
     private void importFromWechat() {
@@ -292,63 +292,75 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
     }
 
     @Override
-    public void onSelectFileChanged(EcgFile selectFile) {
-        fileAdapter.updateSelectFile(selectFile);
+    public void onSelectFileChanged(final EcgFile selectFile) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fileAdapter.updateSelectFile(selectFile);
 
-        if(selectFile != null) {
-            ViseLog.e(selectFile);
+                if(selectFile != null) {
+                    ViseLog.e(selectFile);
 
-            initEcgView(selectFile, 0.5);
+                    initEcgView(selectFile, 0.5);
 
-            sampleRate = selectFile.getSampleRate();
+                    sampleRate = selectFile.getSampleRate();
 
-            int secondInSignal = selectFile.getDataNum()/sampleRate;
+                    int secondInSignal = selectFile.getDataNum()/sampleRate;
 
-            tvCurrentTime.setText(DateTimeUtil.secToTime(0));
-            tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
-            sbReplay.setMax(secondInSignal);
+                    tvCurrentTime.setText(DateTimeUtil.secToTime(0));
+                    tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
+                    sbReplay.setMax(secondInSignal);
 
-            List<EcgNormalComment> commentList = getCommentListInFile(selectFile);
-            commentAdapter.updateCommentList(commentList);
-            if(commentList.size() > 0)
-                rvComments.smoothScrollToPosition(0);
+                    List<EcgNormalComment> commentList = getCommentListInFile(selectFile);
+                    commentAdapter.updateCommentList(commentList);
+                    if(commentList.size() > 0)
+                        rvComments.smoothScrollToPosition(0);
 
-            signalView.startShow();
+                    signalView.startShow();
 
-            if(selectFile.getDataNum() == 0) {
-                signalLayout.setVisibility(View.GONE);
-            } else {
-                signalLayout.setVisibility(View.VISIBLE);
+                    if(selectFile.getDataNum() == 0) {
+                        signalLayout.setVisibility(View.GONE);
+                    } else {
+                        signalLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    if(selectFile.getHrList().size() == 0) {
+                        hrLayout.setVisibility(View.GONE);
+                    } else {
+                        hrLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    model.getSelectFileHrInfo();
+                } else {
+                    signalView.stopShow();
+
+                    signalLayout.setVisibility(View.GONE);
+
+                    hrLayout.setVisibility(View.GONE);
+                }
             }
+        });
 
-            if(selectFile.getHrList().size() == 0) {
-                hrLayout.setVisibility(View.GONE);
-            } else {
-                hrLayout.setVisibility(View.VISIBLE);
-            }
-
-            model.getSelectFileHrInfo();
-        } else {
-            signalView.stopShow();
-
-            signalLayout.setVisibility(View.GONE);
-
-            hrLayout.setVisibility(View.GONE);
-        }
 
     }
 
     @Override
-    public void onFileListChanged(List<EcgFile> fileList) {
-        if(fileList == null || fileList.isEmpty()) {
-            rvFiles.setVisibility(View.INVISIBLE);
-            tvNoRecord.setVisibility(View.VISIBLE);
-        }else {
-            rvFiles.setVisibility(View.VISIBLE);
-            tvNoRecord.setVisibility(View.INVISIBLE);
-        }
+    public void onFileListChanged(final List<EcgFile> fileList) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(fileList == null || fileList.isEmpty()) {
+                    rvFiles.setVisibility(View.INVISIBLE);
+                    tvNoRecord.setVisibility(View.VISIBLE);
+                }else {
+                    rvFiles.setVisibility(View.VISIBLE);
+                    tvNoRecord.setVisibility(View.INVISIBLE);
+                }
 
-        fileAdapter.updateFileList(fileList);
+                fileAdapter.updateFileList(fileList);
+            }
+        });
+
     }
 
     @Override
