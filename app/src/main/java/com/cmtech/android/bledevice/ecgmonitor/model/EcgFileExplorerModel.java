@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
@@ -49,7 +50,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignal
 public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeListener {
 
     private class OpenFileRunnable implements Runnable {
-        private File file;
+        private final File file;
 
         OpenFileRunnable(File file) {
             this.file = file;
@@ -73,8 +74,6 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     private final File[] allEcgFiles;
 
-    private EcgFile selectFile; // 选中的EcgFile
-
     private final EcgFilesManager filesManager; // 文件列表管理器
 
     private final OnEcgFileExploreListener listener; // 文件浏览监听器
@@ -83,7 +82,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     private EcgFileExplorerModel(File ecgFileDir, OnEcgFileExploreListener listener) throws IOException{
         if(ecgFileDir == null) {
-            throw new IOException("The ecg file dir can't be null");
+            throw new IOException("The ecg file dir is null");
         }
 
         if(!ecgFileDir.exists() && !ecgFileDir.mkdir()) {
@@ -143,29 +142,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     // 删除选中文件
     public void deleteSelectFile(Context context) {
-        if(selectFile != null) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-            builder.setTitle("删除心电信号");
-
-            builder.setMessage("确定删除该心电信号吗？");
-
-            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    filesManager.delete(selectFile);
-                }
-            });
-
-            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-
-            builder.show();
-        }
+        filesManager.deleteSelectFile(context);
     }
 
     // 从微信导入文件
@@ -175,61 +152,34 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     // 用微信分享一个文件
     public void shareSelectFileThroughWechat(final Context context) {
-        if(selectFile == null) return;
-
-        Platform.ShareParams sp = new Platform.ShareParams();
-        sp.setShareType(SHARE_FILE);
-        String fileShortName = selectFile.getFile().getName();
-        sp.setTitle(fileShortName);
-        sp.setText(fileShortName);
-        Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_kang);
-        sp.setImageData(bmp);
-        sp.setFilePath(selectFile.getFileName());
-
-        Platform wxPlatform = ShareSDK.getPlatform(Wechat.NAME);
-        wxPlatform.setPlatformActionListener(new PlatformActionListener() {
-            @Override
-            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                Toast.makeText(context, "分享成功", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(Platform platform, int i, Throwable throwable) {
-                //Toast.makeText(EcgFileExplorerActivity.this, "分享错误", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onCancel(Platform platform, int i) {
-                //Toast.makeText(EcgFileExplorerActivity.this, "分享取消", Toast.LENGTH_SHORT).show();
-            }
-        });
-        // 执行分享
-        wxPlatform.share(sp);
+        filesManager.shareSelectFileThroughWechat(context);
     }
 
     // 保存留言信息
     public void saveSelectFileComment() {
-        if(selectFile != null) {
-            try {
-                selectFile.save();
-            } catch (IOException e) {
-                ViseLog.e("保存留言错误。");
-            }
+        try {
+            filesManager.saveSelectFileComment();
+        } catch (IOException e) {
+            ViseLog.e("保存留言错误。");
         }
+
     }
 
     public void getSelectFileHrInfo() {
-        if(selectFile != null) {
-            final EcgHrInfoObject hrInfoObject = new EcgHrInfoObject(selectFile.getHrList(), SECOND_IN_HR_FILTER);
+        listener.onEcgHrInfoUpdated(filesManager.getSelectFileHrInfo());
 
-            listener.onEcgHrInfoUpdated(hrInfoObject);
-        }
     }
 
     public void close() {
-        filesManager.close();
+        try {
+            openFileService.shutdownNow();
 
-        openFileService.shutdownNow();
+            openFileService.awaitTermination(200, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException ignored) {
+
+        }
+
+        filesManager.close();
     }
 
     @Override
@@ -239,9 +189,8 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     @Override
     public void onSelectFileChanged(final EcgFile ecgFile) {
-        selectFile = ecgFile;
-
         listener.onSelectFileChanged(ecgFile);
+
     }
 
 }

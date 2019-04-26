@@ -1,11 +1,20 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.app.AlertDialog;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledeviceapp.R;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
@@ -13,10 +22,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.PlatformActionListener;
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.wechat.friends.Wechat;
+
+import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor.SECOND_IN_HR_FILTER;
 
 /**
   *
@@ -38,7 +55,10 @@ class EcgFilesManager {
     }
 
     private final List<EcgFile> fileList = new Vector<>(); // 文件目录中包含的心电文件列表
+
     private final List<EcgFile> unmodifiedFileList = Collections.unmodifiableList(fileList);
+
+    private EcgFile selectFile; // 选中的EcgFile
 
     private OnEcgFilesChangeListener listener;
 
@@ -53,7 +73,7 @@ class EcgFilesManager {
     // 添加一个文件
     synchronized boolean add(EcgFile file) {
         if(file == null) {
-            throw new IllegalArgumentException("The file is null");
+            return false;
         }
 
         boolean isAdded = false;
@@ -66,7 +86,7 @@ class EcgFilesManager {
             notifyFileListChanged();
 
             if(fileList.size() == 1) {
-                notifySelectFileChanged(file);
+                select(file);
             }
 
             isAdded = true;
@@ -78,42 +98,47 @@ class EcgFilesManager {
     // 选中一个文件
     synchronized void select(EcgFile file) {
         if(file == null) {
+            selectFile = null;
+
             notifySelectFileChanged(null);
+
         } else if(fileList.contains(file)) {
+            selectFile = file;
+
             notifySelectFileChanged(file);
+
         }
     }
 
-    // 删除一个文件
-    synchronized void delete(EcgFile file) {
-        if(file == null) {
-            throw new IllegalArgumentException();
-        }
+    // 删除选中文件
+    synchronized void deleteSelectFile(final Context context) {
+        if(selectFile != null) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        try {
-            int index = fileList.indexOf(file);
+            builder.setTitle("删除心电信号");
 
-            if(index != -1) {
-                FileUtil.deleteFile(file.getFile());
-                if(fileList.remove(file)) {
-                    notifyFileListChanged();
+            builder.setMessage("确定删除该心电信号吗？");
+
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    delete(selectFile);
                 }
+            });
 
-                index = (index > fileList.size() - 1) ? fileList.size() - 1 : index;
-                if(index < 0) {
-                    select(null);
-                } else {
-                    select(fileList.get(index));
+            builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
                 }
-            }
+            });
 
-        } catch (IOException e) {
-            e.printStackTrace();
+            builder.show();
         }
     }
 
     // 从微信导入文件到ecgFileDir目录
-    synchronized void importToFromWechat(File ecgFileDir) {
+    synchronized void importToFromWechat(final File ecgFileDir) {
         File wxFileDir = new File(WECHAT_DOWNLOAD_DIR);
 
         File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
@@ -168,6 +193,62 @@ class EcgFilesManager {
         }
     }
 
+    synchronized void saveSelectFileComment() throws IOException{
+        if(selectFile != null) {
+            selectFile.save();
+
+        }
+    }
+
+    synchronized EcgHrInfoObject getSelectFileHrInfo() {
+        if(selectFile != null) {
+            return new EcgHrInfoObject(selectFile.getHrList(), SECOND_IN_HR_FILTER);
+        }
+        return null;
+    }
+
+    // 用微信分享一个文件
+    synchronized void shareSelectFileThroughWechat(final Context context) {
+        if(selectFile == null) return;
+
+        Platform.ShareParams sp = new Platform.ShareParams();
+
+        sp.setShareType(SHARE_FILE);
+
+        String fileShortName = selectFile.getFile().getName();
+
+        sp.setTitle(fileShortName);
+
+        sp.setText(fileShortName);
+
+        Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_kang);
+
+        sp.setImageData(bmp);
+
+        sp.setFilePath(selectFile.getFileName());
+
+        Platform wxPlatform = ShareSDK.getPlatform(Wechat.NAME);
+
+        wxPlatform.setPlatformActionListener(new PlatformActionListener() {
+            @Override
+            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
+                Toast.makeText(context, "分享成功", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(Platform platform, int i, Throwable throwable) {
+                //Toast.makeText(EcgFileExplorerActivity.this, "分享错误", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancel(Platform platform, int i) {
+                //Toast.makeText(EcgFileExplorerActivity.this, "分享取消", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        wxPlatform.share(sp);
+    }
+
     synchronized void close() {
         for(EcgFile file : fileList) {
             try {
@@ -179,6 +260,31 @@ class EcgFilesManager {
         fileList.clear();
     }
 
+
+    // 删除一个文件
+    private void delete(EcgFile file) {
+        if(file == null) {
+            throw new IllegalArgumentException();
+        }
+
+        try {
+            int index = fileList.indexOf(file);
+
+            if(index != -1) {
+                FileUtil.deleteFile(file.getFile());
+                if(fileList.remove(file)) {
+                    notifyFileListChanged();
+                }
+
+                index = (index > fileList.size() - 1) ? fileList.size() - 1 : index;
+
+                select((index < 0) ? null : fileList.get(index));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void notifyFileListChanged() {
         if(listener != null) {
