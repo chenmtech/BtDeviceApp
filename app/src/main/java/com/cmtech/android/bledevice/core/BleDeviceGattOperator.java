@@ -11,7 +11,8 @@ import com.vise.log.ViseLog;
 
 public class BleDeviceGattOperator {
 
-    private BleGattCommandManager commandExecutor; // Gatt命令执行器
+    private BleGattCommandExecutor commandExecutor; // Gatt命令执行器
+
     protected final BleDevice device; // BLE设备
 
     BleDeviceGattOperator(BleDevice device) {
@@ -36,7 +37,8 @@ public class BleDeviceGattOperator {
             throw new NullPointerException();
         }
 
-        commandExecutor = new BleGattCommandManager(deviceMirror);
+        commandExecutor = new BleGattCommandExecutor(deviceMirror);
+
         commandExecutor.start();
         ViseLog.i("success to create new command executor.");
     }
@@ -46,6 +48,10 @@ public class BleDeviceGattOperator {
         if((commandExecutor != null) && commandExecutor.isAlive()) {
             commandExecutor.stop();
         }
+    }
+
+    public boolean isAlive() {
+        return (commandExecutor != null && commandExecutor.isAlive());
     }
 
     // Gatt操作命令

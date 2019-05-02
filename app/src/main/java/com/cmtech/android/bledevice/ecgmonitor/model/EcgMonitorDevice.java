@@ -387,7 +387,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
         ViseLog.e(TAG, "disconnect()");
 
         int delay = 0;
-        if(isConnected()) {
+        if(isConnected() && gattOperator.isAlive()) {
             stopSampleData();
             delay = 100;
         }
