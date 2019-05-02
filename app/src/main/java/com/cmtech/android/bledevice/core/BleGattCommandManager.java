@@ -9,17 +9,28 @@ import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.utils.HexUtil;
 import com.vise.log.ViseLog;
 
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * BleGattCommandExecutor: Ble Gatt命令执行器
+ * BleGattCommandManager: Ble Gatt命令执行器
  * Created by bme on 2018/3/2.
  *
  */
 
-public class BleGattCommandExecutor{
+/**
+  *
+  * ClassName:      BleGattCommandManager
+  * Description:    Ble Gatt命令管理器
+  * Author:         chenm
+  * CreateDate:     2018-03-02 11:16
+  * UpdateUser:     chenm
+  * UpdateDate:     2019-05-02 11:16
+  * UpdateRemark:   更新说明
+  * Version:        1.0
+ */
+
+public class BleGattCommandManager {
     private final static int CMD_ERROR_RETRY_TIMES = 3;      // Gatt命令执行错误可重复的次数
 
     private final DeviceMirror deviceMirror; // 命令执行的设备镜像
@@ -45,7 +56,7 @@ public class BleGattCommandExecutor{
 
         @Override
         public void onSuccess(byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-            synchronized(BleGattCommandExecutor.this) {
+            synchronized(BleGattCommandManager.this) {
                 // 清除当前命令的数据操作IBleCallback，否则会出现多次执行该回调.
                 // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
                 if(currentCommand != null && deviceMirror != null) {
@@ -67,7 +78,7 @@ public class BleGattCommandExecutor{
 
         @Override
         public void onFailure(BleException exception) {
-            synchronized(BleGattCommandExecutor.this) {
+            synchronized(BleGattCommandManager.this) {
                 // 清除当前命令的数据操作IBleCallback，否则会出现多次执行该回调.
                 // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
                 if(currentCommand != null && deviceMirror != null) {
@@ -97,7 +108,7 @@ public class BleGattCommandExecutor{
     }
 
     // 构造器：指定设备镜像
-    BleGattCommandExecutor(DeviceMirror deviceMirror) {
+    BleGattCommandManager(DeviceMirror deviceMirror) {
         this.deviceMirror = deviceMirror;
     }
 
