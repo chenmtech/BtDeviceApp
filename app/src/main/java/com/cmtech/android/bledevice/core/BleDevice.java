@@ -10,7 +10,7 @@ import android.os.Message;
 import com.cmtech.android.ble.callback.scan.ScanCallback;
 import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.common.ConnectState;
-import com.cmtech.android.ble.core.IDeviceMirrorStateObserver;
+import com.cmtech.android.ble.core.OnDeviceMirrorStateChanged;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -25,7 +25,7 @@ import java.util.List;
  * Created by bme on 2018/2/19.
  */
 
-public abstract class BleDevice implements IDeviceMirrorStateObserver {
+public abstract class BleDevice implements OnDeviceMirrorStateChanged {
     private final static String TAG = "BleDevice";
 
     private BleDeviceBasicInfo basicInfo; // 设备基本信息对象
@@ -50,7 +50,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
 
     public BleDevice(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
+
         workHandler = createWorkHandler("Device:" + basicInfo.getMacAddress());
+
         scanCallback = new SingleFilterScanCallback(new MyScanCallback(this)).setDeviceMac(basicInfo.getMacAddress());
     }
 
@@ -85,6 +87,7 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     public Drawable getImageDrawable() {
         if(getImagePath().equals("")) {
             int imageId = SupportedDeviceType.getDeviceTypeFromUuid(getUuidString()).getDefaultImage();
+
             return MyApplication.getContext().getResources().getDrawable(imageId);
         } else {
             return new BitmapDrawable(MyApplication.getContext().getResources(), getImagePath());
@@ -291,7 +294,9 @@ public abstract class BleDevice implements IDeviceMirrorStateObserver {
     // 创建工作线程，输出Handler
     private Handler createWorkHandler(String threadName) {
         HandlerThread thread = new HandlerThread(threadName);
+
         thread.start();
+
         return new Handler(thread.getLooper()) {
             @Override
             public void handleMessage(Message msg) {
