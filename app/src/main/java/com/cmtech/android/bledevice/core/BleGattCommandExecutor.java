@@ -15,7 +15,7 @@ import java.util.logging.Handler;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.core
  * ClassName:      BleGattCommandExecutor
- * Description:    java类作用描述
+ * Description:    Gatt Command执行器
  * Author:         作者名
  * CreateDate:     2019-05-02 15:11
  * UpdateUser:     更新者
