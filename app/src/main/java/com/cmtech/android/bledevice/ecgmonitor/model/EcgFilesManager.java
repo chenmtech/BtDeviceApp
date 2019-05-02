@@ -12,6 +12,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalCommen
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledeviceapp.R;
+import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
@@ -52,10 +53,6 @@ class EcgFilesManager {
         void onFileListChanged(List<EcgFile> fileList);
     }
 
-    private final File ecgFileDir; // Ecg文件路径
-
-    private final List<File> fileList;
-
     // 锁保护
     private final List<EcgFile> ecgFileList = new ArrayList<>(); // 文件目录中包含的心电文件列表
 
@@ -66,36 +63,20 @@ class EcgFilesManager {
 
     private OnEcgFilesChangeListener listener;
 
-    EcgFilesManager(File ecgFileDir) {
-        this.ecgFileDir = ecgFileDir;
-
-        File[] files = BleDeviceUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
-
-        Arrays.sort(files, new Comparator<File>() {
-            @Override
-            public int compare(File o1, File o2) {
-                String f1 = o1.getName();
-                String f2 = o2.getName();
-                long createTime1 = Long.parseLong(f1.substring(MACADDRESS_CHAR_NUM, f1.length()-4));
-                long createTime2 = Long.parseLong(f2.substring(MACADDRESS_CHAR_NUM, f2.length()-4));
-                if(createTime1 == createTime2) return 0;
-                return (createTime2 > createTime1) ? 1 : -1;
-            }
-        });
-
-        fileList = new ArrayList<>(Arrays.asList(files));
-    }
-
-    List<File> getFileList() {
-        return fileList;
-    }
-
-    void setListener(OnEcgFilesChangeListener listener) {
+    EcgFilesManager(OnEcgFilesChangeListener listener) {
         this.listener = listener;
     }
 
+    void openFile(File file) throws IOException{
+        EcgFile ecgFile = EcgFile.open(file.getCanonicalPath());
+
+        add(ecgFile);
+
+        ViseLog.e(ecgFile.toString());
+    }
+
     // 添加一个文件
-    synchronized boolean add(EcgFile file) {
+    private synchronized boolean add(EcgFile file) {
         if(file == null) {
             return false;
         }
@@ -163,7 +144,7 @@ class EcgFilesManager {
 
     // ******这个功能还没有完成
     // 从微信导入文件到ecgFileDir目录
-    synchronized void importFromWechat() {
+    synchronized void importToFromWechat(File ecgFileDir) {
         File wxFileDir = new File(WECHAT_DOWNLOAD_DIR);
 
         File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
@@ -289,12 +270,13 @@ class EcgFilesManager {
                 e.printStackTrace();
             }
         }
+
         ecgFileList.clear();
     }
 
 
     // 删除一个文件
-    private void delete(EcgFile file) {
+    private synchronized void delete(EcgFile file) {
         if(file == null) {
             throw new IllegalArgumentException();
         }
@@ -304,8 +286,6 @@ class EcgFilesManager {
 
             if(index != -1) {
                 FileUtil.deleteFile(file.getFile());
-
-                fileList.remove(file.getFile());
 
                 if(ecgFileList.remove(file)) {
                     notifyFileListChanged();

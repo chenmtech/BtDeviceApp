@@ -2,15 +2,22 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import android.content.Context;
 
+import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.MACADDRESS_CHAR_NUM;
 
 /**
   *
@@ -24,7 +31,8 @@ import java.util.concurrent.TimeUnit;
   * Version:        1.0
  */
 
-public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeListener {
+public class EcgFileExplorerModel {
+    private final static int FILENUM_LOADED_EACH_TIMES = 5;
 
     private class OpenFileRunnable implements Runnable {
         private final File file;
@@ -36,16 +44,19 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
         @Override
         public void run() {
             try {
-                EcgFile ecgFile = EcgFile.open(file.getCanonicalPath());
+                filesManager.openFile(file);
 
-                filesManager.add(ecgFile);
-
-                ViseLog.e(ecgFile.toString());
             } catch (IOException e) {
                 ViseLog.e("To open ecg file is wrong." + file);
             }
         }
     }
+
+    private final File ecgFileDir; // Ecg文件路径
+
+    private final List<File> fileList;
+
+    private Iterator<File> fileIterator;
 
     private final EcgFilesManager filesManager; // 文件列表管理器
 
@@ -53,7 +64,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     private final ExecutorService openFileService = Executors.newSingleThreadExecutor();
 
-    private EcgFileExplorerModel(File ecgFileDir, OnEcgFileExploreListener listener) throws IOException{
+    public EcgFileExplorerModel(File ecgFileDir, OnEcgFileExploreListener listener) throws IOException{
         if(ecgFileDir == null) {
             throw new IOException("The ecg file dir is null");
         }
@@ -66,23 +77,44 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
             throw new IOException("The ecg file dir is invalid.");
         }
 
-        filesManager = new EcgFilesManager(ecgFileDir);
+        filesManager = new EcgFilesManager(listener);
+
+        this.ecgFileDir = ecgFileDir;
+
+        File[] files = BleDeviceUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
+
+        Arrays.sort(files, new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                String f1 = o1.getName();
+                String f2 = o2.getName();
+                long createTime1 = Long.parseLong(f1.substring(MACADDRESS_CHAR_NUM, f1.length()-4));
+                long createTime2 = Long.parseLong(f2.substring(MACADDRESS_CHAR_NUM, f2.length()-4));
+                if(createTime1 == createTime2) return 0;
+                return (createTime2 > createTime1) ? 1 : -1;
+            }
+        });
+
+        fileList = new ArrayList<>(Arrays.asList(files));
+
+        fileIterator = fileList.iterator();
 
         this.listener = listener;
     }
 
-    public static EcgFileExplorerModel newInstance(File ecgFileDir, OnEcgFileExploreListener listener) throws IOException{
-        EcgFileExplorerModel model = new EcgFileExplorerModel(ecgFileDir, listener);
-
-        model.filesManager.setListener(model);
-
-        return model;
+    public void loadNextFiles() {
+        loadNextFiles(FILENUM_LOADED_EACH_TIMES);
     }
 
-    // 打开所有文件
-    public void openAllFiles() {
-        for(File file : filesManager.getFileList()) {
+    private void loadNextFiles(int num) {
+        int i = 0;
+
+        while(i < num && fileIterator.hasNext()) {
+            File file = fileIterator.next();
+
             openFile(file);
+
+            i++;
         }
     }
 
@@ -104,7 +136,7 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
     // 从微信导入文件
     public void importFromWechat() {
-        filesManager.importFromWechat();
+        filesManager.importToFromWechat(ecgFileDir);
     }
 
     // 用微信分享一个文件
@@ -139,18 +171,4 @@ public class EcgFileExplorerModel implements EcgFilesManager.OnEcgFilesChangeLis
 
         filesManager.close();
     }
-
-    @Override
-    public void onFileListChanged(final List<EcgFile> fileList) {
-        if(listener != null)
-            listener.onFileListChanged(fileList);
-    }
-
-    @Override
-    public void onSelectFileChanged(final EcgFile ecgFile) {
-        if(listener != null)
-            listener.onSelectFileChanged(ecgFile);
-
-    }
-
 }

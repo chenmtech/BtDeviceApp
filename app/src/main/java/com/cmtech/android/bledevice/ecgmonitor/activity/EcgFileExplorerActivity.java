@@ -3,7 +3,9 @@ package com.cmtech.android.bledevice.ecgmonitor.activity;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -32,6 +34,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.Ecg
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -100,6 +103,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
 
     private TextView tvNoRecord;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +114,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         setSupportActionBar(toolbar);
 
         try {
-            model = EcgFileExplorerModel.newInstance(ECG_FILE_DIR, this);
+            model = new EcgFileExplorerModel(ECG_FILE_DIR, this);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "心电文件目录错误。", Toast.LENGTH_SHORT).show();
@@ -128,6 +132,30 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
         rvFiles.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
         fileAdapter = new EcgFileListAdapter(this);
         rvFiles.setAdapter(fileAdapter);
+        rvFiles.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            int lastVisibleItem ;
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
+                if(newState==RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1){
+                    model.loadNextFiles();
+                }
+
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                if(layoutManager != null)
+                    lastVisibleItem=layoutManager.findLastVisibleItemPosition();
+            }
+        });
+
 
         rvComments = findViewById(R.id.rv_ecgcomment_list);
         LinearLayoutManager commentLayoutManager = new LinearLayoutManager(this);
@@ -186,7 +214,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
 
         tvNoRecord = findViewById(R.id.tv_no_record);
 
-        model.openAllFiles();
+        model.loadNextFiles();
     }
 
 
