@@ -10,7 +10,7 @@ import android.os.Message;
 import com.cmtech.android.ble.callback.scan.ScanCallback;
 import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
 import com.cmtech.android.ble.common.ConnectState;
-import com.cmtech.android.ble.core.OnDeviceMirrorStateChanged;
+import com.cmtech.android.ble.core.OnDeviceMirrorStateChangedListener;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -25,7 +25,7 @@ import java.util.List;
  * Created by bme on 2018/2/19.
  */
 
-public abstract class BleDevice implements OnDeviceMirrorStateChanged {
+public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     private final static String TAG = "BleDevice";
 
     private BleDeviceBasicInfo basicInfo; // 设备基本信息对象
@@ -42,6 +42,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChanged {
 
     private final Handler workHandler; // 工作Handler，包括连接相关的处理和Gatt命令和数据的处理，都在Handler线程中执行
 
+    // 需要同步
     private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED; // 设备连接状态，初始化为关闭状态
 
     private final List<OnBleDeviceStateListener> deviceStateListeners = new LinkedList<>(); // 设备状态观察者列表
@@ -100,32 +101,31 @@ public abstract class BleDevice implements OnDeviceMirrorStateChanged {
 
     public void setBluetoothLeDevice(BluetoothLeDevice bluetoothLeDevice) { this.bluetoothLeDevice = bluetoothLeDevice; }
 
-    public String getStateDescription() {
+    public synchronized String getStateDescription() {
         return connectState.getDescription();
     } // 获取设备状态描述信息
-
-    public int getStateIcon() {
-        return connectState.getIcon();
-    } // 获取设备状态图标
 
     public boolean isClosing() {
         return closing;
     } // 是否关闭中
 
-    public boolean isClosed() {
+    public synchronized boolean isClosed() {
         return connectState == BleDeviceConnectState.CONNECT_CLOSED;
     }
 
-    public boolean isConnected() {
+    public synchronized boolean isConnected() {
         return connectState == BleDeviceConnectState.CONNECT_SUCCESS;
     }
 
-    public BleDeviceConnectState getConnectState() {
+    public synchronized BleDeviceConnectState getConnectState() {
         return connectState;
     }
 
-    public void setConnectState(BleDeviceConnectState connectState) {
+    public synchronized void setConnectState(BleDeviceConnectState connectState) {
         if(this.connectState != connectState) {
+
+            ViseLog.e("ConnectState changed thread: " + Thread.currentThread() + "State is : " + connectState);
+
             this.connectState = connectState;
             updateDeviceConnectState();
         }
@@ -143,7 +143,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChanged {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        listener.onDeviceBatteryUpdated(BleDevice.this);
+                        listener.onUpdateDeviceBattery(BleDevice.this);
                     }
                 });
             }
@@ -234,16 +234,16 @@ public abstract class BleDevice implements OnDeviceMirrorStateChanged {
     }
 
     // 登记设备状态观察者
-    public final void registerDeviceStateObserver(OnBleDeviceStateListener observer) {
-        ViseLog.e("register device observer:" + observer);
-        if(!deviceStateListeners.contains(observer)) {
-            deviceStateListeners.add(observer);
+    public final void registerDeviceStateListener(OnBleDeviceStateListener listener) {
+        ViseLog.e("register device listener:" + listener);
+        if(!deviceStateListeners.contains(listener)) {
+            deviceStateListeners.add(listener);
         }
     }
 
     // 删除设备状态观察者
-    public final void removeDeviceStateObserver(OnBleDeviceStateListener observer) {
-        deviceStateListeners.remove(observer);
+    public final void removeDeviceStateListener(OnBleDeviceStateListener listener) {
+        deviceStateListeners.remove(listener);
     }
 
     // 通知设备状态观察者
@@ -253,7 +253,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChanged {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        listener.onDeviceConnectStateUpdated(BleDevice.this);
+                        listener.onUpdateDeviceConnectState(BleDevice.this);
                     }
                 });
             }
@@ -274,9 +274,9 @@ public abstract class BleDevice implements OnDeviceMirrorStateChanged {
         }
     }
 
-    // IDeviceMirrorStateObserver接口函数
+
     @Override
-    public void updateStateAccordingMirror(ConnectState mirrorState) {
+    public void onUpdateDeviceStateAccordingMirrorState(ConnectState mirrorState) {
         setConnectState(BleDeviceConnectState.getFromCode(mirrorState.getCode()));
     }
 

@@ -442,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         super.onDestroy();
 
         for(BleDevice device : deviceService.getDeviceList()) {
-            device.removeDeviceStateObserver(this);
+            device.removeDeviceStateListener(this);
         }
 
         unbindService(deviceServiceConnect);
@@ -490,7 +490,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 更新设备状态
     @Override
-    public void onDeviceConnectStateUpdated(final BleDevice device) {
+    public void onUpdateDeviceConnectState(final BleDevice device) {
         // 更新设备列表Adapter
         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
 
@@ -522,7 +522,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void onDeviceBatteryUpdated(final BleDevice device) {
+    public void onUpdateDeviceBattery(final BleDevice device) {
         if(fragmentManager.isDeviceFragmentSelected(device)) {
             toolbarManager.setBattery(device.getBattery());
         }

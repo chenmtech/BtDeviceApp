@@ -267,6 +267,11 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     public void executeAfterDisconnect() {
         gattOperator.stop();
 
+        if(isMeasureBattery) {
+            stopMeasureBattery();
+            isMeasureBattery = false;
+        }
+
         if(processThread != null) {
             processThread.interrupt();
         }
@@ -275,6 +280,11 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     @Override
     public void executeAfterConnectFailure() {
         gattOperator.stop();
+
+        if(isMeasureBattery) {
+            stopMeasureBattery();
+            isMeasureBattery = false;
+        }
 
         if(processThread != null) {
             processThread.interrupt();
@@ -697,6 +707,11 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private void stopMeasureBattery() {
         if(readBatteryService != null) {
             readBatteryService.shutdownNow();
+            try {
+                readBatteryService.awaitTermination(100, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

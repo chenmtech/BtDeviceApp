@@ -72,7 +72,7 @@ public abstract class BleDeviceFragment extends Fragment{
         updateState();
 
         // 注册设备状态观察者
-        device.registerDeviceStateObserver(activity);
+        device.registerDeviceStateListener(activity);
         device.updateDeviceConnectState();
 
         // 打开设备
@@ -84,7 +84,7 @@ public abstract class BleDeviceFragment extends Fragment{
         super.onDestroy();
 
         // 移除activity设备状态观察者
-        device.removeDeviceStateObserver(activity);
+        device.removeDeviceStateListener(activity);
     }
 
     // 切换设备状态，根据设备的当前状态实现状态切换

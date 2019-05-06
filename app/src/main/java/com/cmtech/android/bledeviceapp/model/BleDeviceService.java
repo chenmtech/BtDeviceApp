@@ -102,7 +102,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         for(final BleDevice device : getDeviceList()) {
             device.close();
             device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
-            device.removeDeviceStateObserver(BleDeviceService.this);
+            device.removeDeviceStateListener(BleDeviceService.this);
         }
 
         stopForeground(true);
@@ -128,7 +128,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     @Override
-    public void onDeviceConnectStateUpdated(final BleDevice device) {
+    public void onUpdateDeviceConnectState(final BleDevice device) {
         List<String> info = new ArrayList<>();
         for(BleDevice dev : deviceManager.getDeviceList()) {
             if(dev.getConnectState() != BleDeviceConnectState.CONNECT_CLOSED) {
@@ -155,7 +155,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     @Override
-    public void onDeviceBatteryUpdated(BleDevice device) {
+    public void onUpdateDeviceBattery(BleDevice device) {
 
     }
 
@@ -163,7 +163,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     public BleDevice createAndAddDevice(BleDeviceBasicInfo basicInfo) {
         BleDevice device = deviceManager.createAndAddDevice(basicInfo);
         if(device != null) {
-            device.registerDeviceStateObserver(this);
+            device.registerDeviceStateListener(this);
         }
         return device;
     }

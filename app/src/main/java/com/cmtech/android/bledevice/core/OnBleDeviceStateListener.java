@@ -6,8 +6,8 @@ package com.cmtech.android.bledevice.core;
  */
 
 public interface OnBleDeviceStateListener {
-    void onDeviceConnectStateUpdated(final BleDevice device);
+    void onUpdateDeviceConnectState(final BleDevice device);
     void onNotifyReconnectFailure(final BleDevice device, boolean warn);
-    void onDeviceBatteryUpdated(final BleDevice device);
+    void onUpdateDeviceBattery(final BleDevice device);
 
 }
