@@ -45,7 +45,7 @@ public class MyConnectCallback implements IConnectCallback {
 
     @Override
     public void onDisconnect(boolean isActive) {
-        ViseLog.e("Disconnect Thread: " + Thread.currentThread());
+        ViseLog.e("onDisconnect Thread: " + Thread.currentThread());
 
         processDisconnect(isActive);
     }
