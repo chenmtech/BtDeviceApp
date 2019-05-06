@@ -73,7 +73,7 @@ public class MyConnectCallback implements IConnectCallback {
             device.disconnect();
         }
 
-        clearReconnectTimes();
+        curReconnectTimes = 0;
 
         connectSuccess = true;
     }

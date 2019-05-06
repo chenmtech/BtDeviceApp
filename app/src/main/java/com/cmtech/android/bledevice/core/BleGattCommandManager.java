@@ -10,10 +10,6 @@ import com.cmtech.android.ble.utils.HexUtil;
 import com.vise.log.ViseLog;
 
 import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * BleGattCommandManager: Ble Gatt命令执行器
@@ -57,7 +53,7 @@ public class BleGattCommandManager {
     }
 
     synchronized void processCommandSuccessCallback(IBleCallback bleCallback, byte[] data, BluetoothGattChannel bluetoothGattChannel, BluetoothLeDevice bluetoothLeDevice) {
-        ViseLog.e("success execute command: " + currentCommand);
+        ViseLog.d("success execute command: " + currentCommand);
 
         // 清除当前命令的数据操作IBleCallback，否则会出现多次执行该回调.
         // 有可能是ViseBle内部问题，也有可能本身蓝牙就会这样
@@ -168,7 +164,7 @@ public class BleGattCommandManager {
     }
 
     private void addCommandToList(BleGattCommand command) {
-        ViseLog.e("add command: " + command);
+        ViseLog.d("add command: " + command);
 
         if(!commandList.add(command))
             throw new IllegalStateException();
@@ -183,7 +179,7 @@ public class BleGattCommandManager {
             if(currentCommand != null) {
                 currentCommand.execute();
 
-                ViseLog.e("execute command: " + currentCommand);
+                ViseLog.d("execute command: " + currentCommand);
 
                 // 设置未完成标记
                 if (!currentCommand.isInstantCommand())

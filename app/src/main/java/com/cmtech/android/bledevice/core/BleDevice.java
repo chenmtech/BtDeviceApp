@@ -32,7 +32,8 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
     private int battery = -1;
 
-    private BluetoothLeDevice bluetoothLeDevice = null; // 设备BluetoothLeDevice，当扫描到后会赋值，并一直保留，直到程序关闭
+    // 需要同步
+    private volatile BluetoothLeDevice bluetoothLeDevice = null; // 设备BluetoothLeDevice，当扫描到后会赋值，并一直保留，直到程序关闭
 
     private boolean closing = false; // 标记设备是否正在关闭，如果是，则对设备的所有回调都不会响应
 
@@ -98,8 +99,6 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     public int getReconnectTimes() { return basicInfo.getReconnectTimes(); }
 
     public BluetoothLeDevice getBluetoothLeDevice() { return bluetoothLeDevice; }
-
-    public void setBluetoothLeDevice(BluetoothLeDevice bluetoothLeDevice) { this.bluetoothLeDevice = bluetoothLeDevice; }
 
     public synchronized String getStateDescription() {
         return connectState.getDescription();
@@ -274,6 +273,25 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
         }
     }
 
+    // 处理扫描结果
+    synchronized void processScanResult(boolean canConnect, BluetoothLeDevice bluetoothLeDevice) {
+        ViseLog.e("Process scan result thread: " + Thread.currentThread());
+
+        if(isClosing())
+            return;
+
+        if(canConnect) {
+            this.bluetoothLeDevice = bluetoothLeDevice;
+
+            setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
+
+            startConnect(1000); // 扫描成功，启动连接
+        } else {
+            removeCallbacksAndMessages();
+
+            setConnectState(BleDeviceConnectState.CONNECT_DISCONNECT);
+        }
+    }
 
     @Override
     public void onUpdateDeviceStateAccordingMirrorState(ConnectState mirrorState) {
