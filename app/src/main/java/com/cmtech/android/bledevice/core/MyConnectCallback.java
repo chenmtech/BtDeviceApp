@@ -5,6 +5,8 @@ import com.cmtech.android.ble.core.DeviceMirror;
 import com.cmtech.android.ble.exception.BleException;
 import com.vise.log.ViseLog;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.RECONNECT_INTERVAL;
 
 /**
@@ -19,44 +21,46 @@ public class MyConnectCallback implements IConnectCallback {
     private boolean connectSuccess = false; // 标记是否刚刚已经执行了onConnectSuccess，为了防止有时候出现连续两次执行的异常情况。这个异常是BLE包的问题
 
     // 需要同步
-    private int curReconnectTimes = 0; // 当前已重连次数
+    private AtomicInteger curReconnectTimes = new AtomicInteger(0); // 当前已重连次数
 
     MyConnectCallback(BleDevice device) {
         this.device = device;
     }
 
-    synchronized void clearReconnectTimes() {
-        curReconnectTimes = 0;
+    void clearReconnectTimes() {
+        curReconnectTimes.set(0);
     }
 
     @Override
-    public void onConnectSuccess(DeviceMirror deviceMirror) {
+    public synchronized void onConnectSuccess(DeviceMirror deviceMirror) {
         ViseLog.e("Connect Success Thread: " + Thread.currentThread());
 
         processConnectSuccess(deviceMirror);
     }
 
     @Override
-    public void onConnectFailure(BleException exception) {
+    public synchronized void onConnectFailure(BleException exception) {
         ViseLog.e("Connect Failure Thread: " + Thread.currentThread());
 
         processConnectFailure(exception);
     }
 
     @Override
-    public void onDisconnect(boolean isActive) {
+    public synchronized void onDisconnect(boolean isActive) {
         ViseLog.e("onDisconnect Thread: " + Thread.currentThread());
 
         processDisconnect(isActive);
     }
 
     // 连接成功回调处理
-    private synchronized void processConnectSuccess(DeviceMirror mirror) {
+    private void processConnectSuccess(DeviceMirror mirror) {
         ViseLog.i("processConnectSuccess");
+
         // 防止多次连接成功
         if(connectSuccess) {
             return;
         }
+
         if(device.isClosing()) {
             BleDeviceUtil.disconnect(device);
             return;
@@ -73,13 +77,13 @@ public class MyConnectCallback implements IConnectCallback {
             device.disconnect();
         }
 
-        curReconnectTimes = 0;
+        clearReconnectTimes();
 
         connectSuccess = true;
     }
 
     // 连接错误回调处理
-    private synchronized void processConnectFailure(final BleException bleException) {
+    private void processConnectFailure(final BleException bleException) {
         ViseLog.e("processConnectFailure: " + bleException);
 
         if(device.isClosing())
@@ -96,7 +100,7 @@ public class MyConnectCallback implements IConnectCallback {
     }
 
     // 连接断开回调处理
-    private synchronized void processDisconnect(boolean isActive) {
+    private void processDisconnect(boolean isActive) {
         ViseLog.e("processDisconnect：" + isActive);
 
         if(device.isClosing()) {
@@ -115,11 +119,11 @@ public class MyConnectCallback implements IConnectCallback {
     private void reconnect() {
         int canReconnectTimes = device.getReconnectTimes();
 
-        if(curReconnectTimes < canReconnectTimes || canReconnectTimes == -1) {
+        if(curReconnectTimes.get() < canReconnectTimes || canReconnectTimes == -1) {
             device.startConnect(RECONNECT_INTERVAL);
 
-            if(curReconnectTimes < canReconnectTimes)
-                curReconnectTimes++;
+            if(curReconnectTimes.get() < canReconnectTimes)
+                curReconnectTimes.incrementAndGet();
 
         } else if(device.getBasicInfo().isWarnAfterReconnectFailure()) {
             device.notifyReconnectFailureObservers(true); // 重连失败后通知报警
