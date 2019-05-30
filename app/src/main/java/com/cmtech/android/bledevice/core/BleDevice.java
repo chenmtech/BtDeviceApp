@@ -25,8 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.RECONNECT_INTERVAL;
-
 /**
  * BleDevice: 低功耗蓝牙设备类
  * 作为DeviceMirror的状态的观察者，需要实现IDeviceMirrorStateObserver
@@ -388,7 +386,15 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
         int canReconnectTimes = getReconnectTimes();
 
         if(curReconnectTimes.get() < canReconnectTimes || canReconnectTimes == -1) {
-            startConnect(RECONNECT_INTERVAL);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    //setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
+
+                    startConnect(1000);
+                }
+            });
+            //startConnect(RECONNECT_INTERVAL);
 
             if(curReconnectTimes.get() < canReconnectTimes)
                 curReconnectTimes.incrementAndGet();
