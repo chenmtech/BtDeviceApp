@@ -36,7 +36,7 @@ public class EcgCalibrateDataProcessor {
         }
         else {
             int value = calculateCalibration(calibrationData); // 计算得到实际定标值
-            ViseLog.e(calibrationData.toString() + " " + String.valueOf(value));
+            ViseLog.i(calibrationData.toString() + " " + String.valueOf(value));
             if(listener != null) listener.onUpdateCalibrateValue(value);
             calibrationData.clear();
         }

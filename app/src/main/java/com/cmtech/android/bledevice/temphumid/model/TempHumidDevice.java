@@ -212,7 +212,6 @@ public class TempHumidDevice extends BleDevice {
                 saveDataToDb(data);
                 timeLastUpdated = (Calendar) data.getTime().clone();
                 addHistoryData(data);
-                ViseLog.e("onFileListChanged history data");
                 break;
 
                 default:

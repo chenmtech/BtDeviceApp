@@ -49,9 +49,9 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
     private boolean connectSuccess = false;
 
-    private final ScanCallback scanCallback; // 扫描回调适配器，将IScanCallback适配为BluetoothAdapter.LeScanCallback
-
-    private final MyConnectCallback connectCallback = new MyConnectCallback(this); // 连接回调
+    // 扫描回调适配器，将IScanCallback适配为BluetoothAdapter.LeScanCallback
+    // 每次新的扫描必须创建新的实例
+    private ScanCallback scanCallback;
 
     private final Handler workHandler; // 工作Handler，包括连接相关的处理和Gatt命令和数据的处理，都在Handler线程中执行
 
@@ -70,8 +70,6 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
         this.basicInfo = basicInfo;
 
         workHandler = createWorkHandler("Device:" + basicInfo.getMacAddress());
-
-        scanCallback = new SingleFilterScanCallback(new MyScanCallback(this)).setDeviceMac(basicInfo.getMacAddress());
     }
 
     public BleDeviceBasicInfo getBasicInfo() {
@@ -131,7 +129,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     public synchronized void setConnectState(BleDeviceConnectState connectState) {
         if(this.connectState != connectState) {
 
-            ViseLog.e("ConnectState changed thread: " + Thread.currentThread() + "State is : " + connectState);
+            ViseLog.e(connectState + " in " + Thread.currentThread());
 
             this.connectState = connectState;
 
@@ -172,8 +170,9 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
         closing = false;
 
-        if(autoConnect())
-            scanOrConnect();
+        if(autoConnect()) {
+            startScan();
+        }
     }
 
     // 关闭设备
@@ -211,7 +210,8 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
                 break;
 
             default:
-                scanOrConnect();
+                curReconnectTimes.set(0);
+                startScan();
                 break;
         }
     }
@@ -226,7 +226,9 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
         workHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                ViseLog.i("startConnect in " + Thread.currentThread());
+                ViseLog.e("startConnect in " + Thread.currentThread());
+
+                MyConnectCallback connectCallback = new MyConnectCallback(BleDevice.this);
 
                 BleDeviceUtil.connect(bluetoothLeDevice, connectCallback);
             }
@@ -259,7 +261,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
     // 登记设备状态观察者
     public final void registerDeviceStateListener(OnBleDeviceStateListener listener) {
-        ViseLog.e("register device listener:" + listener);
+        ViseLog.i("register device listener:" + listener);
         if(!deviceStateListeners.contains(listener)) {
             deviceStateListeners.add(listener);
         }
@@ -300,9 +302,9 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
     // 处理扫描结果
     synchronized void processScanResult(boolean canConnect, BluetoothLeDevice bluetoothLeDevice) {
-        ViseLog.e("Process scan result thread: " + Thread.currentThread());
+        ViseLog.e("ProcessScanResult: " + canConnect + " in " + Thread.currentThread());
 
-        if(closing)
+        if(closing || isClosed())
             return;
 
         if(canConnect) {
@@ -310,17 +312,19 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
             setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
 
-            startConnect(1000); // 扫描成功，启动连接
+            startConnect(0); // 扫描成功，启动连接
         } else {
             removeCallbacksAndMessages();
 
             setConnectState(BleDeviceConnectState.CONNECT_DISCONNECT);
+
+            reconnect();
         }
     }
 
     // 处理连接成功回调
     synchronized void processConnectSuccess(DeviceMirror mirror) {
-        ViseLog.i("processConnectSuccess");
+        ViseLog.e("processConnectSuccess in " + Thread.currentThread());
 
         if (closing || isClosed()) {
             BleDeviceUtil.disconnect(this);
@@ -342,14 +346,12 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
             disconnect();
         }
 
-        curReconnectTimes.set(0);
-
         connectSuccess = true;
     }
 
     // 处理连接错误
     synchronized void processConnectFailure(final BleException bleException) {
-        ViseLog.e("processConnectFailure: " + bleException);
+        ViseLog.e("processConnectFailure in " + Thread.currentThread() + " with " +bleException );
 
         if (closing || isClosed()) {
             setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
@@ -367,7 +369,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
     // 处理连接断开
     synchronized void processDisconnect(boolean isActive) {
-        ViseLog.e("processDisconnect：" + isActive);
+        ViseLog.e("processDisconnect: " + isActive+ " in " + Thread.currentThread() );
 
         if (closing || isClosed()) {
             setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
@@ -386,19 +388,19 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
         int canReconnectTimes = getReconnectTimes();
 
         if(curReconnectTimes.get() < canReconnectTimes || canReconnectTimes == -1) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
+            /*new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
                     //setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
 
-                    startConnect(1000);
+                    startScan();
                 }
-            });
-            //startConnect(RECONNECT_INTERVAL);
+            });*/
 
             if(curReconnectTimes.get() < canReconnectTimes)
                 curReconnectTimes.incrementAndGet();
 
+            startScan();
         } else if(basicInfo.isWarnAfterReconnectFailure()) {
             notifyReconnectFailureObservers(true); // 重连失败后通知报警
 
@@ -435,27 +437,14 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
         };
     }
 
-    // 扫描或连接
-    private void scanOrConnect() {
-        removeCallbacksAndMessages();
-
-        if(bluetoothLeDevice == null) {         // 没有扫描成功，则启动扫描
-            startScan();
-        } else {        // 否则直接连接
-            curReconnectTimes.set(0);
-
-            setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
-
-            startConnect(1000);
-        }
-    }
-
     // 开始扫描
     private void startScan() {
         workHandler.post(new Runnable() {
             @Override
             public void run() {
-                ViseLog.i("startScan in " + Thread.currentThread());
+                ViseLog.e("startScan in " + Thread.currentThread());
+                scanCallback = new SingleFilterScanCallback(new MyScanCallback(BleDevice.this)).setDeviceMac(basicInfo.getMacAddress());
+
                 scanCallback.setScan(true).scan();
             }
         });
@@ -471,7 +460,9 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
             @Override
             public void run() {
                 ViseLog.i("stopScan in " + Thread.currentThread());
-                scanCallback.setScan(false).scan();
+
+                if(scanCallback != null)
+                    scanCallback.setScan(false).scan();
             }
         });
     }
