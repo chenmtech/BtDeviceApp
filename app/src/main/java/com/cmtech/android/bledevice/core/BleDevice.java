@@ -361,6 +361,8 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
             removeCallbacksAndMessages();
 
+            setConnectState(BleDeviceConnectState.CONNECT_DISCONNECT);
+
             reconnect();
         }
 
@@ -402,6 +404,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
             startScan();
         } else if(basicInfo.isWarnAfterReconnectFailure()) {
+
             notifyReconnectFailureObservers(true); // 重连失败后通知报警
 
         }

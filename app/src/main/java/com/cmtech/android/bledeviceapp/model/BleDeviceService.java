@@ -14,14 +14,14 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
-import com.cmtech.android.bledevice.core.OnBleDeviceStateListener;
-import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 import com.cmtech.android.bledevice.core.BleDeviceConnectState;
 import com.cmtech.android.bledevice.core.BleDeviceManager;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.cmtech.android.bledevice.core.OnBleDeviceStateListener;
+import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -121,10 +121,13 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
                 // 防止设备没有彻底断开
                 BleDeviceUtil.disconnectAllDevice();
                 BleDeviceUtil.clearAllDevice();
+
+                ViseLog.e("killProcess");
+                android.os.Process.killProcess(android.os.Process.myPid());
             }
         }, 1000);
 
-        //android.os.Process.killProcess(android.os.Process.myPid());
+
     }
 
     @Override
