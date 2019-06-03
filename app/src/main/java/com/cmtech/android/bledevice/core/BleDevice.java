@@ -18,7 +18,6 @@ import com.cmtech.android.bledevice.SupportedDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 
-import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 
 import java.util.LinkedList;
@@ -40,7 +39,7 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
     private int battery = -1;
 
     // 设备BluetoothLeDevice，当扫描到后会赋值，并一直保留，直到程序关闭
-    private volatile BluetoothLeDevice bluetoothLeDevice = null;
+    private BluetoothLeDevice bluetoothLeDevice = null;
 
     private AtomicInteger curReconnectTimes = new AtomicInteger(0); // 当前已重连次数
 
@@ -57,8 +56,6 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper(), this);
 
-    // 需要同步
-    @GuardedBy("this")
     private BleDeviceConnectState connectState = BleDeviceConnectState.CONNECT_CLOSED; // 设备连接状态，初始化为关闭状态
 
     private final List<OnBleDeviceStateListener> deviceStateListeners = new LinkedList<>(); // 设备状态观察者列表
@@ -116,11 +113,11 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
 
     public BluetoothLeDevice getBluetoothLeDevice() { return bluetoothLeDevice; }
 
-    public synchronized boolean isClosed() {
+    public boolean isClosed() {
         return connectState == BleDeviceConnectState.CONNECT_CLOSED;
     }
 
-    public synchronized boolean isConnected() {
+    public boolean isConnected() {
         return connectState == BleDeviceConnectState.CONNECT_SUCCESS;
     }
 
@@ -141,7 +138,7 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
     }
 
     // 获取设备状态描述信息
-    public synchronized String getStateDescription() {
+    public String getStateDescription() {
         return connectState.getDescription();
     }
 
@@ -194,7 +191,7 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
     // 销毁设备
     public final synchronized void destroy() {
         ViseLog.i("destroy");
-        mainHandler.getLooper().quit();
+        //mainHandler.getLooper().quit();
     }
 
     // 切换设备状态
@@ -281,12 +278,7 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
     public final void updateDeviceConnectState() {
         for(final OnBleDeviceStateListener listener : deviceStateListeners) {
             if(listener != null) {
-                mainHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onUpdateDeviceConnectState(BleDevice.this);
-                    }
-                });
+                listener.onUpdateDeviceConnectState(BleDevice.this);
             }
         }
     }
@@ -349,7 +341,7 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
 
         mirror.registerStateListener(this);
 
-        setConnectState(BleDeviceConnectState.getFromCode(mirror.getConnectState().getCode()));
+        setConnectState(BleDeviceConnectState.CONNECT_SUCCESS);
 
         // 设备执行连接后处理，如果出错则断开
         if (!executeAfterConnectSuccess()) {
@@ -392,10 +384,15 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
         if (closing || isClosed()) {
             setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
 
-        } else if (!isActive) {
-            executeAfterDisconnect();
+        } else {
+            if (!isActive) {
+                executeAfterDisconnect();
 
-            removeCallbacksAndMessages();
+                removeCallbacksAndMessages();
+            }
+
+            setConnectState(BleDeviceConnectState.CONNECT_DISCONNECT);
+
         }
 
         connectSuccess = false;
@@ -420,12 +417,12 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
 
     @Override
     public void onUpdateDeviceStateAccordingMirrorState(final ConnectState mirrorState) {
-        mainHandler.post(new Runnable() {
+        /*mainHandler.post(new Runnable() {
             @Override
             public void run() {
                 setConnectState(BleDeviceConnectState.getFromCode(mirrorState.getCode()));
             }
-        });
+        });*/
     }
 
     /*
