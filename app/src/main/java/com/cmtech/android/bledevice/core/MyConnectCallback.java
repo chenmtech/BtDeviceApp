@@ -17,26 +17,37 @@ public class MyConnectCallback implements IConnectCallback {
         this.device = device;
     }
 
-
     @Override
-    public void onConnectSuccess(DeviceMirror deviceMirror) {
-        //ViseLog.e("Connect Success Thread: " + Thread.currentThread());
+    public void onConnectSuccess(final DeviceMirror deviceMirror) {
+        device.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                device.processConnectSuccess(deviceMirror);
+            }
+        }, 0);
 
-        device.processConnectSuccess(deviceMirror);
     }
 
     @Override
-    public void onConnectFailure(BleException exception) {
-        //ViseLog.e("Connect Failure Thread: " + Thread.currentThread());
+    public void onConnectFailure(final BleException exception) {
+        device.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                device.processConnectFailure(exception);
+            }
+        }, 0);
 
-        device.processConnectFailure(exception);
     }
 
     @Override
-    public void onDisconnect(boolean isActive) {
-        //ViseLog.e("onDisconnect Thread: " + Thread.currentThread());
+    public void onDisconnect(final boolean isActive) {
+        device.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                device.processDisconnect(isActive);
+            }
+        }, 0);
 
-        device.processDisconnect(isActive);
     }
 
 

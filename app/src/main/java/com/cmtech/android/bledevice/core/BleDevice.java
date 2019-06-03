@@ -3,9 +3,9 @@ package com.cmtech.android.bledevice.core;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.MainThread;
 
 import com.cmtech.android.ble.callback.scan.ScanCallback;
 import com.cmtech.android.ble.callback.scan.SingleFilterScanCallback;
@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 
 @ThreadSafe
-public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
+public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorStateChangedListener {
     private final static String TAG = "BleDevice";
 
     private BleDeviceBasicInfo basicInfo; // 设备基本信息对象
@@ -53,7 +53,9 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     // 每次新的扫描必须创建新的实例
     private ScanCallback scanCallback;
 
-    private final Handler workHandler; // 工作Handler，包括连接相关的处理和Gatt命令和数据的处理，都在Handler线程中执行
+    //private final Handler bleHandler; // 工作Handler，包括连接相关的处理和Gatt命令和数据的处理，都在Handler线程中执行
+
+    private final Handler mainHandler = new Handler(Looper.getMainLooper(), this);
 
     // 需要同步
     @GuardedBy("this")
@@ -69,7 +71,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     public BleDevice(BleDeviceBasicInfo basicInfo) {
         this.basicInfo = basicInfo;
 
-        workHandler = createWorkHandler("Device:" + basicInfo.getMacAddress());
+        //bleHandler = createWorkHandler("Device:" + basicInfo.getMacAddress());
     }
 
     public BleDeviceBasicInfo getBasicInfo() {
@@ -122,11 +124,12 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
         return connectState == BleDeviceConnectState.CONNECT_SUCCESS;
     }
 
-    public synchronized BleDeviceConnectState getConnectState() {
+    @MainThread
+    public BleDeviceConnectState getConnectState() {
         return connectState;
     }
 
-    public synchronized void setConnectState(BleDeviceConnectState connectState) {
+    public void setConnectState(BleDeviceConnectState connectState) {
         if(this.connectState != connectState) {
 
             ViseLog.e(connectState + " in " + Thread.currentThread());
@@ -151,7 +154,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
         for(final OnBleDeviceStateListener listener : deviceStateListeners) {
             if(listener != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         listener.onUpdateDeviceBattery(BleDevice.this);
@@ -191,7 +194,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     // 销毁设备
     public final synchronized void destroy() {
         ViseLog.i("destroy");
-        workHandler.getLooper().quit();
+        mainHandler.getLooper().quit();
     }
 
     // 切换设备状态
@@ -218,12 +221,14 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
     // 发送Gatt消息给工作线程
     public final void sendGattMessage(int what, Object obj) {
-        Message.obtain(workHandler, what, obj).sendToTarget();
+        Message.obtain(mainHandler, what, obj).sendToTarget();
     }
 
     // 延时后开始连接，有些资料说最好放到UI线程中执行连接
     private void startConnect(final int millisecond) {
-        workHandler.postDelayed(new Runnable() {
+        //removeCallbacksAndMessages();
+
+        mainHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 ViseLog.e("startConnect in " + Thread.currentThread());
@@ -241,7 +246,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
         removeCallbacksAndMessages();
 
-        workHandler.post(new Runnable() {
+        mainHandler.post(new Runnable() {
             @Override
             public void run() {
                 ViseLog.e("disconnect in " + Thread.currentThread());
@@ -252,11 +257,11 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     }
 
     public void removeCallbacksAndMessages() {
-        workHandler.removeCallbacksAndMessages(null);
+        mainHandler.removeCallbacksAndMessages(null);
     }
 
     public void postDelayed(Runnable runnable, long delay) {
-        workHandler.postDelayed(runnable, delay);
+        mainHandler.postDelayed(runnable, delay);
     }
 
     // 登记设备状态观察者
@@ -276,7 +281,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     public final void updateDeviceConnectState() {
         for(final OnBleDeviceStateListener listener : deviceStateListeners) {
             if(listener != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         listener.onUpdateDeviceConnectState(BleDevice.this);
@@ -290,7 +295,7 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     public final void notifyReconnectFailureObservers(final boolean isWarn) {
         for(final OnBleDeviceStateListener observer : deviceStateListeners) {
             if(observer != null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         observer.onNotifyReconnectFailure(BleDevice.this, isWarn);
@@ -301,7 +306,8 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     }
 
     // 处理扫描结果
-    synchronized void processScanResult(boolean canConnect, BluetoothLeDevice bluetoothLeDevice) {
+    @MainThread
+    void processScanResult(boolean canConnect, BluetoothLeDevice bluetoothLeDevice) {
         ViseLog.e("ProcessScanResult: " + canConnect + " in " + Thread.currentThread());
 
         if(closing || isClosed())
@@ -312,7 +318,10 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
             setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
 
-            startConnect(0); // 扫描成功，启动连接
+            if(scanCallback != null)
+                scanCallback.setScan(false).scan();
+
+            startConnect(500); // 扫描成功，启动连接
         } else {
             removeCallbacksAndMessages();
 
@@ -323,7 +332,8 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     }
 
     // 处理连接成功回调
-    synchronized void processConnectSuccess(DeviceMirror mirror) {
+    @MainThread
+    void processConnectSuccess(DeviceMirror mirror) {
         ViseLog.e("processConnectSuccess in " + Thread.currentThread());
 
         if (closing || isClosed()) {
@@ -350,7 +360,8 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     }
 
     // 处理连接错误
-    synchronized void processConnectFailure(final BleException bleException) {
+    @MainThread
+    void processConnectFailure(final BleException bleException) {
         ViseLog.e("processConnectFailure in " + Thread.currentThread() + " with " +bleException );
 
         if (closing || isClosed()) {
@@ -363,14 +374,19 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
 
             setConnectState(BleDeviceConnectState.CONNECT_DISCONNECT);
 
-            reconnect();
+            bluetoothLeDevice = null;
+
+            //reconnect();
         }
+
+        //disconnect();
 
         connectSuccess = false;
     }
 
     // 处理连接断开
-    synchronized void processDisconnect(boolean isActive) {
+    @MainThread
+    void processDisconnect(boolean isActive) {
         ViseLog.e("processDisconnect: " + isActive+ " in " + Thread.currentThread() );
 
         if (closing || isClosed()) {
@@ -390,14 +406,6 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
         int canReconnectTimes = getReconnectTimes();
 
         if(curReconnectTimes.get() < canReconnectTimes || canReconnectTimes == -1) {
-            /*new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    //setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
-
-                    startScan();
-                }
-            });*/
 
             if(curReconnectTimes.get() < canReconnectTimes)
                 curReconnectTimes.incrementAndGet();
@@ -411,8 +419,13 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
     }
 
     @Override
-    public void onUpdateDeviceStateAccordingMirrorState(ConnectState mirrorState) {
-        setConnectState(BleDeviceConnectState.getFromCode(mirrorState.getCode()));
+    public void onUpdateDeviceStateAccordingMirrorState(final ConnectState mirrorState) {
+        mainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                setConnectState(BleDeviceConnectState.getFromCode(mirrorState.getCode()));
+            }
+        });
     }
 
     /*
@@ -427,39 +440,43 @@ public abstract class BleDevice implements OnDeviceMirrorStateChangedListener {
      * 私有方法
      */
     // 创建工作线程，输出Handler
-    private Handler createWorkHandler(String threadName) {
+    /*private Handler createWorkHandler(String threadName) {
         HandlerThread thread = new HandlerThread(threadName);
 
         thread.start();
 
-        return new Handler(thread.getLooper()) {
-            @Override
-            public void handleMessage(Message msg) {
-                processGattMessage(msg);
-            }
-        };
+        return new Handler(thread.getLooper(), this);
+    }*/
+
+    @Override
+    public boolean handleMessage(Message message) {
+        processGattMessage(message);
+
+        return false;
     }
 
     // 开始扫描
     private void startScan() {
-        workHandler.post(new Runnable() {
+
+        mainHandler.post(new Runnable() {
             @Override
             public void run() {
                 ViseLog.e("startScan in " + Thread.currentThread());
+
                 scanCallback = new SingleFilterScanCallback(new MyScanCallback(BleDevice.this)).setDeviceMac(basicInfo.getMacAddress());
 
                 scanCallback.setScan(true).scan();
+
+                setConnectState(BleDeviceConnectState.CONNECT_SCAN);
             }
         });
-
-        setConnectState(BleDeviceConnectState.CONNECT_SCAN);
     }
 
     // 停止扫描
     private void stopScan() {
         removeCallbacksAndMessages();
 
-        workHandler.post(new Runnable() {
+        mainHandler.post(new Runnable() {
             @Override
             public void run() {
                 ViseLog.i("stopScan in " + Thread.currentThread());

@@ -292,8 +292,10 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     @Override
-    public synchronized void processGattMessage(Message msg)
+    public void processGattMessage(Message msg)
     {
+        ViseLog.e("processGattMessage " + msg + " in " + Thread.currentThread());
+
         switch (msg.what) {
             // 接收到采样率
             case MSG_SAMPLERATE_OBTAINED:

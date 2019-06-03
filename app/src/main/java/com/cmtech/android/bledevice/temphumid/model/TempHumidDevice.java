@@ -191,6 +191,8 @@ public class TempHumidDevice extends BleDevice {
     @Override
     public synchronized void processGattMessage(Message msg)
     {
+        ViseLog.e("processGattMessage " + msg + " in " + Thread.currentThread());
+
         switch (msg.what) {
             // 获取到当前温湿度值
             case MSG_TEMPHUMIDDATA:
