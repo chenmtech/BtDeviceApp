@@ -274,6 +274,11 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
         if(processThread != null) {
             processThread.interrupt();
+            try {
+                processThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

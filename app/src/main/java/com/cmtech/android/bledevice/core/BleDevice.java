@@ -310,9 +310,6 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
 
             setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
 
-            if(scanCallback != null)
-                scanCallback.setScan(false).scan();
-
             startConnect(500); // 扫描成功，启动连接
         } else {
             removeCallbacksAndMessages();
@@ -368,7 +365,7 @@ public abstract class BleDevice implements Handler.Callback, OnDeviceMirrorState
 
             bluetoothLeDevice = null;
 
-            //reconnect();
+            reconnect();
         }
 
         //disconnect();
