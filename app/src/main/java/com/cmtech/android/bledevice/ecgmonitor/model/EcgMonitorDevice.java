@@ -60,6 +60,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private static final int MSG_SAMPLERATE_OBTAINED = 1;                          // 获取到采样率
     private static final int MSG_LEADTYPE_OBTAINED = 2;                            // 获取导联类型
     private static final int MSG_START_SAMPLINGSIGNAL = 3;                       // 开始采集Ecg信号
+    private static final int MSG_BATTERY_OBTAINED = 4;
 
     // 心电监护仪Service UUID常量
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
@@ -327,6 +328,12 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
                 setState(EcgMonitorState.SAMPLE);
                 break;
 
+            case MSG_BATTERY_OBTAINED:
+                if(msg.obj != null) {
+                    updateBattery(((Number)msg.obj).intValue());
+                }
+                break;
+
             default:
                 break;
         }
@@ -400,8 +407,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     @Override
-    public void disconnect() {
-        ViseLog.e(TAG, "disconnect()");
+    protected void disconnect() {
+        ViseLog.e("EcgMonitorDevice disconnect()");
 
         int delay = 0;
         if(isConnected() && gattOperator.isAlive()) {
@@ -697,7 +704,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
                     @Override
                     public void onSuccess(byte[] data) {
                         int battery = data[0];
-                        updateBattery(battery);
+                        sendGattMessage(MSG_BATTERY_OBTAINED, battery);
                     }
 
                     @Override
@@ -807,13 +814,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     private void updateBattery(final int bat) {
         setBattery(bat);
 
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
-                    listener.onBatteryChanged(bat);
-            }
-        });
+        if(listener != null)
+            listener.onBatteryChanged(bat);
     }
 
 }
