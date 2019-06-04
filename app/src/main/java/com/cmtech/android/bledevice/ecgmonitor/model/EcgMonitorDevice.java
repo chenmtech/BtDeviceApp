@@ -114,7 +114,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
     private final EcgMonitorDeviceConfig config; // 心电监护仪设备配置信息
 
-    private IEcgMonitorListener listener; // 心电监护仪设备监听器
+    private OnEcgMonitorListener listener; // 心电监护仪设备监听器
 
     private EcgCalibrateDataProcessor calibrateDataProcessor; // 标定数据处理器
 
@@ -596,7 +596,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     // 登记心电监护仪观察者
-    public void setEcgMonitorListener(IEcgMonitorListener listener) {
+    public void setEcgMonitorListener(OnEcgMonitorListener listener) {
         this.listener = listener;
     }
 

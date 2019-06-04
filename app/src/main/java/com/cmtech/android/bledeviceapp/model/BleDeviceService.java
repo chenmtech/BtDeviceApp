@@ -131,7 +131,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     @Override
-    public void onUpdateDeviceConnectState(final BleDevice device) {
+    public void onDeviceConnectStateUpdated(final BleDevice device) {
         List<String> info = new ArrayList<>();
         for(BleDevice dev : deviceManager.getDeviceList()) {
             if(dev.getConnectState() != BleDeviceConnectState.CONNECT_CLOSED) {
@@ -149,7 +149,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     @Override
-    public void onNotifyReconnectFailure(BleDevice device, boolean warn) {
+    public void onReconnectFailureNotify(BleDevice device, boolean warn) {
         if(warn) {
             playWarnRingtone();
         } else {
@@ -158,7 +158,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     @Override
-    public void onUpdateDeviceBattery(BleDevice device) {
+    public void onDeviceBatteryUpdated(BleDevice device) {
 
     }
 

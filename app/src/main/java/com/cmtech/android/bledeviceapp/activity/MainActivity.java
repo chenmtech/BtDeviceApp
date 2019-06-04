@@ -490,7 +490,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 更新设备状态
     @Override
-    public void onUpdateDeviceConnectState(final BleDevice device) {
+    public void onDeviceConnectStateUpdated(final BleDevice device) {
         // 更新设备列表Adapter
         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
 
@@ -505,7 +505,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void onNotifyReconnectFailure(final BleDevice device, boolean warn) {
+    public void onReconnectFailureNotify(final BleDevice device, boolean warn) {
         if(!warn) return;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -522,7 +522,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void onUpdateDeviceBattery(final BleDevice device) {
+    public void onDeviceBatteryUpdated(final BleDevice device) {
         if(fragmentManager.isDeviceFragmentSelected(device)) {
             toolbarManager.setBattery(device.getBattery());
         }
