@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.MainThread;
+import android.support.v4.content.ContextCompat;
 
 import com.cmtech.android.ble.callback.IConnectCallback;
 import com.cmtech.android.ble.callback.scan.ScanCallback;
@@ -19,14 +20,24 @@ import com.vise.log.ViseLog;
 
 import net.jcip.annotations.ThreadSafe;
 
+import java.io.ObjectInput;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+
 
 /**
- * BleDevice: 低功耗蓝牙设备类
- * 作为DeviceMirror的状态的观察者，需要实现IDeviceMirrorStateObserver
- * Created by bme on 2018/2/19.
+  *
+  * ClassName:      BleDevice
+  * Description:    表示低功耗蓝牙设备
+  * Author:         chenm
+  * CreateDate:     2018-02-19 07:02
+  * UpdateUser:     chenm
+  * UpdateDate:     2019-06-05 07:02
+  * UpdateRemark:   更新说明
+  * Version:        1.0
  */
+
 
 @ThreadSafe
 public abstract class BleDevice implements Handler.Callback {
@@ -68,9 +79,9 @@ public abstract class BleDevice implements Handler.Callback {
 
     private BleDeviceBasicInfo basicInfo; // 设备基本信息对象
 
-    private int battery = -1; // 设备电池电量
-
     private BluetoothLeDevice bluetoothLeDevice = null; // 设备BluetoothLeDevice，当扫描到设备后会赋值
+
+    private int battery = -1; // 设备电池电量
 
     private int curReconnectTimes = 0; // 当前重连次数
 
@@ -79,7 +90,7 @@ public abstract class BleDevice implements Handler.Callback {
 
     private boolean connectSuccess = false;
 
-    // 扫描回调适配器，将IScanCallback适配为BluetoothAdapter.LeScanCallback， 每次新的扫描必须创建新的实例
+    // 扫描回调适配器，将IScanCallback适配为BluetoothAdapter.LeScanCallback，每次新的扫描必须创建新的实例
     private ScanCallback scanCallback;
 
     private BleDeviceConnectState connectState = DEVICE_INIT_STATE; // 设备连接状态，初始化为关闭状态
@@ -124,7 +135,7 @@ public abstract class BleDevice implements Handler.Callback {
         if(getImagePath().equals("")) {
             int imageId = SupportedDeviceType.getDeviceTypeFromUuid(getUuidString()).getDefaultImage();
 
-            return MyApplication.getContext().getResources().getDrawable(imageId);
+            return ContextCompat.getDrawable(MyApplication.getContext(), imageId);
         } else {
             return new BitmapDrawable(MyApplication.getContext().getResources(), getImagePath());
         }
@@ -471,7 +482,7 @@ public abstract class BleDevice implements Handler.Callback {
 
         BleDeviceBasicInfo thatInfo = that.getBasicInfo();
 
-        return (thisInfo != null) ? thisInfo.equals(thatInfo) : (thatInfo == null);
+        return Objects.equals(thisInfo, thatInfo);
     }
 
     @Override
