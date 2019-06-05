@@ -16,7 +16,6 @@ import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
-import com.cmtech.android.bledevice.core.BleDeviceConnectState;
 import com.cmtech.android.bledevice.core.BleDeviceManager;
 import com.cmtech.android.bledevice.core.BleDeviceUtil;
 import com.cmtech.android.bledevice.core.OnBleDeviceStateListener;
@@ -101,7 +100,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
         for(final BleDevice device : getDeviceList()) {
             device.close();
-            device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+            //device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
             device.removeDeviceStateListener(BleDeviceService.this);
         }
 
@@ -134,8 +133,8 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     public void onDeviceConnectStateUpdated(final BleDevice device) {
         List<String> info = new ArrayList<>();
         for(BleDevice dev : deviceManager.getDeviceList()) {
-            if(dev.getConnectState() != BleDeviceConnectState.CONNECT_CLOSED) {
-                info.add(dev.getMacAddress() + ": " + dev.getConnectState().getDescription());
+            if(!dev.isClosed()) {
+                info.add(dev.getMacAddress() + ": " + dev.getConnectStateDescription());
             }
         }
 
@@ -190,7 +189,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     public void closeDevice(final BleDevice device) {
         if(device != null) {
             device.close();
-            device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+            //device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
         }
     }
 

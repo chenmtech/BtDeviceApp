@@ -51,9 +51,8 @@ public class BleDeviceUtil {
     }
 
     // 断开设备连接
-    public static void disconnect(BleDevice device) {
-        if(device != null)
-            ViseBle.getInstance().getDeviceMirrorPool().disconnect(device.getBluetoothLeDevice());
+    public static void disconnect(BluetoothLeDevice bluetoothLeDevice) {
+        ViseBle.getInstance().getDeviceMirrorPool().disconnect(bluetoothLeDevice);
     }
 
     // 移除设备镜像
@@ -67,9 +66,8 @@ public class BleDeviceUtil {
     }
 
     // 获取BleDevice对应的设备镜像
-    public static DeviceMirror getDeviceMirror(BleDevice device) {
-        if(device == null) return null;
-        return ViseBle.getInstance().getDeviceMirrorPool().getDeviceMirror(device.getBluetoothLeDevice());
+    public static DeviceMirror getDeviceMirror(BluetoothLeDevice bluetoothLeDevice) {
+        return ViseBle.getInstance().getDeviceMirrorPool().getDeviceMirror(bluetoothLeDevice);
     }
 
     // 断开所有设备连接

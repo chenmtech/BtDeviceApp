@@ -123,7 +123,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
 
         holder.deviceName.setText(device.getNickName());
         holder.deviceAddress.setText(device.getMacAddress());
-        holder.deviceStatus.setText(device.getStateDescription());
+        holder.deviceStatus.setText(device.getConnectStateDescription());
 
     }
 

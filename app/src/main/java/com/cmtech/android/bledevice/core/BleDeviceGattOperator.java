@@ -32,7 +32,8 @@ public class BleDeviceGattOperator {
     public void start() {
         if((commandExecutor != null) && commandExecutor.isAlive()) return;
 
-        DeviceMirror deviceMirror = BleDeviceUtil.getDeviceMirror(device);
+        DeviceMirror deviceMirror = device.getDeviceMirror();
+
         if(deviceMirror == null) {
             throw new NullPointerException();
         }

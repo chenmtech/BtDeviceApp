@@ -36,7 +36,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.core.AbstractBleDeviceFactory;
 import com.cmtech.android.bledevice.core.BleDevice;
 import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
-import com.cmtech.android.bledevice.core.BleDeviceConnectState;
 import com.cmtech.android.bledevice.core.BleDeviceFragment;
 import com.cmtech.android.bledevice.core.IBleDeviceFragmentActivity;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
@@ -56,8 +55,6 @@ import java.io.Serializable;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_CLOSED;
-import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_PROCESS;
-import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_SCAN;
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 import static com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity.REGISTED_DEVICE_MAC_LIST;
 
@@ -297,8 +294,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             toolbarManager.setTitle(appName, "无设备打开");
             toolbarManager.setBattery(-1);
 
-
-            updateConnectFloatingActionButton(CONNECT_CLOSED);
+            updateConnectFloatingActionButton(CONNECT_CLOSED.getIcon(), false);
 
             invalidateOptionsMenu();
 
@@ -307,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
             toolbarManager.setBattery(device.getBattery());
 
-            updateConnectFloatingActionButton(device.getConnectState());
+            updateConnectFloatingActionButton(device.getConnectStateIcon(), device.isWaitingResponse());
 
             invalidateOptionsMenu();
 
@@ -500,7 +496,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         if(deviceFrag != null) deviceFrag.updateState();
 
         if(fragmentManager.isDeviceFragmentSelected(device)) {
-            updateConnectFloatingActionButton(device.getConnectState());
+            updateConnectFloatingActionButton(device.getConnectStateIcon(), device.isWaitingResponse());
         }
     }
 
@@ -534,9 +530,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void closeFragment(BleDeviceFragment fragment) {
-        deviceService.closeDevice(fragment.getDevice());
-        fragmentManager.deleteFragment(fragment);
+    public void closeFragment(final BleDeviceFragment fragment) {
+        BleDevice device = fragment.getDevice();
+
+        if(device != null) {
+            deviceService.closeDevice(device);
+
+            fragmentManager.deleteFragment(fragment);
+        }
     }
 
     // 打开设备：为设备创建并打开Fragment
@@ -677,23 +678,24 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     // 更新浮动动作按钮
-    private void updateConnectFloatingActionButton(BleDeviceConnectState deviceConnectState) {
+    private void updateConnectFloatingActionButton(int icon, boolean isRotate) {
         float degree = 360.0f;
 
         long duration = 3000;
 
         int count = ValueAnimator.INFINITE;
 
-        if(deviceConnectState != CONNECT_PROCESS && deviceConnectState != CONNECT_SCAN) {
+        if(!isRotate) {
             degree = 0.0f;
 
             duration = 100;
 
             count = 0;
         }
+
         fabConnect.clearAnimation();
 
-        fabConnect.setImageResource(deviceConnectState.getIcon());
+        fabConnect.setImageResource(icon);
 
         connectFabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, degree).setDuration(duration);
 
