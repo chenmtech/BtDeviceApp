@@ -100,7 +100,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
         for(final BleDevice device : getDeviceList()) {
             device.close();
-            //device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
+
             device.removeDeviceStateListener(BleDeviceService.this);
         }
 
@@ -113,10 +113,6 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                for(final BleDevice device : getDeviceList()) {
-                    device.destroy();
-                }
-
                 // 防止设备没有彻底断开
                 BleDeviceUtil.disconnectAllDevice();
                 BleDeviceUtil.clearAllDevice();

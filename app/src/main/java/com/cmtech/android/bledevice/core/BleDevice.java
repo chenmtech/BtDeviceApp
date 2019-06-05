@@ -96,8 +96,7 @@ public abstract class BleDevice implements Handler.Callback {
 
     private int curReconnectTimes = 0; // 当前重连次数
 
-    // 标记设备是否正在关闭
-    private boolean closing = false;
+    private boolean closing = false; // 标记设备是否正在关闭
 
 
 
@@ -217,17 +216,11 @@ public abstract class BleDevice implements Handler.Callback {
         setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
     }
 
-    // 销毁设备
-    public final void destroy() {
-        ViseLog.i("destroy");
-        //mainHandler.getLooper().quit();
-    }
-
     // 切换设备状态
     final boolean switchState() {
         ViseLog.i("switchDeviceState");
 
-        boolean switched = true;
+        boolean canSwitch = true;
 
         switch (connectState) {
             case CONNECT_SUCCESS:
@@ -237,7 +230,7 @@ public abstract class BleDevice implements Handler.Callback {
 
             case CONNECT_SCAN:
             case CONNECT_PROCESS:
-                switched = false;
+                canSwitch = false;
                 break;
 
             default:
@@ -247,7 +240,7 @@ public abstract class BleDevice implements Handler.Callback {
                 break;
         }
 
-        return switched;
+        return canSwitch;
     }
 
     // 发送Gatt消息给工作线程

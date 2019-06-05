@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.widget.Toast;
 
@@ -13,7 +11,7 @@ import com.cmtech.android.bledevice.core.IBleDataOpCallback;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.IEcgSignalProcessListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnEcgSignalProcessListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -45,7 +43,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
  * 优化代码
  */
 
-public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessListener, EcgSignalRecorder.IEcgSignalSecNumUpdatedListener, EcgCalibrateDataProcessor.ICalibrateValueUpdatedListener {
+public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessListener, EcgSignalRecorder.IEcgSignalSecNumUpdatedListener, EcgCalibrateDataProcessor.ICalibrateValueUpdatedListener {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -431,7 +429,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     @Override
-    public void onUpdateEcgSignal(final int ecgSignal) {
+    public void onEcgSignalUpdated(final int ecgSignal) {
         // 记录
         if(signalRecorder != null && signalRecorder.isRecord()) {
             try {
@@ -443,7 +441,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
         // 通知观察者
         if(listener != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
+            post(new Runnable() {
                 @Override
                 public void run() {
                     listener.onEcgSignalChanged(ecgSignal);
@@ -453,9 +451,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     @Override
-    public void onUpdateEcgHrValue(final short hr) {
+    public void onEcgHrValueUpdated(final short hr) {
         if(listener != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
+            post(new Runnable() {
                 @Override
                 public void run() {
                     listener.onEcgHrChanged(hr);
@@ -467,7 +465,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     @Override
     public void onEcgHrInfoUpdated(final EcgHrInfoObject hrInfoObject) {
         if(listener != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
+            post(new Runnable() {
                 @Override
                 public void run() {
                     listener.onEcgHrInfoUpdated(hrInfoObject);
@@ -479,7 +477,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     @Override
     public void onNotifyEcgHrAbnormal() {
         if(listener != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
+            post(new Runnable() {
                 @Override
                 public void run() {
                     listener.onNotifyHrAbnormal();
@@ -491,7 +489,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     @Override
     public void onUpdateSignalSecNum(final int second) {
         if(listener != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
+            post(new Runnable() {
                 @Override
                 public void run() {
                     listener.onSignalSecNumChanged(second);
@@ -513,7 +511,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
             try {
                 ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibrate, getMacAddress(), leadType);
             } catch (IOException e) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                post(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(MyApplication.getContext(), "无法记录心电信息", Toast.LENGTH_SHORT).show();
@@ -536,7 +534,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
 
         startSampleEcg();
 
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(MyApplication.getContext(), "设备连接成功，开始读取信号。", Toast.LENGTH_SHORT).show();
@@ -752,7 +750,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     private void updateEcgMonitorState() {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -762,7 +760,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     private void updateSampleRate(final int sampleRate) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -772,7 +770,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     private void updateLeadType(final EcgLeadType leadType) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -782,7 +780,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     private void updateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -792,7 +790,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     private void updateRecordStatus(final boolean isRecord) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -802,7 +800,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgSignalProcessList
     }
 
     private void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)

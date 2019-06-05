@@ -30,17 +30,17 @@ public class EcgSignalProcessor {
     private final static String KEY_HR_PROCESSOR = "hrrecorder"; // EcgHrRecorder的键值
 
 
-    public interface IEcgSignalUpdatedListener {
-        void onUpdateEcgSignal(int ecgSignal);
+    public interface OnEcgSignalUpdateListener {
+        void onEcgSignalUpdated(int ecgSignal);
     }
 
-    public interface IEcgHrValueUpdatedListener {
-        void onUpdateEcgHrValue(short hr);
+    public interface OnEcgHrValueUpdateListener {
+        void onEcgHrValueUpdated(short hr);
     }
 
-    private IEcgSignalUpdatedListener signalListener = null; // 心电信号更新监听器
+    private OnEcgSignalUpdateListener signalListener = null; // 心电信号更新监听器
 
-    private List<IEcgHrValueUpdatedListener> hrValueListeners = new ArrayList<>(); // 心率值更新监听器
+    private List<OnEcgHrValueUpdateListener> hrValueListeners = new ArrayList<>(); // 心率值更新监听器
 
     private IEcgCalibrator ecgCalibrateProcessor; // 标定处理器
 
@@ -54,7 +54,7 @@ public class EcgSignalProcessor {
                                IEcgFilter ecgFilter,
                                QrsDetector qrsDetector,
                                Map<String, IEcgHrProcessor> hrProcessors,
-                               IEcgSignalProcessListener listener) {
+                               OnEcgSignalProcessListener listener) {
         this.ecgCalibrateProcessor = ecgCalibrateProcessor;
         this.ecgFilter = ecgFilter;
         this.qrsDetector = qrsDetector;
@@ -70,7 +70,7 @@ public class EcgSignalProcessor {
         ecgSignal = (int) ecgFilter.filter(ecgCalibrateProcessor.process(ecgSignal));
 
         // 通知心电信号更新监听器
-        if(signalListener != null) signalListener.onUpdateEcgSignal(ecgSignal);
+        if(signalListener != null) signalListener.onEcgSignalUpdated(ecgSignal);
 
         // 检测Qrs波，获取心率
         short currentHr = (short) qrsDetector.outputHR(ecgSignal);
@@ -153,8 +153,8 @@ public class EcgSignalProcessor {
 
     private void notifyEcgHrValueUpdatedListeners(short hr) {
         if(hr != INVALID_HR) {
-            for (IEcgHrValueUpdatedListener listener : hrValueListeners) {
-                listener.onUpdateEcgHrValue(hr);
+            for (OnEcgHrValueUpdateListener listener : hrValueListeners) {
+                listener.onEcgHrValueUpdated(hr);
             }
         }
     }
@@ -167,7 +167,7 @@ public class EcgSignalProcessor {
         private boolean hrWarnEnabled = false; // 是否使能HR警告
         private int hrLowLimit = 0; // HR异常下限
         private int hrHighLimit = 0; // HR异常上限
-        private IEcgSignalProcessListener listener;
+        private OnEcgSignalProcessListener listener;
 
         public Builder() {
 
@@ -191,7 +191,7 @@ public class EcgSignalProcessor {
             hrHighLimit = high;
         }
 
-        public void setEcgSignalProcessListener(IEcgSignalProcessListener listener) {
+        public void setEcgSignalProcessListener(OnEcgSignalProcessListener listener) {
             this.listener = listener;
         }
 
