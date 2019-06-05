@@ -151,7 +151,7 @@ public abstract class BleDevice implements Handler.Callback {
     }
 
     public boolean isWaitingResponse() {
-        return (connectState == BleDeviceConnectState.CONNECT_SCAN) || (connectState == BleDeviceConnectState.CONNECT_PROCESS);
+        return (connectState == BleDeviceConnectState.CONNECT_SCANNING) || (connectState == BleDeviceConnectState.CONNECT_CONNECTING);
     }
 
     public String getConnectStateDescription() {
@@ -168,7 +168,7 @@ public abstract class BleDevice implements Handler.Callback {
 
             this.connectState = connectState;
 
-            updateDeviceConnectState();
+            updateConnectState();
         }
     }
 
@@ -188,7 +188,7 @@ public abstract class BleDevice implements Handler.Callback {
 
     // 打开设备
     public void open() {
-        ViseLog.i("open");
+        ViseLog.i(getMacAddress() + ": open()");
 
         if(!isClosed())
             return;
@@ -202,13 +202,13 @@ public abstract class BleDevice implements Handler.Callback {
 
     // 关闭设备
     public void close() {
-        ViseLog.i(getClass().getSimpleName() + " " + getMacAddress() + ": close()");
+        ViseLog.i(getMacAddress() + ": close()");
 
         removeCallbacksAndMessages();
 
         closing = true;
 
-        if(connectState == BleDeviceConnectState.CONNECT_SCAN)
+        if(connectState == BleDeviceConnectState.CONNECT_SCANNING)
             stopScan();
         else
             disconnect();
@@ -228,8 +228,8 @@ public abstract class BleDevice implements Handler.Callback {
                 disconnect();
                 break;
 
-            case CONNECT_SCAN:
-            case CONNECT_PROCESS:
+            case CONNECT_SCANNING:
+            case CONNECT_CONNECTING:
                 canSwitch = false;
                 break;
 
@@ -268,7 +268,7 @@ public abstract class BleDevice implements Handler.Callback {
 
         scanCallback.setScan(true).scan();
 
-        setConnectState(BleDeviceConnectState.CONNECT_SCAN);
+        setConnectState(BleDeviceConnectState.CONNECT_SCANNING);
     }
 
 
@@ -280,7 +280,7 @@ public abstract class BleDevice implements Handler.Callback {
 
         BleDeviceUtil.connect(bluetoothLeDevice, connectCallback);
 
-        setConnectState(BleDeviceConnectState.CONNECT_PROCESS);
+        setConnectState(BleDeviceConnectState.CONNECT_CONNECTING);
     }
 
     // 断开连接
@@ -295,20 +295,19 @@ public abstract class BleDevice implements Handler.Callback {
     }
 
     // 登记设备状态观察者
-    public final void registerDeviceStateListener(OnBleDeviceStateListener listener) {
-        ViseLog.i("register device listener:" + listener);
+    public final void registerConnectStateListener(OnBleDeviceStateListener listener) {
         if(!deviceStateListeners.contains(listener)) {
             deviceStateListeners.add(listener);
         }
     }
 
     // 删除设备状态观察者
-    public final void removeDeviceStateListener(OnBleDeviceStateListener listener) {
+    public final void removeConnectStateListener(OnBleDeviceStateListener listener) {
         deviceStateListeners.remove(listener);
     }
 
     // 通知设备状态观察者
-    final void updateDeviceConnectState() {
+    final void updateConnectState() {
         for(OnBleDeviceStateListener listener : deviceStateListeners) {
             if(listener != null) {
                 listener.onDeviceConnectStateUpdated(this);

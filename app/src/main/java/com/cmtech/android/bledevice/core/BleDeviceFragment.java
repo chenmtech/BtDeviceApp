@@ -15,35 +15,35 @@ public abstract class BleDeviceFragment extends Fragment{
     private static final String TAG = "BleDeviceFragment";
 
     private IBleDeviceFragmentActivity activity; //包含BleDeviceFragment的Activity，必须要实现IBleDeviceFragmentActivity接口
+
     private BleDevice device; // 设备
 
-    // 获取设备
-    public BleDevice getDevice() {
-        return device;
-    }
 
-    // 构造器
+
     public BleDeviceFragment() {
-
     }
 
     public static BleDeviceFragment create(String macAddress, Class<? extends BleDeviceFragment> fragClass) {
         BleDeviceFragment fragment = null;
         try {
             fragment = fragClass.newInstance();
+            bundleMacAddress(fragment, macAddress);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-        return BleDeviceFragment.pushMacAddressIntoFragmentArgument(macAddress, fragment);
+        return fragment;
     }
 
     // 将设备的mac地址添加到Fragment的Argument中
-    public static BleDeviceFragment pushMacAddressIntoFragmentArgument(String macAddress, BleDeviceFragment fragment) {
+    public static void bundleMacAddress(BleDeviceFragment fragment, String macAddress) {
         Bundle bundle = new Bundle();
         bundle.putString("device_mac", macAddress);
         fragment.setArguments(bundle);
-        return fragment;
+    }
+
+    public BleDevice getDevice() {
+        return device;
     }
 
     @Override
@@ -63,17 +63,22 @@ public abstract class BleDeviceFragment extends Fragment{
 
         // 用macAddress获取BleDevice
         Bundle bundle = getArguments();
+
         if(bundle == null) throw new IllegalStateException();
+
         String deviceMac = bundle.getString("device_mac");
+
         device = activity.findDevice(deviceMac);
+
         if(device == null) throw new IllegalArgumentException();
 
         // 更新连接状态
         updateState();
 
         // 注册设备状态观察者
-        device.registerDeviceStateListener(activity);
-        device.updateDeviceConnectState();
+        device.registerConnectStateListener(activity);
+
+        device.updateConnectState();
 
         // 打开设备
         device.open();
@@ -84,7 +89,7 @@ public abstract class BleDeviceFragment extends Fragment{
         super.onDestroy();
 
         // 移除activity设备状态观察者
-        //device.removeDeviceStateListener(activity);
+        //device.removeConnectStateListener(activity);
     }
 
     // 切换设备状态，根据设备的当前状态实现状态切换

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.CACHEDIR;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.CACHE_DIR;
 
 /**
  * EcgFile: 心电文件类，可随机访问
@@ -197,7 +197,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
 
         // 创建ecgFile
         String fileName = EcgMonitorUtil.makeFileName(macAddress, fileCreateTime);
-        ecgFile = EcgFile.create(FileUtil.getFile(CACHEDIR, fileName).getCanonicalPath(), bmeFileHead, ecgFileHead);
+        ecgFile = EcgFile.create(FileUtil.getFile(CACHE_DIR, fileName).getCanonicalPath(), bmeFileHead, ecgFileHead);
 
         return ecgFile;
     }

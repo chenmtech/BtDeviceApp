@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_HIGH_LIMIT;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_LOW_LIMIT;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WARN_WHEN_HR_ABNORMAL;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DEFAULT_HR_HIGH_LIMIT;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DEFAULT_HR_LOW_LIMIT;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DEFAULT_WARN_WHEN_HR_ABNORMAL;
 
 /**
  * EcgMonitorDeviceConfig: 心电带配置类
@@ -21,9 +21,9 @@ public class EcgMonitorDeviceConfig extends LitePalSupport implements Serializab
 
     private int id; // id
     private String macAddress = ""; // mac地址
-    private boolean warnWhenHrAbnormal = WARN_WHEN_HR_ABNORMAL; // hr异常时是否报警
-    private int hrLowLimit = HR_LOW_LIMIT; // hr异常的下限
-    private int hrHighLimit = HR_HIGH_LIMIT; // hr异常的上限
+    private boolean warnWhenHrAbnormal = DEFAULT_WARN_WHEN_HR_ABNORMAL; // hr异常时是否报警
+    private int hrLowLimit = DEFAULT_HR_LOW_LIMIT; // hr异常的下限
+    private int hrHighLimit = DEFAULT_HR_HIGH_LIMIT; // hr异常的上限
     private List<String> markerList = new ArrayList<>(Arrays.asList("标记1", "标记2", "标记3", "标记4"));
 
     public int getId() {

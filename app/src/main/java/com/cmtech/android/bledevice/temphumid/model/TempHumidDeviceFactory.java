@@ -9,7 +9,7 @@ import com.cmtech.android.bledevice.core.BleDeviceFragment;
 // 会根据设备类型BleDeviceType，通过反射创建工厂类实例
 public class TempHumidDeviceFactory extends AbstractBleDeviceFactory {
     @Override
-    public BleDevice createBleDevice() {
+    public BleDevice createDevice() {
         return new TempHumidDevice(basicInfo);
     }
 

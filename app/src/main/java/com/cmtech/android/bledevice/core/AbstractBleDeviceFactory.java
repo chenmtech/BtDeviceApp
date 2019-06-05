@@ -29,7 +29,7 @@ public abstract class AbstractBleDeviceFactory {
     }
 
     // 创建BleDevice
-    public abstract BleDevice createBleDevice();
+    public abstract BleDevice createDevice();
 
     // 创建Fragment
     public abstract BleDeviceFragment createFragment();

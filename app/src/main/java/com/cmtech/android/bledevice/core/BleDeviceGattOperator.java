@@ -5,21 +5,28 @@ import com.cmtech.android.ble.core.DeviceMirror;
 import com.vise.log.ViseLog;
 
 /**
- * BleDeviceGattOperator: Gatt操作者抽象类
- * Created by bme on 2018/12/20.
+ *
+ * ClassName:      BleDeviceGattOperator
+ * Description:    Gatt操作执行者
+ * Author:         chenm
+ * CreateDate:     2018-12-20 07:02
+ * UpdateUser:     chenm
+ * UpdateDate:     2019-06-05 07:02
+ * UpdateRemark:   更新说明
+ * Version:        1.0
  */
 
 public class BleDeviceGattOperator {
 
     private BleGattCommandExecutor commandExecutor; // Gatt命令执行器
 
-    protected final BleDevice device; // BLE设备
+    private final BleDevice device; // BLE设备
 
     BleDeviceGattOperator(BleDevice device) {
         this.device = device;
     }
 
-    // 检测GattElement是否存在于device中
+    // 检测Gatt Element是否存在于device中
     public boolean checkElements(BleGattElement[] elements) {
         for(BleGattElement element : elements) {
             if(BleDeviceUtil.getGattObject(device, element) == null) return false;
@@ -30,7 +37,7 @@ public class BleDeviceGattOperator {
 
     // 启动Gatt命令执行器
     public void start() {
-        if((commandExecutor != null) && commandExecutor.isAlive()) return;
+        if(isAlive()) return;
 
         DeviceMirror deviceMirror = device.getDeviceMirror();
 
@@ -41,12 +48,12 @@ public class BleDeviceGattOperator {
         commandExecutor = new BleGattCommandExecutor(deviceMirror);
 
         commandExecutor.start();
-        ViseLog.i("success to create new command executor.");
+        ViseLog.i("Success to create new GATT command executor.");
     }
 
     // 停止Gatt命令执行器
     public void stop() {
-        if((commandExecutor != null) && commandExecutor.isAlive()) {
+        if(isAlive()) {
             commandExecutor.stop();
         }
     }
@@ -55,26 +62,26 @@ public class BleDeviceGattOperator {
         return (commandExecutor != null && commandExecutor.isAlive());
     }
 
-    // Gatt操作命令
-    // 取命令
+    // Gatt操作
+    // 读
     public final void read(BleGattElement element, IBleDataOpCallback dataOpCallback) {
         IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
         commandExecutor.addReadCommand(element, callback);
     }
 
-    // 写多字节命令
+    // 写多字节
     public final void write(BleGattElement element, byte[] data, IBleDataOpCallback dataOpCallback) {
         IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
         commandExecutor.addWriteCommand(element, data, callback);
     }
 
-    // 写单字节命令
+    // 写单字节
     public final void write(BleGattElement element, byte data, IBleDataOpCallback dataOpCallback) {
         IBleCallback callback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
         commandExecutor.addWriteCommand(element, data, callback);
     }
 
-    // Notify命令
+    // Notify
     public final void notify(BleGattElement element, boolean enable
             , IBleDataOpCallback dataOpCallback, IBleDataOpCallback notifyOpCallback) {
         IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
@@ -82,12 +89,17 @@ public class BleDeviceGattOperator {
         commandExecutor.addNotifyCommand(element, enable, dataCallback, notifyCallback);
     }
 
-    // Notify命令
+    // Notify
     public final void notify(BleGattElement element, boolean enable, IBleDataOpCallback notifyOpCallback) {
         notify(element, enable, null, notifyOpCallback);
     }
 
-    // Indicate命令
+    // Indicate
+    public final void indicate(BleGattElement element, boolean enable, IBleDataOpCallback indicateOpCallback) {
+        indicate(element, enable, null, indicateOpCallback);
+    }
+
+    // Indicate
     public final void indicate(BleGattElement element, boolean enable
             , IBleDataOpCallback dataOpCallback, IBleDataOpCallback indicateOpCallback) {
         IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
@@ -95,12 +107,7 @@ public class BleDeviceGattOperator {
         commandExecutor.addIndicateCommand(element, enable, dataCallback, indicateCallback);
     }
 
-    // Indicate命令
-    public final void indicate(BleGattElement element, boolean enable, IBleDataOpCallback indicateOpCallback) {
-        indicate(element, enable, null, indicateOpCallback);
-    }
-
-    // 不需要蓝牙通信立刻执行的命令
+    // 不需要蓝牙通信立刻执行
     public final void instExecute(IBleDataOpCallback dataOpCallback) {
         IBleCallback dataCallback = (dataOpCallback == null) ? null : new BleDataOpCallbackAdapter(dataOpCallback);
         commandExecutor.addInstantCommand(dataCallback);

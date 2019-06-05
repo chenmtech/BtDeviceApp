@@ -13,9 +13,9 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledeviceapp.R;
 
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_HIGH_LIMIT;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.HR_LOW_LIMIT;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WARN_WHEN_HR_ABNORMAL;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DEFAULT_HR_HIGH_LIMIT;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DEFAULT_HR_LOW_LIMIT;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DEFAULT_WARN_WHEN_HR_ABNORMAL;
 
 public class EcgMonitorConfigureActivity extends AppCompatActivity {
     private static final String TAG = "EcgMonitorConfigureActivity";
@@ -98,9 +98,9 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
         btnDefault.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cbIsWarnWhenHrAbnormal.setChecked(WARN_WHEN_HR_ABNORMAL);
-                etHrLowLimit.setText(String.valueOf(HR_LOW_LIMIT));
-                etHrHighLimit.setText(String.valueOf(HR_HIGH_LIMIT));
+                cbIsWarnWhenHrAbnormal.setChecked(DEFAULT_WARN_WHEN_HR_ABNORMAL);
+                etHrLowLimit.setText(String.valueOf(DEFAULT_HR_LOW_LIMIT));
+                etHrHighLimit.setText(String.valueOf(DEFAULT_HR_HIGH_LIMIT));
             }
         });
     }

@@ -12,10 +12,7 @@ import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.CONNECT_RETRY_COUNT;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.CONNECT_TIMEOUT;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.OPDATA_RETRY_COUNT;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.RECONNECT_INTERVAL;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.SCAN_TIMEOUT;
 
 /**
@@ -33,25 +30,28 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
         instance = this;
 
-        // 先进行配置
+        // ViseBle包的配置，不要修改
         BleDeviceConfig.setScanTimeout(SCAN_TIMEOUT);
-        BleDeviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
-        BleDeviceConfig.setReconnectInterval(RECONNECT_INTERVAL);
-        BleDeviceConfig.setConnectRetryCount(CONNECT_RETRY_COUNT);
-        BleDeviceConfig.setOpDataRetryCount(OPDATA_RETRY_COUNT);
 
+        BleDeviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
+
+        BleDeviceConfig.setConnectRetryCount(0);
+
+        BleDeviceConfig.setOpDataRetryCount(0);
 
         Context context = getApplicationContext();
-        // 初始化ViseBle
+
         ViseBle.getInstance().init(context);
 
         // 初始化LitePal
         LitePal.initialize(context);
+
         LitePal.getDatabase();
 
-        // 初始化ShareSDK
+        // 初始化MobSDK
         MobSDK.init(context, "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");
 
         // 初始化ViseLog
@@ -61,6 +61,7 @@ public class MyApplication extends Application {
                 .configTagPrefix("BleDeviceApp")     //设置标签前缀
                 //.configFormatTag("%d{HH:mm:ss:SSS} %t %c{-5}")//个性化设置标签，默认显示包名
                 .configLevel(Log.VERBOSE);      //设置日志最小输出级别，默认Log.VERBOSE
+
         ViseLog.plant(new LogcatTree());        //添加打印日志信息到Logcat的树
     }
 

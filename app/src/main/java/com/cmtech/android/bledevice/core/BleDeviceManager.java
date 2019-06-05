@@ -63,7 +63,7 @@ public class BleDeviceManager {
     private BleDevice createDevice(BleDeviceBasicInfo basicInfo) {
         // 获取相应的抽象工厂
         AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(basicInfo);
-        return (factory == null) ? null : factory.createBleDevice();
+        return (factory == null) ? null : factory.createDevice();
     }
 
     // 用基本信息寻找设备

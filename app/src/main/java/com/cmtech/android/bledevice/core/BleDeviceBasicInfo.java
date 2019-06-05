@@ -10,8 +10,6 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,11 +31,17 @@ public class BleDeviceBasicInfo implements Serializable{
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
     private String macAddress = ""; // 设备mac地址
+
     private String nickName = DEFAULT_DEVICE_NICKNAME; // 设备昵称
+
     private String uuidString = ""; // 设备广播Uuid16位字符串
+
     private String imagePath = DEFAULT_DEVICE_IMAGEPATH; // 设备图标路径名
+
     private boolean autoConnect = DEFAULT_DEVICE_AUTOCONNECT; // 设备打开后是否自动连接
+
     private int reconnectTimes = DEFAULT_DEVICE_RECONNECT_TIMES; // 连接断开后重连次数
+
     private boolean warnAfterReconnectFailure = DEFAULT_WARN_AFTER_RECONNECT_FAILURE; // 重连失败后是否报警
 
     public BleDeviceBasicInfo() {

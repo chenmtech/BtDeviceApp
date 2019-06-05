@@ -438,7 +438,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         super.onDestroy();
 
         for(BleDevice device : deviceService.getDeviceList()) {
-            device.removeDeviceStateListener(this);
+            device.removeConnectStateListener(this);
         }
 
         unbindService(deviceServiceConnect);

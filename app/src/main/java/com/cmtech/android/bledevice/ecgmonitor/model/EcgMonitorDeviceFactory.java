@@ -8,7 +8,7 @@ import com.cmtech.android.bledevice.core.BleDeviceFragment;
 // 根据设备类型BleDeviceType，通过反射创建工厂类实例
 public class EcgMonitorDeviceFactory extends AbstractBleDeviceFactory {
     @Override
-    public BleDevice createBleDevice() {
+    public BleDevice createDevice() {
         return new EcgMonitorDevice(basicInfo);
     }
 

@@ -34,7 +34,7 @@ import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_RECONNECT_TIMES;
 import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGEDIR;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGE_DIR;
 
 /**
  *  DeviceBasicInfoActivity: 设备基本信息Activity，用于设置修改BleDeviceBasicInfo字段
@@ -66,11 +66,11 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
             }
         }
 
-        if(IMAGEDIR == null)
+        if(IMAGE_DIR == null)
             throw new IllegalStateException("图像目录为空");
 
-        if(!IMAGEDIR.exists()) {
-            if(!IMAGEDIR.mkdir()) {
+        if(!IMAGE_DIR.exists()) {
+            if(!IMAGE_DIR.mkdir()) {
                 throw new IllegalStateException("创建图像目录错误");
             }
         }
@@ -137,7 +137,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
                     } else {
                         ivImage.setDrawingCacheEnabled(true);
                         Bitmap bitmap = ivImage.getDrawingCache();
-                        File toFile = FileUtil.getFile(IMAGEDIR, basicInfo.getMacAddress() + ".jpg");
+                        File toFile = FileUtil.getFile(IMAGE_DIR, basicInfo.getMacAddress() + ".jpg");
                         try {
                             String filePath = toFile.getCanonicalPath();
                             BitmapUtil.saveBitmap(bitmap, toFile);

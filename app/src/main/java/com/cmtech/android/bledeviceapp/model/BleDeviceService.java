@@ -101,7 +101,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         for(final BleDevice device : getDeviceList()) {
             device.close();
 
-            device.removeDeviceStateListener(BleDeviceService.this);
+            device.removeConnectStateListener(BleDeviceService.this);
         }
 
         stopForeground(true);
@@ -161,7 +161,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     public BleDevice createAndAddDevice(BleDeviceBasicInfo basicInfo) {
         BleDevice device = deviceManager.createAndAddDevice(basicInfo);
         if(device != null) {
-            device.registerDeviceStateListener(this);
+            device.registerConnectStateListener(this);
         }
         return device;
     }

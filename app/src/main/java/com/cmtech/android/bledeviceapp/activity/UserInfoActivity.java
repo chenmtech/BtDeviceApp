@@ -32,7 +32,7 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGEDIR;
+import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGE_DIR;
 
 /**
  *  UserInfoActivity: 用户信息Activity
@@ -122,7 +122,7 @@ public class UserInfoActivity extends AppCompatActivity {
                         try {
                             ivPortrait.setDrawingCacheEnabled(true);
                             Bitmap bitmap = ivPortrait.getDrawingCache();
-                            File toFile = FileUtil.getFile(IMAGEDIR, account.getPhone() + ".jpg");
+                            File toFile = FileUtil.getFile(IMAGE_DIR, account.getPhone() + ".jpg");
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivPortrait.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();
