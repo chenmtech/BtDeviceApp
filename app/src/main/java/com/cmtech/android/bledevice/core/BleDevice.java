@@ -356,7 +356,6 @@ public abstract class BleDevice implements Handler.Callback {
         ViseLog.e("processConnectSuccess in " + Thread.currentThread());
 
         if (closing) {
-            BleDeviceUtil.disconnect(bluetoothLeDevice);
             return;
         }
 
@@ -384,9 +383,9 @@ public abstract class BleDevice implements Handler.Callback {
 
         if (!closing) {
             // 仍然有可能会连续执行两次下面语句
-            executeAfterConnectFailure();
-
             removeCallbacksAndMessages();
+
+            executeAfterConnectFailure();
 
             bluetoothLeDevice = null;
 
@@ -403,9 +402,9 @@ public abstract class BleDevice implements Handler.Callback {
 
         if (!closing) {
             if (!isActive) {
-                executeAfterDisconnect();
-
                 removeCallbacksAndMessages();
+
+                executeAfterDisconnect();
             }
 
             setConnectState(BleDeviceConnectState.CONNECT_DISCONNECT);
