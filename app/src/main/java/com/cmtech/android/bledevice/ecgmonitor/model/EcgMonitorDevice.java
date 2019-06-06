@@ -227,11 +227,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
         // 启动gattOperator
-        gattOperator.start();
+        gattCmdExecutor.start();
 
         // 验证Gatt Elements
         BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA};
-        if(gattOperator.checkElements(batteryElements)) {
+        if(gattCmdExecutor.checkElements(batteryElements)) {
             isMeasureBattery = true;
         }
 
@@ -241,7 +241,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         // 验证Gatt Elements
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
-        if(!gattOperator.checkElements(elements)) {
+        if(!gattCmdExecutor.checkElements(elements)) {
             return false;
         }
 
@@ -265,7 +265,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     @Override
     public void executeAfterDisconnect() {
-        gattOperator.stop();
+        gattCmdExecutor.stop();
 
         if(isMeasureBattery) {
             stopMeasureBattery();
@@ -284,7 +284,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     @Override
     public void executeAfterConnectFailure() {
-        gattOperator.stop();
+        gattCmdExecutor.stop();
 
         if(isMeasureBattery) {
             stopMeasureBattery();
@@ -410,7 +410,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         ViseLog.e("EcgMonitorDevice disconnect()");
 
         int delay = 0;
-        if(isConnected() && gattOperator.isAlive()) {
+        if(isConnected() && gattCmdExecutor.isAlive()) {
             stopSampleData();
             delay = 100;
         }
@@ -610,7 +610,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
      */
     // 读采样率
     private void readSampleRate() {
-        gattOperator.read(ECGMONITOR_SAMPLERATE, new IGattDataOpCallback() {
+        gattCmdExecutor.read(ECGMONITOR_SAMPLERATE, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_SAMPLERATE_OBTAINED, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
@@ -625,7 +625,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     // 读导联类型
     private void readLeadType() {
-        gattOperator.read(ECGMONITOR_LEADTYPE, new IGattDataOpCallback() {
+        gattCmdExecutor.read(ECGMONITOR_LEADTYPE, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_LEADTYPE_OBTAINED, data[0]);
@@ -652,8 +652,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
             }
         };
         // enable ECG data indication
-        gattOperator.indicate(ECGMONITOR_DATA_CCC, true, indicationCallback);
-        gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataOpCallback() {
+        gattCmdExecutor.indicate(ECGMONITOR_DATA_CCC, true, indicationCallback);
+        gattCmdExecutor.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_START_SAMPLINGSIGNAL, null);
@@ -681,15 +681,15 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
             }
         };
         // enable ECG data indication
-        gattOperator.indicate(ECGMONITOR_DATA_CCC, true, indicationCallback);
-        gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, null);
+        gattCmdExecutor.indicate(ECGMONITOR_DATA_CCC, true, indicationCallback);
+        gattCmdExecutor.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, null);
     }
 
     // 停止数据采集
     private void stopSampleData() {
         // disable ECG data indication
-        gattOperator.indicate(ECGMONITOR_DATA_CCC, false, null);
-        gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, null);
+        gattCmdExecutor.indicate(ECGMONITOR_DATA_CCC, false, null);
+        gattCmdExecutor.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, null);
     }
 
     // 开始测量电池电量
@@ -699,7 +699,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         readBatteryService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                gattOperator.read(BATTERY_DATA, new IGattDataOpCallback() {
+                gattCmdExecutor.read(BATTERY_DATA, new IGattDataOpCallback() {
                     @Override
                     public void onSuccess(byte[] data) {
                         int battery = data[0];

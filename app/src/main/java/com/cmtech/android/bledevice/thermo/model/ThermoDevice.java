@@ -82,11 +82,11 @@ public class ThermoDevice extends BleDevice {
 
     @Override
     public boolean executeAfterConnectSuccess() {
-        gattOperator.start();
+        gattCmdExecutor.start();
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
-        if(!gattOperator.checkElements(elements)) return false;
+        if(!gattCmdExecutor.checkElements(elements)) return false;
 
         resetHighestTemp();
 
@@ -99,12 +99,12 @@ public class ThermoDevice extends BleDevice {
 
     @Override
     public void executeAfterDisconnect() {
-        gattOperator.stop();
+        gattCmdExecutor.stop();
     }
 
     @Override
     public void executeAfterConnectFailure() {
-        gattOperator.stop();
+        gattCmdExecutor.stop();
     }
 
     @Override
@@ -157,7 +157,7 @@ public class ThermoDevice extends BleDevice {
 
     private void readThermoData() {
         // 读温度数据
-        gattOperator.read(THERMODATA, new IGattDataOpCallback() {
+        gattCmdExecutor.read(THERMODATA, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_THERMODATA, data);
@@ -175,7 +175,7 @@ public class ThermoDevice extends BleDevice {
      */
     private void startThermometer(byte period) {
         // 设置采样周期
-        gattOperator.write(THERMOPERIOD, period, null);
+        gattCmdExecutor.write(THERMOPERIOD, period, null);
 
         IGattDataOpCallback notifyCallback = new IGattDataOpCallback() {
             @Override
@@ -190,10 +190,10 @@ public class ThermoDevice extends BleDevice {
         };
 
         // enable温度数据notify
-        gattOperator.notify(THERMODATACCC, true, notifyCallback);
+        gattCmdExecutor.notify(THERMODATACCC, true, notifyCallback);
 
         // 启动温度采集
-        gattOperator.write(THERMOCONTROL, (byte)0x03, null);
+        gattCmdExecutor.write(THERMOCONTROL, (byte)0x03, null);
     }
 
 }

@@ -155,15 +155,15 @@ public class TempHumidDevice extends BleDevice {
 
     @Override
     public boolean executeAfterConnectSuccess() {
-        gattOperator.start();
+        gattCmdExecutor.start();
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
-        if(!gattOperator.checkElements(elements)) return false;
+        if(!gattCmdExecutor.checkElements(elements)) return false;
 
         // 检查是否有温湿度历史数据服务和特征值
         elements = new BleGattElement[]{TIMERVALUE, TEMPHUMIDHISTORYTIME, TEMPHUMIDHISTORYDATA};
-        hasTimerService = gattOperator.checkElements(elements);
+        hasTimerService = gattCmdExecutor.checkElements(elements);
 
         // 先读取一次当前温湿度值
         readCurrentTempHumid();
@@ -181,12 +181,12 @@ public class TempHumidDevice extends BleDevice {
 
     @Override
     public void executeAfterDisconnect() {
-        gattOperator.stop();
+        gattCmdExecutor.stop();
     }
 
     @Override
     public void executeAfterConnectFailure() {
-        gattOperator.stop();
+        gattCmdExecutor.stop();
     }
 
     @Override
@@ -239,7 +239,7 @@ public class TempHumidDevice extends BleDevice {
 
     // 读取当前温湿度值
     private void readCurrentTempHumid() {
-        gattOperator.read(TEMPHUMIDDATA, new IGattDataOpCallback() {
+        gattCmdExecutor.read(TEMPHUMIDDATA, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
@@ -254,10 +254,10 @@ public class TempHumidDevice extends BleDevice {
 
     // 启动温湿度采集服务
     private void startTempHumidService(int period) {
-        gattOperator.write(TEMPHUMIDPERIOD, (byte) (period / 100), null);
+        gattCmdExecutor.write(TEMPHUMIDPERIOD, (byte) (period / 100), null);
 
         // 启动温湿度采集
-        gattOperator.write(TEMPHUMIDCTRL, (byte)0x01, null);
+        gattCmdExecutor.write(TEMPHUMIDCTRL, (byte)0x01, null);
 
         // enable 温湿度采集的notification
         IGattDataOpCallback notifyCallback = new IGattDataOpCallback() {
@@ -271,12 +271,12 @@ public class TempHumidDevice extends BleDevice {
                 ViseLog.i("onFailure");
             }
         };
-        gattOperator.notify(TEMPHUMIDDATACCC, true, notifyCallback);
+        gattCmdExecutor.notify(TEMPHUMIDDATACCC, true, notifyCallback);
     }
 
     // 读取定时器服务特征值
     private void readTimerServiceValue() {
-        gattOperator.read(TIMERVALUE, new IGattDataOpCallback() {
+        gattCmdExecutor.read(TIMERVALUE, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TIMERVALUE, data);
@@ -295,10 +295,10 @@ public class TempHumidDevice extends BleDevice {
         byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
 
         // 写历史数据时间
-        gattOperator.write(TEMPHUMIDHISTORYTIME, hourminute, null);
+        gattCmdExecutor.write(TEMPHUMIDHISTORYTIME, hourminute, null);
 
         // 读取历史数据
-        gattOperator.read(TEMPHUMIDHISTORYDATA, new IGattDataOpCallback() {
+        gattCmdExecutor.read(TEMPHUMIDHISTORYDATA, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
@@ -316,7 +316,7 @@ public class TempHumidDevice extends BleDevice {
         Calendar time = Calendar.getInstance();
         byte[] value = {(byte)time.get(Calendar.HOUR_OF_DAY), (byte)time.get(Calendar.MINUTE), getDeviceTimerPeriod(), 0x01};
 
-        gattOperator.write(TIMERVALUE, value, null);
+        gattCmdExecutor.write(TIMERVALUE, value, null);
     }
 
     // 将一个数据保存到数据库中
@@ -368,7 +368,7 @@ public class TempHumidDevice extends BleDevice {
         }
 
         // 添加更新历史数据完毕的命令
-        gattOperator.instExecute(new IGattDataOpCallback() {
+        gattCmdExecutor.instExecute(new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 isUpdatingHistoryData = false;
