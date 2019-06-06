@@ -5,11 +5,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.ble.extend.GattDataOpException;
+import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
-import com.cmtech.android.ble.extend.IGattDataOpCallback;
+import com.cmtech.android.ble.extend.IGattDataCallback;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -239,14 +239,14 @@ public class TempHumidDevice extends BleDevice {
 
     // 读取当前温湿度值
     private void readCurrentTempHumid() {
-        gattCmdExecutor.read(TEMPHUMIDDATA, new IGattDataOpCallback() {
+        gattCmdExecutor.read(TEMPHUMIDDATA, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
             @Override
-            public void onFailure(GattDataOpException exception) {
+            public void onFailure(GattDataException exception) {
 
             }
         });
@@ -260,14 +260,14 @@ public class TempHumidDevice extends BleDevice {
         gattCmdExecutor.write(TEMPHUMIDCTRL, (byte)0x01, null);
 
         // enable 温湿度采集的notification
-        IGattDataOpCallback notifyCallback = new IGattDataOpCallback() {
+        IGattDataCallback notifyCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
             @Override
-            public void onFailure(GattDataOpException exception) {
+            public void onFailure(GattDataException exception) {
                 ViseLog.i("onFailure");
             }
         };
@@ -276,14 +276,14 @@ public class TempHumidDevice extends BleDevice {
 
     // 读取定时器服务特征值
     private void readTimerServiceValue() {
-        gattCmdExecutor.read(TIMERVALUE, new IGattDataOpCallback() {
+        gattCmdExecutor.read(TIMERVALUE, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TIMERVALUE, data);
             }
 
             @Override
-            public void onFailure(GattDataOpException exception) {
+            public void onFailure(GattDataException exception) {
 
             }
         });
@@ -298,14 +298,14 @@ public class TempHumidDevice extends BleDevice {
         gattCmdExecutor.write(TEMPHUMIDHISTORYTIME, hourminute, null);
 
         // 读取历史数据
-        gattCmdExecutor.read(TEMPHUMIDHISTORYDATA, new IGattDataOpCallback() {
+        gattCmdExecutor.read(TEMPHUMIDHISTORYDATA, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
             }
 
             @Override
-            public void onFailure(GattDataOpException exception) {
+            public void onFailure(GattDataException exception) {
 
             }
         });
@@ -368,14 +368,14 @@ public class TempHumidDevice extends BleDevice {
         }
 
         // 添加更新历史数据完毕的命令
-        gattCmdExecutor.instExecute(new IGattDataOpCallback() {
+        gattCmdExecutor.instExecute(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 isUpdatingHistoryData = false;
             }
 
             @Override
-            public void onFailure(GattDataOpException exception) {
+            public void onFailure(GattDataException exception) {
 
             }
         });
