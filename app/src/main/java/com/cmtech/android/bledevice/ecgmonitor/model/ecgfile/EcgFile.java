@@ -5,8 +5,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendixFact
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgHrInfoAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
-import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.bmefile.AbstractRandomAccessBmeFile;
 import com.cmtech.bmefile.BmeFileDataType;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.CACHE_DIR;
+import static com.cmtech.android.bledevice.BleDeviceConstant.CACHE_DIR;
 
 /**
  * EcgFile: 心电文件类，可随机访问

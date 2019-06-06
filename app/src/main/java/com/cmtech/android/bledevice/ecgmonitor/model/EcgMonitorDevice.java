@@ -1,13 +1,14 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import android.content.Context;
 import android.os.Message;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.core.BleDataOpException;
-import com.cmtech.android.bledevice.core.BleDevice;
-import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
-import com.cmtech.android.bledevice.core.BleGattElement;
-import com.cmtech.android.bledevice.core.IBleDataOpCallback;
+import com.cmtech.android.ble.extend.BleDataOpException;
+import com.cmtech.android.ble.extend.BleDevice;
+import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleGattElement;
+import com.cmtech.android.ble.extend.IBleDataOpCallback;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
@@ -30,8 +31,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledevice.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevice.BleDeviceConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 
 
@@ -155,8 +156,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     private Thread processThread;
 
     // 构造器
-    EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
-        super(basicInfo);
+    EcgMonitorDevice(Context context, BleDeviceBasicInfo basicInfo) {
+        super(context, basicInfo);
 
         // 从数据库获取设备的配置信息
         List<EcgMonitorDeviceConfig> foundConfig = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);

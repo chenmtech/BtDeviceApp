@@ -1,21 +1,22 @@
 package com.cmtech.android.bledevice.thermo.model;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.bledevice.core.BleDataOpException;
-import com.cmtech.android.bledevice.core.BleGattElement;
-import com.cmtech.android.bledevice.core.IBleDataOpCallback;
+import com.cmtech.android.ble.extend.BleDataOpException;
+import com.cmtech.android.ble.extend.BleDevice;
+import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleGattElement;
+import com.cmtech.android.ble.extend.IBleDataOpCallback;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.cmtech.android.bledevice.core.BleDevice;
-import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledevice.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevice.BleDeviceConstant.MY_BASE_UUID;
 
 /**
  * ThermoDevice: 体温计设备类
@@ -71,8 +72,8 @@ public class ThermoDevice extends BleDevice {
         updateThermoData();
     }
 
-    public ThermoDevice(BleDeviceBasicInfo basicInfo) {
-        super(basicInfo);
+    public ThermoDevice(Context context, BleDeviceBasicInfo basicInfo) {
+        super(context, basicInfo);
         initializeAfterConstruction();
     }
 

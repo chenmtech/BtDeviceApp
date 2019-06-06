@@ -24,15 +24,15 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGE_DIR;
+import static com.cmtech.android.bledevice.BleDeviceConstant.IMAGE_DIR;
 
 /**
  *  UserInfoActivity: 用户信息Activity

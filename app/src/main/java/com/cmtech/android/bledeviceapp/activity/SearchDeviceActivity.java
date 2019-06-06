@@ -19,12 +19,12 @@ import android.widget.Toast;
 import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
 import com.cmtech.android.ble.callback.scan.IScanCallback;
 import com.cmtech.android.ble.callback.scan.ScanCallback;
+import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceUtil;
+import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
-import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
-import com.cmtech.android.bledevice.core.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.SCAN_DEVICE_NAME;
+import static com.cmtech.android.bledevice.BleDeviceConstant.SCAN_DEVICE_NAME;
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 
 /**

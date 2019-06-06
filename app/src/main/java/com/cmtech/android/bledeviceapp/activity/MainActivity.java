@@ -33,11 +33,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledevice.core.AbstractBleDeviceFactory;
-import com.cmtech.android.bledevice.core.BleDevice;
-import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
-import com.cmtech.android.bledevice.core.BleDeviceFragment;
-import com.cmtech.android.bledevice.core.IBleDeviceFragmentActivity;
+import com.cmtech.android.ble.extend.AbstractBleDeviceFactory;
+import com.cmtech.android.ble.extend.BleDevice;
+import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceFragment;
+import com.cmtech.android.ble.extend.IBleDeviceFragmentActivity;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -54,7 +54,7 @@ import com.vise.log.ViseLog;
 import java.io.Serializable;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConnectState.CONNECT_CLOSED;
+import static com.cmtech.android.ble.extend.BleDeviceConnectState.CONNECT_CLOSED;
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 import static com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity.REGISTED_DEVICE_MAC_LIST;
 
@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private final static int RC_REGISTER_DEVICE = 1;     // 登记设备返回码
     private final static int RC_MODIFY_DEVICEINFO = 2;       // 修改设备基本信息返回码
     private final static int RC_MODIFY_USERINFO = 3;     // 修改用户信息返回码
+
+    private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
     private BleDeviceService deviceService; // 设备服务
 
@@ -322,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     if(basicInfo != null) {
                         BleDevice device = deviceService.createAndAddDevice(basicInfo);
                         if(device != null) {
-                            if(basicInfo.saveToPref()) {
+                            if(basicInfo.saveToPref(pref)) {
                                 Toast.makeText(MainActivity.this, "设备登记成功", Toast.LENGTH_SHORT).show();
                                 if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
                             } else {
@@ -340,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                     BleDeviceBasicInfo basicInfo = (BleDeviceBasicInfo) data.getSerializableExtra(DEVICE_BASICINFO);
                     BleDevice device = deviceService.findDevice(basicInfo);
 
-                    if(device != null && basicInfo.saveToPref()) {
+                    if(device != null && basicInfo.saveToPref(pref)) {
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
 
                         device.setBasicInfo(basicInfo);
@@ -581,7 +583,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(device.getBasicInfo().deleteFromPref()) {
+                if(device.getBasicInfo().deleteFromPref(pref)) {
                     deviceService.deleteDevice(device);
                     if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
                 } else {

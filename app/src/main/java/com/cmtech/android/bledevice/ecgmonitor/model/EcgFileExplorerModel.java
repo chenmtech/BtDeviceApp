@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import android.content.Context;
 
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.cmtech.android.ble.extend.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.vise.log.ViseLog;
 

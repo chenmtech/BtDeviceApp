@@ -7,8 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.ble.extend.BleDeviceFragment;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevice.core.BleDeviceFragment;
 
 /**
  * Created by bme on 2018/2/28.

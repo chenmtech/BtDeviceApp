@@ -5,15 +5,18 @@ import android.content.Context;
 import android.util.Log;
 
 import com.cmtech.android.ble.ViseBle;
-import com.cmtech.android.bledevice.core.BleDeviceConfig;
+import com.cmtech.android.ble.extend.BleDeviceConfig;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceFactory;
+import com.cmtech.android.bledevice.temphumid.model.TempHumidDeviceFactory;
+import com.cmtech.android.bledevice.thermo.model.ThermoDeviceFactory;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.CONNECT_TIMEOUT;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.SCAN_TIMEOUT;
+import static com.cmtech.android.bledevice.BleDeviceConstant.CONNECT_TIMEOUT;
+import static com.cmtech.android.bledevice.BleDeviceConstant.SCAN_TIMEOUT;
 
 /**
  * MyApplication
@@ -45,6 +48,10 @@ public class MyApplication extends Application {
         Context context = getApplicationContext();
 
         ViseBle.getInstance().init(context);
+
+        TempHumidDeviceFactory.addDeviceType();
+        EcgMonitorDeviceFactory.addDeviceType();
+        ThermoDeviceFactory.addDeviceType();
 
         // 初始化LitePal
         LitePal.initialize(context);

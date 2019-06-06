@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -11,14 +12,16 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
-import com.cmtech.android.bledevice.core.BleDevice;
-import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
-import com.cmtech.android.bledevice.core.BleDeviceManager;
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
-import com.cmtech.android.bledevice.core.OnBleDeviceStateListener;
+import com.cmtech.android.ble.extend.BleDevice;
+import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceManager;
+import com.cmtech.android.ble.extend.BleDeviceUtil;
+import com.cmtech.android.ble.extend.OnBleDeviceStateListener;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.vise.log.ViseLog;
@@ -76,8 +79,8 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     public void onCreate() {
         super.onCreate();
 
-        deviceManager = new BleDeviceManager();
-        initDeviceFromPref();
+        deviceManager = new BleDeviceManager(this);
+        initDeviceFromPref(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
 
         notiTitle = "欢迎使用" + getResources().getString(R.string.app_name);
 
@@ -237,8 +240,8 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     // 从Preference获取所有设备信息，并构造相应的BLEDevice
-    private void initDeviceFromPref() {
-        List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.createAllFromPref();
+    private void initDeviceFromPref(SharedPreferences pref) {
+        List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.createAllFromPref(pref);
         createAndAddDevice(basicInfoList);
     }
 

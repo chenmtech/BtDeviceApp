@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.core;
+package com.cmtech.android.bledevice;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
 
@@ -25,15 +25,5 @@ public class BleDeviceConstant {
 
     public static final File CACHE_DIR = MyApplication.getContext().getExternalCacheDir(); // 文件缓存cache目录
 
-    // 下面五个参数用于登记设备基本信息
-    public static final String DEFAULT_DEVICE_NICKNAME = ""; // 缺省设备名
-
-    public static final String DEFAULT_DEVICE_IMAGEPATH = ""; // 缺省设备图标路径名
-
-    public static final boolean DEFAULT_DEVICE_AUTOCONNECT = true; // 设备打开时是否自动连接
-
-    public static final int DEFAULT_DEVICE_RECONNECT_TIMES = 3; // 连接失败后的重连次数
-
-    public static final boolean DEFAULT_WARN_AFTER_RECONNECT_FAILURE = true; // 重连失败后是否报警
 
 }

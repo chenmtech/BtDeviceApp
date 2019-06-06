@@ -20,7 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.cmtech.android.ble.extend.BleDeviceUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserManager;

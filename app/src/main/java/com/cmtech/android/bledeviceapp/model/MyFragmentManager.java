@@ -1,19 +1,15 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.SupportedDeviceType;
-import com.cmtech.android.bledevice.core.BleDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;

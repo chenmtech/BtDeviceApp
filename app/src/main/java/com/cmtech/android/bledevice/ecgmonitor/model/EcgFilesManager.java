@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.core.BleDeviceUtil;
+import com.cmtech.android.ble.extend.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
@@ -18,7 +18,6 @@ import com.vise.utils.file.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,7 +30,6 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.MACADDRESS_CHAR_NUM;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor.SECOND_IN_HR_FILTER;
 
 /**

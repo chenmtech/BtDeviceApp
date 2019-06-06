@@ -1,14 +1,15 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.bledevice.core.BleDataOpException;
-import com.cmtech.android.bledevice.core.BleDevice;
-import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
-import com.cmtech.android.bledevice.core.BleGattElement;
-import com.cmtech.android.bledevice.core.IBleDataOpCallback;
+import com.cmtech.android.ble.extend.BleDataOpException;
+import com.cmtech.android.ble.extend.BleDevice;
+import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleGattElement;
+import com.cmtech.android.ble.extend.IBleDataOpCallback;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -20,8 +21,8 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.CCCUUID;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledevice.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledevice.BleDeviceConstant.MY_BASE_UUID;
 
 /**
  * TempHumidDevice: 温湿度计设备类
@@ -131,8 +132,8 @@ public class TempHumidDevice extends BleDevice {
 
 
     // 构造器
-    public TempHumidDevice(BleDeviceBasicInfo basicInfo) {
-        super(basicInfo);
+    public TempHumidDevice(Context context, BleDeviceBasicInfo basicInfo) {
+        super(context, basicInfo);
         initializeAfterConstruction();
 
     }

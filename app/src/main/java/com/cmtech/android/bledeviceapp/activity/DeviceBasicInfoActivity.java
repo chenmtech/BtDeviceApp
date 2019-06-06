@@ -20,8 +20,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledevice.SupportedDeviceType;
-import com.cmtech.android.bledevice.core.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.file.FileUtil;
@@ -30,11 +30,11 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_AUTOCONNECT;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_IMAGEPATH;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_DEVICE_RECONNECT_TIMES;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
-import static com.cmtech.android.bledevice.core.BleDeviceConstant.IMAGE_DIR;
+import static com.cmtech.android.ble.extend.BleDeviceBasicInfo.DEFAULT_DEVICE_AUTOCONNECT;
+import static com.cmtech.android.ble.extend.BleDeviceBasicInfo.DEFAULT_DEVICE_IMAGEPATH;
+import static com.cmtech.android.ble.extend.BleDeviceBasicInfo.DEFAULT_DEVICE_RECONNECT_TIMES;
+import static com.cmtech.android.ble.extend.BleDeviceBasicInfo.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
+import static com.cmtech.android.bledevice.BleDeviceConstant.IMAGE_DIR;
 
 /**
  *  DeviceBasicInfoActivity: 设备基本信息Activity，用于设置修改BleDeviceBasicInfo字段
@@ -82,7 +82,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         etName = findViewById(R.id.et_device_nickname);
         String deviceName = basicInfo.getNickName();
         if("".equals(deviceName)) {
-            deviceName = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname();
+            deviceName = BleDeviceType.getFromUuid(basicInfo.getUuidString()).getDefaultNickname();
         }
         etName.setText(deviceName);
 
@@ -90,7 +90,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         ivImage = findViewById(R.id.iv_device_image);
         cacheImagePath = basicInfo.getImagePath();
         if("".equals(cacheImagePath)) {
-            int defaultImageId = SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage();
+            int defaultImageId = BleDeviceType.getFromUuid(basicInfo.getUuidString()).getDefaultImage();
             Glide.with(this).load(defaultImageId).into(ivImage);
         } else {
             // 注意不要从缓存显示图像
@@ -256,9 +256,9 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
     // 恢复缺省设置
     private void restoreDefaultSetup() {
-        etName.setText(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultNickname());
+        etName.setText(BleDeviceType.getFromUuid(basicInfo.getUuidString()).getDefaultNickname());
         cacheImagePath = DEFAULT_DEVICE_IMAGEPATH;
-        Glide.with(this).load(SupportedDeviceType.getDeviceTypeFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
+        Glide.with(this).load(BleDeviceType.getFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
         cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
         etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECT_TIMES));
         cbWarnAfterReconnectFailure.setChecked(DEFAULT_WARN_AFTER_RECONNECT_FAILURE);

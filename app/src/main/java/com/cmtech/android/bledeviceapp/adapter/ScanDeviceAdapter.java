@@ -9,12 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.ble.extend.BleDeviceType;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
-import com.cmtech.android.bledevice.SupportedDeviceType;
+import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity;
-import com.cmtech.android.bledevice.core.UuidUtil;
 
 import java.util.List;
 
@@ -80,7 +80,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
 
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         String supportedUUID = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(recordUUID.getData()).toString());
-        holder.deviceTypeName.setText(String.format("设备类型：%s", SupportedDeviceType.getDeviceTypeFromUuid(supportedUUID).getDefaultNickname()));
+        holder.deviceTypeName.setText(String.format("设备类型：%s", BleDeviceType.getFromUuid(supportedUUID).getDefaultNickname()));
 
         holder.deviceAddress.setText(String.format("设备地址：%s", device.getAddress()));
 

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.ble.extend.BleDeviceFragment;
 import com.cmtech.android.bledevice.temphumid.adapter.TempHumidHistoryDataAdapter;
 import com.cmtech.android.bledevice.temphumid.model.ITempHumidDataObserver;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
@@ -19,7 +20,6 @@ import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledevice.core.BleDeviceFragment;
 
 import java.util.Locale;
 
