@@ -4,11 +4,11 @@ import android.content.Context;
 import android.os.Message;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.extend.BleDataOpException;
+import com.cmtech.android.ble.extend.GattDataOpException;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
-import com.cmtech.android.ble.extend.IBleDataOpCallback;
+import com.cmtech.android.ble.extend.IGattDataOpCallback;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
@@ -610,14 +610,14 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
      */
     // 读采样率
     private void readSampleRate() {
-        gattOperator.read(ECGMONITOR_SAMPLERATE, new IBleDataOpCallback() {
+        gattOperator.read(ECGMONITOR_SAMPLERATE, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_SAMPLERATE_OBTAINED, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
             }
 
             @Override
-            public void onFailure(BleDataOpException exception) {
+            public void onFailure(GattDataOpException exception) {
 
             }
         });
@@ -625,14 +625,14 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     // 读导联类型
     private void readLeadType() {
-        gattOperator.read(ECGMONITOR_LEADTYPE, new IBleDataOpCallback() {
+        gattOperator.read(ECGMONITOR_LEADTYPE, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_LEADTYPE_OBTAINED, data[0]);
             }
 
             @Override
-            public void onFailure(BleDataOpException exception) {
+            public void onFailure(GattDataOpException exception) {
 
             }
         });
@@ -640,27 +640,27 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     // 启动ECG信号采集
     private void startSampleEcg() {
-        IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
+        IGattDataOpCallback indicationCallback = new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 resolveDataPacket(data);
             }
 
             @Override
-            public void onFailure(BleDataOpException exception) {
+            public void onFailure(GattDataOpException exception) {
 
             }
         };
         // enable ECG data indication
         gattOperator.indicate(ECGMONITOR_DATA_CCC, true, indicationCallback);
-        gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IBleDataOpCallback() {
+        gattOperator.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_START_SAMPLINGSIGNAL, null);
             }
 
             @Override
-            public void onFailure(BleDataOpException exception) {
+            public void onFailure(GattDataOpException exception) {
 
             }
         });
@@ -669,14 +669,14 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     // 启动1mV定标信号采集
     private void startSample1mV() {
         setState(EcgMonitorState.CALIBRATING);
-        IBleDataOpCallback indicationCallback = new IBleDataOpCallback() {
+        IGattDataOpCallback indicationCallback = new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 resolveDataPacket(data);
             }
 
             @Override
-            public void onFailure(BleDataOpException exception) {
+            public void onFailure(GattDataOpException exception) {
 
             }
         };
@@ -699,7 +699,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         readBatteryService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                gattOperator.read(BATTERY_DATA, new IBleDataOpCallback() {
+                gattOperator.read(BATTERY_DATA, new IGattDataOpCallback() {
                     @Override
                     public void onSuccess(byte[] data) {
                         int battery = data[0];
@@ -707,7 +707,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
                     }
 
                     @Override
-                    public void onFailure(BleDataOpException exception) {
+                    public void onFailure(GattDataOpException exception) {
 
                     }
                 });

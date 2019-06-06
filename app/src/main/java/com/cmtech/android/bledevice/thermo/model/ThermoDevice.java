@@ -5,11 +5,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.ble.extend.BleDataOpException;
+import com.cmtech.android.ble.extend.GattDataOpException;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
-import com.cmtech.android.ble.extend.IBleDataOpCallback;
+import com.cmtech.android.ble.extend.IGattDataOpCallback;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.util.LinkedList;
@@ -157,14 +157,14 @@ public class ThermoDevice extends BleDevice {
 
     private void readThermoData() {
         // 读温度数据
-        gattOperator.read(THERMODATA, new IBleDataOpCallback() {
+        gattOperator.read(THERMODATA, new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_THERMODATA, data);
             }
 
             @Override
-            public void onFailure(BleDataOpException exception) {
+            public void onFailure(GattDataOpException exception) {
             }
         });
     }
@@ -177,14 +177,14 @@ public class ThermoDevice extends BleDevice {
         // 设置采样周期
         gattOperator.write(THERMOPERIOD, period, null);
 
-        IBleDataOpCallback notifyCallback = new IBleDataOpCallback() {
+        IGattDataOpCallback notifyCallback = new IGattDataOpCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 sendGattMessage(MSG_THERMODATA, data);
             }
 
             @Override
-            public void onFailure(BleDataOpException exception) {
+            public void onFailure(GattDataOpException exception) {
 
             }
         };

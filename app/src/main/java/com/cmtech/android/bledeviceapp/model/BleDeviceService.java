@@ -18,7 +18,6 @@ import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
-import com.cmtech.android.ble.extend.BleDeviceManager;
 import com.cmtech.android.ble.extend.BleDeviceUtil;
 import com.cmtech.android.ble.extend.OnBleDeviceStateListener;
 import com.cmtech.android.bledeviceapp.MyApplication;
