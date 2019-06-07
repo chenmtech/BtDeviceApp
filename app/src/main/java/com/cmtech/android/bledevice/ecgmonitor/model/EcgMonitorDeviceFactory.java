@@ -12,14 +12,14 @@ import com.cmtech.android.bledeviceapp.R;
 // 根据设备类型BleDeviceType，通过反射创建工厂类实例
 public class EcgMonitorDeviceFactory extends AbstractBleDeviceFactory {
     private static final String UUID_ECGMONITOR                 = "aa40";       // 心电监护仪
+
     private static final String NAME_ECGMONITOR                  = "心电带";
+
     private static final int IMAGE_ECGMONITOR                  = R.drawable.ic_ecgmonitor_defaultimage;
+
     private static final String ecgMonitorFactory = "com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceFactory";
 
-    public static void addDeviceType() {
-        BleDeviceType deviceType = new BleDeviceType(UUID_ECGMONITOR, IMAGE_ECGMONITOR, NAME_ECGMONITOR, ecgMonitorFactory);
-        BleDeviceType.addSupportedType(deviceType);
-    }
+    public static final BleDeviceType ECGMONITOR_DEVICE_TYPE = new BleDeviceType(UUID_ECGMONITOR, IMAGE_ECGMONITOR, NAME_ECGMONITOR, ecgMonitorFactory);
 
     @Override
     public BleDevice createDevice(Context context) {

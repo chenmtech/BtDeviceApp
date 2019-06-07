@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.cmtech.android.ble.ViseBle;
 import com.cmtech.android.ble.extend.BleDeviceConfig;
+import com.cmtech.android.ble.extend.BleDeviceConnectState;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceFactory;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidDeviceFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoDeviceFactory;
@@ -36,7 +37,6 @@ public class MyApplication extends Application {
 
         instance = this;
 
-        // ViseBle包的配置，不要修改
         BleDeviceConfig.setScanTimeout(SCAN_TIMEOUT);
 
         BleDeviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
@@ -45,13 +45,17 @@ public class MyApplication extends Application {
 
         BleDeviceConfig.setOpDataRetryCount(0);
 
+        BleDeviceConfig.addSupportedDeviceType(EcgMonitorDeviceFactory.ECGMONITOR_DEVICE_TYPE);
+
+        BleDeviceConfig.addSupportedDeviceType(TempHumidDeviceFactory.TEMPHUMID_DEVICE_TYPE);
+
+        BleDeviceConfig.addSupportedDeviceType(ThermoDeviceFactory.THERMO_DEVICE_TYPE);
+
+        BleDeviceConfig.setConnectStateDescription(BleDeviceConnectState.CONNECT_CLOSED, "点击启动");
+
         Context context = getApplicationContext();
 
         ViseBle.getInstance().init(context);
-
-        TempHumidDeviceFactory.addDeviceType();
-        EcgMonitorDeviceFactory.addDeviceType();
-        ThermoDeviceFactory.addDeviceType();
 
         // 初始化LitePal
         LitePal.initialize(context);
