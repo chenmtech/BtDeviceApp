@@ -51,8 +51,6 @@ public class MyApplication extends Application {
 
         BleDeviceConfig.addSupportedDeviceType(ThermoDeviceFactory.THERMO_DEVICE_TYPE);
 
-        BleDeviceConfig.setConnectStateDescription(BleDeviceConnectState.CONNECT_CLOSED, "点击启动");
-
         Context context = getApplicationContext();
 
         ViseBle.getInstance().init(context);

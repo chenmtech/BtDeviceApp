@@ -268,7 +268,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         gattCmdExecutor.stop();
 
         if(isMeasureBattery) {
-            stopBatteryService();
+            stopBatteryMeasure();
 
             isMeasureBattery = false;
         }
@@ -289,7 +289,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         gattCmdExecutor.stop();
 
         if(isMeasureBattery) {
-            stopBatteryService();
+            stopBatteryMeasure();
             isMeasureBattery = false;
         }
 
@@ -411,24 +411,33 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     protected void disconnect() {
         ViseLog.e("EcgMonitorDevice disconnect()");
 
-        int delay = 0;
-        if(isConnected() && gattCmdExecutor.isAlive()) {
-            stopSampleData();
-            delay = 100;
-        }
-
         if(isMeasureBattery) {
-            stopBatteryService();
-            delay = 100;
+            stopBatteryMeasure();
+
             isMeasureBattery = false;
         }
 
-        postDelayed(new Runnable() {
+        if(isConnected() && gattCmdExecutor.isAlive()) {
+            stopSampleData();
+
+        }
+
+        gattCmdExecutor.instExecute(new IGattDataCallback() {
             @Override
-            public void run() {
-                EcgMonitorDevice.super.disconnect();
+            public void onSuccess(byte[] data) {
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        EcgMonitorDevice.super.disconnect();
+                    }
+                });
             }
-        }, delay);
+
+            @Override
+            public void onFailure(GattDataException exception) {
+
+            }
+        });
     }
 
     @Override
@@ -719,7 +728,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     }
 
     // 停止测量电池电量
-    private void stopBatteryService() {
+    private void stopBatteryMeasure() {
         if(readBatteryService != null) {
             readBatteryService.shutdownNow();
 
