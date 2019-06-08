@@ -112,7 +112,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
         UserManager.getInstance().signOut();
 
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+        /*new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 // 防止设备没有彻底断开
@@ -122,9 +122,13 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
                 ViseLog.e("killProcess");
                 android.os.Process.killProcess(android.os.Process.myPid());
             }
-        }, 1000);
+        }, 1000);*/
 
+        BleDeviceUtil.disconnectAllDevice();
+        BleDeviceUtil.clearAllDevice();
 
+        ViseLog.e("killProcess");
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     @Override

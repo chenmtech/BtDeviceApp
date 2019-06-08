@@ -422,20 +422,10 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         }
 
-        gattCmdExecutor.instExecute(new IGattDataCallback() {
+        post(new Runnable() {
             @Override
-            public void onSuccess(byte[] data) {
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        EcgMonitorDevice.super.disconnect();
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(GattDataException exception) {
-
+            public void run() {
+                EcgMonitorDevice.super.disconnect();
             }
         });
     }
