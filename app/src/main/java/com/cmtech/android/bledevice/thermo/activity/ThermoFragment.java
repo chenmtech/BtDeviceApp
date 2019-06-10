@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.ble.extend.BleDeviceFragment;
+import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 import com.cmtech.android.bledevice.thermo.model.IThermoDataObserver;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;

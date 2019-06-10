@@ -15,8 +15,8 @@ import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.BleDeviceConstant.CCCUUID;
-import static com.cmtech.android.bledevice.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
 /**
  * ThermoDevice: 体温计设备类
@@ -81,12 +81,12 @@ public class ThermoDevice extends BleDevice {
     }
 
     @Override
-    public boolean executeAfterConnectSuccess() {
-        gattCmdExecutor.start();
+    protected boolean executeAfterConnectSuccess() {
+        startGattExecutor();
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
-        if(!gattCmdExecutor.checkElements(elements)) return false;
+        if(!checkElements(elements)) return false;
 
         resetHighestTemp();
 
@@ -98,17 +98,17 @@ public class ThermoDevice extends BleDevice {
     }
 
     @Override
-    public void executeAfterDisconnect() {
-        gattCmdExecutor.stop();
+    protected void executeAfterDisconnect() {
+        stopGattExecutor();
     }
 
     @Override
-    public void executeAfterConnectFailure() {
-        gattCmdExecutor.stop();
+    protected void executeAfterConnectFailure() {
+        stopGattExecutor();
     }
 
     @Override
-    public synchronized void processGattMessage(Message msg)
+    protected void processMessage(Message msg)
     {
         if (msg.what == MSG_THERMODATA) {
             if (msg.obj != null) {
@@ -157,10 +157,10 @@ public class ThermoDevice extends BleDevice {
 
     private void readThermoData() {
         // 读温度数据
-        gattCmdExecutor.read(THERMODATA, new IGattDataCallback() {
+        read(THERMODATA, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_THERMODATA, data);
+                sendMessage(MSG_THERMODATA, data);
             }
 
             @Override
@@ -175,12 +175,12 @@ public class ThermoDevice extends BleDevice {
      */
     private void startThermometer(byte period) {
         // 设置采样周期
-        gattCmdExecutor.write(THERMOPERIOD, period, null);
+        write(THERMOPERIOD, period, null);
 
         IGattDataCallback notifyCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_THERMODATA, data);
+                sendMessage(MSG_THERMODATA, data);
             }
 
             @Override
@@ -190,10 +190,10 @@ public class ThermoDevice extends BleDevice {
         };
 
         // enable温度数据notify
-        gattCmdExecutor.notify(THERMODATACCC, true, notifyCallback);
+        notify(THERMODATACCC, true, notifyCallback);
 
         // 启动温度采集
-        gattCmdExecutor.write(THERMOCONTROL, (byte)0x03, null);
+        write(THERMOCONTROL, (byte)0x03, null);
     }
 
 }

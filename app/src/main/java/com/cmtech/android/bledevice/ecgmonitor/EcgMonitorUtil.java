@@ -5,14 +5,14 @@ public class EcgMonitorUtil {
     public static String makeFileName(String macAddress, long timeInMillis) {
         String address = cutColonInMacAddress(macAddress);
 
-        return address + String.valueOf(timeInMillis) + ".bme";
+        return address + timeInMillis + ".bme";
     }
 
     // 去掉macAddress中的冒号
     public static String cutColonInMacAddress(String macAddress) {
         if(macAddress == null || macAddress.equals("")) return "";
 
-        char arr[] = macAddress.toCharArray();      //把字符串转换为字符数组
+        char[] arr = macAddress.toCharArray();      //把字符串转换为字符数组
         StringBuilder address = new StringBuilder();
         for(char c : arr) {
             if(c != ':') {

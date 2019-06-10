@@ -21,8 +21,8 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.BleDeviceConstant.CCCUUID;
-import static com.cmtech.android.bledevice.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
 /**
  * TempHumidDevice: 温湿度计设备类
@@ -154,16 +154,16 @@ public class TempHumidDevice extends BleDevice {
     }
 
     @Override
-    public boolean executeAfterConnectSuccess() {
-        gattCmdExecutor.start();
+    protected boolean executeAfterConnectSuccess() {
+        startGattExecutor();
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
-        if(!gattCmdExecutor.checkElements(elements)) return false;
+        if(!checkElements(elements)) return false;
 
         // 检查是否有温湿度历史数据服务和特征值
         elements = new BleGattElement[]{TIMERVALUE, TEMPHUMIDHISTORYTIME, TEMPHUMIDHISTORYDATA};
-        hasTimerService = gattCmdExecutor.checkElements(elements);
+        hasTimerService = checkElements(elements);
 
         // 先读取一次当前温湿度值
         readCurrentTempHumid();
@@ -180,19 +180,19 @@ public class TempHumidDevice extends BleDevice {
     }
 
     @Override
-    public void executeAfterDisconnect() {
-        gattCmdExecutor.stop();
+    protected void executeAfterDisconnect() {
+        stopGattExecutor();
     }
 
     @Override
-    public void executeAfterConnectFailure() {
-        gattCmdExecutor.stop();
+    protected void executeAfterConnectFailure() {
+        stopGattExecutor();
     }
 
     @Override
-    public synchronized void processGattMessage(Message msg)
+    protected void processMessage(Message msg)
     {
-        ViseLog.e("processGattMessage " + msg + " in " + Thread.currentThread());
+        ViseLog.e("processMessage " + msg + " in " + Thread.currentThread());
 
         switch (msg.what) {
             // 获取到当前温湿度值
@@ -239,10 +239,10 @@ public class TempHumidDevice extends BleDevice {
 
     // 读取当前温湿度值
     private void readCurrentTempHumid() {
-        gattCmdExecutor.read(TEMPHUMIDDATA, new IGattDataCallback() {
+        read(TEMPHUMIDDATA, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
+                sendMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
             @Override
@@ -254,16 +254,16 @@ public class TempHumidDevice extends BleDevice {
 
     // 启动温湿度采集服务
     private void startTempHumidService(int period) {
-        gattCmdExecutor.write(TEMPHUMIDPERIOD, (byte) (period / 100), null);
+        write(TEMPHUMIDPERIOD, (byte) (period / 100), null);
 
         // 启动温湿度采集
-        gattCmdExecutor.write(TEMPHUMIDCTRL, (byte)0x01, null);
+        write(TEMPHUMIDCTRL, (byte)0x01, null);
 
         // enable 温湿度采集的notification
         IGattDataCallback notifyCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
+                sendMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
             @Override
@@ -271,15 +271,15 @@ public class TempHumidDevice extends BleDevice {
                 ViseLog.i("onFailure");
             }
         };
-        gattCmdExecutor.notify(TEMPHUMIDDATACCC, true, notifyCallback);
+        notify(TEMPHUMIDDATACCC, true, notifyCallback);
     }
 
     // 读取定时器服务特征值
     private void readTimerServiceValue() {
-        gattCmdExecutor.read(TIMERVALUE, new IGattDataCallback() {
+        read(TIMERVALUE, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_TIMERVALUE, data);
+                sendMessage(MSG_TIMERVALUE, data);
             }
 
             @Override
@@ -295,13 +295,13 @@ public class TempHumidDevice extends BleDevice {
         byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
 
         // 写历史数据时间
-        gattCmdExecutor.write(TEMPHUMIDHISTORYTIME, hourminute, null);
+        write(TEMPHUMIDHISTORYTIME, hourminute, null);
 
         // 读取历史数据
-        gattCmdExecutor.read(TEMPHUMIDHISTORYDATA, new IGattDataCallback() {
+        read(TEMPHUMIDHISTORYDATA, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                sendGattMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
+                sendMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
             }
 
             @Override
@@ -316,7 +316,7 @@ public class TempHumidDevice extends BleDevice {
         Calendar time = Calendar.getInstance();
         byte[] value = {(byte)time.get(Calendar.HOUR_OF_DAY), (byte)time.get(Calendar.MINUTE), getDeviceTimerPeriod(), 0x01};
 
-        gattCmdExecutor.write(TIMERVALUE, value, null);
+        write(TIMERVALUE, value, null);
     }
 
     // 将一个数据保存到数据库中
@@ -368,7 +368,7 @@ public class TempHumidDevice extends BleDevice {
         }
 
         // 添加更新历史数据完毕的命令
-        gattCmdExecutor.instExecute(new IGattDataCallback() {
+        instExecute(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 isUpdatingHistoryData = false;

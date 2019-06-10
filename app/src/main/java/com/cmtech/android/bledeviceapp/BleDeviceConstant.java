@@ -1,6 +1,4 @@
-package com.cmtech.android.bledevice;
-
-import com.cmtech.android.bledeviceapp.MyApplication;
+package com.cmtech.android.bledeviceapp;
 
 import java.io.File;
 
@@ -15,15 +13,15 @@ public class BleDeviceConstant {
     public static final String BT_BASE_UUID = "0000XXXX-0000-1000-8000-00805F9B34FB"; // 蓝牙标准UUID
     public static final String CCCUUID = "00002902-0000-1000-8000-00805f9b34fb"; // CCC UUID
 
-    public final static int SCAN_TIMEOUT = 12000; // 扫描超时时间
+    public final static int TIMEOUT_SCAN = 10000; // 扫描超时时间
 
-    public final static int CONNECT_TIMEOUT = 35000; // 连接超时时间
+    public final static int TIMEOUT_CONNECT = 30000; // 连接超时时间
 
     public static final String SCAN_DEVICE_NAME = "CM1.0"; // 扫描时过滤设备：只获取广播数据包中设备名为该名称的设备
 
-    public static final File IMAGE_DIR = MyApplication.getContext().getExternalFilesDir("images"); // 图像文件DIR
+    public static final File DIR_IMAGE = MyApplication.getContext().getExternalFilesDir("images"); // 图像文件DIR
 
-    public static final File CACHE_DIR = MyApplication.getContext().getExternalCacheDir(); // 文件缓存cache目录
+    public static final File DIR_CACHE = MyApplication.getContext().getExternalCacheDir(); // 文件缓存cache目录
 
 
 }

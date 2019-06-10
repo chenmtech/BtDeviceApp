@@ -18,7 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.ble.extend.BleDeviceFragment;
+import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgControllerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;

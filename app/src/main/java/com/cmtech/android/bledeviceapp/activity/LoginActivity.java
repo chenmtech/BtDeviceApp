@@ -20,7 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.extend.BleDeviceUtil;
+import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserManager;
@@ -319,8 +319,8 @@ public class LoginActivity extends AppCompatActivity {
 
     // 使能蓝牙
     private void enableBluetooth() {
-        if (!BleDeviceUtil.isBleEnable(MyApplication.getContext())) {
-            BleDeviceUtil.enableBluetooth(this, RC_ENABLE_BLUETOOTH);
+        if (!BleUtil.isBleEnable(MyApplication.getContext())) {
+            BleUtil.enableBluetooth(this, RC_ENABLE_BLUETOOTH);
         }
     }
 

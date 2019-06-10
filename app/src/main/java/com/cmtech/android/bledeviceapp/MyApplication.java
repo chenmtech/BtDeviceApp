@@ -4,9 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import com.cmtech.android.ble.ViseBle;
-import com.cmtech.android.ble.extend.BleDeviceConfig;
-import com.cmtech.android.ble.extend.BleDeviceConnectState;
+import com.cmtech.android.ble.BleDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceFactory;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidDeviceFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoDeviceFactory;
@@ -16,8 +14,8 @@ import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevice.BleDeviceConstant.CONNECT_TIMEOUT;
-import static com.cmtech.android.bledevice.BleDeviceConstant.SCAN_TIMEOUT;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.TIMEOUT_CONNECT;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.TIMEOUT_SCAN;
 
 /**
  * MyApplication
@@ -37,13 +35,11 @@ public class MyApplication extends Application {
 
         instance = this;
 
-        BleDeviceConfig.setScanTimeout(SCAN_TIMEOUT);
+        BleDeviceConfig.initialize(getApplicationContext());
 
-        BleDeviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
+        BleDeviceConfig.setScanTimeout(TIMEOUT_SCAN);
 
-        BleDeviceConfig.setConnectRetryCount(0);
-
-        BleDeviceConfig.setOpDataRetryCount(0);
+        BleDeviceConfig.setConnectTimeout(TIMEOUT_CONNECT);
 
         BleDeviceConfig.addSupportedDeviceType(EcgMonitorDeviceFactory.ECGMONITOR_DEVICE_TYPE);
 
@@ -51,17 +47,13 @@ public class MyApplication extends Application {
 
         BleDeviceConfig.addSupportedDeviceType(ThermoDeviceFactory.THERMO_DEVICE_TYPE);
 
-        Context context = getApplicationContext();
-
-        ViseBle.getInstance().init(context);
-
         // 初始化LitePal
-        LitePal.initialize(context);
+        LitePal.initialize(getApplicationContext());
 
         LitePal.getDatabase();
 
         // 初始化MobSDK
-        MobSDK.init(context, "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");
+        MobSDK.init(getApplicationContext(), "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");
 
         // 初始化ViseLog
         ViseLog.getLogConfig()

@@ -3,7 +3,6 @@ package com.cmtech.android.bledeviceapp.model;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.cmtech.android.ble.extend.AbstractBleDeviceFactory;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 

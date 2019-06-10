@@ -9,17 +9,15 @@ import android.graphics.BitmapFactory;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
-import com.cmtech.android.ble.extend.BleDeviceUtil;
-import com.cmtech.android.ble.extend.OnBleDeviceStateListener;
+import com.cmtech.android.ble.extend.OnBleDeviceListener;
+import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -36,7 +34,7 @@ import java.util.TimerTask;
  *  Created by bme on 2018/12/09.
  */
 
-public class BleDeviceService extends Service implements OnBleDeviceStateListener {
+public class BleDeviceService extends Service implements OnBleDeviceListener {
     private final static String TAG = "BleDeviceService";
 
     private final int WARN_TIME_INTERVAL = 5000;
@@ -112,27 +110,15 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
         UserManager.getInstance().signOut();
 
-        /*new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // 防止设备没有彻底断开
-                BleDeviceUtil.disconnectAllDevice();
-                BleDeviceUtil.clearAllDevice();
-
-                ViseLog.e("killProcess");
-                android.os.Process.killProcess(android.os.Process.myPid());
-            }
-        }, 1000);*/
-
-        BleDeviceUtil.disconnectAllDevice();
-        BleDeviceUtil.clearAllDevice();
+        BleUtil.disconnectAllDevice();
+        BleUtil.clearAllDevice();
 
         ViseLog.e("killProcess");
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     @Override
-    public void onDeviceConnectStateUpdated(final BleDevice device) {
+    public void onConnectStateUpdated(final BleDevice device) {
         List<String> info = new ArrayList<>();
         for(BleDevice dev : deviceManager.getDeviceList()) {
             if(!dev.isClosed()) {
@@ -150,7 +136,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     @Override
-    public void onReconnectFailureNotify(BleDevice device, boolean warn) {
+    public void onReconnectFailureNotified(BleDevice device, boolean warn) {
         if(warn) {
             playWarnRingtone();
         } else {
@@ -159,7 +145,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     @Override
-    public void onDeviceBatteryUpdated(BleDevice device) {
+    public void onBatteryUpdated(BleDevice device) {
 
     }
 
@@ -167,7 +153,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     public BleDevice createAndAddDevice(BleDeviceBasicInfo basicInfo) {
         BleDevice device = deviceManager.createAndAddDevice(basicInfo);
         if(device != null) {
-            device.registerConnectStateListener(this);
+            device.addConnectStateListener(this);
         }
         return device;
     }

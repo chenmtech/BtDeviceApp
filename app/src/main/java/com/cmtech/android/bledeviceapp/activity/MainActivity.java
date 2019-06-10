@@ -33,11 +33,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.ble.extend.AbstractBleDeviceFactory;
+import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
-import com.cmtech.android.ble.extend.BleDeviceFragment;
-import com.cmtech.android.ble.extend.IBleDeviceFragmentActivity;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -488,7 +486,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 更新设备状态
     @Override
-    public void onDeviceConnectStateUpdated(final BleDevice device) {
+    public void onConnectStateUpdated(final BleDevice device) {
         // 更新设备列表Adapter
         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
 
@@ -503,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void onReconnectFailureNotify(final BleDevice device, boolean warn) {
+    public void onReconnectFailureNotified(final BleDevice device, boolean warn) {
         if(!warn) return;
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -512,7 +510,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                device.notifyReconnectFailureObservers(false);
+                device.notifyReconnectFailure(false);
             }
         });
         builder.setCancelable(false);
@@ -520,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void onDeviceBatteryUpdated(final BleDevice device) {
+    public void onBatteryUpdated(final BleDevice device) {
         if(fragmentManager.isDeviceFragmentSelected(device)) {
             toolbarManager.setBattery(device.getBattery());
         }

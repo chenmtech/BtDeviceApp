@@ -2,8 +2,8 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.extend.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
 
 import java.io.File;
@@ -81,7 +81,7 @@ public class EcgFileExplorerModel {
 
         this.ecgFileDir = ecgFileDir;
 
-        File[] files = BleDeviceUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
+        File[] files = BmeFileUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
 
         Arrays.sort(files, new Comparator<File>() {
             @Override

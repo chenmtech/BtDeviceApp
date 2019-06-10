@@ -7,11 +7,11 @@ import android.graphics.BitmapFactory;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.extend.BleDeviceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -145,7 +145,7 @@ class EcgFilesManager {
     synchronized void importToFromWechat(File ecgFileDir) {
         File wxFileDir = new File(WECHAT_DOWNLOAD_DIR);
 
-        File[] wxFileList = BleDeviceUtil.listDirBmeFiles(wxFileDir);
+        File[] wxFileList = BmeFileUtil.listDirBmeFiles(wxFileDir);
 
         boolean updated = false;
 

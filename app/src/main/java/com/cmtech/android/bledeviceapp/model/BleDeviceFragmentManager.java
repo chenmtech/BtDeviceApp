@@ -4,7 +4,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 
 import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceFragment;
+import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 
 import java.util.List;
 
