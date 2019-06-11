@@ -22,8 +22,8 @@ public class ThermoDeviceFactory extends AbstractBleDeviceFactory {
 
 
     @Override
-    public BleDevice createDevice(Context context) {
-        return new ThermoDevice(context, basicInfo);
+    public BleDevice createDevice() {
+        return new ThermoDevice(basicInfo);
     }
 
     @Override

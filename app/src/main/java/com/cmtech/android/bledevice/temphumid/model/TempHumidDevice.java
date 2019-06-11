@@ -1,14 +1,13 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
+import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
 import com.vise.log.ViseLog;
 
@@ -132,8 +131,8 @@ public class TempHumidDevice extends BleDevice {
 
 
     // 构造器
-    public TempHumidDevice(Context context, BleDeviceBasicInfo basicInfo) {
-        super(context, basicInfo);
+    public TempHumidDevice(BleDeviceBasicInfo basicInfo) {
+        super(basicInfo);
         initializeAfterConstruction();
 
     }

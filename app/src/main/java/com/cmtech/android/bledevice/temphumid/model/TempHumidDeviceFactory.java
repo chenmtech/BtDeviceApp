@@ -1,13 +1,11 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
-import android.content.Context;
-
-import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;
 import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 import com.cmtech.android.ble.extend.BleDeviceType;
 import com.cmtech.android.bledevice.temphumid.activity.TempHumidFragment;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
+import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;
 
 // 会根据设备类型BleDeviceType，通过反射创建工厂类实例
 public class TempHumidDeviceFactory extends AbstractBleDeviceFactory {
@@ -23,8 +21,8 @@ public class TempHumidDeviceFactory extends AbstractBleDeviceFactory {
 
 
     @Override
-    public BleDevice createDevice(Context context) {
-        return new TempHumidDevice(context, basicInfo);
+    public BleDevice createDevice() {
+        return new TempHumidDevice(basicInfo);
     }
 
     @Override

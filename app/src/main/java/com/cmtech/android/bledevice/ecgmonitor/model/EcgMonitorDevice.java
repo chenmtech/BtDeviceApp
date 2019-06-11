@@ -1,13 +1,12 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import android.content.Context;
 import android.os.Message;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
+import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
@@ -31,9 +30,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 
 
 /**
@@ -157,8 +156,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     private Thread sigProcessThread;
 
     // 构造器
-    EcgMonitorDevice(Context context, BleDeviceBasicInfo basicInfo) {
-        super(context, basicInfo);
+    EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
+        super(basicInfo);
 
         // 从数据库获取设备的配置信息
         List<EcgMonitorDeviceConfig> foundConfig = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);

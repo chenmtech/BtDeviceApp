@@ -347,7 +347,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
                         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
 
-                        fragmentManager.updateTabInfo(fragmentManager.findOpenedFragment(device), device.getImageDrawable(), device.getNickName());
+                        fragmentManager.updateTabInfo(fragmentManager.findOpenedFragment(device), device.getImageDrawable(this), device.getNickName());
 
                         if(fragmentManager.isDeviceFragmentSelected(device)) {
                             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
@@ -560,7 +560,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             drawerLayout.closeDrawer(GravityCompat.START);
 
             // 添加设备的Fragment到管理器
-            fragmentManager.addFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
+            fragmentManager.addFragment(factory.createFragment(), device.getImageDrawable(this), device.getNickName());
 
             updateMainLayout(device);
         }

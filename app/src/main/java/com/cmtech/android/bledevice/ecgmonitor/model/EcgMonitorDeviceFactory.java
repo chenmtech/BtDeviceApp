@@ -22,8 +22,8 @@ public class EcgMonitorDeviceFactory extends AbstractBleDeviceFactory {
     public static final BleDeviceType ECGMONITOR_DEVICE_TYPE = new BleDeviceType(UUID_ECGMONITOR, IMAGE_ECGMONITOR, NAME_ECGMONITOR, ecgMonitorFactory);
 
     @Override
-    public BleDevice createDevice(Context context) {
-        return new EcgMonitorDevice(context, basicInfo);
+    public BleDevice createDevice() {
+        return new EcgMonitorDevice(basicInfo);
     }
 
     @Override

@@ -76,7 +76,7 @@ public class BleDeviceService extends Service implements OnBleDeviceListener {
     public void onCreate() {
         super.onCreate();
 
-        deviceManager = new BleDeviceManager(this);
+        deviceManager = new BleDeviceManager();
         initDeviceFromPref(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
 
         notiTitle = "欢迎使用" + getResources().getString(R.string.app_name);

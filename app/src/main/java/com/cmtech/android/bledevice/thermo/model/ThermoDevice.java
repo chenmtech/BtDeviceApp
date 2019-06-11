@@ -1,14 +1,13 @@
 package com.cmtech.android.bledevice.thermo.model;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
+import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
@@ -72,8 +71,8 @@ public class ThermoDevice extends BleDevice {
         updateThermoData();
     }
 
-    public ThermoDevice(Context context, BleDeviceBasicInfo basicInfo) {
-        super(context, basicInfo);
+    public ThermoDevice(BleDeviceBasicInfo basicInfo) {
+        super(basicInfo);
         initializeAfterConstruction();
     }
 
