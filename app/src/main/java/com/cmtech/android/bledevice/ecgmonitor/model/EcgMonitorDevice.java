@@ -8,6 +8,7 @@ import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
+import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
@@ -22,6 +23,8 @@ import org.litepal.LitePal;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -277,7 +280,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         sigProcessThread = new Thread(processRunnable);
 
-        sigProcessThread.start();
+        //sigProcessThread.start();
 
         // 启动1mV采样进行定标
         start1mVSampling();
@@ -667,7 +670,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     private void readSampleRate() {
         read(ECGMONITOR_SAMPLERATE, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 sendMessage(MSG_SAMPLERATE_OBTAINED, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
             }
 
@@ -682,7 +685,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     private void readLeadType() {
         read(ECGMONITOR_LEADTYPE, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 sendMessage(MSG_LEADTYPE_OBTAINED, data[0]);
             }
 
@@ -697,19 +700,28 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     private void startEcgSignalSampling() {
         IGattDataCallback indicationCallback = new IGattDataCallback() {
             @Override
-            public void onSuccess(final byte[] data) {
-                    final byte[] arr = Arrays.copyOf(data, data.length);
+            public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+                //if(bluetoothLeDevice != EcgMonitorDevice.super.bluetoothLeDevice) return;
 
-                    receiveService.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                ecgDataProcessor.resolveDataPacket(arr);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                //final byte[] arr = Arrays.copyOfRange(data, 0, data.length-1);
+
+                receiveService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        //try {
+                            ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+
+                            // 单片机发过来的int是两个字节的short
+                            for (int i = 0; i < data.length / 2; i++) {
+                                signalProcessor.process((int)buffer.getShort());
                             }
-                        }
-                    });
+                            //ecgDataProcessor.resolveDataPacket(arr);
+                            //ecgDataProcessor.processEcgSignalData();
+                        //} catch (InterruptedException e) {
+                        //    e.printStackTrace();
+                        //}
+                    }
+                });
             }
 
             @Override
@@ -722,7 +734,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 sendMessage(MSG_START_SAMPLINGSIGNAL, null);
             }
 
@@ -739,12 +751,13 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         IGattDataCallback indicationCallback = new IGattDataCallback() {
             @Override
-            public void onSuccess(final byte[] data) {
+            public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 receiveService.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             ecgDataProcessor.resolveDataPacket(data);
+                            ecgDataProcessor.processCalibrateData();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -780,7 +793,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
             public void run() {
                 read(BATTERY_DATA, new IGattDataCallback() {
                     @Override
-                    public void onSuccess(byte[] data) {
+                    public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                         int battery = data[0];
                         sendMessage(MSG_BATTERY_OBTAINED, battery);
                     }

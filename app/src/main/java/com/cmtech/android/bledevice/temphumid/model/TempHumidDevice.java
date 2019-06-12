@@ -9,6 +9,7 @@ import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
+import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -240,7 +241,7 @@ public class TempHumidDevice extends BleDevice {
     private void readCurrentTempHumid() {
         read(TEMPHUMIDDATA, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 sendMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
@@ -261,7 +262,7 @@ public class TempHumidDevice extends BleDevice {
         // enable 温湿度采集的notification
         IGattDataCallback notifyCallback = new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 sendMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
             }
 
@@ -277,7 +278,7 @@ public class TempHumidDevice extends BleDevice {
     private void readTimerServiceValue() {
         read(TIMERVALUE, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 sendMessage(MSG_TIMERVALUE, data);
             }
 
@@ -299,7 +300,7 @@ public class TempHumidDevice extends BleDevice {
         // 读取历史数据
         read(TEMPHUMIDHISTORYDATA, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 sendMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
             }
 
@@ -369,7 +370,7 @@ public class TempHumidDevice extends BleDevice {
         // 添加更新历史数据完毕的命令
         instExecute(new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 isUpdatingHistoryData = false;
             }
 

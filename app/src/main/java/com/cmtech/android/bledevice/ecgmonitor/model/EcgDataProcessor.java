@@ -31,7 +31,7 @@ public class EcgDataProcessor {
         shortBuff.put(data);
     }
 
-    void processCalibrateData() throws InterruptedException{
+    synchronized void processCalibrateData() throws InterruptedException{
         // 单片机发过来的是LITTLE_ENDIAN的short数据
         byte[] data = shortBuff.take();
 
@@ -43,7 +43,7 @@ public class EcgDataProcessor {
         }
     }
 
-    void processEcgSignalData() throws InterruptedException {
+    synchronized void processEcgSignalData() throws InterruptedException {
         // 单片机发过来的是LITTLE_ENDIAN的short数据
         byte[] data = shortBuff.take();
 

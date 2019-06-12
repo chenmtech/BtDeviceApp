@@ -9,6 +9,7 @@ import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
+import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.util.LinkedList;
@@ -158,7 +159,7 @@ public class ThermoDevice extends BleDevice {
         // 读温度数据
         read(THERMODATA, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 sendMessage(MSG_THERMODATA, data);
             }
 
@@ -178,7 +179,7 @@ public class ThermoDevice extends BleDevice {
 
         IGattDataCallback notifyCallback = new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 sendMessage(MSG_THERMODATA, data);
             }
 
