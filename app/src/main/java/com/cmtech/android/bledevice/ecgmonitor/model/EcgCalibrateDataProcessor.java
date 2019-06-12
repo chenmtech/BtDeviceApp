@@ -29,7 +29,7 @@ public class EcgCalibrateDataProcessor {
     }
 
     // 处理标定数据
-    public synchronized void process(int calibrateData) {
+    public void process(int calibrateData) {
         // 采集1个周期的定标信号
         if (calibrationData.size() < sampleRate) {
             calibrationData.add(calibrateData);
