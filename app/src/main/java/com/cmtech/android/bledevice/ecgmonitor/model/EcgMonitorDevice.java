@@ -283,7 +283,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         //sigProcessThread.start();
 
         // 启动1mV采样进行定标
-        start1mVSampling();
+        //start1mVSampling();
+
+        onUpdateCalibrateValue(10520);
 
         return true;
     }
