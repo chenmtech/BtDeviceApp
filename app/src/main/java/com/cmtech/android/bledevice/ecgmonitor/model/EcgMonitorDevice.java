@@ -131,7 +131,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     private ScheduledExecutorService readBatteryService;
 
-    private ExecutorService receiveService = Executors.newSingleThreadExecutor();
+    private ExecutorService receiveService;
 
     // 数据处理线程Runnable
     private final Runnable processRunnable = new Runnable() {
@@ -166,8 +166,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
 
     private int needPackNum = 0;
-
-    private Object[] packCache = new Object[16];
 
 
     // 构造器
@@ -292,6 +290,10 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         // 启动1mV采样进行定标
         //start1mVSampling();
 
+        needPackNum = 0;
+
+        receiveService = Executors.newSingleThreadExecutor();
+
         onUpdateCalibrateValue(10520);
 
         return true;
@@ -316,6 +318,13 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
                 e.printStackTrace();
             }
         }
+
+        receiveService.shutdownNow();
+        try {
+            receiveService.awaitTermination(2000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -329,6 +338,13 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         if(sigProcessThread != null) {
             sigProcessThread.interrupt();
+        }
+
+        receiveService.shutdownNow();
+        try {
+            receiveService.awaitTermination(2000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -405,6 +421,10 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         if(sigProcessThread != null) {
             sigProcessThread.interrupt();
+        }
+
+        if(receiveService != null) {
+            receiveService.shutdownNow();
         }
 
         // 关闭记录器
@@ -734,24 +754,22 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
                                 tmp[i] = (int)buffer.getShort();
                             }
 
-                            packCache[packSeqNum] = tmp;
-
                             if(packSeqNum == needPackNum) {
-                                for (int ii = packSeqNum; ii < 16; ii++) {
-                                    int[] pack = (int[]) packCache[ii];
-
-                                    if (pack != null) {
-                                        for (int d : pack) {
-                                            signalProcessor.process(d);
-                                        }
-                                        packCache[ii] = null;
-
-                                        if (++needPackNum == 16) needPackNum = 0;
-                                    } else {
-                                        break;
-                                    }
+                                for (int d : tmp) {
+                                    signalProcessor.process(d);
                                 }
+
+                                if(++needPackNum == 16) needPackNum = 0;
+                            } else {
+                                post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        disconnect();
+                                        startScan();
+                                    }
+                                });
                             }
+
 
                             /*cache.put(packSeqNum, tmp);
 
