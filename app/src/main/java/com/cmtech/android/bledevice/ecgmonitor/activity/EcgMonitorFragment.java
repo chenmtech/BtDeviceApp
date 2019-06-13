@@ -249,7 +249,13 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     @Override
     public void onEcgSignalChanged(final int ecgSignal) {
-        ecgView.showData(ecgSignal);
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ecgView.showData(ecgSignal);
+            }
+        });
+
     }
 
     @Override

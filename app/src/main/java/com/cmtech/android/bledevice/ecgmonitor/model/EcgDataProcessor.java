@@ -1,21 +1,23 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
+import com.vise.log.ViseLog;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class EcgDataProcessor {
-    private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<>();	//数据缓存
+class EcgDataProcessor {
+    public static final int PACKAGE_NUM_LIMIT = 16;
 
-    private final LinkedBlockingQueue<byte[]> shortBuff = new LinkedBlockingQueue<byte[]>();
+    private int wantPackageNum = 0;
 
     private EcgCalibrateDataProcessor calibrateDataProcessor; // 标定数据处理器
 
     private EcgSignalProcessor signalProcessor; // 心电信号处理器
 
     EcgDataProcessor() {
+
     }
 
     void setCalibrateDataProcessor(EcgCalibrateDataProcessor calibrateDataProcessor) {
@@ -26,37 +28,63 @@ public class EcgDataProcessor {
         this.signalProcessor = signalProcessor;
     }
 
-    // 解析数据包
-    void resolveDataPacket(byte[] data) throws InterruptedException{
-        shortBuff.put(data);
-    }
-
-    synchronized void processCalibrateData() throws InterruptedException{
-        // 单片机发过来的是LITTLE_ENDIAN的short数据
-        byte[] data = shortBuff.take();
+    void processCalibrateData(byte[] data) throws InterruptedException{
 
         ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
 
-        // 单片机发过来的int是两个字节的short
-        for (int i = 0; i < data.length / 2; i++) {
-            calibrateDataProcessor.process((int)buffer.getShort());
+        int[] tmp = new int[data.length/2];
+
+        for(int i = 0; i < tmp.length; i++) {
+            tmp[i] = (int)buffer.getShort();
         }
+
+        processCalibrateData(tmp);
     }
 
-    synchronized void processEcgSignalData() throws InterruptedException {
-        // 单片机发过来的是LITTLE_ENDIAN的short数据
-        byte[] data = shortBuff.take();
+    private synchronized void processCalibrateData(int[] data) throws InterruptedException{
+        while(data[0] != wantPackageNum) {
+            wait();
+        }
+
+        for (int i = 1; i < data.length; i++) {
+            calibrateDataProcessor.process(data[i]);
+        }
+
+        if (++wantPackageNum == PACKAGE_NUM_LIMIT) wantPackageNum = 0;
+
+        notifyAll();
+    }
+
+    void processEcgSignalData(byte[] data) throws InterruptedException {
 
         ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
 
-        // 单片机发过来的int是两个字节的short
-        for (int i = 0; i < data.length / 2; i++) {
-            signalProcessor.process((int)buffer.getShort());
+        int[] tmp = new int[data.length/2];
+
+        for(int i = 0; i < tmp.length; i++) {
+            tmp[i] = (int)buffer.getShort();
         }
+
+        processEcgSignalData(tmp);
     }
 
-    void clearData() {
-        shortBuff.clear();
+    private synchronized void processEcgSignalData(int[] data) throws InterruptedException{
+        while(data[0] != wantPackageNum) {
+            wait();
+            ViseLog.e("Waiting package: " + wantPackageNum);
+        }
+
+        for (int i = 1; i < data.length; i++) {
+            signalProcessor.process(data[i]);
+        }
+
+        if (++wantPackageNum == PACKAGE_NUM_LIMIT) wantPackageNum = 0;
+
+        notifyAll();
+    }
+
+    synchronized void resetWantPackageNum() {
+        wantPackageNum = 0;
     }
 
 }

@@ -127,45 +127,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     private EcgFile ecgFile; // 心电记录文件，可记录心电信号以及留言和心率信息
 
-    //private final LinkedBlockingQueue<Integer> dataBuff = new LinkedBlockingQueue<>();	//数据缓存
+    private ScheduledExecutorService batteryMeasuringService;
 
-    private ScheduledExecutorService readBatteryService;
-
-    private ExecutorService receiveService;
-
-    // 数据处理线程Runnable
-    private final Runnable processRunnable = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                while(!Thread.currentThread().isInterrupted()) {
-                    //int value = dataBuff.take();
-                    switch (state) {
-                        case CALIBRATING:
-                            ecgDataProcessor.processCalibrateData();
-                            break;
-                        case SAMPLE:
-                            ecgDataProcessor.processEcgSignalData();
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                ecgDataProcessor.clearData();
-            }
-        }
-    };
-
-    // 信号处理线程
-    private Thread sigProcessThread;
+    private ExecutorService dataProcessingService;
 
     private Thread returnDataThread;
-
-
-    private AtomicInteger needPackNum = new AtomicInteger(0);
 
 
     // 构造器
@@ -283,16 +249,10 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         // 读导联类型
         readLeadType();
 
-        sigProcessThread = new Thread(processRunnable);
-
-        //sigProcessThread.start();
+        dataProcessingService = Executors.newFixedThreadPool(5);
 
         // 启动1mV采样进行定标
         //start1mVSampling();
-
-        needPackNum.set(0);
-
-        receiveService = Executors.newFixedThreadPool(16);
 
         onUpdateCalibrateValue(10520);
 
@@ -309,21 +269,14 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
             isMeasureBattery = false;
         }
 
-        if(sigProcessThread != null) {
-            sigProcessThread.interrupt();
+        if(dataProcessingService != null) {
+            dataProcessingService.shutdownNow();
 
             try {
-                sigProcessThread.join();
+                dataProcessingService.awaitTermination(2000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }
-
-        receiveService.shutdownNow();
-        try {
-            receiveService.awaitTermination(2000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -336,15 +289,14 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
             isMeasureBattery = false;
         }
 
-        if(sigProcessThread != null) {
-            sigProcessThread.interrupt();
-        }
+        if(dataProcessingService != null) {
+            dataProcessingService.shutdownNow();
 
-        receiveService.shutdownNow();
-        try {
-            receiveService.awaitTermination(2000, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            try {
+                dataProcessingService.awaitTermination(2000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -380,7 +332,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
             // 启动采集ECG信号
             case MSG_START_SAMPLINGSIGNAL:
-                ecgDataProcessor.clearData();
+                ecgDataProcessor.resetWantPackageNum();
 
                 setState(EcgMonitorState.SAMPLE);
 
@@ -405,11 +357,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         ecgDataProcessor.setSignalProcessor(signalProcessor);
 
+        ecgDataProcessor.setCalibrateDataProcessor(null);
+
         signalRecorder = null;
 
         calibrateDataProcessor = null;
-
-        ecgDataProcessor.setCalibrateDataProcessor(null);
 
         ecgFile = null;
     }
@@ -419,12 +371,14 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     public void close() {
         super.close();
 
-        if(sigProcessThread != null) {
-            sigProcessThread.interrupt();
-        }
+        if(dataProcessingService != null) {
+            dataProcessingService.shutdownNow();
 
-        if(receiveService != null) {
-            receiveService.shutdownNow();
+            try {
+                dataProcessingService.awaitTermination(2000, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         // 关闭记录器
@@ -519,12 +473,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         // 通知观察者
         if(listener != null) {
-            /*post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onEcgSignalChanged(ecgSignal);
-                }
-            });*/
             listener.onEcgSignalChanged(ecgSignal);
         }
     }
@@ -627,10 +575,15 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     // 创建心电信号处理器
     private void createEcgSignalProcessor() {
         EcgSignalProcessor.Builder builder = new EcgSignalProcessor.Builder();
+
         builder.setSampleRate(sampleRate);
+
         builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
+
         builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
+
         builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
+
         builder.setEcgSignalProcessListener(this);
 
         EcgHrProcessor hrProcessor = null;
@@ -641,6 +594,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         signalProcessor = builder.build();
 
         ecgDataProcessor.setSignalProcessor(signalProcessor);
+
+        ecgDataProcessor.resetWantPackageNum();
 
         if(hrProcessor != null)
             signalProcessor.setHrProcessor(hrProcessor);
@@ -732,47 +687,18 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 if(returnDataThread != Thread.currentThread()) {
                     ViseLog.e("receive data thread changed. " + Thread.currentThread());
+
                     returnDataThread = Thread.currentThread();
                 }
 
-                receiveService.execute(new Runnable() {
+                dataProcessingService.execute(new Runnable() {
                     @Override
                     public void run() {
-                        ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-
-                        int[] tmp = new int[data.length/2];
-
-                        for(int i = 0; i < tmp.length; i++) {
-                            tmp[i] = (int)buffer.getShort();
+                        try {
+                            ecgDataProcessor.processEcgSignalData(data);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
-
-                        while(tmp[0] == needPackNum.get()) {
-                            for (int i = 1; i < tmp.length; i++) {
-                                signalProcessor.process(tmp[i]);
-                            }
-
-                            if (needPackNum.incrementAndGet() == 16) needPackNum.set(0);
-                        }
-
-
-                            /*cache.put(packSeqNum, tmp);
-
-                            int[] needPackage = cache.remove(needPackNum);
-
-                            if(needPackage != null) {
-                                // 单片机发过来的int是两个字节的short
-                                for (int i = 0; i < needPackage.length / 2; i++) {
-                                    signalProcessor.process(needPackage[i]);
-                                }
-                                if(++needPackNum == 16) {
-                                    needPackNum = 0;
-                                }
-                            }*/
-                            //ecgDataProcessor.resolveDataPacket(arr);
-                            //ecgDataProcessor.processEcgSignalData();
-                        //} catch (InterruptedException e) {
-                        //    e.printStackTrace();
-                        //}
                     }
                 });
             }
@@ -805,12 +731,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         IGattDataCallback indicationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                receiveService.execute(new Runnable() {
+                dataProcessingService.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            ecgDataProcessor.resolveDataPacket(data);
-                            ecgDataProcessor.processCalibrateData();
+                            ecgDataProcessor.processCalibrateData(data);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -839,9 +764,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     // 开始电池电量测量
     private void startBatteryMeasuring() {
-        readBatteryService = Executors.newSingleThreadScheduledExecutor();
+        batteryMeasuringService = Executors.newSingleThreadScheduledExecutor();
 
-        readBatteryService.scheduleAtFixedRate(new Runnable() {
+        batteryMeasuringService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 read(BATTERY_DATA, new IGattDataCallback() {
@@ -863,11 +788,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     // 停止电池电量测量
     private void stopBatteryMeasuring() {
-        if(readBatteryService != null) {
-            readBatteryService.shutdownNow();
+        if(batteryMeasuringService != null) {
+            batteryMeasuringService.shutdownNow();
 
             try {
-                readBatteryService.awaitTermination(100, TimeUnit.MILLISECONDS);
+                batteryMeasuringService.awaitTermination(100, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
