@@ -35,7 +35,7 @@ public class MyApplication extends Application {
 
         instance = this;
 
-        BleDeviceConfig.initialize(getApplicationContext());
+        BleDeviceConfig.initialize(getContext());
 
         BleDeviceConfig.setScanTimeout(TIMEOUT_SCAN);
 

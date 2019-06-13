@@ -162,6 +162,13 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     // 信号处理线程
     private Thread sigProcessThread;
 
+    private Thread returnDataThread;
+
+
+    private int needPackNum = 0;
+
+    private Object[] packCache = new Object[16];
+
 
     // 构造器
     EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
@@ -703,20 +710,62 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         IGattDataCallback indicationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                //if(bluetoothLeDevice != EcgMonitorDevice.super.bluetoothLeDevice) return;
+                if(returnDataThread != Thread.currentThread()) {
+                    ViseLog.e("receive data thread changed. " + Thread.currentThread());
+                    returnDataThread = Thread.currentThread();
+                }
 
-                //final byte[] arr = Arrays.copyOfRange(data, 0, data.length-1);
+                final byte[] pack = Arrays.copyOf(data, data.length);
 
                 receiveService.execute(new Runnable() {
                     @Override
                     public void run() {
                         //try {
-                            ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
 
-                            // 单片机发过来的int是两个字节的short
-                            for (int i = 0; i < data.length / 2; i++) {
-                                signalProcessor.process((int)buffer.getShort());
+                            ByteBuffer buffer = ByteBuffer.wrap(pack).order(ByteOrder.LITTLE_ENDIAN);
+
+                            int packSeqNum = (int)buffer.getShort();
+
+                            ViseLog.e("Pack Seq Num = " + packSeqNum);
+
+                            int[] tmp = new int[pack.length/2-1];
+
+                            for(int i = 0; i < pack.length / 2 - 1; i++) {
+                                tmp[i] = (int)buffer.getShort();
                             }
+
+                            packCache[packSeqNum] = tmp;
+
+                            if(packSeqNum == needPackNum) {
+                                for (int ii = packSeqNum; ii < 16; ii++) {
+                                    int[] pack = (int[]) packCache[ii];
+
+                                    if (pack != null) {
+                                        for (int d : pack) {
+                                            signalProcessor.process(d);
+                                        }
+                                        packCache[ii] = null;
+
+                                        if (++needPackNum == 16) needPackNum = 0;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            /*cache.put(packSeqNum, tmp);
+
+                            int[] needPackage = cache.remove(needPackNum);
+
+                            if(needPackage != null) {
+                                // 单片机发过来的int是两个字节的short
+                                for (int i = 0; i < needPackage.length / 2; i++) {
+                                    signalProcessor.process(needPackage[i]);
+                                }
+                                if(++needPackNum == 16) {
+                                    needPackNum = 0;
+                                }
+                            }*/
                             //ecgDataProcessor.resolveDataPacket(arr);
                             //ecgDataProcessor.processEcgSignalData();
                         //} catch (InterruptedException e) {

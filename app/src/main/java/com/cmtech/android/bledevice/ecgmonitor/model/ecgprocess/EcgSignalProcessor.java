@@ -9,7 +9,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.Ecg
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IEcgHrProcessor;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,27 +67,27 @@ public class EcgSignalProcessor {
     // 处理Ecg信号
     public void process(int ecgSignal) {
         // 标定后滤波处理
-        //ecgSignal = (int) ecgFilter.filter(ecgCalibrateProcessor.process(ecgSignal));
+        ecgSignal = (int) ecgFilter.filter(ecgCalibrateProcessor.process(ecgSignal));
         //ecgSignal = ecgCalibrateProcessor.process(ecgSignal);
 
         // 通知心电信号更新监听器
         if(signalListener != null) signalListener.onEcgSignalUpdated(ecgSignal);
 
         // 检测Qrs波，获取心率
-        //short currentHr = (short) qrsDetector.outputHR(ecgSignal);
+        short currentHr = (short) qrsDetector.outputHR(ecgSignal);
 
         //if(currentHr != 0)
         //    ViseLog.e("当前心率：" + currentHr);
 
         // 通知心率值更新监听器
-        //notifyEcgHrValueUpdatedListeners(currentHr);
+        notifyEcgHrValueUpdatedListeners(currentHr);
 
         // 用所有的心率处理器处理心率值
-        /*if(currentHr != INVALID_HR) {
+        if(currentHr != INVALID_HR) {
             for(IEcgHrProcessor processor : hrProcessors.values()) {
                 processor.process(currentHr);
             }
-        }*/
+        }
     }
 
     public void setHrAbnormalWarner(boolean isWarn, int lowLimit, int highLimit, EcgHrAbnormalWarner.IEcgHrAbnormalListener listener) {
