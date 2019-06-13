@@ -25,12 +25,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
@@ -165,7 +165,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     private Thread returnDataThread;
 
 
-    private int needPackNum = 0;
+    private AtomicInteger needPackNum = new AtomicInteger(0);
 
 
     // 构造器
@@ -290,9 +290,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         // 启动1mV采样进行定标
         //start1mVSampling();
 
-        needPackNum = 0;
+        needPackNum.set(0);
 
-        receiveService = Executors.newSingleThreadExecutor();
+        receiveService = Executors.newFixedThreadPool(16);
 
         onUpdateCalibrateValue(10520);
 
@@ -735,40 +735,24 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
                     returnDataThread = Thread.currentThread();
                 }
 
-                final byte[] pack = Arrays.copyOf(data, data.length);
-
                 receiveService.execute(new Runnable() {
                     @Override
                     public void run() {
-                        //try {
+                        ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
 
-                            ByteBuffer buffer = ByteBuffer.wrap(pack).order(ByteOrder.LITTLE_ENDIAN);
+                        int[] tmp = new int[data.length/2];
 
-                            int packSeqNum = (int)buffer.getShort();
+                        for(int i = 0; i < tmp.length; i++) {
+                            tmp[i] = (int)buffer.getShort();
+                        }
 
-                            ViseLog.e("Pack Seq Num = " + packSeqNum);
-
-                            int[] tmp = new int[pack.length/2-1];
-
-                            for(int i = 0; i < pack.length / 2 - 1; i++) {
-                                tmp[i] = (int)buffer.getShort();
+                        while(tmp[0] == needPackNum.get()) {
+                            for (int i = 1; i < tmp.length; i++) {
+                                signalProcessor.process(tmp[i]);
                             }
 
-                            if(packSeqNum == needPackNum) {
-                                for (int d : tmp) {
-                                    signalProcessor.process(d);
-                                }
-
-                                if(++needPackNum == 16) needPackNum = 0;
-                            } else {
-                                post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        disconnect();
-                                        startScan();
-                                    }
-                                });
-                            }
+                            if (needPackNum.incrementAndGet() == 16) needPackNum.set(0);
+                        }
 
 
                             /*cache.put(packSeqNum, tmp);
