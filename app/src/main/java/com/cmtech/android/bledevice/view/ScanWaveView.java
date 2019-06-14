@@ -282,7 +282,7 @@ public class ScanWaveView extends View {
 
     public void addData(int data) {
         try {
-            dataCache.put(data);
+            dataCache.put(initY - Math.round(data / yValuePerPixel));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -290,7 +290,7 @@ public class ScanWaveView extends View {
 
     public void showData(int data) {
         if (isFirstData) {
-            preY = initY - Math.round(data / yValuePerPixel);
+            preY = data;
             isFirstData = false;
         } else {
             if (isUpdated) {
@@ -333,7 +333,7 @@ public class ScanWaveView extends View {
 
     private void drawPointOnForeCanvas(int data)
     {
-        curY = initY - Math.round(data/ yValuePerPixel);
+        curY = data;
 
         if(preX == viewWidth)	//最后一个像素，抹去第一列
         {
