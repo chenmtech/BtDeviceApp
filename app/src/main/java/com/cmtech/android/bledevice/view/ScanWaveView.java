@@ -23,6 +23,8 @@ import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
 
+import java.util.concurrent.LinkedBlockingQueue;
+
 /**
  * ScanWaveView: 扫描式的波形显示视图，用于心电信号采集时的实时显示
  * Created by bme on 2018/12/06.
@@ -120,12 +122,7 @@ public class ScanWaveView extends View {
         }
     };
 
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-
-        }
-    };
+    private LinkedBlockingQueue<Integer> dataCache = new LinkedBlockingQueue<>();
 
     public ScanWaveView(Context context) {
         super(context);
@@ -246,6 +243,21 @@ public class ScanWaveView extends View {
         bmpPaint.setAlpha(255);
 
         bmpPaint.setStrokeWidth(2);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (!Thread.currentThread().isInterrupted()) {
+                        int data = dataCache.take();
+
+                        showData(data);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     public void initView()
@@ -264,18 +276,42 @@ public class ScanWaveView extends View {
         isFirstData = true;
 
         isUpdated = true;
+
+        dataCache.clear();
     }
 
-    public synchronized void showData(int data) {
-        if(isFirstData) {
-            preY = initY - Math.round(data/ yValuePerPixel);
+    public void addData(int data) {
+        try {
+            dataCache.put(data);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showData(int data) {
+        if (isFirstData) {
+            preY = initY - Math.round(data / yValuePerPixel);
             isFirstData = false;
         } else {
-            if(isUpdated) {
+            if (isUpdated) {
                 drawPointOnForeCanvas(data);
                 postInvalidate();
             }
         }
+    }
+
+    private void showData(Integer[] data) {
+        for(int d : data) {
+            if(isFirstData) {
+                preY = initY - Math.round(d/ yValuePerPixel);
+                isFirstData = false;
+            } else {
+                if(isUpdated) {
+                    drawPointOnForeCanvas(d);
+                }
+            }
+        }
+        invalidate();
     }
 
     private int calculateMeasure(int measureSpec)

@@ -10,7 +10,7 @@ public interface OnEcgMonitorListener {
     void onCalibrationValueChanged(int calibrationValueBefore, int calibrationValueAfter);  // 更新标定值
     void onSignalRecordStateUpdated(boolean isRecord); // 更新记录状态
     void onEcgViewUpdated(int xPixelPerData, float yValuePerPixel, int gridPixels); // 更新EcgView
-    void onEcgSignalChanged(int ecgSignal); // 更新Ecg信号
+    void onEcgSignalUpdated(int ecgSignal); // 更新Ecg信号
     void onSignalSecNumChanged(int second); // 更新信号记录秒数
     void onEcgHrChanged(int hr); // 更新心率值，单位bpm
     void onEcgHrInfoUpdated(EcgHrInfoObject hrInfoObject); // 更新心率信息

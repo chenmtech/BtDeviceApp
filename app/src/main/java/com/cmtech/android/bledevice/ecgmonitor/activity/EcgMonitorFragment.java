@@ -75,8 +75,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     private EcgMonitorDevice device; // 设备
 
-
-
     public EcgMonitorFragment() {
 
     }
@@ -248,14 +246,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
     }
 
     @Override
-    public void onEcgSignalChanged(final int ecgSignal) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                ecgView.showData(ecgSignal);
-            }
-        });
-
+    public void onEcgSignalUpdated(final int ecgSignal) {
+        ecgView.addData(ecgSignal);
     }
 
     @Override

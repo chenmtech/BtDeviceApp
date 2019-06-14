@@ -23,14 +23,11 @@ import org.litepal.LitePal;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
@@ -473,7 +470,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         // 通知观察者
         if(listener != null) {
-            listener.onEcgSignalChanged(ecgSignal);
+            listener.onEcgSignalUpdated(ecgSignal);
         }
     }
 
