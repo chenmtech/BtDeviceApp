@@ -124,6 +124,9 @@ public class ScanWaveView extends View {
 
     private LinkedBlockingQueue<Integer> dataCache = new LinkedBlockingQueue<>();
 
+    private Thread showThread;
+
+
     public ScanWaveView(Context context) {
         super(context);
 
@@ -139,6 +142,7 @@ public class ScanWaveView extends View {
 
         gestureDetector.setIsLongpressEnabled(false);
     }
+
 
     public ScanWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -232,7 +236,7 @@ public class ScanWaveView extends View {
 
         viewHeight = getHeight();
 
-        initView();
+        initialize();
     }
 
 
@@ -244,23 +248,9 @@ public class ScanWaveView extends View {
 
         bmpPaint.setStrokeWidth(2);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (!Thread.currentThread().isInterrupted()) {
-                        int data = dataCache.take();
-
-                        showData(data);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
-    public void initView()
+    public void initialize()
     {
         //创建背景Bitmap
         createBackBitmap();
@@ -280,38 +270,58 @@ public class ScanWaveView extends View {
         dataCache.clear();
     }
 
+    public void start(final int delay) {
+        if(showThread == null || !showThread.isAlive()) {
+            showThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (!Thread.currentThread().isInterrupted()) {
+                            showData(dataCache.take());
+
+                            Thread.sleep(delay);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            showThread.start();
+        }
+    }
+
+    public void stop() {
+        if(showThread != null) {
+            showThread.interrupt();
+            try {
+                showThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void addData(int data) {
         try {
-            dataCache.put(initY - Math.round(data / yValuePerPixel));
+            dataCache.put(data);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     public void showData(int data) {
+        int dataY = initY - Math.round(data / yValuePerPixel);
+
         if (isFirstData) {
-            preY = data;
+            preY = dataY;
             isFirstData = false;
         } else {
             if (isUpdated) {
-                drawPointOnForeCanvas(data);
+                drawPointOnForeCanvas(dataY);
                 postInvalidate();
             }
         }
-    }
-
-    private void showData(Integer[] data) {
-        for(int d : data) {
-            if(isFirstData) {
-                preY = initY - Math.round(d/ yValuePerPixel);
-                isFirstData = false;
-            } else {
-                if(isUpdated) {
-                    drawPointOnForeCanvas(d);
-                }
-            }
-        }
-        invalidate();
     }
 
     private int calculateMeasure(int measureSpec)
@@ -331,9 +341,9 @@ public class ScanWaveView extends View {
         return size;
     }
 
-    private void drawPointOnForeCanvas(int data)
+    private void drawPointOnForeCanvas(int dataY)
     {
-        curY = data;
+        curY = dataY;
 
         if(preX == viewWidth)	//最后一个像素，抹去第一列
         {
@@ -349,13 +359,14 @@ public class ScanWaveView extends View {
             deleteRect.set(curX +1, 0, curX + gridPixels, viewHeight);
         }
 
+        preX = curX;
+
+        preY = curY;
+
         //抹去前面一个矩形区域
         bmpPaint.setXfermode(srcInMode);
         foreCanvas.drawBitmap(backBitmap, deleteRect, deleteRect, bmpPaint);
         bmpPaint.setXfermode(srcOverMode);
-
-        preX = curX;
-        preY = curY;
     }
 
     private void createBackBitmap()

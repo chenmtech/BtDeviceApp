@@ -35,9 +35,8 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     private TextView tvHeadIndex;
 
     private RecyclerView rvHistoryData;
-    private TempHumidHistoryDataAdapter historyDataAdapter;
 
-    private ScanWaveView waveView;
+    private TempHumidHistoryDataAdapter historyDataAdapter;
 
     private TempHumidDevice device;
 
@@ -88,26 +87,13 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
             }
         });
 
-        waveView = view.findViewById(R.id.rwv_ecgview);
 
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                updateWaveView(15, 2.0f, 15);
                 historyDataAdapter.notifyDataSetChanged();
             }
         });
-    }
-
-    private void updateWaveView(final int xRes, final float yRes, final int viewGridWidth) {
-        waveView.setResolution(xRes, yRes);
-        waveView.setGridPixels(viewGridWidth);
-        waveView.setZeroLocation(0.5);
-        waveView.initView();
-
-        for(TempHumidData data : device.getHistoryDataList()) {
-            waveView.showData((int)((data.getTemp()-20)*100));
-        }
     }
 
     @Override
@@ -138,8 +124,6 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
     @Override
     public void addHistoryData(TempHumidData data) {
         historyDataAdapter.notifyDataSetChanged();
-
-        waveView.showData((int)((data.getTemp()-20)*100));
     }
 
 }

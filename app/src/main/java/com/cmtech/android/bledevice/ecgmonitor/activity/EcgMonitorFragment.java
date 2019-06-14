@@ -175,6 +175,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         switch (requestCode) {
             case 1: // 设置设备配置返回码
                 if(resultCode == RESULT_OK) {
@@ -182,6 +183,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
                     device.setConfig(config);
                 }
                 break;
+
+                default:
+                    break;
         }
     }
 
@@ -194,6 +198,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
         if(hrWarnAudio != null)
             hrWarnAudio.stop();
+
+        ecgView.stop();
     }
 
     @Override
@@ -238,11 +244,12 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
         ecgView.setResolution(xPixelPerData, yValuePerPixel);
         ecgView.setGridPixels(gridPixels);
         ecgView.setZeroLocation(0.5);
-        ecgView.initView();
+        ecgView.initialize();
     }
 
     private void initialEcgView() {
         updateEcgView(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
+        ecgView.start(5);
     }
 
     @Override

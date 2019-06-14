@@ -76,9 +76,6 @@ public class EcgSignalProcessor {
         // 检测Qrs波，获取心率
         short currentHr = (short) qrsDetector.outputHR(ecgSignal);
 
-        //if(currentHr != 0)
-        //    ViseLog.e("当前心率：" + currentHr);
-
         // 通知心率值更新监听器
         notifyEcgHrValueUpdatedListeners(currentHr);
 

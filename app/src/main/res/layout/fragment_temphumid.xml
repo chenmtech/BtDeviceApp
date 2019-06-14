@@ -118,16 +118,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="visible"/>
-
-        <com.cmtech.android.bledevice.view.ScanWaveView
-            android:id="@+id/rwv_ecgview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            cmtech:background_color="#666"
-            cmtech:grid_color="#f00"
-            cmtech:wave_color="#ff0"
-            cmtech:show_gridline="true"
-            android:visibility="invisible"/>
     </FrameLayout>
 
 
