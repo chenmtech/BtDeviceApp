@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate;
 
 import com.vise.log.ViseLog;
 
@@ -7,22 +7,31 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * EcgCalibrateDataProcessor: 心电标定数据处理器
+ * Ecg1mVCaliValueCalculator: 心电标定数据处理器
  * Created by Chenm, 2018-12-27
  */
 
-public class EcgCalibrateDataProcessor {
-    public interface ICalibrateValueUpdatedListener {
-        void onUpdateCalibrateValue(int calibrateValue); // 更新标定值
-    }
+/**
+  *
+  * ClassName:      Ecg1mVCaliValueCalculator
+  * Description:    心电1mV标定值计算器
+  * Author:         chenm
+  * CreateDate:     2019-06-15 08:11
+  * UpdateUser:     chenm
+  * UpdateDate:     2019-06-15 08:11
+  * UpdateRemark:   更新说明
+  * Version:        1.0
+ */
+
+public class Ecg1mVCaliValueCalculator {
 
     private final List<Integer> calibrationData; // 用于保存标定用的数据
 
     private final int sampleRate; // 采样率
 
-    private ICalibrateValueUpdatedListener listener; // 标定值监听器
+    private On1mVCaliValueListener listener; // 标定值监听器
 
-    EcgCalibrateDataProcessor(int sampleRate, ICalibrateValueUpdatedListener listener) {
+    public Ecg1mVCaliValueCalculator(int sampleRate, On1mVCaliValueListener listener) {
         this.sampleRate = sampleRate;
         this.listener = listener;
         calibrationData = new ArrayList<>(2 * sampleRate);
@@ -37,7 +46,7 @@ public class EcgCalibrateDataProcessor {
         else {
             int value = calculateCalibration(calibrationData); // 计算得到实际定标值
             ViseLog.i(calibrationData.toString() + " " + String.valueOf(value));
-            if(listener != null) listener.onUpdateCalibrateValue(value);
+            if(listener != null) listener.on1mVCaliValueUpdated(value);
             calibrationData.clear();
         }
     }

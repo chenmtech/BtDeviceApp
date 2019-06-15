@@ -11,10 +11,13 @@ import com.cmtech.android.ble.extend.IGattDataCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnEcgSignalProcessListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.On1mVCaliValueListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnEcgProcessListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnRecordSecNumListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.HrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -42,7 +45,7 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
  * 优化代码
  */
 
-public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessListener, EcgSignalRecorder.IEcgSignalSecNumUpdatedListener, EcgCalibrateDataProcessor.ICalibrateValueUpdatedListener {
+public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener, OnRecordSecNumListener, On1mVCaliValueListener {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -114,11 +117,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     private OnEcgMonitorListener listener; // 心电监护仪设备监听器
 
-    private EcgCalibrateDataProcessor calibrateDataProcessor; // 标定数据处理器
+    private Ecg1mVCaliValueCalculator caliValue1mVCalculator; // 标定数据处理器
 
-    private EcgSignalProcessor signalProcessor; // 心电信号处理器
+    private EcgProcessor signalProcessor; // 心电信号处理器
 
-    private final EcgDataProcessor ecgDataProcessor = new EcgDataProcessor();
+    private final EcgSampleDataProcessor ecgSampleDataProcessor = new EcgSampleDataProcessor();
 
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
 
@@ -251,7 +254,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         // 启动1mV采样进行定标
         //start1mVSampling();
 
-        onUpdateCalibrateValue(10520);
+        on1mVCaliValueUpdated(10520);
 
         return true;
     }
@@ -309,10 +312,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
                     sampleRate = (Integer) msg.obj;
 
                     updateSampleRate(sampleRate);
-                    // 有了采样率，可以初始化定标数据处理器
-                    calibrateDataProcessor = new EcgCalibrateDataProcessor(sampleRate, this);
 
-                    ecgDataProcessor.setCalibrateDataProcessor(calibrateDataProcessor);
+                    // 有了采样率，可以初始化定标数据处理器
+                    caliValue1mVCalculator = new Ecg1mVCaliValueCalculator(sampleRate, this);
+
+                    ecgSampleDataProcessor.setCaliValueCalculator(caliValue1mVCalculator);
                 }
                 break;
 
@@ -329,7 +333,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
             // 启动采集ECG信号
             case MSG_START_SAMPLINGSIGNAL:
-                ecgDataProcessor.resetWantPackageNum();
+                ecgSampleDataProcessor.resetWantPackageNum();
 
                 setState(EcgMonitorState.SAMPLE);
 
@@ -352,13 +356,13 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         signalProcessor = null;
 
-        ecgDataProcessor.setSignalProcessor(signalProcessor);
+        ecgSampleDataProcessor.setSignalProcessor(signalProcessor);
 
-        ecgDataProcessor.setCalibrateDataProcessor(null);
+        ecgSampleDataProcessor.setCaliValueCalculator(null);
 
         signalRecorder = null;
 
-        calibrateDataProcessor = null;
+        caliValue1mVCalculator = null;
 
         ecgFile = null;
     }
@@ -388,8 +392,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
             signalProcessor.close();
         }
 
-        if(calibrateDataProcessor != null)
-            calibrateDataProcessor.close();
+        if(caliValue1mVCalculator != null)
+            caliValue1mVCalculator.close();
 
         if(ecgFile != null) {
             try {
@@ -416,13 +420,13 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         signalProcessor = null;
 
-        ecgDataProcessor.setSignalProcessor(null);
+        ecgSampleDataProcessor.setSignalProcessor(null);
 
         signalRecorder = null;
 
-        calibrateDataProcessor = null;
+        caliValue1mVCalculator = null;
 
-        ecgDataProcessor.setCalibrateDataProcessor(null);
+        ecgSampleDataProcessor.setCaliValueCalculator(null);
 
         ecgFile = null;
     }
@@ -458,7 +462,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     }
 
     @Override
-    public void onEcgSignalUpdated(final int ecgSignal) {
+    public void onSignalValueUpdated(final int ecgSignal) {
         // 记录
         if(signalRecorder != null && signalRecorder.isRecord()) {
             try {
@@ -475,7 +479,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     }
 
     @Override
-    public void onEcgHrValueUpdated(final short hr) {
+    public void onHrValueUpdated(final short hr) {
         if(listener != null) {
             post(new Runnable() {
                 @Override
@@ -487,7 +491,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     }
 
     @Override
-    public void onEcgHrInfoUpdated(final EcgHrInfoObject hrInfoObject) {
+    public void onHrStatisticInfoUpdated(final EcgHrInfoObject hrInfoObject) {
         if(listener != null) {
             post(new Runnable() {
                 @Override
@@ -499,7 +503,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     }
 
     @Override
-    public void onNotifyEcgHrAbnormal() {
+    public void onHrAbnormalNotified() {
         if(listener != null) {
             post(new Runnable() {
                 @Override
@@ -511,7 +515,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     }
 
     @Override
-    public void onUpdateSignalSecNum(final int second) {
+    public void onRecordSecNumUpdated(final int second) {
         if(listener != null) {
             post(new Runnable() {
                 @Override
@@ -523,10 +527,10 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
     }
 
     @Override
-    public void onUpdateCalibrateValue(int calibrateValue) {
-        ViseLog.e("The Calibration Value is: " + calibrateValue);
+    public void on1mVCaliValueUpdated(int caliValue1mV) {
+        ViseLog.e("The Calibration Value is: " + caliValue1mV);
 
-        value1mVBeforeCalibrate = calibrateValue;
+        value1mVBeforeCalibrate = caliValue1mV;
 
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
@@ -571,7 +575,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
     // 创建心电信号处理器
     private void createEcgSignalProcessor() {
-        EcgSignalProcessor.Builder builder = new EcgSignalProcessor.Builder();
+        EcgProcessor.Builder builder = new EcgProcessor.Builder();
 
         builder.setSampleRate(sampleRate);
 
@@ -581,18 +585,18 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
 
-        builder.setEcgSignalProcessListener(this);
+        builder.setEcgProcessListener(this);
 
-        EcgHrProcessor hrProcessor = null;
+        HrProcessor hrProcessor = null;
 
         if(signalProcessor != null)
             hrProcessor = signalProcessor.getHrProcessor();
 
         signalProcessor = builder.build();
 
-        ecgDataProcessor.setSignalProcessor(signalProcessor);
+        ecgSampleDataProcessor.setSignalProcessor(signalProcessor);
 
-        ecgDataProcessor.resetWantPackageNum();
+        ecgSampleDataProcessor.resetWantPackageNum();
 
         if(hrProcessor != null)
             signalProcessor.setHrProcessor(hrProcessor);
@@ -692,7 +696,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
                     @Override
                     public void run() {
                         try {
-                            ecgDataProcessor.processEcgSignalData(data);
+                            ecgSampleDataProcessor.processEcgSignalData(data);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -732,7 +736,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
                     @Override
                     public void run() {
                         try {
-                            ecgDataProcessor.processCalibrateData(data);
+                            ecgSampleDataProcessor.processCalibrateData(data);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

@@ -1,30 +1,30 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
 import com.vise.log.ViseLog;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.concurrent.LinkedBlockingQueue;
 
-class EcgDataProcessor {
-    public static final int PACKAGE_NUM_LIMIT = 16;
+class EcgSampleDataProcessor {
+    private static final int PACKAGE_NUM_MAX_LIMIT = 16;
 
     private int wantPackageNum = 0;
 
-    private EcgCalibrateDataProcessor calibrateDataProcessor; // 标定数据处理器
+    private Ecg1mVCaliValueCalculator caliValueCalculator; // 1mV标定值计算器
 
-    private EcgSignalProcessor signalProcessor; // 心电信号处理器
+    private EcgProcessor signalProcessor; // 心电信号处理器
 
-    EcgDataProcessor() {
+    EcgSampleDataProcessor() {
 
     }
 
-    void setCalibrateDataProcessor(EcgCalibrateDataProcessor calibrateDataProcessor) {
-        this.calibrateDataProcessor = calibrateDataProcessor;
+    void setCaliValueCalculator(Ecg1mVCaliValueCalculator caliValueCalculator) {
+        this.caliValueCalculator = caliValueCalculator;
     }
 
-    void setSignalProcessor(EcgSignalProcessor signalProcessor) {
+    void setSignalProcessor(EcgProcessor signalProcessor) {
         this.signalProcessor = signalProcessor;
     }
 
@@ -47,10 +47,10 @@ class EcgDataProcessor {
         }
 
         for (int i = 1; i < data.length; i++) {
-            calibrateDataProcessor.process(data[i]);
+            caliValueCalculator.process(data[i]);
         }
 
-        if (++wantPackageNum == PACKAGE_NUM_LIMIT) wantPackageNum = 0;
+        if (++wantPackageNum == PACKAGE_NUM_MAX_LIMIT) wantPackageNum = 0;
 
         notifyAll();
     }
@@ -78,7 +78,7 @@ class EcgDataProcessor {
             signalProcessor.process(data[i]);
         }
 
-        if (++wantPackageNum == PACKAGE_NUM_LIMIT) wantPackageNum = 0;
+        if (++wantPackageNum == PACKAGE_NUM_MAX_LIMIT) wantPackageNum = 0;
 
         notifyAll();
     }

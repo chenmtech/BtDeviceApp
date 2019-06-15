@@ -26,7 +26,7 @@ import java.util.Locale;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject.HrHistogramElement;
 
 /**
- * EcgHrProcessor: 心率直方图
+ * HrProcessor: 心率直方图
  * Created by bme on 2019/1/9.
  */
 

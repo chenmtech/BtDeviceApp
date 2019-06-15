@@ -156,7 +156,7 @@ public class EcgFileExplorerModel {
 
     public void getSelectFileHrInfo() {
         if(listener != null)
-            listener.onEcgHrInfoUpdated(filesManager.getSelectFileHrInfo());
+            listener.onHrStatisticInfoUpdated(filesManager.getSelectFileHrInfo());
 
     }
 

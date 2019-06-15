@@ -30,7 +30,7 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgSignalProcessor.SECOND_IN_HR_FILTER;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor.HR_FILTER_TIME_IN_SECOND;
 
 /**
   *
@@ -213,7 +213,7 @@ class EcgFilesManager {
 
     synchronized EcgHrInfoObject getSelectFileHrInfo() {
         if(selectFile != null) {
-            return new EcgHrInfoObject(selectFile.getHrList(), SECOND_IN_HR_FILTER);
+            return new EcgHrInfoObject(selectFile.getHrList(), HR_FILTER_TIME_IN_SECOND);
         }
         return null;
     }
