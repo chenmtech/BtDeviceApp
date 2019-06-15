@@ -249,7 +249,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 读导联类型
         readLeadType();
 
-        dataProcessingService = Executors.newFixedThreadPool(5);
+        dataProcessingService = Executors.newCachedThreadPool();
 
         // 启动1mV采样进行定标
         //start1mVSampling();
