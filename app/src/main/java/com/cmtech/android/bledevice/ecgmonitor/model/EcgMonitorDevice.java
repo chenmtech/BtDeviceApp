@@ -249,7 +249,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 读导联类型
         readLeadType();
 
-        dataProcessingService = Executors.newFixedThreadPool(10);
+        dataProcessingService = Executors.newFixedThreadPool(16);
 
         // 启动1mV采样进行定标
         //start1mVSampling();
@@ -683,7 +683,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 启动ECG信号采集
     private void startEcgSignalSampling() {
-        IGattDataCallback indicationCallback = new IGattDataCallback() {
+        IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 if(returnDataThread != Thread.currentThread()) {
@@ -709,8 +709,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
             }
         };
-        // enable ECG data indication
-        indicate(ECGMONITOR_DATA_CCC, true, indicationCallback);
+        // enable ECG data notification
+        notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
@@ -729,7 +729,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     private void start1mVSampling() {
         setState(EcgMonitorState.CALIBRATING);
 
-        IGattDataCallback indicationCallback = new IGattDataCallback() {
+        IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 dataProcessingService.execute(new Runnable() {
@@ -749,16 +749,16 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
             }
         };
-        // enable ECG data indication
-        indicate(ECGMONITOR_DATA_CCC, true, indicationCallback);
+        // enable ECG data notification
+        notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, null);
     }
 
     // 停止数据采集
     private void stopDataSampling() {
-        // disable ECG data indication
-        indicate(ECGMONITOR_DATA_CCC, false, null);
+        // disable ECG data notification
+        notify(ECGMONITOR_DATA_CCC, false, null);
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, null);
     }
