@@ -249,7 +249,19 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 读导联类型
         readLeadType();
 
-        dataProcessService = Executors.newFixedThreadPool(1);
+        dataProcessService = Executors.newSingleThreadExecutor();
+
+        dataProcessService.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (!Thread.currentThread().isInterrupted())
+                        ecgSampleDataProcessor.processEcgSignalData();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         // 启动1mV采样进行定标
         //start1mVSampling();
@@ -695,7 +707,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                     returnDataThread = Thread.currentThread();
                 }
 
-                dataProcessService.execute(new Runnable() {
+                /*dataProcessService.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -704,7 +716,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                             e.printStackTrace();
                         }
                     }
-                });
+                });*/
+
+                ecgSampleDataProcessor.addData(data);
             }
 
             @Override
@@ -735,7 +749,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                dataProcessService.execute(new Runnable() {
+                /*dataProcessService.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -744,7 +758,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                             e.printStackTrace();
                         }
                     }
-                });
+                });*/
             }
 
             @Override

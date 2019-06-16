@@ -6,6 +6,7 @@ import com.vise.log.ViseLog;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 
 class EcgSampleDataProcessor {
     private static final int PACKAGE_NUM_MAX_LIMIT = 16;
@@ -16,8 +17,12 @@ class EcgSampleDataProcessor {
 
     private EcgProcessor signalProcessor; // 心电信号处理器
 
-    EcgSampleDataProcessor() {
+    private ArrayList<int[]> cache = new ArrayList<>();
 
+    EcgSampleDataProcessor() {
+        for(int i = 0; i < 16; i++) {
+            cache.add(null);
+        }
     }
 
     void setCaliValueCalculator(Ecg1mVCaliValueCalculator caliValueCalculator) {
@@ -55,32 +60,37 @@ class EcgSampleDataProcessor {
         notifyAll();
     }
 
-    void processEcgSignalData(byte[] data) throws InterruptedException {
-
+    synchronized void addData(byte[] data) {
         ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
 
-        int[] tmp = new int[data.length/2];
+        int num = (int) buffer.getShort();
+
+        int[] tmp = new int[data.length/2-1];
 
         for(int i = 0; i < tmp.length; i++) {
             tmp[i] = (int)buffer.getShort();
         }
 
-        processEcgSignalData(tmp);
+        cache.set(num, tmp);
+
+        notifyAll();
     }
 
-    private synchronized void processEcgSignalData(int[] data) throws InterruptedException{
-        while(data[0] != wantPackageNum) {
+
+    synchronized void processEcgSignalData() throws InterruptedException{
+        while(cache.get(wantPackageNum) == null) {
             wait();
-            ViseLog.e("Waiting package: " + wantPackageNum);
         }
 
-        for (int i = 1; i < data.length; i++) {
+        int[] data = cache.get(wantPackageNum);
+
+        for (int i = 0; i < data.length; i++) {
             signalProcessor.process(data[i]);
         }
 
-        if (++wantPackageNum == PACKAGE_NUM_MAX_LIMIT) wantPackageNum = 0;
+        cache.set(wantPackageNum, null);
 
-        notifyAll();
+        if (++wantPackageNum == PACKAGE_NUM_MAX_LIMIT) wantPackageNum = 0;
     }
 
     synchronized void resetWantPackageNum() {
