@@ -23,7 +23,17 @@ import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * ScanWaveView: 扫描式的波形显示视图，用于心电信号采集时的实时显示
@@ -124,8 +134,9 @@ public class ScanWaveView extends View {
 
     private LinkedBlockingQueue<Integer> dataCache = new LinkedBlockingQueue<>();
 
-    private Thread showThread;
+    //private Thread showThread;
 
+    private ScheduledExecutorService showService;
 
     public ScanWaveView(Context context) {
         super(context);
@@ -270,8 +281,8 @@ public class ScanWaveView extends View {
         dataCache.clear();
     }
 
-    public void start(final int delay) {
-        if(showThread == null || !showThread.isAlive()) {
+    public void start(final int period) {
+        /*if(showThread == null || !showThread.isAlive()) {
             showThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -288,16 +299,43 @@ public class ScanWaveView extends View {
             });
 
             showThread.start();
+        }*/
+
+        if(showService == null) {
+            showService = Executors.newSingleThreadScheduledExecutor();
+
+            showService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        showData(dataCache.take());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, 0, period, TimeUnit.MILLISECONDS);
         }
     }
 
     public void stop() {
-        if(showThread != null) {
+        /*if(showThread != null) {
             showThread.interrupt();
             try {
                 showThread.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+        }*/
+
+        if(showService != null) {
+            showService.shutdownNow();
+
+            while(!showService.isTerminated()) {
+                try {
+                    showService.awaitTermination(1000, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

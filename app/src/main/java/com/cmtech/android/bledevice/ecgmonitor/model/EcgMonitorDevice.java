@@ -127,9 +127,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     private EcgFile ecgFile; // 心电记录文件，可记录心电信号以及留言和心率信息
 
-    private ScheduledExecutorService batteryMeasuringService;
+    private ScheduledExecutorService batMeasureService;
 
-    private ExecutorService dataProcessingService;
+    private ExecutorService dataProcessService;
 
     private volatile Thread returnDataThread;
 
@@ -249,7 +249,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 读导联类型
         readLeadType();
 
-        dataProcessingService = Executors.newFixedThreadPool(16);
+        dataProcessService = Executors.newFixedThreadPool(1);
 
         // 启动1mV采样进行定标
         //start1mVSampling();
@@ -269,11 +269,12 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             isMeasureBattery = false;
         }
 
-        if(dataProcessingService != null) {
-            dataProcessingService.shutdownNow();
+        if(dataProcessService != null) {
+            dataProcessService.shutdownNow();
 
             try {
-                dataProcessingService.awaitTermination(2000, TimeUnit.MILLISECONDS);
+                while(!dataProcessService.isTerminated())
+                    dataProcessService.awaitTermination(1000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -289,11 +290,12 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             isMeasureBattery = false;
         }
 
-        if(dataProcessingService != null) {
-            dataProcessingService.shutdownNow();
+        if(dataProcessService != null) {
+            dataProcessService.shutdownNow();
 
             try {
-                dataProcessingService.awaitTermination(2000, TimeUnit.MILLISECONDS);
+                while(!dataProcessService.isTerminated())
+                    dataProcessService.awaitTermination(2000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -372,11 +374,12 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     public void close() {
         super.close();
 
-        if(dataProcessingService != null) {
-            dataProcessingService.shutdownNow();
+        if(dataProcessService != null) {
+            dataProcessService.shutdownNow();
 
             try {
-                dataProcessingService.awaitTermination(2000, TimeUnit.MILLISECONDS);
+                while(!dataProcessService.isTerminated())
+                    dataProcessService.awaitTermination(2000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -692,7 +695,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                     returnDataThread = Thread.currentThread();
                 }
 
-                dataProcessingService.execute(new Runnable() {
+                dataProcessService.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -732,7 +735,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                dataProcessingService.execute(new Runnable() {
+                dataProcessService.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -765,9 +768,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 开始电池电量测量
     private void startBatteryMeasuring() {
-        batteryMeasuringService = Executors.newSingleThreadScheduledExecutor();
+        batMeasureService = Executors.newSingleThreadScheduledExecutor();
 
-        batteryMeasuringService.scheduleAtFixedRate(new Runnable() {
+        batMeasureService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 read(BATTERY_DATA, new IGattDataCallback() {
@@ -789,11 +792,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 停止电池电量测量
     private void stopBatteryMeasuring() {
-        if(batteryMeasuringService != null) {
-            batteryMeasuringService.shutdownNow();
+        if(batMeasureService != null) {
+            batMeasureService.shutdownNow();
 
             try {
-                batteryMeasuringService.awaitTermination(100, TimeUnit.MILLISECONDS);
+                batMeasureService.awaitTermination(100, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

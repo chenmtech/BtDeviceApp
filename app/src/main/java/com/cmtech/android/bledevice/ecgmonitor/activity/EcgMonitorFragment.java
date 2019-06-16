@@ -249,7 +249,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     private void initialEcgView() {
         updateEcgView(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
-        ecgView.start(5);
+        ecgView.start(8);
     }
 
     @Override
