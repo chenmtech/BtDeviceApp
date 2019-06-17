@@ -714,7 +714,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                     bleBinderThread = Thread.currentThread();
                 }
 
-                ecgSampleDataProcessor.addData(data);
+                try {
+                    ecgSampleDataProcessor.addData(data);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override

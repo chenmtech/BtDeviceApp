@@ -17,8 +17,6 @@ class EcgSampleDataProcessor {
 
     private int nextProcessPackageNum = 0; // 下一个要处理的数据包序号
 
-    private int[] packNum1 = {2,3,0,1,6,7,4,5,10,11,8,9,14,15,12,13};
-
     EcgSampleDataProcessor() {
 
     }
@@ -58,7 +56,7 @@ class EcgSampleDataProcessor {
         notifyAll();
     }
 
-    void addData(byte[] data) {
+    void addData(byte[] data) throws InterruptedException{
         int packageNum = ((0xff & data[0]) | (0xff00 & (data[1] << 8)));
 
         //ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
@@ -74,7 +72,11 @@ class EcgSampleDataProcessor {
         addPackage(packageNum, pack);
     }
 
-    private synchronized void addPackage(int packageNum, int[] pack) {
+    private synchronized void addPackage(int packageNum, int[] pack) throws InterruptedException{
+        while(packageCache[packageNum] != null) {
+            wait();
+        }
+
         packageCache[packageNum] = pack;
 
         notifyAll();
@@ -94,6 +96,8 @@ class EcgSampleDataProcessor {
         packageCache[nextProcessPackageNum] = null;
 
         if (++nextProcessPackageNum == PACKAGE_NUM_MAX_LIMIT) nextProcessPackageNum = 0;
+
+        notifyAll();
     }
 
     synchronized void reset() {
