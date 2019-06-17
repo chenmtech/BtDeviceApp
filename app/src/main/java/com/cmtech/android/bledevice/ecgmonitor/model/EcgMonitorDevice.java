@@ -805,7 +805,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                     }
                 });
             }
-        }, 0, 10000L, TimeUnit.MILLISECONDS);
+        }, 0, 1800000L, TimeUnit.MILLISECONDS);
 
     }
 
