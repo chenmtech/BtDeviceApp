@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
@@ -121,9 +122,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     private EcgProcessor signalProcessor; // 心电信号处理器
 
-    private final EcgSampleDataProcessor ecgSampleDataProcessor = new EcgSampleDataProcessor();
-
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
+
+    private final EcgSampleDataProcessor ecgSampleDataProcessor = new EcgSampleDataProcessor();
 
     private EcgFile ecgFile; // 心电记录文件，可记录心电信号以及留言和心率信息
 
@@ -131,7 +132,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     private ExecutorService dataProcessService;
 
-    private volatile Thread returnDataThread;
+    private volatile Thread bleBinderThread;
 
 
     // 构造器
@@ -249,7 +250,12 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 读导联类型
         readLeadType();
 
-        dataProcessService = Executors.newSingleThreadExecutor();
+        dataProcessService = Executors.newSingleThreadExecutor(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable runnable) {
+                return new Thread(runnable, "MyThread_data_proc");
+            }
+        });
 
         dataProcessService.execute(new Runnable() {
             @Override
@@ -348,7 +354,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
             // 启动采集ECG信号
             case MSG_START_SAMPLINGSIGNAL:
-                ecgSampleDataProcessor.resetWantPackageNum();
+                ecgSampleDataProcessor.reset();
 
                 setState(EcgMonitorState.SAMPLE);
 
@@ -612,7 +618,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         ecgSampleDataProcessor.setSignalProcessor(signalProcessor);
 
-        ecgSampleDataProcessor.resetWantPackageNum();
+        ecgSampleDataProcessor.reset();
 
         if(hrProcessor != null)
             signalProcessor.setHrProcessor(hrProcessor);
@@ -702,22 +708,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                if(returnDataThread != Thread.currentThread()) {
-                    ViseLog.e("receive data thread changed. " + Thread.currentThread());
+                if(bleBinderThread != Thread.currentThread()) {
+                    ViseLog.e("The BLE binder thread is changed to " + Thread.currentThread());
 
-                    returnDataThread = Thread.currentThread();
+                    bleBinderThread = Thread.currentThread();
                 }
-
-                /*dataProcessService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            ecgSampleDataProcessor.processEcgSignalData(data);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });*/
 
                 ecgSampleDataProcessor.addData(data);
             }
@@ -783,7 +778,12 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 开始电池电量测量
     private void startBatteryMeasuring() {
-        batMeasureService = Executors.newSingleThreadScheduledExecutor();
+        batMeasureService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable runnable) {
+                return new Thread(runnable, "MyThread_bat_meas");
+            }
+        });
 
         batMeasureService.scheduleAtFixedRate(new Runnable() {
             @Override

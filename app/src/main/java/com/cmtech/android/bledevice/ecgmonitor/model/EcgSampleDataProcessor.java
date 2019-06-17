@@ -1,28 +1,26 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
-import com.vise.log.ViseLog;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 
 class EcgSampleDataProcessor {
     private static final int PACKAGE_NUM_MAX_LIMIT = 16;
-
-    private int wantPackageNum = 0;
 
     private Ecg1mVCaliValueCalculator caliValueCalculator; // 1mV标定值计算器
 
     private EcgProcessor signalProcessor; // 心电信号处理器
 
-    private ArrayList<int[]> cache = new ArrayList<>();
+    private int[][] packageCache = new int[PACKAGE_NUM_MAX_LIMIT][]; // 数据包缓存
+
+    private int nextProcessPackageNum = 0; // 下一个要处理的数据包序号
+
+    private int[] packNum1 = {2,3,0,1,6,7,4,5,10,11,8,9,14,15,12,13};
 
     EcgSampleDataProcessor() {
-        for(int i = 0; i < 16; i++) {
-            cache.add(null);
-        }
+
     }
 
     void setCaliValueCalculator(Ecg1mVCaliValueCalculator caliValueCalculator) {
@@ -47,7 +45,7 @@ class EcgSampleDataProcessor {
     }
 
     private synchronized void processCalibrateData(int[] data) throws InterruptedException{
-        while(data[0] != wantPackageNum) {
+        while(data[0] != nextProcessPackageNum) {
             wait();
         }
 
@@ -55,46 +53,55 @@ class EcgSampleDataProcessor {
             caliValueCalculator.process(data[i]);
         }
 
-        if (++wantPackageNum == PACKAGE_NUM_MAX_LIMIT) wantPackageNum = 0;
+        if (++nextProcessPackageNum == PACKAGE_NUM_MAX_LIMIT) nextProcessPackageNum = 0;
 
         notifyAll();
     }
 
-    synchronized void addData(byte[] data) {
-        ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+    void addData(byte[] data) {
+        int packageNum = ((0xff & data[0]) | (0xff00 & (data[1] << 8)));
 
-        int num = (int) buffer.getShort();
+        //ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
 
-        int[] tmp = new int[data.length/2-1];
+        //int packageNum = (int) buffer.getShort();
 
-        for(int i = 0; i < tmp.length; i++) {
-            tmp[i] = (int)buffer.getShort();
+        int[] pack = new int[data.length/2-1];
+
+        for(int i = 1; i <= pack.length; i++) {
+            pack[i-1] = ((0xff & data[i*2]) | (0xff00 & (data[i*2+1] << 8)));
         }
 
-        cache.set(num, tmp);
+        addPackage(packageNum, pack);
+    }
+
+    private synchronized void addPackage(int packageNum, int[] pack) {
+        packageCache[packageNum] = pack;
 
         notifyAll();
     }
 
-
     synchronized void processEcgSignalData() throws InterruptedException{
-        while(cache.get(wantPackageNum) == null) {
+        while(packageCache[nextProcessPackageNum] == null) {
             wait();
         }
 
-        int[] data = cache.get(wantPackageNum);
+        int[] data = packageCache[nextProcessPackageNum];
 
-        for (int i = 0; i < data.length; i++) {
-            signalProcessor.process(data[i]);
+        for (int ele : data) {
+            signalProcessor.process(ele);
         }
 
-        cache.set(wantPackageNum, null);
+        packageCache[nextProcessPackageNum] = null;
 
-        if (++wantPackageNum == PACKAGE_NUM_MAX_LIMIT) wantPackageNum = 0;
+        if (++nextProcessPackageNum == PACKAGE_NUM_MAX_LIMIT) nextProcessPackageNum = 0;
     }
 
-    synchronized void resetWantPackageNum() {
-        wantPackageNum = 0;
+    synchronized void reset() {
+        nextProcessPackageNum = 0;
+
+        for(int i = 0; i < PACKAGE_NUM_MAX_LIMIT; i++) {
+            packageCache[i] = null;
+        }
     }
 
 }

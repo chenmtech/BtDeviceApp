@@ -23,17 +23,11 @@ import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * ScanWaveView: 扫描式的波形显示视图，用于心电信号采集时的实时显示
@@ -282,38 +276,27 @@ public class ScanWaveView extends View {
     }
 
     public void start(final int period) {
-        /*if(showThread == null || !showThread.isAlive()) {
-            showThread = new Thread(new Runnable() {
+        if(showService == null) {
+            showService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
                 @Override
-                public void run() {
-                    try {
-                        while (!Thread.currentThread().isInterrupted()) {
-                            showData(dataCache.take());
-
-                            Thread.sleep(delay);
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                public Thread newThread(Runnable runnable) {
+                    return new Thread(runnable, "MyThread_wave_show");
                 }
             });
-
-            showThread.start();
-        }*/
-
-        if(showService == null) {
-            showService = Executors.newSingleThreadScheduledExecutor();
 
             showService.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     try{
                         showData(dataCache.take());
+                        showData(dataCache.take());
+                        showData(dataCache.take());
+                        postInvalidate();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-            }, 0, period, TimeUnit.MILLISECONDS);
+            }, 0, period*3, TimeUnit.MILLISECONDS);
         }
     }
 
@@ -357,7 +340,7 @@ public class ScanWaveView extends View {
         } else {
             if (isUpdated) {
                 drawPointOnForeCanvas(dataY);
-                postInvalidate();
+                //postInvalidate();
             }
         }
     }
