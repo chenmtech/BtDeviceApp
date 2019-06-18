@@ -275,7 +275,7 @@ public class ScanWaveView extends View {
         dataCache.clear();
     }
 
-    public void start(final int period) {
+    public void start(final int initDelay, final int period) {
         if(showService == null) {
             showService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
                 @Override
@@ -288,28 +288,17 @@ public class ScanWaveView extends View {
                 @Override
                 public void run() {
                     try{
-                        showData(dataCache.take());
-                        showData(dataCache.take());
-                        showData(dataCache.take());
+                        showData();
                         postInvalidate();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-            }, 0, period*3, TimeUnit.MILLISECONDS);
+            }, initDelay, period, TimeUnit.MILLISECONDS);
         }
     }
 
     public void stop() {
-        /*if(showThread != null) {
-            showThread.interrupt();
-            try {
-                showThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }*/
-
         if(showService != null) {
             showService.shutdownNow();
 
@@ -331,7 +320,9 @@ public class ScanWaveView extends View {
         }
     }
 
-    public void showData(int data) {
+    private void showData() throws InterruptedException{
+        int data = dataCache.take();
+
         int dataY = initY - Math.round(data / yValuePerPixel);
 
         if (isFirstData) {

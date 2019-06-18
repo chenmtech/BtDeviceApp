@@ -75,6 +75,8 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     private EcgMonitorDevice device; // 设备
 
+    private boolean isFirst = true;
+
     public EcgMonitorFragment() {
 
     }
@@ -249,11 +251,15 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     private void initialEcgView() {
         updateEcgView(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
-        ecgView.start(8);
+        //ecgView.start(8);
     }
 
     @Override
     public void onEcgSignalUpdated(final int ecgSignal) {
+        if(isFirst) {
+            isFirst = false;
+            ecgView.start(0, 8);
+        }
         ecgView.addData(ecgSignal);
     }
 

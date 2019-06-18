@@ -471,6 +471,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             isMeasureBattery = false;
         }
 
+
         if(isConnected() && isGattExecutorAlive()) {
             stopDataSampling();
         }
@@ -708,11 +709,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                if(bleBinderThread != Thread.currentThread()) {
-                    ViseLog.e("The BLE binder thread is changed to " + Thread.currentThread());
-
-                    bleBinderThread = Thread.currentThread();
-                }
 
                 try {
                     ecgSampleDataProcessor.addData(data);

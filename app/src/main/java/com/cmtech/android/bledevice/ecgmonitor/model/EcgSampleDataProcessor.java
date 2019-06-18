@@ -17,6 +17,8 @@ class EcgSampleDataProcessor {
 
     private int nextProcessPackageNum = 0; // 下一个要处理的数据包序号
 
+    private int[] packNum = {1,2,3,0,5,6,7,4,9,10,11,8,13,14,15,12};
+
     EcgSampleDataProcessor() {
 
     }
@@ -56,12 +58,8 @@ class EcgSampleDataProcessor {
         notifyAll();
     }
 
-    void addData(byte[] data) throws InterruptedException{
+    synchronized void addData(byte[] data) throws InterruptedException{
         int packageNum = ((0xff & data[0]) | (0xff00 & (data[1] << 8)));
-
-        //ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-
-        //int packageNum = (int) buffer.getShort();
 
         int[] pack = new int[data.length/2-1];
 
@@ -72,32 +70,29 @@ class EcgSampleDataProcessor {
         addPackage(packageNum, pack);
     }
 
-    private synchronized void addPackage(int packageNum, int[] pack) throws InterruptedException{
-        while(packageCache[packageNum] != null) {
-            wait();
-        }
-
+    private void addPackage(int packageNum, int[] pack) throws InterruptedException{
         packageCache[packageNum] = pack;
 
         notifyAll();
     }
 
     synchronized void processEcgSignalData() throws InterruptedException{
-        while(packageCache[nextProcessPackageNum] == null) {
+        while(packageCache[packNum[nextProcessPackageNum]] == null) {
             wait();
         }
 
-        int[] data = packageCache[nextProcessPackageNum];
+        do {
 
-        for (int ele : data) {
-            signalProcessor.process(ele);
-        }
+            int[] data = packageCache[packNum[nextProcessPackageNum]];
 
-        packageCache[nextProcessPackageNum] = null;
+            for (int ele : data) {
+                signalProcessor.process(ele);
+            }
 
-        if (++nextProcessPackageNum == PACKAGE_NUM_MAX_LIMIT) nextProcessPackageNum = 0;
+            packageCache[packNum[nextProcessPackageNum]] = null;
 
-        notifyAll();
+            if (++nextProcessPackageNum == PACKAGE_NUM_MAX_LIMIT) nextProcessPackageNum = 0;
+        }while (packageCache[packNum[nextProcessPackageNum]] != null);
     }
 
     synchronized void reset() {
