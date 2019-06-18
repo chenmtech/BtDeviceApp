@@ -77,22 +77,22 @@ class EcgSampleDataProcessor {
     }
 
     synchronized void processEcgSignalData() throws InterruptedException{
-        while(packageCache[packNum[nextProcessPackageNum]] == null) {
+        while(packageCache[nextProcessPackageNum] == null) {
             wait();
         }
 
         do {
 
-            int[] data = packageCache[packNum[nextProcessPackageNum]];
+            int[] data = packageCache[nextProcessPackageNum];
 
             for (int ele : data) {
                 signalProcessor.process(ele);
             }
 
-            packageCache[packNum[nextProcessPackageNum]] = null;
+            packageCache[nextProcessPackageNum] = null;
 
             if (++nextProcessPackageNum == PACKAGE_NUM_MAX_LIMIT) nextProcessPackageNum = 0;
-        }while (packageCache[packNum[nextProcessPackageNum]] != null);
+        }while (packageCache[nextProcessPackageNum] != null);
     }
 
     synchronized void reset() {

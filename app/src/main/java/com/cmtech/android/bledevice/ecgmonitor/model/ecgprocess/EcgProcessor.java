@@ -69,7 +69,7 @@ public class EcgProcessor {
         // 通知信号更新
         if(listener != null) listener.onSignalValueUpdated(ecgSignal);
 
-        /*// 检测Qrs波，获取心率
+        // 检测Qrs波，获取心率
         short currentHr = (short) qrsDetector.outputHR(ecgSignal);
 
         // 通知心率值更新
@@ -82,7 +82,7 @@ public class EcgProcessor {
             for(IHrOperator operator : hrOperators.values()) {
                 operator.operate(currentHr);
             }
-        }*/
+        }
     }
 
     // 重置心率记录仪

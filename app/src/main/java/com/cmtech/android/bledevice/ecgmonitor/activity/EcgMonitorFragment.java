@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgControllerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
@@ -28,11 +27,17 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -75,7 +80,9 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     private EcgMonitorDevice device; // 设备
 
-    private boolean isFirst = true;
+    private LinkedBlockingQueue<Integer> showedSignalCache = new LinkedBlockingQueue<>(); // 要显示的信号缓存区
+
+    private ScheduledExecutorService showService; // 信号波形显示服务
 
     public EcgMonitorFragment() {
 
@@ -201,7 +208,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
         if(hrWarnAudio != null)
             hrWarnAudio.stop();
 
-        ecgView.stop();
+        stopShow();
     }
 
     @Override
@@ -251,16 +258,60 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     private void initialEcgView() {
         updateEcgView(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
-        //ecgView.start(8);
+    }
+
+    private void startShow(int sampleRate) {
+        if(showService == null || showService.isTerminated()) {
+            showService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable runnable) {
+                    return new Thread(runnable, "MyThread_ecg_show");
+                }
+            });
+
+            showService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    Integer signal = showedSignalCache.poll();
+
+                    if(signal != null)
+                        ecgView.showData(signal);
+                }
+            }, 0, 1000000/sampleRate, TimeUnit.MICROSECONDS);
+        }
+    }
+
+    private void stopShow() {
+        if(showService != null) {
+            showService.shutdownNow();
+
+            try {
+                while(!showService.isTerminated()) {
+                    showService.awaitTermination(1000, TimeUnit.MILLISECONDS);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void onEcgSignalUpdated(final int ecgSignal) {
-        if(isFirst) {
-            isFirst = false;
-            ecgView.start(0, 8);
+        try {
+            showedSignalCache.put(ecgSignal);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        ecgView.addData(ecgSignal);
+    }
+
+    @Override
+    public void onEcgSignalShowStarted(int sampleRate) {
+        startShow(sampleRate);
+    }
+
+    @Override
+    public void onEcgSignalShowStoped() {
+        stopShow();
     }
 
     @Override

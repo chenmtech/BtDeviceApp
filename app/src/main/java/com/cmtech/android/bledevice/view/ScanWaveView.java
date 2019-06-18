@@ -23,12 +23,6 @@ import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-
 /**
  * ScanWaveView: 扫描式的波形显示视图，用于心电信号采集时的实时显示
  * Created by bme on 2018/12/06.
@@ -126,11 +120,6 @@ public class ScanWaveView extends View {
         }
     };
 
-    private LinkedBlockingQueue<Integer> dataCache = new LinkedBlockingQueue<>();
-
-    //private Thread showThread;
-
-    private ScheduledExecutorService showService;
 
     public ScanWaveView(Context context) {
         super(context);
@@ -271,58 +260,9 @@ public class ScanWaveView extends View {
         isFirstData = true;
 
         isUpdated = true;
-
-        dataCache.clear();
     }
 
-    public void start(final int initDelay, final int period) {
-        if(showService == null) {
-            showService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MyThread_wave_show");
-                }
-            });
-
-            showService.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    try{
-                        showData();
-                        postInvalidate();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, initDelay, period, TimeUnit.MILLISECONDS);
-        }
-    }
-
-    public void stop() {
-        if(showService != null) {
-            showService.shutdownNow();
-
-            while(!showService.isTerminated()) {
-                try {
-                    showService.awaitTermination(1000, TimeUnit.MILLISECONDS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    public void addData(int data) {
-        try {
-            dataCache.put(data);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void showData() throws InterruptedException{
-        int data = dataCache.take();
-
+    public void showData(int data) {
         int dataY = initY - Math.round(data / yValuePerPixel);
 
         if (isFirstData) {
@@ -331,7 +271,7 @@ public class ScanWaveView extends View {
         } else {
             if (isUpdated) {
                 drawPointOnForeCanvas(dataY);
-                //postInvalidate();
+                postInvalidate();
             }
         }
     }

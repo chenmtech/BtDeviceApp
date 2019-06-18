@@ -358,6 +358,10 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
                 setState(EcgMonitorState.SAMPLE);
 
+                if(listener != null) {
+                    listener.onEcgSignalShowStarted(sampleRate);
+                }
+
                 break;
 
             case MSG_BATTERY_OBTAINED:
@@ -471,6 +475,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             isMeasureBattery = false;
         }
 
+        if(listener != null) {
+            listener.onEcgSignalShowStoped();
+        }
 
         if(isConnected() && isGattExecutorAlive()) {
             stopDataSampling();
