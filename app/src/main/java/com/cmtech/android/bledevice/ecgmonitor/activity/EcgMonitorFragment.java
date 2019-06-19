@@ -33,11 +33,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -79,10 +74,6 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
     private List<String> titleList = new ArrayList<>(Arrays.asList("心率分析", "信号采集"));
 
     private EcgMonitorDevice device; // 设备
-
-    private LinkedBlockingQueue<Integer> showedSignalCache = new LinkedBlockingQueue<>(); // 要显示的信号缓存区
-
-    private ScheduledExecutorService showService; // 信号波形显示服务
 
     public EcgMonitorFragment() {
 
@@ -251,7 +242,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     private void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
         ecgView.setResolution(xPixelPerData, yValuePerPixel);
-        ecgView.setGridPixels(gridPixels);
+        ecgView.setPixelPerGrid(gridPixels);
         ecgView.setZeroLocation(0.5);
         ecgView.initialize();
     }
@@ -261,47 +252,16 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
     }
 
     private void startShow(int sampleRate) {
-        if(showService == null || showService.isTerminated()) {
-            showService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MyThread_ecg_show");
-                }
-            });
-
-            showService.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    Integer signal = showedSignalCache.poll();
-
-                    if(signal != null)
-                        ecgView.showData(signal);
-                }
-            }, 0, 1000000/sampleRate, TimeUnit.MICROSECONDS);
-        }
+        ecgView.start();
     }
 
     private void stopShow() {
-        if(showService != null) {
-            showService.shutdownNow();
-
-            try {
-                while(!showService.isTerminated()) {
-                    showService.awaitTermination(1000, TimeUnit.MILLISECONDS);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        ecgView.stop();
     }
 
     @Override
     public void onEcgSignalUpdated(final int ecgSignal) {
-        try {
-            showedSignalCache.put(ecgSignal);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        ecgView.showData(ecgSignal);
     }
 
     @Override

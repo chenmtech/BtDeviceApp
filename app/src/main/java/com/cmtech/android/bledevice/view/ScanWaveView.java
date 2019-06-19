@@ -23,9 +23,28 @@ import android.view.View;
 
 import com.cmtech.android.bledeviceapp.R;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
 /**
  * ScanWaveView: 扫描式的波形显示视图，用于心电信号采集时的实时显示
  * Created by bme on 2018/12/06.
+ */
+
+/**
+ *
+ * ClassName:      ScanWaveView
+ * Description:    以扫描的方式显示波形的View
+ * Author:         chenm
+ * CreateDate:     2018-12-06 11:16
+ *
+ * UpdateUser:     chenm
+ * UpdateDate:     2019-06-19 11:16
+ * UpdateRemark:   添加显示服务，用独立的线程实现显示功能
+ * Version:        1.0
+ *
  */
 
 public class ScanWaveView extends View {
@@ -33,7 +52,7 @@ public class ScanWaveView extends View {
     private static final int DEFAULT_XPIXELPERDATA = 2; // 缺省的X方向的分辨率
     private static final float DEFAULT_YVALUEPERPIXEL = 1.0f; // 缺省的Y方向的分辨率
     private static final double DEFAULT_ZERO_LOCATION = 0.5; // 缺省的零线位置在Y方向的高度的比例
-    private static final int DEFAULT_PIXELSPERGRID = 10; // 每个栅格的像素个数
+    private static final int DEFAULT_PIXELPERGRID = 10; // 每个栅格的像素个数
     private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK;
     private static final int DEFAULT_GRID_COLOR = Color.RED;
     private static final int DEFAULT_WAVE_COLOR = Color.YELLOW;
@@ -71,7 +90,7 @@ public class ScanWaveView extends View {
     private PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
 
     // View初始化主要需要设置下面4个参数
-    private int gridPixels = DEFAULT_PIXELSPERGRID; // 栅格像素个数
+    private int pixelPerGrid = DEFAULT_PIXELPERGRID; // 每个栅格的像素个数
 
     private int xPixelPerData = DEFAULT_XPIXELPERDATA; //X方向分辨率，表示X方向每个数据点占多少个像素，pixel/data
 
@@ -83,7 +102,7 @@ public class ScanWaveView extends View {
 
     private boolean isFirstData = false; // 是否是第一个数据
 
-    private boolean isUpdated = true;
+    private boolean isShowed = true;
 
     private GestureDetector gestureDetector;
 
@@ -100,7 +119,7 @@ public class ScanWaveView extends View {
 
         @Override
         public boolean onSingleTapUp(MotionEvent motionEvent) {
-            isUpdated = !isUpdated;
+            isShowed = !isShowed;
             return false;
         }
 
@@ -120,6 +139,7 @@ public class ScanWaveView extends View {
         }
     };
 
+    private ExecutorService showService; // 显示服务
 
     public ScanWaveView(Context context) {
         super(context);
@@ -184,8 +204,8 @@ public class ScanWaveView extends View {
         initY = (int)(viewHeight * this.zeroLocation);
     }
 
-    public void setGridPixels(int gridPixels) {
-        this.gridPixels = gridPixels;
+    public void setPixelPerGrid(int pixelPerGrid) {
+        this.pixelPerGrid = pixelPerGrid;
     }
 
     public void setWaveColor(int waveColor) {
@@ -233,17 +253,17 @@ public class ScanWaveView extends View {
         initialize();
     }
 
-
-
     private void initPaint() {
         bmpPaint.setXfermode(srcOverMode);
 
         bmpPaint.setAlpha(255);
 
         bmpPaint.setStrokeWidth(2);
-
     }
 
+    /**
+     * 初始化
+     */
     public void initialize()
     {
         //创建背景Bitmap
@@ -251,28 +271,76 @@ public class ScanWaveView extends View {
 
         //将背景bitmap复制为前景bitmap
         foreBitmap = backBitmap.copy(Bitmap.Config.ARGB_8888,true);
+
         foreCanvas = new Canvas(foreBitmap);
 
         // 初始化画图起始位置
         preX = curX = initX;
+
         preY = curY = initY;
 
         isFirstData = true;
 
-        isUpdated = true;
+        isShowed = true;
     }
 
-    public void showData(int data) {
+    /**
+     * 开始显示
+     */
+    public void start() {
+        if(showService == null || showService.isTerminated()) {
+            showService = Executors.newSingleThreadExecutor(new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable runnable) {
+                    return new Thread(runnable, "MyThread_ecg_show");
+                }
+            });
+        }
+    }
+
+    /**
+     * 停止显示
+     */
+    public void stop() {
+        if(showService != null) {
+            showService.shutdownNow();
+
+            try {
+                while(!showService.isTerminated()) {
+                    showService.awaitTermination(1000, TimeUnit.MILLISECONDS);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * 显示一个数据
+     * @param data: 要显示的数据
+     */
+    public void showData(final int data) {
+        if(isShowed) {
+            showService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    drawData(data);
+                }
+            });
+        }
+    }
+
+    private void drawData(int data) {
         int dataY = initY - Math.round(data / yValuePerPixel);
 
         if (isFirstData) {
             preY = dataY;
+
             isFirstData = false;
         } else {
-            if (isUpdated) {
-                drawPointOnForeCanvas(dataY);
-                postInvalidate();
-            }
+            drawPointOnForeCanvas(dataY);
+
+            postInvalidate();
         }
     }
 
@@ -300,7 +368,7 @@ public class ScanWaveView extends View {
         if(preX == viewWidth)	//最后一个像素，抹去第一列
         {
             curX = initX;
-            deleteRect.set(initX, 0, initX + gridPixels, viewHeight);
+            deleteRect.set(initX, 0, initX + pixelPerGrid, viewHeight);
         }
         else	//画线
         {
@@ -308,7 +376,7 @@ public class ScanWaveView extends View {
             bmpPaint.setColor(waveColor);
             foreCanvas.drawLine(preX, preY, curX, curY, bmpPaint);
 
-            deleteRect.set(curX +1, 0, curX + gridPixels, viewHeight);
+            deleteRect.set(curX +1, 0, curX + pixelPerGrid, viewHeight);
         }
 
         preX = curX;
@@ -342,11 +410,11 @@ public class ScanWaveView extends View {
         paint.setStrokeWidth(1);
 
         // 画水平线
-        int vCoordinate = initY - gridPixels;
+        int vCoordinate = initY - pixelPerGrid;
         int i = 1;
         while(vCoordinate > 0) {
             backCanvas.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, paint);
-            vCoordinate -= gridPixels;
+            vCoordinate -= pixelPerGrid;
             if(++i == 5) {
                 paint.setStrokeWidth(2);
                 i = 0;
@@ -355,11 +423,11 @@ public class ScanWaveView extends View {
                 paint.setStrokeWidth(1);
         }
         paint.setStrokeWidth(1);
-        vCoordinate = initY + gridPixels;
+        vCoordinate = initY + pixelPerGrid;
         i = 1;
         while(vCoordinate < viewHeight) {
             backCanvas.drawLine(initX, vCoordinate, initX + viewWidth, vCoordinate, paint);
-            vCoordinate += gridPixels;
+            vCoordinate += pixelPerGrid;
             if(++i == 5) {
                 paint.setStrokeWidth(2);
                 i = 0;
@@ -370,11 +438,11 @@ public class ScanWaveView extends View {
 
         // 画垂直线
         paint.setStrokeWidth(1);
-        int hCoordinate = initX + gridPixels;
+        int hCoordinate = initX + pixelPerGrid;
         i = 1;
         while(hCoordinate < viewWidth) {
             backCanvas.drawLine(hCoordinate, 0, hCoordinate, viewHeight, paint);
-            hCoordinate += gridPixels;
+            hCoordinate += pixelPerGrid;
             if(++i == 5) {
                 paint.setStrokeWidth(2);
                 i = 0;
@@ -386,11 +454,11 @@ public class ScanWaveView extends View {
         // 画定标脉冲
 /*        mainPaint.setStrokeWidth(2);
 		mainPaint.setColor(Color.BLACK);
-		c.drawLine(0, initY, 2*gridPixels, initY, mainPaint);
-		c.drawLine(2*gridPixels, initY, 2*gridPixels, initY-10*gridPixels, mainPaint);
-		c.drawLine(2*gridPixels, initY-10*gridPixels, 7*gridPixels, initY-10*gridPixels, mainPaint);
-        c.drawLine(7*gridPixels, initY-10*gridPixels, 7*gridPixels, initY, mainPaint);
-        c.drawLine(7*gridPixels, initY, 10*gridPixels, initY, mainPaint);*/
+		c.drawLine(0, initY, 2*pixelPerGrid, initY, mainPaint);
+		c.drawLine(2*pixelPerGrid, initY, 2*pixelPerGrid, initY-10*pixelPerGrid, mainPaint);
+		c.drawLine(2*pixelPerGrid, initY-10*pixelPerGrid, 7*pixelPerGrid, initY-10*pixelPerGrid, mainPaint);
+        c.drawLine(7*pixelPerGrid, initY-10*pixelPerGrid, 7*pixelPerGrid, initY, mainPaint);
+        c.drawLine(7*pixelPerGrid, initY, 10*pixelPerGrid, initY, mainPaint);*/
 
         //mainPaint.setColor(waveColor);
         //mainPaint.setStrokeWidth(2);
