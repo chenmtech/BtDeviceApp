@@ -84,8 +84,8 @@ public class LoginActivity extends AppCompatActivity {
                     int result = msg.arg2;
                     Object data = msg.obj;
                     if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
-                        ViseLog.e("result = " + result);
-                        ViseLog.e("data = " + data);
+                        //ViseLog.e("result = " + result);
+                        //ViseLog.e("data = " + data);
                         if (result == SMSSDK.RESULT_COMPLETE) {
                             // TODO 处理成功得到验证码的结果
                             // 请注意，此时只是完成了发送验证码的请求，验证码短信还需要几秒钟之后才送达

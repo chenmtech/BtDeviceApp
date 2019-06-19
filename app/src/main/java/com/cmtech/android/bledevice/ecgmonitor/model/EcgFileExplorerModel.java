@@ -162,11 +162,15 @@ public class EcgFileExplorerModel {
 
     public void close() {
         try {
-            openFileService.shutdownNow();
+            openFileService.shutdown();
 
-            openFileService.awaitTermination(200, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException ignored) {
+            boolean isTerminated = false;
 
+            while(!isTerminated) {
+                isTerminated = openFileService.awaitTermination(1, TimeUnit.SECONDS);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         filesManager.close();

@@ -292,7 +292,7 @@ public class ScanWaveView extends View {
             showService = Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MyThread_ecg_show");
+                    return new Thread(runnable, "MT_Show_View");
                 }
             });
         }
@@ -303,11 +303,13 @@ public class ScanWaveView extends View {
      */
     public void stop() {
         if(showService != null) {
-            showService.shutdownNow();
+            showService.shutdown();
 
             try {
-                while(!showService.isTerminated()) {
-                    showService.awaitTermination(1000, TimeUnit.MILLISECONDS);
+                boolean isTerminated = false;
+
+                while(!isTerminated) {
+                    isTerminated = showService.awaitTermination(1, TimeUnit.SECONDS);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -320,7 +322,7 @@ public class ScanWaveView extends View {
      * @param data: 要显示的数据
      */
     public void showData(final int data) {
-        if(isShowed) {
+        if(isShowed && !showService.isShutdown()) {
             showService.execute(new Runnable() {
                 @Override
                 public void run() {

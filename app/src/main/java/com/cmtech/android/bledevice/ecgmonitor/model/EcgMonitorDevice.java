@@ -250,25 +250,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 读导联类型
         readLeadType();
 
-        dataProcessService = Executors.newSingleThreadExecutor(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable runnable) {
-                return new Thread(runnable, "MyThread_data_proc");
-            }
-        });
-
-        dataProcessService.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (!Thread.currentThread().isInterrupted()) {
-                        ecgSampleDataProcessor.processEcgSignalData();
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        startDataProcessor();
 
         // 启动1mV采样进行定标
         //start1mVSampling();
@@ -278,22 +260,40 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         return true;
     }
 
-    @Override
-    protected void executeAfterDisconnect() {
-        stopGattExecutor();
+    private void startDataProcessor() {
+        if(dataProcessService == null || dataProcessService.isTerminated()) {
+            dataProcessService = Executors.newSingleThreadExecutor(new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable runnable) {
+                    return new Thread(runnable, "MT_Data_Process");
+                }
+            });
 
-        if(isMeasureBattery) {
-            stopBatteryMeasuring();
-
-            isMeasureBattery = false;
+            dataProcessService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (!Thread.currentThread().isInterrupted()) {
+                            ecgSampleDataProcessor.processEcgSignalData();
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
+    }
 
+    private void stopDataProcessor() {
         if(dataProcessService != null) {
             dataProcessService.shutdownNow();
 
             try {
-                while(!dataProcessService.isTerminated())
-                    dataProcessService.awaitTermination(1000, TimeUnit.MILLISECONDS);
+                boolean isTerminated = false;
+
+                while(!isTerminated) {
+                    isTerminated = dataProcessService.awaitTermination(1, TimeUnit.SECONDS);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -301,24 +301,28 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     @Override
+    protected void executeAfterDisconnect() {
+        stopGattExecutor();
+
+        if(isMeasureBattery) {
+            stopBatteryMeasure();
+
+            isMeasureBattery = false;
+        }
+
+        stopDataProcessor();
+    }
+
+    @Override
     protected void executeAfterConnectFailure() {
         stopGattExecutor();
 
         if(isMeasureBattery) {
-            stopBatteryMeasuring();
+            stopBatteryMeasure();
             isMeasureBattery = false;
         }
 
-        if(dataProcessService != null) {
-            dataProcessService.shutdownNow();
-
-            try {
-                while(!dataProcessService.isTerminated())
-                    dataProcessService.awaitTermination(2000, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        stopDataProcessor();
     }
 
     @Override
@@ -397,16 +401,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     public void close() {
         super.close();
 
-        if(dataProcessService != null) {
-            dataProcessService.shutdownNow();
-
-            try {
-                while(!dataProcessService.isTerminated())
-                    dataProcessService.awaitTermination(2000, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        stopDataProcessor();
 
         // 关闭记录器
         if(signalRecorder != null) {
@@ -470,7 +465,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         ViseLog.e("EcgMonitorDevice disconnect()");
 
         if(isMeasureBattery) {
-            stopBatteryMeasuring();
+            stopBatteryMeasure();
 
             isMeasureBattery = false;
         }
@@ -716,12 +711,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-
-                try {
-                    ecgSampleDataProcessor.addData(data);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                ecgSampleDataProcessor.addData(data);
             }
 
             @Override
@@ -788,7 +778,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         batMeasureService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
             @Override
             public Thread newThread(Runnable runnable) {
-                return new Thread(runnable, "MyThread_bat_meas");
+                return new Thread(runnable, "MT_bat_meas");
             }
         });
 
@@ -813,12 +803,16 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     // 停止电池电量测量
-    private void stopBatteryMeasuring() {
+    private void stopBatteryMeasure() {
         if(batMeasureService != null) {
             batMeasureService.shutdownNow();
 
             try {
-                batMeasureService.awaitTermination(100, TimeUnit.MILLISECONDS);
+                boolean isTerminated = false;
+
+                while(!isTerminated) {
+                    isTerminated = batMeasureService.awaitTermination(1, TimeUnit.SECONDS);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
