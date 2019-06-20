@@ -132,8 +132,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     private ExecutorService dataProcessService;
 
-    private volatile Thread bleBinderThread;
-
 
     // 构造器
     EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
@@ -798,7 +796,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                     }
                 });
             }
-        }, 0, 1800000L, TimeUnit.MILLISECONDS);
+        }, 0, 10, TimeUnit.MINUTES);
 
     }
 
