@@ -248,35 +248,20 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 读导联类型
         readLeadType();
 
-        startDataProcessor();
-
         // 启动1mV采样进行定标
-        //start1mVSampling();
-
-        on1mVCaliValueUpdated(10520);
+        start1mVSampling();
 
         return true;
     }
 
     private void startDataProcessor() {
+        ecgSampleDataProcessor.reset();
+
         if(dataProcessService == null || dataProcessService.isTerminated()) {
             dataProcessService = Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable runnable) {
                     return new Thread(runnable, "MT_Data_Process");
-                }
-            });
-
-            dataProcessService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (!Thread.currentThread().isInterrupted()) {
-                            ecgSampleDataProcessor.processEcgSignalData();
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                 }
             });
         }
@@ -356,7 +341,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
             // 启动采集ECG信号
             case MSG_START_SAMPLINGSIGNAL:
-                ecgSampleDataProcessor.reset();
+                //ecgSampleDataProcessor.reset();
 
                 setState(EcgMonitorState.SAMPLE);
 
@@ -709,11 +694,17 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                try {
-                    ecgSampleDataProcessor.addData(data);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                dataProcessService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            ecgSampleDataProcessor.processEcgData(data);
+                        } catch (InterruptedException e) {
+                            ViseLog.e("data processor error.");
+                            //stopDataProcessor();
+                        }
+                    }
+                });
             }
 
             @Override
@@ -722,8 +713,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                 disconnect();
             }
         };
+
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
+
+        startDataProcessor();
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
@@ -740,21 +734,24 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 启动1mV定标信号采集
     private void start1mVSampling() {
+        ViseLog.e("start1mVSampling");
+
         setState(EcgMonitorState.CALIBRATING);
 
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                /*dataProcessService.execute(new Runnable() {
+                dataProcessService.execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             ecgSampleDataProcessor.processCalibrateData(data);
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            ViseLog.e("data processor error.");
+                            stopDataProcessor();
                         }
                     }
-                });*/
+                });
             }
 
             @Override
@@ -765,11 +762,15 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
+        startDataProcessor();
+
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, null);
     }
 
     // 停止数据采集
     private void stopDataSampling() {
+        stopDataProcessor();
+
         // disable ECG data notification
         notify(ECGMONITOR_DATA_CCC, false, null);
 
@@ -821,19 +822,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             }
         }
     }
-
-    // 解析数据包
-    /*private void resolveDataPacket(byte[] data) {
-        synchronized (dataBuff) {
-            // 单片机发过来的是LITTLE_ENDIAN的short数据
-            ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-
-            // 单片机发过来的int是两个字节的short
-            for (int i = 0; i < data.length / 2; i++) {
-                dataBuff.offer((int) buffer.getShort());
-            }
-        }
-    }*/
 
     // 初始化EcgView
     private void initializeEcgView(int sampleRate, int calibrationValue) {
