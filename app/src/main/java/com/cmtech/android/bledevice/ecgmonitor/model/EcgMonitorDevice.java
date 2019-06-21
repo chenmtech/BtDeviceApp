@@ -229,7 +229,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         }
 
         if(isMeasureBattery) {
-            startBatteryMeasuring();
+            startBatteryMeasure();
         }
 
         // 验证EcgMonitor Gatt Elements
@@ -709,12 +709,17 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                ecgSampleDataProcessor.addData(data);
+                try {
+                    ecgSampleDataProcessor.addData(data);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
             public void onFailure(GattDataException exception) {
-
+                ViseLog.e(exception);
+                disconnect();
             }
         };
         // enable ECG data notification
@@ -772,11 +777,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     // 开始电池电量测量
-    private void startBatteryMeasuring() {
+    private void startBatteryMeasure() {
         batMeasureService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
             @Override
             public Thread newThread(Runnable runnable) {
-                return new Thread(runnable, "MT_bat_meas");
+                return new Thread(runnable, "MT_Bat_Measure");
             }
         });
 

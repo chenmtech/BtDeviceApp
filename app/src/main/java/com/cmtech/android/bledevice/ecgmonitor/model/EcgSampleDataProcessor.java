@@ -56,7 +56,7 @@ class EcgSampleDataProcessor {
         notifyAll();
     }
 
-    synchronized void addData(byte[] data) {
+    synchronized void addData(byte[] data) throws InterruptedException{
         int packageNum = ((0xff & data[0]) | (0xff00 & (data[1] << 8)));
 
         int[] pack = new int[data.length/2-1];
@@ -68,7 +68,11 @@ class EcgSampleDataProcessor {
         addPackage(packageNum, pack);
     }
 
-    private void addPackage(int packageNum, int[] pack) {
+    private synchronized void addPackage(int packageNum, int[] pack) throws InterruptedException{
+        while(packageCache[packageNum] != null) {
+            wait();
+        }
+
         packageCache[packageNum] = pack;
 
         notifyAll();
@@ -79,7 +83,7 @@ class EcgSampleDataProcessor {
             wait();
         }
 
-        do {
+        /*do {
 
             int[] data = packageCache[nextPackageNum];
 
@@ -90,7 +94,19 @@ class EcgSampleDataProcessor {
             packageCache[nextPackageNum] = null;
 
             if (++nextPackageNum == PACKAGE_NUM_MAX_LIMIT) nextPackageNum = 0;
-        }while (packageCache[nextPackageNum] != null);
+        }while (packageCache[nextPackageNum] != null);*/
+
+        int[] data = packageCache[nextPackageNum];
+
+        for (int ele : data) {
+            signalProcessor.process(ele);
+        }
+
+        packageCache[nextPackageNum] = null;
+
+        if (++nextPackageNum == PACKAGE_NUM_MAX_LIMIT) nextPackageNum = 0;
+
+        notifyAll();
     }
 
     synchronized void reset() {

@@ -292,7 +292,7 @@ public class ScanWaveView extends View {
             showService = Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MT_Show_View");
+                    return new Thread(runnable, "MT_Wave_Show");
                 }
             });
         }
