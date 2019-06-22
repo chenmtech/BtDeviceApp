@@ -43,7 +43,7 @@ public class Ecg1mVCaliValueCalculator {
 
     // 处理标定数据
     public void process(int calibrateData) {
-        if(done) return;
+        //if(done) return;
 
         // 采集1个周期的定标信号
         if (calibrationData.size() < sampleRate) {

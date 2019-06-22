@@ -694,17 +694,19 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                dataProcessService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            ecgSampleDataProcessor.processEcgData(data);
-                        } catch (InterruptedException e) {
-                            ViseLog.e("data processor error.");
-                            //stopDataProcessor();
+                if(dataProcessService != null && !dataProcessService.isShutdown()) {
+                    dataProcessService.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                ecgSampleDataProcessor.processEcgData(data);
+                            } catch (InterruptedException e) {
+                                ViseLog.e("data processor error.");
+                                //stopDataProcessor();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
 
             @Override
@@ -717,12 +719,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
-        startDataProcessor();
-
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 sendMessage(MSG_START_SAMPLINGSIGNAL, null);
+                startDataProcessor();
             }
 
             @Override
@@ -741,17 +742,19 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                dataProcessService.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            ecgSampleDataProcessor.processCalibrateData(data);
-                        } catch (InterruptedException e) {
-                            ViseLog.e("data processor error.");
-                            stopDataProcessor();
+                if(dataProcessService != null && !dataProcessService.isShutdown()) {
+                    dataProcessService.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                ecgSampleDataProcessor.processCalibrateData(data);
+                            } catch (InterruptedException e) {
+                                ViseLog.e("data processor error.");
+                                stopDataProcessor();
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
 
             @Override
@@ -759,22 +762,43 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
             }
         };
+
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
-        startDataProcessor();
-
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, null);
+
+        instExecute(new IGattDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+                startDataProcessor();
+            }
+
+            @Override
+            public void onFailure(GattDataException exception) {
+
+            }
+        });
     }
 
     // 停止数据采集
     private void stopDataSampling() {
-        stopDataProcessor();
-
         // disable ECG data notification
         notify(ECGMONITOR_DATA_CCC, false, null);
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, null);
+
+        instExecute(new IGattDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+                stopDataProcessor();
+            }
+
+            @Override
+            public void onFailure(GattDataException exception) {
+
+            }
+        });
     }
 
     // 开始电池电量测量
