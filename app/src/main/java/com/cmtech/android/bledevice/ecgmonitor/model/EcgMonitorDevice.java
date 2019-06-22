@@ -57,12 +57,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
 
-    // GATT消息常量
-    private static final int MSG_SAMPLERATE_OBTAINED = 1;                          // 获取到采样率
-    private static final int MSG_LEADTYPE_OBTAINED = 2;                            // 获取导联类型
-    private static final int MSG_START_SAMPLINGSIGNAL = 3;                       // 开始采集Ecg信号
-    private static final int MSG_BATTERY_OBTAINED = 4;
-
     // 心电监护仪Service UUID常量
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
     private static final String ecgMonitorDataUuid          = "aa41";           // ECG数据特征UUID:aa41
@@ -308,7 +302,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         stopDataProcessor();
     }
 
-    @Override
+    /*@Override
     protected void processMessage(Message msg)
     {
         ViseLog.e("processMessage " + msg + " in " + Thread.currentThread());
@@ -360,7 +354,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             default:
                 break;
         }
-    }
+    }*/
 
     @Override
     public void open() {
@@ -664,7 +658,14 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         read(ECGMONITOR_SAMPLERATE, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_SAMPLERATE_OBTAINED, (data[0] & 0xff) | ((data[1] << 8) & 0xff00));
+                int sampleRate = (data[0] & 0xff) | ((data[1] << 8) & 0xff00);
+
+                updateSampleRate(sampleRate);
+
+                // 有了采样率，可以初始化定标数据处理器
+                caliValue1mVCalculator = new Ecg1mVCaliValueCalculator(sampleRate, EcgMonitorDevice.this);
+
+                ecgSampleDataProcessor.setCaliValueCalculator(caliValue1mVCalculator);
             }
 
             @Override
@@ -679,7 +680,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         read(ECGMONITOR_LEADTYPE, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_LEADTYPE_OBTAINED, data[0]);
+                leadType = EcgLeadType.getFromCode(data[0]);
+
+                updateLeadType(leadType);
             }
 
             @Override
@@ -722,7 +725,12 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_START_SAMPLINGSIGNAL, null);
+                setState(EcgMonitorState.SAMPLE);
+
+                if(listener != null) {
+                    listener.onEcgSignalShowStarted(sampleRate);
+                }
+
                 startDataProcessor();
             }
 
@@ -816,8 +824,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                 read(BATTERY_DATA, new IGattDataCallback() {
                     @Override
                     public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                        int battery = data[0];
-                        sendMessage(MSG_BATTERY_OBTAINED, battery);
+                        updateBattery(data[0]);
                     }
 
                     @Override
@@ -919,10 +926,16 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void updateBattery(final int bat) {
-        setBattery(bat);
+        post(new Runnable() {
+            @Override
+            public void run() {
+                setBattery(bat);
 
-        if(listener != null)
-            listener.onBatteryChanged(bat);
+                if(listener != null)
+                    listener.onBatteryChanged(bat);
+            }
+        });
+
     }
 
 }

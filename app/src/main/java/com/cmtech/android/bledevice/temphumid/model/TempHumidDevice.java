@@ -189,39 +189,6 @@ public class TempHumidDevice extends BleDevice {
         stopGattExecutor();
     }
 
-    @Override
-    protected void processMessage(Message msg)
-    {
-        ViseLog.e("processMessage " + msg + " in " + Thread.currentThread());
-
-        switch (msg.what) {
-            // 获取到当前温湿度值
-            case MSG_TEMPHUMIDDATA:
-                if(msg.obj != null) {
-                    curTempHumid = (TempHumidData) msg.obj;
-                    updateCurrentData();
-                }
-                break;
-
-            // 获取到设备上的定时器设定数据值
-            case MSG_TIMERVALUE:
-                processTimerServiceValue((byte[])msg.obj);
-                break;
-
-            // 获取到设备上指定时间的一个历史数据值
-            case MSG_TEMPHUMIDHISTORYDATA:
-                TempHumidData data =  (TempHumidData) msg.obj;
-                historyDataList.add(data);
-                saveDataToDb(data);
-                timeLastUpdated = (Calendar) data.getTime().clone();
-                addHistoryData(data);
-                break;
-
-                default:
-                    break;
-
-        }
-    }
 
     // 更新历史数据
     public synchronized void updateHistoryData() {
@@ -242,7 +209,9 @@ public class TempHumidDevice extends BleDevice {
         read(TEMPHUMIDDATA, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
+                curTempHumid = new TempHumidData(Calendar.getInstance(), data);
+
+                updateCurrentData();
             }
 
             @Override
@@ -263,7 +232,9 @@ public class TempHumidDevice extends BleDevice {
         IGattDataCallback notifyCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_TEMPHUMIDDATA, new TempHumidData(Calendar.getInstance(), data));
+                curTempHumid = new TempHumidData(Calendar.getInstance(), data);
+
+                updateCurrentData();
             }
 
             @Override
@@ -279,7 +250,7 @@ public class TempHumidDevice extends BleDevice {
         read(TIMERVALUE, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_TIMERVALUE, data);
+                processTimerServiceValue(data);
             }
 
             @Override
@@ -301,7 +272,15 @@ public class TempHumidDevice extends BleDevice {
         read(TEMPHUMIDHISTORYDATA, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_TEMPHUMIDHISTORYDATA, new TempHumidData(backuptime, data));
+                TempHumidData thData =  new TempHumidData(backuptime, data);
+
+                historyDataList.add(thData);
+
+                saveDataToDb(thData);
+
+                timeLastUpdated = (Calendar) thData.getTime().clone();
+
+                addHistoryData(thData);
             }
 
             @Override

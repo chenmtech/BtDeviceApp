@@ -25,8 +25,6 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
 
 public class ThermoDevice extends BleDevice {
-    private static final int MSG_THERMODATA = 1;
-
     ///////////////// 体温计Service相关的常量////////////////
     private static final String thermoServiceUuid       = "aa30";           // 体温计服务UUID:aa30
     private static final String thermoDataUuid          = "aa31";           // 体温数据特征UUID:aa31
@@ -107,25 +105,6 @@ public class ThermoDevice extends BleDevice {
         stopGattExecutor();
     }
 
-    @Override
-    protected void processMessage(Message msg)
-    {
-        if (msg.what == MSG_THERMODATA) {
-            if (msg.obj != null) {
-                byte[] data = (byte[]) msg.obj;
-                double temp = ByteUtil.getShort(data)/100.0;
-                setCurTemp(temp);
-
-                if(temp > highestTemp) {
-                    setHighestTemp(temp);
-                }
-
-                updateThermoData();
-            }
-        }
-    }
-
-
 
     // 登记体温数据观察者
     public void registerThermoDataObserver(IThermoDataObserver observer) {
@@ -160,7 +139,15 @@ public class ThermoDevice extends BleDevice {
         read(THERMODATA, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_THERMODATA, data);
+                double temp = ByteUtil.getShort(data)/100.0;
+
+                setCurTemp(temp);
+
+                if(temp > highestTemp) {
+                    setHighestTemp(temp);
+                }
+
+                updateThermoData();
             }
 
             @Override
@@ -180,7 +167,15 @@ public class ThermoDevice extends BleDevice {
         IGattDataCallback notifyCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                sendMessage(MSG_THERMODATA, data);
+                double temp = ByteUtil.getShort(data)/100.0;
+
+                setCurTemp(temp);
+
+                if(temp > highestTemp) {
+                    setHighestTemp(temp);
+                }
+
+                updateThermoData();
             }
 
             @Override
