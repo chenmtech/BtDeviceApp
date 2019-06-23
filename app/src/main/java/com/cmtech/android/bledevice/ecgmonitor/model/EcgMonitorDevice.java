@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import android.os.Message;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.extend.BleDevice;
@@ -9,13 +8,13 @@ import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.On1mVCaliValueListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.On1mVCaliValueListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnEcgProcessListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnRecordSecNumListener;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.HrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -112,7 +111,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     private OnEcgMonitorListener listener; // 心电监护仪设备监听器
 
-    private Ecg1mVCaliValueCalculator caliValue1mVCalculator; // 标定数据处理器
+    private Ecg1mVCaliValueCalculator caliValue1mVCalculator; // 1mV标定值计算器
 
     private EcgProcessor signalProcessor; // 心电信号处理器
 
@@ -122,9 +121,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     private EcgFile ecgFile; // 心电记录文件，可记录心电信号以及留言和心率信息
 
-    private ScheduledExecutorService batMeasureService;
+    private ScheduledExecutorService batMeasureService; // 设备电量测量Service
 
-    private ExecutorService dataProcessService;
+    private ExecutorService dataProcessService; // 数据处理Service
 
 
     // 构造器
@@ -176,6 +175,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     private void setState(EcgMonitorState state) {
         if(this.state != state) {
             this.state = state;
+
             updateEcgMonitorState();
         }
     }
@@ -212,25 +212,23 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
-        // 启动gattOperator
-        startGattExecutor();
-
-        // 验证Gatt Elements
-        BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA};
-
-        if(checkElements(batteryElements)) {
-            isMeasureBattery = true;
-        }
-
-        if(isMeasureBattery) {
-            startBatteryMeasure();
-        }
-
         // 验证EcgMonitor Gatt Elements
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
 
         if(!checkElements(elements)) {
             return false;
+        }
+
+        // 验证Gatt Elements
+        BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA};
+
+        isMeasureBattery = checkElements(batteryElements);
+
+        // 启动gattOperator
+        startGattExecutor();
+
+        if(isMeasureBattery) {
+            startBatteryMeasure();
         }
 
         // 先停止采样
