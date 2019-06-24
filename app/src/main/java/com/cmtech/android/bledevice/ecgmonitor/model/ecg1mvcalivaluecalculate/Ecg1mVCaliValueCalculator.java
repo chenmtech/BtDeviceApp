@@ -43,7 +43,7 @@ public class Ecg1mVCaliValueCalculator {
 
     // 处理标定数据
     public void process(int calibrateData) {
-        //if(done) return;
+        if(done) return;
 
         // 采集1个周期的定标信号
         if (calibrationData.size() < sampleRate) {
@@ -68,7 +68,7 @@ public class Ecg1mVCaliValueCalculator {
 
         Arrays.sort(arr); // 从小到大排序
 
-        int halfLen = (arr.length-10)/2; // 去掉10个中间的数据
+        int halfLen = (arr.length - 20)/2; // 去掉20个中间的数据
 
         int sum1 = 0;
 

@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.temphumid.model;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
@@ -347,7 +346,7 @@ public class TempHumidDevice extends BleDevice {
         }
 
         // 添加更新历史数据完毕的命令
-        instExecute(new IGattDataCallback() {
+        executeInstantly(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 isUpdatingHistoryData = false;

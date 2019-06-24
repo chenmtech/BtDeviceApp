@@ -2,10 +2,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor;
-import com.vise.log.ViseLog;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 class EcgSampleDataProcessor {
     private static final int PACKAGE_NUM_MAX_LIMIT = 16;
@@ -29,16 +25,16 @@ class EcgSampleDataProcessor {
     }
 
     void processCalibrateData(byte[] data) throws InterruptedException{
-        ViseLog.e("process Calibrate data");
-
-        int packageNum = ((0xff & data[0]) | (0xff00 & (data[1] << 8)));
+        int packageNum = (short)((0xff & data[0]) | (0xff00 & (data[1] << 8)));
 
         if(packageNum == nextPackageNum) {
             int[] pack = new int[data.length / 2 - 1];
 
             for (int i = 1; i <= pack.length; i++) {
-                pack[i - 1] = ((0xff & data[i * 2]) | (0xff00 & (data[i * 2 + 1] << 8)));
+                pack[i - 1] = (short)((0xff & data[i * 2]) | (0xff00 & (data[i * 2 + 1] << 8)));
             }
+
+            //ViseLog.e("Calibrate Data: " + Arrays.toString(pack));
 
             for (int ele : pack) {
                 caliValueCalculator.process(ele);
@@ -53,13 +49,13 @@ class EcgSampleDataProcessor {
     }
 
     void processEcgData(byte[] data) throws InterruptedException{
-        int packageNum = ((0xff & data[0]) | (0xff00 & (data[1] << 8)));
+        int packageNum = (short)((0xff & data[0]) | (0xff00 & (data[1] << 8)));
 
         if(packageNum == nextPackageNum) {
             int[] pack = new int[data.length / 2 - 1];
 
             for (int i = 1; i <= pack.length; i++) {
-                pack[i - 1] = ((0xff & data[i * 2]) | (0xff00 & (data[i * 2 + 1] << 8)));
+                pack[i - 1] = (short)((0xff & data[i * 2]) | (0xff00 & (data[i * 2 + 1] << 8)));
             }
 
             for (int ele : pack) {

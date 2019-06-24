@@ -18,6 +18,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnRecordSecNumLi
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.HrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.util.ExecutorServiceUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -219,7 +220,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             return false;
         }
 
-        // 验证Gatt Elements
+        // 验证Battery Measure Element
         BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA};
 
         isMeasureBattery = checkElements(batteryElements);
@@ -227,9 +228,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 启动gattOperator
         startGattExecutor();
 
-        if(isMeasureBattery) {
-            startBatteryMeasure();
-        }
+        startBatteryMeasure();
 
         // 先停止采样
         stopDataSampling();
@@ -260,19 +259,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void stopDataProcessor() {
-        if(dataProcessService != null) {
-            dataProcessService.shutdownNow();
-
-            try {
-                boolean isTerminated = false;
-
-                while(!isTerminated) {
-                    isTerminated = dataProcessService.awaitTermination(1, TimeUnit.SECONDS);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        ExecutorServiceUtil.shutdownNowAndAwaitTerminate(dataProcessService);
     }
 
     @Override
@@ -299,60 +286,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         stopDataProcessor();
     }
-
-    /*@Override
-    protected void processMessage(Message msg)
-    {
-        ViseLog.e("processMessage " + msg + " in " + Thread.currentThread());
-
-        switch (msg.what) {
-            // 接收到采样率
-            case MSG_SAMPLERATE_OBTAINED:
-                if(msg.obj != null) {
-                    sampleRate = (Integer) msg.obj;
-
-                    updateSampleRate(sampleRate);
-
-                    // 有了采样率，可以初始化定标数据处理器
-                    caliValue1mVCalculator = new Ecg1mVCaliValueCalculator(sampleRate, this);
-
-                    ecgSampleDataProcessor.setCaliValueCalculator(caliValue1mVCalculator);
-                }
-                break;
-
-            // 接收到导联类型
-            case MSG_LEADTYPE_OBTAINED:
-                if(msg.obj != null) {
-                    Number num = (Number)msg.obj;
-
-                    leadType = EcgLeadType.getFromCode(num.intValue());
-
-                    updateLeadType(leadType);
-                }
-                break;
-
-            // 启动采集ECG信号
-            case MSG_START_SAMPLINGSIGNAL:
-                //ecgSampleDataProcessor.reset();
-
-                setState(EcgMonitorState.SAMPLE);
-
-                if(listener != null) {
-                    listener.onEcgSignalShowStarted(sampleRate);
-                }
-
-                break;
-
-            case MSG_BATTERY_OBTAINED:
-                if(msg.obj != null) {
-                    updateBattery(((Number)msg.obj).intValue());
-                }
-                break;
-
-            default:
-                break;
-        }
-    }*/
 
     @Override
     public void open() {
@@ -596,8 +529,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         ecgSampleDataProcessor.setSignalProcessor(signalProcessor);
 
-        ecgSampleDataProcessor.reset();
-
         if(hrProcessor != null)
             signalProcessor.setHrProcessor(hrProcessor);
     }
@@ -610,26 +541,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         signalRecorder.setRecord(isRecord);
 
         updateRecordStatus(isRecord);
-    }
-
-    // 转换当前状态
-    public synchronized void switchSampleState() {
-        switch(state) {
-            case INIT:
-                start1mVSampling();
-                break;
-            case CALIBRATED:
-                stopDataSampling();
-                startEcgSignalSampling();
-                break;
-            case SAMPLE:
-                stopDataSampling();
-                removeCallbacksAndMessages();
-                setState(EcgMonitorState.CALIBRATED);
-                break;
-            default:
-                break;
-        }
     }
 
     // 添加留言内容
@@ -703,7 +614,16 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                                 ecgSampleDataProcessor.processEcgData(data);
                             } catch (InterruptedException e) {
                                 ViseLog.e("data processor error.");
-                                //stopDataProcessor();
+                                disconnect();
+
+                                postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        startScan();
+                                    }
+                                }, 1000);
+
+
                             }
                         }
                     });
@@ -756,7 +676,13 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                                 ecgSampleDataProcessor.processCalibrateData(data);
                             } catch (InterruptedException e) {
                                 ViseLog.e("data processor error.");
-                                stopDataProcessor();
+                                disconnect();
+                                try {
+                                    Thread.sleep(500);
+                                } catch (InterruptedException e1) {
+                                    e1.printStackTrace();
+                                }
+                                startScan();
                             }
                         }
                     });
@@ -774,7 +700,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, null);
 
-        instExecute(new IGattDataCallback() {
+        executeInstantly(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 startDataProcessor();
@@ -794,7 +720,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, null);
 
-        instExecute(new IGattDataCallback() {
+        executeInstantly(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
                 stopDataProcessor();
@@ -809,30 +735,31 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 开始电池电量测量
     private void startBatteryMeasure() {
-        batMeasureService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable runnable) {
-                return new Thread(runnable, "MT_Bat_Measure");
-            }
-        });
+        if(isMeasureBattery) {
+            batMeasureService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable runnable) {
+                    return new Thread(runnable, "MT_Bat_Measure");
+                }
+            });
 
-        batMeasureService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                read(BATTERY_DATA, new IGattDataCallback() {
-                    @Override
-                    public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
-                        updateBattery(data[0]);
-                    }
+            batMeasureService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    read(BATTERY_DATA, new IGattDataCallback() {
+                        @Override
+                        public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+                            updateBattery(data[0]);
+                        }
 
-                    @Override
-                    public void onFailure(GattDataException exception) {
+                        @Override
+                        public void onFailure(GattDataException exception) {
 
-                    }
-                });
-            }
-        }, 0, 10, TimeUnit.MINUTES);
-
+                        }
+                    });
+                }
+            }, 0, 10, TimeUnit.MINUTES);
+        }
     }
 
     // 停止电池电量测量
