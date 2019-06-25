@@ -487,17 +487,23 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     // 更新设备状态
     @Override
     public void onConnectStateUpdated(final BleDevice device) {
-        // 更新设备列表Adapter
-        if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // 更新设备列表Adapter
+                if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
 
-        // 更新设备的Fragment界面
-        BleDeviceFragment deviceFrag = fragmentManager.findOpenedFragment(device);
+                // 更新设备的Fragment界面
+                BleDeviceFragment deviceFrag = fragmentManager.findOpenedFragment(device);
 
-        if(deviceFrag != null) deviceFrag.updateState();
+                if(deviceFrag != null) deviceFrag.updateState();
 
-        if(fragmentManager.isDeviceFragmentSelected(device)) {
-            updateConnectFloatingActionButton(device.getConnectStateIcon(), device.isWaitingResponse());
-        }
+                if(fragmentManager.isDeviceFragmentSelected(device)) {
+                    updateConnectFloatingActionButton(device.getConnectStateIcon(), device.isWaitingResponse());
+                }
+            }
+        });
+
     }
 
     @Override
@@ -519,9 +525,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     @Override
     public void onBatteryUpdated(final BleDevice device) {
-        if(fragmentManager.isDeviceFragmentSelected(device)) {
-            toolbarManager.setBattery(device.getBattery());
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(fragmentManager.isDeviceFragmentSelected(device)) {
+                    toolbarManager.setBattery(device.getBattery());
+                }
+            }
+        });
     }
 
     @Override

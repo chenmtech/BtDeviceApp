@@ -372,26 +372,23 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     protected void disconnect() {
         ViseLog.e("EcgMonitorDevice disconnect()");
 
+        ExecutorServiceUtil.shutdownNowAndAwaitTerminate(dataProcessService);
+
         if(isMeasureBattery) {
             stopBatteryMeasure();
 
             isMeasureBattery = false;
         }
 
-        if(listener != null) {
-            listener.onEcgSignalShowStoped();
-        }
-
         if(isConnected() && isGattExecutorAlive()) {
             stopDataSampling();
         }
 
-        post(new Runnable() {
-            @Override
-            public void run() {
-                EcgMonitorDevice.super.disconnect();
-            }
-        });
+        if(listener != null) {
+            listener.onEcgSignalShowStoped();
+        }
+
+        EcgMonitorDevice.super.disconnect();
     }
 
     @Override
@@ -414,7 +411,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     @Override
     public void onHrValueUpdated(final short hr) {
         if(listener != null) {
-            post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     listener.onEcgHrChanged(hr);
@@ -426,7 +423,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     @Override
     public void onHrStatisticInfoUpdated(final EcgHrInfoObject hrInfoObject) {
         if(listener != null) {
-            post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     listener.onEcgHrInfoUpdated(hrInfoObject);
@@ -438,7 +435,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     @Override
     public void onHrAbnormalNotified() {
         if(listener != null) {
-            post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     listener.onNotifyHrAbnormal();
@@ -450,7 +447,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     @Override
     public void onRecordSecNumUpdated(final int second) {
         if(listener != null) {
-            post(new Runnable() {
+            runOnMainThread(new Runnable() {
                 @Override
                 public void run() {
                     listener.onSignalSecNumChanged(second);
@@ -475,7 +472,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             try {
                 ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibrate, getMacAddress(), leadType);
             } catch (IOException e) {
-                post(new Runnable() {
+                runOnMainThread(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(MyApplication.getContext(), "无法记录心电信息", Toast.LENGTH_SHORT).show();
@@ -498,7 +495,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         startEcgSignalSampling();
 
-        post(new Runnable() {
+        runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 Toast.makeText(MyApplication.getContext(), "设备连接成功，开始读取信号。", Toast.LENGTH_SHORT).show();
@@ -616,14 +613,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                                 ViseLog.e("data processor error.");
                                 disconnect();
 
-                                postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        startScan();
-                                    }
-                                }, 1000);
-
-
+                                startScan();
                             }
                         }
                     });
@@ -764,19 +754,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 停止电池电量测量
     private void stopBatteryMeasure() {
-        if(batMeasureService != null) {
-            batMeasureService.shutdownNow();
-
-            try {
-                boolean isTerminated = false;
-
-                while(!isTerminated) {
-                    isTerminated = batMeasureService.awaitTermination(1, TimeUnit.SECONDS);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        ExecutorServiceUtil.shutdownNowAndAwaitTerminate(batMeasureService);
     }
 
     // 初始化EcgView
@@ -791,7 +769,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void updateEcgMonitorState() {
-        post(new Runnable() {
+        runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -801,7 +779,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void updateSampleRate(final int sampleRate) {
-        post(new Runnable() {
+        runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -811,7 +789,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void updateLeadType(final EcgLeadType leadType) {
-        post(new Runnable() {
+        runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -821,7 +799,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void updateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
-        post(new Runnable() {
+        runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -831,7 +809,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void updateRecordStatus(final boolean isRecord) {
-        post(new Runnable() {
+        runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -841,7 +819,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
-        post(new Runnable() {
+        runOnMainThread(new Runnable() {
             @Override
             public void run() {
                 if(listener != null)
@@ -851,16 +829,10 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void updateBattery(final int bat) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                setBattery(bat);
+        setBattery(bat);
 
-                if(listener != null)
-                    listener.onBatteryChanged(bat);
-            }
-        });
-
+        if(listener != null)
+            listener.onBatteryChanged(bat);
     }
 
 }

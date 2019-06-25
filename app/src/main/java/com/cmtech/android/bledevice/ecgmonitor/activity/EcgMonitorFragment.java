@@ -290,11 +290,16 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
     }
 
     @Override
-    public void onBatteryChanged(int bat) {
-        if(tvBattery.getVisibility() == View.GONE) {
-            tvBattery.setVisibility(View.VISIBLE);
-        }
-        tvBattery.setText(String.valueOf(bat));
+    public void onBatteryChanged(final int bat) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(tvBattery.getVisibility() == View.GONE) {
+                    tvBattery.setVisibility(View.VISIBLE);
+                }
+                tvBattery.setText(String.valueOf(bat));
+            }
+        });
     }
 
     @Override
