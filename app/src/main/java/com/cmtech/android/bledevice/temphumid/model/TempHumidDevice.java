@@ -207,7 +207,7 @@ public class TempHumidDevice extends BleDevice {
     private void readCurrentTempHumid() {
         read(TEMPHUMIDDATA, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 curTempHumid = new TempHumidData(Calendar.getInstance(), data);
 
                 updateCurrentData();
@@ -230,7 +230,7 @@ public class TempHumidDevice extends BleDevice {
         // enable 温湿度采集的notification
         IGattDataCallback notifyCallback = new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 curTempHumid = new TempHumidData(Calendar.getInstance(), data);
 
                 updateCurrentData();
@@ -248,7 +248,7 @@ public class TempHumidDevice extends BleDevice {
     private void readTimerServiceValue() {
         read(TIMERVALUE, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 processTimerServiceValue(data);
             }
 
@@ -270,7 +270,7 @@ public class TempHumidDevice extends BleDevice {
         // 读取历史数据
         read(TEMPHUMIDHISTORYDATA, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 TempHumidData thData =  new TempHumidData(backuptime, data);
 
                 historyDataList.add(thData);
@@ -348,7 +348,7 @@ public class TempHumidDevice extends BleDevice {
         // 添加更新历史数据完毕的命令
         executeInstantly(new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 isUpdatingHistoryData = false;
             }
 

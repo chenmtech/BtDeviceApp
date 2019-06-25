@@ -563,7 +563,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     private void readSampleRate() {
         read(ECGMONITOR_SAMPLERATE, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 int sampleRate = (data[0] & 0xff) | ((data[1] << 8) & 0xff00);
 
                 updateSampleRate(sampleRate);
@@ -585,7 +585,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     private void readLeadType() {
         read(ECGMONITOR_LEADTYPE, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 leadType = EcgLeadType.getFromCode(data[0]);
 
                 updateLeadType(leadType);
@@ -602,7 +602,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     private void startEcgSignalSampling() {
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
-            public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(final byte[] data) {
                 if(dataProcessService != null && !dataProcessService.isShutdown()) {
                     dataProcessService.execute(new Runnable() {
                         @Override
@@ -632,7 +632,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 setState(EcgMonitorState.SAMPLE);
 
                 if(listener != null) {
@@ -657,7 +657,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
-            public void onSuccess(final byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(final byte[] data) {
                 if(dataProcessService != null && !dataProcessService.isShutdown()) {
                     dataProcessService.execute(new Runnable() {
                         @Override
@@ -690,7 +690,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         executeInstantly(new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 startDataProcessor();
             }
 
@@ -712,7 +712,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         executeInstantly(new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 stopDataProcessor();
             }
 
@@ -738,7 +738,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                 public void run() {
                     read(BATTERY_DATA, new IGattDataCallback() {
                         @Override
-                        public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+                        public void onSuccess(byte[] data) {
                             updateBattery(data[0]);
                         }
 

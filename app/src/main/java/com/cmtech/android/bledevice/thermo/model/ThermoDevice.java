@@ -138,7 +138,7 @@ public class ThermoDevice extends BleDevice {
         // 读温度数据
         read(THERMODATA, new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 double temp = ByteUtil.getShort(data)/100.0;
 
                 setCurTemp(temp);
@@ -166,7 +166,7 @@ public class ThermoDevice extends BleDevice {
 
         IGattDataCallback notifyCallback = new IGattDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data) {
                 double temp = ByteUtil.getShort(data)/100.0;
 
                 setCurTemp(temp);
