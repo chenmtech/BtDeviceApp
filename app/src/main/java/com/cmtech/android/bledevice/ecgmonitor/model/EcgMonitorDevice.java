@@ -688,8 +688,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, null);
-
         executeInstantly(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data, BluetoothLeDevice bluetoothLeDevice) {
@@ -701,6 +699,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
             }
         });
+
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, null);
     }
 
     // 停止数据采集

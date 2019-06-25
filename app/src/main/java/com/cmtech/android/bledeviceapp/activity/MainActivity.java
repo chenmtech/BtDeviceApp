@@ -52,7 +52,6 @@ import com.vise.log.ViseLog;
 import java.io.Serializable;
 import java.util.List;
 
-import static com.cmtech.android.ble.extend.BleDeviceConnectState.CONNECT_CLOSED;
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 import static com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity.REGISTED_DEVICE_MAC_LIST;
 
@@ -294,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             toolbarManager.setTitle(appName, "无设备打开");
             toolbarManager.setBattery(-1);
 
-            updateConnectFloatingActionButton(CONNECT_CLOSED.getIcon(), false);
+            updateConnectFloatingActionButton(BleDevice.DEVICE_INIT_STATE.getIcon(), false);
 
             invalidateOptionsMenu();
 
