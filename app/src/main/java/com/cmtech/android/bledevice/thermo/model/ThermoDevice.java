@@ -79,12 +79,15 @@ public class ThermoDevice extends BleDevice {
     }
 
     @Override
-    protected boolean executeAfterConnectSuccess() {
-        startGattExecutor();
+    protected void executeAfterConnectSuccess() {
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
-        if(!checkElements(elements)) return false;
+        if(!checkElements(elements)) {
+            disconnect();
+
+            return;
+        }
 
         resetHighestTemp();
 
@@ -92,17 +95,16 @@ public class ThermoDevice extends BleDevice {
         readThermoData();
 
         startThermometer(DEFAULT_SAMPLE_PERIOD);
-        return true;
     }
 
     @Override
     protected void executeAfterDisconnect() {
-        stopGattExecutor();
+
     }
 
     @Override
     protected void executeAfterConnectFailure() {
-        stopGattExecutor();
+
     }
 
 

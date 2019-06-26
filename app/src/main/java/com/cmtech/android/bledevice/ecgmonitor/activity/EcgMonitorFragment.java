@@ -204,7 +204,12 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     @Override
     public void onDeviceStateUpdated(final EcgMonitorState state) {
-        setDeviceState(state);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setDeviceState(state);
+            }
+        });
     }
 
     private void setDeviceState(final EcgMonitorState state) {
@@ -213,17 +218,32 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     @Override
     public void onSampleRateChanged(final int sampleRate) {
-        tvSampleRate.setText(String.valueOf(sampleRate));
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvSampleRate.setText(String.valueOf(sampleRate));
+            }
+        });
     }
 
     @Override
     public void onLeadTypeChanged(final EcgLeadType leadType) {
-        tvLeadType.setText(String.format("L%s", leadType.getDescription()));
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvLeadType.setText(String.format("L%s", leadType.getDescription()));
+            }
+        });
     }
 
     @Override
     public void onCalibrationValueChanged(final int calibrationValueBefore, final int calibrationValueAfter) {
-        setCalibrationValue(calibrationValueBefore, calibrationValueAfter);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                setCalibrationValue(calibrationValueBefore, calibrationValueAfter);
+            }
+        });
     }
 
     private void setCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
@@ -232,12 +252,23 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     @Override
     public void onSignalRecordStateUpdated(final boolean isRecord) {
-        samplingSignalFragment.setSignalRecordStatus(isRecord);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                samplingSignalFragment.setSignalRecordStatus(isRecord);
+            }
+        });
+
     }
 
     @Override
     public void onEcgViewUpdated(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
-        updateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
+            }
+        });
     }
 
     private void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
@@ -281,17 +312,29 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     @Override
     public void onEcgHrChanged(final int hr) {
-        tvHeartRate.setText(String.valueOf(hr));
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvHeartRate.setText(String.valueOf(hr));
+            }
+        });
+
     }
 
     @Override
-    public void onEcgHrInfoUpdated(EcgHrInfoObject hrInfoObject) {
-        hrStatisticsFragment.updateHrInfo(hrInfoObject);
+    public void onEcgHrInfoUpdated(final EcgHrInfoObject hrInfoObject) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hrStatisticsFragment.updateHrInfo(hrInfoObject);
+            }
+        });
+
     }
 
     @Override
     public void onBatteryChanged(final int bat) {
-        getActivity().runOnUiThread(new Runnable() {
+        runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if(tvBattery.getVisibility() == View.GONE) {
@@ -334,6 +377,11 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
                 AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, length, AudioTrack.MODE_STATIC);
         hrWarnAudio.write(wave, 0, wave.length);
         hrWarnAudio.write(wave, 0, wave.length);
+    }
+
+    private void runOnUiThread(Runnable runnable) {
+        if(getActivity() != null)
+            getActivity().runOnUiThread(runnable);
     }
 
 }

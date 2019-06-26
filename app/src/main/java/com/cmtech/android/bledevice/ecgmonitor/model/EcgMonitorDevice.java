@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.extend.BleDevice;
@@ -7,7 +8,6 @@ import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.On1mVCaliValueListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
@@ -18,7 +18,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnRecordSecNumLi
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.HrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledeviceapp.util.ExecutorServiceUtil;
+import com.cmtech.android.ble.utils.ExecutorServiceUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -32,6 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Handler;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
@@ -206,27 +207,26 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     public long getEcgSignalRecordDataNum() { return (signalRecorder == null) ? 0 : signalRecorder.getDataNum(); }
 
     @Override
-    protected boolean executeAfterConnectSuccess() {
+    protected void executeAfterConnectSuccess() {
+        // 验证EcgMonitor Gatt Elements
+        BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
+
+        if(!checkElements(elements)) {
+            disconnect();
+
+            return;
+        }
+
         updateSampleRate(DEFAULT_SAMPLERATE);
 
         updateLeadType(DEFAULT_LEADTYPE);
 
         updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
 
-        // 验证EcgMonitor Gatt Elements
-        BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
-
-        if(!checkElements(elements)) {
-            return false;
-        }
-
         // 验证Battery Measure Element
         BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA};
 
         isMeasureBattery = checkElements(batteryElements);
-
-        // 启动gattOperator
-        startGattExecutor();
 
         startBatteryMeasure();
 
@@ -241,8 +241,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         // 启动1mV采样进行定标
         start1mVSampling();
-
-        return true;
     }
 
     private void startDataProcessor() {
@@ -264,8 +262,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     @Override
     protected void executeAfterDisconnect() {
-        stopGattExecutor();
-
         if(isMeasureBattery) {
             stopBatteryMeasure();
 
@@ -277,8 +273,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     @Override
     protected void executeAfterConnectFailure() {
-        stopGattExecutor();
-
         if(isMeasureBattery) {
             stopBatteryMeasure();
             isMeasureBattery = false;
@@ -372,21 +366,21 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     protected void disconnect() {
         ViseLog.e("EcgMonitorDevice disconnect()");
 
-        ExecutorServiceUtil.shutdownNowAndAwaitTerminate(dataProcessService);
-
         if(isMeasureBattery) {
             stopBatteryMeasure();
 
             isMeasureBattery = false;
         }
 
-        if(isConnected() && isGattExecutorAlive()) {
+        if(isConnected()) {
             stopDataSampling();
         }
 
         if(listener != null) {
             listener.onEcgSignalShowStoped();
         }
+
+        ExecutorServiceUtil.shutdownNowAndAwaitTerminate(dataProcessService);
 
         EcgMonitorDevice.super.disconnect();
     }
@@ -411,48 +405,28 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     @Override
     public void onHrValueUpdated(final short hr) {
         if(listener != null) {
-            runOnMainThread(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onEcgHrChanged(hr);
-                }
-            });
+            listener.onEcgHrChanged(hr);
         }
     }
 
     @Override
     public void onHrStatisticInfoUpdated(final EcgHrInfoObject hrInfoObject) {
         if(listener != null) {
-            runOnMainThread(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onEcgHrInfoUpdated(hrInfoObject);
-                }
-            });
+            listener.onEcgHrInfoUpdated(hrInfoObject);
         }
     }
 
     @Override
     public void onHrAbnormalNotified() {
         if(listener != null) {
-            runOnMainThread(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onNotifyHrAbnormal();
-                }
-            });
+            listener.onNotifyHrAbnormal();
         }
     }
 
     @Override
     public void onRecordSecNumUpdated(final int second) {
         if(listener != null) {
-            runOnMainThread(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onSignalSecNumChanged(second);
-                }
-            });
+            listener.onSignalSecNumChanged(second);
         }
     }
 
@@ -472,7 +446,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             try {
                 ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibrate, getMacAddress(), leadType);
             } catch (IOException e) {
-                runOnMainThread(new Runnable() {
+                new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(MyApplication.getContext(), "无法记录心电信息", Toast.LENGTH_SHORT).show();
@@ -495,12 +469,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         startEcgSignalSampling();
 
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(MyApplication.getContext(), "设备连接成功，开始读取信号。", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     // 创建心电信号处理器
@@ -769,63 +737,33 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void updateEcgMonitorState() {
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
-                    listener.onDeviceStateUpdated(state);
-            }
-        });
+        if(listener != null)
+            listener.onDeviceStateUpdated(state);
     }
 
     private void updateSampleRate(final int sampleRate) {
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
-                    listener.onSampleRateChanged(sampleRate);
-            }
-        });
+        if(listener != null)
+            listener.onSampleRateChanged(sampleRate);
     }
 
     private void updateLeadType(final EcgLeadType leadType) {
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
-                    listener.onLeadTypeChanged(leadType);
-            }
-        });
+        if(listener != null)
+            listener.onLeadTypeChanged(leadType);
     }
 
     private void updateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
-                    listener.onCalibrationValueChanged(calibrationValueBefore, calibrationValueAfter);
-            }
-        });
+        if(listener != null)
+            listener.onCalibrationValueChanged(calibrationValueBefore, calibrationValueAfter);
     }
 
     private void updateRecordStatus(final boolean isRecord) {
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
-                    listener.onSignalRecordStateUpdated(isRecord);
-            }
-        });
+        if(listener != null)
+            listener.onSignalRecordStateUpdated(isRecord);
     }
 
     private void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
-        runOnMainThread(new Runnable() {
-            @Override
-            public void run() {
-                if(listener != null)
-                    listener.onEcgViewUpdated(xPixelPerData, yValuePerPixel, gridPixels);
-            }
-        });
+        if(listener != null)
+            listener.onEcgViewUpdated(xPixelPerData, yValuePerPixel, gridPixels);
     }
 
     private void updateBattery(final int bat) {
