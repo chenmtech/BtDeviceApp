@@ -78,7 +78,7 @@ public abstract class BleDeviceFragment extends Fragment{
         updateState();
 
         // 注册设备状态观察者
-        device.addConnectStateListener(activity);
+        device.addDeviceStateListener(activity);
 
         device.updateConnectState();
 
@@ -91,14 +91,16 @@ public abstract class BleDeviceFragment extends Fragment{
         super.onDestroy();
 
         // 移除activity设备状态观察者
-        //device.removeConnectStateListener(activity);
+        //device.removeDeviceStateListener(activity);
     }
 
     // 切换设备状态，根据设备的当前状态实现状态切换
     public void switchDeviceState() {
-        if(!device.switchState()) {
-            Toast.makeText(getActivity(), "正在等待连接响应，请稍等。", Toast.LENGTH_SHORT).show();
+        if(device.isWaitingResponse()) {
+            Toast.makeText(getActivity(), "请稍等...", Toast.LENGTH_SHORT).show();
         }
+
+        device.switchState();
     }
 
     // 更新状态

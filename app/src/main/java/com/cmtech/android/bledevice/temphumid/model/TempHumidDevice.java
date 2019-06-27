@@ -8,7 +8,6 @@ import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -157,7 +156,7 @@ public class TempHumidDevice extends BleDevice {
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
 
-        if(!checkElements(elements)) {
+        if(!isContainGattElements(elements)) {
             disconnect();
 
             return;
@@ -165,7 +164,7 @@ public class TempHumidDevice extends BleDevice {
 
         // 检查是否有温湿度历史数据服务和特征值
         elements = new BleGattElement[]{TIMERVALUE, TEMPHUMIDHISTORYTIME, TEMPHUMIDHISTORYDATA};
-        hasTimerService = checkElements(elements);
+        hasTimerService = isContainGattElements(elements);
 
         // 先读取一次当前温湿度值
         readCurrentTempHumid();
@@ -347,7 +346,7 @@ public class TempHumidDevice extends BleDevice {
         }
 
         // 添加更新历史数据完毕的命令
-        executeInstantly(new IGattDataCallback() {
+        runInstantly(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 isUpdatingHistoryData = false;

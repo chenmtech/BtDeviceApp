@@ -8,6 +8,7 @@ import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
+import com.cmtech.android.ble.utils.ExecutorServiceUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.On1mVCaliValueListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
@@ -18,7 +19,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnRecordSecNumLi
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.HrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.ble.utils.ExecutorServiceUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -32,7 +32,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Handler;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
@@ -211,7 +210,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 验证EcgMonitor Gatt Elements
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
 
-        if(!checkElements(elements)) {
+        if(!isContainGattElements(elements)) {
             disconnect();
 
             return;
@@ -226,7 +225,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 验证Battery Measure Element
         BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA};
 
-        isMeasureBattery = checkElements(batteryElements);
+        isMeasureBattery = isContainGattElements(batteryElements);
 
         startBatteryMeasure();
 
@@ -382,7 +381,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         ExecutorServiceUtil.shutdownNowAndAwaitTerminate(dataProcessService);
 
-        EcgMonitorDevice.super.disconnect();
+        super.disconnect();
     }
 
     @Override
@@ -656,7 +655,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
-        executeInstantly(new IGattDataCallback() {
+        runInstantly(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 startDataProcessor();
@@ -678,7 +677,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, null);
 
-        executeInstantly(new IGattDataCallback() {
+        runInstantly(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 stopDataProcessor();

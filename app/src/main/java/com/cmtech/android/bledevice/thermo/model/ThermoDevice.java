@@ -2,14 +2,12 @@ package com.cmtech.android.bledevice.thermo.model;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.util.LinkedList;
@@ -83,7 +81,7 @@ public class ThermoDevice extends BleDevice {
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
-        if(!checkElements(elements)) {
+        if(!isContainGattElements(elements)) {
             disconnect();
 
             return;

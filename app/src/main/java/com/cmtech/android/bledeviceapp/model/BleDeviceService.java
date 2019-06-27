@@ -16,7 +16,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
-import com.cmtech.android.ble.extend.OnBleDeviceListener;
+import com.cmtech.android.ble.extend.OnBleDeviceStateListener;
 import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -34,7 +34,7 @@ import java.util.TimerTask;
  *  Created by bme on 2018/12/09.
  */
 
-public class BleDeviceService extends Service implements OnBleDeviceListener {
+public class BleDeviceService extends Service implements OnBleDeviceStateListener {
     private final static String TAG = "BleDeviceService";
 
     private final int WARN_TIME_INTERVAL = 5000;
@@ -101,7 +101,7 @@ public class BleDeviceService extends Service implements OnBleDeviceListener {
         for(final BleDevice device : getDeviceList()) {
             device.close();
 
-            device.removeConnectStateListener(BleDeviceService.this);
+            device.removeDeviceStateListener(BleDeviceService.this);
         }
 
         stopForeground(true);
@@ -113,7 +113,14 @@ public class BleDeviceService extends Service implements OnBleDeviceListener {
         BleUtil.disconnectAllDevice();
         BleUtil.clearAllDevice();
 
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         ViseLog.e("killProcess");
+
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
@@ -153,7 +160,7 @@ public class BleDeviceService extends Service implements OnBleDeviceListener {
     public BleDevice createAndAddDevice(BleDeviceBasicInfo basicInfo) {
         BleDevice device = deviceManager.createAndAddDevice(basicInfo);
         if(device != null) {
-            device.addConnectStateListener(this);
+            device.addDeviceStateListener(this);
         }
         return device;
     }

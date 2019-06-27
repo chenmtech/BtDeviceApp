@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.OnBleDeviceListener;
+import com.cmtech.android.ble.extend.OnBleDeviceStateListener;
 
 /**
  * IBleDeviceFragmentActivity: 包含BleDeviceFragment的Activity必须要实现的接口
@@ -9,7 +9,7 @@ import com.cmtech.android.ble.extend.OnBleDeviceListener;
  * Created by bme on 2018/3/1.
  */
 
-public interface IBleDeviceFragmentActivity extends OnBleDeviceListener {
+public interface IBleDeviceFragmentActivity extends OnBleDeviceStateListener {
     BleDevice findDevice(String mac); // 由设备的mac地址找到BleDevice对象
 
     void closeFragment(BleDeviceFragment fragment); // 关闭Fragment

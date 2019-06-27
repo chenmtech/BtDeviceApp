@@ -437,7 +437,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         super.onDestroy();
 
         for(BleDevice device : deviceService.getDeviceList()) {
-            device.removeConnectStateListener(this);
+            device.removeDeviceStateListener(this);
         }
 
         unbindService(deviceServiceConnect);
@@ -518,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        device.notifyReconnectFailure(false);
+                        device.cancelNotifyReconnectFailure();
                     }
                 });
                 builder.setCancelable(false);
