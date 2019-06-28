@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor;
+import com.vise.log.ViseLog;
 
 class EcgSampleDataProcessor {
     private static final int PACKAGE_NUM_MAX_LIMIT = 16;
@@ -18,6 +19,10 @@ class EcgSampleDataProcessor {
 
     void setCaliValueCalculator(Ecg1mVCaliValueCalculator caliValueCalculator) {
         this.caliValueCalculator = caliValueCalculator;
+    }
+
+    EcgProcessor getSignalProcessor() {
+        return signalProcessor;
     }
 
     void setSignalProcessor(EcgProcessor signalProcessor) {
@@ -70,8 +75,21 @@ class EcgSampleDataProcessor {
         }
     }
 
-    void reset() {
+    void resetPackageNum() {
         nextPackageNum = 0;
+    }
+
+    void close() {
+        if(caliValueCalculator != null) {
+            caliValueCalculator.close();
+            caliValueCalculator = null;
+        }
+
+        if(signalProcessor != null) {
+            signalProcessor.close();
+            signalProcessor = null;
+            ViseLog.e("signal processor is null");
+        }
     }
 
 }

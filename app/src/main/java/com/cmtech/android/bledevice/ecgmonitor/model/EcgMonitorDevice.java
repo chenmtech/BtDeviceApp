@@ -52,7 +52,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     // 常量
     private static final int DEFAULT_SAMPLERATE = 125;                          // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
-    private static final int DEFAULT_CALIBRATIONVALUE = 65536;                  // 缺省1mV定标值
+    private static final int DEFAULT_CALIBRATION_VALUE = 65536;                  // 缺省1mV定标值
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f;                 // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
@@ -92,39 +92,42 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     private EcgLeadType leadType = DEFAULT_LEADTYPE; // 导联类型
 
-    private int value1mVBeforeCalibrate = 0; // 定标之前1mV对应的数值
+    private int value1mVBeforeCalibration = 0; // 定标之前1mV对应的数值
 
-    private final int value1mVAfterCalibrate = DEFAULT_CALIBRATIONVALUE; // 定标之后1mV对应的数值
+    private final int value1mVAfterCalibration = DEFAULT_CALIBRATION_VALUE; // 定标之后1mV对应的数值
 
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
 
-    private int xPixelPerData = 2; // EcgView的横向分辨率
+    private int xPixelPerData = 1; // EcgView的横向分辨率
 
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
 
     private boolean isSaveEcgFile = false; // 是否保存心电文件
 
-    private boolean isMeasureBattery = false;
+    private boolean isMeasureBattery = false; // 是否测量电池电量
 
     private volatile EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
 
     private final EcgMonitorDeviceConfig config; // 心电监护仪设备配置信息
 
-    private OnEcgMonitorListener listener; // 心电监护仪设备监听器
 
-    private Ecg1mVCaliValueCalculator caliValue1mVCalculator; // 1mV标定值计算器
-
-    private EcgProcessor signalProcessor; // 心电信号处理器
-
-    private EcgSignalRecorder signalRecorder; // 心电信号记录仪
-
-    private final EcgSampleDataProcessor ecgSampleDataProcessor = new EcgSampleDataProcessor();
-
-    private EcgFile ecgFile; // 心电记录文件，可记录心电信号以及留言和心率信息
 
     private ScheduledExecutorService batMeasureService; // 设备电量测量Service
 
     private ExecutorService dataProcessService; // 数据处理Service
+
+
+
+    private final EcgSampleDataProcessor ecgSampleDataProcessor = new EcgSampleDataProcessor();
+
+    private EcgSignalRecorder signalRecorder; // 心电信号记录仪
+
+    private EcgFile ecgFile; // 心电记录文件，可记录心电信号以及留言和心率信息
+
+
+
+    private OnEcgMonitorDeviceListener listener; // 心电监护仪设备监听器
+
 
 
     // 构造器
@@ -151,9 +154,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         return leadType;
     }
 
-    public int getValue1mVBeforeCalibrate() { return value1mVBeforeCalibrate; }
+    public int getValue1mVBeforeCalibration() { return value1mVBeforeCalibration; }
 
-    public int getValue1mVAfterCalibrate() { return value1mVAfterCalibrate; }
+    public int getValue1mVAfterCalibration() { return value1mVAfterCalibration; }
 
     public boolean isRecordEcgSignal() {
         return ((signalRecorder != null) && signalRecorder.isRecord());
@@ -194,8 +197,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         this.config.save();
 
-        if(signalProcessor != null) {
-            signalProcessor.setHrAbnormalWarner(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit(), this);
+        if(ecgSampleDataProcessor.getSignalProcessor() != null) {
+            ecgSampleDataProcessor.getSignalProcessor().setHrAbnormalWarner(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit(), this);
         }
     }
 
@@ -207,10 +210,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     @Override
     protected void executeAfterConnectSuccess() {
-        // 验证EcgMonitor Gatt Elements
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
 
         if(!isContainGattElements(elements)) {
+            ViseLog.e("Ecg Monitor Elements are wrong.");
+
             disconnect();
 
             return;
@@ -220,16 +224,16 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         updateLeadType(DEFAULT_LEADTYPE);
 
-        updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
+        updateCalibrationValue(value1mVBeforeCalibration, value1mVAfterCalibration);
 
-        // 验证Battery Measure Element
-        BleGattElement[] batteryElements = new BleGattElement[]{BATTERY_DATA};
 
-        isMeasureBattery = isContainGattElements(batteryElements);
+
+        isMeasureBattery = isContainGattElement(BATTERY_DATA);
 
         startBatteryMeasure();
 
-        // 先停止采样
+
+        // 停止采样
         stopDataSampling();
 
         // 读采样率
@@ -238,12 +242,12 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 读导联类型
         readLeadType();
 
-        // 启动1mV采样进行定标
-        start1mVSampling();
+        // 启动1mV定标
+        start1mVCalibration();
     }
 
     private void startDataProcessor() {
-        ecgSampleDataProcessor.reset();
+        ecgSampleDataProcessor.resetPackageNum();
 
         if(dataProcessService == null || dataProcessService.isTerminated()) {
             dataProcessService = Executors.newSingleThreadExecutor(new ThreadFactory() {
@@ -284,15 +288,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     public void open() {
         super.open();
 
-        signalProcessor = null;
-
-        ecgSampleDataProcessor.setSignalProcessor(signalProcessor);
+        ecgSampleDataProcessor.setSignalProcessor(null);
 
         ecgSampleDataProcessor.setCaliValueCalculator(null);
 
         signalRecorder = null;
-
-        caliValue1mVCalculator = null;
 
         ecgFile = null;
     }
@@ -300,22 +300,14 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     // 关闭设备
     @Override
     public void close() {
-        super.close();
-
         stopDataProcessor();
+
+        ecgSampleDataProcessor.close();
 
         // 关闭记录器
         if(signalRecorder != null) {
             signalRecorder.close();
         }
-
-        // 关闭处理器
-        if(signalProcessor != null) {
-            signalProcessor.close();
-        }
-
-        if(caliValue1mVCalculator != null)
-            caliValue1mVCalculator.close();
 
         if(ecgFile != null) {
             try {
@@ -340,21 +332,21 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             }
         }
 
-        signalProcessor = null;
-
-        ecgSampleDataProcessor.setSignalProcessor(null);
-
         signalRecorder = null;
 
-        caliValue1mVCalculator = null;
-
-        ecgSampleDataProcessor.setCaliValueCalculator(null);
-
         ecgFile = null;
+
+        try {
+            Thread.sleep(500);
+
+            super.close();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void saveEcgFileTail() throws IOException{
-        ecgFile.setHrList(signalProcessor.getHrList());
+        ecgFile.setHrList(ecgSampleDataProcessor.getSignalProcessor().getHrList());
 
         ecgFile.addComment(signalRecorder.getComment());
 
@@ -365,23 +357,27 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     protected void disconnect() {
         ViseLog.e("EcgMonitorDevice disconnect()");
 
-        if(isMeasureBattery) {
-            stopBatteryMeasure();
-
-            isMeasureBattery = false;
-        }
-
-        if(isConnected()) {
-            stopDataSampling();
-        }
-
         if(listener != null) {
             listener.onEcgSignalShowStoped();
         }
 
-        ExecutorUtil.shutdownNowAndAwaitTerminate(dataProcessService);
+        if(isConnected()) {
+            if(isMeasureBattery) {
+                stopBatteryMeasure();
 
-        super.disconnect();
+                isMeasureBattery = false;
+            }
+
+            stopDataSampling();
+        }
+
+        try {
+            Thread.sleep(500);
+
+            super.disconnect();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -433,9 +429,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     public void on1mVCaliValueUpdated(int caliValue1mV) {
         ViseLog.e("The Calibration Value is: " + caliValue1mV);
 
-        value1mVBeforeCalibrate = caliValue1mV;
+        stopDataSampling();
 
-        updateCalibrationValue(value1mVBeforeCalibrate, value1mVAfterCalibrate);
+        value1mVBeforeCalibration = caliValue1mV;
+
+        updateCalibrationValue(value1mVBeforeCalibration, value1mVAfterCalibration);
 
         // 重新创建Ecg信号处理器
         createEcgSignalProcessor(); // 这里每次连接都会重新创建处理器，有问题。
@@ -443,7 +441,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // 创建心电记录文件
         if(ecgFile == null) {
             try {
-                ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibrate, getMacAddress(), leadType);
+                ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibration, getMacAddress(), leadType);
             } catch (IOException e) {
                 new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
@@ -460,11 +458,10 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         }
 
         // 初始化EcgView
-        initializeEcgView(sampleRate, value1mVAfterCalibrate);
+        initializeEcgView(sampleRate, value1mVAfterCalibration);
 
         setState(EcgMonitorState.CALIBRATED);
 
-        stopDataSampling();
 
         startEcgSignalSampling();
 
@@ -476,7 +473,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         builder.setSampleRate(sampleRate);
 
-        builder.setValue1mVCalibrate(value1mVBeforeCalibrate, value1mVAfterCalibrate);
+        builder.setValue1mVCalibrate(value1mVBeforeCalibration, value1mVAfterCalibration);
 
         builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
 
@@ -486,10 +483,10 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         HrProcessor hrProcessor = null;
 
-        if(signalProcessor != null)
-            hrProcessor = signalProcessor.getHrProcessor();
+        if(ecgSampleDataProcessor.getSignalProcessor() != null)
+            hrProcessor = ecgSampleDataProcessor.getSignalProcessor().getHrProcessor();
 
-        signalProcessor = builder.build();
+        EcgProcessor signalProcessor = builder.build();
 
         ecgSampleDataProcessor.setSignalProcessor(signalProcessor);
 
@@ -513,7 +510,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     // 登记心电监护仪观察者
-    public void setEcgMonitorListener(OnEcgMonitorListener listener) {
+    public void setEcgMonitorListener(OnEcgMonitorDeviceListener listener) {
         this.listener = listener;
     }
 
@@ -536,7 +533,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                 updateSampleRate(sampleRate);
 
                 // 有了采样率，可以初始化定标数据处理器
-                caliValue1mVCalculator = new Ecg1mVCaliValueCalculator(sampleRate, EcgMonitorDevice.this);
+                Ecg1mVCaliValueCalculator caliValue1mVCalculator = new Ecg1mVCaliValueCalculator(sampleRate, EcgMonitorDevice.this);
 
                 ecgSampleDataProcessor.setCaliValueCalculator(caliValue1mVCalculator);
             }
@@ -600,6 +597,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
+                ViseLog.e("start ecg signal sampling");
+
                 setState(EcgMonitorState.SAMPLE);
 
                 if(listener != null) {
@@ -616,10 +615,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         });
     }
 
-    // 启动1mV定标信号采集
-    private void start1mVSampling() {
-        ViseLog.e("start1mVSampling");
-
+    // 启动1mV定标
+    private void start1mVCalibration() {
         setState(EcgMonitorState.CALIBRATING);
 
         IGattDataCallback notificationCallback = new IGattDataCallback() {
@@ -655,9 +652,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
-        runInstantly(new IGattDataCallback() {
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
+                ViseLog.e("start 1mV Calibration");
+
                 startDataProcessor();
             }
 
@@ -666,20 +665,17 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
             }
         });
-
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, null);
     }
 
     // 停止数据采集
     private void stopDataSampling() {
-        // disable ECG data notification
         notify(ECGMONITOR_DATA_CCC, false, null);
 
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, null);
-
-        runInstantly(new IGattDataCallback() {
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
+                ViseLog.e("stop data sampling");
+
                 stopDataProcessor();
             }
 

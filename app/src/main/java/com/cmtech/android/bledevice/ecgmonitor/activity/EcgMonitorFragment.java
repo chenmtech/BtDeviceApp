@@ -22,7 +22,7 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgControllerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
-import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgMonitorListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgMonitorDeviceListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.view.ScanWaveView;
@@ -48,7 +48,7 @@ import static android.app.Activity.RESULT_OK;
   * Version:        1.0
  */
 
-public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonitorListener {
+public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonitorDeviceListener {
     private static final String TAG = "EcgMonitorFragment";
 
     private TextView tvSampleRate; // 采样率
@@ -109,7 +109,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
 
-        setCalibrationValue(device.getValue1mVBeforeCalibrate(), device.getValue1mVAfterCalibrate());
+        setCalibrationValue(device.getValue1mVBeforeCalibration(), device.getValue1mVAfterCalibration());
 
         tvHeartRate.setText("");
 
