@@ -8,7 +8,7 @@ import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
-import com.cmtech.android.ble.utils.ExecutorServiceUtil;
+import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.On1mVCaliValueListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
@@ -256,7 +256,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     }
 
     private void stopDataProcessor() {
-        ExecutorServiceUtil.shutdownNowAndAwaitTerminate(dataProcessService);
+        ExecutorUtil.shutdownNowAndAwaitTerminate(dataProcessService);
     }
 
     @Override
@@ -379,7 +379,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             listener.onEcgSignalShowStoped();
         }
 
-        ExecutorServiceUtil.shutdownNowAndAwaitTerminate(dataProcessService);
+        ExecutorUtil.shutdownNowAndAwaitTerminate(dataProcessService);
 
         super.disconnect();
     }
@@ -721,7 +721,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 停止电池电量测量
     private void stopBatteryMeasure() {
-        ExecutorServiceUtil.shutdownNowAndAwaitTerminate(batMeasureService);
+        ExecutorUtil.shutdownNowAndAwaitTerminate(batMeasureService);
     }
 
     // 初始化EcgView
