@@ -114,11 +114,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     private ScheduledExecutorService batMeasureService; // 设备电量测量Service
 
-    private ExecutorService dataProcessService; // 数据处理Service
-
-
-
-    private final EcgSampleDataProcessor ecgSampleDataProcessor = new EcgSampleDataProcessor();
+    private final EcgDataProcessor ecgDataProcessor = new EcgDataProcessor(); // 数据处理是在其内部的单线程ExecutorService中执行
 
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
 
@@ -197,8 +193,8 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         this.config.save();
 
-        if(ecgSampleDataProcessor.getSignalProcessor() != null) {
-            ecgSampleDataProcessor.getSignalProcessor().setHrAbnormalWarner(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit(), this);
+        if(ecgDataProcessor.getSignalProcessor() != null) {
+            ecgDataProcessor.getSignalProcessor().setHrAbnormalWarner(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit(), this);
         }
     }
 
@@ -246,52 +242,31 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         start1mVCalibration();
     }
 
-    private void startDataProcessor() {
-        ecgSampleDataProcessor.resetPackageNum();
-
-        if(dataProcessService == null || dataProcessService.isTerminated()) {
-            dataProcessService = Executors.newSingleThreadExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MT_Data_Process");
-                }
-            });
-        }
-    }
-
-    private void stopDataProcessor() {
-        ExecutorUtil.shutdownNowAndAwaitTerminate(dataProcessService);
-    }
-
     @Override
     protected void executeAfterDisconnect() {
-        if(isMeasureBattery) {
-            stopBatteryMeasure();
-
-            isMeasureBattery = false;
+        if(listener != null) {
+            listener.onEcgSignalShowStoped();
         }
 
-        stopDataProcessor();
+        ecgDataProcessor.close();
     }
 
     @Override
     protected void executeAfterConnectFailure() {
-        if(isMeasureBattery) {
-            stopBatteryMeasure();
-
-            isMeasureBattery = false;
+        if(listener != null) {
+            listener.onEcgSignalShowStoped();
         }
 
-        stopDataProcessor();
+        ecgDataProcessor.close();
     }
 
     @Override
     public void open() {
         ViseLog.e("EcgMonitorDevice open()");
 
-        ecgSampleDataProcessor.setSignalProcessor(null);
+        ecgDataProcessor.setSignalProcessor(null);
 
-        ecgSampleDataProcessor.setCaliValueCalculator(null);
+        ecgDataProcessor.setCaliValueCalculator(null);
 
         signalRecorder = null;
 
@@ -304,10 +279,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     @Override
     public void close() {
         ViseLog.e("EcgMonitorDevice close()");
-
-        //stopDataProcessor();
-
-        //ecgSampleDataProcessor.close();
 
         // 关闭记录器
         if(signalRecorder != null) {
@@ -342,17 +313,11 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             }
         }
 
-        try {
-            Thread.sleep(500);
-
-            super.close();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        super.close();
     }
 
     private void saveEcgFileTail() throws IOException{
-        ecgFile.setHrList(ecgSampleDataProcessor.getSignalProcessor().getHrList());
+        ecgFile.setHrList(ecgDataProcessor.getSignalProcessor().getHrList());
 
         ecgFile.addComment(signalRecorder.getComment());
 
@@ -378,9 +343,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         }
 
         try {
-            Thread.sleep(500);
+            Thread.sleep(300);
 
-            ecgSampleDataProcessor.close();
+            ecgDataProcessor.close();
 
             super.disconnect();
         } catch (InterruptedException e) {
@@ -423,7 +388,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                 // 有了采样率，可以初始化1mV定标值计算器
                 Ecg1mVCaliValueCalculator caliValue1mVCalculator = new Ecg1mVCaliValueCalculator(sampleRate, EcgMonitorDevice.this);
 
-                ecgSampleDataProcessor.setCaliValueCalculator(caliValue1mVCalculator);
+                ecgDataProcessor.setCaliValueCalculator(caliValue1mVCalculator);
             }
 
             @Override
@@ -455,21 +420,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data) {
-                if(dataProcessService != null && !dataProcessService.isShutdown()) {
-                    dataProcessService.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                ecgSampleDataProcessor.processEcgData(data);
-                            } catch (InterruptedException e) {
-                                ViseLog.e("data processor error.");
-                                disconnect();
-
-                                startScan();
-                            }
-                        }
-                    });
-                }
+                ecgDataProcessor.processEcgData(data);
             }
 
             @Override
@@ -485,7 +436,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                ViseLog.e("start ecg signal sampling");
+                ViseLog.e("ecg signal sampling started");
 
                 setState(EcgMonitorState.SAMPLE);
 
@@ -493,7 +444,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                     listener.onEcgSignalShowStarted(sampleRate);
                 }
 
-                startDataProcessor();
+                ecgDataProcessor.start();
             }
 
             @Override
@@ -510,25 +461,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data) {
-                if(dataProcessService != null && !dataProcessService.isShutdown()) {
-                    dataProcessService.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                ecgSampleDataProcessor.processCalibrateData(data);
-                            } catch (InterruptedException e) {
-                                ViseLog.e("data processor error.");
-                                disconnect();
-                                try {
-                                    Thread.sleep(500);
-                                } catch (InterruptedException e1) {
-                                    e1.printStackTrace();
-                                }
-                                startScan();
-                            }
-                        }
-                    });
-                }
+                ecgDataProcessor.processCalibrateData(data);
             }
 
             @Override
@@ -543,9 +476,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                ViseLog.e("start 1mV Calibration");
+                ViseLog.e("1mV Calibration started.");
 
-                startDataProcessor();
+                ecgDataProcessor.start();
             }
 
             @Override
@@ -562,9 +495,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                ViseLog.e("stop data sampling");
+                ViseLog.e("data sampling stopped.");
 
-                stopDataProcessor();
+                ecgDataProcessor.stop();
             }
 
             @Override
@@ -733,12 +666,12 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         HrProcessor hrProcessor = null;
 
-        if(ecgSampleDataProcessor.getSignalProcessor() != null)
-            hrProcessor = ecgSampleDataProcessor.getSignalProcessor().getHrProcessor();
+        if(ecgDataProcessor.getSignalProcessor() != null)
+            hrProcessor = ecgDataProcessor.getSignalProcessor().getHrProcessor();
 
         EcgProcessor signalProcessor = builder.build();
 
-        ecgSampleDataProcessor.setSignalProcessor(signalProcessor);
+        ecgDataProcessor.setSignalProcessor(signalProcessor);
 
         if(hrProcessor != null)
             signalProcessor.setHrProcessor(hrProcessor);
