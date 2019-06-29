@@ -129,7 +129,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
         setDeviceState(device.getState());
 
-        device.setEcgMonitorListener(this);
+        device.setEcgMonitorDeviceListener(this);
     }
 
     @Override
@@ -194,7 +194,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
         super.onDestroy();
 
         if(device != null)
-            device.removeEcgMonitorListener();
+            device.removeEcgMonitorDeviceListener();
 
         if(hrWarnAudio != null)
             hrWarnAudio.stop();

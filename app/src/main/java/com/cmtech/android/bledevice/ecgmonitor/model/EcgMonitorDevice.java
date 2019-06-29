@@ -278,6 +278,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     protected void executeAfterConnectFailure() {
         if(isMeasureBattery) {
             stopBatteryMeasure();
+
             isMeasureBattery = false;
         }
 
@@ -286,7 +287,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     @Override
     public void open() {
-        super.open();
+        ViseLog.e("EcgMonitorDevice open()");
 
         ecgSampleDataProcessor.setSignalProcessor(null);
 
@@ -295,18 +296,24 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         signalRecorder = null;
 
         ecgFile = null;
+
+        super.open();
     }
 
     // 关闭设备
     @Override
     public void close() {
-        stopDataProcessor();
+        ViseLog.e("EcgMonitorDevice close()");
 
-        ecgSampleDataProcessor.close();
+        //stopDataProcessor();
+
+        //ecgSampleDataProcessor.close();
 
         // 关闭记录器
         if(signalRecorder != null) {
             signalRecorder.close();
+
+            signalRecorder = null;
         }
 
         if(ecgFile != null) {
@@ -325,16 +332,15 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
             } finally {
                 try {
                     ecgFile.close();
+
                     FileUtil.deleteFile(ecgFile.getFile());
+
+                    ecgFile = null;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
-
-        signalRecorder = null;
-
-        ecgFile = null;
 
         try {
             Thread.sleep(500);
@@ -374,125 +380,15 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         try {
             Thread.sleep(500);
 
+            ecgSampleDataProcessor.close();
+
             super.disconnect();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void onSignalValueUpdated(final int ecgSignal) {
-        // 记录
-        if(signalRecorder != null && signalRecorder.isRecord()) {
-            try {
-                signalRecorder.record(ecgSignal);
-            } catch (IOException e) {
-                ViseLog.e("无法记录心电信号。");
-            }
-        }
 
-        // 通知观察者
-        if(listener != null) {
-            listener.onEcgSignalUpdated(ecgSignal);
-        }
-    }
-
-    @Override
-    public void onHrValueUpdated(final short hr) {
-        if(listener != null) {
-            listener.onEcgHrChanged(hr);
-        }
-    }
-
-    @Override
-    public void onHrStatisticInfoUpdated(final EcgHrInfoObject hrInfoObject) {
-        if(listener != null) {
-            listener.onEcgHrInfoUpdated(hrInfoObject);
-        }
-    }
-
-    @Override
-    public void onHrAbnormalNotified() {
-        if(listener != null) {
-            listener.onNotifyHrAbnormal();
-        }
-    }
-
-    @Override
-    public void onRecordSecNumUpdated(final int second) {
-        if(listener != null) {
-            listener.onSignalSecNumChanged(second);
-        }
-    }
-
-    @Override
-    public void on1mVCaliValueUpdated(int caliValue1mV) {
-        ViseLog.e("The Calibration Value is: " + caliValue1mV);
-
-        stopDataSampling();
-
-        value1mVBeforeCalibration = caliValue1mV;
-
-        updateCalibrationValue(value1mVBeforeCalibration, value1mVAfterCalibration);
-
-        // 重新创建Ecg信号处理器
-        createEcgSignalProcessor(); // 这里每次连接都会重新创建处理器，有问题。
-
-        // 创建心电记录文件
-        if(ecgFile == null) {
-            try {
-                ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibration, getMacAddress(), leadType);
-            } catch (IOException e) {
-                new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MyApplication.getContext(), "无法记录心电信息", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }
-
-        // 创建心电信号记录仪
-        if(ecgFile != null && signalRecorder == null) {
-            signalRecorder = new EcgSignalRecorder(sampleRate, ecgFile, this);
-        }
-
-        // 初始化EcgView
-        initializeEcgView(sampleRate, value1mVAfterCalibration);
-
-        setState(EcgMonitorState.CALIBRATED);
-
-
-        startEcgSignalSampling();
-
-    }
-
-    // 创建心电信号处理器
-    private void createEcgSignalProcessor() {
-        EcgProcessor.Builder builder = new EcgProcessor.Builder();
-
-        builder.setSampleRate(sampleRate);
-
-        builder.setValue1mVCalibrate(value1mVBeforeCalibration, value1mVAfterCalibration);
-
-        builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
-
-        builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
-
-        builder.setEcgProcessListener(this);
-
-        HrProcessor hrProcessor = null;
-
-        if(ecgSampleDataProcessor.getSignalProcessor() != null)
-            hrProcessor = ecgSampleDataProcessor.getSignalProcessor().getHrProcessor();
-
-        EcgProcessor signalProcessor = builder.build();
-
-        ecgSampleDataProcessor.setSignalProcessor(signalProcessor);
-
-        if(hrProcessor != null)
-            signalProcessor.setHrProcessor(hrProcessor);
-    }
 
     // 设置是否记录心电信号
     public synchronized void setEcgSignalRecord(boolean isRecord) {
@@ -509,20 +405,12 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
         signalRecorder.addCommentContent(content);
     }
 
-    // 登记心电监护仪观察者
-    public void setEcgMonitorListener(OnEcgMonitorDeviceListener listener) {
-        this.listener = listener;
-    }
-
-    // 删除心电监护仪观察者
-    public void removeEcgMonitorListener() {
-        listener = null;
-    }
 
 
-    /**
-     * 私有函数
-     */
+
+
+
+
     // 读采样率
     private void readSampleRate() {
         read(ECGMONITOR_SAMPLERATE, new IGattDataCallback() {
@@ -532,7 +420,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
                 updateSampleRate(sampleRate);
 
-                // 有了采样率，可以初始化定标数据处理器
+                // 有了采样率，可以初始化1mV定标值计算器
                 Ecg1mVCaliValueCalculator caliValue1mVCalculator = new Ecg1mVCaliValueCalculator(sampleRate, EcgMonitorDevice.this);
 
                 ecgSampleDataProcessor.setCaliValueCalculator(caliValue1mVCalculator);
@@ -688,7 +576,9 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 开始电池电量测量
     private void startBatteryMeasure() {
-        if(isMeasureBattery) {
+        if(isMeasureBattery && (batMeasureService == null || batMeasureService.isTerminated())) {
+            ViseLog.e("The battery measure service starts.");
+
             batMeasureService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable runnable) {
@@ -717,7 +607,141 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 停止电池电量测量
     private void stopBatteryMeasure() {
+        ViseLog.e("The battery measure service stops.");
+
         ExecutorUtil.shutdownNowAndAwaitTerminate(batMeasureService);
+    }
+
+
+
+
+
+
+
+
+
+    // 登记心电监护仪设备监听器
+    public void setEcgMonitorDeviceListener(OnEcgMonitorDeviceListener listener) {
+        this.listener = listener;
+    }
+
+    // 删除心电监护仪设备监听器
+    public void removeEcgMonitorDeviceListener() {
+        listener = null;
+    }
+
+    @Override
+    public void onSignalValueUpdated(final int ecgSignal) {
+        // 记录
+        if(signalRecorder != null && signalRecorder.isRecord()) {
+            try {
+                signalRecorder.record(ecgSignal);
+            } catch (IOException e) {
+                ViseLog.e("无法记录心电信号。");
+            }
+        }
+
+        // 通知观察者
+        if(listener != null) {
+            listener.onEcgSignalUpdated(ecgSignal);
+        }
+    }
+
+    @Override
+    public void onHrValueUpdated(final short hr) {
+        if(listener != null) {
+            listener.onEcgHrChanged(hr);
+        }
+    }
+
+    @Override
+    public void onHrStatisticInfoUpdated(final EcgHrInfoObject hrInfoObject) {
+        if(listener != null) {
+            listener.onEcgHrInfoUpdated(hrInfoObject);
+        }
+    }
+
+    @Override
+    public void onHrAbnormalNotified() {
+        if(listener != null) {
+            listener.onNotifyHrAbnormal();
+        }
+    }
+
+    @Override
+    public void onRecordSecNumUpdated(final int second) {
+        if(listener != null) {
+            listener.onSignalSecNumChanged(second);
+        }
+    }
+
+    @Override
+    public void on1mVCaliValueUpdated(int caliValue1mV) {
+        ViseLog.e("The Calibration Value is: " + caliValue1mV);
+
+        stopDataSampling();
+
+        value1mVBeforeCalibration = caliValue1mV;
+
+        updateCalibrationValue(value1mVBeforeCalibration, value1mVAfterCalibration);
+
+        // 重新创建Ecg信号处理器
+        createEcgSignalProcessor(); // 这里每次连接都会重新创建处理器，有问题。
+
+        // 创建心电记录文件
+        if(ecgFile == null) {
+            try {
+                ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibration, getMacAddress(), leadType);
+            } catch (IOException e) {
+                new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MyApplication.getContext(), "无法记录心电信息", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
+
+        // 创建心电信号记录仪
+        if(ecgFile != null && signalRecorder == null) {
+            signalRecorder = new EcgSignalRecorder(sampleRate, ecgFile, this);
+        }
+
+        // 初始化EcgView
+        initializeEcgView(sampleRate, value1mVAfterCalibration);
+
+        setState(EcgMonitorState.CALIBRATED);
+
+
+        startEcgSignalSampling();
+
+    }
+
+    // 创建心电信号处理器
+    private void createEcgSignalProcessor() {
+        EcgProcessor.Builder builder = new EcgProcessor.Builder();
+
+        builder.setSampleRate(sampleRate);
+
+        builder.setValue1mVCalibrate(value1mVBeforeCalibration, value1mVAfterCalibration);
+
+        builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
+
+        builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
+
+        builder.setEcgProcessListener(this);
+
+        HrProcessor hrProcessor = null;
+
+        if(ecgSampleDataProcessor.getSignalProcessor() != null)
+            hrProcessor = ecgSampleDataProcessor.getSignalProcessor().getHrProcessor();
+
+        EcgProcessor signalProcessor = builder.build();
+
+        ecgSampleDataProcessor.setSignalProcessor(signalProcessor);
+
+        if(hrProcessor != null)
+            signalProcessor.setHrProcessor(hrProcessor);
     }
 
     // 初始化EcgView
