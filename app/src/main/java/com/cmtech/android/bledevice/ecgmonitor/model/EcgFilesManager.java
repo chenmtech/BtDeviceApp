@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
@@ -30,7 +30,7 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor.HR_FILTER_TIME_IN_SECOND;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.EcgSignalProcessor.HR_FILTER_TIME_IN_SECOND;
 
 /**
   *

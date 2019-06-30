@@ -1,13 +1,14 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.EcgCalibrator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.EcgCalibrator65536;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgcalibrator.IEcgCalibrator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.EcgPreFilterWith35HzNotch;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecgfilter.IEcgFilter;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.HrAbnormalWarner;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.HrProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.IHrOperator;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecgcalibrator.EcgCalibrator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecgcalibrator.EcgCalibrator65536;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecgcalibrator.IEcgCalibrator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecgfilter.EcgPreFilterWith35HzNotch;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecgfilter.IEcgFilter;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.HrAbnormalWarner;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.HrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.IHrOperator;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 
 import java.util.HashMap;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 /**
   *
-  * ClassName:      EcgProcessor
+  * ClassName:      EcgSignalProcessor
   * Description:    心电信号处理器，包含心电信号的标定，滤波，基于QRS波检测的心率计算，以及心率记录和统计分析，心率异常报警
   * Author:         chenm
   * CreateDate:     2018-12-23 08:00
@@ -27,7 +28,7 @@ import java.util.Map;
   * Version:        1.0
  */
 
-public class EcgProcessor {
+public class EcgSignalProcessor {
     public static final short INVALID_HR = 0; // 无效心率值
     public static final int HR_FILTER_TIME_IN_SECOND = 10;
     public static final int HR_HISTOGRAM_BAR_NUM = 5;
@@ -43,13 +44,19 @@ public class EcgProcessor {
 
     private Map<String, IHrOperator> hrOperators; // 心率相关操作Map
 
-    private OnEcgProcessListener listener;
+    private final EcgMonitorDevice device;
 
-    private EcgProcessor(IEcgCalibrator caliProcessor,
-                         IEcgFilter ecgFilter,
-                         QrsDetector qrsDetector,
-                         Map<String, IHrOperator> hrOperators,
-                         OnEcgProcessListener listener) {
+    private EcgSignalProcessor(EcgMonitorDevice device,
+                               IEcgCalibrator caliProcessor,
+                               IEcgFilter ecgFilter,
+                               QrsDetector qrsDetector,
+                               Map<String, IHrOperator> hrOperators) {
+        if(device == null) {
+            throw new NullPointerException();
+        }
+
+        this.device = device;
+
         this.caliProcessor = caliProcessor;
 
         this.ecgFilter = ecgFilter;
@@ -57,8 +64,6 @@ public class EcgProcessor {
         this.qrsDetector = qrsDetector;
 
         this.hrOperators = hrOperators;
-
-        this.listener = listener;
     }
 
     // 处理Ecg信号
@@ -67,14 +72,14 @@ public class EcgProcessor {
         ecgSignal = (int) ecgFilter.filter(caliProcessor.process(ecgSignal));
 
         // 通知信号更新
-        if(listener != null) listener.onSignalValueUpdated(ecgSignal);
+        device.onSignalValueUpdated(ecgSignal);
 
         // 检测Qrs波，获取心率
         short currentHr = (short) qrsDetector.outputHR(ecgSignal);
 
         // 通知心率值更新
         if(currentHr != INVALID_HR) {
-            listener.onHrValueUpdated(currentHr);
+            device.onHrValueUpdated(currentHr);
         }
 
         // 心率操作
@@ -145,8 +150,6 @@ public class EcgProcessor {
     }
 
     public void close() {
-        listener = null;
-
         for(IHrOperator operator : hrOperators.values()) {
             if(operator != null)
                 operator.close();
@@ -156,6 +159,8 @@ public class EcgProcessor {
 
     // 构建者
     public static class Builder {
+        private final EcgMonitorDevice device;
+
         private int sampleRate = 0;
 
         private int value1mVBeforeCalibrate = 0; // 定标前1mV对应的数值
@@ -168,10 +173,8 @@ public class EcgProcessor {
 
         private int hrHighLimit = 0; // HR异常上限
 
-        private OnEcgProcessListener listener;
-
-        public Builder() {
-
+        public Builder(EcgMonitorDevice device) {
+            this.device = device;
         }
 
         // 设置Ecg信号采样率
@@ -198,12 +201,7 @@ public class EcgProcessor {
             hrHighLimit = high;
         }
 
-        // 设置Ecg处理监听器
-        public void setEcgProcessListener(OnEcgProcessListener listener) {
-            this.listener = listener;
-        }
-
-        public EcgProcessor build() {
+        public EcgSignalProcessor build() {
             IEcgCalibrator ecgCalibrator;
 
             if(value1mVAfterCalibrate == 65536) {
@@ -218,19 +216,19 @@ public class EcgProcessor {
 
             Map<String, IHrOperator> hrOperators = new HashMap<>();
 
-            HrProcessor hrProcessor = new HrProcessor(HR_FILTER_TIME_IN_SECOND, listener);
+            HrProcessor hrProcessor = new HrProcessor(HR_FILTER_TIME_IN_SECOND, device);
 
             hrOperators.put(HR_PROCESSOR_KEY, hrProcessor);
 
             if(hrWarnEnabled) {
                 HrAbnormalWarner hrWarner = new HrAbnormalWarner(hrLowLimit, hrHighLimit);
 
-                hrWarner.addHrAbnormalListener(listener);
+                hrWarner.addHrAbnormalListener(device);
 
                 hrOperators.put(HR_ABNORMAL_WARNER_KEY, hrWarner);
             }
 
-            return new EcgProcessor(ecgCalibrator, ecgFilter, qrsDetector, hrOperators, listener);
+            return new EcgSignalProcessor(device, ecgCalibrator, ecgFilter, qrsDetector, hrOperators);
         }
     }
 

@@ -1,6 +1,6 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
 
 /**
  * ProjectName:    BtDeviceApp

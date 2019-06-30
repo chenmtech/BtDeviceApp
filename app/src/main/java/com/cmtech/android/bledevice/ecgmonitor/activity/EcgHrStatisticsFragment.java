@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgHrLineChart;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledeviceapp.R;
 
 /**

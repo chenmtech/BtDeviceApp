@@ -2,8 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor;
-import com.vise.log.ViseLog;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.EcgSignalProcessor;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,7 +25,7 @@ class EcgDataProcessor {
 
     private Ecg1mVCaliValueCalculator caliValueCalculator; // 1mV标定值计算器
 
-    private EcgProcessor signalProcessor; // 心电信号处理器
+    private EcgSignalProcessor signalProcessor; // 心电信号处理器
 
     private int nextPackageNum = 0; // 下一个要处理的数据包序号
 
@@ -40,11 +39,11 @@ class EcgDataProcessor {
         this.caliValueCalculator = caliValueCalculator;
     }
 
-    EcgProcessor getSignalProcessor() {
+    EcgSignalProcessor getSignalProcessor() {
         return signalProcessor;
     }
 
-    void setSignalProcessor(EcgProcessor signalProcessor) {
+    void setSignalProcessor(EcgSignalProcessor signalProcessor) {
         this.signalProcessor = signalProcessor;
     }
 

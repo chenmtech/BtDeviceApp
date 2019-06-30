@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnRecordSecNumListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.OnRecordSecNumListener;
 
 import java.io.IOException;
 

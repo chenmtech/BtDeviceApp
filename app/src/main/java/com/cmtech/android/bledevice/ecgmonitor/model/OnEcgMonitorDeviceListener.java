@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
 
 public interface OnEcgMonitorDeviceListener {
     void onDeviceStateUpdated(EcgMonitorState state); // 更新设备状态

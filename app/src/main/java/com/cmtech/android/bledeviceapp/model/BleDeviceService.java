@@ -138,8 +138,6 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         }
 
         sendNotification(info);
-
-        //ViseLog.e(TAG + device.getConnectState().getDescription() + Arrays.toStringWithSampleRate(info.toArray()));
     }
 
     @Override
@@ -184,7 +182,6 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     public void closeDevice(final BleDevice device) {
         if(device != null) {
             device.close();
-            //device.setConnectState(BleDeviceConnectState.CONNECT_CLOSED);
         }
     }
 

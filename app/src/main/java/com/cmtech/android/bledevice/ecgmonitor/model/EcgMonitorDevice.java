@@ -13,11 +13,11 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ec
 import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.On1mVCaliValueListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.EcgProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnEcgProcessListener;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.OnRecordSecNumListener;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.HrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.EcgSignalProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.OnEcgSignalProcessListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.OnRecordSecNumListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.HrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -27,7 +27,7 @@ import org.litepal.LitePal;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -46,7 +46,7 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
  * 优化代码
  */
 
-public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener, OnRecordSecNumListener, On1mVCaliValueListener {
+public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessListener, OnRecordSecNumListener, On1mVCaliValueListener {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -280,6 +280,10 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
     public void close() {
         ViseLog.e("EcgMonitorDevice close()");
 
+        if(isConnected()) {
+            disconnect();
+        }
+
         // 关闭记录器
         if(signalRecorder != null) {
             signalRecorder.close();
@@ -339,18 +343,34 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
                 isMeasureBattery = false;
             }
 
+            final CountDownLatch lock = new CountDownLatch(1);
+
             stopDataSampling();
+
+            runInstantly(new IGattDataCallback() {
+                @Override
+                public void onSuccess(byte[] data) {
+                    lock.countDown();
+                }
+
+                @Override
+                public void onFailure(GattDataException exception) {
+                    lock.countDown();
+                }
+            });
+
+            try {
+                lock.await();
+            } catch (InterruptedException e) {
+                ecgDataProcessor.stop();
+            }
+        } else {
+            ecgDataProcessor.stop();
         }
 
-        try {
-            Thread.sleep(300);
+        ecgDataProcessor.close();
 
-            ecgDataProcessor.close();
-
-            super.disconnect();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        super.disconnect();
     }
 
 
@@ -652,7 +672,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
     // 创建心电信号处理器
     private void createEcgSignalProcessor() {
-        EcgProcessor.Builder builder = new EcgProcessor.Builder();
+        EcgSignalProcessor.Builder builder = new EcgSignalProcessor.Builder(this);
 
         builder.setSampleRate(sampleRate);
 
@@ -662,14 +682,12 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgProcessListener,
 
         builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
 
-        builder.setEcgProcessListener(this);
-
         HrProcessor hrProcessor = null;
 
         if(ecgDataProcessor.getSignalProcessor() != null)
             hrProcessor = ecgDataProcessor.getSignalProcessor().getHrProcessor();
 
-        EcgProcessor signalProcessor = builder.build();
+        EcgSignalProcessor signalProcessor = builder.build();
 
         ecgDataProcessor.setSignalProcessor(signalProcessor);
 

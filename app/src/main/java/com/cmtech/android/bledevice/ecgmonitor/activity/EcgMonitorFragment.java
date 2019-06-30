@@ -24,7 +24,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgMonitorDeviceListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
