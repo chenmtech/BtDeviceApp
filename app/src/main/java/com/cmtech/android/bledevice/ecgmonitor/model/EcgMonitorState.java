@@ -9,7 +9,7 @@ public enum EcgMonitorState {
     INIT(0x00, true, false),
     CALIBRATING(0x01, false, false),
     CALIBRATED(0x02, true, false),
-    SAMPLE(0x03, false, true);
+    SAMPLEING(0x03, false, true);
 
     /**
      *

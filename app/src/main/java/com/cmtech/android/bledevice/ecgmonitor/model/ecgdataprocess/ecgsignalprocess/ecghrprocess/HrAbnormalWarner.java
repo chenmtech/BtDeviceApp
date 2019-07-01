@@ -1,8 +1,8 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.EcgSignalProcessor.INVALID_HR;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.INVALID_HR;
 
 /**
  * HrAbnormalWarner: 心率异常报警器类

@@ -1,14 +1,14 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecgcalibrator.EcgCalibrator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecgcalibrator.EcgCalibrator65536;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecgcalibrator.IEcgCalibrator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecgfilter.EcgPreFilterWith35HzNotch;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecgfilter.IEcgFilter;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.HrAbnormalWarner;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.HrProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.IHrOperator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator.EcgCalibrator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator.EcgCalibrator65536;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator.IEcgCalibrator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgfilter.EcgPreFilterWith35HzNotch;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgfilter.IEcgFilter;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.HrAbnormalWarner;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.HrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.IHrOperator;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 
 import java.util.HashMap;

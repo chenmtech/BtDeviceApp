@@ -9,12 +9,15 @@ import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
 import com.cmtech.android.ble.utils.ExecutorUtil;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.Ecg1mVCaliValueCalculator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgSignalRecorder;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.EcgSignalProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.OnHrStatisticInfoListener;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.HrProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.OnHrStatisticInfoListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.HrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -286,6 +289,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             signalRecorder.close();
 
             signalRecorder = null;
+
+            ViseLog.e("The signal recorder closed.");
         }
 
         if(ecgFile != null) {
@@ -312,6 +317,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                     e.printStackTrace();
                 }
             }
+
+            ViseLog.e("The ECG file closed.");
         }
 
         super.close();
@@ -453,9 +460,9 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                ViseLog.e("ecg signal sampling started");
+                ViseLog.e("The ECG signal sampling started");
 
-                setState(EcgMonitorState.SAMPLE);
+                setState(EcgMonitorState.SAMPLEING);
 
                 if(listener != null) {
                     listener.onEcgSignalShowStarted(sampleRate);
@@ -473,8 +480,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 启动1mV定标
     private void start1mVCalibration() {
-        setState(EcgMonitorState.CALIBRATING);
-
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data) {
@@ -493,7 +498,9 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                ViseLog.e("1mV Calibration started.");
+                ViseLog.e("The 1mV Calibration started.");
+
+                setState(EcgMonitorState.CALIBRATING);
 
                 ecgDataProcessor.start();
             }
@@ -512,7 +519,11 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                ViseLog.e("data sampling stopped.");
+                if(state == EcgMonitorState.CALIBRATING) {
+                    ViseLog.e("The 1mV calibration stopped.");
+                } else if(state == EcgMonitorState.SAMPLEING) {
+                    ViseLog.e("The ECG signal sampling stopped.");
+                }
 
                 ecgDataProcessor.stop();
             }
@@ -615,7 +626,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         }
     }
 
-    void onRecordSecNumUpdated(final int second) {
+    public void onRecordSecNumUpdated(final int second) {
         if(listener != null) {
             listener.onSignalSecNumChanged(second);
         }
@@ -654,9 +665,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         // 初始化EcgView
         initializeEcgView(sampleRate, value1mVAfterCalibration);
-
-        setState(EcgMonitorState.CALIBRATED);
-
 
         startEcgSignalSampling();
 
@@ -700,7 +708,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     private void updateEcgMonitorState() {
         if(listener != null)
-            listener.onDeviceStateUpdated(state);
+            listener.onEcgMonitorStateUpdated(state);
     }
 
     private void updateSampleRate(final int sampleRate) {

@@ -28,16 +28,16 @@ import java.util.List;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.ecgmonitor.activity
- * ClassName:      EcgSamplingSignalFragment
- * Description:    控制采集Ecg信号的Fragment
+ * ClassName:      EcgSignalRecordFragment
+ * Description:    控制记录Ecg信号的Fragment
  * Author:         chenm
- * CreateDate:     2019/4/15 上午5:26
+ * CreateDate:     2019-04-15 上午5:26
  * UpdateUser:     更新者
  * UpdateDate:     2019/4/15 上午5:26
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class EcgSamplingSignalFragment extends Fragment{
+public class EcgSignalRecordFragment extends Fragment{
     private ImageButton ibRecord; // 切换记录信号状态
 
     private TextView tvRecordTime; // 记录信号时长

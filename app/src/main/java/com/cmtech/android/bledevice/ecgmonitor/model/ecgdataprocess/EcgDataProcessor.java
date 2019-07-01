@@ -1,7 +1,7 @@
-package com.cmtech.android.bledevice.ecgmonitor.model;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.EcgSignalProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,7 +19,7 @@ import java.util.concurrent.ThreadFactory;
   * Version:        1.0
  */
 
-class EcgDataProcessor {
+public class EcgDataProcessor {
     private static final int PACKAGE_NUM_MAX_LIMIT = 16;
 
     private Ecg1mVCaliValueCalculator caliValueCalculator; // 1mV标定值计算器
@@ -30,23 +30,23 @@ class EcgDataProcessor {
 
     private ExecutorService service; // 数据处理Service
 
-    EcgDataProcessor() {
+    public EcgDataProcessor() {
 
     }
 
-    void setCaliValueCalculator(Ecg1mVCaliValueCalculator caliValueCalculator) {
+    public void setCaliValueCalculator(Ecg1mVCaliValueCalculator caliValueCalculator) {
         this.caliValueCalculator = caliValueCalculator;
     }
 
-    EcgSignalProcessor getSignalProcessor() {
+    public EcgSignalProcessor getSignalProcessor() {
         return signalProcessor;
     }
 
-    void setSignalProcessor(EcgSignalProcessor signalProcessor) {
+    public void setSignalProcessor(EcgSignalProcessor signalProcessor) {
         this.signalProcessor = signalProcessor;
     }
 
-    void start() {
+    public void start() {
         nextPackageNum = 0;
 
         if(service == null || service.isTerminated()) {
@@ -59,11 +59,11 @@ class EcgDataProcessor {
         }
     }
 
-    void stop() {
+    public void stop() {
         ExecutorUtil.shutdownNowAndAwaitTerminate(service);
     }
 
-    void close() {
+    public void close() {
         stop();
 
         if(caliValueCalculator != null) {
@@ -79,7 +79,7 @@ class EcgDataProcessor {
         }
     }
 
-    void processCalibrateData(final byte[] data) {
+    public void processCalibrateData(final byte[] data) {
         if(service != null && !service.isShutdown()) {
             service.execute(new Runnable() {
                 @Override
@@ -114,7 +114,7 @@ class EcgDataProcessor {
         }
     }
 
-    void processEcgData(final byte[] data) {
+    public void processEcgData(final byte[] data) {
         if(service != null && !service.isShutdown()) {
             service.execute(new Runnable() {
                 @Override

@@ -24,7 +24,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgMonitorDeviceListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.viewcomponent.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
@@ -65,7 +65,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     private AudioTrack hrWarnAudio; // 心率报警声音
 
-    private EcgSamplingSignalFragment samplingSignalFragment = new EcgSamplingSignalFragment();
+    private EcgSignalRecordFragment samplingSignalFragment = new EcgSignalRecordFragment();
 
     private EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment();
 
@@ -127,7 +127,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
         samplingSignalFragment.setDevice(device);
 
-        setDeviceState(device.getState());
+        updateDeviceState(device.getState());
 
         device.setEcgMonitorDeviceListener(this);
     }
@@ -203,16 +203,16 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
     }
 
     @Override
-    public void onDeviceStateUpdated(final EcgMonitorState state) {
+    public void onEcgMonitorStateUpdated(final EcgMonitorState state) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                setDeviceState(state);
+                updateDeviceState(state);
             }
         });
     }
 
-    private void setDeviceState(final EcgMonitorState state) {
+    private void updateDeviceState(final EcgMonitorState state) {
 
     }
 

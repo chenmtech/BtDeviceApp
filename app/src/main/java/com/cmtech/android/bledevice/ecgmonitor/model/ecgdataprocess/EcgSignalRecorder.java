@@ -1,5 +1,6 @@
-package com.cmtech.android.bledevice.ecgmonitor.model;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
 
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 
@@ -24,7 +25,7 @@ public class EcgSignalRecorder {
 
     private final EcgMonitorDevice device;
 
-    EcgSignalRecorder(EcgMonitorDevice device, int sampleRate, EcgFile ecgFile) {
+    public EcgSignalRecorder(EcgMonitorDevice device, int sampleRate, EcgFile ecgFile) {
         this.device = device;
 
         this.sampleRate = sampleRate;
@@ -35,29 +36,29 @@ public class EcgSignalRecorder {
     }
 
     // 获取记录的秒数
-    int getSecond() {
+    public int getSecond() {
         return recordDataNum /sampleRate;
     }
 
     // 获取记录的数据个数
-    long getDataNum() {
+    public long getDataNum() {
         return recordDataNum;
     }
 
-    EcgNormalComment getComment() {
+    public EcgNormalComment getComment() {
         return comment;
     }
 
-    boolean isRecord() {
+    public boolean isRecord() {
         return isRecord;
     }
 
-    void setRecord(boolean record) {
+    public void setRecord(boolean record) {
         isRecord = record;
     }
 
     // 记录心电信号
-    synchronized void record(int ecgSignal) throws IOException{
+    public synchronized void record(int ecgSignal) throws IOException{
         if(isRecord) {
             ecgFile.writeData(ecgSignal);
             recordDataNum++;
@@ -70,7 +71,7 @@ public class EcgSignalRecorder {
     }
 
     // 添加留言的内容
-    void addCommentContent(String content) {
+    public void addCommentContent(String content) {
         if(isRecord)
             comment.appendContent(content);
     }

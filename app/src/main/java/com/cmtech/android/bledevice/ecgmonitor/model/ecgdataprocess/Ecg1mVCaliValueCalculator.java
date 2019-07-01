@@ -1,5 +1,6 @@
-package com.cmtech.android.bledevice.ecgmonitor.model;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
 
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;

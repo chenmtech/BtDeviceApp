@@ -1,9 +1,9 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.EcgSignalProcessor.INVALID_HR;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.INVALID_HR;
 
 
 /**
