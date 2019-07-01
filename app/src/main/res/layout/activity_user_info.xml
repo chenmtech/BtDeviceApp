@@ -92,7 +92,7 @@
                 android:gravity="end"
                 android:textSize="18sp"
                 android:text="头像："/>
-            <com.cmtech.android.bledevice.view.RoundImageView
+            <com.cmtech.android.bledevice.viewcomponent.RoundImageView
                 android:id="@+id/iv_userinfo_portrait"
                 android:layout_width="100dp"
                 android:layout_height="100dp"

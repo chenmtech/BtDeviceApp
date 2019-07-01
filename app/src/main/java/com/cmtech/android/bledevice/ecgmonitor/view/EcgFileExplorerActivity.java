@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.activity;
+package com.cmtech.android.bledevice.ecgmonitor.view;
 
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -29,7 +29,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgFileExploreListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
-import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserManager;

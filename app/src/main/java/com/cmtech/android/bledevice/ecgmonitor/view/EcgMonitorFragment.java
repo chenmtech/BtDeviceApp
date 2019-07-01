@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.activity;
+package com.cmtech.android.bledevice.ecgmonitor.view;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -25,7 +25,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgMonitorDeviceListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
-import com.cmtech.android.bledevice.view.ScanWaveView;
+import com.cmtech.android.bledevice.viewcomponent.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 

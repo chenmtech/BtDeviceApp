@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate;
+package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.vise.log.ViseLog;
 
@@ -29,14 +29,14 @@ public class Ecg1mVCaliValueCalculator {
 
     private final int sampleRate; // 采样率
 
-    private On1mVCaliValueListener listener; // 标定值监听器
+    private final EcgMonitorDevice device;
 
     private boolean done = false;
 
-    public Ecg1mVCaliValueCalculator(int sampleRate, On1mVCaliValueListener listener) {
-        this.sampleRate = sampleRate;
+    public Ecg1mVCaliValueCalculator(EcgMonitorDevice device, int sampleRate) {
+        this.device = device;
 
-        this.listener = listener;
+        this.sampleRate = sampleRate;
 
         calibrationData = new ArrayList<>(2 * sampleRate);
     }
@@ -54,7 +54,7 @@ public class Ecg1mVCaliValueCalculator {
 
             ViseLog.e(calibrationData.toString() + " " + value);
 
-            if(listener != null) listener.on1mVCaliValueUpdated(value);
+            device.on1mVCaliValueUpdated(value);
 
             calibrationData.clear();
 
@@ -83,6 +83,6 @@ public class Ecg1mVCaliValueCalculator {
     }
 
     public void close() {
-        listener = null;
+
     }
 }

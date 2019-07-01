@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.EcgSignalProcessor;
 
 import java.util.concurrent.ExecutorService;

@@ -9,13 +9,10 @@ import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
 import com.cmtech.android.ble.extend.IGattDataCallback;
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.Ecg1mVCaliValueCalculator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecg1mvcalivaluecalculate.On1mVCaliValueListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.EcgSignalProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.OnEcgSignalProcessListener;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.OnRecordSecNumListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.OnHrStatisticInfoListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess.HrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -46,7 +43,7 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
  * 优化代码
  */
 
-public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessListener, OnRecordSecNumListener, On1mVCaliValueListener {
+public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoListener {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
@@ -194,7 +191,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         this.config.save();
 
         if(ecgDataProcessor.getSignalProcessor() != null) {
-            ecgDataProcessor.getSignalProcessor().setHrAbnormalWarner(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit(), this);
+            ecgDataProcessor.getSignalProcessor().setHrAbnormalWarner(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit());
         }
     }
 
@@ -406,7 +403,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
                 updateSampleRate(sampleRate);
 
                 // 有了采样率，可以初始化1mV定标值计算器
-                Ecg1mVCaliValueCalculator caliValue1mVCalculator = new Ecg1mVCaliValueCalculator(sampleRate, EcgMonitorDevice.this);
+                Ecg1mVCaliValueCalculator caliValue1mVCalculator = new Ecg1mVCaliValueCalculator(EcgMonitorDevice.this, sampleRate);
 
                 ecgDataProcessor.setCaliValueCalculator(caliValue1mVCalculator);
             }
@@ -583,7 +580,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         listener = null;
     }
 
-    @Override
     public void onSignalValueUpdated(final int ecgSignal) {
         // 记录
         if(signalRecorder != null && signalRecorder.isRecord()) {
@@ -600,7 +596,6 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         }
     }
 
-    @Override
     public void onHrValueUpdated(final short hr) {
         if(listener != null) {
             listener.onEcgHrChanged(hr);
@@ -614,21 +609,18 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
         }
     }
 
-    @Override
     public void onHrAbnormalNotified() {
         if(listener != null) {
             listener.onNotifyHrAbnormal();
         }
     }
 
-    @Override
-    public void onRecordSecNumUpdated(final int second) {
+    void onRecordSecNumUpdated(final int second) {
         if(listener != null) {
             listener.onSignalSecNumChanged(second);
         }
     }
 
-    @Override
     public void on1mVCaliValueUpdated(int caliValue1mV) {
         ViseLog.e("The Calibration Value is: " + caliValue1mV);
 
@@ -657,7 +649,7 @@ public class EcgMonitorDevice extends BleDevice implements OnEcgSignalProcessLis
 
         // 创建心电信号记录仪
         if(ecgFile != null && signalRecorder == null) {
-            signalRecorder = new EcgSignalRecorder(sampleRate, ecgFile, this);
+            signalRecorder = new EcgSignalRecorder(this, sampleRate, ecgFile);
         }
 
         // 初始化EcgView

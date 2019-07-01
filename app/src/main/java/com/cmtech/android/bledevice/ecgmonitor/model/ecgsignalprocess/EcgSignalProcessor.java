@@ -125,7 +125,7 @@ public class EcgSignalProcessor {
         hrOperators.put(HR_PROCESSOR_KEY, hrProcessor);
     }
 
-    public void setHrAbnormalWarner(boolean isWarn, int lowLimit, int highLimit, OnHrAbnormalListener listener) {
+    public void setHrAbnormalWarner(boolean isWarn, int lowLimit, int highLimit) {
         HrAbnormalWarner hrWarner = (HrAbnormalWarner) hrOperators.get(HR_ABNORMAL_WARNER_KEY);
 
         if(isWarn) {
@@ -134,12 +134,10 @@ public class EcgSignalProcessor {
                 hrWarner.initialize(lowLimit, highLimit);
 
             } else {
-                hrWarner = new HrAbnormalWarner(lowLimit, highLimit);
+                hrWarner = new HrAbnormalWarner(device, lowLimit, highLimit);
 
                 hrOperators.put(HR_ABNORMAL_WARNER_KEY, hrWarner);
             }
-
-            hrWarner.addHrAbnormalListener(listener);
         } else {
             if(hrWarner != null) {
                 hrWarner.close();
@@ -221,9 +219,7 @@ public class EcgSignalProcessor {
             hrOperators.put(HR_PROCESSOR_KEY, hrProcessor);
 
             if(hrWarnEnabled) {
-                HrAbnormalWarner hrWarner = new HrAbnormalWarner(hrLowLimit, hrHighLimit);
-
-                hrWarner.addHrAbnormalListener(device);
+                HrAbnormalWarner hrWarner = new HrAbnormalWarner(device, hrLowLimit, hrHighLimit);
 
                 hrOperators.put(HR_ABNORMAL_WARNER_KEY, hrWarner);
             }

@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.temphumid.model;
 
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceType;
-import com.cmtech.android.bledevice.temphumid.activity.TempHumidFragment;
+import com.cmtech.android.bledevice.temphumid.view.TempHumidFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;

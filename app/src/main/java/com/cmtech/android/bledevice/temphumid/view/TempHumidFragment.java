@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.temphumid.activity;
+package com.cmtech.android.bledevice.temphumid.view;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,7 +17,6 @@ import com.cmtech.android.bledevice.temphumid.adapter.TempHumidHistoryDataAdapte
 import com.cmtech.android.bledevice.temphumid.model.ITempHumidDataObserver;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;
-import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 

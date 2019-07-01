@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.temphumid.activity;
+package com.cmtech.android.bledevice.temphumid.view;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

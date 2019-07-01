@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.view;
+package com.cmtech.android.bledevice.viewcomponent;
 
 import android.content.Context;
 import android.graphics.Color;

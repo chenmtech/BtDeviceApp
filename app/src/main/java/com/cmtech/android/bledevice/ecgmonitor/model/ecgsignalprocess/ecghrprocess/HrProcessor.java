@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.OnHrStatisticInfoListener;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -4,5 +4,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalCommen
 
 public interface OnEcgCommentOperateListener {
     void onCommentSaved(); // 保存留言
+
     void onCommentDeleted(EcgNormalComment comment); // 删除留言
 }

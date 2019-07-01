@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:background="@color/secondary">
 
-        <com.cmtech.android.bledevice.view.RoundImageView
+        <com.cmtech.android.bledevice.viewcomponent.RoundImageView
             android:id="@+id/iv_user_portrait"
             android:layout_width="100dp"
             android:layout_height="100dp"

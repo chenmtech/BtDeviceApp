@@ -1,9 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrprocess;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.OnHrAbnormalListener;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.EcgSignalProcessor.INVALID_HR;
 
@@ -15,15 +12,19 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.Ecg
 public class HrAbnormalWarner implements IHrOperator {
     private static final int DEFAULT_HR_BUFFLEN = 5; // 心率值缓存长度
 
+    private final EcgMonitorDevice device;
 
     private int lowLimit; // 下限
+
     private int highLimit; // 上限
+
     private int[] buff; // 缓存
+
     private int index; // 缓存索引
 
-    private List<OnHrAbnormalListener> listeners = new ArrayList<>(); // 心率异常监听器
+    public HrAbnormalWarner(EcgMonitorDevice device, int lowLimit, int highLimit) {
+        this.device = device;
 
-    public HrAbnormalWarner(int lowLimit, int highLimit) {
         initialize(lowLimit, highLimit);
     }
 
@@ -49,27 +50,15 @@ public class HrAbnormalWarner implements IHrOperator {
         if(hr != INVALID_HR) {
             buff[index++] = hr;
             if(checkHrAbnormal()) {
-                notifyAllListeners();
+                device.onHrAbnormalNotified();
             }
             index = index % buff.length;
         }
     }
 
-    public void addHrAbnormalListener(OnHrAbnormalListener listener) {
-        if(!listeners.contains(listener)) {
-            listeners.add(listener);
-        }
-    }
-
-    private void notifyAllListeners() {
-        for (OnHrAbnormalListener listener : listeners) {
-            listener.onHrAbnormalNotified();
-        }
-    }
-
     @Override
     public void close() {
-        listeners.clear();
+
     }
 
     // 检查心率是否异常

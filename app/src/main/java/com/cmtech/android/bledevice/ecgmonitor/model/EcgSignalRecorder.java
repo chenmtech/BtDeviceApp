@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.OnRecordSecNumListener;
 
 import java.io.IOException;
 
@@ -23,14 +22,14 @@ public class EcgSignalRecorder {
 
     private final EcgNormalComment comment; // 当前信号的留言
 
-    private OnRecordSecNumListener listener; // 心电信号记录秒数更新监听器
+    private final EcgMonitorDevice device;
 
-    EcgSignalRecorder(int sampleRate, EcgFile ecgFile, OnRecordSecNumListener listener) {
+    EcgSignalRecorder(EcgMonitorDevice device, int sampleRate, EcgFile ecgFile) {
+        this.device = device;
+
         this.sampleRate = sampleRate;
 
         this.ecgFile = ecgFile;
-
-        this.listener = listener;
 
         comment = EcgNormalComment.createDefaultComment();
     }
@@ -62,13 +61,12 @@ public class EcgSignalRecorder {
         if(isRecord) {
             ecgFile.writeData(ecgSignal);
             recordDataNum++;
-            if (listener != null) listener.onRecordSecNumUpdated(getSecond());
+            device.onRecordSecNumUpdated(getSecond());
         }
     }
 
     public synchronized void close() {
         isRecord = false;
-        listener = null;
     }
 
     // 添加留言的内容

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.activity;
+package com.cmtech.android.bledevice.ecgmonitor.view;
 
 import android.graphics.Color;
 import android.os.Bundle;

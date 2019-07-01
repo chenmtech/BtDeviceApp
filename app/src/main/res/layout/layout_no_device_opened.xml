@@ -14,7 +14,7 @@
         android:layout_weight="1"
         android:layout_gravity="center_horizontal">
 
-        <com.cmtech.android.bledevice.view.RoundImageView
+        <com.cmtech.android.bledevice.viewcomponent.RoundImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

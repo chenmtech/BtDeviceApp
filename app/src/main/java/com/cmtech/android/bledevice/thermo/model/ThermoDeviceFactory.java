@@ -1,12 +1,10 @@
 package com.cmtech.android.bledevice.thermo.model;
 
-import android.content.Context;
-
 import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 import com.cmtech.android.ble.extend.BleDeviceType;
-import com.cmtech.android.bledevice.thermo.activity.ThermoFragment;
+import com.cmtech.android.bledevice.thermo.view.ThermoFragment;
 import com.cmtech.android.bledeviceapp.R;
 
 public class ThermoDeviceFactory extends AbstractBleDeviceFactory {

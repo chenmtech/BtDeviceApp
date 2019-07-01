@@ -15,5 +15,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgsignalprocess.ecghrproc
 
 public interface IHrOperator {
     void operate(short hr); // 心率操作
+
     void close(); // 关闭
 }
