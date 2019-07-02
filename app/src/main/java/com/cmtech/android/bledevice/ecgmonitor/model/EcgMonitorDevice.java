@@ -340,7 +340,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             listener.onEcgSignalShowStoped();
         }
 
-        if(isConnected()) {
+        if(isConnected() && isGattExecutorAlive()) {
             if(isMeasureBattery) {
                 stopBatteryMeasure();
 
