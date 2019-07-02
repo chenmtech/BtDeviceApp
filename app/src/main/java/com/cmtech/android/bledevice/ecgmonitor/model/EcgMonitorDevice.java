@@ -633,7 +633,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     public void on1mVCaliValueUpdated(int caliValue1mV) {
-        ViseLog.e("The Calibration Value is: " + caliValue1mV);
+        ViseLog.e("The 1mV Calibration Value is: " + caliValue1mV);
 
         stopDataSampling();
 
@@ -667,7 +667,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         initializeEcgView(sampleRate, value1mVAfterCalibration);
 
         startEcgSignalSampling();
-
     }
 
     // 创建心电信号处理器
