@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.ecgmonitor.model.ecgprocess.ecghrprocess
- * ClassName:      EcgHrInfoObject
+ * ClassName:      EcgHrStatisticInfoAnalyzer
  * Description:    描述和分析Ecg心率统计信息
  * Author:         chenm
  * CreateDate:     2019/4/17 上午4:44
@@ -17,7 +17,7 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class EcgHrInfoObject {
+public class EcgHrStatisticInfoAnalyzer {
     private static final int HR_MIN_INTERVAL_IN_HISTOGRAM = 10;
 
     // 心率直方图的Element类
@@ -63,11 +63,11 @@ public class EcgHrInfoObject {
 
     private double periodTmp = 0.0;
 
-    public EcgHrInfoObject(int secondInHrFilter) {
+    public EcgHrStatisticInfoAnalyzer(int secondInHrFilter) {
         this.secondInHrFilter = secondInHrFilter;
     }
 
-    public EcgHrInfoObject(List<Short> hrList, int secondInHrFilter) {
+    public EcgHrStatisticInfoAnalyzer(List<Short> hrList, int secondInHrFilter) {
         this(secondInHrFilter);
 
         for(Short hr : hrList)
@@ -118,7 +118,7 @@ public class EcgHrInfoObject {
     }
 
     public List<HrHistogramElement<Float>> getNormHistogram(int barNumInHistogram) {
-        return EcgHrInfoObject.createNormHistogram(filteredHrList, barNumInHistogram);
+        return EcgHrStatisticInfoAnalyzer.createNormHistogram(filteredHrList, barNumInHistogram);
     }
 
     public short getMaxHr() {

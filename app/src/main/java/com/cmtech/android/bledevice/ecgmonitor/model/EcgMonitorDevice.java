@@ -12,13 +12,13 @@ import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.Ecg1mVCaliValueCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgSignalRecorder;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrStatisticInfoAnalyzer;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.OnHrStatisticInfoListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.OnHrStatisticInfoListener;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.HrProcessor;
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -46,13 +46,26 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
  * 优化代码
  */
 
+/**
+  *
+  * ClassName:      EcgMonitorDevice
+  * Description:    单导联心电监护仪设备
+  * Author:         chenm
+  * CreateDate:     2018-09-20 07:55
+  * UpdateUser:     chenm
+  * UpdateDate:     2019-07-03 07:55
+  * UpdateRemark:   更新说明
+  * Version:        1.0
+ */
+
 public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoListener {
     private final static String TAG = "EcgMonitorDevice";
 
     // 常量
+    private static final int DEFAULT_VALUE_1MV_AFTER_CALIBRATION = 65536; // 缺省1mV定标值
+
     private static final int DEFAULT_SAMPLERATE = 125;                          // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
-    private static final int DEFAULT_CALIBRATION_VALUE = 65536;                  // 缺省1mV定标值
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f;                 // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
@@ -93,8 +106,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     private EcgLeadType leadType = DEFAULT_LEADTYPE; // 导联类型
 
     private int value1mVBeforeCalibration = 0; // 定标之前1mV对应的数值
-
-    private final int value1mVAfterCalibration = DEFAULT_CALIBRATION_VALUE; // 定标之后1mV对应的数值
 
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
 
@@ -152,7 +163,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     public int getValue1mVBeforeCalibration() { return value1mVBeforeCalibration; }
 
-    public int getValue1mVAfterCalibration() { return value1mVAfterCalibration; }
+    public int getValue1mVAfterCalibration() { return DEFAULT_VALUE_1MV_AFTER_CALIBRATION; }
 
     public boolean isRecordEcgSignal() {
         return ((signalRecorder != null) && signalRecorder.isRecord());
@@ -220,7 +231,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         updateLeadType(DEFAULT_LEADTYPE);
 
-        updateCalibrationValue(value1mVBeforeCalibration, value1mVAfterCalibration);
+        updateCalibrationValue(value1mVBeforeCalibration);
 
 
 
@@ -614,7 +625,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     @Override
-    public void onHrStatisticInfoUpdated(final EcgHrInfoObject hrInfoObject) {
+    public void onHrStatisticInfoUpdated(final EcgHrStatisticInfoAnalyzer hrInfoObject) {
         if(listener != null) {
             listener.onEcgHrInfoUpdated(hrInfoObject);
         }
@@ -639,7 +650,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         value1mVBeforeCalibration = caliValue1mV;
 
-        updateCalibrationValue(value1mVBeforeCalibration, value1mVAfterCalibration);
+        updateCalibrationValue(value1mVBeforeCalibration);
 
         // 重新创建Ecg信号处理器
         createEcgSignalProcessor(); // 这里每次连接都会重新创建处理器，有问题。
@@ -647,7 +658,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         // 创建心电记录文件
         if(ecgFile == null) {
             try {
-                ecgFile = EcgFile.create(sampleRate, value1mVAfterCalibration, getMacAddress(), leadType);
+                ecgFile = EcgFile.create(sampleRate, DEFAULT_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
             } catch (IOException e) {
                 new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
@@ -664,43 +675,34 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         }
 
         // 初始化EcgView
-        initializeEcgView(sampleRate, value1mVAfterCalibration);
+        initializeEcgView(sampleRate);
 
         startEcgSignalSampling();
     }
 
     // 创建心电信号处理器
     private void createEcgSignalProcessor() {
-        EcgSignalProcessor.Builder builder = new EcgSignalProcessor.Builder(this);
+        EcgSignalProcessor signalProcessor = ecgDataProcessor.getSignalProcessor();
 
-        builder.setSampleRate(sampleRate);
+        signalProcessor.getEcgCalibrator().setValue1mVBeforeCalibration(value1mVBeforeCalibration);
 
-        builder.setValue1mVCalibrate(value1mVBeforeCalibration, value1mVAfterCalibration);
+        signalProcessor.getEcgFilter().setSampleRate(sampleRate);
 
-        builder.setHrWarnEnabled(config.isWarnWhenHrAbnormal());
+        QrsDetector qrsDetector = new QrsDetector(sampleRate, DEFAULT_VALUE_1MV_AFTER_CALIBRATION);
 
-        builder.setHrWarnLimit(config.getHrLowLimit(), config.getHrHighLimit());
+        signalProcessor.setQrsDetector(qrsDetector);
 
-        HrProcessor hrProcessor = null;
+        signalProcessor.setHrAbnormalWarner(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit());
 
-        if(ecgDataProcessor.getSignalProcessor() != null)
-            hrProcessor = ecgDataProcessor.getSignalProcessor().getHrProcessor();
-
-        EcgSignalProcessor signalProcessor = builder.build();
-
-        ecgDataProcessor.setSignalProcessor(signalProcessor);
-
-        if(hrProcessor != null)
-            signalProcessor.setHrProcessor(hrProcessor);
     }
 
     // 初始化EcgView
-    private void initializeEcgView(int sampleRate, int calibrationValue) {
+    private void initializeEcgView(int sampleRate) {
         //pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
         // 计算EcgView分辨率
         xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate)); // 计算横向分辨率
 
-        yValuePerPixel = calibrationValue * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
+        yValuePerPixel = DEFAULT_VALUE_1MV_AFTER_CALIBRATION * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
         // 更新EcgView
         updateEcgView(xPixelPerData, yValuePerPixel, pixelPerGrid);
     }
@@ -720,9 +722,9 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             listener.onLeadTypeChanged(leadType);
     }
 
-    private void updateCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
+    private void updateCalibrationValue(final int calibrationValueBefore) {
         if(listener != null)
-            listener.onCalibrationValueChanged(calibrationValueBefore, calibrationValueAfter);
+            listener.onCalibrationValueChanged(calibrationValueBefore, DEFAULT_VALUE_1MV_AFTER_CALIBRATION);
     }
 
     private void updateRecordStatus(final boolean isRecord) {

@@ -25,8 +25,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgCommentOperateListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgFileExploreListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrStatisticInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserManager;
@@ -386,7 +386,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
     }
 
     @Override
-    public void onHrStatisticInfoUpdated(EcgHrInfoObject hrInfoObject) {
+    public void onHrStatisticInfoUpdated(EcgHrStatisticInfoAnalyzer hrInfoObject) {
         tvAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));
 
         tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));

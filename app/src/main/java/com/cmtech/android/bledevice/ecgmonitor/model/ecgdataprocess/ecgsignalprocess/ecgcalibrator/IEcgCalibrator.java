@@ -6,6 +6,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpr
  */
 
 public interface IEcgCalibrator {
-    // 对输入信号值做定标处理
-    int process(int data);
+    int process(int data); // 对输入信号值做定标处理
+
+    void setValue1mVBeforeCalibration(int before); // 设置定标值
 }

@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrInfoObject;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrStatisticInfoAnalyzer;
 import com.cmtech.android.bledeviceapp.R;
 
 /**
@@ -55,7 +55,7 @@ public class EcgHrStatisticsFragment extends Fragment {
         hrLineChart = view.findViewById(R.id.linechart_hr);
     }
 
-    public void updateHrInfo(EcgHrInfoObject hrInfoObject) {
+    public void updateHrInfo(EcgHrStatisticInfoAnalyzer hrInfoObject) {
         tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
 
         tvAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));

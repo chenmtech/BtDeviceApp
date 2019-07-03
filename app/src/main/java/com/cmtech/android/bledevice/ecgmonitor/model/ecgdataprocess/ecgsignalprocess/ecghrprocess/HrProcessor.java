@@ -20,16 +20,16 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 
 public class HrProcessor implements IHrOperator {
 
-    private OnHrStatisticInfoListener listener;
+    private OnHrStatisticInfoListener listener; // 心率统计信息监听器
 
-    private final EcgHrInfoObject hrInfoObject;
+    private final EcgHrStatisticInfoAnalyzer hrStatisticInfoAnalyzer;
 
     private List<Short> hrList = new ArrayList<>();
 
     private boolean isRecord = true;
 
     public HrProcessor(int hrFilterTimeInSecond, OnHrStatisticInfoListener listener) {
-        hrInfoObject = new EcgHrInfoObject(hrFilterTimeInSecond);
+        hrStatisticInfoAnalyzer = new EcgHrStatisticInfoAnalyzer(hrFilterTimeInSecond);
 
         this.listener = listener;
     }
@@ -39,8 +39,8 @@ public class HrProcessor implements IHrOperator {
     }
 
 
-    public EcgHrInfoObject getHrInfoObject() {
-        return hrInfoObject;
+    public EcgHrStatisticInfoAnalyzer getHrStatisticInfoAnalyzer() {
+        return hrStatisticInfoAnalyzer;
     }
 
     public void setRecord(boolean record) {
@@ -50,14 +50,14 @@ public class HrProcessor implements IHrOperator {
     // 更新心率统计信息
     public void updateHrStatisticInfo() {
         if(listener != null)
-            listener.onHrStatisticInfoUpdated(hrInfoObject);
+            listener.onHrStatisticInfoUpdated(hrStatisticInfoAnalyzer);
     }
 
     // 重置心率数据
     public synchronized void reset() {
         hrList.clear();
 
-        hrInfoObject.clear();
+        hrStatisticInfoAnalyzer.clear();
 
         updateHrStatisticInfo();
     }
@@ -67,7 +67,7 @@ public class HrProcessor implements IHrOperator {
         if(hr != INVALID_HR && isRecord) {
             hrList.add(hr);
 
-            if(hrInfoObject.process(hr)) {
+            if(hrStatisticInfoAnalyzer.process(hr)) {
                 updateHrStatisticInfo();
             }
         }

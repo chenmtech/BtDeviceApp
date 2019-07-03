@@ -14,5 +14,5 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpr
  */
 
 public interface OnHrStatisticInfoListener {
-    void onHrStatisticInfoUpdated(EcgHrInfoObject hrInfoObject); // 心率统计信息更新
+    void onHrStatisticInfoUpdated(EcgHrStatisticInfoAnalyzer hrInfoObject); // 心率统计信息更新
 }
