@@ -46,7 +46,7 @@ public class EcgSignalProcessor {
     private final Map<String, IHrOperator> hrOperators; // 心率相关操作Map
 
 
-    private EcgSignalProcessor(EcgMonitorDevice device, int value1mVAfterCalibration) {
+    public EcgSignalProcessor(EcgMonitorDevice device, int value1mVAfterCalibration) {
         if(device == null) {
             throw new NullPointerException();
         }

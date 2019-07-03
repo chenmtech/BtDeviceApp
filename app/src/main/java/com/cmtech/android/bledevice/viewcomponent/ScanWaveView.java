@@ -21,7 +21,9 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledeviceapp.R;
+import com.vise.log.ViseLog;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -289,6 +291,8 @@ public class ScanWaveView extends View {
      */
     public void start() {
         if(showService == null || showService.isTerminated()) {
+            ViseLog.e("ScanWaveView started.");
+
             showService = Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable runnable) {
@@ -302,19 +306,9 @@ public class ScanWaveView extends View {
      * 停止显示
      */
     public void stop() {
-        if(showService != null) {
-            showService.shutdown();
+        ViseLog.e("ScanWaveView stoped.");
 
-            try {
-                boolean isTerminated = false;
-
-                while(!isTerminated) {
-                    isTerminated = showService.awaitTermination(1, TimeUnit.SECONDS);
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        ExecutorUtil.shutdownNowAndAwaitTerminate(showService);
     }
 
     /**

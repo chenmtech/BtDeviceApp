@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
@@ -37,14 +38,6 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
-
-/**
- * EcgMonitorDevice: 心电带设备类
- * Created by bme on 2018/9/20.
- *
- * Updated by chenm on 2019/4/8
- * 优化代码
- */
 
 /**
   *
@@ -125,7 +118,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     private ScheduledExecutorService batMeasureService; // 设备电量测量Service
 
-    private final EcgDataProcessor ecgDataProcessor = new EcgDataProcessor(); // 数据处理是在其内部的单线程ExecutorService中执行
+    private final EcgDataProcessor ecgDataProcessor = new EcgDataProcessor(this); // 数据处理是在其内部的单线程ExecutorService中执行
 
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
 
@@ -275,14 +268,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     public void open() {
         ViseLog.e("EcgMonitorDevice open()");
 
-        ecgDataProcessor.setSignalProcessor(null);
-
-        ecgDataProcessor.setCaliValueCalculator(null);
-
-        signalRecorder = null;
-
-        ecgFile = null;
-
         super.open();
     }
 
@@ -295,44 +280,50 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             disconnect();
         }
 
-        // 关闭记录器
-        if(signalRecorder != null) {
-            signalRecorder.close();
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                // 关闭记录器
+                if(signalRecorder != null) {
+                    signalRecorder.close();
 
-            signalRecorder = null;
+                    signalRecorder = null;
 
-            ViseLog.e("The signal recorder closed.");
-        }
-
-        if(ecgFile != null) {
-            try {
-                if(isSaveEcgFile) {
-                    saveEcgFileTail();
-
-                    ecgFile.close();
-
-                    File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
-
-                    FileUtil.moveFile(ecgFile.getFile(), toFile);
+                    ViseLog.e("The signal recorder closed.");
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    ecgFile.close();
 
-                    FileUtil.deleteFile(ecgFile.getFile());
+                if(ecgFile != null) {
+                    try {
+                        if(isSaveEcgFile) {
+                            saveEcgFileTail();
 
-                    ecgFile = null;
-                } catch (IOException e) {
-                    e.printStackTrace();
+                            ecgFile.close();
+
+                            File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
+
+                            FileUtil.moveFile(ecgFile.getFile(), toFile);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            ecgFile.close();
+
+                            FileUtil.deleteFile(ecgFile.getFile());
+
+                            ecgFile = null;
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    ViseLog.e("The ECG file closed.");
                 }
+
+                EcgMonitorDevice.super.close();
             }
+        });
 
-            ViseLog.e("The ECG file closed.");
-        }
-
-        super.close();
     }
 
     private void saveEcgFileTail() throws IOException{
@@ -352,15 +343,15 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         }
 
         if(isConnected() && isGattExecutorAlive()) {
+            final CountDownLatch lock = new CountDownLatch(1);
+
+            stopDataSampling();
+
             if(isMeasureBattery) {
                 stopBatteryMeasure();
 
                 isMeasureBattery = false;
             }
-
-            final CountDownLatch lock = new CountDownLatch(1);
-
-            stopDataSampling();
 
             runInstantly(new IGattDataCallback() {
                 @Override
@@ -375,7 +366,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             });
 
             try {
-                lock.await();
+                lock.await(1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 ecgDataProcessor.stop();
             }
@@ -451,7 +442,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     // 启动ECG信号采集
-    private void startEcgSignalSampling() {
+    public void startEcgSignalSampling() {
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data) {
@@ -524,7 +515,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     // 停止数据采集
-    private void stopDataSampling() {
+    public void stopDataSampling() {
         notify(ECGMONITOR_DATA_CCC, false, null);
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IGattDataCallback() {
