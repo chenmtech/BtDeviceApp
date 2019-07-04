@@ -481,7 +481,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     // 启动1mV定标
-    private void start1mVCalibration() {
+    public void start1mVCalibration() {
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data) {

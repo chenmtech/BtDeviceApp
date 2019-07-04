@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor;
+import com.vise.log.ViseLog;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -68,12 +69,6 @@ public class EcgDataProcessor {
     public void close() {
         stop();
 
-        if(caliValueCalculator != null) {
-            caliValueCalculator.close();
-
-            caliValueCalculator = null;
-        }
-
         if(signalProcessor != null) {
             signalProcessor.close();
 
@@ -89,13 +84,7 @@ public class EcgDataProcessor {
                     int packageNum = (short)((0xff & data[0]) | (0xff00 & (data[1] << 8)));
 
                     if(packageNum == nextPackageNum) {
-                        int[] pack = new int[data.length / 2 - 1];
-
-                        for (int i = 1; i <= pack.length; i++) {
-                            pack[i - 1] = (short)((0xff & data[i * 2]) | (0xff00 & (data[i * 2 + 1] << 8)));
-                        }
-
-                        //ViseLog.e("Calibrate Data: " + Arrays.toString(pack));
+                        int[] pack = resolveDataToPackage(data);
 
                         for (int ele : pack) {
                             caliValueCalculator.process(ele);
@@ -108,9 +97,8 @@ public class EcgDataProcessor {
 
                             device.stopDataSampling();
 
-                            device.startEcgSignalSampling();
+                            device.start1mVCalibration();
                         }
-
                     }
                 }
             });
@@ -125,11 +113,7 @@ public class EcgDataProcessor {
                     int packageNum = (short) ((0xff & data[0]) | (0xff00 & (data[1] << 8)));
 
                     if (packageNum == nextPackageNum) {
-                        int[] pack = new int[data.length / 2 - 1];
-
-                        for (int i = 1; i <= pack.length; i++) {
-                            pack[i - 1] = (short) ((0xff & data[i * 2]) | (0xff00 & (data[i * 2 + 1] << 8)));
-                        }
+                        int[] pack = resolveDataToPackage(data);
 
                         for (int ele : pack) {
                             signalProcessor.process(ele);
@@ -138,6 +122,8 @@ public class EcgDataProcessor {
                         if (++nextPackageNum == PACKAGE_NUM_MAX_LIMIT) nextPackageNum = 0;
                     } else {
                         if(nextPackageNum != INVALID_PACKAGE_NUM) {
+                            ViseLog.e("数据包失序！！！");
+
                             nextPackageNum = INVALID_PACKAGE_NUM;
 
                             device.stopDataSampling();
@@ -150,5 +136,13 @@ public class EcgDataProcessor {
         }
     }
 
+    private int[] resolveDataToPackage(byte[] data) {
+        int[] pack = new int[data.length / 2 - 1];
 
+        for (int i = 1; i <= pack.length; i++) {
+            pack[i - 1] = (short) ((0xff & data[i * 2]) | (0xff00 & (data[i * 2 + 1] << 8)));
+        }
+
+        return pack;
+    }
 }

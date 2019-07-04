@@ -82,8 +82,4 @@ public class Ecg1mVCaliValueCalculator {
         }
         return (sum2-sum1)/2/halfLen;
     }
-
-    public void close() {
-
-    }
 }
