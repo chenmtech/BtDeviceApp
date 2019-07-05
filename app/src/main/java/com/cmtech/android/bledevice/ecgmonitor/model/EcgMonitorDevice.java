@@ -215,7 +215,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         if(!isContainGattElements(elements)) {
             ViseLog.e("Ecg Monitor Elements are wrong.");
 
-            disconnect(false);
+            disconnect(true);
 
             return;
         }

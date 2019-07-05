@@ -82,7 +82,7 @@ public class ThermoDevice extends BleDevice {
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
         if(!isContainGattElements(elements)) {
-            disconnect(false);
+            disconnect(true);
 
             return;
         }
