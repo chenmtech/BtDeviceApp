@@ -215,7 +215,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         if(!isContainGattElements(elements)) {
             ViseLog.e("Ecg Monitor Elements are wrong.");
 
-            disconnect();
+            disconnect(false);
 
             return;
         }
@@ -226,15 +226,12 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         updateCalibrationValue(value1mVBeforeCalibration);
 
-
-
         isMeasureBattery = isContainGattElement(BATTERY_DATA);
 
         startBatteryMeasure();
 
-
         // 停止采样
-        stopDataSampling();
+        //stopDataSampling();
 
         // 读采样率
         readSampleRate();
@@ -277,7 +274,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         ViseLog.e("EcgMonitorDevice close()");
 
         if(isConnected()) {
-            disconnect();
+            disconnect(false);
         }
 
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -335,7 +332,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     @Override
-    protected void disconnect() {
+    protected void disconnect(boolean isReconnect) {
         ViseLog.e("EcgMonitorDevice disconnect()");
 
         if(listener != null) {
@@ -376,7 +373,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         ecgDataProcessor.close();
 
-        super.disconnect();
+        super.disconnect(isReconnect);
     }
 
 
@@ -452,7 +449,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             @Override
             public void onFailure(GattDataException exception) {
                 ViseLog.e(exception);
-                disconnect();
             }
         };
 
@@ -521,11 +517,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                if(state == EcgMonitorState.CALIBRATING) {
-                    ViseLog.e("The 1mV calibration stopped.");
-                } else if(state == EcgMonitorState.SAMPLEING) {
-                    ViseLog.e("The ECG signal sampling stopped.");
-                }
+                ViseLog.e("The data sampling stopped.");
 
                 ecgDataProcessor.stop();
             }
