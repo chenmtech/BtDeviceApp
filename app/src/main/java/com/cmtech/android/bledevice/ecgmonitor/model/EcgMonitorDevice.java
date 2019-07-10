@@ -335,43 +335,49 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     protected void disconnect(boolean isReconnect) {
         ViseLog.e("EcgMonitorDevice disconnect()");
 
-        if(listener != null) {
-            listener.onEcgSignalShowStoped();
-        }
-
-        if(isConnected() && isGattExecutorAlive()) {
-            final CountDownLatch lock = new CountDownLatch(1);
-
-            stopDataSampling();
-
-            if(isMeasureBattery) {
-                stopBatteryMeasure();
-
-                isMeasureBattery = false;
-            }
-
-            runInstantly(new IGattDataCallback() {
-                @Override
-                public void onSuccess(byte[] data) {
-                    lock.countDown();
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(listener != null) {
+                    listener.onEcgSignalShowStoped();
                 }
 
-                @Override
-                public void onFailure(GattDataException exception) {
-                    lock.countDown();
+                if(isConnected() && isGattExecutorAlive()) {
+                    final CountDownLatch lock = new CountDownLatch(1);
+
+                    stopDataSampling();
+
+                    if(isMeasureBattery) {
+                        stopBatteryMeasure();
+
+                        isMeasureBattery = false;
+                    }
+
+                    runInstantly(new IGattDataCallback() {
+                        @Override
+                        public void onSuccess(byte[] data) {
+                            lock.countDown();
+                        }
+
+                        @Override
+                        public void onFailure(GattDataException exception) {
+                            lock.countDown();
+                        }
+                    });
+
+                    try {
+                        lock.await(1, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        ecgDataProcessor.stop();
+                    }
+                } else {
+                    ecgDataProcessor.stop();
                 }
-            });
 
-            try {
-                lock.await(1, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                ecgDataProcessor.stop();
+                ecgDataProcessor.close();
             }
-        } else {
-            ecgDataProcessor.stop();
-        }
+        });
 
-        ecgDataProcessor.close();
 
         super.disconnect(isReconnect);
     }
