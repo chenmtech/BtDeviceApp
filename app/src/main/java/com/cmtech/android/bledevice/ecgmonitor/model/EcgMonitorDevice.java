@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.extend.BleDevice;
@@ -273,54 +271,45 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     public void close() {
         ViseLog.e("EcgMonitorDevice close()");
 
-        if(isConnected()) {
-            disconnect(false);
+        // 关闭记录器
+        if(signalRecorder != null) {
+            signalRecorder.close();
+
+            signalRecorder = null;
+
+            ViseLog.e("The signal recorder closed.");
         }
 
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                // 关闭记录器
-                if(signalRecorder != null) {
-                    signalRecorder.close();
+        // 关闭文件
+        if(ecgFile != null) {
+            try {
+                if(isSaveEcgFile) {
+                    saveEcgFileTail();
 
-                    signalRecorder = null;
+                    ecgFile.close();
 
-                    ViseLog.e("The signal recorder closed.");
+                    File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
+
+                    FileUtil.moveFile(ecgFile.getFile(), toFile);
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    ecgFile.close();
 
-                if(ecgFile != null) {
-                    try {
-                        if(isSaveEcgFile) {
-                            saveEcgFileTail();
+                    FileUtil.deleteFile(ecgFile.getFile());
 
-                            ecgFile.close();
-
-                            File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
-
-                            FileUtil.moveFile(ecgFile.getFile(), toFile);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            ecgFile.close();
-
-                            FileUtil.deleteFile(ecgFile.getFile());
-
-                            ecgFile = null;
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    ViseLog.e("The ECG file closed.");
+                    ecgFile = null;
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-                EcgMonitorDevice.super.close();
             }
-        });
 
+            ViseLog.e("The ECG file closed.");
+        }
+
+        EcgMonitorDevice.super.close();
     }
 
     private void saveEcgFileTail() throws IOException{
@@ -335,7 +324,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     protected void disconnect(boolean isReconnect) {
         ViseLog.e("EcgMonitorDevice disconnect()");
 
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        postWithMainHandler(new Runnable() {
             @Override
             public void run() {
                 if(listener != null) {
@@ -377,7 +366,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                 ecgDataProcessor.close();
             }
         });
-
 
         super.disconnect(isReconnect);
     }
@@ -649,7 +637,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             try {
                 ecgFile = EcgFile.create(sampleRate, DEFAULT_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
             } catch (IOException e) {
-                new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
+                postWithMainHandler(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(MyApplication.getContext(), "无法记录心电信息", Toast.LENGTH_SHORT).show();
