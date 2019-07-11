@@ -331,16 +331,16 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                     listener.onEcgSignalShowStoped();
                 }
 
+                if(isMeasureBattery) {
+                    stopBatteryMeasure();
+
+                    isMeasureBattery = false;
+                }
+
                 if(isConnected() && isGattExecutorAlive()) {
                     final CountDownLatch lock = new CountDownLatch(1);
 
                     stopDataSampling();
-
-                    if(isMeasureBattery) {
-                        stopBatteryMeasure();
-
-                        isMeasureBattery = false;
-                    }
 
                     runInstantly(new IGattDataCallback() {
                         @Override
@@ -556,9 +556,10 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 停止电池电量测量
     private void stopBatteryMeasure() {
-        ViseLog.e("The battery measure service stops.");
-
         ExecutorUtil.shutdownNowAndAwaitTerminate(batMeasureService);
+
+        ViseLog.e("The battery measure service stopped.");
+
     }
 
 
