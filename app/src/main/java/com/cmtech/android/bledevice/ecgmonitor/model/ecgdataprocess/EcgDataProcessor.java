@@ -49,7 +49,7 @@ public class EcgDataProcessor {
         return signalProcessor;
     }
 
-    public void start() {
+    public synchronized void start() {
         nextPackageNum = 0;
 
         if(service == null || service.isTerminated()) {
@@ -62,7 +62,9 @@ public class EcgDataProcessor {
         }
     }
 
-    public void stop() {
+    public synchronized void stop() {
+        ViseLog.e("The data process service stopped.");
+
         ExecutorUtil.shutdownNowAndAwaitTerminate(service);
     }
 
@@ -76,7 +78,7 @@ public class EcgDataProcessor {
         }
     }
 
-    public void processCalibrateData(final byte[] data) {
+    public synchronized void processCalibrateData(final byte[] data) {
         if(service != null && !service.isShutdown()) {
             service.execute(new Runnable() {
                 @Override
@@ -105,7 +107,7 @@ public class EcgDataProcessor {
         }
     }
 
-    public void processEcgData(final byte[] data) {
+    public synchronized void processEcgData(final byte[] data) {
         if(service != null && !service.isShutdown()) {
             service.execute(new Runnable() {
                 @Override

@@ -106,7 +106,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     private boolean isSaveEcgFile = false; // 是否保存心电文件
 
-    private boolean isMeasureBattery = false; // 是否测量电池电量
+    private boolean isBatteryMeasured = false; // 是否测量电池电量
 
     private volatile EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
 
@@ -224,12 +224,9 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         updateCalibrationValue(value1mVBeforeCalibration);
 
-        isMeasureBattery = isContainGattElement(BATTERY_DATA);
+        isBatteryMeasured = isContainGattElement(BATTERY_DATA);
 
         startBatteryMeasure();
-
-        // 停止采样
-        //stopDataSampling();
 
         // 读采样率
         readSampleRate();
@@ -247,6 +244,12 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             listener.onEcgSignalShowStoped();
         }
 
+        if(isBatteryMeasured) {
+            stopBatteryMeasure();
+
+            isBatteryMeasured = false;
+        }
+
         ecgDataProcessor.close();
     }
 
@@ -254,6 +257,12 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     protected void executeAfterConnectFailure() {
         if(listener != null) {
             listener.onEcgSignalShowStoped();
+        }
+
+        if(isBatteryMeasured) {
+            stopBatteryMeasure();
+
+            isBatteryMeasured = false;
         }
 
         ecgDataProcessor.close();
@@ -276,8 +285,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             signalRecorder.close();
 
             signalRecorder = null;
-
-            ViseLog.e("The signal recorder closed.");
         }
 
         // 关闭文件
@@ -331,10 +338,10 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                     listener.onEcgSignalShowStoped();
                 }
 
-                if(isMeasureBattery) {
+                if(isBatteryMeasured) {
                     stopBatteryMeasure();
 
-                    isMeasureBattery = false;
+                    isBatteryMeasured = false;
                 }
 
                 if(isConnected() && isGattExecutorAlive()) {
@@ -363,7 +370,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                     ecgDataProcessor.stop();
                 }
 
-                ecgDataProcessor.close();
+                //ecgDataProcessor.close();
             }
         });
 
@@ -511,8 +518,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                ViseLog.e("The data sampling stopped.");
-
                 ecgDataProcessor.stop();
             }
 
@@ -525,8 +530,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 开始电池电量测量
     private void startBatteryMeasure() {
-        if(isMeasureBattery && (batMeasureService == null || batMeasureService.isTerminated())) {
-            ViseLog.e("The battery measure service starts.");
+        if(isBatteryMeasured && (batMeasureService == null || batMeasureService.isTerminated())) {
+            ViseLog.e("The battery measure service started.");
 
             batMeasureService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
                 @Override

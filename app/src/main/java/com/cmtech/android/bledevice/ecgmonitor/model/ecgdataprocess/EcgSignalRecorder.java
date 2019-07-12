@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.vise.log.ViseLog;
 
 import java.io.IOException;
 
@@ -67,6 +68,8 @@ public class EcgSignalRecorder {
     }
 
     public synchronized void close() {
+        ViseLog.e("The signal recorder closed.");
+
         isRecord = false;
     }
 

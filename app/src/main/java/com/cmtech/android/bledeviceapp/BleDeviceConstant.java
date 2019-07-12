@@ -15,7 +15,7 @@ public class BleDeviceConstant {
 
     public final static int TIMEOUT_SCAN = 10000; // 扫描超时时间
 
-    public final static int TIMEOUT_CONNECT = 30000; // 连接超时时间
+    public final static int TIMEOUT_CONNECT = 60000; // 连接超时时间
 
     public static final String SCAN_DEVICE_NAME = "CM1.0"; // 扫描时过滤设备：只获取广播数据包中设备名为该名称的设备
 
