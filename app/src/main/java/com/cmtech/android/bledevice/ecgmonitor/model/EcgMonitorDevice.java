@@ -444,7 +444,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data) {
-                ecgDataProcessor.processEcgData(data);
+                ecgDataProcessor.processData(data, false);
             }
 
             @Override
@@ -459,8 +459,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                ViseLog.e("The ECG signal sampling started");
-
                 setState(EcgMonitorState.SAMPLEING);
 
                 if(listener != null) {
@@ -468,6 +466,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                 }
 
                 ecgDataProcessor.start();
+
+                ViseLog.e("The ECG signal sampling started");
             }
 
             @Override
@@ -482,7 +482,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         IGattDataCallback notificationCallback = new IGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data) {
-                ecgDataProcessor.processCalibrateData(data);
+                ecgDataProcessor.processData(data, true);
             }
 
             @Override
@@ -497,11 +497,12 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                ViseLog.e("The 1mV Calibration started.");
-
                 setState(EcgMonitorState.CALIBRATING);
 
                 ecgDataProcessor.start();
+
+                ViseLog.e("The 1mV Calibration started.");
+
             }
 
             @Override
@@ -564,7 +565,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         ExecutorUtil.shutdownNowAndAwaitTerminate(batMeasureService);
 
         ViseLog.e("The battery measure service stopped.");
-
     }
 
 

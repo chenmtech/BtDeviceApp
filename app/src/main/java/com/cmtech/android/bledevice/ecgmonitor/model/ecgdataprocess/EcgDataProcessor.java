@@ -52,14 +52,19 @@ public class EcgDataProcessor {
     public synchronized void start() {
         nextPackageNum = 0;
 
-        if(service == null || service.isTerminated()) {
-            service = Executors.newSingleThreadExecutor(new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "MT_Data_Process");
+        device.postWithMainHandler(new Runnable() {
+            @Override
+            public void run() {
+                if(service == null || service.isTerminated()) {
+                    service = Executors.newSingleThreadExecutor(new ThreadFactory() {
+                        @Override
+                        public Thread newThread(Runnable runnable) {
+                            return new Thread(runnable, "MT_Data_Process");
+                        }
+                    });
                 }
-            });
-        }
+            }
+        });
     }
 
     public synchronized void stop() {
@@ -78,8 +83,8 @@ public class EcgDataProcessor {
         }
     }
 
-    public synchronized void processCalibrateData(final byte[] data) {
-        if(service != null && !service.isShutdown()) {
+    public synchronized void processData(final byte[] data, final boolean isCalibrationData) {
+        if(service != null && !service.isTerminated()) {
             service.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -89,36 +94,11 @@ public class EcgDataProcessor {
                         int[] pack = resolveDataToPackage(data);
 
                         for (int ele : pack) {
-                            caliValueCalculator.process(ele);
-                        }
-
-                        if (++nextPackageNum == PACKAGE_NUM_MAX_LIMIT) nextPackageNum = 0;
-                    } else {
-                        if(nextPackageNum != INVALID_PACKAGE_NUM) {
-                            nextPackageNum = INVALID_PACKAGE_NUM;
-
-                            device.stopDataSampling();
-
-                            device.start1mVCalibration();
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    public synchronized void processEcgData(final byte[] data) {
-        if(service != null && !service.isShutdown()) {
-            service.execute(new Runnable() {
-                @Override
-                public void run() {
-                    int packageNum = (short) ((0xff & data[0]) | (0xff00 & (data[1] << 8)));
-
-                    if (packageNum == nextPackageNum) {
-                        int[] pack = resolveDataToPackage(data);
-
-                        for (int ele : pack) {
-                            signalProcessor.process(ele);
+                            if(isCalibrationData) {
+                                caliValueCalculator.process(ele);
+                            } else {
+                                signalProcessor.process(ele);
+                            }
                         }
 
                         if (++nextPackageNum == PACKAGE_NUM_MAX_LIMIT) nextPackageNum = 0;
@@ -130,7 +110,7 @@ public class EcgDataProcessor {
 
                             device.stopDataSampling();
 
-                            device.startEcgSignalSampling();
+                            device.start1mVCalibration();
                         }
                     }
                 }
