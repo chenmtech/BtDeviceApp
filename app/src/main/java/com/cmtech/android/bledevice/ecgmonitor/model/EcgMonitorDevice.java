@@ -494,7 +494,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, new IGattDataCallback() {
+        runInstantly(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 setState(EcgMonitorState.CALIBRATING);
@@ -502,6 +502,17 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                 ecgDataProcessor.start();
 
                 ViseLog.e("The 1mV Calibration started.");
+            }
+
+            @Override
+            public void onFailure(GattDataException exception) {
+
+            }
+        });
+
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, new IGattDataCallback() {
+            @Override
+            public void onSuccess(byte[] data) {
 
             }
 
