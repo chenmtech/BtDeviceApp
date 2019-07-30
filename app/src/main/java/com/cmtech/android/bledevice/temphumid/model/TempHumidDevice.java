@@ -36,16 +36,6 @@ public class TempHumidDevice extends BleDevice {
     private static final byte DEVICE_DEFAULT_TIMER_PERIOD  = 30; // 设备默认定时周期，单位：分钟
     private static final int DEFAULT_TEMPHUMID_PERIOD  = 5000; // 默认温湿度采样周期，单位：毫秒
 
-    /**
-     * GATT消息常量
-     */
-    private static final int MSG_TEMPHUMIDDATA = 1;             // 当前温湿度数据消息
-    private static final int MSG_TEMPHUMIDCTRL = 2;             //
-    private static final int MSG_TEMPHUMIDPERIOD = 3;
-    private static final int MSG_TEMPHUMIDHISTORYDATA = 4;      // 历史数据消息
-    private static final int MSG_TIMERVALUE = 5;                // 定时器服务特征值消息
-
-
     ///////////////// 温湿度计Service相关的常量////////////////
     private static final String tempHumidServiceUuid    = "aa60";           // 温湿度计服务UUID:aa60
     private static final String tempHumidDataUuid       = "aa61";           // 温湿度数据特征UUID:aa61

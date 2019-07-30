@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.cmtech.android.ble.BleDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceFactory;
+import com.cmtech.android.bledevice.siggenerator.model.SigGeneratorDeviceFactory;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidDeviceFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoDeviceFactory;
 import com.mob.MobSDK;
@@ -46,6 +47,8 @@ public class MyApplication extends Application {
         BleDeviceConfig.addSupportedDeviceType(TempHumidDeviceFactory.TEMPHUMID_DEVICE_TYPE);
 
         BleDeviceConfig.addSupportedDeviceType(ThermoDeviceFactory.THERMO_DEVICE_TYPE);
+
+        BleDeviceConfig.addSupportedDeviceType(SigGeneratorDeviceFactory.SIGGENERATOR_DEVICE_TYPE);
 
         // 初始化LitePal
         LitePal.initialize(getApplicationContext());
