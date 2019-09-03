@@ -42,7 +42,7 @@ public class SigGeneratorDevice extends BleDevice {
     protected void executeAfterConnectSuccess() {
         BleGattElement[] elements = new BleGattElement[]{SIGGENERATOR_CTRL, SIGGENERATOR_TYPE, SIGGENERATOR_MAG, SIGGENERATOR_FREQ, SIGGENERATOR_BASELINE};
 
-        if(!isContainGattElements(elements)) {
+        if(!containGattElements(elements)) {
             ViseLog.e("Signal Generator Elements are wrong.");
 
             disconnect(true);

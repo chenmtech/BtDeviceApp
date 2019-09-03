@@ -210,7 +210,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     protected void executeAfterConnectSuccess() {
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
 
-        if(!isContainGattElements(elements)) {
+        if(!containGattElements(elements)) {
             ViseLog.e("Ecg Monitor Elements are wrong.");
 
             disconnect(true);
@@ -224,7 +224,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         updateCalibrationValue(value1mVBeforeCalibration);
 
-        isBatteryMeasured = isContainGattElement(BATTERY_DATA);
+        isBatteryMeasured = containGattElement(BATTERY_DATA);
 
         startBatteryMeasure();
 

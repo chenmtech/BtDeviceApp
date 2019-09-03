@@ -293,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             toolbarManager.setTitle(appName, "无设备打开");
             toolbarManager.setBattery(-1);
 
-            updateConnectFloatingActionButton(BleDevice.DEVICE_INIT_STATE.getIcon(), false);
+            updateConnectFloatingActionButton(BleDevice.CONNECT_INIT_STATE.getIcon(), false);
 
             invalidateOptionsMenu();
 

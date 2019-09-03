@@ -146,7 +146,7 @@ public class TempHumidDevice extends BleDevice {
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
 
-        if(!isContainGattElements(elements)) {
+        if(!containGattElements(elements)) {
             disconnect(true);
 
             return;
@@ -154,7 +154,7 @@ public class TempHumidDevice extends BleDevice {
 
         // 检查是否有温湿度历史数据服务和特征值
         elements = new BleGattElement[]{TIMERVALUE, TEMPHUMIDHISTORYTIME, TEMPHUMIDHISTORYDATA};
-        hasTimerService = isContainGattElements(elements);
+        hasTimerService = containGattElements(elements);
 
         // 先读取一次当前温湿度值
         readCurrentTempHumid();
