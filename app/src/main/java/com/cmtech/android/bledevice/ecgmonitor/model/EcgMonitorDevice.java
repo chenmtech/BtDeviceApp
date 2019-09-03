@@ -492,6 +492,27 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         };
 
         // enable ECG data notification
+        notify(ECGMONITOR_DATA_CCC, false, null);
+
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IGattDataCallback() {
+            @Override
+            public void onSuccess(byte[] data) {
+
+            }
+
+            @Override
+            public void onFailure(GattDataException exception) {
+
+            }
+        });
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
         runInstantly(new IGattDataCallback() {
