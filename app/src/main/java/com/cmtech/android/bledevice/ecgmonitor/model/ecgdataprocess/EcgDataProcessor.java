@@ -110,7 +110,7 @@ public class EcgDataProcessor {
 
                             device.stopDataSampling();
 
-                            device.start1mVCalibration();
+                            device.startEcgSignalSampling();
                         }
                     }
                 }
