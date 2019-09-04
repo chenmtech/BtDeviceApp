@@ -28,7 +28,6 @@ import com.vise.log.ViseLog;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 /**
  * ScanWaveView: 扫描式的波形显示视图，用于心电信号采集时的实时显示
@@ -316,7 +315,7 @@ public class ScanWaveView extends View {
      * @param data: 要显示的数据
      */
     public void showData(final int data) {
-        if(isShowed && !showService.isShutdown()) {
+        if(isShowed && showService != null && !showService.isShutdown()) {
             showService.execute(new Runnable() {
                 @Override
                 public void run() {
