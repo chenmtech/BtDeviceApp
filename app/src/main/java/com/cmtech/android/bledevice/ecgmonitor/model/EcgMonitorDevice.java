@@ -32,6 +32,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import static com.cmtech.android.ble.extend.BleDeviceState.CONNECT_DISCONNECT;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
@@ -211,9 +212,9 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
 
         if(!containGattElements(elements)) {
-            ViseLog.e("Ecg Monitor Elements are wrong.");
+            ViseLog.e("Ecg Monitor Elements有错。");
 
-            disconnect(true);
+            disconnect(false);
 
             return;
         }
@@ -244,12 +245,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             listener.onEcgSignalShowStoped();
         }
 
-        if(isBatteryMeasured) {
-            stopBatteryMeasure();
-
-            isBatteryMeasured = false;
-        }
-
         ecgDataProcessor.close();
     }
 
@@ -270,7 +265,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     @Override
     public void open() {
-        ViseLog.e("EcgMonitorDevice open()");
+        ViseLog.e("EcgMonitorDevice.open()");
 
         super.open();
     }
@@ -278,7 +273,11 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     // 关闭设备
     @Override
     public void close() {
-        ViseLog.e("EcgMonitorDevice close()");
+        if(super.getState() != CONNECT_DISCONNECT) {
+            return;
+        }
+
+        ViseLog.e("EcgMonitorDevice.close()");
 
         // 关闭记录器
         if(signalRecorder != null) {
@@ -313,7 +312,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                 }
             }
 
-            ViseLog.e("The ECG file closed.");
+            ViseLog.e("关闭Ecg文件。");
         }
 
         EcgMonitorDevice.super.close();
@@ -334,10 +333,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         postWithMainHandler(new Runnable() {
             @Override
             public void run() {
-                if(listener != null) {
-                    listener.onEcgSignalShowStoped();
-                }
-
                 if(isBatteryMeasured) {
                     stopBatteryMeasure();
 
@@ -364,10 +359,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                     try {
                         lock.await(1, TimeUnit.SECONDS);
                     } catch (InterruptedException e) {
-                        ecgDataProcessor.stop();
+                        e.printStackTrace();
                     }
-                } else {
-                    ecgDataProcessor.stop();
                 }
 
                 //ecgDataProcessor.close();

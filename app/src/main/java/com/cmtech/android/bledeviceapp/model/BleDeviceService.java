@@ -95,7 +95,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
     @Override
     public void onDestroy() {
-        ViseLog.e(TAG, " onDestroy");
+        ViseLog.e("BleDeviceService.onDestroy()");
         super.onDestroy();
 
         for(final BleDevice device : getDeviceList()) {

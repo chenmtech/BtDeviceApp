@@ -68,7 +68,7 @@ public class EcgSignalRecorder {
     }
 
     public synchronized void close() {
-        ViseLog.e("The signal recorder closed.");
+        ViseLog.e("关闭EcgSignalRecorder");
 
         isRecord = false;
     }

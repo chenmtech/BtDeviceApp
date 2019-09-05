@@ -434,7 +434,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     @Override
     protected void onDestroy() {
-        ViseLog.e(TAG + ":onDestroy");
+        ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
 
         for(BleDevice device : deviceService.getDeviceList()) {
@@ -550,10 +550,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     public void closeFragment(final BleDeviceFragment fragment) {
         BleDevice device = fragment.getDevice();
 
-        if(device != null) {
+        if(device != null && device.getState() == BleDeviceState.CONNECT_DISCONNECT) {
             deviceService.closeDevice(device);
 
             fragmentManager.deleteFragment(fragment);
+        } else {
+            Toast.makeText(this, "设备连接中，请先断开设备。", Toast.LENGTH_LONG).show();
         }
     }
 
