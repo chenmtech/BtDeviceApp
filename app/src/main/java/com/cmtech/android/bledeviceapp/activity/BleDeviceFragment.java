@@ -80,7 +80,7 @@ public abstract class BleDeviceFragment extends Fragment{
         // 注册设备状态观察者
         device.addDeviceStateListener(activity);
 
-        device.updateConnectState();
+        device.updateState();
 
         // 打开设备
         device.open();

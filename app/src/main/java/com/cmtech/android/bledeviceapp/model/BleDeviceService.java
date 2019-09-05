@@ -129,7 +129,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         List<String> info = new ArrayList<>();
         for(BleDevice dev : deviceManager.getDeviceList()) {
             if(!dev.isClosed()) {
-                info.add(dev.getMacAddress() + ": " + dev.getConnectStateDescription());
+                info.add(dev.getMacAddress() + ": " + dev.getStateDescription());
             }
         }
 

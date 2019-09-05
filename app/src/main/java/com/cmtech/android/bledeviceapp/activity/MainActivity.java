@@ -33,13 +33,14 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceState;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
+import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;
 import com.cmtech.android.bledeviceapp.model.BleDeviceFragmentManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceService;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
@@ -293,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             toolbarManager.setTitle(appName, "无设备打开");
             toolbarManager.setBattery(-1);
 
-            updateConnectFloatingActionButton(BleDevice.CONNECT_INIT_STATE.getIcon(), false);
+            updateConnectFloatingActionButton(BleDeviceState.DEVICE_CLOSED.getIcon(), false);
 
             invalidateOptionsMenu();
 
@@ -302,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
             toolbarManager.setBattery(device.getBattery());
 
-            updateConnectFloatingActionButton(device.getConnectStateIcon(), device.isWaitingResponse());
+            updateConnectFloatingActionButton(device.getStateIcon(), device.isWaitingResponse());
 
             invalidateOptionsMenu();
 
@@ -498,7 +499,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 if(deviceFrag != null) deviceFrag.updateState();
 
                 if(fragmentManager.isDeviceFragmentSelected(device)) {
-                    updateConnectFloatingActionButton(device.getConnectStateIcon(), device.isWaitingResponse());
+                    updateConnectFloatingActionButton(device.getStateIcon(), device.isWaitingResponse());
                 }
             }
         });

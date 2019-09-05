@@ -127,7 +127,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
         samplingSignalFragment.setDevice(device);
 
-        updateDeviceState(device.getState());
+        updateDeviceState(device.getEcgMonitorState());
 
         device.setEcgMonitorDeviceListener(this);
     }

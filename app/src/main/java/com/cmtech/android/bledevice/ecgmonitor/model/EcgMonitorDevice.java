@@ -170,11 +170,11 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     public float getYValuePerPixel() { return yValuePerPixel; }
 
-    public EcgMonitorState getState() {
+    public EcgMonitorState getEcgMonitorState() {
         return state;
     }
 
-    private void setState(EcgMonitorState state) {
+    private void setEcgMonitorState(EcgMonitorState state) {
         if(this.state != state) {
             this.state = state;
 
@@ -459,7 +459,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                setState(EcgMonitorState.SAMPLEING);
+                setEcgMonitorState(EcgMonitorState.SAMPLEING);
 
                 if(listener != null) {
                     listener.onEcgSignalShowStarted(sampleRate);
@@ -518,7 +518,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         runInstantly(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
-                setState(EcgMonitorState.CALIBRATING);
+                setEcgMonitorState(EcgMonitorState.CALIBRATING);
 
                 ecgDataProcessor.start();
 
