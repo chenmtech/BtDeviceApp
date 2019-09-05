@@ -290,7 +290,7 @@ public class ScanWaveView extends View {
      */
     public void start() {
         if(showService == null || showService.isTerminated()) {
-            ViseLog.e("The ScanWaveView started.");
+            ViseLog.e("启动ScanWaveView");
 
             showService = Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
@@ -305,7 +305,7 @@ public class ScanWaveView extends View {
      * 停止显示
      */
     public void stop() {
-        ViseLog.e("The ScanWaveView stopped.");
+        ViseLog.e("停止ScanWaveView");
 
         ExecutorUtil.shutdownNowAndAwaitTerminate(showService);
     }

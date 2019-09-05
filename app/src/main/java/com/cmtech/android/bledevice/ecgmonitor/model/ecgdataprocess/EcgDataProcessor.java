@@ -62,13 +62,15 @@ public class EcgDataProcessor {
                             return new Thread(runnable, "MT_Data_Process");
                         }
                     });
+
+                    ViseLog.e("启动数据处理服务");
                 }
             }
         });
     }
 
     public synchronized void stop() {
-        ViseLog.e("The data process service stopped.");
+        ViseLog.e("停止数据处理服务");
 
         ExecutorUtil.shutdownNowAndAwaitTerminate(service);
     }

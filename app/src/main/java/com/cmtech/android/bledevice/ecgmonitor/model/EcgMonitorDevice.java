@@ -329,7 +329,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     @Override
     protected void disconnect(boolean isReconnect) {
-        ViseLog.e("EcgMonitorDevice disconnect()");
+        ViseLog.e("EcgMonitorDevice.disconnect()");
 
         postWithMainHandler(new Runnable() {
             @Override
@@ -376,8 +376,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         super.disconnect(isReconnect);
     }
-
-
 
     // 设置是否记录心电信号
     public synchronized void setEcgSignalRecord(boolean isRecord) {
@@ -467,7 +465,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
                 ecgDataProcessor.start();
 
-                ViseLog.e("The ECG signal sampling started");
+                ViseLog.e("启动ECG信号采样");
             }
 
             @Override
@@ -518,11 +516,11 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         runInstantly(new IGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
+                ViseLog.e("启动1mV定标");
+
                 setEcgMonitorState(EcgMonitorState.CALIBRATING);
 
                 ecgDataProcessor.start();
-
-                ViseLog.e("The 1mV Calibration started.");
             }
 
             @Override
@@ -546,6 +544,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 停止数据采集
     public void stopDataSampling() {
+        ViseLog.e("停止数据采样");
+
         notify(ECGMONITOR_DATA_CCC, false, null);
 
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IGattDataCallback() {
@@ -564,7 +564,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     // 开始电池电量测量
     private void startBatteryMeasure() {
         if(isBatteryMeasured && (batMeasureService == null || batMeasureService.isTerminated())) {
-            ViseLog.e("The battery measure service started.");
+            ViseLog.e("启动电池电量测量服务");
 
             batMeasureService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
                 @Override
@@ -596,7 +596,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     private void stopBatteryMeasure() {
         ExecutorUtil.shutdownNowAndAwaitTerminate(batMeasureService);
 
-        ViseLog.e("The battery measure service stopped.");
+        ViseLog.e("停止电池电量测量服务");
     }
 
 
@@ -659,7 +659,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     public void on1mVCaliValueUpdated(int caliValue1mV) {
-        ViseLog.e("The 1mV Calibration Value is: " + caliValue1mV);
+        ViseLog.e("1mV定标值为: " + caliValue1mV);
 
         stopDataSampling();
 
