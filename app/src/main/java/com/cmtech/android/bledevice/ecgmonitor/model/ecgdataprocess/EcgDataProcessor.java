@@ -110,9 +110,11 @@ public class EcgDataProcessor {
 
                             nextPackageNum = INVALID_PACKAGE_NUM;
 
-                            device.stopDataSampling();
+                            //device.stopDataSampling();
 
-                            device.startEcgSignalSampling();
+                            //device.startEcgSignalSampling();
+
+                            device.disconnect(true);
                         }
                     }
                 }

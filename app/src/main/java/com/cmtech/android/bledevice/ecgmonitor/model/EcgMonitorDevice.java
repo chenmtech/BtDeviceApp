@@ -214,7 +214,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         if(!containGattElements(elements)) {
             ViseLog.e("Ecg Monitor Elements有错。");
 
-            disconnect(false);
+            disconnect(true);
 
             return;
         }
@@ -327,7 +327,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     @Override
-    protected void disconnect(boolean isReconnect) {
+    public void disconnect(boolean isReconnect) {
         ViseLog.e("EcgMonitorDevice.disconnect()");
 
         postWithMainHandler(new Runnable() {
