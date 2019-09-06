@@ -98,9 +98,9 @@ public abstract class BleDeviceFragment extends Fragment{
     public void switchDeviceState() {
         if(device.isWaitingResponse()) {
             Toast.makeText(getActivity(), "请稍等...", Toast.LENGTH_SHORT).show();
+        } else {
+            device.switchState();
         }
-
-        device.switchState();
     }
 
     // 更新状态
