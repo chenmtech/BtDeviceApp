@@ -117,7 +117,12 @@ public class EcgDataProcessor {
 
                             //device.startEcgSignalSampling();
 
-                            device.disconnect(true);
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    device.disconnect();
+                                }
+                            });
                         }
                     }
                 }

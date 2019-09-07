@@ -217,7 +217,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         if(!containGattElements(elements)) {
             ViseLog.e("Ecg Monitor Elements有错。");
 
-            disconnect(true);
+            disconnect();
 
             return;
         }
@@ -330,7 +330,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     @Override
-    public void disconnect(boolean isReconnect) {
+    public void disconnect() {
         ViseLog.e("EcgMonitorDevice.disconnect()");
 
         if(isBatteryMeasured) {
@@ -340,7 +340,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         }
 
         if(getState() == CONNECT_SUCCESS && isGattExecutorAlive()) {
-            final CountDownLatch lock = new CountDownLatch(1);
+            /*final CountDownLatch lock = new CountDownLatch(1);
 
             stopDataSampling();
 
@@ -360,12 +360,21 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                 lock.await(1, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }*/
+
+            stopDataSampling();
+
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+
         }
 
         //ecgDataProcessor.close();
 
-        super.disconnect(isReconnect);
+        super.disconnect();
     }
 
     // 设置是否记录心电信号
