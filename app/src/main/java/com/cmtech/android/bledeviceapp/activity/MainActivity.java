@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
             toolbarManager.setBattery(device.getBattery());
 
-            updateConnectFloatingActionButton(device.getStateIcon(), device.isWaitingResponse());
+            updateConnectFloatingActionButton(device.getStateIcon(), device.isFABRotated());
 
             invalidateOptionsMenu();
 
@@ -499,7 +499,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 if(deviceFrag != null) deviceFrag.updateState();
 
                 if(fragmentManager.isDeviceFragmentSelected(device)) {
-                    updateConnectFloatingActionButton(device.getStateIcon(), device.isWaitingResponse());
+                    updateConnectFloatingActionButton(device.getStateIcon(), device.isFABRotated());
                 }
             }
         });

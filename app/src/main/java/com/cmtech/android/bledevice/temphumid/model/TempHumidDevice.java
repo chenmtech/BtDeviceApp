@@ -19,6 +19,7 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.cmtech.android.ble.extend.BleDeviceState.CONNECT_SUCCESS;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
@@ -182,7 +183,7 @@ public class TempHumidDevice extends BleDevice {
     // 更新历史数据
     public synchronized void updateHistoryData() {
 
-        if(!isConnected() || isUpdatingHistoryData) return;
+        if(getState() != CONNECT_SUCCESS || isUpdatingHistoryData) return;
 
         isUpdatingHistoryData = true;
 

@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.extend.BleDevice;
@@ -31,8 +32,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Handler;
 
 import static com.cmtech.android.ble.extend.BleDeviceState.CONNECT_DISCONNECT;
+import static com.cmtech.android.ble.extend.BleDeviceState.CONNECT_SUCCESS;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
@@ -273,7 +276,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     // 关闭设备
     @Override
     public void close() {
-        if(super.getState() != CONNECT_DISCONNECT) {
+        if(getState() != CONNECT_DISCONNECT) {
             return;
         }
 
@@ -315,7 +318,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             ViseLog.e("关闭Ecg文件。");
         }
 
-        EcgMonitorDevice.super.close();
+        super.close();
     }
 
     private void saveEcgFileTail() throws IOException{
@@ -330,42 +333,37 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     public void disconnect(boolean isReconnect) {
         ViseLog.e("EcgMonitorDevice.disconnect()");
 
-        postWithMainHandler(new Runnable() {
-            @Override
-            public void run() {
-                if(isBatteryMeasured) {
-                    stopBatteryMeasure();
+        if(isBatteryMeasured) {
+            stopBatteryMeasure();
 
-                    isBatteryMeasured = false;
+            isBatteryMeasured = false;
+        }
+
+        if(getState() == CONNECT_SUCCESS && isGattExecutorAlive()) {
+            final CountDownLatch lock = new CountDownLatch(1);
+
+            stopDataSampling();
+
+            runInstantly(new IGattDataCallback() {
+                @Override
+                public void onSuccess(byte[] data) {
+                    lock.countDown();
                 }
 
-                if(isConnected() && isGattExecutorAlive()) {
-                    final CountDownLatch lock = new CountDownLatch(1);
-
-                    stopDataSampling();
-
-                    runInstantly(new IGattDataCallback() {
-                        @Override
-                        public void onSuccess(byte[] data) {
-                            lock.countDown();
-                        }
-
-                        @Override
-                        public void onFailure(GattDataException exception) {
-                            lock.countDown();
-                        }
-                    });
-
-                    try {
-                        lock.await(1, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                @Override
+                public void onFailure(GattDataException exception) {
+                    lock.countDown();
                 }
+            });
 
-                //ecgDataProcessor.close();
+            try {
+                lock.await(1, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        });
+        }
+
+        //ecgDataProcessor.close();
 
         super.disconnect(isReconnect);
     }
@@ -668,7 +666,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             try {
                 ecgFile = EcgFile.create(sampleRate, DEFAULT_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
             } catch (IOException e) {
-                postWithMainHandler(new Runnable() {
+                new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(MyApplication.getContext(), "无法记录心电信息", Toast.LENGTH_SHORT).show();

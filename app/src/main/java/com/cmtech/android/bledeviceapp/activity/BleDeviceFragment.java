@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.extend.BleDevice;
+import com.cmtech.android.ble.extend.BleDeviceState;
 
 /**
  * BleDeviceFragment：设备的Fragment
@@ -96,7 +97,7 @@ public abstract class BleDeviceFragment extends Fragment{
 
     // 切换设备状态，根据设备的当前状态实现状态切换
     public void switchDeviceState() {
-        if(device.isWaitingResponse()) {
+        if(device.getState() == BleDeviceState.DEVICE_CONNECTING || device.getState() == BleDeviceState.DEVICE_DISCONNECTING) {
             Toast.makeText(getActivity(), "请稍等...", Toast.LENGTH_SHORT).show();
         } else {
             device.switchState();
