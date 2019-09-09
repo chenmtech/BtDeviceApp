@@ -211,7 +211,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     public long getEcgSignalRecordDataNum() { return (signalRecorder == null) ? 0 : signalRecorder.getDataNum(); }
 
     @Override
-    protected void executeAfterConnectSuccess() {
+    protected boolean executeAfterConnectSuccess() {
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
 
         if(!containGattElements(elements)) {
@@ -219,7 +219,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
             disconnect();
 
-            return;
+            return false;
         }
 
         updateSampleRate(DEFAULT_SAMPLERATE);
@@ -240,6 +240,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         // 启动1mV定标
         start1mVCalibration();
+
+        return true;
     }
 
     @Override

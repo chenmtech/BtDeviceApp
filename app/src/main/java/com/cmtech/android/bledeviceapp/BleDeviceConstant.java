@@ -13,7 +13,7 @@ public class BleDeviceConstant {
     public static final String BT_BASE_UUID = "0000XXXX-0000-1000-8000-00805F9B34FB"; // 蓝牙标准UUID
     public static final String CCCUUID = "00002902-0000-1000-8000-00805f9b34fb"; // CCC UUID
 
-    public final static int TIMEOUT_SCAN = 10000; // 扫描超时时间
+    public final static int TIMEOUT_SCAN = -1; // 扫描超时时间
 
     public final static int TIMEOUT_CONNECT = 60000; // 连接超时时间
 

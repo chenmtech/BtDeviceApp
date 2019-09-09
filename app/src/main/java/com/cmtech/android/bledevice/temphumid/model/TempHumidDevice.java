@@ -143,14 +143,14 @@ public class TempHumidDevice extends BleDevice {
     }
 
     @Override
-    protected void executeAfterConnectSuccess() {
+    protected boolean executeAfterConnectSuccess() {
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
 
         if(!containGattElements(elements)) {
             disconnect();
 
-            return;
+            return false;
         }
 
         // 检查是否有温湿度历史数据服务和特征值
@@ -167,6 +167,8 @@ public class TempHumidDevice extends BleDevice {
         isUpdatingHistoryData = false;
 
         updateHistoryData();
+
+        return true;
     }
 
     @Override
