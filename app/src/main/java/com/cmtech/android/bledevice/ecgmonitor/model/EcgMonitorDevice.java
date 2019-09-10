@@ -27,14 +27,13 @@ import org.litepal.LitePal;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Handler;
 
 import static com.cmtech.android.ble.extend.BleDeviceState.CONNECT_DISCONNECT;
+import static com.cmtech.android.ble.extend.BleDeviceState.CONNECT_FAILURE;
 import static com.cmtech.android.ble.extend.BleDeviceState.CONNECT_SUCCESS;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
@@ -217,7 +216,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         if(!containGattElements(elements)) {
             ViseLog.e("Ecg Monitor Elements有错。");
 
-            disconnect();
+            //callDisconnect();
 
             return false;
         }
@@ -278,7 +277,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     // 关闭设备
     @Override
     public void close() {
-        if(getState() != CONNECT_DISCONNECT) {
+        if(getState() != CONNECT_DISCONNECT && getState() != CONNECT_FAILURE) {
             return;
         }
 
@@ -332,8 +331,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     @Override
-    public void doDisconnect() {
-        ViseLog.e("EcgMonitorDevice.doDisconnect()");
+    public void disconnect() {
+        ViseLog.e("EcgMonitorDevice.disconnect()");
 
         if(isBatteryMeasured) {
             stopBatteryMeasure();
@@ -376,7 +375,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         //ecgDataProcessor.close();
 
-        super.doDisconnect();
+        super.disconnect();
     }
 
     // 设置是否记录心电信号

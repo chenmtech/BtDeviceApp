@@ -148,7 +148,7 @@ public class TempHumidDevice extends BleDevice {
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
 
         if(!containGattElements(elements)) {
-            disconnect();
+            //callDisconnect();
 
             return false;
         }

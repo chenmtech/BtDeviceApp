@@ -550,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     public void closeFragment(final BleDeviceFragment fragment) {
         BleDevice device = fragment.getDevice();
 
-        if(device != null && device.getState() == BleDeviceState.CONNECT_DISCONNECT) {
+        if(device != null && (device.getState() == BleDeviceState.CONNECT_DISCONNECT || device.getState() == BleDeviceState.CONNECT_FAILURE)) {
             deviceService.closeDevice(device);
 
             fragmentManager.deleteFragment(fragment);
