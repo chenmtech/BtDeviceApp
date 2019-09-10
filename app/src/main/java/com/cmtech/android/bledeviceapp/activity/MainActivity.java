@@ -145,7 +145,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         // 启动并绑定服务
         Intent startService = new Intent(this, BleDeviceService.class);
+
         startService(startService);
+
         bindService(startService, deviceServiceConnect, BIND_AUTO_CREATE);
     }
 
