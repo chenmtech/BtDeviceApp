@@ -58,3 +58,4 @@ freeline_project_description.json
 .bash_profile
 .idea/caches/gradle_models.ser
 .idea/caches/gradle_models.ser
+*.ser
