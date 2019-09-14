@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.le.ScanFilter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,12 +17,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.callback.scan.DevNameFilterScanCallback;
-import com.cmtech.android.ble.callback.scan.IScanCallback;
-import com.cmtech.android.ble.callback.scan.ScanCallback;
+import com.cmtech.android.ble.callback.ScanCallback;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
-import com.cmtech.android.ble.model.BluetoothLeDeviceStore;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.ble.utils.UuidUtil;
@@ -32,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.SCAN_DEVICE_NAME;
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 
 /**
@@ -51,39 +48,6 @@ public class SearchDeviceActivity extends AppCompatActivity {
     private static final String TAG = "SearchDeviceActivity";
 
     public static final String REGISTED_DEVICE_MAC_LIST = "register_device_mac_list";
-
-    // 扫描设备回调类
-    private class ScanDeviceCallback implements IScanCallback {
-        ScanDeviceCallback() {
-
-        }
-
-        @Override
-        public void onDeviceFound(final BluetoothLeDevice bluetoothLeDevice) {
-            if(bluetoothLeDevice != null) {
-                addDeviceToList(bluetoothLeDevice);
-            }
-        }
-
-        @Override
-        public void onScanFinish(BluetoothLeDeviceStore bluetoothLeDeviceStore) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    srlScanDevice.setRefreshing(false);
-
-                    Toast.makeText(SearchDeviceActivity.this, "搜索结束。", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-        @Override
-        public void onScanTimeout() {
-            srlScanDevice.setRefreshing(false);
-
-            Toast.makeText(SearchDeviceActivity.this, "搜索结束，未找到设备。", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     // 设备绑定状态改变的广播接收器类
     private class BleDeviceBondReceiver extends BroadcastReceiver {
@@ -115,7 +79,23 @@ public class SearchDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private final ScanCallback scanCallback = new DevNameFilterScanCallback(new ScanDeviceCallback()).setDeviceName(SCAN_DEVICE_NAME); // 扫描回调
+    private final ScanCallback scanCallback = new ScanCallback() {
+        @Override
+        public void onScanFinish(BluetoothLeDevice bluetoothLeDevice) {
+            if(bluetoothLeDevice != null) {
+                addDeviceToList(bluetoothLeDevice);
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        srlScanDevice.setRefreshing(false);
+
+                        Toast.makeText(SearchDeviceActivity.this, "搜索结束。", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
+    }; // 扫描回调
 
     private SwipeRefreshLayout srlScanDevice;
 
@@ -174,6 +154,14 @@ public class SearchDeviceActivity extends AppCompatActivity {
         bondReceiver = new BleDeviceBondReceiver();
 
         registerReceiver(bondReceiver, bondIntent);
+
+        ScanFilter.Builder builder = new ScanFilter.Builder();
+
+        builder.setDeviceName("CM1.0");
+
+        ScanFilter scanFilter = builder.build();
+
+        scanCallback.setScanFilter(scanFilter);
 
         startScan();
 
@@ -236,11 +224,9 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
     public void registerDevice(final BluetoothLeDevice device) {
         // 先停止扫描
-        if(scanCallback.isScanning()) {
-            BleUtil.stopScan(scanCallback);
+        BleUtil.stopScan(scanCallback);
 
-            srlScanDevice.setRefreshing(false);
-        }
+        srlScanDevice.setRefreshing(false);
 
         if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
             device.getDevice().createBond();
@@ -252,13 +238,11 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
     // 开始扫描
     private void startScan() {
-        if(!scanCallback.isScanning()) {
-            deviceList.clear();
+        deviceList.clear();
 
-            scanDeviceAdapter.notifyDataSetChanged();
+        scanDeviceAdapter.notifyDataSetChanged();
 
-            BleUtil.startScan(scanCallback);
-        }
+        BleUtil.startScan(scanCallback);
     }
 
     private void addDeviceToList(final BluetoothLeDevice device) {
