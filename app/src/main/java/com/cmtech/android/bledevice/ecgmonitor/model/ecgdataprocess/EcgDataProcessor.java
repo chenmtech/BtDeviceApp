@@ -109,13 +109,9 @@ public class EcgDataProcessor {
                         if (++nextPackageNum == PACKAGE_NUM_MAX_LIMIT) nextPackageNum = 0;
                     } else {
                         if(nextPackageNum != INVALID_PACKAGE_NUM) {
-                            ViseLog.e("数据包失序！！！");
+                            ViseLog.e("数据包丢失！！！");
 
                             nextPackageNum = INVALID_PACKAGE_NUM;
-
-                            //device.stopDataSampling();
-
-                            //device.startEcgSignalSampling();
 
                             device.startDisconnection();
                         }
