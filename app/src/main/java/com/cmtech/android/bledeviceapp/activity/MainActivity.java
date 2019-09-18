@@ -54,7 +54,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
-import static com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity.REGISTED_DEVICE_MAC_LIST;
+import static com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity.REGISTER_DEVICE_MAC_LIST;
 
 /**
  *  MainActivity: 主界面
@@ -261,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
                         Intent scanIntent = new Intent(MainActivity.this, SearchDeviceActivity.class);
 
-                        scanIntent.putExtra(REGISTED_DEVICE_MAC_LIST, (Serializable) deviceMacList);
+                        scanIntent.putExtra(REGISTER_DEVICE_MAC_LIST, (Serializable) deviceMacList);
 
                         startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
 

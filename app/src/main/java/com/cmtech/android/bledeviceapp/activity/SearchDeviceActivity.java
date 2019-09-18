@@ -21,8 +21,8 @@ import com.cmtech.android.ble.callback.BleScanCallback;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
-import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledeviceapp.BleDeviceConstant;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
 
@@ -47,7 +47,7 @@ import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.D
 public class SearchDeviceActivity extends AppCompatActivity {
     private static final String TAG = "SearchDeviceActivity";
 
-    public static final String REGISTED_DEVICE_MAC_LIST = "register_device_mac_list";
+    public static final String REGISTER_DEVICE_MAC_LIST = "register_device_mac_list";
 
     // 设备绑定状态改变的广播接收器类
     private class BleDeviceBondReceiver extends BroadcastReceiver {
@@ -79,7 +79,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private ScanFilter scanFilter = new ScanFilter.Builder().setDeviceName("CM1.0").build();
+    private final ScanFilter scanFilter = new ScanFilter.Builder().setDeviceName(BleDeviceConstant.SCAN_DEVICE_NAME).build();
 
     private final BleScanCallback bleScanCallback = new BleScanCallback() {
         @Override
@@ -120,7 +120,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         if(intent != null) {
-            registedDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTED_DEVICE_MAC_LIST);
+            registedDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTER_DEVICE_MAC_LIST);
         }
 
         rvScanDevice = findViewById(R.id.rv_scandevice);
