@@ -8,7 +8,7 @@ import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
-import com.cmtech.android.ble.extend.IGattDataCallback;
+import com.cmtech.android.ble.callback.IBleGattDataCallback;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.util.LinkedList;
@@ -139,7 +139,7 @@ public class ThermoDevice extends BleDevice {
 
     private void readThermoData() {
         // 读温度数据
-        read(THERMODATA, new IGattDataCallback() {
+        read(THERMODATA, new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 double temp = ByteUtil.getShort(data)/100.0;
@@ -167,7 +167,7 @@ public class ThermoDevice extends BleDevice {
         // 设置采样周期
         write(THERMOPERIOD, period, null);
 
-        IGattDataCallback notifyCallback = new IGattDataCallback() {
+        IBleGattDataCallback notifyCallback = new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 double temp = ByteUtil.getShort(data)/100.0;

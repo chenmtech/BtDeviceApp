@@ -4,11 +4,11 @@ import android.content.Context;
 import android.os.Looper;
 import android.widget.Toast;
 
+import com.cmtech.android.ble.callback.IBleGattDataCallback;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
-import com.cmtech.android.ble.extend.IGattDataCallback;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.Ecg1mVCaliValueCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProcessor;
@@ -346,7 +346,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
             stopDataSampling();
 
-            runInstantly(new IGattDataCallback() {
+            runInstantly(new IBleGattDataCallback() {
                 @Override
                 public void onSuccess(byte[] data) {
                     lock.countDown();
@@ -402,7 +402,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 读采样率
     private void readSampleRate() {
-        read(ECGMONITOR_SAMPLERATE, new IGattDataCallback() {
+        read(ECGMONITOR_SAMPLERATE, new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 int sampleRate = (data[0] & 0xff) | ((data[1] << 8) & 0xff00);
@@ -424,7 +424,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 读导联类型
     private void readLeadType() {
-        read(ECGMONITOR_LEADTYPE, new IGattDataCallback() {
+        read(ECGMONITOR_LEADTYPE, new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 leadType = EcgLeadType.getFromCode(data[0]);
@@ -441,7 +441,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 启动ECG信号采集
     public void startEcgSignalSampling() {
-        IGattDataCallback notificationCallback = new IGattDataCallback() {
+        IBleGattDataCallback notificationCallback = new IBleGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data) {
                 ecgDataProcessor.processData(data, false);
@@ -456,7 +456,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IGattDataCallback() {
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 setEcgMonitorState(EcgMonitorState.SAMPLEING);
@@ -479,7 +479,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 启动1mV定标
     public void start1mVCalibration() {
-        IGattDataCallback notificationCallback = new IGattDataCallback() {
+        IBleGattDataCallback notificationCallback = new IBleGattDataCallback() {
             @Override
             public void onSuccess(final byte[] data) {
                 ecgDataProcessor.processData(data, true);
@@ -494,7 +494,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, false, null);
 
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IGattDataCallback() {
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
 
@@ -515,7 +515,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
 
-        runInstantly(new IGattDataCallback() {
+        runInstantly(new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 ViseLog.e("启动1mV定标");
@@ -531,7 +531,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             }
         });
 
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, new IGattDataCallback() {
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
 
@@ -550,7 +550,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         notify(ECGMONITOR_DATA_CCC, false, null);
 
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IGattDataCallback() {
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 ecgDataProcessor.stop();
@@ -578,7 +578,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             batMeasureService.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    read(BATTERY_DATA, new IGattDataCallback() {
+                    read(BATTERY_DATA, new IBleGattDataCallback() {
                         @Override
                         public void onSuccess(byte[] data) {
                             updateBattery(data[0]);

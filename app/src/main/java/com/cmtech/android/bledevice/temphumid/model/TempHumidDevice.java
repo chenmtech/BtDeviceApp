@@ -4,11 +4,11 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.cmtech.android.ble.callback.IBleGattDataCallback;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.ble.extend.GattDataException;
-import com.cmtech.android.ble.extend.IGattDataCallback;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -199,7 +199,7 @@ public class TempHumidDevice extends BleDevice {
 
     // 读取当前温湿度值
     private void readCurrentTempHumid() {
-        read(TEMPHUMIDDATA, new IGattDataCallback() {
+        read(TEMPHUMIDDATA, new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 curTempHumid = new TempHumidData(Calendar.getInstance(), data);
@@ -222,7 +222,7 @@ public class TempHumidDevice extends BleDevice {
         write(TEMPHUMIDCTRL, (byte)0x01, null);
 
         // enable 温湿度采集的notification
-        IGattDataCallback notifyCallback = new IGattDataCallback() {
+        IBleGattDataCallback notifyCallback = new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 curTempHumid = new TempHumidData(Calendar.getInstance(), data);
@@ -240,7 +240,7 @@ public class TempHumidDevice extends BleDevice {
 
     // 读取定时器服务特征值
     private void readTimerServiceValue() {
-        read(TIMERVALUE, new IGattDataCallback() {
+        read(TIMERVALUE, new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 processTimerServiceValue(data);
@@ -262,7 +262,7 @@ public class TempHumidDevice extends BleDevice {
         write(TEMPHUMIDHISTORYTIME, hourminute, null);
 
         // 读取历史数据
-        read(TEMPHUMIDHISTORYDATA, new IGattDataCallback() {
+        read(TEMPHUMIDHISTORYDATA, new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 TempHumidData thData =  new TempHumidData(backuptime, data);
@@ -340,7 +340,7 @@ public class TempHumidDevice extends BleDevice {
         }
 
         // 添加更新历史数据完毕的命令
-        runInstantly(new IGattDataCallback() {
+        runInstantly(new IBleGattDataCallback() {
             @Override
             public void onSuccess(byte[] data) {
                 isUpdatingHistoryData = false;
