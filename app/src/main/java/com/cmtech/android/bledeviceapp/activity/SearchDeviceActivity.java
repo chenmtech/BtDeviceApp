@@ -207,13 +207,13 @@ public class SearchDeviceActivity extends AppCompatActivity {
         if(srlScanDevice.isRefreshing())
             srlScanDevice.setRefreshing(false);
 
-        bleScanCallback.stopScan();
+        bleScanCallback.stopScan(this);
     }
 
 
     public void registerDevice(final BluetoothLeDevice device) {
         // 先停止扫描
-        bleScanCallback.stopScan();
+        bleScanCallback.stopScan(this);
 
         srlScanDevice.setRefreshing(false);
 
@@ -231,9 +231,9 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         scanDeviceAdapter.notifyDataSetChanged();
 
-        bleScanCallback.stopScan();
+        bleScanCallback.stopScan(this);
 
-        bleScanCallback.startScan();
+        bleScanCallback.startScan(this);
     }
 
     private void addDeviceToList(final BluetoothLeDevice device) {

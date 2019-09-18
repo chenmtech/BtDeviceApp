@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import android.content.Context;
 import android.os.Looper;
 import android.widget.Toast;
 
@@ -132,8 +133,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
 
     // 构造器
-    EcgMonitorDevice(BleDeviceBasicInfo basicInfo) {
-        super(basicInfo);
+    EcgMonitorDevice(Context context, BleDeviceBasicInfo basicInfo) {
+        super(context, basicInfo);
 
         // 从数据库获取设备的配置信息
         List<EcgMonitorDeviceConfig> foundConfig = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);

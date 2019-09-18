@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
+import android.content.Context;
+
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceType;
 import com.cmtech.android.bledevice.temphumid.view.TempHumidFragment;
@@ -21,8 +23,8 @@ public class TempHumidDeviceFactory extends AbstractBleDeviceFactory {
 
 
     @Override
-    public BleDevice createDevice() {
-        return new TempHumidDevice(basicInfo);
+    public BleDevice createDevice(Context context) {
+        return new TempHumidDevice(context, basicInfo);
     }
 
     @Override

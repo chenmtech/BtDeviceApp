@@ -98,8 +98,10 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         super.onDestroy();
 
         for(final BleDevice device : getDeviceList()) {
-            device.getDeviceMirror().disconnect();
-            device.getDeviceMirror().clear();
+            if(device.getDeviceMirror() != null) {
+                device.getDeviceMirror().disconnect();
+                device.getDeviceMirror().clear();
+            }
             device.close();
             device.removeDeviceStateListener(BleDeviceService.this);
         }

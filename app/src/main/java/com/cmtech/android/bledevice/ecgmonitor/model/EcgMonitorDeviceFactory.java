@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import android.content.Context;
+
 import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
@@ -20,8 +22,8 @@ public class EcgMonitorDeviceFactory extends AbstractBleDeviceFactory {
     public static final BleDeviceType ECGMONITOR_DEVICE_TYPE = new BleDeviceType(UUID_ECGMONITOR, IMAGE_ECGMONITOR, NAME_ECGMONITOR, ecgMonitorFactory);
 
     @Override
-    public BleDevice createDevice() {
-        return new EcgMonitorDevice(basicInfo);
+    public BleDevice createDevice(Context context) {
+        return new EcgMonitorDevice(context, basicInfo);
     }
 
     @Override

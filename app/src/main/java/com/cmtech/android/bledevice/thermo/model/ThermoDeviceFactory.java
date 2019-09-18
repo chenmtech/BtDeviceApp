@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.thermo.model;
 
+import android.content.Context;
+
 import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
@@ -20,8 +22,8 @@ public class ThermoDeviceFactory extends AbstractBleDeviceFactory {
 
 
     @Override
-    public BleDevice createDevice() {
-        return new ThermoDevice(basicInfo);
+    public BleDevice createDevice(Context context) {
+        return new ThermoDevice(context, basicInfo);
     }
 
     @Override

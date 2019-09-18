@@ -1,9 +1,9 @@
 package com.cmtech.android.bledevice.siggenerator.model;
 
+import android.content.Context;
+
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceType;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.view.EcgMonitorFragment;
 import com.cmtech.android.bledevice.siggenerator.view.SigGeneratorFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
@@ -21,8 +21,8 @@ public class SigGeneratorDeviceFactory extends AbstractBleDeviceFactory {
     public static final BleDeviceType SIGGENERATOR_DEVICE_TYPE = new BleDeviceType(UUID_SIGGENERATOR, IMAGE_SIGGENERATOR, NAME_SIGGENERATOR, sigGeneratorFactory);
 
     @Override
-    public BleDevice createDevice() {
-        return new SigGeneratorDevice(basicInfo);
+    public BleDevice createDevice(Context context) {
+        return new SigGeneratorDevice(context, basicInfo);
     }
 
     @Override
