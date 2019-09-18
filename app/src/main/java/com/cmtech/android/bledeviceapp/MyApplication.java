@@ -15,8 +15,8 @@ import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.TIMEOUT_CONNECT;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.TIMEOUT_SCAN;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CONNECT_TIMEOUT;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.SCAN_TIMEOUT;
 
 /**
  * MyApplication
@@ -38,9 +38,9 @@ public class MyApplication extends Application {
 
         BleDeviceConfig.initialize(getContext());
 
-        BleDeviceConfig.setScanTimeout(TIMEOUT_SCAN);
+        BleDeviceConfig.setScanTimeout(SCAN_TIMEOUT);
 
-        BleDeviceConfig.setConnectTimeout(TIMEOUT_CONNECT);
+        BleDeviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
 
         BleDeviceConfig.addSupportedDeviceType(EcgMonitorDeviceFactory.ECGMONITOR_DEVICE_TYPE);
 

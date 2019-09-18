@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import com.cmtech.android.ble.extend.BleDevice;
@@ -22,12 +23,12 @@ public class BleDeviceManager {
     }
 
     // 创建并添加一个设备
-    public BleDevice createAndAddDevice(BleDeviceBasicInfo basicInfo) {
+    public BleDevice createAndAddDevice(Context context, BleDeviceBasicInfo basicInfo) {
         BleDevice device = findDevice(basicInfo);
         if(device != null) return null;
 
         // 创建设备
-        device = createDevice(basicInfo);
+        device = createDevice(context, basicInfo);
         if(device == null) return null;
 
         // 将设备添加到设备列表
@@ -62,10 +63,10 @@ public class BleDeviceManager {
     }
 
     // 根据设备基本信息创建设备
-    private BleDevice createDevice(BleDeviceBasicInfo basicInfo) {
+    private BleDevice createDevice(Context context, BleDeviceBasicInfo basicInfo) {
         // 获取相应的抽象工厂
         AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(basicInfo);
-        return (factory == null) ? null : factory.createDevice();
+        return (factory == null) ? null : factory.createDevice(context);
     }
 
     // 用基本信息寻找设备

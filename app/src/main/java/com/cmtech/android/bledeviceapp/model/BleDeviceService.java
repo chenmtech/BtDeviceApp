@@ -17,7 +17,6 @@ import android.support.v4.app.NotificationCompat;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
 import com.cmtech.android.ble.extend.OnBleDeviceStateListener;
-import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -99,8 +98,9 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         super.onDestroy();
 
         for(final BleDevice device : getDeviceList()) {
+            device.getDeviceMirror().disconnect();
+            device.getDeviceMirror().clear();
             device.close();
-
             device.removeDeviceStateListener(BleDeviceService.this);
         }
 
@@ -110,8 +110,8 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
         UserManager.getInstance().signOut();
 
-        BleUtil.disconnectAllDevice();
-        BleUtil.clearAllDevice();
+        //BleUtil.disconnectAllDevice();
+        //BleUtil.clearAllDevice();
 
         try {
             Thread.sleep(500);
@@ -156,7 +156,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
     // 创建并添加一个设备
     public BleDevice createAndAddDevice(BleDeviceBasicInfo basicInfo) {
-        BleDevice device = deviceManager.createAndAddDevice(basicInfo);
+        BleDevice device = deviceManager.createAndAddDevice(this, basicInfo);
         if(device != null) {
             device.addDeviceStateListener(this);
         }
