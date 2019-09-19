@@ -82,18 +82,19 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
     private final ScanFilter scanFilter = new ScanFilter.Builder().setDeviceName(BleDeviceConstant.SCAN_DEVICE_NAME).build();
 
-    private final BleDeviceScanner scanner = new BleDeviceScanner().setScanFilter(scanFilter);
+    private final BleDeviceScanner scanner = new BleDeviceScanner(this).setScanFilter(scanFilter);
 
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
         @Override
         public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
-            if(bluetoothLeDevice != null) {
-                addDeviceToList(bluetoothLeDevice);
-            } else {
-                srlScanDevice.setRefreshing(false);
+            addDeviceToList(bluetoothLeDevice);
+        }
 
-                Toast.makeText(SearchDeviceActivity.this, "搜索结束。", Toast.LENGTH_SHORT).show();
-            }
+        @Override
+        public void onScanFailed(int errorCode) {
+            srlScanDevice.setRefreshing(false);
+
+            Toast.makeText(SearchDeviceActivity.this, "搜索结束。", Toast.LENGTH_SHORT).show();
         }
     }; // 扫描回调
 
@@ -210,13 +211,13 @@ public class SearchDeviceActivity extends AppCompatActivity {
         if(srlScanDevice.isRefreshing())
             srlScanDevice.setRefreshing(false);
 
-        scanner.stopScan(this);
+        scanner.stopScan();
     }
 
 
     public void registerDevice(final BluetoothLeDevice device) {
         // 先停止扫描
-        scanner.stopScan(this);
+        scanner.stopScan();
 
         srlScanDevice.setRefreshing(false);
 
@@ -234,9 +235,9 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         scanDeviceAdapter.notifyDataSetChanged();
 
-        scanner.stopScan(this);
+        scanner.stopScan();
 
-        scanner.startScan(this, bleScanCallback);
+        scanner.startScan(bleScanCallback);
     }
 
     private void addDeviceToList(final BluetoothLeDevice device) {
