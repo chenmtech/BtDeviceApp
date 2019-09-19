@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
             toolbarManager.setBattery(device.getBattery());
 
-            updateConnectFloatingActionButton(device.getStateIcon(), device.isFABRotated());
+            updateConnectFloatingActionButton(device.getStateIcon(), device.isActing());
 
             invalidateOptionsMenu();
 
@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
                         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
 
-                        fragmentManager.updateTabInfo(fragmentManager.findOpenedFragment(device), device.getImageDrawable(this), device.getNickName());
+                        fragmentManager.updateTabInfo(fragmentManager.findOpenedFragment(device), device.getImageDrawable(), device.getNickName());
 
                         if(fragmentManager.isDeviceFragmentSelected(device)) {
                             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
@@ -501,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 if(deviceFrag != null) deviceFrag.updateState();
 
                 if(fragmentManager.isDeviceFragmentSelected(device)) {
-                    updateConnectFloatingActionButton(device.getStateIcon(), device.isFABRotated());
+                    updateConnectFloatingActionButton(device.getStateIcon(), device.isActing());
                 }
             }
         });
@@ -552,7 +552,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     public void closeFragment(final BleDeviceFragment fragment) {
         BleDevice device = fragment.getDevice();
 
-        if(device != null && (device.getState() == BleDeviceState.CONNECT_DISCONNECT || device.getState() == BleDeviceState.CONNECT_FAILURE)) {
+        if(device != null && device.isDisconnect()) {
             deviceService.closeDevice(device);
 
             fragmentManager.deleteFragment(fragment);
@@ -581,7 +581,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             drawerLayout.closeDrawer(GravityCompat.START);
 
             // 添加设备的Fragment到管理器
-            fragmentManager.addFragment(factory.createFragment(), device.getImageDrawable(this), device.getNickName());
+            fragmentManager.addFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
 
             updateMainLayout(device);
         }

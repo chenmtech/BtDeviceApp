@@ -50,6 +50,8 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
     public static final String REGISTER_DEVICE_MAC_LIST = "register_device_mac_list";
 
+    private static final ScanFilter SCAN_FILTER_DEVICE_NAME = new ScanFilter.Builder().setDeviceName(BleDeviceConstant.SCAN_DEVICE_NAME).build();
+
     // 设备绑定状态改变的广播接收器类
     private class BleDeviceBondReceiver extends BroadcastReceiver {
         @Override
@@ -80,9 +82,8 @@ public class SearchDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private final ScanFilter scanFilter = new ScanFilter.Builder().setDeviceName(BleDeviceConstant.SCAN_DEVICE_NAME).build();
 
-    private final BleDeviceScanner scanner = new BleDeviceScanner(this).setScanFilter(scanFilter);
+    private final BleDeviceScanner scanner = new BleDeviceScanner(this, SCAN_FILTER_DEVICE_NAME);
 
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
         @Override

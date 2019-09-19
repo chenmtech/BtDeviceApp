@@ -99,11 +99,10 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
         for(final BleDevice device : getDeviceList()) {
             if(device.getBleDeviceGatt() != null) {
-                device.getBleDeviceGatt().disconnect();
                 device.getBleDeviceGatt().clear();
             }
-            device.close();
-            device.removeDeviceStateListener(BleDeviceService.this);
+            //device.close();
+            //device.removeDeviceStateListener(BleDeviceService.this);
         }
 
         stopForeground(true);
@@ -111,9 +110,6 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         stopWarnRingtone();
 
         UserManager.getInstance().signOut();
-
-        //BleUtil.disconnectAllDevice();
-        //BleUtil.clearAllDevice();
 
         try {
             Thread.sleep(500);
