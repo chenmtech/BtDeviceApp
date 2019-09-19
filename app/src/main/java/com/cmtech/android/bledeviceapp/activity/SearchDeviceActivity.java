@@ -17,8 +17,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.callback.BleScanCallback;
+import com.cmtech.android.ble.callback.IBleScanCallback;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceScanner;
 import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
@@ -81,9 +82,11 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
     private final ScanFilter scanFilter = new ScanFilter.Builder().setDeviceName(BleDeviceConstant.SCAN_DEVICE_NAME).build();
 
-    private final BleScanCallback bleScanCallback = new BleScanCallback() {
+    private final BleDeviceScanner scanner = new BleDeviceScanner().setScanFilter(scanFilter);
+
+    private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
         @Override
-        public void onScanFinish(BluetoothLeDevice bluetoothLeDevice) {
+        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
             if(bluetoothLeDevice != null) {
                 addDeviceToList(bluetoothLeDevice);
             } else {
@@ -92,7 +95,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
                 Toast.makeText(SearchDeviceActivity.this, "搜索结束。", Toast.LENGTH_SHORT).show();
             }
         }
-    }.setScanFilter(scanFilter); // 扫描回调
+    }; // 扫描回调
 
     private SwipeRefreshLayout srlScanDevice;
 
@@ -207,13 +210,13 @@ public class SearchDeviceActivity extends AppCompatActivity {
         if(srlScanDevice.isRefreshing())
             srlScanDevice.setRefreshing(false);
 
-        bleScanCallback.stopScan(this);
+        scanner.stopScan(this);
     }
 
 
     public void registerDevice(final BluetoothLeDevice device) {
         // 先停止扫描
-        bleScanCallback.stopScan(this);
+        scanner.stopScan(this);
 
         srlScanDevice.setRefreshing(false);
 
@@ -231,9 +234,9 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         scanDeviceAdapter.notifyDataSetChanged();
 
-        bleScanCallback.stopScan(this);
+        scanner.stopScan(this);
 
-        bleScanCallback.startScan(this);
+        scanner.startScan(this, bleScanCallback);
     }
 
     private void addDeviceToList(final BluetoothLeDevice device) {

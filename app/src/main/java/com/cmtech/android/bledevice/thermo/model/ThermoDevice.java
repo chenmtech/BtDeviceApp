@@ -4,11 +4,13 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.cmtech.android.ble.callback.IBleDataCallback;
+import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleGattChannel;
 import com.cmtech.android.ble.extend.BleGattElement;
-import com.cmtech.android.ble.extend.GattDataException;
-import com.cmtech.android.ble.callback.IBleGattDataCallback;
+import com.cmtech.android.ble.model.BluetoothLeDevice;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.util.LinkedList;
@@ -139,9 +141,9 @@ public class ThermoDevice extends BleDevice {
 
     private void readThermoData() {
         // 读温度数据
-        read(THERMODATA, new IBleGattDataCallback() {
+        read(THERMODATA, new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 double temp = ByteUtil.getShort(data)/100.0;
 
                 setCurTemp(temp);
@@ -154,7 +156,7 @@ public class ThermoDevice extends BleDevice {
             }
 
             @Override
-            public void onFailure(GattDataException exception) {
+            public void onFailure(BleException exception) {
             }
         });
     }
@@ -167,9 +169,9 @@ public class ThermoDevice extends BleDevice {
         // 设置采样周期
         write(THERMOPERIOD, period, null);
 
-        IBleGattDataCallback notifyCallback = new IBleGattDataCallback() {
+        IBleDataCallback notifyCallback = new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BluetoothLeDevice bluetoothLeDevice) {
                 double temp = ByteUtil.getShort(data)/100.0;
 
                 setCurTemp(temp);
@@ -182,7 +184,7 @@ public class ThermoDevice extends BleDevice {
             }
 
             @Override
-            public void onFailure(GattDataException exception) {
+            public void onFailure(BleException exception) {
 
             }
         };
