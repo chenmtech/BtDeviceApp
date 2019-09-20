@@ -83,7 +83,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
     }
 
 
-    private final BleDeviceScanner scanner = new BleDeviceScanner(this, SCAN_FILTER_DEVICE_NAME);
+    private final BleDeviceScanner scanner = new BleDeviceScanner(SCAN_FILTER_DEVICE_NAME);
 
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
         @Override

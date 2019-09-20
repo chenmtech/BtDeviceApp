@@ -151,7 +151,7 @@ public class TempHumidDevice extends BleDevice {
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
 
         if(!containGattElements(elements)) {
-            //callDisconnect();
+            ViseLog.e("temphumid element wrong.");
 
             return false;
         }
