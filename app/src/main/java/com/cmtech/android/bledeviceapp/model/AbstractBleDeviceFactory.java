@@ -3,7 +3,7 @@ package com.cmtech.android.bledeviceapp.model;
 import android.content.Context;
 
 import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.extend.BleDeviceType;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 
@@ -14,15 +14,15 @@ import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 
 public abstract class AbstractBleDeviceFactory {
     // 工厂要用的设备基本信息对象
-    protected BleDeviceBasicInfo basicInfo;
+    protected BleDeviceRegisterInfo basicInfo;
 
     // 获取BleDevice对应的抽象工厂
     public static AbstractBleDeviceFactory getBLEDeviceFactory(BleDevice device) {
-        return (device == null) ? null : getBLEDeviceFactory(device.getBasicInfo());
+        return (device == null) ? null : getBLEDeviceFactory(device.getRegisterInfo());
     }
 
     // 获取BleDeviceBasicInfo对应的抽象工厂
-    public static AbstractBleDeviceFactory getBLEDeviceFactory(BleDeviceBasicInfo basicInfo) {
+    public static AbstractBleDeviceFactory getBLEDeviceFactory(BleDeviceRegisterInfo basicInfo) {
         AbstractBleDeviceFactory factory = null;
         if(basicInfo != null) {
             factory = getBLEDeviceFactory(basicInfo.getUuidString());

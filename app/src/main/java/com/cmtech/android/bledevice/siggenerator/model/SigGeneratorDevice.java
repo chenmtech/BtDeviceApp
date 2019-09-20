@@ -3,7 +3,7 @@ package com.cmtech.android.bledevice.siggenerator.model;
 import android.content.Context;
 
 import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.vise.log.ViseLog;
 
@@ -35,7 +35,7 @@ public class SigGeneratorDevice extends BleDevice {
     private static final byte SIGGENERATOR_CTRL_START =             (byte) 0x01;        // 启动信号
 
     // 构造器
-    public SigGeneratorDevice(Context context, BleDeviceBasicInfo basicInfo) {
+    public SigGeneratorDevice(Context context, BleDeviceRegisterInfo basicInfo) {
         super(context, basicInfo);
 
     }
@@ -47,7 +47,7 @@ public class SigGeneratorDevice extends BleDevice {
         if(!containGattElements(elements)) {
             ViseLog.e("Signal Generator Elements are wrong.");
 
-            //callDisconnect();
+            //disconnect();
 
             return false;
         }

@@ -7,10 +7,10 @@ import android.os.Looper;
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.extend.BleGattChannel;
 import com.cmtech.android.ble.extend.BleGattElement;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.ble.model.BleDeviceDetailInfo;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.util.LinkedList;
@@ -71,7 +71,7 @@ public class ThermoDevice extends BleDevice {
         updateThermoData();
     }
 
-    public ThermoDevice(Context context, BleDeviceBasicInfo basicInfo) {
+    public ThermoDevice(Context context, BleDeviceRegisterInfo basicInfo) {
         super(context, basicInfo);
         initializeAfterConstruction();
     }
@@ -85,7 +85,7 @@ public class ThermoDevice extends BleDevice {
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
         if(!containGattElements(elements)) {
-            //callDisconnect();
+            //disconnect();
 
             return false;
         }
@@ -143,7 +143,7 @@ public class ThermoDevice extends BleDevice {
         // 读温度数据
         read(THERMODATA, new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BleDeviceDetailInfo bleDeviceDetailInfo) {
                 double temp = ByteUtil.getShort(data)/100.0;
 
                 setCurTemp(temp);
@@ -171,7 +171,7 @@ public class ThermoDevice extends BleDevice {
 
         IBleDataCallback notifyCallback = new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BluetoothLeDevice bluetoothLeDevice) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BleDeviceDetailInfo bluetoothLeDevice) {
                 double temp = ByteUtil.getShort(data)/100.0;
 
                 setCurTemp(temp);

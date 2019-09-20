@@ -15,7 +15,7 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.extend.OnBleDeviceStateListener;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -153,7 +153,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     // 创建并添加一个设备
-    public BleDevice createAndAddDevice(BleDeviceBasicInfo basicInfo) {
+    public BleDevice createAndAddDevice(BleDeviceRegisterInfo basicInfo) {
         BleDevice device = deviceManager.createAndAddDevice(this, basicInfo);
         if(device != null) {
             device.addDeviceStateListener(this);
@@ -162,9 +162,9 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     // 创建添加多个设备
-    public void createAndAddDevice(List<BleDeviceBasicInfo> basicInfoList) {
+    public void createAndAddDevice(List<BleDeviceRegisterInfo> basicInfoList) {
         if(basicInfoList == null) return;
-        for(BleDeviceBasicInfo basicInfo : basicInfoList) {
+        for(BleDeviceRegisterInfo basicInfo : basicInfoList) {
             createAndAddDevice(basicInfo);
         }
     }
@@ -199,7 +199,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     // 获取设备
-    public BleDevice findDevice(BleDeviceBasicInfo basicInfo) {
+    public BleDevice findDevice(BleDeviceRegisterInfo basicInfo) {
         return deviceManager.findDevice(basicInfo);
     }
 
@@ -232,7 +232,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
     // 从Preference获取所有设备信息，并构造相应的BLEDevice
     private void initDeviceFromPref(SharedPreferences pref) {
-        List<BleDeviceBasicInfo> basicInfoList = BleDeviceBasicInfo.createAllFromPref(pref);
+        List<BleDeviceRegisterInfo> basicInfoList = BleDeviceRegisterInfo.createAllFromPref(pref);
         createAndAddDevice(basicInfoList);
     }
 

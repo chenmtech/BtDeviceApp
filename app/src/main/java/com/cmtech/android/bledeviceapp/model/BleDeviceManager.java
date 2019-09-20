@@ -4,7 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +23,7 @@ public class BleDeviceManager {
     }
 
     // 创建并添加一个设备
-    public BleDevice createAndAddDevice(Context context, BleDeviceBasicInfo basicInfo) {
+    public BleDevice createAndAddDevice(Context context, BleDeviceRegisterInfo basicInfo) {
         BleDevice device = findDevice(basicInfo);
         if(device != null) return null;
 
@@ -63,16 +63,15 @@ public class BleDeviceManager {
     }
 
     // 根据设备基本信息创建设备
-    private BleDevice createDevice(Context context, BleDeviceBasicInfo basicInfo) {
+    private BleDevice createDevice(Context context, BleDeviceRegisterInfo basicInfo) {
         // 获取相应的抽象工厂
         AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(basicInfo);
         return (factory == null) ? null : factory.createDevice(context);
     }
 
     // 用基本信息寻找设备
-    public BleDevice findDevice(BleDeviceBasicInfo basicInfo) {
-        if(basicInfo == null) return null;
-        return findDevice(basicInfo.getMacAddress());
+    public BleDevice findDevice(BleDeviceRegisterInfo basicInfo) {
+        return (basicInfo == null) ? null : findDevice(basicInfo.getMacAddress());
     }
 
     // 用mac地址寻找设备

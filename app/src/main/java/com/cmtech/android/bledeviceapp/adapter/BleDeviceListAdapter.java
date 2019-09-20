@@ -79,7 +79,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
                     BleDevice device = mDeviceList.get(holder.getAdapterPosition());
                     switch (item.getItemId()){
                         case 1:
-                            activity.modifyDeviceBasicInfo(device.getBasicInfo());
+                            activity.modifyDeviceBasicInfo(device.getRegisterInfo());
                             return true;
                         case 2:
                             activity.deleteDevice(device);

@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.ble.extend.BleDeviceType;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.ble.model.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
@@ -25,7 +25,7 @@ import java.util.List;
  */
 
 public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.ViewHolder> {
-    private final List<BluetoothLeDevice> deviceList; // 扫描到的设备列表
+    private final List<BleDeviceDetailInfo> deviceList; // 扫描到的设备列表
     private final List<String> registedMacList; // 已登记设备Mac List
     private final SearchDeviceActivity activity; // 扫描设备的Activiy
 
@@ -46,7 +46,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         }
     }
 
-    public ScanDeviceAdapter(List<BluetoothLeDevice> deviceList, List<String> registedMacList, SearchDeviceActivity activity) {
+    public ScanDeviceAdapter(List<BleDeviceDetailInfo> deviceList, List<String> registedMacList, SearchDeviceActivity activity) {
         this.deviceList = deviceList;
         this.registedMacList = registedMacList;
         this.activity = activity;
@@ -63,7 +63,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
             @Override
             public void onClick(View view) {
                 if(activity != null) {
-                    BluetoothLeDevice device = deviceList.get(holder.getAdapterPosition());
+                    BleDeviceDetailInfo device = deviceList.get(holder.getAdapterPosition());
                     if(!isRegisted(device)) {
                         activity.registerDevice(device);
                     }
@@ -76,7 +76,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ScanDeviceAdapter.ViewHolder holder, final int position) {
-        BluetoothLeDevice device = deviceList.get(position);
+        BleDeviceDetailInfo device = deviceList.get(position);
 
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         String supportedUUID = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(recordUUID.getData()).toString());
@@ -103,7 +103,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
     }
 
     // 设备是否已经登记过
-    private boolean isRegisted(BluetoothLeDevice device) {
+    private boolean isRegisted(BleDeviceDetailInfo device) {
         for(String ele : registedMacList) {
             if(ele.equalsIgnoreCase(device.getAddress())) {
                 return true;

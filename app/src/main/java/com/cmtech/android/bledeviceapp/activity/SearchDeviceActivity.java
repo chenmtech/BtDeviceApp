@@ -18,9 +18,9 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
-import com.cmtech.android.ble.extend.BleDeviceBasicInfo;
+import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.extend.BleDeviceScanner;
-import com.cmtech.android.ble.model.BluetoothLeDevice;
+import com.cmtech.android.ble.model.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.BleDeviceConstant;
@@ -63,9 +63,9 @@ public class SearchDeviceActivity extends AppCompatActivity {
                     // 设备已绑定
                     case BluetoothDevice.BOND_BONDED:
                         // 登记设备
-                        for (BluetoothLeDevice ele : deviceList) {
+                        for (BleDeviceDetailInfo ele : deviceList) {
                             if(ele.getAddress().equalsIgnoreCase(device.getAddress())) {
-                                startConfigBondedDevice(ele);
+                                configureBondedDevice(ele);
 
                                 break;
                             }
@@ -87,8 +87,8 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
         @Override
-        public void onDeviceFound(BluetoothLeDevice bluetoothLeDevice) {
-            addDeviceToList(bluetoothLeDevice);
+        public void onDeviceFound(BleDeviceDetailInfo bleDeviceDetailInfo) {
+            addDeviceToList(bleDeviceDetailInfo);
         }
 
         @Override
@@ -105,7 +105,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
     private RecyclerView rvScanDevice;
 
-    private List<BluetoothLeDevice> deviceList = new ArrayList<>();
+    private List<BleDeviceDetailInfo> deviceList = new ArrayList<>();
 
     private List<String> registedDeviceMacList = new ArrayList<>();
 
@@ -216,7 +216,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
     }
 
 
-    public void registerDevice(final BluetoothLeDevice device) {
+    public void registerDevice(final BleDeviceDetailInfo device) {
         // 先停止扫描
         scanner.stopScan();
 
@@ -225,7 +225,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
         if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
             device.getDevice().createBond();
         } else {
-            startConfigBondedDevice(device);
+            configureBondedDevice(device);
         }
     }
 
@@ -241,12 +241,12 @@ public class SearchDeviceActivity extends AppCompatActivity {
         scanner.startScan(bleScanCallback);
     }
 
-    private void addDeviceToList(final BluetoothLeDevice device) {
+    private void addDeviceToList(final BleDeviceDetailInfo device) {
         if(device == null) return;
 
         boolean isNewDevice = true;
 
-        for(BluetoothLeDevice dv : deviceList) {
+        for(BleDeviceDetailInfo dv : deviceList) {
             if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
                 isNewDevice = false;
 
@@ -264,7 +264,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
         }
     }
 
-    private void startConfigBondedDevice(final BluetoothLeDevice device) {
+    private void configureBondedDevice(final BleDeviceDetailInfo device) {
         if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
             throw new IllegalStateException("设备未绑定");
         }
@@ -282,7 +282,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         Intent intent = new Intent(SearchDeviceActivity.this, DeviceBasicInfoActivity.class);
 
-        BleDeviceBasicInfo basicInfo = new BleDeviceBasicInfo();
+        BleDeviceRegisterInfo basicInfo = new BleDeviceRegisterInfo();
 
         basicInfo.setMacAddress(macAddress);
 
