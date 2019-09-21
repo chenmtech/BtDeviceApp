@@ -82,9 +82,6 @@ public class SearchDeviceActivity extends AppCompatActivity {
         }
     }
 
-
-    private final BleDeviceScanner scanner = new BleDeviceScanner(SCAN_FILTER_DEVICE_NAME);
-
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
         @Override
         public void onDeviceFound(BleDeviceDetailInfo bleDeviceDetailInfo) {
@@ -212,13 +209,13 @@ public class SearchDeviceActivity extends AppCompatActivity {
         if(srlScanDevice.isRefreshing())
             srlScanDevice.setRefreshing(false);
 
-        scanner.stopScan();
+        BleDeviceScanner.stopScan(bleScanCallback);
     }
 
 
     public void registerDevice(final BleDeviceDetailInfo device) {
         // 先停止扫描
-        scanner.stopScan();
+        BleDeviceScanner.stopScan(bleScanCallback);
 
         srlScanDevice.setRefreshing(false);
 
@@ -236,9 +233,9 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         scanDeviceAdapter.notifyDataSetChanged();
 
-        scanner.stopScan();
+        BleDeviceScanner.stopScan(bleScanCallback);
 
-        scanner.startScan(bleScanCallback);
+        BleDeviceScanner.startScan(SCAN_FILTER_DEVICE_NAME, bleScanCallback);
     }
 
     private void addDeviceToList(final BleDeviceDetailInfo device) {
