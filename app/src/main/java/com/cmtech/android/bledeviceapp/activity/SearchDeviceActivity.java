@@ -156,7 +156,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         startScan();
 
-        srlScanDevice.setRefreshing(true);
+        //srlScanDevice.setRefreshing(true);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
             case R.id.scan_device:
                 startScan();
 
-                srlScanDevice.setRefreshing(true);
+                //srlScanDevice.setRefreshing(true);
 
                 break;
         }
@@ -235,7 +235,13 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         BleDeviceScanner.stopScan(bleScanCallback);
 
-        BleDeviceScanner.startScan(SCAN_FILTER_DEVICE_NAME, bleScanCallback);
+        if(BleDeviceScanner.startScan(SCAN_FILTER_DEVICE_NAME, bleScanCallback)) {
+            srlScanDevice.setRefreshing(true);
+        } else {
+            Toast.makeText(this, "蓝牙错误。", Toast.LENGTH_SHORT).show();
+
+            srlScanDevice.setRefreshing(false);
+        }
     }
 
     private void addDeviceToList(final BleDeviceDetailInfo device) {

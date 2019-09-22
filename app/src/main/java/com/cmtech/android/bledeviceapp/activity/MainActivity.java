@@ -511,7 +511,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             public void run() {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("设备断开报警");
-                builder.setMessage("设备" + device.getMacAddress() + "无法连接，已经断开。");
+                builder.setMessage("设备" + device.getMacAddress() + "已经断开，请重启系统蓝牙。");
                 builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
