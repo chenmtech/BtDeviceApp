@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanFilter;
 import android.content.BroadcastReceiver;

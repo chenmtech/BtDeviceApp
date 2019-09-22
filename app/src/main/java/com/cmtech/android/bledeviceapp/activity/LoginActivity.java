@@ -47,8 +47,6 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
   * Version:        1.0
  */
 public class LoginActivity extends AppCompatActivity {
-    private final static int RC_ENABLE_BLUETOOTH = 1;
-
     private final static String CHINA_PHONE_NUMBER = "86";
 
     private final static int MSG_WAIT_SECOND = 1;
@@ -211,20 +209,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case RC_ENABLE_BLUETOOTH:
-                if (resultCode == RESULT_OK) {
-
-                    enableBluetooth();
-
-                } else if (resultCode == RESULT_CANCELED) { // 不同意
-                    Toast.makeText(this, "蓝牙不打开，程序无法运行", Toast.LENGTH_SHORT).show();
-
-                    finish();
-                }
-                break;
-        }
     }
 
     @Override
@@ -237,10 +221,6 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(this, "没有必要的权限，程序无法正常运行", Toast.LENGTH_SHORT).show();
                         finish();
                         break;
-                    } else {
-                        if (permissions[i].equals(ACCESS_COARSE_LOCATION)) {
-                            enableBluetooth();
-                        }
                     }
                 }
             }
@@ -300,11 +280,6 @@ public class LoginActivity extends AppCompatActivity {
             if (ContextCompat.checkSelfPermission(LoginActivity.this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 permission.add(ACCESS_COARSE_LOCATION);
             }
-            else{
-                enableBluetooth();
-            }
-        } else {
-            enableBluetooth();
         }
 
         //校验是否已具有外部存储的权限
@@ -315,13 +290,6 @@ public class LoginActivity extends AppCompatActivity {
 
         if(permission.size() != 0)
             ActivityCompat.requestPermissions(LoginActivity.this, permission.toArray(new String[0]), 1);
-    }
-
-    // 使能蓝牙
-    private void enableBluetooth() {
-        if (!BleUtil.isBleEnable(MyApplication.getContext())) {
-            BleUtil.enableBluetooth(this, RC_ENABLE_BLUETOOTH);
-        }
     }
 
     // 获取验证码

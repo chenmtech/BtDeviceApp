@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,7 +36,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.extend.BleDeviceScanner;
 import com.cmtech.android.ble.extend.BleDeviceState;
+import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -149,6 +152,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         startService(startService);
 
         bindService(startService, deviceServiceConnect, BIND_AUTO_CREATE);
+
+
+        if(!BleDeviceScanner.isBleEnable()) {
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivity(intent);
+        }
     }
 
     // 主界面初始化
