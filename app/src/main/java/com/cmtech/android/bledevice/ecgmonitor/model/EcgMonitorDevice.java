@@ -508,11 +508,11 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             }
         });
 
-        try {
+        /*try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
 
         // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
@@ -665,7 +665,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     public void on1mVCaliValueUpdated(int caliValue1mV) {
         ViseLog.e("1mV定标值为: " + caliValue1mV);
 
-        stopDataSampling();
+        //stopDataSampling();
 
         value1mVBeforeCalibration = caliValue1mV;
 

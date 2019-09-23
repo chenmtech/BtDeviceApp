@@ -51,6 +51,8 @@ public class Ecg1mVCaliValueCalculator {
             calibrationData.add(calibrateData);
         }
         else {
+            device.stopDataSampling();
+
             int value = calculateCalibration(calibrationData); // 计算得到实际定标值
 
             ViseLog.e(calibrationData.toString() + " " + value);

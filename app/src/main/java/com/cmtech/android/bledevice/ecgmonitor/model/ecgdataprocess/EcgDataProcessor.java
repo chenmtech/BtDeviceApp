@@ -1,8 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor;
@@ -55,21 +52,16 @@ public class EcgDataProcessor {
     public synchronized void start() {
         nextPackageNum = 0;
 
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if(service == null || service.isTerminated()) {
-                    service = Executors.newSingleThreadExecutor(new ThreadFactory() {
-                        @Override
-                        public Thread newThread(Runnable runnable) {
-                            return new Thread(runnable, "MT_Data_Process");
-                        }
-                    });
-
-                    ViseLog.e("启动数据处理服务");
+        if(service == null || service.isTerminated()) {
+            service = Executors.newSingleThreadExecutor(new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable runnable) {
+                    return new Thread(runnable, "MT_Data_Process");
                 }
-            }
-        });
+            });
+
+            ViseLog.e("启动数据处理服务");
+        }
     }
 
     public synchronized void stop() {
