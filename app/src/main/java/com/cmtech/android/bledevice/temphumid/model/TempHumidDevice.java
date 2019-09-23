@@ -10,7 +10,6 @@ import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.extend.BleGattChannel;
 import com.cmtech.android.ble.extend.BleGattElement;
-import com.cmtech.android.ble.model.BleDeviceDetailInfo;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -203,7 +202,7 @@ public class TempHumidDevice extends BleDevice {
     private void readCurrentTempHumid() {
         read(TEMPHUMIDDATA, new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BleDeviceDetailInfo bleDeviceDetailInfo) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel) {
                 curTempHumid = new TempHumidData(Calendar.getInstance(), data);
 
                 updateCurrentData();
@@ -226,7 +225,7 @@ public class TempHumidDevice extends BleDevice {
         // enable 温湿度采集的notification
         IBleDataCallback notifyCallback = new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BleDeviceDetailInfo bluetoothLeDevice) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel) {
                 curTempHumid = new TempHumidData(Calendar.getInstance(), data);
 
                 updateCurrentData();
@@ -244,7 +243,7 @@ public class TempHumidDevice extends BleDevice {
     private void readTimerServiceValue() {
         read(TIMERVALUE, new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BleDeviceDetailInfo bleDeviceDetailInfo) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel) {
                 processTimerServiceValue(data);
             }
 
@@ -266,7 +265,7 @@ public class TempHumidDevice extends BleDevice {
         // 读取历史数据
         read(TEMPHUMIDHISTORYDATA, new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BleDeviceDetailInfo bleDeviceDetailInfo) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel) {
                 TempHumidData thData =  new TempHumidData(backuptime, data);
 
                 historyDataList.add(thData);
@@ -344,7 +343,7 @@ public class TempHumidDevice extends BleDevice {
         // 添加更新历史数据完毕的命令
         runInstantly(new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BleDeviceDetailInfo bleDeviceDetailInfo) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel) {
                 isUpdatingHistoryData = false;
             }
 

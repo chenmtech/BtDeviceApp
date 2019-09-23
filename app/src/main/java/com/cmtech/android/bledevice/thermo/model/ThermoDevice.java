@@ -10,7 +10,6 @@ import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.extend.BleGattChannel;
 import com.cmtech.android.ble.extend.BleGattElement;
-import com.cmtech.android.ble.model.BleDeviceDetailInfo;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.util.LinkedList;
@@ -143,7 +142,7 @@ public class ThermoDevice extends BleDevice {
         // 读温度数据
         read(THERMODATA, new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BleDeviceDetailInfo bleDeviceDetailInfo) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel) {
                 double temp = ByteUtil.getShort(data)/100.0;
 
                 setCurTemp(temp);
@@ -171,7 +170,7 @@ public class ThermoDevice extends BleDevice {
 
         IBleDataCallback notifyCallback = new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattChannel bleGattChannel, BleDeviceDetailInfo bluetoothLeDevice) {
+            public void onSuccess(byte[] data, BleGattChannel bleGattChannel) {
                 double temp = ByteUtil.getShort(data)/100.0;
 
                 setCurTemp(temp);
