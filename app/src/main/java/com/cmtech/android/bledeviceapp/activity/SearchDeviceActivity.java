@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanFilter;
 import android.content.BroadcastReceiver;
@@ -60,24 +59,15 @@ public class SearchDeviceActivity extends AppCompatActivity {
             if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                switch (device.getBondState()) {
-                    // 设备已绑定
-                    case BluetoothDevice.BOND_BONDED:
-                        // 登记设备
-                        for (BleDeviceDetailInfo ele : deviceList) {
-                            if(ele.getAddress().equalsIgnoreCase(device.getAddress())) {
-                                configureBondedDevice(ele);
+                if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
+                    // 登记设备
+                    for (BleDeviceDetailInfo ele : deviceList) {
+                        if(ele.getAddress().equalsIgnoreCase(device.getAddress())) {
+                            configureBondedDevice(ele);
 
-                                break;
-                            }
+                            break;
                         }
-                        break;
-                    case BluetoothDevice.BOND_BONDING:
-                        break;
-                    case BluetoothDevice.BOND_NONE:
-                        break;
-                    default:
-                        break;
+                    }
                 }
             }
         }
@@ -91,9 +81,22 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         @Override
         public void onScanFailed(int errorCode) {
-            srlScanDevice.setRefreshing(false);
+            switch (errorCode) {
+                case SCAN_FAILED_ALREADY_STARTED:
+                    Toast.makeText(SearchDeviceActivity.this, "正在扫描中。", Toast.LENGTH_LONG).show();
+                    break;
 
-            Toast.makeText(SearchDeviceActivity.this, "搜索结束。", Toast.LENGTH_SHORT).show();
+                case SCAN_FAILED_BLE_DISABLE:
+                    Toast.makeText(SearchDeviceActivity.this, "蓝牙已关闭。", Toast.LENGTH_LONG).show();
+                    srlScanDevice.setRefreshing(false);
+                    break;
+
+                case SCAN_FAILED_BLE_INNER_ERROR:
+                    srlScanDevice.setRefreshing(false);
+                    BleDeviceScanner.stopScan(this);
+                    Toast.makeText(SearchDeviceActivity.this, "蓝牙错误，请尝试重启系统蓝牙。", Toast.LENGTH_LONG).show();
+                    break;
+            }
         }
     }; // 扫描回调
 
@@ -236,13 +239,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         BleDeviceScanner.stopScan(bleScanCallback);
 
-        if(BleDeviceScanner.startScan(SCAN_FILTER_DEVICE_NAME, bleScanCallback)) {
-            srlScanDevice.setRefreshing(true);
-        } else {
-            Toast.makeText(this, "蓝牙错误。", Toast.LENGTH_SHORT).show();
-
-            srlScanDevice.setRefreshing(false);
-        }
+        BleDeviceScanner.startScan(SCAN_FILTER_DEVICE_NAME, bleScanCallback);
     }
 
     private void addDeviceToList(final BleDeviceDetailInfo device) {

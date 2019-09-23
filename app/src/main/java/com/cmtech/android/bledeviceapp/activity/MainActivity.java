@@ -3,9 +3,12 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -38,7 +41,6 @@ import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.extend.BleDeviceScanner;
 import com.cmtech.android.ble.extend.BleDeviceState;
-import com.cmtech.android.ble.utils.BleUtil;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -56,6 +58,8 @@ import com.vise.log.ViseLog;
 import java.io.Serializable;
 import java.util.List;
 
+import static android.bluetooth.BluetoothAdapter.STATE_OFF;
+import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
 import static com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity.REGISTER_DEVICE_MAC_LIST;
 
@@ -134,6 +138,23 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         }
     };
 
+    private static final BroadcastReceiver bleStateChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) {
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+
+                if(state == STATE_ON) {
+                    BleDeviceScanner.clearInnerError();
+
+                    Toast.makeText(context, "蓝牙已开启。", Toast.LENGTH_SHORT).show();
+                } else if(state == STATE_OFF) {
+                    Toast.makeText(context, "蓝牙已关闭。", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,8 +174,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         bindService(startService, deviceServiceConnect, BIND_AUTO_CREATE);
 
+        IntentFilter bleStateIntent = new IntentFilter();
+        bleStateIntent.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        registerReceiver(bleStateChangeReceiver, bleStateIntent);
 
-        if(!BleDeviceScanner.isBleEnable()) {
+        if(!BleDeviceScanner.isBleEnabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(intent);
         }
@@ -459,6 +483,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             Intent stopIntent = new Intent(MainActivity.this, BleDeviceService.class);
             stopService(stopIntent);
         }
+
+        unregisterReceiver(bleStateChangeReceiver);
     }
 
     private void requestFinish() {
@@ -519,8 +545,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             @Override
             public void run() {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("设备断开报警");
-                builder.setMessage("设备" + device.getMacAddress() + "已经断开，请重启系统蓝牙。");
+                builder.setTitle("设备无法连接报警");
+                builder.setMessage("由于蓝牙错误，导致设备" + device.getMacAddress() + "无法连接，需要重启蓝牙。");
                 builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
