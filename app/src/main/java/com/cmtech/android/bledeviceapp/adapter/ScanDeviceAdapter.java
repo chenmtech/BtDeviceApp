@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.ble.extend.BleDeviceType;
-import com.cmtech.android.ble.model.BleDeviceDetailInfo;
+import com.cmtech.android.ble.extend.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;

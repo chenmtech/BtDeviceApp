@@ -20,7 +20,7 @@ import android.widget.Toast;
 import com.cmtech.android.ble.callback.IBleScanCallback;
 import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.extend.BleDeviceScanner;
-import com.cmtech.android.ble.model.BleDeviceDetailInfo;
+import com.cmtech.android.ble.extend.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.BleDeviceConstant;
