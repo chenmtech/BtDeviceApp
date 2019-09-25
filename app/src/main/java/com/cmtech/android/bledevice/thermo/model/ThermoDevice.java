@@ -8,7 +8,6 @@ import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.extend.BleDevice;
 import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.extend.BleGattElementOnline;
 import com.cmtech.android.ble.extend.BleGattElement;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
@@ -142,7 +141,7 @@ public class ThermoDevice extends BleDevice {
         // 读温度数据
         read(THERMODATA, new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattElementOnline bleGattElementOnline) {
+            public void onSuccess(byte[] data, BleGattElement element) {
                 double temp = ByteUtil.getShort(data)/100.0;
 
                 setCurTemp(temp);
@@ -170,7 +169,7 @@ public class ThermoDevice extends BleDevice {
 
         IBleDataCallback notifyCallback = new IBleDataCallback() {
             @Override
-            public void onSuccess(byte[] data, BleGattElementOnline bleGattChannel) {
+            public void onSuccess(byte[] data, BleGattElement element) {
                 double temp = ByteUtil.getShort(data)/100.0;
 
                 setCurTemp(temp);
