@@ -11,9 +11,9 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpro
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.IHrOperator;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -48,25 +48,19 @@ public class EcgSignalProcessor {
 
     public EcgSignalProcessor(EcgMonitorDevice device, int value1mVAfterCalibration) {
         if(device == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("EcgMonitorDevice is null");
         }
 
         this.device = device;
-
         if(value1mVAfterCalibration == 65535) {
             ecgCalibrator = new EcgCalibrator65536(0);
         } else {
             ecgCalibrator = new EcgCalibrator(0, value1mVAfterCalibration);
         }
-
         ecgFilter = new EcgPreFilterWith35HzNotch(1);
-
-        hrOperators = new HashMap<>();
-
+        hrOperators = new ConcurrentHashMap<>();
         HrProcessor hrProcessor = new HrProcessor(HR_FILTER_TIME_IN_SECOND, device);
-
         hrOperators.put(HR_PROCESSOR_KEY, hrProcessor);
-
     }
 
     public IEcgCalibrator getEcgCalibrator() {
@@ -84,21 +78,17 @@ public class EcgSignalProcessor {
     public void setHrAbnormalWarner(boolean isWarn, int lowLimit, int highLimit) {
         HrAbnormalWarner hrWarner = (HrAbnormalWarner) hrOperators.get(HR_ABNORMAL_WARNER_KEY);
 
-        if(isWarn) {
-
-            if(hrWarner != null) {
+        if (isWarn) {
+            if (hrWarner != null) {
                 hrWarner.initialize(lowLimit, highLimit);
-
             } else {
                 hrWarner = new HrAbnormalWarner(device, lowLimit, highLimit);
-
                 hrOperators.put(HR_ABNORMAL_WARNER_KEY, hrWarner);
             }
         } else {
-            if(hrWarner != null) {
+            if (hrWarner != null) {
                 hrWarner.close();
             }
-
             hrOperators.remove(HR_ABNORMAL_WARNER_KEY);
         }
     }
@@ -120,8 +110,8 @@ public class EcgSignalProcessor {
         }
 
         // 心率操作
-        if(currentHr != INVALID_HR) {
-            for(IHrOperator operator : hrOperators.values()) {
+        if (currentHr != INVALID_HR) {
+            for (IHrOperator operator : hrOperators.values()) {
                 operator.operate(currentHr);
             }
         }

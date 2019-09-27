@@ -105,7 +105,7 @@ public class EcgDataProcessor {
 
                             nextPackageNum = INVALID_PACKAGE_NUM;
 
-                            device.disconnect();
+                            device.sendDisconnectMessage();
                         }
                     }
                 }

@@ -329,8 +329,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     @Override
-    public void doDisconnect() {
-        ViseLog.e("EcgMonitorDevice.doDisconnect()");
+    public void disconnect() {
+        ViseLog.e("EcgMonitorDevice.disconnect()");
 
         if(isBatteryMeasured) {
             stopBatteryMeasure();
@@ -373,7 +373,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         //ecgDataProcessor.close();
 
-        super.doDisconnect();
+        super.disconnect();
     }
 
     // 设置是否记录心电信号
