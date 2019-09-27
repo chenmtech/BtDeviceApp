@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         bleStateIntent.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(bleStateChangeReceiver, bleStateIntent);
 
-        if(!BleDeviceScanner.isBleEnabled()) {
+        if(BleDeviceScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(intent);
         }

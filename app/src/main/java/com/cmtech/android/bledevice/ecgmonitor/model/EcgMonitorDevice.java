@@ -33,9 +33,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import static com.cmtech.android.ble.extend.BleDeviceState.CONNECT_DISCONNECT;
-import static com.cmtech.android.ble.extend.BleDeviceState.CONNECT_FAILURE;
-import static com.cmtech.android.ble.extend.BleDeviceState.CONNECT_SUCCESS;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
@@ -275,7 +272,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     // 关闭设备
     @Override
     public void close() {
-        if(getState() != CONNECT_DISCONNECT && getState() != CONNECT_FAILURE) {
+        if(!isDisconnect()) {
             return;
         }
 
@@ -334,45 +331,17 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
         if(isBatteryMeasured) {
             stopBatteryMeasure();
-
             isBatteryMeasured = false;
         }
-
-        if(getState() == CONNECT_SUCCESS && isGattExecutorAlive()) {
-            /*final CountDownLatch lock = new CountDownLatch(1);
-
+        if(isConnect() && isGattExecutorAlive()) {
             stopDataSampling();
-
-            runInstantly(new IBleDataCallback() {
-                @Override
-                public void onSuccess(byte[] data) {
-                    lock.countDown();
-                }
-
-                @Override
-                public void onFailure(GattDataException exception) {
-                    lock.countDown();
-                }
-            });
-
-            try {
-                lock.await(1, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }*/
-
-            stopDataSampling();
-
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
         }
-
         //ecgDataProcessor.close();
-
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         super.disconnect();
     }
 
