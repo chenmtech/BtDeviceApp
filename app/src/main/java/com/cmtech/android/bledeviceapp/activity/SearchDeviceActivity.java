@@ -86,15 +86,15 @@ public class SearchDeviceActivity extends AppCompatActivity {
                     Toast.makeText(SearchDeviceActivity.this, "正在扫描中。", Toast.LENGTH_LONG).show();
                     break;
 
-                case SCAN_FAILED_BLE_DISABLE:
+                case SCAN_FAILED_BLE_CLOSED:
                     Toast.makeText(SearchDeviceActivity.this, "蓝牙已关闭。", Toast.LENGTH_LONG).show();
                     srlScanDevice.setRefreshing(false);
                     break;
 
-                case SCAN_FAILED_BLE_INNER_ERROR:
+                case SCAN_FAILED_BLE_ERROR:
                     srlScanDevice.setRefreshing(false);
                     BleDeviceScanner.stopScan(this);
-                    Toast.makeText(SearchDeviceActivity.this, "蓝牙错误，请尝试重启系统蓝牙。", Toast.LENGTH_LONG).show();
+                    Toast.makeText(SearchDeviceActivity.this, "蓝牙错误，必须重启蓝牙。", Toast.LENGTH_LONG).show();
                     break;
             }
         }

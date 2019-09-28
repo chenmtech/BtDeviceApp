@@ -139,7 +139,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     @Override
-    public void onReconnectFailureNotified(BleDevice device, boolean warn) {
+    public void onBleErrorNotified(BleDevice device, boolean warn) {
         if(warn) {
             playWarnRingtone();
         } else {

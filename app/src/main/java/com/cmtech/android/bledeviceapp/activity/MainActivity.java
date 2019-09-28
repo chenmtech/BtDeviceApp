@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     @Override
-    public void onReconnectFailureNotified(final BleDevice device, boolean warn) {
+    public void onBleErrorNotified(final BleDevice device, boolean warn) {
         if(!warn) return;
 
         runOnUiThread(new Runnable() {
@@ -550,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        device.cancelNotifyReconnectFailure();
+                        device.cancelNotifyBleError();
                     }
                 });
                 builder.setCancelable(false);

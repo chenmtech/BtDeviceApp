@@ -33,7 +33,7 @@ import java.io.IOException;
 import static com.cmtech.android.ble.extend.BleDeviceRegisterInfo.DEFAULT_DEVICE_AUTOCONNECT;
 import static com.cmtech.android.ble.extend.BleDeviceRegisterInfo.DEFAULT_DEVICE_IMAGEPATH;
 import static com.cmtech.android.ble.extend.BleDeviceRegisterInfo.DEFAULT_DEVICE_RECONNECT_TIMES;
-import static com.cmtech.android.ble.extend.BleDeviceRegisterInfo.DEFAULT_WARN_AFTER_RECONNECT_FAILURE;
+import static com.cmtech.android.ble.extend.BleDeviceRegisterInfo.DEFAULT_WARN_WHEN_BLE_ERROR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
 
 /**
@@ -114,7 +114,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
         // 设置设备重连失败后是否报警
         cbWarnAfterReconnectFailure = findViewById(R.id.cb_device_warn_after_reconnect_failure);
-        cbWarnAfterReconnectFailure.setChecked(basicInfo.isWarnAfterReconnectFailure());
+        cbWarnAfterReconnectFailure.setChecked(basicInfo.isWarnWhenBleError());
 
 
         Button btnOk = findViewById(R.id.btn_ok);
@@ -152,7 +152,7 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
                 basicInfo.setAutoConnect(cbIsAutoconnect.isChecked());
                 basicInfo.setReconnectTimes(Integer.parseInt(etReconnectTimes.getText().toString()));
-                basicInfo.setWarnAfterReconnectFailure(cbWarnAfterReconnectFailure.isChecked());
+                basicInfo.setWarnWhenBleError(cbWarnAfterReconnectFailure.isChecked());
 
                 Intent intent = new Intent();
                 intent.putExtra(DEVICE_BASICINFO, basicInfo);
@@ -261,6 +261,6 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         Glide.with(this).load(BleDeviceType.getFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
         cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
         etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECT_TIMES));
-        cbWarnAfterReconnectFailure.setChecked(DEFAULT_WARN_AFTER_RECONNECT_FAILURE);
+        cbWarnAfterReconnectFailure.setChecked(DEFAULT_WARN_WHEN_BLE_ERROR);
     }
 }
