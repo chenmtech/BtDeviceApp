@@ -45,7 +45,7 @@ import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.BleDeviceListAdapter;
-import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;
+import com.cmtech.android.bledeviceapp.model.BleDeviceFactory;
 import com.cmtech.android.bledeviceapp.model.BleDeviceFragmentManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceService;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
@@ -605,7 +605,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     }
 
     private void createAndOpenFragment(BleDevice device) {
-        AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(device);
+        BleDeviceFactory factory = BleDeviceFactory.getBLEDeviceFactory(device);
         if(factory != null) {
             drawerLayout.closeDrawer(GravityCompat.START);
 

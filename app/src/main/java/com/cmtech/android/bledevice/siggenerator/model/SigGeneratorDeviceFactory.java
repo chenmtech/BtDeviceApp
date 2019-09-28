@@ -3,30 +3,32 @@ package com.cmtech.android.bledevice.siggenerator.model;
 import android.content.Context;
 
 import com.cmtech.android.ble.extend.BleDevice;
+import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.extend.BleDeviceType;
 import com.cmtech.android.bledevice.siggenerator.view.SigGeneratorFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
-import com.cmtech.android.bledeviceapp.model.AbstractBleDeviceFactory;
+import com.cmtech.android.bledeviceapp.model.BleDeviceFactory;
 
-public class SigGeneratorDeviceFactory extends AbstractBleDeviceFactory {
-    private static final String UUID_SIGGENERATOR                 = "aa50";       // 信号发生器
+public class SigGeneratorDeviceFactory extends BleDeviceFactory {
+    private static final String SIGGENERATOR_UUID = "aa50"; // 信号发生器
+    private static final String SIGGENERATOR_NAME = "信号发生器";
+    private static final int SIGGENERATOR_IMAGE = R.drawable.ic_siggenerator_defaultimage;
+    private static final String SIGGENERATOR_FACTORY = "com.cmtech.android.bledevice.siggenerator.model.SigGeneratorDeviceFactory";
 
-    private static final String NAME_SIGGENERATOR                  = "信号发生器";
+    public static final BleDeviceType SIGGENERATOR_DEVICE_TYPE = new BleDeviceType(SIGGENERATOR_UUID, SIGGENERATOR_IMAGE, SIGGENERATOR_NAME, SIGGENERATOR_FACTORY);
 
-    private static final int IMAGE_SIGGENERATOR                  = R.drawable.ic_siggenerator_defaultimage;
-
-    private static final String sigGeneratorFactory = "com.cmtech.android.bledevice.siggenerator.model.SigGeneratorDeviceFactory";
-
-    public static final BleDeviceType SIGGENERATOR_DEVICE_TYPE = new BleDeviceType(UUID_SIGGENERATOR, IMAGE_SIGGENERATOR, NAME_SIGGENERATOR, sigGeneratorFactory);
+    private SigGeneratorDeviceFactory(BleDeviceRegisterInfo registerInfo) {
+        super(registerInfo);
+    }
 
     @Override
     public BleDevice createDevice(Context context) {
-        return new SigGeneratorDevice(context, basicInfo);
+        return new SigGeneratorDevice(context, registerInfo);
     }
 
     @Override
     public BleDeviceFragment createFragment() {
-        return BleDeviceFragment.create(basicInfo.getMacAddress(), SigGeneratorFragment.class);
+        return BleDeviceFragment.create(registerInfo.getMacAddress(), SigGeneratorFragment.class);
     }
 }

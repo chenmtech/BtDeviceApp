@@ -62,10 +62,10 @@ public class BleDeviceManager {
         return deviceMacList;
     }
 
-    // 根据设备基本信息创建设备
+    // 用设备注册信息创建设备
     private BleDevice createDevice(Context context, BleDeviceRegisterInfo basicInfo) {
         // 获取相应的抽象工厂
-        AbstractBleDeviceFactory factory = AbstractBleDeviceFactory.getBLEDeviceFactory(basicInfo);
+        BleDeviceFactory factory = BleDeviceFactory.getBLEDeviceFactory(basicInfo);
         return (factory == null) ? null : factory.createDevice(context);
     }
 
