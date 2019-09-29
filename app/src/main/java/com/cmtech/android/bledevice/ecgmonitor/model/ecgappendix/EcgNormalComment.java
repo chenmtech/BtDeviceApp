@@ -117,7 +117,7 @@ public class EcgNormalComment extends EcgAppendix{
 
     @Override
     public String toString() {
-        return creator.getNickname() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + ' ' + content;
+        return creator.getName() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + ' ' + content;
     }
 
     @Override

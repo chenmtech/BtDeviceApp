@@ -215,7 +215,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     }
 
     public String getCreatorName() {
-        return getCreator().getNickname();
+        return getCreator().getName();
     }
 
     public long getCreateTime() {

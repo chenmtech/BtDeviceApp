@@ -29,7 +29,7 @@
     </FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_exit"
+        android:id="@+id/fab_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tablayout_device"

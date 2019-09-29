@@ -91,7 +91,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         if(creator.equals(account)) {
             holder.tvCreatorName.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
-            holder.tvCreatorName.setText(Html.fromHtml("<u>" + appendix.getCreator().getNickname() + "</u>"));
+            holder.tvCreatorName.setText(Html.fromHtml("<u>" + appendix.getCreator().getName() + "</u>"));
         }
 
         holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getModifyTime()));

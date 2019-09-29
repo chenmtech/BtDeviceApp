@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.adapter;
+package com.cmtech.android.bledeviceapp.model;
 
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -25,7 +25,7 @@ import java.util.List;
  * Created by bme on 2018/2/8.
  */
 
-public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdapter.ViewHolder> {
+public class BleDeviceAdapter extends RecyclerView.Adapter<BleDeviceAdapter.ViewHolder> {
 
     // 设备列表
     private List<BleDevice> mDeviceList;
@@ -51,7 +51,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
         }
     }
 
-    public BleDeviceListAdapter(List<BleDevice> deviceList, MainActivity activity) {
+    public BleDeviceAdapter(List<BleDevice> deviceList, MainActivity activity) {
 
         mDeviceList = deviceList;
         this.activity = activity;
@@ -59,7 +59,7 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
 
 
     @Override
-    public BleDeviceListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BleDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_registed_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);

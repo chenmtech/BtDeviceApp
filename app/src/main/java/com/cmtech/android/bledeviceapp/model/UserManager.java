@@ -19,8 +19,9 @@ import java.util.List;
  */
 
 public class UserManager {
-    private static UserManager instance;     //入口操作管理
-    private User user;
+    private static UserManager instance; //用户管理器
+    private User user; // 用户
+
     private UserManager() {
     }
 
@@ -61,11 +62,8 @@ public class UserManager {
             return false;
         } else {
             user = new User();
-
             user.setPhone(phone);
-
             user.save();
-
             return true;
         }
     }
@@ -73,24 +71,18 @@ public class UserManager {
     // 登录
     public boolean signIn(String phone) {
         List<User> find = LitePal.where("phone = ?", phone).find(User.class);
-
         if(find != null && find.size() == 1) {
             user = find.get(0);
-
-            if(user.getNickname() == null) {
-                user.setNickname("");
+            if(user.getName() == null) {
+                user.setName("");
             }
-
             if(user.getPortrait() == null) {
                 user.setPortrait("");
             }
-
             if(user.getPersonalInfo() == null) {
                 user.setPersonalInfo("");
             }
-
             user.save();
-
             return true;
         } else {
             return false;

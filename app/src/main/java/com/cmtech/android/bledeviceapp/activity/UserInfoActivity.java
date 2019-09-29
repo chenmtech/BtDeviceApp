@@ -89,7 +89,7 @@ public class UserInfoActivity extends AppCompatActivity {
 
         tvPhone.setText(secretPhone);
 
-        etNickname.setText(user.getNickname());
+        etNickname.setText(user.getName());
 
         cachePortraitPath = user.getPortrait();
 
@@ -106,7 +106,7 @@ public class UserInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 User account = UserManager.getInstance().getUser();
-                account.setNickname(etNickname.getText().toString());
+                account.setName(etNickname.getText().toString());
 
                 if(!cachePortraitPath.equals(account.getPortrait())) {
                     // 把原来的图像文件删除

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -26,10 +27,10 @@ import com.vise.utils.view.BitmapUtil;
  */
 
 public class MainToolbarManager {
-    private final static int NAVI_ICON_FLAG = 0x01;
-    private final static int TITLE_FLAG = 0x02;
-    private final static int BATTERY_FLAG = 0x04;
-    private final static int MENU_FLAG = 0x08;
+    private final static int FLAG_NAVI_ICON = 0x01; // 导航图标
+    private final static int FLAG_TITLE = 0x02; // 标题
+    private final static int FLAG_BATTERY = 0x04; // 电池电量
+    private final static int FLAG_MENU = 0x08; // 菜单
 
     private final Context context;
     private final Toolbar toolbar;
@@ -50,21 +51,18 @@ public class MainToolbarManager {
 
     public void set(int flag, Object... objects) {
         int i = 0;
-        if((flag & NAVI_ICON_FLAG) != 0) {
+        if((flag & FLAG_NAVI_ICON) != 0) {
             setNavigationIcon((String)objects[i++]);
         }
-
-        if((flag & TITLE_FLAG) != 0) {
+        if((flag & FLAG_TITLE) != 0) {
             String[] titles = (String[]) objects[i++];
             setTitle(titles[0], titles[1]);
         }
-
-        if((flag & BATTERY_FLAG) != 0) {
+        if((flag & FLAG_BATTERY) != 0) {
             int battery = (int) objects[i++];
             setBattery(battery);
         }
-
-        if((flag & MENU_FLAG) != 0) {
+        if((flag & FLAG_MENU) != 0) {
             boolean[] showMenu = (boolean[]) objects[i];
             updateMenuItem(showMenu[0], showMenu[1]);
         }
@@ -72,7 +70,6 @@ public class MainToolbarManager {
 
     public void setTitle(String title, String subtitle) {
         toolbar.setTitle(title);
-
         toolbar.setSubtitle(subtitle);
     }
 
@@ -81,15 +78,14 @@ public class MainToolbarManager {
             tvDeviceBattery.setVisibility(View.GONE);
         } else {
             tvDeviceBattery.setVisibility(View.VISIBLE);
-
             tvDeviceBattery.setText(String.valueOf(battery));
-
-            Drawable drawable = context.getResources().getDrawable(R.drawable.battery_list_drawable);
-
+            Drawable drawable = ContextCompat.getDrawable(context, R.drawable.battery_list_drawable);
+            if(drawable == null) {
+                tvDeviceBattery.setVisibility(View.GONE);
+                return;
+            }
             drawable.setLevel(battery % 4);
-
             drawable.setBounds(0,0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-
             tvDeviceBattery.setCompoundDrawables(drawable, null, null, null);
         }
     }
@@ -97,13 +93,11 @@ public class MainToolbarManager {
     public void setNavigationIcon(String imagePath) {
         Drawable drawable;
         if(imagePath == null || "".equals(imagePath.trim())) {
-            drawable = context.getResources().getDrawable(R.mipmap.ic_menu);
+            drawable = ContextCompat.getDrawable(context, R.mipmap.ic_menu);
         } else {
             Bitmap bitmap = BitmapUtil.getSmallBitmap(imagePath, 64, 64);
-
             drawable = new BitmapDrawable(context.getResources(), bitmap);
         }
-
         toolbar.setNavigationIcon(drawable);
     }
 
@@ -111,7 +105,6 @@ public class MainToolbarManager {
         if(menuConfig == null || menuClose == null) return;
 
         menuConfig.setVisible(showMenuConfig);
-
         menuClose.setVisible(showMenuClose);
     }
 }
