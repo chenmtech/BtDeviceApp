@@ -20,11 +20,8 @@ import java.util.List;
 
 public class UserManager {
     private static UserManager instance;     //入口操作管理
-
     private User user;
-
     private UserManager() {
-
     }
 
     public static UserManager getInstance() {

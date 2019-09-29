@@ -23,54 +23,33 @@ import java.util.List;
  */
 
 public class MyFragmentManager {
-    // fragment改变监听器
-    private OnFragmentChangedListener listener = null;
+    private final InnerFragmentManager innerFragManager; // Fragment内部管理器实例
+    private final TabLayout tabLayout; // TabLayout实例
+    private int curPos = -1; // 当前显示的Fragment和Tab的位置
+    private boolean isShowTabText = false; // 是否在Tab上显示文字
+    private OnFragmentUpdatedListener listener = null; // fragment更新监听器
 
-    // Fragment内部管理器实例
-    private final InnerFragmentManager fragManager;
-
-    // TabLayout实例
-    private final TabLayout tabLayout;
-
-    // 当前显示的Fragment和Tab的位置
-    private int curPos = -1;
-
-    private boolean isShowTabText = false;
-
-    // fragment改变监听器接口
-    public interface OnFragmentChangedListener {
-        void onFragmentchanged();
+    // fragment更新监听器接口
+    public interface OnFragmentUpdatedListener {
+        void onFragmentUpdated();
     }
 
     // 构造器
     public MyFragmentManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
-        fragManager = new InnerFragmentManager(fragmentManager, containerId);
+        innerFragManager = new InnerFragmentManager(fragmentManager, containerId);
         this.tabLayout = tabLayout;
-        init();
-    }
-
-    // 设置fragment改变监听器
-    public void setOnFragmentChangedListener(OnFragmentChangedListener listener) {
-        this.listener = listener;
-    }
-
-    private void init() {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int pos = tab.getPosition();
                 if(pos < 0) return;
-
                 // 隐藏当前的Fragment
-                if(curPos >= 0 && curPos < size() && curPos != pos) fragManager.hideFragment(fragManager.getFragment(curPos));
-
+                if(curPos >= 0 && curPos < size() && curPos != pos) innerFragManager.hideFragment(innerFragManager.getFragment(curPos));
                 // 显示选中的Fragment
-                fragManager.showFragment(fragManager.getFragment(pos));
-
+                innerFragManager.showFragment(innerFragManager.getFragment(pos));
                 curPos = pos;
-
                 if(listener != null) {
-                    listener.onFragmentchanged();
+                    listener.onFragmentUpdated();
                 }
             }
 
@@ -87,27 +66,25 @@ public class MyFragmentManager {
 
     // Fragment数量
     public int size() {
-        return fragManager.fragments.size();
+        return innerFragManager.fragments.size();
+    }
+
+    // 设置fragment更新监听器
+    public void setOnFragmentUpdatedListener(OnFragmentUpdatedListener listener) {
+        this.listener = listener;
     }
 
     // 添加Fragment，并显示
     public void addFragment(Fragment fragment, Drawable drawable, String tabText) {
-        if(fragment == null || fragManager.fragments.contains(fragment)) return;
+        if(fragment == null || innerFragManager.fragments.contains(fragment)) return;
 
-        fragManager.addFragment(fragment, "");
-
-        TabLayout.Tab tab = tabLayout.newTab();
+        innerFragManager.addFragment(fragment, "");
 
         View view = LayoutInflater.from(MyApplication.getContext()).inflate(R.layout.tablayout_device, null);
-        TextView tv = view.findViewById(R.id.tv_device_name);
-        if(isShowTabText)
-            tv.setText(tabText);
-        else
-            tv.setText("");
+        ((ImageView)view.findViewById(R.id.iv_device_image)).setImageDrawable(drawable);
+        ((TextView)view.findViewById(R.id.tv_device_name)).setText((isShowTabText) ? tabText : "");
 
-        ImageView imageView = view.findViewById(R.id.iv_device_image);
-        imageView.setImageDrawable(drawable);
-
+        TabLayout.Tab tab = tabLayout.newTab();
         tab.setCustomView(view);
 
         tabLayout.addTab(tab, true);
@@ -115,7 +92,7 @@ public class MyFragmentManager {
 
     // 获取当前fragment
     public Fragment getCurrentFragment() {
-        return (curPos < 0 || curPos >= size()) ? null : fragManager.getFragment(curPos);
+        return (curPos < 0 || curPos >= size()) ? null : innerFragManager.getFragment(curPos);
     }
 
     // 获取当前tab
@@ -123,11 +100,11 @@ public class MyFragmentManager {
         return (curPos < 0 || curPos >= size() || size() == 0) ? null : tabLayout.getTabAt(curPos);
     }
 
-    // 更新tab信息
+    // 更新Fragment的tab信息
     public void updateTabInfo(Fragment fragment, Drawable drawable, String tabText) {
-        if(fragment == null || !fragManager.fragments.contains(fragment)) return;
+        if(fragment == null || !innerFragManager.fragments.contains(fragment)) return;
 
-        TabLayout.Tab tab = tabLayout.getTabAt(fragManager.fragments.indexOf(fragment));
+        TabLayout.Tab tab = tabLayout.getTabAt(innerFragManager.fragments.indexOf(fragment));
 
         if(tab != null) {
             View view = tab.getCustomView();
@@ -145,50 +122,44 @@ public class MyFragmentManager {
         }
     }
 
-    // 删除Fragment
-    public void deleteFragment(Fragment fragment) {
-        if(fragment == null || !fragManager.fragments.contains(fragment)) return;
-
-        int index = fragManager.fragments.indexOf(fragment);
-        fragManager.removeFragment(fragment);
-        TabLayout.Tab tab = tabLayout.getTabAt(index);
-        if(tab != null)
-            tabLayout.removeTab(tab);
-
-        if(size() == 0 && listener != null) {
-            listener.onFragmentchanged();
-        }
-    }
-
     // 显示Fragment
     public void showFragment(Fragment fragment) {
-        if(fragment == null || !fragManager.fragments.contains(fragment)) return;
+        if(fragment == null || !innerFragManager.fragments.contains(fragment)) return;
 
-        int index = fragManager.fragments.indexOf(fragment);
+        int index = innerFragManager.fragments.indexOf(fragment);
         TabLayout.Tab tab = tabLayout.getTabAt(index);
         if(tab != null)
             tab.select();
     }
 
+    // 删除Fragment
+    public void deleteFragment(Fragment fragment) {
+        if(fragment == null || !innerFragManager.fragments.contains(fragment)) return;
+
+        int index = innerFragManager.fragments.indexOf(fragment);
+        innerFragManager.removeFragment(fragment);
+        TabLayout.Tab tab = tabLayout.getTabAt(index);
+        if(tab != null)
+            tabLayout.removeTab(tab);
+
+        if(size() == 0 && listener != null) {
+            listener.onFragmentUpdated();
+        }
+    }
+
     public List<Fragment> getFragmentList() {
-        return fragManager.fragments;
+        return innerFragManager.fragments;
     }
 
     private static class InnerFragmentManager {
-
-        private FragmentManager fragmentManager;
-
-        private int containerId;
-
-        private List<Fragment> fragments;
+        private final FragmentManager fragmentManager;
+        private final int containerId;
+        private final List<Fragment> fragments;
 
         InnerFragmentManager(FragmentManager fragmentManager, int containerId) {
             super();
-
             this.containerId = containerId;
-
             this.fragmentManager = fragmentManager;
-
             fragments = new ArrayList<>();
         }
 
@@ -197,7 +168,6 @@ public class MyFragmentManager {
         void addFragment(Fragment fragment, String tag) {
             if(fragment != null) {
                 fragments.add(fragment);
-
                 FragmentTransaction fTransaction = fragmentManager.beginTransaction();
                 fTransaction.add(containerId, fragment, tag);
                 fTransaction.commit();
@@ -206,9 +176,7 @@ public class MyFragmentManager {
 
         void removeFragment(Fragment fragment) {
             if (fragment != null) {
-                ViseLog.i("removeFragment " + fragment);
                 fragments.remove(fragment);
-
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.remove(fragment);
                 transaction.commit();
@@ -224,7 +192,6 @@ public class MyFragmentManager {
         }
 
         void showFragment(Fragment fragment) {
-            ViseLog.i("showFragment " + fragment);
             if (fragment != null) {
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.show(fragment);

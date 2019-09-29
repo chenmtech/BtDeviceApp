@@ -2,17 +2,21 @@ package com.cmtech.android.bledeviceapp.model;
 
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 
 import java.util.List;
 
+/**
+ * BleFragmentManager: Fragment管理器
+ * Created by bme on 2018/12/08.
+ */
 
+public class BleFragmentManager extends MyFragmentManager {
 
-public class BleDeviceFragmentManager extends MyFragmentManager {
-
-    public BleDeviceFragmentManager(android.support.v4.app.FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
+    public BleFragmentManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
         super(fragmentManager, tabLayout, containerId);
     }
 
@@ -30,16 +34,14 @@ public class BleDeviceFragmentManager extends MyFragmentManager {
     }
 
     // 设备的Fragment是否打开
-    public boolean isDeviceFragmentOpened(BleDevice device) {
+    public boolean isFragmentOpened(BleDevice device) {
         return (findFragment(device) != null);
     }
 
     // 设备的Fragment是否被选中
-    public boolean isDeviceFragmentSelected(BleDevice device) {
+    public boolean isFragmentSelected(BleDevice device) {
         Fragment fragment = findFragment(device);
-
         if(fragment == null) return false;
-
         return (fragment == getCurrentFragment());
     }
 }

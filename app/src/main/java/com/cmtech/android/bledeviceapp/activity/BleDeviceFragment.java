@@ -16,7 +16,7 @@ public abstract class BleDeviceFragment extends Fragment{
     private static final String TAG = "BleDeviceFragment";
     private static final String ARG_DEVICE_MAC = "device_mac";
 
-    private IBleDeviceActivity activity; //包含BleDeviceFragment的Activity，必须要实现IBleDeviceFragmentActivity接口
+    private IBleDeviceActivity activity; //包含BleDeviceFragment的Activity，必须要实现IBleDeviceActivity接口
     private BleDevice device; // 设备
 
 

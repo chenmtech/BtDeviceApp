@@ -35,33 +35,26 @@ import java.util.TimerTask;
 
 public class BleDeviceService extends Service implements OnBleDeviceStateListener {
     private final static String TAG = "BleDeviceService";
-
-    private final int WARN_TIME_INTERVAL = 5000;
-
-    private String notiTitle;
+    private final static int WARN_TIME_INTERVAL = 15000;
     private final static String NOTIFICATION_CONTENT_TEXT = "当前设备状态";
 
-    /**
-     * id不可设置为0,否则不能设置为前台service
-     */
-    private static final int SERVICE_NOTIFICATION_ID = 0x0001;
+    private static final int SERVICE_NOTIFICATION_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
 
-    private BleDeviceManager deviceManager;
-
+    private final BleDeviceManager deviceManager = BleDeviceManager.getInstance();
+    private String notifyTitle;
+    private NotificationCompat.Builder notificationBuilder;
+    private Ringtone warnRingtone;
 
     public class DeviceServiceBinder extends Binder {
         public BleDeviceService getService() {
             return BleDeviceService.this;
         }
     }
+    private final DeviceServiceBinder binder = new DeviceServiceBinder();
 
-    private DeviceServiceBinder binder = new DeviceServiceBinder();
 
-    private NotificationCompat.Builder notificationBuilder;
 
-    private Ringtone warnRingtone;
-
-    private class DisconnectWarnTask extends TimerTask {
+    private class RingTonePlayTask extends TimerTask {
         @Override
         public void run() {
             if(!warnRingtone.isPlaying()) {
@@ -69,22 +62,66 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
             }
         }
     }
-    private Timer disconnectWarnTimer;
+    private Timer bleErrorWarnTimer;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        deviceManager = new BleDeviceManager();
         initDeviceFromPref(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
 
-        notiTitle = "欢迎使用" + getResources().getString(R.string.app_name);
-
+        notifyTitle = "欢迎使用" + getResources().getString(R.string.app_name);
         warnRingtone = RingtoneManager.getRingtone(this, Settings.System.DEFAULT_NOTIFICATION_URI);
-
         initNotificationBuilder();
-
         startForeground(SERVICE_NOTIFICATION_ID, createNotification(Arrays.asList(new String[]{NOTIFICATION_CONTENT_TEXT})));
+    }
+
+    // 从Preference获取所有设备注册信息，并构造相应的设备
+    private void initDeviceFromPref(SharedPreferences pref) {
+        List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.createAllFromPref(pref);
+        if(registerInfoList == null) return;
+        for(BleDeviceRegisterInfo registerInfo : registerInfoList) {
+            createDeviceThenListen(registerInfo);
+        }
+    }
+
+    private void initNotificationBuilder() {
+        notificationBuilder = new NotificationCompat.Builder(this, "default");
+        //设置状态栏的通知图标
+        notificationBuilder.setSmallIcon(R.mipmap.ic_kang);
+        //设置通知栏横条的图标
+        notificationBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.mipmap.ic_kang));
+        //禁止用户点击删除按钮删除
+        notificationBuilder.setAutoCancel(false);
+        //禁止滑动删除
+        notificationBuilder.setOngoing(true);
+        //右上角的时间显示
+        notificationBuilder.setShowWhen(true);
+        //设置通知栏的标题内容
+        notificationBuilder.setContentTitle(notifyTitle);
+        notificationBuilder.setContentText(NOTIFICATION_CONTENT_TEXT);
+
+        Intent startMainActivity = new Intent(this, MainActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, startMainActivity, 0);
+        notificationBuilder.setContentIntent(pi);
+    }
+
+    private Notification createNotification(List<String> contents){
+        if(contents == null || contents.size() <= 0) return null;
+
+        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+        inboxStyle.setBigContentTitle(notifyTitle);
+        for(String content : contents) {
+            inboxStyle.addLine(content);
+        }
+        notificationBuilder.setStyle(inboxStyle);
+
+        Notification notification = notificationBuilder.build();
+        notification.flags = Notification.FLAG_ONGOING_EVENT;
+        notification.flags |= Notification.FLAG_NO_CLEAR;
+        notification.flags |= Notification.FLAG_FOREGROUND_SERVICE;
+        //创建通知
+        return notification;
     }
 
     @Override
@@ -106,9 +143,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         }
 
         stopForeground(true);
-
         stopWarnRingtone();
-
         UserManager.getInstance().signOut();
 
         try {
@@ -118,7 +153,6 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         }
 
         ViseLog.e("killProcess");
-
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
@@ -138,6 +172,13 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         sendNotification(info);
     }
 
+    private void sendNotification(List<String> contents) {
+        Notification notification = createNotification(contents);
+        if(notification != null) {
+            startForeground(SERVICE_NOTIFICATION_ID, notification);
+        }
+    }
+
     @Override
     public void onBleErrorNotified(BleDevice device, boolean warn) {
         if(warn) {
@@ -152,28 +193,13 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
     }
 
-    // 创建并添加一个设备
-    public BleDevice createAndAddDevice(BleDeviceRegisterInfo basicInfo) {
-        BleDevice device = deviceManager.createAndAddDevice(this, basicInfo);
+    // 创建一个设备,并监听它
+    public BleDevice createDeviceThenListen(BleDeviceRegisterInfo registerInfo) {
+        BleDevice device = deviceManager.createDeviceIfNotExist(this, registerInfo);
         if(device != null) {
             device.addDeviceStateListener(this);
         }
         return device;
-    }
-
-    // 创建添加多个设备
-    public void createAndAddDevice(List<BleDeviceRegisterInfo> basicInfoList) {
-        if(basicInfoList == null) return;
-        for(BleDeviceRegisterInfo basicInfo : basicInfoList) {
-            createAndAddDevice(basicInfo);
-        }
-    }
-
-    // 打开设备
-    public void openDevice(final BleDevice device) {
-        if(device != null) {
-            device.open();
-        }
     }
 
     // 关闭设备
@@ -208,77 +234,26 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         return deviceManager.findDevice(macAddress);
     }
 
+    // 是否有设备打开
     public boolean hasDeviceOpened() {
         return deviceManager.hasDeviceOpened();
     }
 
     // 播放报警声音
     private void playWarnRingtone() {
-        if(disconnectWarnTimer == null) {
-            disconnectWarnTimer = new Timer();
-            disconnectWarnTimer.scheduleAtFixedRate(new BleDeviceService.DisconnectWarnTask(), 0, WARN_TIME_INTERVAL);
+        if(bleErrorWarnTimer == null) {
+            bleErrorWarnTimer = new Timer();
+            bleErrorWarnTimer.scheduleAtFixedRate(new RingTonePlayTask(), 0, WARN_TIME_INTERVAL);
         }
     }
 
     public void stopWarnRingtone() {
-        if(disconnectWarnTimer != null) {
-            disconnectWarnTimer.cancel();
-            disconnectWarnTimer = null;
+        if(bleErrorWarnTimer != null) {
+            bleErrorWarnTimer.cancel();
+            bleErrorWarnTimer = null;
             if(warnRingtone.isPlaying()) {
                 warnRingtone.stop();
             }
         }
-    }
-
-    // 从Preference获取所有设备信息，并构造相应的BLEDevice
-    private void initDeviceFromPref(SharedPreferences pref) {
-        List<BleDeviceRegisterInfo> basicInfoList = BleDeviceRegisterInfo.createAllFromPref(pref);
-        createAndAddDevice(basicInfoList);
-    }
-
-    private void initNotificationBuilder() {
-        notificationBuilder = new NotificationCompat.Builder(this, "default");
-        //设置状态栏的通知图标
-        notificationBuilder.setSmallIcon(R.mipmap.ic_kang);
-        //设置通知栏横条的图标
-        notificationBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.mipmap.ic_kang));
-        //禁止用户点击删除按钮删除
-        notificationBuilder.setAutoCancel(false);
-        //禁止滑动删除
-        notificationBuilder.setOngoing(true);
-        //右上角的时间显示
-        notificationBuilder.setShowWhen(true);
-        //设置通知栏的标题内容
-        notificationBuilder.setContentTitle(notiTitle);
-        notificationBuilder.setContentText(NOTIFICATION_CONTENT_TEXT);
-
-        Intent startMainActivity = new Intent(this, MainActivity.class);
-        PendingIntent pi = PendingIntent.getActivity(this, 0, startMainActivity, 0);
-        notificationBuilder.setContentIntent(pi);
-    }
-
-    private void sendNotification(List<String> contents) {
-        Notification notification = createNotification(contents);
-        if(notification != null) {
-            startForeground(SERVICE_NOTIFICATION_ID, notification);
-        }
-    }
-
-    private Notification createNotification(List<String> contents){
-        if(contents == null || contents.size() <= 0) return null;
-
-        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-        inboxStyle.setBigContentTitle(notiTitle);
-        for(String content : contents) {
-            inboxStyle.addLine(content);
-        }
-        notificationBuilder.setStyle(inboxStyle);
-
-        Notification notification = notificationBuilder.build();
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
-        notification.flags |= Notification.FLAG_NO_CLEAR;
-        notification.flags |= Notification.FLAG_FOREGROUND_SERVICE;
-        //创建通知
-        return notification;
     }
 }

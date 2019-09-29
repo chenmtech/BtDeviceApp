@@ -16,8 +16,8 @@ import com.vise.utils.view.BitmapUtil;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.model
  * ClassName:      MainToolbarManager
- * Description:    管理主界面的工具条
- * Author:         作者名
+ * Description:    主界面工具条管理器
+ * Author:         chenm
  * CreateDate:     2019/4/20 上午5:47
  * UpdateUser:     更新者
  * UpdateDate:     2019/4/20 上午5:47
@@ -26,19 +26,15 @@ import com.vise.utils.view.BitmapUtil;
  */
 
 public class MainToolbarManager {
-    public final static int NAVI_ICON_FLAG = 0x01;
-    public final static int TITLE_FLAG = 0x02;
-    public final static int BATTERY_FLAG = 0x04;
-    public final static int MENU_FLAG = 0x08;
+    private final static int NAVI_ICON_FLAG = 0x01;
+    private final static int TITLE_FLAG = 0x02;
+    private final static int BATTERY_FLAG = 0x04;
+    private final static int MENU_FLAG = 0x08;
 
     private final Context context;
-
     private final Toolbar toolbar;
-
     private final TextView tvDeviceBattery;
-
     private MenuItem menuConfig;
-
     private MenuItem menuClose;
 
     public MainToolbarManager(Context context, Toolbar toolbar, TextView tvDeviceBattery) {
