@@ -90,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     private TextView tvUserName; // 账户名称控件
     private ImageView ivUserPortrait; // 头像控件
     private boolean stopDeviceService = false; // 是否停止设备服务
-    private ObjectAnimator connectFabAnimator; // 连接动作按钮的动画
     private NavigationView navView;
 
     private ServiceConnection deviceServiceConnect = new ServiceConnection() {
@@ -699,7 +698,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
         fabConnect.clearAnimation();
         fabConnect.setImageResource(icon);
-        connectFabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, degree).setDuration(duration);
+        ObjectAnimator connectFabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, degree).setDuration(duration);
         connectFabAnimator.setRepeatCount(count);
         connectFabAnimator.setAutoCancel(true);
         connectFabAnimator.start();
