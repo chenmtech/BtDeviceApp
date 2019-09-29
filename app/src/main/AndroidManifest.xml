@@ -64,7 +64,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.DeviceBasicInfoActivity"
+            android:name=".activity.DeviceRegisterInfoActivity"
             android:label="设置设备信息"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity

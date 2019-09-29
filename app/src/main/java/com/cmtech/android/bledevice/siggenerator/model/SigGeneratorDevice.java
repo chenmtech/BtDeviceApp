@@ -2,9 +2,9 @@ package com.cmtech.android.bledevice.siggenerator.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.extend.BleGattElement;
+import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleGattElement;
 import com.vise.log.ViseLog;
 
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;

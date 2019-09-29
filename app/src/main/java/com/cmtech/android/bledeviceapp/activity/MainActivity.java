@@ -37,10 +37,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.extend.BleDeviceScanner;
-import com.cmtech.android.ble.extend.BleDeviceState;
+import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceScanner;
+import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -60,7 +60,7 @@ import java.util.List;
 
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
-import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
+import static com.cmtech.android.bledeviceapp.activity.DeviceRegisterInfoActivity.DEVICE_REGISTER_INFO;
 import static com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity.REGISTER_DEVICE_MAC_LIST;
 
 /**
@@ -68,7 +68,7 @@ import static com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity.REGI
  *  Created by bme on 2018/2/19.
  */
 
-public class MainActivity extends AppCompatActivity implements IBleDeviceFragmentActivity {
+public class MainActivity extends AppCompatActivity implements IBleDeviceActivity {
     private static final String TAG = "MainActivity";
 
     private final static int RC_REGISTER_DEVICE = 1;     // 登记设备返回码
@@ -76,43 +76,24 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
     private final static int RC_MODIFY_USERINFO = 3;     // 修改用户信息返回码
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-
     private BleDeviceService deviceService; // 设备服务
-
     private BleDeviceListAdapter deviceListAdapter; // 已登记设备列表的Adapter
-
     private RecyclerView rvDeviceList; // 已登记设备列表的RecyclerView
-
     private Toolbar toolbar; // 工具条
-
     private DrawerLayout drawerLayout; // 侧滑界面
-
     private LinearLayout noDeviceOpenedLayout; // 无设备打开时的界面
-
     private RelativeLayout deviceOpenedLayout; // 有设备打开时的界面，包含设备Fragment和Tablayout的主界面
-
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
-
     private FloatingActionButton fabExit;
-
     private BleDeviceFragmentManager fragmentManager; // TabLayout和Fragment管理器
-
     private MenuItem menuConfig; // 工具条上的配置菜单
-
     private MenuItem menuClose;
-
     private TextView tvUserName; // 账户名称控件
-
     private ImageView ivUserPortrait; // 头像控件
-
     private boolean isFinishService = false; // 是否结束服务
-
     private ObjectAnimator connectFabAnimator; // 连接动作按钮的动画
-
     private TextView tvDeviceBattery;
-
     private NavigationView navView;
-
     private MainToolbarManager toolbarManager;
 
     private ServiceConnection deviceServiceConnect = new ServiceConnection() {
@@ -143,10 +124,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         public void onReceive(Context context, Intent intent) {
             if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-
                 if(state == STATE_ON) {
                     BleDeviceScanner.clearInnerError();
-
                     Toast.makeText(context, "蓝牙已开启。", Toast.LENGTH_SHORT).show();
                 } else if(state == STATE_OFF) {
                     Toast.makeText(context, "蓝牙已关闭。", Toast.LENGTH_SHORT).show();
@@ -216,7 +195,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             public void onClick(View view) {
                 BleDeviceFragment fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
-                    fragment.switchDeviceState();
+                    fragment.switchState();
                 }
             }
         });
@@ -353,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             case RC_REGISTER_DEVICE:
 
                 if(resultCode == RESULT_OK) {
-                    BleDeviceRegisterInfo basicInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_BASICINFO);
+                    BleDeviceRegisterInfo basicInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     if(basicInfo != null) {
                         BleDevice device = deviceService.createAndAddDevice(basicInfo);
                         if(device != null) {
@@ -372,7 +351,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
             case RC_MODIFY_DEVICEINFO:
 
                 if ( resultCode == RESULT_OK) {
-                    BleDeviceRegisterInfo basicInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_BASICINFO);
+                    BleDeviceRegisterInfo basicInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     BleDevice device = deviceService.findDevice(basicInfo);
 
                     if(device != null && basicInfo.saveToPref(pref)) {
@@ -382,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
                         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
 
-                        fragmentManager.updateTabInfo(fragmentManager.findOpenedFragment(device), device.getImageDrawable(), device.getNickName());
+                        fragmentManager.updateTabInfo(fragmentManager.findFragment(device), device.getImageDrawable(), device.getNickName());
 
                         if(fragmentManager.isDeviceFragmentSelected(device)) {
                             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
@@ -528,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         if(deviceListAdapter != null) deviceListAdapter.notifyDataSetChanged();
 
         // 更新设备的Fragment界面
-        BleDeviceFragment deviceFrag = fragmentManager.findOpenedFragment(device);
+        BleDeviceFragment deviceFrag = fragmentManager.findFragment(device);
 
         if(deviceFrag != null) deviceFrag.updateState();
 
@@ -557,7 +536,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
                 builder.show();
             }
         });
-
     }
 
     @Override
@@ -583,41 +561,39 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
         if(device != null && device.isDisconnect()) {
             deviceService.closeDevice(device);
-
             fragmentManager.deleteFragment(fragment);
         } else {
             Toast.makeText(this, "设备连接中，请先断开设备。", Toast.LENGTH_LONG).show();
         }
     }
 
-    // 打开设备：为设备创建并打开Fragment
+    // 打开设备
     public void openDevice(BleDevice device) {
-        if(device == null) return;
+        if(device == null || !device.isClosed()) return;
 
-        BleDeviceFragment fragment = fragmentManager.findOpenedFragment(device);
+        BleDeviceFragment fragment = fragmentManager.findFragment(device);
         if(fragment != null) {
             openDrawer(false);
             fragmentManager.showFragment(fragment);
-
-        } else if(device.isClosed()){
+        } else {
             createAndOpenFragment(device);
         }
     }
 
     private void createAndOpenFragment(BleDevice device) {
-        BleDeviceFactory factory = BleDeviceFactory.getBLEDeviceFactory(device);
+        if(device == null) return;
+
+        BleDeviceFactory factory = BleDeviceFactory.getBLEDeviceFactory(device.getRegisterInfo());
         if(factory != null) {
             drawerLayout.closeDrawer(GravityCompat.START);
-
             // 添加设备的Fragment到管理器
             fragmentManager.addFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
-
             updateMainLayout(device);
         }
     }
 
-    // 删除设备
-    public void deleteDevice(final BleDevice device) {
+    // 从设备列表中删除设备
+    public void removeDeviceFromList(final BleDevice device) {
         if(device == null) return;
 
         if(fragmentManager.isDeviceFragmentOpened(device)) {
@@ -648,10 +624,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
         builder.show();
     }
 
-    // 修改设备基本信息 
-    public void modifyDeviceBasicInfo(final BleDeviceRegisterInfo basicInfo) {
-        Intent intent = new Intent(this, DeviceBasicInfoActivity.class);
-        intent.putExtra(DEVICE_BASICINFO, basicInfo);
+    // 修改设备注册信息 
+    public void modifyDeviceRegisterInfo(final BleDeviceRegisterInfo registerInfo) {
+        Intent intent = new Intent(this, DeviceRegisterInfoActivity.class);
+        intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
 
         startActivityForResult(intent, RC_MODIFY_DEVICEINFO);
     }
@@ -729,30 +705,25 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceFragmen
 
     // 更新浮动动作按钮
     private void updateConnectFloatingActionButton(int icon, boolean isRotate) {
-        float degree = 360.0f;
+        float degree;
+        long duration;
+        int count;
 
-        long duration = 3000;
-
-        int count = ValueAnimator.INFINITE;
-
-        if(!isRotate) {
+        if(isRotate) {
+            degree = 360.0f;
+            duration = 10000;
+            count = ValueAnimator.INFINITE;
+        } else {
             degree = 0.0f;
-
             duration = 100;
-
             count = 0;
         }
 
         fabConnect.clearAnimation();
-
         fabConnect.setImageResource(icon);
-
         connectFabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, degree).setDuration(duration);
-
         connectFabAnimator.setRepeatCount(count);
-
         connectFabAnimator.setAutoCancel(true);
-
         connectFabAnimator.start();
     }
 

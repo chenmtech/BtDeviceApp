@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
-import com.cmtech.android.ble.extend.BleDevice;
+import com.cmtech.android.ble.core.BleDevice;
 
 /**
  * BleDeviceFragment：设备的Fragment
@@ -14,33 +14,27 @@ import com.cmtech.android.ble.extend.BleDevice;
 
 public abstract class BleDeviceFragment extends Fragment{
     private static final String TAG = "BleDeviceFragment";
+    private static final String ARG_DEVICE_MAC = "device_mac";
 
-    private IBleDeviceFragmentActivity activity; //包含BleDeviceFragment的Activity，必须要实现IBleDeviceFragmentActivity接口
-
+    private IBleDeviceActivity activity; //包含BleDeviceFragment的Activity，必须要实现IBleDeviceFragmentActivity接口
     private BleDevice device; // 设备
 
 
-
-    public BleDeviceFragment() {
+    protected BleDeviceFragment() {
     }
 
     public static BleDeviceFragment create(String macAddress, Class<? extends BleDeviceFragment> fragClass) {
-        BleDeviceFragment fragment = null;
+        BleDeviceFragment fragment;
         try {
             fragment = fragClass.newInstance();
-            bundleMacAddress(fragment, macAddress);
+            Bundle bundle = new Bundle();
+            bundle.putString(ARG_DEVICE_MAC, macAddress);
+            fragment.setArguments(bundle);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
         return fragment;
-    }
-
-    // 将设备的mac地址添加到Fragment的Argument中
-    public static void bundleMacAddress(BleDeviceFragment fragment, String macAddress) {
-        Bundle bundle = new Bundle();
-        bundle.putString("device_mac", macAddress);
-        fragment.setArguments(bundle);
     }
 
     public BleDevice getDevice() {
@@ -51,10 +45,10 @@ public abstract class BleDeviceFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(context instanceof IBleDeviceFragmentActivity) {
-            activity = (IBleDeviceFragmentActivity) context;
+        if(context instanceof IBleDeviceActivity) {
+            activity = (IBleDeviceActivity) context;
         } else {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("The context must be a instance of IBleDeviceActivity.");
         }
     }
 
@@ -64,21 +58,15 @@ public abstract class BleDeviceFragment extends Fragment{
 
         // 用macAddress获取BleDevice
         Bundle bundle = getArguments();
-
         if(bundle == null) throw new IllegalStateException();
-
-        String deviceMac = bundle.getString("device_mac");
-
+        String deviceMac = bundle.getString(ARG_DEVICE_MAC);
         device = activity.findDevice(deviceMac);
-
-        if(device == null) throw new IllegalArgumentException();
+        if(device == null) throw new IllegalArgumentException("The device is null.");
 
         // 更新连接状态
         updateState();
-
         // 注册设备状态观察者
         device.addDeviceStateListener(activity);
-
         device.updateState();
 
         // 打开设备
@@ -93,8 +81,8 @@ public abstract class BleDeviceFragment extends Fragment{
         //device.removeDeviceStateListener(activity);
     }
 
-    // 切换设备状态，根据设备的当前状态实现状态切换
-    public void switchDeviceState() {
+    // 切换状态
+    public void switchState() {
         device.switchState();
     }
 
@@ -106,13 +94,14 @@ public abstract class BleDeviceFragment extends Fragment{
         }
     }
 
-    public abstract void openConfigActivity();
-
+    // 关闭
     public void close() {
         if(activity != null) {
             activity.closeFragment(this);
         }
     }
-    //////////////////////////////////////////////////////////////////////////
+
+    // 打开配置Activity
+    public abstract void openConfigActivity();
 
 }

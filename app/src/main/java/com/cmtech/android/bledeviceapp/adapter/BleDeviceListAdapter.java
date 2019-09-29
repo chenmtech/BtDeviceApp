@@ -13,8 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceType;
+import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -79,10 +79,10 @@ public class BleDeviceListAdapter extends RecyclerView.Adapter<BleDeviceListAdap
                     BleDevice device = mDeviceList.get(holder.getAdapterPosition());
                     switch (item.getItemId()){
                         case 1:
-                            activity.modifyDeviceBasicInfo(device.getRegisterInfo());
+                            activity.modifyDeviceRegisterInfo(device.getRegisterInfo());
                             return true;
                         case 2:
-                            activity.deleteDevice(device);
+                            activity.removeDeviceFromList(device);
                             return true;
 
                         default:

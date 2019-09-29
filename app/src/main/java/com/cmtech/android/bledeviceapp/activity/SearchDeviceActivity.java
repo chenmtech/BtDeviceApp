@@ -18,9 +18,9 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
-import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.extend.BleDeviceScanner;
-import com.cmtech.android.ble.extend.BleDeviceDetailInfo;
+import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceScanner;
+import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.BleDeviceConstant;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
-import static com.cmtech.android.bledeviceapp.activity.DeviceBasicInfoActivity.DEVICE_BASICINFO;
+import static com.cmtech.android.bledeviceapp.activity.DeviceRegisterInfoActivity.DEVICE_REGISTER_INFO;
 
 /**
   *
@@ -281,7 +281,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
 
-        Intent intent = new Intent(SearchDeviceActivity.this, DeviceBasicInfoActivity.class);
+        Intent intent = new Intent(SearchDeviceActivity.this, DeviceRegisterInfoActivity.class);
 
         BleDeviceRegisterInfo basicInfo = new BleDeviceRegisterInfo();
 
@@ -289,7 +289,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         basicInfo.setUuidString(uuidShortString);
 
-        intent.putExtra(DEVICE_BASICINFO, basicInfo);
+        intent.putExtra(DEVICE_REGISTER_INFO, basicInfo);
 
         startActivityForResult(intent, 1);
     }

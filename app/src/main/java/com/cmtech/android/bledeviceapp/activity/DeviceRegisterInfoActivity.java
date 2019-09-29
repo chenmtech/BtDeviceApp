@@ -20,8 +20,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.extend.BleDeviceType;
+import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.file.FileUtil;
@@ -30,21 +30,21 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.ble.extend.BleDeviceRegisterInfo.DEFAULT_DEVICE_AUTOCONNECT;
-import static com.cmtech.android.ble.extend.BleDeviceRegisterInfo.DEFAULT_DEVICE_IMAGEPATH;
-import static com.cmtech.android.ble.extend.BleDeviceRegisterInfo.DEFAULT_DEVICE_RECONNECT_TIMES;
-import static com.cmtech.android.ble.extend.BleDeviceRegisterInfo.DEFAULT_WARN_WHEN_BLE_ERROR;
+import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_AUTOCONNECT;
+import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_IMAGEPATH;
+import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_RECONNECT_TIMES;
+import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_WARN_WHEN_BLE_ERROR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
 
 /**
- *  DeviceBasicInfoActivity: 设备基本信息Activity，用于设置修改BleDeviceBasicInfo字段
+ *  DeviceRegisterInfoActivity: 设备注册信息Activity，用于设置修改BleDeviceRegisterInfo字段
  *  Created by bme on 2018/6/27.
  */
 
-public class DeviceBasicInfoActivity extends AppCompatActivity {
-    public static final String DEVICE_BASICINFO = "devicebasicinfo"; // intent中devicebasicinfo的键值
+public class DeviceRegisterInfoActivity extends AppCompatActivity {
+    public static final String DEVICE_REGISTER_INFO = "device_register_info";
 
-    private BleDeviceRegisterInfo basicInfo; // 设备基本信息
+    private BleDeviceRegisterInfo registerInfo; // 设备基本信息
     private EditText etName; // 设备昵名
     private ImageView ivImage; // 设备图像
     private CheckBox cbIsAutoconnect; // 设备是否自动连接
@@ -59,8 +59,8 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent != null) {
-            basicInfo = (BleDeviceRegisterInfo) intent.getSerializableExtra(DEVICE_BASICINFO);
-            if(basicInfo == null) {
+            registerInfo = (BleDeviceRegisterInfo) intent.getSerializableExtra(DEVICE_REGISTER_INFO);
+            if(registerInfo == null) {
                 Toast.makeText(this, "设备基本信息对象无效", Toast.LENGTH_SHORT).show();
                 finish();
             }
@@ -76,21 +76,21 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
         }
 
         // 设置activity标题为设备地址
-        setTitle("MAC:"+basicInfo.getMacAddress());
+        setTitle("MAC:"+ registerInfo.getMacAddress());
 
         // 设置设备昵名
         etName = findViewById(R.id.et_device_nickname);
-        String deviceName = basicInfo.getNickName();
+        String deviceName = registerInfo.getNickName();
         if("".equals(deviceName)) {
-            deviceName = BleDeviceType.getFromUuid(basicInfo.getUuidString()).getDefaultNickname();
+            deviceName = BleDeviceType.getFromUuid(registerInfo.getUuidString()).getDefaultNickname();
         }
         etName.setText(deviceName);
 
         // 设置设备图像
         ivImage = findViewById(R.id.iv_device_image);
-        cacheImagePath = basicInfo.getImagePath();
+        cacheImagePath = registerInfo.getImagePath();
         if("".equals(cacheImagePath)) {
-            int defaultImageId = BleDeviceType.getFromUuid(basicInfo.getUuidString()).getDefaultImage();
+            int defaultImageId = BleDeviceType.getFromUuid(registerInfo.getUuidString()).getDefaultImage();
             Glide.with(this).load(defaultImageId).into(ivImage);
         } else {
             // 注意不要从缓存显示图像
@@ -106,56 +106,56 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
         // 设置重连次数
         etReconnectTimes = findViewById(R.id.et_device_reconnecttimes);
-        etReconnectTimes.setText(String.valueOf(basicInfo.getReconnectTimes()));
+        etReconnectTimes.setText(String.valueOf(registerInfo.getReconnectTimes()));
 
         // 设置打开后是否自动重连
         cbIsAutoconnect = findViewById(R.id.cb_device_isautoconnect);
-        cbIsAutoconnect.setChecked(basicInfo.autoConnect());
+        cbIsAutoconnect.setChecked(registerInfo.autoConnect());
 
         // 设置设备重连失败后是否报警
         cbWarnAfterReconnectFailure = findViewById(R.id.cb_device_warn_after_reconnect_failure);
-        cbWarnAfterReconnectFailure.setChecked(basicInfo.isWarnWhenBleError());
+        cbWarnAfterReconnectFailure.setChecked(registerInfo.isWarnWhenBleError());
 
 
         Button btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                basicInfo.setNickName(etName.getText().toString());
+                registerInfo.setNickName(etName.getText().toString());
 
                 // 如果图像有变化
-                if(!cacheImagePath.equals(basicInfo.getImagePath())) {
+                if(!cacheImagePath.equals(registerInfo.getImagePath())) {
                     // 把原来的图像文件删除
-                    if(!"".equals(basicInfo.getImagePath())) {
-                        File imageFile = new File(basicInfo.getImagePath());
+                    if(!"".equals(registerInfo.getImagePath())) {
+                        File imageFile = new File(registerInfo.getImagePath());
                         imageFile.delete();
                     }
 
                     // 把当前的ImageView中图像保存，以设备地址为文件名
                     if("".equals(cacheImagePath)) {
-                        basicInfo.setImagePath("");
+                        registerInfo.setImagePath("");
                     } else {
                         ivImage.setDrawingCacheEnabled(true);
                         Bitmap bitmap = ivImage.getDrawingCache();
-                        File toFile = FileUtil.getFile(DIR_IMAGE, basicInfo.getMacAddress() + ".jpg");
+                        File toFile = FileUtil.getFile(DIR_IMAGE, registerInfo.getMacAddress() + ".jpg");
                         try {
                             String filePath = toFile.getCanonicalPath();
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivImage.setDrawingCacheEnabled(false);
-                            basicInfo.setImagePath(filePath);
+                            registerInfo.setImagePath(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            basicInfo.setImagePath("");
+                            registerInfo.setImagePath("");
                         }
                     }
                 }
 
-                basicInfo.setAutoConnect(cbIsAutoconnect.isChecked());
-                basicInfo.setReconnectTimes(Integer.parseInt(etReconnectTimes.getText().toString()));
-                basicInfo.setWarnWhenBleError(cbWarnAfterReconnectFailure.isChecked());
+                registerInfo.setAutoConnect(cbIsAutoconnect.isChecked());
+                registerInfo.setReconnectTimes(Integer.parseInt(etReconnectTimes.getText().toString()));
+                registerInfo.setWarnWhenBleError(cbWarnAfterReconnectFailure.isChecked());
 
                 Intent intent = new Intent();
-                intent.putExtra(DEVICE_BASICINFO, basicInfo);
+                intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -256,9 +256,9 @@ public class DeviceBasicInfoActivity extends AppCompatActivity {
 
     // 恢复缺省设置
     private void restoreDefaultSetup() {
-        etName.setText(BleDeviceType.getFromUuid(basicInfo.getUuidString()).getDefaultNickname());
+        etName.setText(BleDeviceType.getFromUuid(registerInfo.getUuidString()).getDefaultNickname());
         cacheImagePath = DEFAULT_DEVICE_IMAGEPATH;
-        Glide.with(this).load(BleDeviceType.getFromUuid(basicInfo.getUuidString()).getDefaultImage()).into(ivImage);
+        Glide.with(this).load(BleDeviceType.getFromUuid(registerInfo.getUuidString()).getDefaultImage()).into(ivImage);
         cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
         etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECT_TIMES));
         cbWarnAfterReconnectFailure.setChecked(DEFAULT_WARN_WHEN_BLE_ERROR);

@@ -2,11 +2,11 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.bledeviceapp.model.BleDeviceFactory;
-import com.cmtech.android.ble.extend.BleDevice;
+import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
-import com.cmtech.android.ble.extend.BleDeviceType;
+import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgMonitorFragment;
 import com.cmtech.android.bledeviceapp.R;
 

@@ -41,6 +41,7 @@ public class TempHumidFragment extends BleDeviceFragment implements ITempHumidDa
 
     public TempHumidFragment() {
 
+        super();
     }
 
     @Nullable

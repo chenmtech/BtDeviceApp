@@ -77,6 +77,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
 
     public EcgMonitorFragment() {
 
+        super();
     }
 
     @Override

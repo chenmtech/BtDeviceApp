@@ -33,6 +33,7 @@ public class ThermoFragment extends BleDeviceFragment implements IThermoDataObse
 
     public ThermoFragment() {
 
+        super();
     }
 
     @Nullable

@@ -20,6 +20,7 @@ public class UnknownDeviceFragment extends BleDeviceFragment {
 
     public UnknownDeviceFragment() {
 
+        super();
     }
 
     public static UnknownDeviceFragment newInstance() {

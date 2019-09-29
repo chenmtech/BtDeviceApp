@@ -3,8 +3,8 @@ package com.cmtech.android.bledeviceapp.model;
 import android.content.Context;
 import android.text.TextUtils;
 
-import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;

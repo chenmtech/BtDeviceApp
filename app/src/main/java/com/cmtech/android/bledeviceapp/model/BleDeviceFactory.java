@@ -2,9 +2,9 @@ package com.cmtech.android.bledeviceapp.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.extend.BleDevice;
-import com.cmtech.android.ble.extend.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.extend.BleDeviceType;
+import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
 import com.vise.log.ViseLog;
 
@@ -22,12 +22,7 @@ public abstract class BleDeviceFactory {
         this.registerInfo = registerInfo;
     }
 
-    // 获取BleDevice对应的抽象工厂
-    public static BleDeviceFactory getBLEDeviceFactory(BleDevice device) {
-        return (device == null) ? null : getBLEDeviceFactory(device.getRegisterInfo());
-    }
-
-    // 获取设备对应的抽象工厂
+    // 获取注册信息对应的设备抽象工厂
     public static BleDeviceFactory getBLEDeviceFactory(BleDeviceRegisterInfo registerInfo) {
         if(registerInfo == null) return null;
 
