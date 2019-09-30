@@ -42,7 +42,6 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
     private static final int SERVICE_NOTIFICATION_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
 
-    private final BleDeviceManager deviceManager = BleDeviceManager.getInstance();
     private String notifyTitle;
     private NotificationCompat.Builder notificationBuilder;
     private Ringtone warnRingtone;
@@ -161,7 +160,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     @Override
     public void onConnectStateUpdated(final BleDevice device) {
         List<String> info = new ArrayList<>();
-        for(BleDevice dev : deviceManager.getDeviceList()) {
+        for(BleDevice dev : BleDeviceManager.getDeviceList()) {
             if(!dev.isClosed()) {
                 info.add(dev.getMacAddress() + ": " + dev.getStateDescription());
             }
@@ -206,7 +205,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
     // 创建一个设备,并监听它
     public BleDevice createDeviceThenListen(BleDeviceRegisterInfo registerInfo) {
-        BleDevice device = deviceManager.createDeviceIfNotExist(this, registerInfo);
+        BleDevice device = BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
         if(device != null) {
             device.addDeviceStateListener(this);
         }
@@ -222,32 +221,32 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
 
     // 删除一个设备
     public void deleteDevice(BleDevice device) {
-        deviceManager.deleteDevice(device);
+        BleDeviceManager.deleteDevice(device);
     }
 
     // 获取设备清单
     public List<BleDevice> getDeviceList() {
-        return deviceManager.getDeviceList();
+        return BleDeviceManager.getDeviceList();
     }
 
     // 获取设备的Mac列表
     public List<String> getDeviceMacList() {
-        return deviceManager.getDeviceMacList();
+        return BleDeviceManager.getDeviceMacList();
     }
 
     // 获取设备
     public BleDevice findDevice(BleDeviceRegisterInfo basicInfo) {
-        return deviceManager.findDevice(basicInfo);
+        return BleDeviceManager.findDevice(basicInfo);
     }
 
     // 获取设备
     public BleDevice findDevice(String macAddress) {
-        return deviceManager.findDevice(macAddress);
+        return BleDeviceManager.findDevice(macAddress);
     }
 
     // 是否有设备打开
     public boolean hasDeviceOpened() {
-        return deviceManager.hasDeviceOpened();
+        return BleDeviceManager.hasDeviceOpened();
     }
 
     // 播放报警声音

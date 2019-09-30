@@ -10,25 +10,33 @@ import com.vise.log.ViseLog;
 
 import java.lang.reflect.Constructor;
 
-/*
- * BleDeviceFactory：Ble设备抽象工厂
- * Created by bme on 2018/10/13.
+/**
+ *
+ * ClassName:      BleDeviceFactory
+ * Description:    Ble设备工厂抽象类
+ * Author:         chenm
+ * CreateDate:     2018-10-13 07:02
+ * UpdateUser:     chenm
+ * UpdateDate:     2018-10-13 07:02
+ * UpdateRemark:   更新说明
+ * Version:        1.0
  */
 
+
 public abstract class BleDeviceFactory {
-    protected BleDeviceRegisterInfo registerInfo; // 设备注册信息对象
+    protected BleDeviceRegisterInfo registerInfo; // 设备注册信息
 
     protected BleDeviceFactory(BleDeviceRegisterInfo registerInfo) {
         this.registerInfo = registerInfo;
     }
 
-    // 获取注册信息对应的设备抽象工厂
+    // 获取注册信息对应的设备工厂
     public static BleDeviceFactory getBLEDeviceFactory(BleDeviceRegisterInfo registerInfo) {
         if(registerInfo == null) return null;
 
         BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidString());
         if(type == null) {
-            ViseLog.e("BleDeviceType is not supported.");
+            ViseLog.e("The device type is not supported.");
             return null;
         }
 
@@ -43,11 +51,12 @@ public abstract class BleDeviceFactory {
             constructor.setAccessible(true);
             factory = (BleDeviceFactory) constructor.newInstance(registerInfo);
         } catch (Exception e) {
+            ViseLog.e("The device factory can't be created.");
             factory = null;
         }
         return factory;
     }
 
-    public abstract BleDevice createDevice(Context context); // 创建BleDevice
+    public abstract BleDevice createDevice(Context context); // 创建Device
     public abstract BleFragment createFragment(); // 创建Fragment
 }

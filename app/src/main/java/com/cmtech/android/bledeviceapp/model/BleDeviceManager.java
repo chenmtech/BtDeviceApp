@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,32 +13,30 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * BleDeviceManager: 设备管理器
- * Created by bme on 2018/12/08.
+ *
+ * ClassName:      BleDeviceManager
+ * Description:    设备管理器
+ * Author:         chenm
+ * CreateDate:     2018-12-08 07:02
+ * UpdateUser:     chenm
+ * UpdateDate:     2018-12-08 07:02
+ * UpdateRemark:   更新说明
+ * Version:        1.0
  */
 
 public class BleDeviceManager {
-    private static BleDeviceManager instance;
-    private final List<BleDevice> deviceList = new ArrayList<>();
+    private static final List<BleDevice> deviceList = new ArrayList<>();
 
     private BleDeviceManager() {
     }
 
-    public static BleDeviceManager getInstance() {
-        if (instance == null) {
-            synchronized (BleDeviceManager.class) {
-                if (instance == null) {
-                    instance = new BleDeviceManager();
-                }
-            }
-        }
-        return instance;
-    }
-
-    // 用注册信息创建一个设备，如果设备不存在
-    public BleDevice createDeviceIfNotExist(Context context, BleDeviceRegisterInfo registerInfo) {
+    // 如果设备不存在，用注册信息创建一个设备
+    public static BleDevice createDeviceIfNotExist(Context context, BleDeviceRegisterInfo registerInfo) {
         BleDevice device = findDevice(registerInfo);
-        if(device != null) return null;
+        if(device != null) {
+            ViseLog.e("The device has existed.");
+            return null;
+        }
 
         // 创建设备
         device = createDevice(context, registerInfo);
@@ -56,12 +55,12 @@ public class BleDeviceManager {
     }
 
     // 用注册信息寻找设备
-    public BleDevice findDevice(BleDeviceRegisterInfo registerInfo) {
+    public static BleDevice findDevice(BleDeviceRegisterInfo registerInfo) {
         return (registerInfo == null) ? null : findDevice(registerInfo.getMacAddress());
     }
 
     // 用mac地址寻找设备
-    public BleDevice findDevice(String macAddress) {
+    public static BleDevice findDevice(String macAddress) {
         if(TextUtils.isEmpty(macAddress)) return null;
 
         for(BleDevice device : deviceList) {
@@ -80,17 +79,17 @@ public class BleDeviceManager {
     }
 
     // 删除一个设备
-    public void deleteDevice(BleDevice device) {
+    public static void deleteDevice(BleDevice device) {
         deviceList.remove(device);
     }
 
     // 获取设备清单
-    public List<BleDevice> getDeviceList() {
+    public static List<BleDevice> getDeviceList() {
         return deviceList;
     }
 
     // 获取所有设备的Mac列表
-    public List<String> getDeviceMacList() {
+    public static List<String> getDeviceMacList() {
         List<String> deviceMacList = new ArrayList<>();
         for(BleDevice device : deviceList) {
             deviceMacList.add(device.getMacAddress());
@@ -99,7 +98,7 @@ public class BleDeviceManager {
     }
 
     // 是否有设备打开了
-    public boolean hasDeviceOpened() {
+    public static boolean hasDeviceOpened() {
         for(BleDevice device : deviceList) {
             if(!device.isClosed()) {
                 return true;

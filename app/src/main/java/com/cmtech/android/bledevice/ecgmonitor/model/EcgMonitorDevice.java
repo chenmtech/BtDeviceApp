@@ -278,7 +278,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     }
 
     @Override
-    public void disconnect() {
+    protected void disconnect() {
         ViseLog.e("EcgMonitorDevice.disconnect()");
 
         if(isBatteryMeasured) {
