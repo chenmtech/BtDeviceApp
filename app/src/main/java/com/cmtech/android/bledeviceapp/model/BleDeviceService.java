@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.model;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.AlertDialog;
 
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
@@ -135,8 +137,8 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         super.onDestroy();
 
         for(final BleDevice device : getDeviceList()) {
-            if(device.getBleDeviceGatt() != null) {
-                device.getBleDeviceGatt().clear();
+            if(device.getBleGatt() != null) {
+                device.getBleGatt().clear();
             }
             //device.close();
             //device.removeDeviceStateListener(BleDeviceService.this);
@@ -180,8 +182,17 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     }
 
     @Override
-    public void onBleErrorNotified(BleDevice device, boolean warn) {
+    public void onBleErrorNotified(final BleDevice device, boolean warn) {
         if(warn) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(BleDeviceService.this);
+            builder.setTitle("蓝牙错误").setMessage("蓝牙错误导致设备无法连接，需要重启蓝牙。");
+            builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    device.cancelNotifyBleError();
+                }
+            }).setCancelable(false).show();
+
             playWarnRingtone();
         } else {
             stopWarnRingtone();

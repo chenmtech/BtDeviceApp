@@ -20,14 +20,14 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgControllerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgMonitorDeviceListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrStatisticInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.viewcomponent.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
+import com.cmtech.android.bledeviceapp.activity.BleFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,7 +48,7 @@ import static android.app.Activity.RESULT_OK;
   * Version:        1.0
  */
 
-public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonitorDeviceListener {
+public class EcgMonitorFragment extends BleFragment implements OnEcgMonitorDeviceListener {
     private static final String TAG = "EcgMonitorFragment";
 
     private TextView tvSampleRate; // 采样率
@@ -180,7 +180,7 @@ public class EcgMonitorFragment extends BleDeviceFragment implements OnEcgMonito
         switch (requestCode) {
             case 1: // 设置设备配置返回码
                 if(resultCode == RESULT_OK) {
-                    EcgMonitorDeviceConfig config = (EcgMonitorDeviceConfig) data.getSerializableExtra("configuration");
+                    EcgMonitorConfig config = (EcgMonitorConfig) data.getSerializableExtra("configuration");
                     device.setConfig(config);
                 }
                 break;

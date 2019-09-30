@@ -5,7 +5,7 @@ import android.content.Context;
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceType;
-import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
+import com.cmtech.android.bledeviceapp.activity.BleFragment;
 import com.vise.log.ViseLog;
 
 import java.lang.reflect.Constructor;
@@ -49,5 +49,5 @@ public abstract class BleDeviceFactory {
     }
 
     public abstract BleDevice createDevice(Context context); // 创建BleDevice
-    public abstract BleDeviceFragment createFragment(); // 创建Fragment
+    public abstract BleFragment createFragment(); // 创建Fragment
 }

@@ -10,7 +10,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfig;
 import com.cmtech.android.bledeviceapp.R;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DEFAULT_HR_HIGH_LIMIT;
@@ -27,10 +27,10 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
     private EditText etHrLowLimit;
     private EditText etHrHighLimit;
 
-    private EcgMonitorDeviceConfig config;
+    private EcgMonitorConfig config;
     private String deviceNickName;
 
-    private EcgMonitorDeviceConfig configBackup = new EcgMonitorDeviceConfig();
+    private EcgMonitorConfig configBackup = new EcgMonitorConfig();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,7 +39,7 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent != null) {
-            config = (EcgMonitorDeviceConfig) intent.getSerializableExtra("configuration");
+            config = (EcgMonitorConfig) intent.getSerializableExtra("configuration");
             deviceNickName = intent.getStringExtra("devicenickname");
         }
 

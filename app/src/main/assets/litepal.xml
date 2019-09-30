@@ -8,6 +8,6 @@
     <list>
         <mapping class="com.cmtech.android.bledevice.temphumid.model.TempHumidHistoryData"></mapping>
         <mapping class="com.cmtech.android.bledeviceapp.model.User"></mapping>
-        <mapping class="com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDeviceConfig"></mapping>
+        <mapping class="com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfig"></mapping>
     </list>
 </litepal>

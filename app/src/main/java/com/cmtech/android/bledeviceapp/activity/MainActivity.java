@@ -44,12 +44,12 @@ import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.BleDeviceAdapter;
+import com.cmtech.android.bledeviceapp.model.RegisteredDeviceAdapter;
 import com.cmtech.android.bledeviceapp.model.BleDeviceFactory;
-import com.cmtech.android.bledeviceapp.model.BleFragmentManager;
+import com.cmtech.android.bledeviceapp.model.BleFragAndTabManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceService;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
-import com.cmtech.android.bledeviceapp.model.MyFragmentManager;
+import com.cmtech.android.bledeviceapp.model.FragAndTabManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
@@ -60,8 +60,8 @@ import java.util.List;
 
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
-import static com.cmtech.android.bledeviceapp.activity.DeviceRegisterInfoActivity.DEVICE_REGISTER_INFO;
-import static com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity.REGISTER_DEVICE_MAC_LIST;
+import static com.cmtech.android.bledeviceapp.activity.DevRegisterActivity.DEVICE_REGISTER_INFO;
+import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTER_DEVICE_MAC_LIST;
 
 /**
  *  MainActivity: 主界面
@@ -77,10 +77,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
     private BleDeviceService deviceService; // 设备服务,用于管理设备
-    private BleFragmentManager fragmentManager; // TabLayout和Fragment管理器
+    private BleFragAndTabManager fragmentManager; // TabLayout和Fragment管理器
     private MainToolbarManager toolbarManager; // 工具条管理器
 
-    private BleDeviceAdapter deviceAdapter; // 已注册设备Adapter
+    private RegisteredDeviceAdapter deviceAdapter; // 已注册设备Adapter
     private RecyclerView rvDevices; // 已注册设备RecyclerView
     private DrawerLayout drawerLayout; // 侧滑界面
     private LinearLayout noDeviceOpenedLayout; // 无设备打开时的界面
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDevices.setLayoutManager(layoutManager);
         rvDevices.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        deviceAdapter = new BleDeviceAdapter(deviceService.getDeviceList(), this);
+        deviceAdapter = new RegisteredDeviceAdapter(deviceService.getDeviceList(), this);
         rvDevices.setAdapter(deviceAdapter);
 
         navView = findViewById(R.id.nav_view);
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         fabConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BleDeviceFragment fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+                BleFragment fragment = (BleFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.switchState();
                 }
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         fabClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BleDeviceFragment fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+                BleFragment fragment = (BleFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.close();
                 }
@@ -211,12 +211,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.tablayout_device);
 
-        fragmentManager = new BleFragmentManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
+        fragmentManager = new BleFragAndTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
 
-        fragmentManager.setOnFragmentUpdatedListener(new MyFragmentManager.OnFragmentUpdatedListener() {
+        fragmentManager.setOnFragmentUpdatedListener(new FragAndTabManager.OnFragmentUpdatedListener() {
             @Override
             public void onFragmentUpdated() {
-                BleDevice device = (fragmentManager.size() == 0) ? null : ((BleDeviceFragment) fragmentManager.getCurrentFragment()).getDevice();
+                BleDevice device = (fragmentManager.size() == 0) ? null : ((BleFragment) fragmentManager.getCurrentFragment()).getDevice();
                 updateMainLayout(device);
             }
         });
@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
         User user = UserManager.getInstance().getUser();
         if(user.getName() == null || "".equals(user.getName().trim())) {
-            Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
+            Intent intent = new Intent(MainActivity.this, UserActivity.class);
 
             startActivityForResult(intent, RC_MODIFY_USERINFO);
         }
@@ -250,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, UserInfoActivity.class);
+                Intent intent = new Intent(MainActivity.this, UserActivity.class);
 
                 startActivityForResult(intent, RC_MODIFY_USERINFO);
             }
@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
                     case R.id.nav_search_device:
                         List<String> deviceMacList = deviceService.getDeviceMacList();
 
-                        Intent scanIntent = new Intent(MainActivity.this, SearchDeviceActivity.class);
+                        Intent scanIntent = new Intent(MainActivity.this, ScanActivity.class);
 
                         scanIntent.putExtra(REGISTER_DEVICE_MAC_LIST, (Serializable) deviceMacList);
 
@@ -407,21 +407,21 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        BleDeviceFragment fragment;
+        BleFragment fragment;
         switch (item.getItemId()) {
             case android.R.id.home:
                 openDrawer(true);
                 break;
 
             case R.id.toolbar_config:
-                fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+                fragment = (BleFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.openConfigActivity();
                 }
                 break;
 
             case R.id.toolbar_close:
-                fragment = (BleDeviceFragment) fragmentManager.getCurrentFragment();
+                fragment = (BleFragment) fragmentManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.close();
                 } else {
@@ -495,7 +495,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         if(deviceAdapter != null) deviceAdapter.notifyDataSetChanged();
 
         // 更新设备的Fragment界面
-        BleDeviceFragment deviceFrag = fragmentManager.findFragment(device);
+        BleFragment deviceFrag = fragmentManager.findFragment(device);
 
         if(deviceFrag != null) deviceFrag.updateState();
 
@@ -508,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     public void onBleErrorNotified(final BleDevice device, boolean warn) {
         if(!warn) return;
 
-        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        /*final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("设备无法连接报警");
         builder.setMessage("由于蓝牙错误，导致设备" + device.getMacAddress() + "无法连接，需要重启蓝牙。");
         builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
@@ -518,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             }
         });
         builder.setCancelable(false);
-        builder.show();
+        builder.show();*/
     }
 
     @Override
@@ -534,7 +534,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     }
 
     @Override
-    public void closeFragment(final BleDeviceFragment fragment) {
+    public void closeFragment(final BleFragment fragment) {
         BleDevice device = fragment.getDevice();
 
         if(device != null && device.isDisconnect()) {
@@ -549,7 +549,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     public void openDevice(BleDevice device) {
         if(device == null || !device.isClosed()) return;
 
-        BleDeviceFragment fragment = fragmentManager.findFragment(device);
+        BleFragment fragment = fragmentManager.findFragment(device);
         if(fragment != null) {
             openDrawer(false);
             fragmentManager.showFragment(fragment);
@@ -603,7 +603,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
     // 修改设备注册信息 
     public void modifyDeviceRegisterInfo(final BleDeviceRegisterInfo registerInfo) {
-        Intent intent = new Intent(this, DeviceRegisterInfoActivity.class);
+        Intent intent = new Intent(this, DevRegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
 
         startActivityForResult(intent, RC_MODIFY_DEVICEINFO);

@@ -22,7 +22,7 @@ import java.util.List;
  * Created by chenm on 2018/3/16.
  */
 
-public class MyFragmentManager {
+public class FragAndTabManager {
     private final InnerFragmentManager innerFragManager; // Fragment内部管理器实例
     private final TabLayout tabLayout; // TabLayout实例
     private int curPos = -1; // 当前显示的Fragment和Tab的位置
@@ -35,7 +35,7 @@ public class MyFragmentManager {
     }
 
     // 构造器
-    public MyFragmentManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
+    public FragAndTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
         innerFragManager = new InnerFragmentManager(fragmentManager, containerId);
         this.tabLayout = tabLayout;
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {

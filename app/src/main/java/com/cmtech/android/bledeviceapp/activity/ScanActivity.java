@@ -25,18 +25,18 @@ import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.BleDeviceConstant;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.ScanDeviceAdapter;
+import com.cmtech.android.bledeviceapp.model.ScannedDeviceAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
-import static com.cmtech.android.bledeviceapp.activity.DeviceRegisterInfoActivity.DEVICE_REGISTER_INFO;
+import static com.cmtech.android.bledeviceapp.activity.DevRegisterActivity.DEVICE_REGISTER_INFO;
 
 /**
   *
-  * ClassName:      SearchDeviceActivity
-  * Description:    搜索设备Activiy
+  * ClassName:      ScanActivity
+  * Description:    设备扫描Activiy
   * Author:         chenm
   * CreateDate:     2018/2/28 18:07
   * UpdateUser:     chenm
@@ -45,8 +45,8 @@ import static com.cmtech.android.bledeviceapp.activity.DeviceRegisterInfoActivit
   * Version:        1.0
  */
 
-public class SearchDeviceActivity extends AppCompatActivity {
-    private static final String TAG = "SearchDeviceActivity";
+public class ScanActivity extends AppCompatActivity {
+    private static final String TAG = "ScanActivity";
 
     public static final String REGISTER_DEVICE_MAC_LIST = "register_device_mac_list";
 
@@ -83,18 +83,18 @@ public class SearchDeviceActivity extends AppCompatActivity {
         public void onScanFailed(int errorCode) {
             switch (errorCode) {
                 case SCAN_FAILED_ALREADY_STARTED:
-                    Toast.makeText(SearchDeviceActivity.this, "正在扫描中。", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ScanActivity.this, "正在扫描中。", Toast.LENGTH_LONG).show();
                     break;
 
                 case SCAN_FAILED_BLE_CLOSED:
-                    Toast.makeText(SearchDeviceActivity.this, "蓝牙已关闭。", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ScanActivity.this, "蓝牙已关闭。", Toast.LENGTH_LONG).show();
                     srlScanDevice.setRefreshing(false);
                     break;
 
                 case SCAN_FAILED_BLE_ERROR:
                     srlScanDevice.setRefreshing(false);
                     BleDeviceScanner.stopScan(this);
-                    Toast.makeText(SearchDeviceActivity.this, "蓝牙错误，必须重启蓝牙。", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ScanActivity.this, "蓝牙错误，必须重启蓝牙。", Toast.LENGTH_LONG).show();
                     break;
             }
         }
@@ -102,7 +102,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
     private SwipeRefreshLayout srlScanDevice;
 
-    private ScanDeviceAdapter scanDeviceAdapter;
+    private ScannedDeviceAdapter scannedDeviceAdapter;
 
     private RecyclerView rvScanDevice;
 
@@ -115,10 +115,10 @@ public class SearchDeviceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_device);
+        setContentView(R.layout.activity_device_scan);
 
         // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_device_register);
+        Toolbar toolbar = findViewById(R.id.tb_device_scan);
 
         setSupportActionBar(toolbar);
 
@@ -135,9 +135,9 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         rvScanDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-        scanDeviceAdapter = new ScanDeviceAdapter(deviceList, registedDeviceMacList, this);
+        scannedDeviceAdapter = new ScannedDeviceAdapter(deviceList, registedDeviceMacList, this);
 
-        rvScanDevice.setAdapter(scanDeviceAdapter);
+        rvScanDevice.setAdapter(scannedDeviceAdapter);
 
         srlScanDevice = findViewById(R.id.srl_scandevice);
 
@@ -235,7 +235,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
     private void startScan() {
         deviceList.clear();
 
-        scanDeviceAdapter.notifyDataSetChanged();
+        scannedDeviceAdapter.notifyDataSetChanged();
 
         BleDeviceScanner.stopScan(bleScanCallback);
 
@@ -258,7 +258,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
         if(isNewDevice) {
             deviceList.add(device);
 
-            scanDeviceAdapter.notifyDataSetChanged();
+            scannedDeviceAdapter.notifyDataSetChanged();
 
             rvScanDevice.scrollToPosition(deviceList.size()-1);
 
@@ -281,7 +281,7 @@ public class SearchDeviceActivity extends AppCompatActivity {
 
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
 
-        Intent intent = new Intent(SearchDeviceActivity.this, DeviceRegisterInfoActivity.class);
+        Intent intent = new Intent(ScanActivity.this, DevRegisterActivity.class);
 
         BleDeviceRegisterInfo basicInfo = new BleDeviceRegisterInfo();
 

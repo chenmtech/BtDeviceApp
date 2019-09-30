@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
+import com.cmtech.android.bledeviceapp.activity.BleFragment;
 
-public class SigGeneratorFragment extends BleDeviceFragment {
+public class SigGeneratorFragment extends BleFragment {
     private static final String TAG = "SigGeneratorFragment";
 
     TextView tvServices;

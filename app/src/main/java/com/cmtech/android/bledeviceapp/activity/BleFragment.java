@@ -8,23 +8,23 @@ import android.support.v4.app.Fragment;
 import com.cmtech.android.ble.core.BleDevice;
 
 /**
- * BleDeviceFragment：设备的Fragment
+ * BleFragment：设备的Fragment
  * Created by bme on 2018/2/27.
  */
 
-public abstract class BleDeviceFragment extends Fragment{
-    private static final String TAG = "BleDeviceFragment";
+public abstract class BleFragment extends Fragment{
+    private static final String TAG = "BleFragment";
     private static final String ARG_DEVICE_MAC = "device_mac";
 
     private IBleDeviceActivity activity; //包含BleDeviceFragment的Activity，必须要实现IBleDeviceActivity接口
     private BleDevice device; // 设备
 
 
-    protected BleDeviceFragment() {
+    protected BleFragment() {
     }
 
-    public static BleDeviceFragment create(String macAddress, Class<? extends BleDeviceFragment> fragClass) {
-        BleDeviceFragment fragment;
+    public static BleFragment create(String macAddress, Class<? extends BleFragment> fragClass) {
+        BleFragment fragment;
         try {
             fragment = fragClass.newInstance();
             Bundle bundle = new Bundle();

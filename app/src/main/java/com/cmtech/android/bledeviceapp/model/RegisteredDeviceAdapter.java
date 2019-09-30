@@ -25,7 +25,7 @@ import java.util.List;
  * Created by bme on 2018/2/8.
  */
 
-public class BleDeviceAdapter extends RecyclerView.Adapter<BleDeviceAdapter.ViewHolder> {
+public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDeviceAdapter.ViewHolder> {
 
     // 设备列表
     private List<BleDevice> mDeviceList;
@@ -51,7 +51,7 @@ public class BleDeviceAdapter extends RecyclerView.Adapter<BleDeviceAdapter.View
         }
     }
 
-    public BleDeviceAdapter(List<BleDevice> deviceList, MainActivity activity) {
+    public RegisteredDeviceAdapter(List<BleDevice> deviceList, MainActivity activity) {
 
         mDeviceList = deviceList;
         this.activity = activity;
@@ -59,7 +59,7 @@ public class BleDeviceAdapter extends RecyclerView.Adapter<BleDeviceAdapter.View
 
 
     @Override
-    public BleDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RegisteredDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_registed_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
@@ -124,7 +124,6 @@ public class BleDeviceAdapter extends RecyclerView.Adapter<BleDeviceAdapter.View
         holder.deviceName.setText(device.getNickName());
         holder.deviceAddress.setText(device.getMacAddress());
         holder.deviceStatus.setText(device.getStateDescription());
-
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.adapter;
+package com.cmtech.android.bledeviceapp.model;
 
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
@@ -14,20 +14,20 @@ import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.SearchDeviceActivity;
+import com.cmtech.android.bledeviceapp.activity.ScanActivity;
 
 import java.util.List;
 
 
 /**
- * ScanDeviceAdapter : 扫描设备Adapter
+ * ScannedDeviceAdapter : 扫描到的设备Adapter
  * Created by bme on 2018/2/8.
  */
 
-public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.ViewHolder> {
+public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdapter.ViewHolder> {
     private final List<BleDeviceDetailInfo> deviceList; // 扫描到的设备列表
     private final List<String> registedMacList; // 已登记设备Mac List
-    private final SearchDeviceActivity activity; // 扫描设备的Activiy
+    private final ScanActivity activity; // 扫描设备的Activiy
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView; // 设备视图
@@ -46,7 +46,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         }
     }
 
-    public ScanDeviceAdapter(List<BleDeviceDetailInfo> deviceList, List<String> registedMacList, SearchDeviceActivity activity) {
+    public ScannedDeviceAdapter(List<BleDeviceDetailInfo> deviceList, List<String> registedMacList, ScanActivity activity) {
         this.deviceList = deviceList;
         this.registedMacList = registedMacList;
         this.activity = activity;
@@ -54,7 +54,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
 
 
     @Override
-    public ScanDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ScannedDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_scan_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
@@ -64,7 +64,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
             public void onClick(View view) {
                 if(activity != null) {
                     BleDeviceDetailInfo device = deviceList.get(holder.getAdapterPosition());
-                    if(!isRegisted(device)) {
+                    if(!registered(device)) {
                         activity.registerDevice(device);
                     }
                 }
@@ -75,7 +75,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ScanDeviceAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull ScannedDeviceAdapter.ViewHolder holder, final int position) {
         BleDeviceDetailInfo device = deviceList.get(position);
 
         AdRecord recordUUID = device.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
@@ -86,7 +86,7 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
 
         holder.deviceName.setText(String.format("设备名：%s", device.getName()));
 
-        boolean status = isRegisted(device);
+        boolean status = registered(device);
         TextPaint paint = holder.deviceStatus.getPaint();
         if(status) {
             holder.deviceStatus.setText("已登记");
@@ -102,8 +102,8 @@ public class ScanDeviceAdapter extends RecyclerView.Adapter<ScanDeviceAdapter.Vi
         return deviceList.size();
     }
 
-    // 设备是否已经登记过
-    private boolean isRegisted(BleDeviceDetailInfo device) {
+    // 设备是否已经注册过
+    private boolean registered(BleDeviceDetailInfo device) {
         for(String ele : registedMacList) {
             if(ele.equalsIgnoreCase(device.getAddress())) {
                 return true;

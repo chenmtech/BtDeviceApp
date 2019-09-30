@@ -5,29 +5,29 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
 import com.cmtech.android.ble.core.BleDevice;
-import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
+import com.cmtech.android.bledeviceapp.activity.BleFragment;
 
 import java.util.List;
 
 /**
- * BleFragmentManager: Fragment管理器
+ * BleFragAndTabManager: Fragment管理器
  * Created by bme on 2018/12/08.
  */
 
-public class BleFragmentManager extends MyFragmentManager {
+public class BleFragAndTabManager extends FragAndTabManager {
 
-    public BleFragmentManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
+    public BleFragAndTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
         super(fragmentManager, tabLayout, containerId);
     }
 
     // 寻找设备对应的Fragment
-    public BleDeviceFragment findFragment(BleDevice device) {
+    public BleFragment findFragment(BleDevice device) {
         if(device == null) return null;
 
         List<Fragment> fragmentList = getFragmentList();
         for(Fragment fragment : fragmentList) {
-            if(device.equals(((BleDeviceFragment)fragment).getDevice())) {
-                return (BleDeviceFragment)fragment;
+            if(device.equals(((BleFragment)fragment).getDevice())) {
+                return (BleFragment)fragment;
             }
         }
         return null;

@@ -35,11 +35,11 @@ import java.io.IOException;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
 
 /**
- *  UserInfoActivity: 用户信息Activity
+ *  UserActivity: 用户信息Activity
  *  Created by bme on 2018/10/27.
  */
 
-public class UserInfoActivity extends AppCompatActivity {
+public class UserActivity extends AppCompatActivity {
     private TextView tvPhone;
 
     private EditText etNickname;

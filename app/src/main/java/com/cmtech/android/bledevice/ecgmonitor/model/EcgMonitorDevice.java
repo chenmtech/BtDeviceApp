@@ -99,7 +99,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     private boolean isSaveEcgFile = false; // 是否保存心电文件
     private boolean isBatteryMeasured = false; // 是否测量电池电量
     private volatile EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
-    private final EcgMonitorDeviceConfig config; // 心电监护仪设备配置信息
+    private final EcgMonitorConfig config; // 心电监护仪设备配置信息
     private ScheduledExecutorService batMeasureService; // 设备电量测量Service
     private final EcgDataProcessor ecgDataProcessor = new EcgDataProcessor(this); // ECG数据处理,在其内部的单线程ExecutorService中执行
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
@@ -111,9 +111,9 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         super(context, basicInfo);
 
         // 从数据库获取设备的配置信息
-        List<EcgMonitorDeviceConfig> foundConfig = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorDeviceConfig.class);
+        List<EcgMonitorConfig> foundConfig = LitePal.where("macAddress = ?", basicInfo.getMacAddress()).find(EcgMonitorConfig.class);
         if(foundConfig == null || foundConfig.isEmpty()) {
-            config = new EcgMonitorDeviceConfig();
+            config = new EcgMonitorConfig();
             config.setMacAddress(basicInfo.getMacAddress());
             config.save();
         } else {
@@ -145,10 +145,10 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             updateEcgMonitorState();
         }
     }
-    public EcgMonitorDeviceConfig getConfig() {
+    public EcgMonitorConfig getConfig() {
         return config;
     }
-    public void setConfig(EcgMonitorDeviceConfig config) {
+    public void setConfig(EcgMonitorConfig config) {
         this.config.setWarnWhenHrAbnormal(config.isWarnWhenHrAbnormal());
         this.config.setHrLowLimit(config.getHrLowLimit());
         this.config.setHrHighLimit(config.getHrHighLimit());

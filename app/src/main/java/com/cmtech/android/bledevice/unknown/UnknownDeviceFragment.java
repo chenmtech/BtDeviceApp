@@ -7,14 +7,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.bledeviceapp.activity.BleDeviceFragment;
+import com.cmtech.android.bledeviceapp.activity.BleFragment;
 import com.cmtech.android.bledeviceapp.R;
 
 /**
  * Created by bme on 2018/2/28.
  */
 
-public class UnknownDeviceFragment extends BleDeviceFragment {
+public class UnknownDeviceFragment extends BleFragment {
     TextView tvServices;
     TextView tvCharacteristic;
 

@@ -59,12 +59,12 @@
 
 
         <activity
-            android:name=".activity.SearchDeviceActivity"
+            android:name=".activity.ScanActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.DeviceRegisterInfoActivity"
+            android:name=".activity.DevRegisterActivity"
             android:label="设置设备信息"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity
@@ -78,7 +78,7 @@
 
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity" />
 
-        <activity android:name=".activity.UserInfoActivity" />
+        <activity android:name=".activity.UserActivity" />
 
         <service
             android:name=".model.BleDeviceService"

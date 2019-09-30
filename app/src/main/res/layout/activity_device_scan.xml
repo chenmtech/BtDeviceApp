@@ -5,11 +5,11 @@
     android:layout_height="match_parent"
     xmlns:toolbar="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context=".activity.SearchDeviceActivity"
+    tools:context=".activity.ScanActivity"
     android:id="@+id/layout_scan_device">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/tb_device_register"
+        android:id="@+id/tb_device_scan"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
