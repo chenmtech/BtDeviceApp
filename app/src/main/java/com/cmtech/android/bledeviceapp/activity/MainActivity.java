@@ -506,9 +506,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
     @Override
     public void onBleErrorNotified(final BleDevice device, boolean warn) {
-        if(!warn) return;
+        /*if(!warn) return;
 
-        /*final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("设备无法连接报警");
         builder.setMessage("由于蓝牙错误，导致设备" + device.getMacAddress() + "无法连接，需要重启蓝牙。");
         builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
