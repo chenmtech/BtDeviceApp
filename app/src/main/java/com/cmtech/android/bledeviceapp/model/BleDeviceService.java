@@ -72,7 +72,10 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.createFromPref(pref);
         if(registerInfoList == null) return;
         for(BleDeviceRegisterInfo registerInfo : registerInfoList) {
-            createDeviceThenListen(registerInfo);
+            BleDevice device = BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
+            if(device != null) {
+                device.addDeviceStateListener(this);
+            }
         }
     }
 
@@ -114,7 +117,7 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
         ViseLog.e("BleDeviceService.onDestroy()");
         super.onDestroy();
 
-        for(final BleDevice device : getDeviceList()) {
+        for(final BleDevice device : BleDeviceManager.getDeviceList()) {
             if(device.getBleGatt() != null) {
                 device.getBleGatt().clear();
             }
@@ -204,52 +207,6 @@ public class BleDeviceService extends Service implements OnBleDeviceStateListene
     @Override
     public void onBatteryUpdated(BleDevice device) {
 
-    }
-
-    // 创建一个设备,并监听它
-    public BleDevice createDeviceThenListen(BleDeviceRegisterInfo registerInfo) {
-        BleDevice device = BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
-        if(device != null) {
-            device.addDeviceStateListener(this);
-        }
-        return device;
-    }
-
-    // 关闭设备
-    public void closeDevice(final BleDevice device) {
-        if(device != null) {
-            device.close();
-        }
-    }
-
-    // 删除一个设备
-    public void deleteDevice(BleDevice device) {
-        BleDeviceManager.deleteDevice(device);
-    }
-
-    // 获取设备清单
-    public List<BleDevice> getDeviceList() {
-        return BleDeviceManager.getDeviceList();
-    }
-
-    // 获取设备的Mac列表
-    public List<String> getDeviceMacList() {
-        return BleDeviceManager.getDeviceMacList();
-    }
-
-    // 获取设备
-    public BleDevice findDevice(BleDeviceRegisterInfo basicInfo) {
-        return BleDeviceManager.findDevice(basicInfo);
-    }
-
-    // 获取设备
-    public BleDevice findDevice(String macAddress) {
-        return BleDeviceManager.findDevice(macAddress);
-    }
-
-    // 是否有设备打开
-    public boolean hasDeviceOpened() {
-        return BleDeviceManager.existOpenedDevice();
     }
 
     private Notification createNotification(List<String> contents){

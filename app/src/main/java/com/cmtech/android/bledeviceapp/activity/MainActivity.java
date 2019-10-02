@@ -26,6 +26,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +45,7 @@ import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
 import com.cmtech.android.bledeviceapp.model.RegisteredDeviceAdapter;
 import com.cmtech.android.bledeviceapp.model.BleDeviceFactory;
 import com.cmtech.android.bledeviceapp.model.BleFragAndTabManager;
@@ -76,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     private final static int RC_MODIFY_USERINFO = 3;     // 修改用户信息返回码
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-    private BleDeviceService deviceService; // 设备服务,用于管理设备
+    private BleDeviceService deviceService; // 设备服务,用于管理设备状态改变后台通知等
     private BleFragAndTabManager fragmentManager; // TabLayout和Fragment管理器
     private MainToolbarManager toolbarManager; // 工具条管理器
 
@@ -92,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     private boolean stopDeviceService = false; // 是否停止设备服务
     private NavigationView navView;
 
-    private ServiceConnection deviceServiceConnect = new ServiceConnection() {
+    private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             deviceService = ((BleDeviceService.DeviceServiceBinder)iBinder).getService();
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         }
     };
 
-    private static final BroadcastReceiver bleStateChangeReceiver = new BroadcastReceiver() {
+    private static final BroadcastReceiver btStateChangeReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) {
@@ -142,16 +144,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             finish();
         }
 
-        // 启动并绑定服务
+        // 启动并绑定BleDeviceService服务
         Intent startService = new Intent(this, BleDeviceService.class);
-
         startService(startService);
+        bindService(startService, serviceConnection, BIND_AUTO_CREATE);
 
-        bindService(startService, deviceServiceConnect, BIND_AUTO_CREATE);
-
+        // 登记蓝牙状态改变广播接收器
         IntentFilter bleStateIntent = new IntentFilter();
         bleStateIntent.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(bleStateChangeReceiver, bleStateIntent);
+        registerReceiver(btStateChangeReceiver, bleStateIntent);
 
         if(BleDeviceScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -170,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDevices.setLayoutManager(layoutManager);
         rvDevices.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        deviceAdapter = new RegisteredDeviceAdapter(deviceService.getDeviceList(), this);
+        deviceAdapter = new RegisteredDeviceAdapter(BleDeviceManager.getDeviceList(), this);
         rvDevices.setAdapter(deviceAdapter);
 
         navView = findViewById(R.id.nav_view);
@@ -226,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         initMainLayout();
 
         // 为已经打开的设备创建并打开Fragment
-        for(BleDevice device : deviceService.getDeviceList()) {
+        for(BleDevice device : BleDeviceManager.getDeviceList()) {
             if(!device.isClosed()) {
                 createFragmentThenOpen(device);
             }
@@ -261,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_search_device:
-                        List<String> deviceMacList = deviceService.getDeviceMacList();
+                        List<String> deviceMacList = BleDeviceManager.getDeviceMacList();
 
                         Intent scanIntent = new Intent(MainActivity.this, ScanActivity.class);
 
@@ -322,18 +323,19 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case RC_REGISTER_DEVICE:
-
                 if(resultCode == RESULT_OK) {
-                    BleDeviceRegisterInfo basicInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
-                    if(basicInfo != null) {
-                        BleDevice device = deviceService.createDeviceThenListen(basicInfo);
+                    BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
+                    if(registerInfo != null) {
+                        BleDevice device = BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
                         if(device != null) {
-                            if(basicInfo.saveToPref(pref)) {
+                            device.addDeviceStateListener(deviceService);
+
+                            if(registerInfo.saveToPref(pref)) {
                                 Toast.makeText(MainActivity.this, "设备登记成功", Toast.LENGTH_SHORT).show();
                                 if(deviceAdapter != null) deviceAdapter.notifyDataSetChanged();
                             } else {
                                 Toast.makeText(MainActivity.this, "设备登记失败", Toast.LENGTH_SHORT).show();
-                                deviceService.deleteDevice(device);
+                                BleDeviceManager.deleteDevice(device);
                             }
                         }
                     }
@@ -343,13 +345,13 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             case RC_MODIFY_DEVICEINFO:
 
                 if ( resultCode == RESULT_OK) {
-                    BleDeviceRegisterInfo basicInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
-                    BleDevice device = deviceService.findDevice(basicInfo);
+                    BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
+                    BleDevice device = BleDeviceManager.findDevice(registerInfo);
 
-                    if(device != null && basicInfo.saveToPref(pref)) {
+                    if(device != null && registerInfo.saveToPref(pref)) {
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
 
-                        device.updateRegisterInfo(basicInfo);
+                        device.updateRegisterInfo(registerInfo);
 
                         if(deviceAdapter != null) deviceAdapter.notifyDataSetChanged();
 
@@ -439,11 +441,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
 
-        for(BleDevice device : deviceService.getDeviceList()) {
+        for(BleDevice device : BleDeviceManager.getDeviceList()) {
             device.removeDeviceStateListener(this);
         }
 
-        unbindService(deviceServiceConnect);
+        unbindService(serviceConnection);
 
         //stopDeviceService = true;
         if(stopDeviceService) {
@@ -451,11 +453,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             stopService(stopIntent);
         }
 
-        unregisterReceiver(bleStateChangeReceiver);
+        unregisterReceiver(btStateChangeReceiver);
     }
 
     private void requestFinish() {
-        if(deviceService.hasDeviceOpened()) {
+        if(BleDeviceManager.existOpenedDevice()) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("退出应用");
             builder.setMessage("有设备打开，退出将关闭这些设备。");
@@ -530,7 +532,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
     @Override
     public BleDevice findDevice(String macAddress) {
-        return (deviceService == null) ? null : deviceService.findDevice(macAddress);
+        return (TextUtils.isEmpty(macAddress)) ? null : BleDeviceManager.findDevice(macAddress);
     }
 
     @Override
@@ -538,7 +540,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         BleDevice device = fragment.getDevice();
 
         if(device != null && device.isDisconnect()) {
-            deviceService.closeDevice(device);
+            device.close();
             fragmentManager.deleteFragment(fragment);
         } else {
             Toast.makeText(this, "设备连接中，请先断开设备。", Toast.LENGTH_LONG).show();
@@ -585,10 +587,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(device.getRegisterInfo().deleteFromPref(pref)) {
-                    deviceService.deleteDevice(device);
+                    BleDeviceManager.deleteDevice(device);
                     if(deviceAdapter != null) deviceAdapter.notifyDataSetChanged();
                 } else {
-                    Toast.makeText(MainActivity.this, "无法删除该设备。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "无法删除设备。", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -627,7 +629,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     }
 
     private void logoutUser() {
-        if(deviceService.hasDeviceOpened()) {
+        if(BleDeviceManager.existOpenedDevice()) {
             Toast.makeText(this, "请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
         }
