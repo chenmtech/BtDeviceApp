@@ -54,6 +54,12 @@ public class BleDeviceManager {
         return device;
     }
 
+    private static BleDevice createDevice(Context context, BleDeviceRegisterInfo registerInfo) {
+        // 获取相应的工厂
+        BleFactory factory = BleFactory.getFactory(registerInfo);
+        return (factory == null) ? null : factory.createDevice(context);
+    }
+
     // 用注册信息寻找设备
     public static BleDevice findDevice(BleDeviceRegisterInfo registerInfo) {
         return (registerInfo == null) ? null : findDevice(registerInfo.getMacAddress());
@@ -69,13 +75,6 @@ public class BleDeviceManager {
             }
         }
         return null;
-    }
-
-    // 用设备注册信息创建设备
-    private static BleDevice createDevice(Context context, BleDeviceRegisterInfo registerInfo) {
-        // 获取相应的抽象工厂
-        BleDeviceFactory factory = BleDeviceFactory.getBLEDeviceFactory(registerInfo);
-        return (factory == null) ? null : factory.createDevice(context);
     }
 
     // 删除一个设备

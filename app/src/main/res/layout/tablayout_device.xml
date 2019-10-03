@@ -12,7 +12,7 @@
         android:layout_marginEnd="5dp"/>
 
     <TextView
-        android:id="@+id/tv_device_name"
+        android:id="@+id/tv_device_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="未知"

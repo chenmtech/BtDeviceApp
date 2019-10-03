@@ -3,14 +3,14 @@ package com.cmtech.android.bledevice.thermo.model;
 import android.content.Context;
 
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.bledeviceapp.model.BleDeviceFactory;
+import com.cmtech.android.bledeviceapp.model.BleFactory;
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
 import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.bledevice.thermo.view.ThermoFragment;
 import com.cmtech.android.bledeviceapp.R;
 
-public class ThermoFactory extends BleDeviceFactory {
+public class ThermoFactory extends BleFactory {
     private static final String THERMOMETER_UUID = "aa30"; // 体温计
     private static final String THERMOMETER_NAME = "体温计";
     private static final int THERMOMETER_IMAGE = R.drawable.ic_thermo_defaultimage;

@@ -42,7 +42,7 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
             deviceName = deviceView.findViewById(R.id.tv_scandevice_name);
             deviceAddress = deviceView.findViewById(R.id.tv_scandevice_macaddress);
             deviceTypeName = deviceView.findViewById(R.id.tv_scandevice_type);
-            deviceStatus = deviceView.findViewById(R.id.tv_device_name);
+            deviceStatus = deviceView.findViewById(R.id.tv_device_text);
         }
     }
 

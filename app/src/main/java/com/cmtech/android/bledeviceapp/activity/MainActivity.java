@@ -46,10 +46,10 @@ import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
+import com.cmtech.android.bledeviceapp.model.BleService;
 import com.cmtech.android.bledeviceapp.model.RegisteredDeviceAdapter;
-import com.cmtech.android.bledeviceapp.model.BleDeviceFactory;
+import com.cmtech.android.bledeviceapp.model.BleFactory;
 import com.cmtech.android.bledeviceapp.model.BleFragAndTabManager;
-import com.cmtech.android.bledeviceapp.model.BleDeviceService;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.FragAndTabManager;
 import com.cmtech.android.bledeviceapp.model.User;
@@ -78,28 +78,28 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     private final static int RC_MODIFY_USERINFO = 3;     // 修改用户信息返回码
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-    private BleDeviceService deviceService; // 设备服务,用于管理设备状态改变后台通知等
-    private BleFragAndTabManager fragmentManager; // TabLayout和Fragment管理器
+    private BleService bleService; // 设备服务,用于管理后台通知等
+    private BleFragAndTabManager fragTabManager; // Fragment和TabLayout管理器
     private MainToolbarManager toolbarManager; // 工具条管理器
 
     private RegisteredDeviceAdapter deviceAdapter; // 已注册设备Adapter
     private RecyclerView rvDevices; // 已注册设备RecyclerView
     private DrawerLayout drawerLayout; // 侧滑界面
     private LinearLayout noDeviceOpenedLayout; // 无设备打开时的界面
-    private RelativeLayout hasDeviceOpenedLayout; // 有设备打开时的界面，包含设备Fragment和Tablayout的主界面
+    private RelativeLayout hasDeviceOpenedLayout; // 有设备打开时的界面，即包含设备Fragment和Tablayout的主界面
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private FloatingActionButton fabClose; // 关闭设备的FAB
     private TextView tvUserName; // 账户名称控件
     private ImageView ivUserPortrait; // 头像控件
-    private boolean stopDeviceService = false; // 是否停止设备服务
+    private boolean stopService = false; // 是否停止服务
     private NavigationView navView;
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            deviceService = ((BleDeviceService.DeviceServiceBinder)iBinder).getService();
+            bleService = ((BleService.BleServiceBinder)iBinder).getService();
             // 成功绑定后初始化
-            if(deviceService != null) {
+            if(bleService != null) {
                 initializeView();
             } else {
                 requestFinish();
@@ -108,16 +108,17 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            if(deviceService != null) {
-                Intent stopIntent = new Intent(MainActivity.this, BleDeviceService.class);
+            if(bleService != null) {
+                Intent stopIntent = new Intent(MainActivity.this, BleService.class);
                 stopService(stopIntent);
-                deviceService = null;
+                bleService = null;
             }
             finish();
         }
     };
 
-    private static final BroadcastReceiver btStateChangeReceiver = new BroadcastReceiver() {
+    // 蓝牙状态改变广播接收器
+    private static final BroadcastReceiver btStateChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) {
@@ -145,14 +146,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         }
 
         // 启动并绑定BleDeviceService服务
-        Intent startService = new Intent(this, BleDeviceService.class);
+        Intent startService = new Intent(this, BleService.class);
         startService(startService);
         bindService(startService, serviceConnection, BIND_AUTO_CREATE);
 
         // 登记蓝牙状态改变广播接收器
         IntentFilter bleStateIntent = new IntentFilter();
         bleStateIntent.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(btStateChangeReceiver, bleStateIntent);
+        registerReceiver(btStateChangedReceiver, bleStateIntent);
 
         if(BleDeviceScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -187,7 +188,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         fabConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BleFragment fragment = (BleFragment) fragmentManager.getCurrentFragment();
+                BleFragment fragment = (BleFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.switchState();
                 }
@@ -198,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         fabClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BleFragment fragment = (BleFragment) fragmentManager.getCurrentFragment();
+                BleFragment fragment = (BleFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.close();
                 }
@@ -212,12 +213,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.tablayout_device);
 
-        fragmentManager = new BleFragAndTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
+        fragTabManager = new BleFragAndTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
 
-        fragmentManager.setOnFragmentUpdatedListener(new FragAndTabManager.OnFragmentUpdatedListener() {
+        fragTabManager.setOnFragmentUpdatedListener(new FragAndTabManager.OnFragmentUpdatedListener() {
             @Override
             public void onFragmentUpdated() {
-                BleDevice device = (fragmentManager.size() == 0) ? null : ((BleFragment) fragmentManager.getCurrentFragment()).getDevice();
+                BleDevice device = (fragTabManager.size() == 0) ? null : ((BleFragment) fragTabManager.getCurrentFragment()).getDevice();
                 updateMainLayout(device);
             }
         });
@@ -328,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
                     if(registerInfo != null) {
                         BleDevice device = BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
                         if(device != null) {
-                            device.addDeviceStateListener(deviceService);
+                            device.addListener(bleService);
 
                             if(registerInfo.saveToPref(pref)) {
                                 Toast.makeText(MainActivity.this, "设备登记成功", Toast.LENGTH_SHORT).show();
@@ -355,9 +356,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
                         if(deviceAdapter != null) deviceAdapter.notifyDataSetChanged();
 
-                        fragmentManager.updateTabInfo(fragmentManager.findFragment(device), device.getImageDrawable(), device.getNickName());
+                        fragTabManager.updateTabInfo(fragTabManager.findFragment(device), device.getImageDrawable(), device.getNickName());
 
-                        if(fragmentManager.isFragmentSelected(device)) {
+                        if(fragTabManager.isFragmentSelected(device)) {
                             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
 
                             toolbarManager.setBattery(device.getBattery());
@@ -398,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        if(fragmentManager.size() == 0) {
+        if(fragTabManager.size() == 0) {
             toolbarManager.updateMenuItem(false, true);
         } else {
             toolbarManager.updateMenuItem(true, false);
@@ -416,14 +417,14 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
                 break;
 
             case R.id.toolbar_config:
-                fragment = (BleFragment) fragmentManager.getCurrentFragment();
+                fragment = (BleFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.openConfigActivity();
                 }
                 break;
 
             case R.id.toolbar_close:
-                fragment = (BleFragment) fragmentManager.getCurrentFragment();
+                fragment = (BleFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.close();
                 } else {
@@ -442,18 +443,18 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         super.onDestroy();
 
         for(BleDevice device : BleDeviceManager.getDeviceList()) {
-            device.removeDeviceStateListener(this);
+            device.removeListener(this);
         }
 
         unbindService(serviceConnection);
 
-        //stopDeviceService = true;
-        if(stopDeviceService) {
-            Intent stopIntent = new Intent(MainActivity.this, BleDeviceService.class);
+        //stopService = true;
+        if(stopService) {
+            Intent stopIntent = new Intent(MainActivity.this, BleService.class);
             stopService(stopIntent);
         }
 
-        unregisterReceiver(btStateChangeReceiver);
+        unregisterReceiver(btStateChangedReceiver);
     }
 
     private void requestFinish() {
@@ -464,21 +465,21 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             builder.setPositiveButton("退出", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    stopDeviceService = true;
+                    stopService = true;
                     finish();
                 }
             });
             builder.setNegativeButton("最小化", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    stopDeviceService = false;
+                    stopService = false;
                     openDrawer(false);
                     MainActivity.this.moveTaskToBack(true);
                 }
             });
             builder.show();
         } else {
-            stopDeviceService = true;
+            stopService = true;
             finish();
         }
     }
@@ -497,11 +498,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         if(deviceAdapter != null) deviceAdapter.notifyDataSetChanged();
 
         // 更新设备的Fragment界面
-        BleFragment deviceFrag = fragmentManager.findFragment(device);
+        BleFragment deviceFrag = fragTabManager.findFragment(device);
 
         if(deviceFrag != null) deviceFrag.updateState();
 
-        if(fragmentManager.isFragmentSelected(device)) {
+        if(fragTabManager.isFragmentSelected(device)) {
             updateConnectFloatingActionButton(device.getStateIcon(), device.isActing());
         }
     }
@@ -525,7 +526,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
     @Override
     public void onBatteryUpdated(final BleDevice device) {
-        if(fragmentManager.isFragmentSelected(device)) {
+        if(fragTabManager.isFragmentSelected(device)) {
             toolbarManager.setBattery(device.getBattery());
         }
     }
@@ -541,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
         if(device != null && device.isDisconnect()) {
             device.close();
-            fragmentManager.deleteFragment(fragment);
+            fragTabManager.deleteFragment(fragment);
         } else {
             Toast.makeText(this, "设备连接中，请先断开设备。", Toast.LENGTH_LONG).show();
         }
@@ -551,10 +552,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     public void openDevice(BleDevice device) {
         if(device == null || !device.isClosed()) return;
 
-        BleFragment fragment = fragmentManager.findFragment(device);
+        BleFragment fragment = fragTabManager.findFragment(device);
         if(fragment != null) {
             openDrawer(false);
-            fragmentManager.showFragment(fragment);
+            fragTabManager.showFragment(fragment);
         } else {
             createFragmentThenOpen(device);
         }
@@ -563,10 +564,10 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     private void createFragmentThenOpen(BleDevice device) {
         if(device == null) return;
 
-        BleDeviceFactory factory = BleDeviceFactory.getBLEDeviceFactory(device.getRegisterInfo());
+        BleFactory factory = BleFactory.getFactory(device.getRegisterInfo());
         if(factory != null) {
             openDrawer(false);
-            fragmentManager.addFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
+            fragTabManager.addFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
             updateMainLayout(device);
         }
     }
@@ -575,7 +576,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     public void removeDeviceFromList(final BleDevice device) {
         if(device == null) return;
 
-        if(fragmentManager.isFragmentOpened(device)) {
+        if(fragTabManager.isFragmentOpened(device)) {
             Toast.makeText(this, "请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
         }

@@ -8,9 +8,9 @@ import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.bledevice.siggenerator.view.SigGeneratorFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
-import com.cmtech.android.bledeviceapp.model.BleDeviceFactory;
+import com.cmtech.android.bledeviceapp.model.BleFactory;
 
-public class SigGeneratorFactory extends BleDeviceFactory {
+public class SigGeneratorFactory extends BleFactory {
     private static final String SIGGENERATOR_UUID = "aa50"; // 信号发生器
     private static final String SIGGENERATOR_NAME = "信号发生器";
     private static final int SIGGENERATOR_IMAGE = R.drawable.ic_siggenerator_defaultimage;

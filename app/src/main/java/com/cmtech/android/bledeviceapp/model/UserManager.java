@@ -1,6 +1,8 @@
 package com.cmtech.android.bledeviceapp.model;
 
 
+import com.vise.log.ViseLog;
+
 import org.litepal.LitePal;
 
 import java.util.List;
@@ -39,16 +41,13 @@ public class UserManager {
     public User getUser() {
         return user;
     }
-
     public void setUser(User user) {
         this.user = user;
     }
-
     // 是否已经登录
     public boolean isSignIn() {
         return user != null;
     }
-
     // 退出账号
     public void signOut() {
         user = null;
@@ -59,6 +58,7 @@ public class UserManager {
         List<User> find = LitePal.where("phone = ?", phone).find(User.class);
 
         if(find != null && find.size() > 0) {
+            ViseLog.e("The user account exists.");
             return false;
         } else {
             user = new User();

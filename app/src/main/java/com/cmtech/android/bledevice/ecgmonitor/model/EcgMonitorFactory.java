@@ -4,14 +4,14 @@ import android.content.Context;
 
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
-import com.cmtech.android.bledeviceapp.model.BleDeviceFactory;
+import com.cmtech.android.bledeviceapp.model.BleFactory;
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgMonitorFragment;
 import com.cmtech.android.bledeviceapp.R;
 
 // 根据设备类型BleDeviceType，通过反射创建工厂类实例
-public class EcgMonitorFactory extends BleDeviceFactory {
+public class EcgMonitorFactory extends BleFactory {
     private static final String ECGMONITOR_UUID = "aa40"; // 心电监护仪支持的服务UUID短串
     private static final String ECGMONITOR_NAME = "心电带";
     private static final int ECGMONITOR_IMAGE = R.drawable.ic_ecgmonitor_defaultimage;

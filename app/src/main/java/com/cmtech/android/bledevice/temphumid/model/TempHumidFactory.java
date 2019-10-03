@@ -8,10 +8,10 @@ import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.bledevice.temphumid.view.TempHumidFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
-import com.cmtech.android.bledeviceapp.model.BleDeviceFactory;
+import com.cmtech.android.bledeviceapp.model.BleFactory;
 
 // 会根据设备类型BleDeviceType，通过反射创建工厂类实例
-public class TempHumidFactory extends BleDeviceFactory {
+public class TempHumidFactory extends BleFactory {
     private static final String TEMPHUMID_UUID = "aa60"; // 温湿度计
     private static final String TEMPHUMID_NAME = "温湿度计";
     private static final int TEMPHUMID_IMAGE = R.drawable.ic_temphumid_defaultimage;

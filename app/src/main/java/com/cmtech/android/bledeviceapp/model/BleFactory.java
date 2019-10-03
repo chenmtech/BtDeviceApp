@@ -12,8 +12,8 @@ import java.lang.reflect.Constructor;
 
 /**
  *
- * ClassName:      BleDeviceFactory
- * Description:    Ble设备工厂抽象类
+ * ClassName:      BleFactory
+ * Description:    Ble工厂抽象类
  * Author:         chenm
  * CreateDate:     2018-10-13 07:02
  * UpdateUser:     chenm
@@ -23,15 +23,15 @@ import java.lang.reflect.Constructor;
  */
 
 
-public abstract class BleDeviceFactory {
+public abstract class BleFactory {
     protected BleDeviceRegisterInfo registerInfo; // 设备注册信息
 
-    protected BleDeviceFactory(BleDeviceRegisterInfo registerInfo) {
+    protected BleFactory(BleDeviceRegisterInfo registerInfo) {
         this.registerInfo = registerInfo;
     }
 
-    // 获取注册信息对应的设备工厂
-    public static BleDeviceFactory getBLEDeviceFactory(BleDeviceRegisterInfo registerInfo) {
+    // 获取注册信息对应的工厂
+    public static BleFactory getFactory(BleDeviceRegisterInfo registerInfo) {
         if(registerInfo == null) return null;
 
         BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidString());
@@ -45,11 +45,11 @@ public abstract class BleDeviceFactory {
             return null;
         }
 
-        BleDeviceFactory factory;
+        BleFactory factory;
         try {
             Constructor constructor = Class.forName(factoryClassName).getDeclaredConstructor(BleDeviceRegisterInfo.class);
             constructor.setAccessible(true);
-            factory = (BleDeviceFactory) constructor.newInstance(registerInfo);
+            factory = (BleFactory) constructor.newInstance(registerInfo);
         } catch (Exception e) {
             ViseLog.e("The device factory can't be created.");
             factory = null;

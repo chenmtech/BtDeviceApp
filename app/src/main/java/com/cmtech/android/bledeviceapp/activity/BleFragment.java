@@ -66,7 +66,7 @@ public abstract class BleFragment extends Fragment{
         // 更新连接状态
         updateState();
         // 注册设备状态观察者
-        device.addDeviceStateListener(activity);
+        device.addListener(activity);
         device.updateState();
 
         // 打开设备
@@ -78,7 +78,7 @@ public abstract class BleFragment extends Fragment{
         super.onDestroy();
 
         // 移除activity设备状态观察者
-        //device.removeDeviceStateListener(activity);
+        //device.removeListener(activity);
     }
 
     // 切换状态

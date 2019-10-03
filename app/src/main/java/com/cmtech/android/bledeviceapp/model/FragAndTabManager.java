@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +24,8 @@ import java.util.List;
 public class FragAndTabManager {
     private final InnerFragmentManager innerFragManager; // Fragment内部管理器实例
     private final TabLayout tabLayout; // TabLayout实例
+    private final boolean isShowTabText; // 是否在Tab上显示文字
     private int curPos = -1; // 当前显示的Fragment和Tab的位置
-    private boolean isShowTabText = false; // 是否在Tab上显示文字
     private OnFragmentUpdatedListener listener = null; // fragment更新监听器
 
     // fragment更新监听器接口
@@ -34,8 +33,13 @@ public class FragAndTabManager {
         void onFragmentUpdated();
     }
 
-    // 构造器
-    public FragAndTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
+    /**
+     * 构造器
+     * @param fragmentManager : fragment管理器
+     * @param tabLayout：tabLayout
+     * @param containerId: fragment容器ID
+     */
+    public FragAndTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
         innerFragManager = new InnerFragmentManager(fragmentManager, containerId);
         this.tabLayout = tabLayout;
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -62,11 +66,12 @@ public class FragAndTabManager {
             public void onTabReselected(TabLayout.Tab tab) {
             }
         });
+        this.isShowTabText = isShowTabText;
     }
 
     // Fragment数量
     public int size() {
-        return innerFragManager.fragments.size();
+        return innerFragManager.size();
     }
 
     // 设置fragment更新监听器
@@ -74,7 +79,12 @@ public class FragAndTabManager {
         this.listener = listener;
     }
 
-    // 添加Fragment，并显示
+    /**
+     * 添加Fragment，并显示
+     * @param fragment: fragment
+     * @param drawable: tablayout上的图标drawable
+     * @param tabText: tablayout上的文字
+     */
     public void addFragment(Fragment fragment, Drawable drawable, String tabText) {
         if(fragment == null || innerFragManager.fragments.contains(fragment)) return;
 
@@ -82,11 +92,10 @@ public class FragAndTabManager {
 
         View view = LayoutInflater.from(MyApplication.getContext()).inflate(R.layout.tablayout_device, null);
         ((ImageView)view.findViewById(R.id.iv_device_image)).setImageDrawable(drawable);
-        ((TextView)view.findViewById(R.id.tv_device_name)).setText((isShowTabText) ? tabText : "");
+        ((TextView)view.findViewById(R.id.tv_device_text)).setText((isShowTabText) ? tabText : "");
 
         TabLayout.Tab tab = tabLayout.newTab();
         tab.setCustomView(view);
-
         tabLayout.addTab(tab, true);
     }
 
@@ -110,7 +119,7 @@ public class FragAndTabManager {
             View view = tab.getCustomView();
             if(view != null) {
                 if(isShowTabText) {
-                    TextView tv = view.findViewById(R.id.tv_device_name);
+                    TextView tv = view.findViewById(R.id.tv_device_text);
                     tv.setText(tabText);
                 }
 
@@ -158,8 +167,8 @@ public class FragAndTabManager {
 
         InnerFragmentManager(FragmentManager fragmentManager, int containerId) {
             super();
-            this.containerId = containerId;
             this.fragmentManager = fragmentManager;
+            this.containerId = containerId;
             fragments = new ArrayList<>();
         }
 

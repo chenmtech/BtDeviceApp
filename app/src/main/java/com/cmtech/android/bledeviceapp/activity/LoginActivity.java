@@ -38,7 +38,7 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 /**
   *
   * ClassName:      LoginActivity
-  * Description:    登录界面Activity
+  * Description:    登录Activity
   * Author:         chenm
   * CreateDate:     2018/10/27 09:18
   * UpdateUser:     chenm
@@ -48,27 +48,19 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
  */
 public class LoginActivity extends AppCompatActivity {
     private final static String CHINA_PHONE_NUMBER = "86";
-
     private final static int MSG_WAIT_SECOND = 1;
-
     private final static long MS_PER_DAY = 24 * 60 * 60 * 1000;
 
     private EditText etPhone;
-
     private EditText etVeriCode;
-
     private Button btnGetVeriCode;
-
     private SharedPreferences pref;
-
     private String phone; // 手机号
-
     private String veriCode; // 验证码
-
     private Thread timerThread;
 
     // 手机短信验证回调事件处理器
-    private EventHandler eventHandler = new EventHandler() {
+    private final EventHandler eventHandler = new EventHandler() {
         public void afterEvent(int event, int result, Object data) {
             // afterEvent会在子线程被调用，因此如果后续有UI相关操作，需要将数据发送到UI线程
             Message msg = new Message();
@@ -114,7 +106,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-    private Handler handler = new Handler(new Handler.Callback() {
+    private final Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             if(msg.what == MSG_WAIT_SECOND) {
@@ -124,11 +116,9 @@ public class LoginActivity extends AppCompatActivity {
                     LoginActivity.this.btnGetVeriCode.setText(String.format(Locale.getDefault(), "%d秒后\n重新获取", nSecond));
                 else {
                     LoginActivity.this.btnGetVeriCode.setText("获取验证码");
-
                     LoginActivity.this.btnGetVeriCode.setEnabled(true);
                 }
             }
-
             return false;
         }
     });
