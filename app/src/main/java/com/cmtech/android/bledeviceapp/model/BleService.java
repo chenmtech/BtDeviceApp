@@ -37,8 +37,8 @@ import java.util.TimerTask;
 
 public class BleService extends Service implements OnBleDeviceUpdatedListener {
     private final static String TAG = "BleService";
-    private final static int WARN_TIME_INTERVAL = 15000;
-    private final static List<String> NOTIFY_WHEN_NO_DEVICE_OPEN = Collections.singletonList("无设备打开。");
+    private final static int BLE_ERROR_WARNNING_INTERVAL = 15000;
+    private final static String NOTIFY_WHEN_NO_DEVICE_OPEN = "无设备打开。";
     private final static int SERVICE_NOTIFICATION_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
 
     private String notifyTitle; // 通知栏标题
@@ -63,7 +63,7 @@ public class BleService extends Service implements OnBleDeviceUpdatedListener {
 
         initDeviceFromPref(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
         initNotificationBuilder();
-        sendNotification(NOTIFY_WHEN_NO_DEVICE_OPEN);
+        sendNotification(null);
     }
 
     // 从Preference获取所有设备注册信息，并构造相应的设备
@@ -90,9 +90,9 @@ public class BleService extends Service implements OnBleDeviceUpdatedListener {
         notifyBuilder.setOngoing(true);
         //右上角的时间显示
         notifyBuilder.setShowWhen(true);
-        //设置通知栏的标题内容
+        //设置通知栏的标题与内容
         notifyBuilder.setContentTitle(notifyTitle);
-        notifyBuilder.setContentText(NOTIFY_WHEN_NO_DEVICE_OPEN.get(0));
+        //notifyBuilder.setContentText(NOTIFY_WHEN_NO_DEVICE_OPEN);
 
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
@@ -146,9 +146,6 @@ public class BleService extends Service implements OnBleDeviceUpdatedListener {
                 info.add(dev.getMacAddress() + ": " + dev.getStateDescription());
             }
         }
-        if(info.isEmpty()) {
-            info = NOTIFY_WHEN_NO_DEVICE_OPEN;
-        }
 
         sendNotification(info);
     }
@@ -182,14 +179,14 @@ public class BleService extends Service implements OnBleDeviceUpdatedListener {
                         warnRingtone.play();
                     }
                 }
-            }, 0, WARN_TIME_INTERVAL);
+            }, 0, BLE_ERROR_WARNNING_INTERVAL);
 
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
                     stopWarnRingtone();
                 }
-            }, WARN_TIME_INTERVAL*5);
+            }, BLE_ERROR_WARNNING_INTERVAL *5);
         }
     }
 
@@ -209,14 +206,17 @@ public class BleService extends Service implements OnBleDeviceUpdatedListener {
     }
 
     private Notification createNotification(List<String> contents){
-        if(contents == null || contents.size() <= 0) return null;
-
-        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-        inboxStyle.setBigContentTitle(notifyTitle);
-        for(String content : contents) {
-            inboxStyle.addLine(content);
+        if(contents == null || contents.size() <= 0) {
+            notifyBuilder.setContentText(NOTIFY_WHEN_NO_DEVICE_OPEN);
+        } else {
+            notifyBuilder.setContentText(String.format("有%s个设备打开", contents.size()));
+            NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
+            inboxStyle.setBigContentTitle(notifyTitle);
+            for (String content : contents) {
+                inboxStyle.addLine(content);
+            }
+            notifyBuilder.setStyle(inboxStyle);
         }
-        notifyBuilder.setStyle(inboxStyle);
 
         Notification notification = notifyBuilder.build();
         notification.flags = Notification.FLAG_ONGOING_EVENT;

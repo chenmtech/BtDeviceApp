@@ -40,7 +40,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.core.BleDeviceScanner;
+import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                 if(state == STATE_ON) {
-                    BleDeviceScanner.clearInnerError();
+                    BleScanner.clearInnerError();
                     Toast.makeText(context, "蓝牙已开启。", Toast.LENGTH_SHORT).show();
                 } else if(state == STATE_OFF) {
                     Toast.makeText(context, "蓝牙已关闭。", Toast.LENGTH_SHORT).show();
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         bleStateIntent.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(btStateChangedReceiver, bleStateIntent);
 
-        if(BleDeviceScanner.isBleDisabled()) {
+        if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(intent);
         }
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         });
 
         drawerLayout = findViewById(R.id.drawer_layout);
-        noDeviceOpenedLayout = findViewById(R.id.layout_nodeivce_opened);
+        noDeviceOpenedLayout = findViewById(R.id.layout_when_nodeivce_opened);
         hasDeviceOpenedLayout = findViewById(R.id.layout_when_device_opened);
 
         // 创建Fragment管理器

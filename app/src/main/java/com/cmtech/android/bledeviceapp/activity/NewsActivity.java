@@ -34,9 +34,7 @@ import com.cmtech.android.bledeviceapp.R;
  */
 
 public class NewsActivity extends AppCompatActivity {
-
     private WebView wvNews;
-
     private ProgressBar pbNewsLoad;
 
     @Override
@@ -45,13 +43,9 @@ public class NewsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_news);
 
         Toolbar toolbar = findViewById(R.id.tb_open_news);
-
         setSupportActionBar(toolbar);
-
         pbNewsLoad = findViewById(R.id.pb_news_loading);
-
         wvNews = findViewById(R.id.wv_news);
-
         wvNews.loadUrl("https://www.gdmu.edu.cn");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

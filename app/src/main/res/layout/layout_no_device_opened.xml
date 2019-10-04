@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:id="@+id/layout_nodeivce_opened"
+    android:id="@+id/layout_when_nodeivce_opened"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/window_background"

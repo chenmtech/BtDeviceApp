@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.core.BleDeviceScanner;
+import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
@@ -93,7 +93,7 @@ public class ScanActivity extends AppCompatActivity {
 
                 case SCAN_FAILED_BLE_ERROR:
                     srlScanDevice.setRefreshing(false);
-                    BleDeviceScanner.stopScan(this);
+                    BleScanner.stopScan(this);
                     Toast.makeText(ScanActivity.this, "蓝牙错误，必须重启蓝牙。", Toast.LENGTH_LONG).show();
                     break;
             }
@@ -213,13 +213,13 @@ public class ScanActivity extends AppCompatActivity {
         if(srlScanDevice.isRefreshing())
             srlScanDevice.setRefreshing(false);
 
-        BleDeviceScanner.stopScan(bleScanCallback);
+        BleScanner.stopScan(bleScanCallback);
     }
 
 
     public void registerDevice(final BleDeviceDetailInfo device) {
         // 先停止扫描
-        BleDeviceScanner.stopScan(bleScanCallback);
+        BleScanner.stopScan(bleScanCallback);
 
         srlScanDevice.setRefreshing(false);
 
@@ -237,9 +237,9 @@ public class ScanActivity extends AppCompatActivity {
 
         scannedDeviceAdapter.notifyDataSetChanged();
 
-        BleDeviceScanner.stopScan(bleScanCallback);
+        BleScanner.stopScan(bleScanCallback);
 
-        BleDeviceScanner.startScan(SCAN_FILTER_DEVICE_NAME, bleScanCallback);
+        BleScanner.startScan(SCAN_FILTER_DEVICE_NAME, bleScanCallback);
     }
 
     private void addDeviceToList(final BleDeviceDetailInfo device) {
