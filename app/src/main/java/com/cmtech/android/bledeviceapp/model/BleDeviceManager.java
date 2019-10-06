@@ -25,7 +25,7 @@ import java.util.List;
  */
 
 public class BleDeviceManager {
-    private static final List<BleDevice> deviceList = new ArrayList<>();
+    private static final List<BleDevice> DEVICE_LIST = new ArrayList<>();
 
     private BleDeviceManager() {
     }
@@ -43,9 +43,9 @@ public class BleDeviceManager {
         if(device == null) return null;
 
         // 将设备添加到设备列表
-        deviceList.add(device);
+        DEVICE_LIST.add(device);
         // 按地址排序
-        Collections.sort(deviceList, new Comparator<BleDevice>() {
+        Collections.sort(DEVICE_LIST, new Comparator<BleDevice>() {
             @Override
             public int compare(BleDevice o1, BleDevice o2) {
                 return o1.getMacAddress().compareTo(o2.getMacAddress());
@@ -69,7 +69,7 @@ public class BleDeviceManager {
     public static BleDevice findDevice(String macAddress) {
         if(TextUtils.isEmpty(macAddress)) return null;
 
-        for(BleDevice device : deviceList) {
+        for(BleDevice device : DEVICE_LIST) {
             if(macAddress.equalsIgnoreCase(device.getMacAddress())) {
                 return device;
             }
@@ -79,18 +79,18 @@ public class BleDeviceManager {
 
     // 删除一个设备
     public static void deleteDevice(BleDevice device) {
-        deviceList.remove(device);
+        DEVICE_LIST.remove(device);
     }
 
     // 获取设备清单
     public static List<BleDevice> getDeviceList() {
-        return deviceList;
+        return DEVICE_LIST;
     }
 
     // 获取所有设备的Mac列表
     public static List<String> getDeviceMacList() {
         List<String> deviceMacList = new ArrayList<>();
-        for(BleDevice device : deviceList) {
+        for(BleDevice device : DEVICE_LIST) {
             deviceMacList.add(device.getMacAddress());
         }
         return deviceMacList;
@@ -98,7 +98,7 @@ public class BleDeviceManager {
 
     // 是否有设备打开了
     public static boolean existOpenedDevice() {
-        for(BleDevice device : deviceList) {
+        for(BleDevice device : DEVICE_LIST) {
             if(!device.isClosed()) {
                 return true;
             }

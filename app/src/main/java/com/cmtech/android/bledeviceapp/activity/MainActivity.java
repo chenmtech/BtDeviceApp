@@ -201,7 +201,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             public void onClick(View view) {
                 BleFragment fragment = (BleFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
-                    fragment.close();
+                    //fragment.close();
+                    closeFragment(fragment);
                 }
             }
         });
@@ -426,7 +427,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             case R.id.toolbar_close:
                 fragment = (BleFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
-                    fragment.close();
+                    //fragment.close();
+                    closeFragment(fragment);
                 } else {
                     requestFinish();
                 }
@@ -531,17 +533,12 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         }
     }
 
-    @Override
-    public BleDevice findDevice(String macAddress) {
-        return (TextUtils.isEmpty(macAddress)) ? null : BleDeviceManager.findDevice(macAddress);
-    }
-
-    @Override
     public void closeFragment(final BleFragment fragment) {
         BleDevice device = fragment.getDevice();
 
         if(device != null && device.isDisconnect()) {
             device.close();
+            fragment.close();
             fragTabManager.deleteFragment(fragment);
         } else {
             Toast.makeText(this, "设备连接中，请先断开设备。", Toast.LENGTH_LONG).show();

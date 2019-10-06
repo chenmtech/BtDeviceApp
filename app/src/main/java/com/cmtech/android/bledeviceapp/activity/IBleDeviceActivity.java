@@ -10,7 +10,5 @@ import com.cmtech.android.ble.core.OnBleDeviceUpdatedListener;
  */
 
 public interface IBleDeviceActivity extends OnBleDeviceUpdatedListener {
-    BleDevice findDevice(String mac); // 由设备的mac地址找到BleDevice对象
-
-    void closeFragment(BleFragment fragment); // 关闭Fragment
+    //void closeFragment(BleFragment fragment); // 关闭Fragment
 }

@@ -22,6 +22,7 @@ import java.util.List;
  */
 
 public class FragAndTabManager {
+    private static final List<Fragment> FRAGMENT_LIST = new ArrayList<>();
     private final InnerFragmentManager innerFragManager; // Fragment内部管理器实例
     private final TabLayout tabLayout; // TabLayout实例
     private final boolean isShowTabText; // 是否在Tab上显示文字
@@ -48,9 +49,9 @@ public class FragAndTabManager {
                 int pos = tab.getPosition();
                 if(pos < 0) return;
                 // 隐藏当前的Fragment
-                if(curPos >= 0 && curPos < size() && curPos != pos) innerFragManager.hideFragment(innerFragManager.getFragment(curPos));
+                if(curPos != pos) innerFragManager.hideFragment(getCurrentFragment());
                 // 显示选中的Fragment
-                innerFragManager.showFragment(innerFragManager.getFragment(pos));
+                innerFragManager.showFragment(getFragment(pos));
                 curPos = pos;
                 if(listener != null) {
                     listener.onFragmentUpdated();
@@ -70,8 +71,8 @@ public class FragAndTabManager {
     }
 
     // Fragment数量
-    public int size() {
-        return innerFragManager.size();
+    public static int size() {
+        return FRAGMENT_LIST.size();
     }
 
     // 设置fragment更新监听器
@@ -86,7 +87,7 @@ public class FragAndTabManager {
      * @param tabText: tablayout上的文字
      */
     public void addFragment(Fragment fragment, Drawable drawable, String tabText) {
-        if(fragment == null || innerFragManager.fragments.contains(fragment)) return;
+        if(fragment == null || FRAGMENT_LIST.contains(fragment)) return;
 
         innerFragManager.addFragment(fragment, "");
 
@@ -99,9 +100,13 @@ public class FragAndTabManager {
         tabLayout.addTab(tab, true);
     }
 
+    private static Fragment getFragment(int pos) {
+        return (pos >= 0 && pos < FRAGMENT_LIST.size()) ? FRAGMENT_LIST.get(pos) : null;
+    }
+
     // 获取当前fragment
     public Fragment getCurrentFragment() {
-        return (curPos < 0 || curPos >= size()) ? null : innerFragManager.getFragment(curPos);
+        return getFragment(curPos);
     }
 
     // 获取当前tab
@@ -111,9 +116,9 @@ public class FragAndTabManager {
 
     // 更新Fragment的tab信息
     public void updateTabInfo(Fragment fragment, Drawable drawable, String tabText) {
-        if(fragment == null || !innerFragManager.fragments.contains(fragment)) return;
+        if(fragment == null || !FRAGMENT_LIST.contains(fragment)) return;
 
-        TabLayout.Tab tab = tabLayout.getTabAt(innerFragManager.fragments.indexOf(fragment));
+        TabLayout.Tab tab = tabLayout.getTabAt(FRAGMENT_LIST.indexOf(fragment));
 
         if(tab != null) {
             View view = tab.getCustomView();
@@ -133,9 +138,9 @@ public class FragAndTabManager {
 
     // 显示Fragment
     public void showFragment(Fragment fragment) {
-        if(fragment == null || !innerFragManager.fragments.contains(fragment)) return;
+        if(fragment == null || !FRAGMENT_LIST.contains(fragment)) return;
 
-        int index = innerFragManager.fragments.indexOf(fragment);
+        int index = FRAGMENT_LIST.indexOf(fragment);
         TabLayout.Tab tab = tabLayout.getTabAt(index);
         if(tab != null)
             tab.select();
@@ -143,9 +148,9 @@ public class FragAndTabManager {
 
     // 删除Fragment
     public void deleteFragment(Fragment fragment) {
-        if(fragment == null || !innerFragManager.fragments.contains(fragment)) return;
+        if(fragment == null || !FRAGMENT_LIST.contains(fragment)) return;
 
-        int index = innerFragManager.fragments.indexOf(fragment);
+        int index = FRAGMENT_LIST.indexOf(fragment);
         innerFragManager.removeFragment(fragment);
         TabLayout.Tab tab = tabLayout.getTabAt(index);
         if(tab != null)
@@ -156,27 +161,23 @@ public class FragAndTabManager {
         }
     }
 
-    public List<Fragment> getFragmentList() {
-        return innerFragManager.fragments;
+    public static List<Fragment> getFragmentList() {
+        return FRAGMENT_LIST;
     }
 
     private static class InnerFragmentManager {
         private final FragmentManager fragmentManager;
         private final int containerId;
-        private final List<Fragment> fragments;
 
         InnerFragmentManager(FragmentManager fragmentManager, int containerId) {
             super();
             this.fragmentManager = fragmentManager;
             this.containerId = containerId;
-            fragments = new ArrayList<>();
         }
-
-        public int size() { return fragments.size(); }
 
         void addFragment(Fragment fragment, String tag) {
             if(fragment != null) {
-                fragments.add(fragment);
+                FRAGMENT_LIST.add(fragment);
                 FragmentTransaction fTransaction = fragmentManager.beginTransaction();
                 fTransaction.add(containerId, fragment, tag);
                 fTransaction.commit();
@@ -185,7 +186,7 @@ public class FragAndTabManager {
 
         void removeFragment(Fragment fragment) {
             if (fragment != null) {
-                fragments.remove(fragment);
+                FRAGMENT_LIST.remove(fragment);
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.remove(fragment);
                 transaction.commit();
@@ -206,10 +207,6 @@ public class FragAndTabManager {
                 transaction.show(fragment);
                 transaction.commit();
             }
-        }
-
-        Fragment getFragment(int pos) {
-            return (pos >= 0 && pos < fragments.size()) ? fragments.get(pos) : null;
         }
     }
 }

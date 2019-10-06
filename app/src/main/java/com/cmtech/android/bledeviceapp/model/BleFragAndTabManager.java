@@ -28,8 +28,8 @@ public class BleFragAndTabManager extends FragAndTabManager {
     public BleFragment findFragment(BleDevice device) {
         if(device == null) return null;
 
-        List<Fragment> fragmentList = getFragmentList();
-        for(Fragment fragment : fragmentList) {
+        List<Fragment> fragments = getFragmentList();
+        for(Fragment fragment : fragments) {
             if(device.equals(((BleFragment)fragment).getDevice())) {
                 return (BleFragment)fragment;
             }

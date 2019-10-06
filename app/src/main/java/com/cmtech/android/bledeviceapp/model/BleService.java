@@ -25,7 +25,6 @@ import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -61,13 +60,13 @@ public class BleService extends Service implements OnBleDeviceUpdatedListener {
         notifyTitle = "欢迎使用" + getResources().getString(R.string.app_name);
         warnRingtone = RingtoneManager.getRingtone(this, Settings.System.DEFAULT_NOTIFICATION_URI);
 
-        initDeviceFromPref(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
+        initDeviceManagerFromPref(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
         initNotificationBuilder();
         sendNotification(null);
     }
 
     // 从Preference获取所有设备注册信息，并构造相应的设备
-    private void initDeviceFromPref(SharedPreferences pref) {
+    private void initDeviceManagerFromPref(SharedPreferences pref) {
         List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.createFromPref(pref);
         if(registerInfoList == null) return;
         for(BleDeviceRegisterInfo registerInfo : registerInfoList) {

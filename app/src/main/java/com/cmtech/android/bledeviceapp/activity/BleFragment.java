@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
 
 /**
  * BleFragment：设备的Fragment
@@ -60,7 +61,7 @@ public abstract class BleFragment extends Fragment{
         Bundle bundle = getArguments();
         if(bundle == null) throw new IllegalStateException();
         String deviceMac = bundle.getString(ARG_DEVICE_MAC);
-        device = activity.findDevice(deviceMac);
+        device = BleDeviceManager.findDevice(deviceMac);
         if(device == null) throw new IllegalArgumentException("The device is null.");
 
         // 更新连接状态
@@ -97,7 +98,7 @@ public abstract class BleFragment extends Fragment{
     // 关闭
     public void close() {
         if(activity != null) {
-            activity.closeFragment(this);
+            //activity.closeFragment(this);
         }
     }
 
