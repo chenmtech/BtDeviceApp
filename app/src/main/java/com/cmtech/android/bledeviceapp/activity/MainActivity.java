@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
     private final static int RC_MODIFY_USERINFO = 3;     // 修改用户信息返回码
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-    private BleService bleService; // 设备服务,用于管理后台通知等
+    private BleService bleService; // 服务,用于初始化设备管理器BleDeviceManager，并管理后台通知等
     private BleFragTabManager fragTabManager; // Fragment和TabLayout管理器
     private MainToolbarManager toolbarManager; // 工具条管理器
 
@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
             bleService = ((BleService.BleServiceBinder)iBinder).getService();
             // 成功绑定后初始化
             if(bleService != null) {
-                initializeView();
+                initialize();
             } else {
                 requestFinish();
             }
@@ -163,12 +163,15 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
     }
 
     // 主界面初始化
-    private void initializeView() {
+    private void initialize() {
+        // 初始化工具条
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         TextView tvDeviceBattery = findViewById(R.id.tv_device_battery);
         toolbarManager = new MainToolbarManager(this, toolbar, tvDeviceBattery);
+        toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortrait());
 
+        // 初始化已注册设备列表
         rvDevices = findViewById(R.id.rv_registed_device);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDevices.setLayoutManager(layoutManager);
@@ -176,13 +179,9 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
         deviceAdapter = new RegisteredDeviceAdapter(BleDeviceManager.getDeviceList(), this);
         rvDevices.setAdapter(deviceAdapter);
 
-        navView = findViewById(R.id.nav_view);
-
+        // 初始化导航视图
         initNavigation();
-
-        updateNavigationView();
-
-        toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortrait());
+        updateNavigation();
 
         // 设置FAB，FloatingActionButton
         fabConnect = findViewById(R.id.fab_connect);
@@ -242,17 +241,14 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
     }
 
     private void initNavigation() {
+        navView = findViewById(R.id.nav_view);
         View headerView = navView.getHeaderView(0);
-
         tvUserName = headerView.findViewById(R.id.tv_user_name);
-
         ivUserPortrait = headerView.findViewById(R.id.iv_user_portrait);
-
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, UserActivity.class);
-
                 startActivityForResult(intent, RC_MODIFY_USERINFO);
             }
         });
@@ -263,35 +259,25 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
                 switch (item.getItemId()) {
                     case R.id.nav_search_device:
                         List<String> deviceMacList = BleDeviceManager.getDeviceMacList();
-
                         Intent scanIntent = new Intent(MainActivity.this, ScanActivity.class);
-
                         scanIntent.putExtra(REGISTER_DEVICE_MAC_LIST, (Serializable) deviceMacList);
-
                         startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
-
                         return true;
                     case R.id.nav_query_record:
                         Intent recordIntent = new Intent(MainActivity.this, EcgFileExplorerActivity.class);
-
                         startActivity(recordIntent);
-
                         return true;
                     case R.id.nav_open_news:
                         Intent newsIntent = new Intent(MainActivity.this, NewsActivity.class);
-
                         startActivity(newsIntent);
-
                         return true;
                     case R.id.nav_exit:
                         requestFinish();
-
                         return true;
                 }
                 return false;
             }
         });
-
     }
 
     private void updateMainLayout(BleDevice device) {
@@ -370,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
 
             case RC_MODIFY_USERINFO:
                 if(resultCode == RESULT_OK) {
-                    updateNavigationView();
+                    updateNavigation();
 
                     toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortrait());
                 } else {
@@ -530,18 +516,6 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
         }
     }
 
-    public void closeFragment(final BleFragment fragment) {
-        BleDevice device = fragment.getDevice();
-
-        if(device != null && device.isDisconnect()) {
-            //device.close();
-            fragment.close();
-            fragTabManager.deleteFragment(fragment);
-        } else {
-            Toast.makeText(this, "设备连接中，请先断开设备。", Toast.LENGTH_LONG).show();
-        }
-    }
-
     // 打开设备
     public void openDevice(BleDevice device) {
         if(device == null || !device.isClosed()) return;
@@ -561,9 +535,26 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
         BleFactory factory = BleFactory.getFactory(device.getRegisterInfo());
         if(factory != null) {
             openDrawer(false);
-            fragTabManager.addFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
+            fragTabManager.openFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
             updateMainLayout(device);
         }
+    }
+
+    public void closeFragment(final BleFragment fragment) {
+        if(fragment == null) {
+            return;
+        }
+
+        BleDevice device = fragment.getDevice();
+        if(device != null && device.isDisconnect()) {
+            fragTabManager.closeFragment(fragment);
+        } else {
+            Toast.makeText(this, "设备连接中，请先断开设备。", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void removeFragment(BleFragment fragment) {
+        fragTabManager.removeFragment(fragment);
     }
 
     // 从设备列表中删除设备
@@ -588,14 +579,12 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
                     Toast.makeText(MainActivity.this, "无法删除设备。", Toast.LENGTH_SHORT).show();
                 }
             }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+        }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
             }
-        });
-        builder.show();
+        }).show();
     }
 
     // 修改设备注册信息 
@@ -647,9 +636,8 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
         requestFinish();
     }
 
-    private void updateNavigationView() {
+    private void updateNavigation() {
         User user = UserManager.getInstance().getUser();
-
         if(user == null) {
             throw new IllegalStateException();
         }
@@ -659,9 +647,7 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
         } else {
             tvUserName.setText(user.getName());
         }
-
         String imagePath = user.getPortrait();
-
         if(imagePath != null && !"".equals(imagePath))
             Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivUserPortrait);
     }

@@ -28,6 +28,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.viewcomponent.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;

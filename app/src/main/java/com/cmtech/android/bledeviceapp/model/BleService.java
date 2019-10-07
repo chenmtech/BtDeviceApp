@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.model;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -43,6 +44,7 @@ public class BleService extends Service implements OnBleDeviceUpdatedListener {
     private String notifyTitle; // 通知栏标题
     private NotificationCompat.Builder notifyBuilder;
     private Ringtone warnRingtone;
+    private Timer bleErrorWarnTimer;
 
     public class BleServiceBinder extends Binder {
         public BleService getService() {
@@ -51,29 +53,27 @@ public class BleService extends Service implements OnBleDeviceUpdatedListener {
     }
     private final BleServiceBinder binder = new BleServiceBinder();
 
-    private Timer bleErrorWarnTimer;
-
     @Override
     public void onCreate() {
         super.onCreate();
 
+        initDeviceManager(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
+        for(BleDevice device : BleDeviceManager.getDeviceList()) {
+            device.addListener(this);
+        }
+
         notifyTitle = "欢迎使用" + getResources().getString(R.string.app_name);
         warnRingtone = RingtoneManager.getRingtone(this, Settings.System.DEFAULT_NOTIFICATION_URI);
-
-        initDeviceManagerFromPref(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
         initNotificationBuilder();
         sendNotification(null);
     }
 
     // 从Preference获取所有设备注册信息，并构造相应的设备
-    private void initDeviceManagerFromPref(SharedPreferences pref) {
+    private void initDeviceManager(SharedPreferences pref) {
         List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.createFromPref(pref);
         if(registerInfoList == null) return;
         for(BleDeviceRegisterInfo registerInfo : registerInfoList) {
-            BleDevice device = BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
-            if(device != null) {
-                device.addListener(this);
-            }
+           BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
         }
     }
 

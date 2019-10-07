@@ -24,17 +24,24 @@ public class BleFragTabManager extends FragTabManager {
         super(fragmentManager, tabLayout, containerId, isShowTabText);
     }
 
-    // 寻找设备对应的Fragment
+    // 寻找设备的Fragment
     public BleFragment findFragment(BleDevice device) {
-        if(device == null) return null;
-
-        List<Fragment> fragments = getFragmentList();
-        for(Fragment fragment : fragments) {
-            if(device.equals(((BleFragment)fragment).getDevice())) {
-                return (BleFragment)fragment;
+        if(device != null) {
+            List<Fragment> fragments = getFragmentList();
+            for (Fragment fragment : fragments) {
+                if (device.equals(((BleFragment) fragment).getDevice())) {
+                    return (BleFragment) fragment;
+                }
             }
         }
         return null;
+    }
+
+    // 关闭Fragment
+    public void closeFragment(BleFragment fragment) {
+        if(fragment != null) {
+            fragment.close();
+        }
     }
 
     // 设备的Fragment是否打开
@@ -45,7 +52,6 @@ public class BleFragTabManager extends FragTabManager {
     // 设备的Fragment是否被选中
     public boolean isFragmentSelected(BleDevice device) {
         Fragment fragment = findFragment(device);
-        if(fragment == null) return false;
-        return (fragment == getCurrentFragment());
+        return (fragment != null && fragment == getCurrentFragment());
     }
 }
