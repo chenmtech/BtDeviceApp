@@ -26,7 +26,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,16 +41,17 @@ import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.ble.core.OnBleDeviceUpdatedListener;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
+import com.cmtech.android.bledeviceapp.model.BleFragTabManager;
 import com.cmtech.android.bledeviceapp.model.BleService;
 import com.cmtech.android.bledeviceapp.model.RegisteredDeviceAdapter;
 import com.cmtech.android.bledeviceapp.model.BleFactory;
-import com.cmtech.android.bledeviceapp.model.BleFragAndTabManager;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
-import com.cmtech.android.bledeviceapp.model.FragAndTabManager;
+import com.cmtech.android.bledeviceapp.model.FragTabManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
@@ -70,7 +70,7 @@ import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTER_DEV
  *  Created by bme on 2018/2/19.
  */
 
-public class MainActivity extends AppCompatActivity implements IBleDeviceActivity {
+public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdatedListener {
     private static final String TAG = "MainActivity";
 
     private final static int RC_REGISTER_DEVICE = 1;     // 登记设备返回码
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
     private BleService bleService; // 设备服务,用于管理后台通知等
-    private BleFragAndTabManager fragTabManager; // Fragment和TabLayout管理器
+    private BleFragTabManager fragTabManager; // Fragment和TabLayout管理器
     private MainToolbarManager toolbarManager; // 工具条管理器
 
     private RegisteredDeviceAdapter deviceAdapter; // 已注册设备Adapter
@@ -91,10 +91,11 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
     private FloatingActionButton fabClose; // 关闭设备的FAB
     private TextView tvUserName; // 账户名称控件
     private ImageView ivUserPortrait; // 头像控件
-    private boolean stopService = false; // 是否停止服务
     private NavigationView navView;
 
-    private ServiceConnection serviceConnection = new ServiceConnection() {
+    private boolean stopService = false; // 是否停止服务
+
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             bleService = ((BleService.BleServiceBinder)iBinder).getService();
@@ -109,8 +110,8 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             if(bleService != null) {
-                Intent stopIntent = new Intent(MainActivity.this, BleService.class);
-                stopService(stopIntent);
+                Intent stopServiceIntent = new Intent(MainActivity.this, BleService.class);
+                stopService(stopServiceIntent);
                 bleService = null;
             }
             finish();
@@ -146,9 +147,9 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         }
 
         // 启动并绑定BleDeviceService服务
-        Intent startService = new Intent(this, BleService.class);
-        startService(startService);
-        bindService(startService, serviceConnection, BIND_AUTO_CREATE);
+        Intent startServiceIntent = new Intent(this, BleService.class);
+        startService(startServiceIntent);
+        bindService(startServiceIntent, serviceConnection, BIND_AUTO_CREATE);
 
         // 登记蓝牙状态改变广播接收器
         IntentFilter bleStateIntent = new IntentFilter();
@@ -201,7 +202,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             public void onClick(View view) {
                 BleFragment fragment = (BleFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
-                    //fragment.close();
                     closeFragment(fragment);
                 }
             }
@@ -214,16 +214,15 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         // 创建Fragment管理器
         TabLayout tabLayout = findViewById(R.id.tablayout_device);
 
-        fragTabManager = new BleFragAndTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
+        fragTabManager = new BleFragTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
 
-        fragTabManager.setOnFragmentUpdatedListener(new FragAndTabManager.OnFragmentUpdatedListener() {
+        fragTabManager.setOnFragmentUpdatedListener(new FragTabManager.OnFragmentUpdatedListener() {
             @Override
             public void onFragmentUpdated() {
                 BleDevice device = (fragTabManager.size() == 0) ? null : ((BleFragment) fragTabManager.getCurrentFragment()).getDevice();
                 updateMainLayout(device);
             }
         });
-
 
         // 初始化主界面
         initMainLayout();
@@ -238,7 +237,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         User user = UserManager.getInstance().getUser();
         if(user.getName() == null || "".equals(user.getName().trim())) {
             Intent intent = new Intent(MainActivity.this, UserActivity.class);
-
             startActivityForResult(intent, RC_MODIFY_USERINFO);
         }
     }
@@ -427,7 +425,6 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
             case R.id.toolbar_close:
                 fragment = (BleFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
-                    //fragment.close();
                     closeFragment(fragment);
                 } else {
                     requestFinish();
@@ -537,7 +534,7 @@ public class MainActivity extends AppCompatActivity implements IBleDeviceActivit
         BleDevice device = fragment.getDevice();
 
         if(device != null && device.isDisconnect()) {
-            device.close();
+            //device.close();
             fragment.close();
             fragTabManager.deleteFragment(fragment);
         } else {

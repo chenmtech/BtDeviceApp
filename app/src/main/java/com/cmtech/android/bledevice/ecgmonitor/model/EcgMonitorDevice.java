@@ -225,7 +225,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     @Override
     public void close() {
         if(!isDisconnect()) {
-            return;
+            throw new IllegalStateException("The device is not disconnected and can't be closed.");
         }
 
         ViseLog.e("EcgMonitorDevice.close()");

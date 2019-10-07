@@ -10,17 +10,17 @@ import com.cmtech.android.bledeviceapp.activity.BleFragment;
 import java.util.List;
 
 /**
- * BleFragAndTabManager: BleFragment管理器
+ * BleFragTabManager: BleFragment管理器
  * Created by bme on 2018/12/08.
  */
 
-public class BleFragAndTabManager extends FragAndTabManager {
+public class BleFragTabManager extends FragTabManager {
 
-    public BleFragAndTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
+    public BleFragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
         this(fragmentManager, tabLayout, containerId, false);
     }
 
-    public BleFragAndTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
+    public BleFragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
         super(fragmentManager, tabLayout, containerId, isShowTabText);
     }
 

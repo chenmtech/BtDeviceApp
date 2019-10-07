@@ -52,40 +52,26 @@ public class EcgMonitorFragment extends BleFragment implements OnEcgMonitorDevic
     private static final String TAG = "EcgMonitorFragment";
 
     private TextView tvSampleRate; // 采样率
-
     private TextView tvLeadType; // 导联类型
-
     private TextView tvValue1mV; // 1mV定标值
-
     private TextView tvHeartRate; // 心率值
-
     private TextView tvBattery;
-
     private ScanWaveView ecgView; // 心电波形View
-
     private AudioTrack hrWarnAudio; // 心率报警声音
-
     private EcgSignalRecordFragment samplingSignalFragment = new EcgSignalRecordFragment();
-
     private EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment();
-
     private List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(hrStatisticsFragment, samplingSignalFragment));
-
     private List<String> titleList = new ArrayList<>(Arrays.asList("心率分析", "信号采集"));
-
     private EcgMonitorDevice device; // 设备
 
     public EcgMonitorFragment() {
-
         super();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-
         device = (EcgMonitorDevice) getDevice();
-
         return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
     }
 
@@ -94,42 +80,23 @@ public class EcgMonitorFragment extends BleFragment implements OnEcgMonitorDevic
         super.onViewCreated(view, savedInstanceState);
 
         tvSampleRate = view.findViewById(R.id.tv_ecg_samplerate);
-
         tvLeadType = view.findViewById(R.id.tv_ecg_leadtype);
-
         tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
-
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
-
         ecgView = view.findViewById(R.id.rwv_ecgview);
-
         tvBattery = view.findViewById(R.id.tv_ecg_battery);
-
-
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
-
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
-
         setCalibrationValue(device.getValue1mVBeforeCalibration(), device.getValue1mVAfterCalibration());
-
         tvHeartRate.setText("");
-
         initialEcgView();
-
         ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
-
         TabLayout fragTabLayout = view.findViewById(R.id.tl_ecg_controller);
-
         EcgControllerAdapter fragAdapter = new EcgControllerAdapter(getChildFragmentManager(), getContext(), fragmentList, titleList);
-
         fragViewPager.setAdapter(fragAdapter);
-
         fragTabLayout.setupWithViewPager(fragViewPager);
-
         samplingSignalFragment.setDevice(device);
-
         updateDeviceState(device.getEcgMonitorState());
-
         device.setEcgMonitorDeviceListener(this);
     }
 
@@ -146,14 +113,12 @@ public class EcgMonitorFragment extends BleFragment implements OnEcgMonitorDevic
                         }
                         EcgMonitorFragment.super.close();
                     }
-                }).
-                setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                }).setNeutralButton("取消", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                     }
-                }).
-                setNegativeButton("不保存", new DialogInterface.OnClickListener() {
+                }).setNegativeButton("不保存", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if(device != null) {

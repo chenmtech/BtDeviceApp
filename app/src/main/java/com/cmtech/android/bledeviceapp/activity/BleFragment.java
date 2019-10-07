@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.OnBleDeviceUpdatedListener;
 import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
 
 /**
@@ -17,25 +18,23 @@ public abstract class BleFragment extends Fragment{
     private static final String TAG = "BleFragment";
     private static final String ARG_DEVICE_MAC = "device_mac";
 
-    private IBleDeviceActivity activity; //包含BleDeviceFragment的Activity，必须要实现IBleDeviceActivity接口
+    private OnBleDeviceUpdatedListener listener; //包含BleDeviceFragment的Activity，必须要实现OnBleDeviceUpdatedListener接口
     private BleDevice device; // 设备
-
 
     protected BleFragment() {
     }
 
     public static BleFragment create(String macAddress, Class<? extends BleFragment> fragClass) {
-        BleFragment fragment;
         try {
-            fragment = fragClass.newInstance();
+            BleFragment fragment = fragClass.newInstance();
             Bundle bundle = new Bundle();
             bundle.putString(ARG_DEVICE_MAC, macAddress);
             fragment.setArguments(bundle);
+            return fragment;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-        return fragment;
     }
 
     public BleDevice getDevice() {
@@ -46,10 +45,10 @@ public abstract class BleFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(context instanceof IBleDeviceActivity) {
-            activity = (IBleDeviceActivity) context;
+        if(context instanceof OnBleDeviceUpdatedListener) {
+            listener = (OnBleDeviceUpdatedListener) context;
         } else {
-            throw new IllegalArgumentException("The context must be a instance of IBleDeviceActivity.");
+            throw new IllegalArgumentException("The context is not a instance of OnBleDeviceUpdatedListener.");
         }
     }
 
@@ -67,7 +66,7 @@ public abstract class BleFragment extends Fragment{
         // 更新连接状态
         updateState();
         // 注册设备状态观察者
-        device.addListener(activity);
+        device.addListener(listener);
         device.updateState();
 
         // 打开设备
@@ -79,7 +78,7 @@ public abstract class BleFragment extends Fragment{
         super.onDestroy();
 
         // 移除activity设备状态观察者
-        //device.removeListener(activity);
+        //device.removeListener(listener);
     }
 
     // 切换状态
@@ -97,8 +96,8 @@ public abstract class BleFragment extends Fragment{
 
     // 关闭
     public void close() {
-        if(activity != null) {
-            //activity.closeFragment(this);
+        if(device != null) {
+            device.close();
         }
     }
 

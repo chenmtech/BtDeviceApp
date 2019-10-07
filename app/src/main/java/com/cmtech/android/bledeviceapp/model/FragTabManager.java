@@ -21,7 +21,7 @@ import java.util.List;
  * Created by chenm on 2018/3/16.
  */
 
-public class FragAndTabManager {
+public class FragTabManager {
     private static final List<Fragment> FRAGMENT_LIST = new ArrayList<>();
     private final InnerFragmentManager innerFragManager; // Fragment内部管理器实例
     private final TabLayout tabLayout; // TabLayout实例
@@ -40,7 +40,7 @@ public class FragAndTabManager {
      * @param tabLayout：tabLayout
      * @param containerId: fragment容器ID
      */
-    public FragAndTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
+    public FragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
         innerFragManager = new InnerFragmentManager(fragmentManager, containerId);
         this.tabLayout = tabLayout;
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
