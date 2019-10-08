@@ -47,33 +47,38 @@ import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_R
 
 public class ScanActivity extends AppCompatActivity {
     private static final String TAG = "ScanActivity";
-    public static final String REGISTERED_DEVICE_MAC_LIST = "register_device_mac_list";
+    public static final String REGISTERED_DEVICE_MAC_LIST = "registered_device_mac_list";
     private static final ScanFilter SCAN_FILTER_DEVICE_NAME = new ScanFilter.Builder().setDeviceName(BleDeviceConstant.SCAN_DEVICE_NAME).build();
 
-    // 设备绑定状态改变的广播接收器类
-    private class BleDeviceBondReceiver extends BroadcastReceiver {
+    private final List<BleDeviceDetailInfo> scannedDeviceDetailInfoList = new ArrayList<>(); // 扫描到的BleDeviceDetailInfo列表
+    private List<String> registeredDeviceMacList = new ArrayList<>(); // 已注册的设备mac地址列表
+    private SwipeRefreshLayout srlScanDevice;
+    private ScannedDeviceAdapter scannedDeviceAdapter;
+    private RecyclerView rvScanDevice;
+
+    // 设备绑定状态改变的广播接收器
+    private final BroadcastReceiver bondReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-
                 if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    // 登记设备
-                    for (BleDeviceDetailInfo ele : deviceList) {
-                        if(ele.getAddress().equalsIgnoreCase(device.getAddress())) {
-                            configureBondedDevice(ele);
+                    for (BleDeviceDetailInfo detailInfo : scannedDeviceDetailInfoList) {
+                        if(detailInfo.getAddress().equalsIgnoreCase(device.getAddress())) {
+                            registerBondedDevice(detailInfo);
                             break;
                         }
                     }
                 }
             }
         }
-    }
+    };
 
+    // 扫描回调
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
         @Override
         public void onDeviceFound(BleDeviceDetailInfo bleDeviceDetailInfo) {
-            addDeviceToList(bleDeviceDetailInfo);
+            addDeviceDetailInfoToList(bleDeviceDetailInfo);
         }
 
         @Override
@@ -95,19 +100,8 @@ public class ScanActivity extends AppCompatActivity {
                     break;
             }
         }
-    }; // 扫描回调
+    };
 
-    private SwipeRefreshLayout srlScanDevice;
-
-    private ScannedDeviceAdapter scannedDeviceAdapter;
-
-    private RecyclerView rvScanDevice;
-
-    private List<BleDeviceDetailInfo> deviceList = new ArrayList<>();
-
-    private List<String> registedDeviceMacList = new ArrayList<>();
-
-    private BleDeviceBondReceiver bondReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,30 +110,23 @@ public class ScanActivity extends AppCompatActivity {
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_device_scan);
-
         setSupportActionBar(toolbar);
 
-        // 获取已登记过的设备Mac列表
+        // 获取已注册设备Mac列表
         Intent intent = getIntent();
-
         if(intent != null) {
-            registedDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTERED_DEVICE_MAC_LIST);
+            registeredDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTERED_DEVICE_MAC_LIST);
         }
 
+        // 初始化扫描设备列表
         rvScanDevice = findViewById(R.id.rv_scandevice);
-
         rvScanDevice.setLayoutManager(new LinearLayoutManager(this));
-
         rvScanDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-
-        scannedDeviceAdapter = new ScannedDeviceAdapter(deviceList, registedDeviceMacList, this);
-
+        scannedDeviceAdapter = new ScannedDeviceAdapter(scannedDeviceDetailInfoList, registeredDeviceMacList, this);
         rvScanDevice.setAdapter(scannedDeviceAdapter);
 
         srlScanDevice = findViewById(R.id.srl_scandevice);
-
-        srlScanDevice.setProgressViewOffset(true, 250, 350);
-
+        srlScanDevice.setProgressViewOffset(true, 300, 400);
         srlScanDevice.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -148,16 +135,18 @@ public class ScanActivity extends AppCompatActivity {
         });
 
         IntentFilter bondIntent = new IntentFilter();
-
         bondIntent.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-
-        bondReceiver = new BleDeviceBondReceiver();
-
         registerReceiver(bondReceiver, bondIntent);
 
         startScan();
+    }
 
-        //srlScanDevice.setRefreshing(true);
+    // 开始扫描
+    private void startScan() {
+        scannedDeviceDetailInfoList.clear();
+        scannedDeviceAdapter.notifyDataSetChanged();
+        BleScanner.stopScan(bleScanCallback);
+        BleScanner.startScan(SCAN_FILTER_DEVICE_NAME, bleScanCallback);
     }
 
     @Override
@@ -171,16 +160,11 @@ public class ScanActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 setResult(RESULT_CANCELED, null);
-
                 finish();
-
                 break;
 
             case R.id.scan_device:
                 startScan();
-
-                //srlScanDevice.setRefreshing(true);
-
                 break;
         }
         return true;
@@ -192,12 +176,10 @@ public class ScanActivity extends AppCompatActivity {
             case 1: // 设备登记返回码
                 if (resultCode == RESULT_OK) {
                     setResult(RESULT_OK, data);
-
                     finish();
                 }
                 break;
         }
-
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -213,81 +195,52 @@ public class ScanActivity extends AppCompatActivity {
         BleScanner.stopScan(bleScanCallback);
     }
 
-
     public void registerDevice(final BleDeviceDetailInfo device) {
         // 先停止扫描
         BleScanner.stopScan(bleScanCallback);
-
         srlScanDevice.setRefreshing(false);
 
         if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
             device.getDevice().createBond();
         } else {
-            configureBondedDevice(device);
+            registerBondedDevice(device);
         }
     }
 
-
-    // 开始扫描
-    private void startScan() {
-        deviceList.clear();
-
-        scannedDeviceAdapter.notifyDataSetChanged();
-
-        BleScanner.stopScan(bleScanCallback);
-
-        BleScanner.startScan(SCAN_FILTER_DEVICE_NAME, bleScanCallback);
-    }
-
-    private void addDeviceToList(final BleDeviceDetailInfo device) {
+    private void addDeviceDetailInfoToList(final BleDeviceDetailInfo device) {
         if(device == null) return;
-
         boolean isNewDevice = true;
-
-        for(BleDeviceDetailInfo dv : deviceList) {
+        for(BleDeviceDetailInfo dv : scannedDeviceDetailInfoList) {
             if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
                 isNewDevice = false;
-
                 break;
             }
         }
 
         if(isNewDevice) {
-            deviceList.add(device);
-
+            scannedDeviceDetailInfoList.add(device);
             scannedDeviceAdapter.notifyDataSetChanged();
-
-            rvScanDevice.scrollToPosition(deviceList.size()-1);
-
+            rvScanDevice.scrollToPosition(scannedDeviceDetailInfoList.size()-1);
         }
     }
 
-    private void configureBondedDevice(final BleDeviceDetailInfo device) {
+    private void registerBondedDevice(final BleDeviceDetailInfo device) {
         if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
-            throw new IllegalStateException("设备未绑定");
+            Toast.makeText(this, "设备未绑定，无法注册。", Toast.LENGTH_SHORT).show();
         }
-
-        String macAddress = device.getAddress();
-
         // 获取设备广播数据中的UUID的短串
         AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
-
         if(record == null) {
-            throw new IllegalStateException("设备未绑定");
+            Toast.makeText(this, "无法获取设备UUID信息，无法注册。", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
-
         Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
-
-        BleDeviceRegisterInfo basicInfo = new BleDeviceRegisterInfo();
-
-        basicInfo.setMacAddress(macAddress);
-
-        basicInfo.setUuidString(uuidShortString);
-
-        intent.putExtra(DEVICE_REGISTER_INFO, basicInfo);
-
+        BleDeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo();
+        registerInfo.setMacAddress(device.getAddress());
+        registerInfo.setUuidString(uuidShortString);
+        intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, 1);
     }
 

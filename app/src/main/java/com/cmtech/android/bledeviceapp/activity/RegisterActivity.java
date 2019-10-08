@@ -37,7 +37,7 @@ import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_WARN_WHE
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
 
 /**
- *  RegisterActivity: 设备注册Activity，用于设置修改BleDeviceRegisterInfo字段
+ *  RegisterActivity: 注册Activity，用于设置修改BleDeviceRegisterInfo字段
  *  Created by bme on 2018/6/27.
  */
 
@@ -49,7 +49,7 @@ public class RegisterActivity extends AppCompatActivity {
     private ImageView ivImage; // 设备图像
     private CheckBox cbIsAutoconnect; // 设备是否自动连接
     private EditText etReconnectTimes; // 设备重连次数
-    private CheckBox cbWarnAfterReconnectFailure; // 设备重连失败后是否报警
+    private CheckBox cbWarnWhenBleError; // 设备重连失败后是否报警
     private String cacheImagePath = ""; // 图像文件名缓存
 
     @Override
@@ -61,28 +61,32 @@ public class RegisterActivity extends AppCompatActivity {
         if(intent != null) {
             registerInfo = (BleDeviceRegisterInfo) intent.getSerializableExtra(DEVICE_REGISTER_INFO);
             if(registerInfo == null) {
-                Toast.makeText(this, "设备基本信息对象无效", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "设备注册信息无效", Toast.LENGTH_SHORT).show();
                 finish();
             }
         }
-
         if(DIR_IMAGE == null)
             throw new IllegalStateException("图像目录为空");
-
         if(!DIR_IMAGE.exists()) {
             if(!DIR_IMAGE.mkdir()) {
                 throw new IllegalStateException("创建图像目录错误");
             }
         }
+        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidString());
+        if(type == null) {
+            Toast.makeText(this, "设备类型未知，无法注册。", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
-        // 设置activity标题为设备地址
-        setTitle("MAC:"+ registerInfo.getMacAddress());
+        // 设置标题为设备地址
+        setTitle("注册:"+ registerInfo.getMacAddress());
 
         // 设置设备昵名
         etName = findViewById(R.id.et_device_nickname);
         String deviceName = registerInfo.getNickName();
         if("".equals(deviceName)) {
-            deviceName = BleDeviceType.getFromUuid(registerInfo.getUuidString()).getDefaultNickname();
+            deviceName = type.getDefaultNickname();
         }
         etName.setText(deviceName);
 
@@ -90,7 +94,7 @@ public class RegisterActivity extends AppCompatActivity {
         ivImage = findViewById(R.id.iv_device_image);
         cacheImagePath = registerInfo.getImagePath();
         if("".equals(cacheImagePath)) {
-            int defaultImageId = BleDeviceType.getFromUuid(registerInfo.getUuidString()).getDefaultImage();
+            int defaultImageId = type.getDefaultImage();
             Glide.with(this).load(defaultImageId).into(ivImage);
         } else {
             // 注意不要从缓存显示图像
@@ -108,14 +112,13 @@ public class RegisterActivity extends AppCompatActivity {
         etReconnectTimes = findViewById(R.id.et_device_reconnecttimes);
         etReconnectTimes.setText(String.valueOf(registerInfo.getReconnectTimes()));
 
-        // 设置打开后是否自动重连
+        // 设置设备打开后是否自动连接
         cbIsAutoconnect = findViewById(R.id.cb_device_isautoconnect);
         cbIsAutoconnect.setChecked(registerInfo.autoConnect());
 
-        // 设置设备重连失败后是否报警
-        cbWarnAfterReconnectFailure = findViewById(R.id.cb_device_warn_after_reconnect_failure);
-        cbWarnAfterReconnectFailure.setChecked(registerInfo.isWarnWhenBleError());
-
+        // 设置BLE Error是否报警
+        cbWarnWhenBleError = findViewById(R.id.cb_device_warn_when_ble_error);
+        cbWarnWhenBleError.setChecked(registerInfo.isWarnWhenBleError());
 
         Button btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
@@ -152,7 +155,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 registerInfo.setAutoConnect(cbIsAutoconnect.isChecked());
                 registerInfo.setReconnectTimes(Integer.parseInt(etReconnectTimes.getText().toString()));
-                registerInfo.setWarnWhenBleError(cbWarnAfterReconnectFailure.isChecked());
+                registerInfo.setWarnWhenBleError(cbWarnWhenBleError.isChecked());
 
                 Intent intent = new Intent();
                 intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
@@ -261,6 +264,6 @@ public class RegisterActivity extends AppCompatActivity {
         Glide.with(this).load(BleDeviceType.getFromUuid(registerInfo.getUuidString()).getDefaultImage()).into(ivImage);
         cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
         etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECT_TIMES));
-        cbWarnAfterReconnectFailure.setChecked(DEFAULT_WARN_WHEN_BLE_ERROR);
+        cbWarnWhenBleError.setChecked(DEFAULT_WARN_WHEN_BLE_ERROR);
     }
 }
