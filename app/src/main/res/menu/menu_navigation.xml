@@ -3,8 +3,8 @@
     <group android:checkable="false">
 
         <item
-            android:id="@+id/nav_search_device"
-            android:title="@string/search_device"
+            android:id="@+id/nav_register_device"
+            android:title="@string/register_device"
             android:icon="@mipmap/ic_search_device"/>
 
         <item

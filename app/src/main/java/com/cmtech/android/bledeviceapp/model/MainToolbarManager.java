@@ -13,6 +13,8 @@ import android.support.v7.widget.Toolbar;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.view.BitmapUtil;
 
+import static com.cmtech.android.ble.core.BleDevice.NO_BATTERY;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.model
@@ -34,14 +36,14 @@ public class MainToolbarManager {
 
     private final Context context;
     private final Toolbar toolbar;
-    private final TextView tvDeviceBattery;
+    private final TextView tvBattery;
     private MenuItem menuConfig;
     private MenuItem menuClose;
 
-    public MainToolbarManager(Context context, Toolbar toolbar, TextView tvDeviceBattery) {
+    public MainToolbarManager(Context context, Toolbar toolbar, TextView tvBattery) {
         this.context = context;
         this.toolbar = toolbar;
-        this.tvDeviceBattery = tvDeviceBattery;
+        this.tvBattery = tvBattery;
     }
 
     public void setMenuItems(MenuItem menuConfig, MenuItem menuClose) {
@@ -74,19 +76,19 @@ public class MainToolbarManager {
     }
 
     public void setBattery(int battery) {
-        if(battery < 0) {
-            tvDeviceBattery.setVisibility(View.GONE);
+        if(battery == NO_BATTERY) {
+            tvBattery.setVisibility(View.GONE);
         } else {
-            tvDeviceBattery.setVisibility(View.VISIBLE);
-            tvDeviceBattery.setText(String.valueOf(battery));
+            tvBattery.setVisibility(View.VISIBLE);
+            tvBattery.setText(String.valueOf(battery));
             Drawable drawable = ContextCompat.getDrawable(context, R.drawable.battery_list_drawable);
             if(drawable == null) {
-                tvDeviceBattery.setVisibility(View.GONE);
+                tvBattery.setVisibility(View.GONE);
                 return;
             }
             drawable.setLevel(battery % 4);
             drawable.setBounds(0,0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-            tvDeviceBattery.setCompoundDrawables(drawable, null, null, null);
+            tvBattery.setCompoundDrawables(drawable, null, null, null);
         }
     }
 

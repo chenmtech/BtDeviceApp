@@ -4,7 +4,7 @@
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
 
-    <string name="search_device">搜索设备</string>
+    <string name="register_device">注册设备</string>
 
     <string name="query_record">查阅记录</string>
 

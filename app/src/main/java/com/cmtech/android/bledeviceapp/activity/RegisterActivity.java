@@ -37,11 +37,11 @@ import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_WARN_WHE
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
 
 /**
- *  DevRegisterActivity: 设备注册Activity，用于设置修改BleDeviceRegisterInfo字段
+ *  RegisterActivity: 设备注册Activity，用于设置修改BleDeviceRegisterInfo字段
  *  Created by bme on 2018/6/27.
  */
 
-public class DevRegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
     public static final String DEVICE_REGISTER_INFO = "device_register_info";
 
     private BleDeviceRegisterInfo registerInfo; // 设备基本信息

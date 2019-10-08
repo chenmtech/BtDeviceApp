@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
-import static com.cmtech.android.bledeviceapp.activity.DevRegisterActivity.DEVICE_REGISTER_INFO;
+import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
 
 /**
   *
@@ -47,9 +47,7 @@ import static com.cmtech.android.bledeviceapp.activity.DevRegisterActivity.DEVIC
 
 public class ScanActivity extends AppCompatActivity {
     private static final String TAG = "ScanActivity";
-
-    public static final String REGISTER_DEVICE_MAC_LIST = "register_device_mac_list";
-
+    public static final String REGISTERED_DEVICE_MAC_LIST = "register_device_mac_list";
     private static final ScanFilter SCAN_FILTER_DEVICE_NAME = new ScanFilter.Builder().setDeviceName(BleDeviceConstant.SCAN_DEVICE_NAME).build();
 
     // 设备绑定状态改变的广播接收器类
@@ -64,7 +62,6 @@ public class ScanActivity extends AppCompatActivity {
                     for (BleDeviceDetailInfo ele : deviceList) {
                         if(ele.getAddress().equalsIgnoreCase(device.getAddress())) {
                             configureBondedDevice(ele);
-
                             break;
                         }
                     }
@@ -126,7 +123,7 @@ public class ScanActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         if(intent != null) {
-            registedDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTER_DEVICE_MAC_LIST);
+            registedDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTERED_DEVICE_MAC_LIST);
         }
 
         rvScanDevice = findViewById(R.id.rv_scandevice);
@@ -281,7 +278,7 @@ public class ScanActivity extends AppCompatActivity {
 
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
 
-        Intent intent = new Intent(ScanActivity.this, DevRegisterActivity.class);
+        Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
 
         BleDeviceRegisterInfo basicInfo = new BleDeviceRegisterInfo();
 

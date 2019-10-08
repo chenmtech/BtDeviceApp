@@ -10,8 +10,15 @@ import com.cmtech.android.bledeviceapp.activity.BleFragment;
 import java.util.List;
 
 /**
- * BleFragTabManager: BleFragment管理器
- * Created by bme on 2018/12/08.
+ *
+ * ClassName:      BleFragTabManager
+ * Description:    BleFragment和TabLayout管理器
+ * Author:         chenm
+ * CreateDate:     2018-12-08 07:02
+ * UpdateUser:     chenm
+ * UpdateDate:     2018-12-08 07:02
+ * UpdateRemark:   更新说明
+ * Version:        1.0
  */
 
 public class BleFragTabManager extends FragTabManager {
@@ -35,13 +42,6 @@ public class BleFragTabManager extends FragTabManager {
             }
         }
         return null;
-    }
-
-    // 关闭Fragment
-    public void closeFragment(BleFragment fragment) {
-        if(fragment != null) {
-            fragment.close();
-        }
     }
 
     // 设备的Fragment是否打开

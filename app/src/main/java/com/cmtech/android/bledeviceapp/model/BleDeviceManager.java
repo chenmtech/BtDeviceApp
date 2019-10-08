@@ -25,7 +25,7 @@ import java.util.List;
  */
 
 public class BleDeviceManager {
-    private static final List<BleDevice> DEVICE_LIST = new ArrayList<>();
+    private static final List<BleDevice> DEVICE_LIST = new ArrayList<>(); // 所有注册的设备列表
 
     private BleDeviceManager() {
     }
@@ -38,12 +38,10 @@ public class BleDeviceManager {
             return null;
         }
 
-        // 创建设备
-        device = createDevice(context, registerInfo);
+        device = createDevice(context, registerInfo); // 创建设备
         if(device == null) return null;
 
-        // 将设备添加到设备列表
-        DEVICE_LIST.add(device);
+        DEVICE_LIST.add(device); // 将设备添加到设备列表
         // 按地址排序
         Collections.sort(DEVICE_LIST, new Comparator<BleDevice>() {
             @Override
@@ -54,18 +52,12 @@ public class BleDeviceManager {
         return device;
     }
 
-    private static BleDevice createDevice(Context context, BleDeviceRegisterInfo registerInfo) {
-        // 获取相应的工厂
-        BleFactory factory = BleFactory.getFactory(registerInfo);
-        return (factory == null) ? null : factory.createDevice(context);
-    }
-
     // 用注册信息寻找设备
     public static BleDevice findDevice(BleDeviceRegisterInfo registerInfo) {
         return (registerInfo == null) ? null : findDevice(registerInfo.getMacAddress());
     }
 
-    // 用mac地址寻找设备
+    // 用设备mac地址寻找设备
     public static BleDevice findDevice(String macAddress) {
         if(TextUtils.isEmpty(macAddress)) return null;
 
@@ -75,6 +67,11 @@ public class BleDeviceManager {
             }
         }
         return null;
+    }
+
+    private static BleDevice createDevice(Context context, BleDeviceRegisterInfo registerInfo) {
+        BleFactory factory = BleFactory.getFactory(registerInfo); // 获取相应的工厂
+        return (factory == null) ? null : factory.createDevice(context);
     }
 
     // 删除一个设备
@@ -96,7 +93,7 @@ public class BleDeviceManager {
         return deviceMacList;
     }
 
-    // 是否有设备打开了
+    // 是否有打开的设备
     public static boolean existOpenedDevice() {
         for(BleDevice device : DEVICE_LIST) {
             if(!device.isClosed()) {

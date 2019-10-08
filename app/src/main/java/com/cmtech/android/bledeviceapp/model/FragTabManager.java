@@ -17,8 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fragment和TabLayout管理器
- * Created by chenm on 2018/3/16.
+ *
+ * ClassName:      FragTabManager
+ * Description:    Fragment和TabLayout管理器
+ * Author:         chenm
+ * CreateDate:     2018-03-16 07:02
+ * UpdateUser:     chenm
+ * UpdateDate:     2018-03-16 07:02
+ * UpdateRemark:   更新说明
+ * Version:        1.0
  */
 
 public class FragTabManager {
@@ -40,7 +47,7 @@ public class FragTabManager {
      * @param tabLayout：tabLayout
      * @param containerId: fragment容器ID
      */
-    public FragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
+    FragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
         innerFragManager = new InnerFragmentManager(fragmentManager, containerId);
         this.tabLayout = tabLayout;
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -50,8 +57,7 @@ public class FragTabManager {
                 if(pos < 0) return;
                 // 隐藏当前的Fragment
                 if(curPos != pos) innerFragManager.hideFragment(getCurrentFragment());
-                // 显示选中的Fragment
-                innerFragManager.showFragment(getFragment(pos));
+                innerFragManager.showFragment(getFragment(pos)); // 显示选中的Fragment
                 curPos = pos;
                 if(listener != null) {
                     listener.onFragmentUpdated();
@@ -153,6 +159,7 @@ public class FragTabManager {
         }
     }
 
+    // 获取Fragment列表
     public List<Fragment> getFragmentList() {
         return fragmentList;
     }

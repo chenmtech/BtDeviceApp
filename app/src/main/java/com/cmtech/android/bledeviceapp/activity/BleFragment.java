@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.cmtech.android.ble.core.BleDevice;
-import com.cmtech.android.ble.core.OnBleDeviceUpdatedListener;
 import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
 
 /**
@@ -18,7 +17,6 @@ public abstract class BleFragment extends Fragment{
     private static final String TAG = "BleFragment";
     private static final String ARG_DEVICE_MAC = "device_mac";
 
-    protected MainActivity activity; //包含BleDeviceFragment的Activity，必须要实现OnBleDeviceUpdatedListener接口
     private BleDevice device; // 设备
 
     protected BleFragment() {
@@ -45,9 +43,7 @@ public abstract class BleFragment extends Fragment{
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(context instanceof MainActivity) {
-            activity = (MainActivity) context;
-        } else {
+        if(!(context instanceof MainActivity)) {
             throw new IllegalArgumentException("The context is not a instance of MainActivity.");
         }
     }
@@ -66,7 +62,7 @@ public abstract class BleFragment extends Fragment{
         // 更新连接状态
         updateState();
         // 注册设备状态观察者
-        device.addListener(activity);
+        device.addListener((MainActivity) getActivity());
         device.updateState();
 
         // 打开设备
@@ -99,7 +95,9 @@ public abstract class BleFragment extends Fragment{
         if(device != null) {
             device.close();
         }
-        activity.removeFragment(this);
+        if(getActivity() != null) {
+            ((MainActivity) getActivity()).removeFragment(this);
+        }
     }
 
     // 打开配置Activity

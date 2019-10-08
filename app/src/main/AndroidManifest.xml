@@ -64,7 +64,7 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".activity.DevRegisterActivity"
+            android:name=".activity.RegisterActivity"
             android:label="设置设备信息"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity
@@ -81,7 +81,7 @@
         <activity android:name=".activity.UserActivity" />
 
         <service
-            android:name=".model.BleService"
+            android:name=".model.BleNotifyService"
             android:enabled="true"
             android:exported="false" />
     </application>
