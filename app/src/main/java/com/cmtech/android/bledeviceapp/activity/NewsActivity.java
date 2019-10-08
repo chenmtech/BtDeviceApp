@@ -46,7 +46,7 @@ public class NewsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         pbNewsLoad = findViewById(R.id.pb_news_loading);
         wvNews = findViewById(R.id.wv_news);
-        wvNews.loadUrl("https://www.gdmu.edu.cn");
+        wvNews.loadUrl("https://www.baidu.cn");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             wvNews.getSettings().setSafeBrowsingEnabled(false);

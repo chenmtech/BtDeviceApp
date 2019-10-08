@@ -36,7 +36,7 @@ import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_R
 /**
   *
   * ClassName:      ScanActivity
-  * Description:    设备扫描Activiy
+  * Description:    扫描Activiy
   * Author:         chenm
   * CreateDate:     2018/2/28 18:07
   * UpdateUser:     chenm
@@ -47,10 +47,10 @@ import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_R
 
 public class ScanActivity extends AppCompatActivity {
     private static final String TAG = "ScanActivity";
-    public static final String REGISTERED_DEVICE_MAC_LIST = "registered_device_mac_list";
     private static final ScanFilter SCAN_FILTER_DEVICE_NAME = new ScanFilter.Builder().setDeviceName(BleDeviceConstant.SCAN_DEVICE_NAME).build();
+    public static final String REGISTERED_DEVICE_MAC_LIST = "registered_device_mac_list";
 
-    private final List<BleDeviceDetailInfo> scannedDeviceDetailInfoList = new ArrayList<>(); // 扫描到的BleDeviceDetailInfo列表
+    private final List<BleDeviceDetailInfo> scannedDeviceDetailInfoList = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
     private List<String> registeredDeviceMacList = new ArrayList<>(); // 已注册的设备mac地址列表
     private SwipeRefreshLayout srlScanDevice;
     private ScannedDeviceAdapter scannedDeviceAdapter;
@@ -231,7 +231,7 @@ public class ScanActivity extends AppCompatActivity {
         // 获取设备广播数据中的UUID的短串
         AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(record == null) {
-            Toast.makeText(this, "无法获取设备UUID信息，无法注册。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "获取设备UUID信息错误，无法注册。", Toast.LENGTH_SHORT).show();
             return;
         }
 

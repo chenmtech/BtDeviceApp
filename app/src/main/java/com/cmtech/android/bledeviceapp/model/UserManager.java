@@ -76,8 +76,8 @@ public class UserManager {
             if(user.getName() == null) {
                 user.setName("");
             }
-            if(user.getPortrait() == null) {
-                user.setPortrait("");
+            if(user.getPortraitPath() == null) {
+                user.setPortraitPath("");
             }
             if(user.getPersonalInfo() == null) {
                 user.setPersonalInfo("");

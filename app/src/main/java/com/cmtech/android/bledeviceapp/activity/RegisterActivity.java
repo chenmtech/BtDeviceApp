@@ -188,7 +188,7 @@ public class RegisterActivity extends AppCompatActivity {
             case 1:
                 String imagePath = "";
                 if(resultCode == RESULT_OK) {
-                    if(Build.VERSION.SDK_INT >= 19) {
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         imagePath = handleImageOnKitKat(data);
                     } else {
                         imagePath = handleImageBeforeKitKat(data);
@@ -259,11 +259,14 @@ public class RegisterActivity extends AppCompatActivity {
 
     // 恢复缺省设置
     private void restoreDefaultSetup() {
-        etName.setText(BleDeviceType.getFromUuid(registerInfo.getUuidString()).getDefaultNickname());
-        cacheImagePath = DEFAULT_DEVICE_IMAGEPATH;
-        Glide.with(this).load(BleDeviceType.getFromUuid(registerInfo.getUuidString()).getDefaultImage()).into(ivImage);
-        cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
-        etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECT_TIMES));
-        cbWarnWhenBleError.setChecked(DEFAULT_WARN_WHEN_BLE_ERROR);
+        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidString());
+        if(type != null) {
+            etName.setText(type.getDefaultNickname());
+            cacheImagePath = DEFAULT_DEVICE_IMAGEPATH;
+            Glide.with(this).load(type.getDefaultImage()).into(ivImage);
+            cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
+            etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECT_TIMES));
+            cbWarnWhenBleError.setChecked(DEFAULT_WARN_WHEN_BLE_ERROR);
+        }
     }
 }

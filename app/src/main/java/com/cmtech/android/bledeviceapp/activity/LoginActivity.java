@@ -55,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
     private SharedPreferences pref;
     private String phone; // 手机号
     private String veriCode; // 验证码
-    private Thread countDownThread;
+    private Thread countDownThread; // 倒计时线程
 
     // 手机短信验证回调事件处理器
     private final EventHandler eventHandler = new EventHandler() {
@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-    private final Handler handler = new Handler(new Handler.Callback() {
+    private final Handler waitASecondHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             if(msg.what == MSG_WAIT_SECOND) {
@@ -153,7 +153,7 @@ public class LoginActivity extends AppCompatActivity {
                 phone = etPhone.getText().toString();
                 getVeriCode(phone); // 获取验证码
                 btnGetVeriCode.setEnabled(false);
-                startTimerWhenGettingVeriCode();
+                startCountDownTimer();
             }
         });
 
@@ -162,7 +162,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    stopTimerWhenGettingVeriCode();
+                    stopCountDownTimer();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -183,12 +183,12 @@ public class LoginActivity extends AppCompatActivity {
     private void checkPermissions() {
         List<String> permission = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            //校验是否已具有模糊定位权限
+            //校验是否具有模糊定位权限
             if (ContextCompat.checkSelfPermission(LoginActivity.this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 permission.add(ACCESS_COARSE_LOCATION);
             }
         }
-        //校验是否已具有外部存储的权限
+        //校验是否具有外部存储的权限
         if(ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             permission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -223,7 +223,7 @@ public class LoginActivity extends AppCompatActivity {
 
         SMSSDK.unregisterEventHandler(eventHandler);
         try {
-            stopTimerWhenGettingVeriCode();
+            stopCountDownTimer();
         } catch (InterruptedException ignored) {
         }
     }
@@ -263,7 +263,7 @@ public class LoginActivity extends AppCompatActivity {
         SMSSDK.submitVerificationCode(CHINA_PHONE_NUMBER, phone, veriCode);
     }
 
-    private void startTimerWhenGettingVeriCode() {
+    private void startCountDownTimer() {
         countDownThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -271,10 +271,7 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     while (--nSecond >= 0) {
                         Thread.sleep(1000);
-                        Message msg = new Message();
-                        msg.what = MSG_WAIT_SECOND;
-                        msg.arg1 = nSecond;
-                        handler.sendMessage(msg);
+                        Message.obtain(waitASecondHandler, MSG_WAIT_SECOND, nSecond, 0).sendToTarget();
                     }
                 } catch (InterruptedException e) {
                     ViseLog.e("The timer of getting veri code is interrupted.");
@@ -285,7 +282,7 @@ public class LoginActivity extends AppCompatActivity {
         countDownThread.start();
     }
 
-    private void stopTimerWhenGettingVeriCode() throws InterruptedException{
+    private void stopCountDownTimer() throws InterruptedException{
         if (countDownThread != null && countDownThread.isAlive()) {
             countDownThread.interrupt();
             countDownThread.join();

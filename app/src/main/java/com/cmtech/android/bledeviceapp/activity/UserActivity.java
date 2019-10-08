@@ -40,20 +40,9 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
  */
 
 public class UserActivity extends AppCompatActivity {
-    private TextView tvPhone;
-
     private EditText etNickname;
-
     private ImageView ivPortrait;
-
     private EditText etRemark;
-
-    private ImageButton ibLogout;
-
-    private Button btnOk;
-
-    private Button btnCancel;
-
     private String cachePortraitPath = ""; // 头像文件路径缓存
 
     @Override
@@ -67,57 +56,62 @@ public class UserActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_setuserinfo);
         setSupportActionBar(toolbar);
 
-        tvPhone = findViewById(R.id.et_userinfo_phone);
-
-        etNickname = findViewById(R.id.et_userinfo_nickname);
-
-        ivPortrait = findViewById(R.id.iv_userinfo_portrait);
-
-        etRemark = findViewById(R.id.et_userinfo_remark);
-
-        ibLogout = findViewById(R.id.ib_logout);
-
-        btnOk = findViewById(R.id.btn_userinfo_ok);
-
-        btnCancel = findViewById(R.id.btn_userinfo_cancel);
-
+        TextView tvPhone = findViewById(R.id.et_userinfo_phone);
         User user = UserManager.getInstance().getUser();
-
         String phoneNum = user.getPhone();
-
         String secretPhone = String.format("%s****%s", phoneNum.substring(0,3), phoneNum.substring(7));
-
         tvPhone.setText(secretPhone);
 
+        etNickname = findViewById(R.id.et_userinfo_nickname);
         etNickname.setText(user.getName());
 
-        cachePortraitPath = user.getPortrait();
-
+        ivPortrait = findViewById(R.id.iv_userinfo_portrait);
+        cachePortraitPath = user.getPortraitPath();
         if("".equals(cachePortraitPath)) {
             Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivPortrait);
         } else {
             Glide.with(MyApplication.getContext()).load(cachePortraitPath)
                     .skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivPortrait);
         }
+        ivPortrait.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openAlbum();
+            }
+        });
 
+        etRemark = findViewById(R.id.et_userinfo_remark);
         etRemark.setText(user.getPersonalInfo());
 
+        ImageButton ibLogout = findViewById(R.id.ib_logout);
+        ibLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.putExtra("logout", true);
+                setResult(RESULT_CANCELED, intent);
+                finish();
+
+            }
+        });
+
+        Button btnOk = findViewById(R.id.btn_userinfo_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 User account = UserManager.getInstance().getUser();
                 account.setName(etNickname.getText().toString());
 
-                if(!cachePortraitPath.equals(account.getPortrait())) {
+                if(!cachePortraitPath.equals(account.getPortraitPath())) {
                     // 把原来的图像文件删除
-                    if(!"".equals(account.getPortrait())) {
-                        File imageFile = new File(account.getPortrait());
+                    if(!"".equals(account.getPortraitPath())) {
+                        File imageFile = new File(account.getPortraitPath());
                         imageFile.delete();
                     }
 
                     // 把当前图像保存，以手机号为文件名
                     if("".equals(cachePortraitPath)) {
-                        account.setPortrait("");
+                        account.setPortraitPath("");
                     } else {
                         try {
                             ivPortrait.setDrawingCacheEnabled(true);
@@ -126,10 +120,10 @@ public class UserActivity extends AppCompatActivity {
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivPortrait.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();
-                            account.setPortrait(filePath);
+                            account.setPortraitPath(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            account.setPortrait("");
+                            account.setPortraitPath("");
                         }
                     }
                 }
@@ -142,6 +136,7 @@ public class UserActivity extends AppCompatActivity {
             }
         });
 
+        Button btnCancel = findViewById(R.id.btn_userinfo_cancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,23 +147,6 @@ public class UserActivity extends AppCompatActivity {
             }
         });
 
-        ivPortrait.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openAlbum();
-            }
-        });
-
-        ibLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.putExtra("logout", true);
-                setResult(RESULT_CANCELED, intent);
-                finish();
-
-            }
-        });
     }
 
     @Override
@@ -219,6 +197,8 @@ public class UserActivity extends AppCompatActivity {
     private String handleImageOnKitKat(Intent data) {
         String imagePath = null;
         Uri uri = data.getData();
+        if(uri == null) return null;
+
         if(DocumentsContract.isDocumentUri(this, uri)) {
             String docId = DocumentsContract.getDocumentId(uri);
             if("com.android.providers.media.documents".equals(uri.getAuthority())) {

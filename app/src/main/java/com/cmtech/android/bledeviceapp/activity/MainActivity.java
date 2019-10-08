@@ -74,7 +74,7 @@ import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_D
 public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdatedListener, FragTabManager.OnFragmentUpdatedListener {
     private static final String TAG = "MainActivity";
     private final static int RC_REGISTER_DEVICE = 1;     // 注册设备返回码
-    private final static int RC_MODIFY_DEVICE_REGISTER_INFO = 2;       // 修改设备注册信息返回码
+    private final static int RC_MODIFY_REGISTER_INFO = 2;       // 修改设备注册信息返回码
     private final static int RC_MODIFY_USER_INFO = 3;     // 修改用户信息返回码
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
         setSupportActionBar(toolbar);
         TextView tvDeviceBattery = findViewById(R.id.tv_device_battery);
         toolbarManager = new MainToolbarManager(this, toolbar, tvDeviceBattery);
-        toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortrait());
+        toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortraitPath());
 
         // 初始化已注册设备列表
         RecyclerView rvDevices = findViewById(R.id.rv_registed_device);
@@ -235,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
         View headerView = navView.getHeaderView(0);
         tvUserName = headerView.findViewById(R.id.tv_user_name);
         ivUserPortrait = headerView.findViewById(R.id.iv_user_portrait);
+
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -247,21 +248,21 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.nav_register_device:
+                    case R.id.nav_register_device: // 注册设备
                         List<String> deviceMacList = BleDeviceManager.getDeviceMacList();
                         Intent scanIntent = new Intent(MainActivity.this, ScanActivity.class);
                         scanIntent.putExtra(REGISTERED_DEVICE_MAC_LIST, (Serializable) deviceMacList);
                         startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
                         return true;
-                    case R.id.nav_query_record:
+                    case R.id.nav_query_record: // 查阅记录
                         Intent recordIntent = new Intent(MainActivity.this, EcgFileExplorerActivity.class);
                         startActivity(recordIntent);
                         return true;
-                    case R.id.nav_open_news:
+                    case R.id.nav_open_news: // 打开新闻
                         Intent newsIntent = new Intent(MainActivity.this, NewsActivity.class);
                         startActivity(newsIntent);
                         return true;
-                    case R.id.nav_exit:
+                    case R.id.nav_exit: // 退出
                         requestFinish();
                         return true;
                 }
@@ -290,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case RC_REGISTER_DEVICE:
+            case RC_REGISTER_DEVICE: // 注册设备返回
                 if(resultCode == RESULT_OK) {
                     BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     if(registerInfo != null) {
@@ -299,10 +300,10 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
                             device.addListener(bleNotifyService);
 
                             if(registerInfo.saveToPref(pref)) {
-                                Toast.makeText(MainActivity.this, "设备登记成功", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "设备注册成功", Toast.LENGTH_SHORT).show();
                                 if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
                             } else {
-                                Toast.makeText(MainActivity.this, "设备登记失败", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "设备注册失败", Toast.LENGTH_SHORT).show();
                                 BleDeviceManager.deleteDevice(device);
                             }
                         }
@@ -310,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
                 }
                 break;
 
-            case RC_MODIFY_DEVICE_REGISTER_INFO:
+            case RC_MODIFY_REGISTER_INFO: // 修改注册信息返回
                 if ( resultCode == RESULT_OK) {
                     BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     BleDevice device = BleDeviceManager.findDevice(registerInfo);
@@ -329,10 +330,10 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
                 }
                 break;
 
-            case RC_MODIFY_USER_INFO:
+            case RC_MODIFY_USER_INFO: // 修改用户信息返回
                 if(resultCode == RESULT_OK) {
                     updateNavigation();
-                    toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortrait());
+                    toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortraitPath());
                 } else {
                     boolean logout = (data != null && data.getBooleanExtra("logout", false));
                     if(logout) {
@@ -514,13 +515,11 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
 
     // 关闭Fragment
     private void closeFragment(final BleFragment fragment) {
-        if(fragment != null) {
-            BleDevice device = fragment.getDevice();
-            if(device != null && device.isDisconnect()) {
-                fragment.close();
-            } else {
-                Toast.makeText(this, "关闭前请先断开设备。", Toast.LENGTH_LONG).show();
-            }
+        BleDevice device = fragment.getDevice();
+        if(device != null && device.isDisconnect()) {
+            fragment.close();
+        } else {
+            Toast.makeText(this, "关闭前请先断开设备。", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -562,7 +561,7 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
     public void modifyDeviceRegisterInfo(final BleDeviceRegisterInfo registerInfo) {
         Intent intent = new Intent(this, RegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
-        startActivityForResult(intent, RC_MODIFY_DEVICE_REGISTER_INFO);
+        startActivityForResult(intent, RC_MODIFY_REGISTER_INFO);
     }
 
     private void initMainLayout() {
@@ -608,7 +607,7 @@ public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdate
         } else {
             tvUserName.setText(user.getName());
         }
-        String imagePath = user.getPortrait();
+        String imagePath = user.getPortraitPath();
         if(imagePath != null && !"".equals(imagePath))
             Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivUserPortrait);
     }

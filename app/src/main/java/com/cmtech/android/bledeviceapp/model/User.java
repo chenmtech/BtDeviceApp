@@ -29,7 +29,7 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
     private int id; // id
     private String phone = "";
     private String name = "";
-    private String portrait = "";
+    private String portraitPath = "";
     private String personalInfo = "";
 
     public int getId() {
@@ -50,11 +50,11 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
     public void setName(String name) {
         this.name = name;
     }
-    public String getPortrait() {
-        return portrait;
+    public String getPortraitPath() {
+        return portraitPath;
     }
-    public void setPortrait(String portrait) {
-        this.portrait = portrait;
+    public void setPortraitPath(String portraitPath) {
+        this.portraitPath = portraitPath;
     }
     public String getPersonalInfo() {
         return personalInfo;
@@ -105,7 +105,7 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
         User account = (User) super.clone();
         account.phone = phone;
         account.name = name;
-        account.portrait = portrait;
+        account.portraitPath = portraitPath;
         account.personalInfo = personalInfo;
         return account;
     }

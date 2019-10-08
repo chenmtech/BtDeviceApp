@@ -59,8 +59,9 @@ public abstract class BleFragment extends Fragment{
         device = BleDeviceManager.findDevice(deviceMac);
         if(device == null) throw new IllegalArgumentException("The device is null.");
 
-        // 更新连接状态
+        // 更新状态
         updateState();
+
         // 注册设备状态观察者
         device.addListener((MainActivity) getActivity());
         device.updateState();
@@ -72,9 +73,6 @@ public abstract class BleFragment extends Fragment{
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        // 移除activity设备状态观察者
-        //device.removeListener(activity);
     }
 
     // 切换状态
@@ -92,11 +90,12 @@ public abstract class BleFragment extends Fragment{
 
     // 关闭
     public void close() {
-        if(device != null) {
+        if(device != null && device.isDisconnect()) {
             device.close();
-        }
-        if(getActivity() != null) {
-            ((MainActivity) getActivity()).removeFragment(this);
+
+            if(getActivity() != null) {
+                ((MainActivity) getActivity()).removeFragment(this);
+            }
         }
     }
 
