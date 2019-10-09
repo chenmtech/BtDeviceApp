@@ -148,15 +148,6 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
     @Override
     public void onBleErrorNotified(final BleDevice device, boolean warn) {
         if(warn) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(BleNotifyService.this);
-            builder.setTitle("蓝牙错误").setMessage("设备无法连接，需要重启蓝牙。");
-            builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    device.cancelNotifyBleError();
-                }
-            }).setCancelable(false).show();
-
             playWarnRingtone();
         } else {
             stopWarnRingtone();
@@ -185,7 +176,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
         }
     }
 
-    public void stopWarnRingtone() {
+    private void stopWarnRingtone() {
         if(bleErrorWarnTimer != null) {
             bleErrorWarnTimer.cancel();
             bleErrorWarnTimer = null;

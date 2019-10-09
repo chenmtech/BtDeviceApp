@@ -457,19 +457,16 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
     // BLE错误通知
     @Override
     public void onBleErrorNotified(final BleDevice device, boolean warn) {
-        /*if(!warn) return;
-
-        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("设备无法连接报警");
-        builder.setMessage("由于蓝牙错误，导致设备" + device.getMacAddress() + "无法连接，需要重启蓝牙。");
-        builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                device.cancelNotifyBleError();
-            }
-        });
-        builder.setCancelable(false);
-        builder.show();*/
+        if(warn) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("蓝牙错误").setMessage("设备无法连接，需要重启蓝牙。");
+            builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    device.cancelNotifyBleError();
+                }
+            }).setCancelable(false).show();
+        }
     }
 
     // 电量更新
