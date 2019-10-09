@@ -41,7 +41,6 @@ import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.BleScanner;
-import com.cmtech.android.ble.core.OnBleDeviceUpdatedListener;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -71,7 +70,7 @@ import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_D
  *  Created by bme on 2018/2/19.
  */
 
-public class MainActivity extends AppCompatActivity implements OnBleDeviceUpdatedListener, FragTabManager.OnFragmentUpdatedListener {
+public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDeviceUpdatedListener, FragTabManager.OnFragmentUpdatedListener {
     private static final String TAG = "MainActivity";
     private final static int RC_REGISTER_DEVICE = 1;     // 注册设备返回码
     private final static int RC_MODIFY_REGISTER_INFO = 2;       // 修改设备注册信息返回码

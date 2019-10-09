@@ -5,16 +5,16 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
-import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
+import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.ble.BleConfig.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
 /**
@@ -37,7 +37,7 @@ public class ThermoDevice extends BleDevice {
     private static final BleGattElement THERMOPERIOD =
             new BleGattElement(thermoServiceUuid, thermoPeriodUuid, null, MY_BASE_UUID, "采集周期(s)");
     private static final BleGattElement THERMODATACCC =
-            new BleGattElement(thermoServiceUuid, thermoDataUuid, CCCUUID, MY_BASE_UUID, "体温CCC");
+            new BleGattElement(thermoServiceUuid, thermoDataUuid, CCC_UUID, MY_BASE_UUID, "体温CCC");
 
     private static final byte DEFAULT_SAMPLE_PERIOD = (byte)0x01;
     ///////////////////////////////////////////////////////

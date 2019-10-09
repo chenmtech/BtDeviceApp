@@ -18,7 +18,6 @@ import android.support.v7.app.AlertDialog;
 
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.core.OnBleDeviceUpdatedListener;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -42,7 +41,7 @@ import java.util.TimerTask;
  * Version:        1.0
  */
 
-public class BleNotifyService extends Service implements OnBleDeviceUpdatedListener {
+public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUpdatedListener {
     private final static String TAG = "BleNotifyService";
     private final static int NOTIFY_INTERVAL_WHEN_BLE_ERROR = 15000; // 单位：ms
     private final static int NOTIFY_TIMES_WHEN_BLE_ERROR = 5;

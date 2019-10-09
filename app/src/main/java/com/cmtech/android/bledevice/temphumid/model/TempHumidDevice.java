@@ -5,10 +5,10 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
-import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
+import com.cmtech.android.ble.exception.BleException;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -20,7 +20,7 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CCCUUID;
+import static com.cmtech.android.ble.BleConfig.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
 /**
@@ -55,7 +55,7 @@ public class TempHumidDevice extends BleDevice {
     private static final BleGattElement TEMPHUMIDPERIOD =
             new BleGattElement(tempHumidServiceUuid, tempHumidPeriodUuid, null, MY_BASE_UUID, "采集周期(ms)");
     private static final BleGattElement TEMPHUMIDDATACCC =
-            new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, CCCUUID, MY_BASE_UUID, "温湿度CCC");
+            new BleGattElement(tempHumidServiceUuid, tempHumidDataUuid, CCC_UUID, MY_BASE_UUID, "温湿度CCC");
     private static final BleGattElement TEMPHUMIDHISTORYTIME =
             new BleGattElement(tempHumidServiceUuid, tempHumidHistoryTimeUuid, null, MY_BASE_UUID, "历史数据采集时间");
     private static final BleGattElement TEMPHUMIDHISTORYDATA =

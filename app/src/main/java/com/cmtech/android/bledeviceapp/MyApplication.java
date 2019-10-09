@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
-import com.cmtech.android.ble.BleDeviceConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorFactory;
 import com.cmtech.android.bledevice.siggenerator.model.SigGeneratorFactory;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidFactory;
@@ -16,7 +15,7 @@ import com.vise.log.inner.LogcatTree;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CONNECT_TIMEOUT;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.SCAN_TIMEOUT;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.OPERATE_TIMEOUT;
 
 /**
  * MyApplication
@@ -25,7 +24,6 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.SCAN_TIMEOUT;
 
 public class MyApplication extends Application {
     private static MyApplication instance;
-
     public static MyApplication getInstance() {
         return instance;
     }
@@ -36,23 +34,16 @@ public class MyApplication extends Application {
 
         instance = this;
 
-        BleDeviceConfig.initialize(getContext());
-
-        BleDeviceConfig.setScanTimeout(SCAN_TIMEOUT);
-
         BleDeviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
+        BleDeviceConfig.setOperateTimeout(OPERATE_TIMEOUT);
 
         BleDeviceConfig.addSupportedDeviceType(EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE);
-
         BleDeviceConfig.addSupportedDeviceType(TempHumidFactory.TEMPHUMID_DEVICE_TYPE);
-
         BleDeviceConfig.addSupportedDeviceType(ThermoFactory.THERMO_DEVICE_TYPE);
-
         BleDeviceConfig.addSupportedDeviceType(SigGeneratorFactory.SIGGENERATOR_DEVICE_TYPE);
 
         // 初始化LitePal
         LitePal.initialize(getApplicationContext());
-
         LitePal.getDatabase();
 
         // 初始化MobSDK
