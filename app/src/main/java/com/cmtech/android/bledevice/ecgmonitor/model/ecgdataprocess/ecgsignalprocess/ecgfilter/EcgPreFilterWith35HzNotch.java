@@ -24,17 +24,15 @@ public class EcgPreFilterWith35HzNotch extends EcgPreFilter {
 
         // 准备35Hz陷波器
         notch35Hz = NotchDesigner.design(35, NOTCH_BANDWIDTH_3DB, sampleRate); // 设计陷波器
-
         notch35Hz.createStructure(StructType.IIR_NOTCH); // 创建陷波器专用结构
     }
 
     @Override
-    public void setSampleRate(int sampleRate) {
-        super.setSampleRate(sampleRate);
+    public void updateSampleRate(int sampleRate) {
+        super.updateSampleRate(sampleRate);
 
         // 准备35Hz陷波器
         notch35Hz = NotchDesigner.design(35, NOTCH_BANDWIDTH_3DB, sampleRate); // 设计陷波器
-
         notch35Hz.createStructure(StructType.IIR_NOTCH); // 创建陷波器专用结构
     }
 

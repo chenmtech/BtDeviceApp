@@ -26,9 +26,9 @@ import java.util.List;
  */
 
 public class Value1mVBeforeCalibrationCalculator {
-    private final List<Integer> calibrationData; // 用于保存标定用的数据
-    private final int sampleRate; // 采样率
     private final EcgMonitorDevice device;
+    private int sampleRate; // 采样率
+    private List<Integer> calibrationData; // 用于保存标定用的数据
     private final EcgCalibrator65536 calibrator;
     private boolean done = false;
 
@@ -37,6 +37,13 @@ public class Value1mVBeforeCalibrationCalculator {
         this.sampleRate = device.getSampleRate();
         calibrator = new EcgCalibrator65536(device.getValue1mVBeforeCalibration());
         calibrationData = new ArrayList<>(2 * this.sampleRate);
+    }
+
+    public void update() {
+        sampleRate = device.getSampleRate();
+        calibrator.setValue1mVBeforeCalibration(device.getValue1mVBeforeCalibration());
+        calibrationData = new ArrayList<>(2*sampleRate);
+        done = false;
     }
 
     // 处理标定数据

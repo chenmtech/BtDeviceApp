@@ -11,16 +11,13 @@ import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.Value1mVBeforeCalibrationCalculator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgSignalRecorder;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrStatisticInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.OnHrStatisticInfoListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -52,7 +49,7 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
  */
 
 public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoListener {
-    private final static String TAG = "EcgMonitorDevice";
+    private static final String TAG = "EcgMonitorDevice";
     public static final int VALUE_1MV_AFTER_CALIBRATION = 65535; // 定标后1mV值
     private static final int DEFAULT_VALUE_1MV_BEFORE_CALIBRATION = 164; // 缺省定标前1mV值
     private static final int DEFAULT_SAMPLE_RATE = 125; // 缺省ECG信号采样率,Hz
@@ -103,7 +100,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     private volatile EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
     private final EcgMonitorConfig config; // 心电监护仪设备配置信息
     private ScheduledExecutorService batMeasureService; // 设备电量测量Service
-    private final EcgDataProcessor ecgDataProcessor = new EcgDataProcessor(this); // ECG数据处理,在其内部的单线程ExecutorService中执行
+    private final EcgDataProcessor ecgDataProcessor; // ECG数据处理,在其内部的单线程ExecutorService中执行
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
     private EcgFile ecgFile; // 心电记录文件，可记录心电信号以及留言和心率信息
     private OnEcgMonitorListener listener; // 心电监护仪设备监听器
@@ -138,6 +135,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         } else {
             config = foundConfig.get(0);
         }
+
+        ecgDataProcessor = new EcgDataProcessor(this);
     }
 
     public int getSampleRate() { return sampleRate; }
@@ -217,7 +216,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             isBatteryMeasured = false;
         }
 
-        ecgDataProcessor.close();
+        ecgDataProcessor.stop();
     }
 
     @Override
@@ -230,7 +229,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             isBatteryMeasured = false;
         }
 
-        ecgDataProcessor.close();
+        ecgDataProcessor.stop();
     }
 
     @Override
@@ -284,6 +283,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
             ViseLog.e("关闭Ecg文件。");
         }
+
+        ecgDataProcessor.close();
 
         signalRecorder = null;
 
@@ -339,9 +340,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                 sampleRate = (data[0] & 0xff) | ((data[1] << 8) & 0xff00);
                 updateSampleRate(sampleRate);
 
-                // 有了采样率，可以初始化定标前1mV值计算器
-                Value1mVBeforeCalibrationCalculator value1mVCalculator = new Value1mVBeforeCalibrationCalculator(EcgMonitorDevice.this);
-                ecgDataProcessor.setValue1mVBeforeCalibrationCalculator(value1mVCalculator);
+                ecgDataProcessor.updateValue1mVCalculator();
 
                 // 初始化EcgView
                 initializeEcgView(sampleRate);
@@ -544,7 +543,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         }
     }
 
-    public void onHrAbnormalNotified() {
+    public void notifyHrAbnormal() {
         if(listener != null) {
             listener.onHrAbnormalNotified();
         }
@@ -562,8 +561,8 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         this.value1mVBeforeCalibration = value1mVBeforeCalibration;
         updateCalibrationValue(this.value1mVBeforeCalibration);
 
-        // 重新创建Ecg信号处理器
-        createEcgSignalProcessor(); // 这里每次连接都会重新创建处理器，有问题。
+        // 更新Ecg信号处理器
+        ecgDataProcessor.updateSignalProcessor();
 
         // 创建心电记录文件
         if(ecgFile == null) {
@@ -585,15 +584,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         }
 
         startEcgSignalSampling();
-    }
-
-    // 创建心电信号处理器
-    private void createEcgSignalProcessor() {
-        EcgSignalProcessor signalProcessor = new EcgSignalProcessor(this, VALUE_1MV_AFTER_CALIBRATION, ecgDataProcessor.getHrList());
-        QrsDetector qrsDetector = new QrsDetector(sampleRate, VALUE_1MV_AFTER_CALIBRATION);
-        signalProcessor.setQrsDetector(qrsDetector);
-        signalProcessor.setHrAbnormalWarner(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit());
-        ecgDataProcessor.setSignalProcessor(signalProcessor);
     }
 
     // 初始化EcgView

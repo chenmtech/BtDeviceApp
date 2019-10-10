@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator.EcgCalibrator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator.EcgCalibrator65536;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgfilter.EcgPreFilterWith35HzNotch;
@@ -14,6 +13,8 @@ import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice.VALUE_1MV_AFTER_CALIBRATION;
 
 
 /**
@@ -41,25 +42,25 @@ public class EcgSignalProcessor {
     private QrsDetector qrsDetector; // QRS波检测器，可求心率值
     private final Map<String, IHrOperator> hrOperators; // 心率相关操作Map
 
-    public EcgSignalProcessor(EcgMonitorDevice device, int value1mVAfterCalibration, List<Short> hrList) {
+    public EcgSignalProcessor(EcgMonitorDevice device) {
         if(device == null) {
             throw new IllegalArgumentException("EcgMonitorDevice is null");
         }
 
         this.device = device;
-        if(value1mVAfterCalibration == 65535) {
-            ecgCalibrator = new EcgCalibrator65536(device.getValue1mVBeforeCalibration());
-        } else {
-            ecgCalibrator = new EcgCalibrator(device.getValue1mVBeforeCalibration(), value1mVAfterCalibration);
-        }
+        ecgCalibrator = new EcgCalibrator65536(device.getValue1mVBeforeCalibration());
         ecgFilter = new EcgPreFilterWith35HzNotch(device.getSampleRate());
         hrOperators = new ConcurrentHashMap<>();
-        HrProcessor hrProcessor = new HrProcessor(hrList, HR_FILTER_TIME_IN_SECOND, device);
+        HrProcessor hrProcessor = new HrProcessor(HR_FILTER_TIME_IN_SECOND, device);
         hrOperators.put(HR_PROCESSOR_KEY, hrProcessor);
+        setHrAbnormalWarner(device.getConfig().isWarnWhenHrAbnormal(), device.getConfig().getHrLowLimit(), device.getConfig().getHrHighLimit());
     }
 
-    public void setQrsDetector(QrsDetector qrsDetector) {
-        this.qrsDetector = qrsDetector;
+    public void update() {
+        ecgCalibrator.setValue1mVBeforeCalibration(device.getValue1mVBeforeCalibration());
+        ecgFilter.updateSampleRate(device.getSampleRate());
+        qrsDetector = new QrsDetector(device.getSampleRate(), VALUE_1MV_AFTER_CALIBRATION);
+        setHrAbnormalWarner(device.getConfig().isWarnWhenHrAbnormal(), device.getConfig().getHrLowLimit(), device.getConfig().getHrHighLimit());
     }
 
     public void setHrAbnormalWarner(boolean isWarn, int lowLimit, int highLimit) {

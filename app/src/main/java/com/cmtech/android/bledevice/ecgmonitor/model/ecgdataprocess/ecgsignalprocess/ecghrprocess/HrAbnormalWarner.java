@@ -50,7 +50,7 @@ public class HrAbnormalWarner implements IHrOperator {
         if(hr != INVALID_HR) {
             buff[index++] = hr;
             if(checkHrAbnormal()) {
-                device.onHrAbnormalNotified();
+                device.notifyHrAbnormal();
             }
             index = index % buff.length;
         }

@@ -6,8 +6,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpr
  */
 
 public interface IEcgFilter{
-
     double filter(double ecgSignal); // 滤波处理
-
-    void setSampleRate(int sampleRate); // 设置采样频率
+    void updateSampleRate(int sampleRate); // 更新采样频率
 }

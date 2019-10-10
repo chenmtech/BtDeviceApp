@@ -6,7 +6,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpr
  */
 
 public class EcgCalibrator65536 extends EcgCalibrator {
-
     public EcgCalibrator65536(int value1mVBeforeCalibration) {
         super(value1mVBeforeCalibration);
     }

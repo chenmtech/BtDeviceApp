@@ -1,6 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator;
 
 
+import static com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice.VALUE_1MV_AFTER_CALIBRATION;
+
 /**
   *
   * ClassName:      EcgCalibrator
@@ -14,20 +16,16 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpr
  */
 
 public class EcgCalibrator implements IEcgCalibrator {
-    private final static int DEFAULT_CALIBRATEVALUEAFTER = 65536;
-
     int value1mVBeforeCalibration; // 定标前的1mV的值
-
     private int value1mVAfterCalibration; // 定标后的1mV的值
 
     public EcgCalibrator(int value1mVBeforeCalibration, int value1mVAfterCalibration) {
         this.value1mVBeforeCalibration = value1mVBeforeCalibration;
-
         this.value1mVAfterCalibration = value1mVAfterCalibration;
     }
 
     EcgCalibrator(int value1mVBeforeCalibration) {
-        this(value1mVBeforeCalibration, DEFAULT_CALIBRATEVALUEAFTER);
+        this(value1mVBeforeCalibration, VALUE_1MV_AFTER_CALIBRATION);
     }
 
     @Override

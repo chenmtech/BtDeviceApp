@@ -24,11 +24,8 @@ public class EcgPreFilter implements IEcgFilter {
     private final static int DEFAULT_POWERLINE_FREQ = 50;
 
     private double baselineFreq = DEFAULT_BASELINE_FREQ; // 基线漂移截止频率
-
     private int powerlineFreq = DEFAULT_POWERLINE_FREQ; // 工频
-
     private IDigitalFilter dcBlock;
-
     private IDigitalFilter notch50Hz;
 
     public EcgPreFilter(int sampleRate) {
@@ -37,33 +34,27 @@ public class EcgPreFilter implements IEcgFilter {
 
     public EcgPreFilter(int sampleRate, double baselineFreq, int powerlineFreq) {
         this.baselineFreq = baselineFreq;
-
         this.powerlineFreq = powerlineFreq;
 
         // 准备0.5Hz基线漂移滤波器
         dcBlock = DCBlockDesigner.design(baselineFreq, sampleRate); // 设计隔直滤波器
-
         dcBlock.createStructure(StructType.IIR_DCBLOCK); // 创建隔直滤波器专用结构
 
         // 准备50Hz陷波器
         notch50Hz = NotchDesigner.design(powerlineFreq, NOTCH_BANDWIDTH_3DB, sampleRate);  // 设计陷波器
-
         notch50Hz.createStructure(StructType.IIR_NOTCH); // 创建陷波器专用结构
     }
 
     @Override
-    public void setSampleRate(int sampleRate) {
+    public void updateSampleRate(int sampleRate) {
         // 准备0.5Hz基线漂移滤波器
         dcBlock = DCBlockDesigner.design(baselineFreq, sampleRate); // 设计隔直滤波器
-
         dcBlock.createStructure(StructType.IIR_DCBLOCK); // 创建隔直滤波器专用结构
 
         // 准备50Hz陷波器
         notch50Hz = NotchDesigner.design(powerlineFreq, NOTCH_BANDWIDTH_3DB, sampleRate);  // 设计陷波器
-
         notch50Hz.createStructure(StructType.IIR_NOTCH); // 创建陷波器专用结构
     }
-
 
     @Override
     public double filter(double ecgSignal) {

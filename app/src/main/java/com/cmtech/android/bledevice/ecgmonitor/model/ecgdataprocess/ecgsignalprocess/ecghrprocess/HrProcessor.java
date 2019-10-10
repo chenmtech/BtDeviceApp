@@ -21,15 +21,11 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 public class HrProcessor implements IHrOperator {
     private OnHrStatisticInfoListener listener; // 心率统计信息监听器
     private final EcgHrStatisticInfoAnalyzer hrStatisticInfoAnalyzer;
-    private final List<Short> hrList;
+    private final List<Short> hrList = new ArrayList<>();
     private boolean isRecord = true;
 
-    public HrProcessor(List<Short> hrList, int hrFilterTimeInSecond, OnHrStatisticInfoListener listener) {
-        if(hrList == null)
-            this.hrList = new ArrayList<>();
-        else
-            this.hrList = hrList;
-        hrStatisticInfoAnalyzer = new EcgHrStatisticInfoAnalyzer(this.hrList, hrFilterTimeInSecond);
+    public HrProcessor(int hrFilterTimeInSecond, OnHrStatisticInfoListener listener) {
+        hrStatisticInfoAnalyzer = new EcgHrStatisticInfoAnalyzer(hrFilterTimeInSecond);
         this.listener = listener;
     }
 
@@ -73,7 +69,6 @@ public class HrProcessor implements IHrOperator {
 
     @Override
     public void close() {
-        isRecord = false;
-        listener = null;
+        reset();
     }
 }

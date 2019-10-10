@@ -27,34 +27,31 @@ public class EcgDataProcessor {
     private static final int INVALID_PACKAGE_NUM = -1;
 
     private final EcgMonitorDevice device;
-    private Value1mVBeforeCalibrationCalculator value1mVCalculator; // 定标前1mV值计算器
-    private EcgSignalProcessor signalProcessor; // 心电信号处理器
+    private final Value1mVBeforeCalibrationCalculator value1mVCalculator; // 定标前1mV值计算器
+    private final EcgSignalProcessor signalProcessor; // 心电信号处理器
     private int nextPackageNum = INVALID_PACKAGE_NUM; // 下一个要处理的数据包序号
     private ExecutorService service; // 数据处理Service
 
     public EcgDataProcessor(EcgMonitorDevice device) {
         this.device = device;
+        value1mVCalculator = new Value1mVBeforeCalibrationCalculator(device);
+        signalProcessor = new EcgSignalProcessor(device);
     }
 
-    public void setValue1mVBeforeCalibrationCalculator(Value1mVBeforeCalibrationCalculator value1mVCalculator) {
-        this.value1mVCalculator = value1mVCalculator;
+    public void updateValue1mVCalculator() {
+        this.value1mVCalculator.update();
     }
 
-    public void setSignalProcessor(EcgSignalProcessor signalProcessor) {
-        this.signalProcessor = signalProcessor;
+    public void updateSignalProcessor() {
+        this.signalProcessor.update();
     }
 
     public void setHrAbnormalWarner(boolean isWarn, int lowLimit, int highLimit) {
-        if(signalProcessor != null) {
-            signalProcessor.setHrAbnormalWarner(isWarn, lowLimit, highLimit);
-        }
+        signalProcessor.setHrAbnormalWarner(isWarn, lowLimit, highLimit);
     }
 
     public List<Short> getHrList() {
-        if(signalProcessor != null) {
-            return signalProcessor.getHrList();
-        }
-        return null;
+        return signalProcessor.getHrList();
     }
 
     public synchronized void start() {
@@ -79,11 +76,8 @@ public class EcgDataProcessor {
 
     public void close() {
         stop();
-        if(signalProcessor != null) {
-            signalProcessor.close();
-
-            //signalProcessor = null;
-        }
+        signalProcessor.close();
+        //signalProcessor = null;
     }
 
     public synchronized void processData(final byte[] data, final boolean isCalibrationData) {
@@ -96,11 +90,9 @@ public class EcgDataProcessor {
                         int[] pack = resolveDataToPackage(data);
                         for (int ele : pack) {
                             if(isCalibrationData) {
-                                if(value1mVCalculator != null)
-                                    value1mVCalculator.process(ele);
+                                value1mVCalculator.process(ele);
                             } else {
-                                if(signalProcessor != null)
-                                    signalProcessor.process(ele);
+                                signalProcessor.process(ele);
                             }
                         }
                         if (++nextPackageNum == MAX_PACKAGE_NUM) nextPackageNum = 0;
