@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,8 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 
 /**
   *
-  * ClassName:      HrProcessor
-  * Description:    心率值处理器，包括记录每次心率值，并实现心率的统计分析，发布心率信息
+  * ClassName:      HrStatisticProcessor
+  * Description:    心率值统计处理器，包括记录每次心率值，并实现心率的统计分析，发布心率信息
   * Author:         chenm
   * CreateDate:     2018-12-07 08:04
   * UpdateUser:     chenm
@@ -18,14 +18,18 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-public class HrProcessor implements IHrOperator {
-    private OnHrStatisticInfoListener listener; // 心率统计信息监听器
-    private final EcgHrStatisticInfoAnalyzer hrStatisticInfoAnalyzer;
-    private final List<Short> hrList = new ArrayList<>();
-    private boolean isRecord = true;
+public class HrStatisticProcessor implements IHrProcessor {
+    private OnHrStatisticInfoUpdatedListener listener; // 心率统计信息监听器
+    private final EcgHrStaticsInfoAnalyzer hrStatisticInfoAnalyzer; // 心率统计信息分析仪
+    private final List<Short> hrList = new ArrayList<>(); // 心率值list
+    private boolean isRecord = true; // 是否记录心率
 
-    public HrProcessor(int hrFilterTimeInSecond, OnHrStatisticInfoListener listener) {
-        hrStatisticInfoAnalyzer = new EcgHrStatisticInfoAnalyzer(hrFilterTimeInSecond);
+    public interface OnHrStatisticInfoUpdatedListener {
+        void onHrStatisticInfoUpdated(EcgHrStaticsInfoAnalyzer hrInfoObject); // 心率统计信息更新
+    }
+
+    public HrStatisticProcessor(int hrFilterTimeInSecond, OnHrStatisticInfoUpdatedListener listener) {
+        hrStatisticInfoAnalyzer = new EcgHrStaticsInfoAnalyzer(hrFilterTimeInSecond);
         this.listener = listener;
     }
 
@@ -33,7 +37,7 @@ public class HrProcessor implements IHrOperator {
         return hrList;
     }
 
-    public EcgHrStatisticInfoAnalyzer getHrStatisticInfoAnalyzer() {
+    public EcgHrStaticsInfoAnalyzer getHrStatisticInfoAnalyzer() {
         return hrStatisticInfoAnalyzer;
     }
 
@@ -50,14 +54,12 @@ public class HrProcessor implements IHrOperator {
     // 重置心率数据
     public synchronized void reset() {
         hrList.clear();
-
         hrStatisticInfoAnalyzer.clear();
-
         updateHrStatisticInfo();
     }
 
     @Override
-    public synchronized void operate(short hr) {
+    public synchronized void process(short hr) {
         if(hr != INVALID_HR && isRecord) {
             hrList.add(hr);
 

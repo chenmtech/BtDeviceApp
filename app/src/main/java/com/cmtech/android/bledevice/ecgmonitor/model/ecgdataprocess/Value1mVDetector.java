@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator.EcgCalibrator65536;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.EcgCalibrator65536;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -9,14 +9,14 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Value1mVBeforeCalibrationCalculator: 心电标定数据处理器
+ * Value1mVDetector: 心电标定数据处理器
  * Created by Chenm, 2018-12-27
  */
 
 /**
   *
-  * ClassName:      Value1mVBeforeCalibrationCalculator
-  * Description:    定标前1mV值计算器
+  * ClassName:      Value1mVDetector
+  * Description:    1mV数据值检测器
   * Author:         chenm
   * CreateDate:     2019-06-15 08:11
   * UpdateUser:     chenm
@@ -25,14 +25,14 @@ import java.util.List;
   * Version:        1.0
  */
 
-public class Value1mVBeforeCalibrationCalculator {
+public class Value1mVDetector {
     private final EcgMonitorDevice device;
     private int sampleRate; // 采样率
     private List<Integer> calibrationData; // 用于保存标定用的数据
     private final EcgCalibrator65536 calibrator;
     private boolean done = false;
 
-    public Value1mVBeforeCalibrationCalculator(EcgMonitorDevice device) {
+    public Value1mVDetector(EcgMonitorDevice device) {
         this.device = device;
         this.sampleRate = device.getSampleRate();
         calibrator = new EcgCalibrator65536(device.getValue1mVBeforeCalibration());

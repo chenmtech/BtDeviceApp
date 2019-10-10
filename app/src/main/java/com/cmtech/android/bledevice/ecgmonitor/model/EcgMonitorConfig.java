@@ -5,6 +5,7 @@ import org.litepal.crud.LitePalSupport;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DEFAULT_HR_HIGH_LIMIT;
@@ -56,12 +57,10 @@ public class EcgMonitorConfig extends LitePalSupport implements Serializable {
     public void setHrHighLimit(int hrHighLimit) {
         this.hrHighLimit = hrHighLimit;
     }
-
     public List<String> getMarkerList() {
         return markerList;
     }
-
     public void setMarkerList(List<String> markerList) {
-        this.markerList = markerList;
+        Collections.copy(this.markerList, markerList);
     }
 }

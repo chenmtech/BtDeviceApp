@@ -1,13 +1,13 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator.EcgCalibrator65536;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator.IEcgCalibrator;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgfilter.EcgPreFilterWith35HzNotch;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgfilter.IEcgFilter;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.HrAbnormalWarner;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.HrProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.IHrOperator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.EcgCalibrator65536;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.IEcgCalibrator;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.filter.EcgPreFilterWith35HzNotch;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.filter.IEcgFilter;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrAbnormalWarner;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.IHrProcessor;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 
 import java.util.List;
@@ -34,13 +34,13 @@ public class EcgSignalProcessor {
     public static final int HR_FILTER_TIME_IN_SECOND = 10;
     public static final int HR_HISTOGRAM_BAR_NUM = 5;
     private static final String HR_ABNORMAL_WARNER_KEY = "hr_warner"; // 心率异常报警器的String key
-    private static final String HR_PROCESSOR_KEY = "hr_processor"; // 心率处理器的String key
+    private static final String HR_STATICS_PROCESSOR_KEY = "hr_statics_processor"; // 心率统计处理器的String key
 
     private final EcgMonitorDevice device; // 设备
     private final IEcgCalibrator ecgCalibrator; // 标定处理器
     private final IEcgFilter ecgFilter; // 滤波器
     private QrsDetector qrsDetector; // QRS波检测器，可求心率值
-    private final Map<String, IHrOperator> hrOperators; // 心率相关操作Map
+    private final Map<String, IHrProcessor> hrProcessorMap; // 心率相关操作Map
 
     public EcgSignalProcessor(EcgMonitorDevice device) {
         if(device == null) {
@@ -50,9 +50,9 @@ public class EcgSignalProcessor {
         this.device = device;
         ecgCalibrator = new EcgCalibrator65536(device.getValue1mVBeforeCalibration());
         ecgFilter = new EcgPreFilterWith35HzNotch(device.getSampleRate());
-        hrOperators = new ConcurrentHashMap<>();
-        HrProcessor hrProcessor = new HrProcessor(HR_FILTER_TIME_IN_SECOND, device);
-        hrOperators.put(HR_PROCESSOR_KEY, hrProcessor);
+        hrProcessorMap = new ConcurrentHashMap<>();
+        HrStatisticProcessor hrStatisticProcessor = new HrStatisticProcessor(HR_FILTER_TIME_IN_SECOND, device);
+        hrProcessorMap.put(HR_STATICS_PROCESSOR_KEY, hrStatisticProcessor);
         setHrAbnormalWarner(device.getConfig().isWarnWhenHrAbnormal(), device.getConfig().getHrLowLimit(), device.getConfig().getHrHighLimit());
     }
 
@@ -64,20 +64,20 @@ public class EcgSignalProcessor {
     }
 
     public void setHrAbnormalWarner(boolean isWarn, int lowLimit, int highLimit) {
-        HrAbnormalWarner hrWarner = (HrAbnormalWarner) hrOperators.get(HR_ABNORMAL_WARNER_KEY);
+        HrAbnormalWarner hrWarner = (HrAbnormalWarner) hrProcessorMap.get(HR_ABNORMAL_WARNER_KEY);
 
         if (isWarn) {
             if (hrWarner != null) {
-                hrWarner.initialize(lowLimit, highLimit);
+                hrWarner.reset(lowLimit, highLimit);
             } else {
                 hrWarner = new HrAbnormalWarner(device, lowLimit, highLimit);
-                hrOperators.put(HR_ABNORMAL_WARNER_KEY, hrWarner);
+                hrProcessorMap.put(HR_ABNORMAL_WARNER_KEY, hrWarner);
             }
         } else {
             if (hrWarner != null) {
                 hrWarner.close();
             }
-            hrOperators.remove(HR_ABNORMAL_WARNER_KEY);
+            hrProcessorMap.remove(HR_ABNORMAL_WARNER_KEY);
         }
     }
 
@@ -88,43 +88,43 @@ public class EcgSignalProcessor {
         short currentHr = (short) qrsDetector.outputHR(ecgSignal); // 检测Qrs波，获取心率
         // 通知心率值更新
         if(currentHr != INVALID_HR) {
-            device.onHrValueUpdated(currentHr);
+            device.updateHrValue(currentHr);
         }
         // 心率操作
         if (currentHr != INVALID_HR) {
-            for (IHrOperator operator : hrOperators.values()) {
-                operator.operate(currentHr);
+            for (IHrProcessor operator : hrProcessorMap.values()) {
+                operator.process(currentHr);
             }
         }
     }
 
     // 重置心率记录仪
     public void resetHrProcessor() {
-        HrProcessor hrProcessor = (HrProcessor) hrOperators.get(HR_PROCESSOR_KEY);
+        HrStatisticProcessor hrStatisticProcessor = (HrStatisticProcessor) hrProcessorMap.get(HR_STATICS_PROCESSOR_KEY);
 
-        if(hrProcessor != null) {
-            hrProcessor.reset();
+        if(hrStatisticProcessor != null) {
+            hrStatisticProcessor.reset();
         }
     }
 
     public void updateHrStatisticInfo() {
-        HrProcessor hrProcessor = (HrProcessor) hrOperators.get(HR_PROCESSOR_KEY);
+        HrStatisticProcessor hrStatisticProcessor = (HrStatisticProcessor) hrProcessorMap.get(HR_STATICS_PROCESSOR_KEY);
 
-        if(hrProcessor != null) {
-            hrProcessor.updateHrStatisticInfo();
+        if(hrStatisticProcessor != null) {
+            hrStatisticProcessor.updateHrStatisticInfo();
         }
     }
 
     public List<Short> getHrList() {
-        HrProcessor hrProcessor = (HrProcessor) hrOperators.get(HR_PROCESSOR_KEY);
-        if(hrProcessor != null) {
-            return hrProcessor.getHrList();
+        HrStatisticProcessor hrStatisticProcessor = (HrStatisticProcessor) hrProcessorMap.get(HR_STATICS_PROCESSOR_KEY);
+        if(hrStatisticProcessor != null) {
+            return hrStatisticProcessor.getHrList();
         }
         return null;
     }
 
     public void close() {
-        for(IHrOperator operator : hrOperators.values()) {
+        for(IHrProcessor operator : hrProcessorMap.values()) {
             if(operator != null)
                 operator.close();
         }

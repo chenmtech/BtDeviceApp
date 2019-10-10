@@ -8,7 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrStatisticInfoAnalyzer;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStaticsInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
@@ -211,9 +211,9 @@ class EcgFilesManager {
         }
     }
 
-    synchronized EcgHrStatisticInfoAnalyzer getSelectFileHrInfo() {
+    synchronized EcgHrStaticsInfoAnalyzer getSelectFileHrInfo() {
         if(selectFile != null) {
-            return new EcgHrStatisticInfoAnalyzer(selectFile.getHrList(), HR_FILTER_TIME_IN_SECOND);
+            return new EcgHrStaticsInfoAnalyzer(selectFile.getHrList(), HR_FILTER_TIME_IN_SECOND);
         }
         return null;
     }

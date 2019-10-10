@@ -22,7 +22,7 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgControllerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrStatisticInfoAnalyzer;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStaticsInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.viewcomponent.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
@@ -146,7 +146,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
             case 1: // 设置设备配置返回码
                 if(resultCode == RESULT_OK) {
                     EcgMonitorConfig config = (EcgMonitorConfig) data.getSerializableExtra("configuration");
-                    device.setConfig(config);
+                    device.updateConfig(config);
                 }
                 break;
 
@@ -293,11 +293,11 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onEcgHrInfoUpdated(final EcgHrStatisticInfoAnalyzer hrInfoObject) {
+    public void onEcgHrStaticsInfoUpdated(final EcgHrStaticsInfoAnalyzer hrStaticsInfoAnalyzer) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                hrStatisticsFragment.updateHrInfo(hrInfoObject);
+                hrStatisticsFragment.updateHrInfo(hrStaticsInfoAnalyzer);
             }
         });
 

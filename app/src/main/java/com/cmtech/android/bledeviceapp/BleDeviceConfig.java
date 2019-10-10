@@ -10,9 +10,6 @@ import com.cmtech.android.ble.core.BleDeviceType;
  */
 
 public class BleDeviceConfig {
-    private BleDeviceConfig() {
-    }
-
     // 配置连接超时时间
     public static void setConnectTimeout(int connectTimeout) {
         BleConfig.getInstance().setConnectTimeout(connectTimeout);
@@ -28,12 +25,12 @@ public class BleDeviceConfig {
         BleDeviceType.addSupportedType(deviceType);
     }
 
-    // 设置设备状态文字描述
+    // 设置设备状态的文字描述
     public static void setStateDescription(BleDeviceState deviceState, String description) {
         deviceState.setDescription(description);
     }
 
-    // 设置设备状态图标
+    // 设置设备状态的显示图标
     public static void setStateIcon(BleDeviceState deviceState, int icon) {
         deviceState.setIcon(icon);
     }

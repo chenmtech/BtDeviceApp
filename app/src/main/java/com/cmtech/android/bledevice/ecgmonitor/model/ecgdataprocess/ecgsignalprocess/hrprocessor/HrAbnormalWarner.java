@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 
@@ -9,32 +9,28 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
  * Created by Chenm, 2018-12-07
  */
 
-public class HrAbnormalWarner implements IHrOperator {
+public class HrAbnormalWarner implements IHrProcessor {
     private static final int DEFAULT_HR_BUFFLEN = 5; // 心率值缓存长度
 
     private final EcgMonitorDevice device;
-
     private int lowLimit; // 下限
-
     private int highLimit; // 上限
-
     private int[] buff; // 缓存
-
     private int index; // 缓存索引
 
     public HrAbnormalWarner(EcgMonitorDevice device, int lowLimit, int highLimit) {
         this.device = device;
 
-        initialize(lowLimit, highLimit);
+        reset(lowLimit, highLimit);
     }
 
     // 设置参数
-    public void initialize(int lowLimit, int highLimit) {
-        initialize(lowLimit, highLimit, DEFAULT_HR_BUFFLEN);
+    public void reset(int lowLimit, int highLimit) {
+        reset(lowLimit, highLimit, DEFAULT_HR_BUFFLEN);
     }
 
     // 设置参数
-    public void initialize(int lowLimit, int highLimit, int buffLen) {
+    private void reset(int lowLimit, int highLimit, int buffLen) {
         this.lowLimit = lowLimit;
         this.highLimit = highLimit;
         int half = (lowLimit+highLimit)/2;
@@ -46,7 +42,7 @@ public class HrAbnormalWarner implements IHrOperator {
     }
 
     @Override
-    public synchronized void operate(short hr) {
+    public synchronized void process(short hr) {
         if(hr != INVALID_HR) {
             buff[index++] = hr;
             if(checkHrAbnormal()) {

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecgcalibrator;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator;
 
 /**
  * EcgCalibrator65536: 心电信号定标处理器，定标后的基准值为65536，可以利用这一点简化运算

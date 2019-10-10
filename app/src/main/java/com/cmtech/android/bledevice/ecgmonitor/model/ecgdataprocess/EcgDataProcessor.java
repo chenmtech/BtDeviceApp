@@ -27,19 +27,19 @@ public class EcgDataProcessor {
     private static final int INVALID_PACKAGE_NUM = -1;
 
     private final EcgMonitorDevice device;
-    private final Value1mVBeforeCalibrationCalculator value1mVCalculator; // 定标前1mV值计算器
+    private final Value1mVDetector value1MVDetector; // 定标前1mV值计算器
     private final EcgSignalProcessor signalProcessor; // 心电信号处理器
     private int nextPackageNum = INVALID_PACKAGE_NUM; // 下一个要处理的数据包序号
     private ExecutorService service; // 数据处理Service
 
     public EcgDataProcessor(EcgMonitorDevice device) {
         this.device = device;
-        value1mVCalculator = new Value1mVBeforeCalibrationCalculator(device);
+        value1MVDetector = new Value1mVDetector(device);
         signalProcessor = new EcgSignalProcessor(device);
     }
 
     public void updateValue1mVCalculator() {
-        this.value1mVCalculator.update();
+        this.value1MVDetector.update();
     }
 
     public void updateSignalProcessor() {
@@ -90,7 +90,7 @@ public class EcgDataProcessor {
                         int[] pack = resolveDataToPackage(data);
                         for (int ele : pack) {
                             if(isCalibrationData) {
-                                value1mVCalculator.process(ele);
+                                value1MVDetector.process(ele);
                             } else {
                                 signalProcessor.process(ele);
                             }

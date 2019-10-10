@@ -60,11 +60,11 @@ public class EcgFileExplorerModel {
 
     private final EcgFilesManager filesManager; // 文件列表管理器
 
-    private final OnEcgFileExploreListener listener; // 文件浏览监听器
+    private final OnEcgFileExploreUpdatedListener listener; // 文件浏览监听器
 
     private final ExecutorService openFileService = Executors.newSingleThreadExecutor();
 
-    public EcgFileExplorerModel(File ecgFileDir, OnEcgFileExploreListener listener) throws IOException{
+    public EcgFileExplorerModel(File ecgFileDir, OnEcgFileExploreUpdatedListener listener) throws IOException{
         if(ecgFileDir == null) {
             throw new IOException("The ecg file dir is null");
         }

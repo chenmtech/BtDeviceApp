@@ -23,9 +23,9 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
 import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgCommentOperateListener;
-import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgFileExploreListener;
+import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgFileExploreUpdatedListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrStatisticInfoAnalyzer;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStaticsInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -54,7 +54,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgFileExploreListener, EcgFileRollWaveView.OnEcgFileRollWaveViewListener, OnEcgCommentOperateListener {
+public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgFileExploreUpdatedListener, EcgFileRollWaveView.OnEcgFileRollWaveViewListener, OnEcgCommentOperateListener {
     private static final String TAG = "EcgFileExplorerActivity";
 
     private static final float DEFAULT_SECOND_PER_HGRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
@@ -386,7 +386,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
     }
 
     @Override
-    public void onHrStatisticInfoUpdated(EcgHrStatisticInfoAnalyzer hrInfoObject) {
+    public void onHrStatisticInfoUpdated(EcgHrStaticsInfoAnalyzer hrInfoObject) {
         tvAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));
 
         tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
