@@ -1,10 +1,9 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
 public class EcgMonitorUtil {
-    // 创建ECG文件名：去掉'：'的macAddress + timeinmillis + ".bme"
+    // 创建ECG文件名：去掉'：'的macAddress + 创建时间 + ".bme"
     public static String makeFileName(String macAddress, long timeInMillis) {
         String address = cutColonInMacAddress(macAddress);
-
         return address + timeInMillis + ".bme";
     }
 

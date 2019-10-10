@@ -32,7 +32,6 @@ import java.io.IOException;
 
 import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_AUTOCONNECT;
 import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_IMAGEPATH;
-import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_RECONNECT_TIMES;
 import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_WARN_WHEN_BLE_ERROR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
 
@@ -48,7 +47,6 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText etName; // 设备昵名
     private ImageView ivImage; // 设备图像
     private CheckBox cbIsAutoconnect; // 设备是否自动连接
-    private EditText etReconnectTimes; // 设备重连次数
     private CheckBox cbWarnWhenBleError; // 设备重连失败后是否报警
     private String cacheImagePath = ""; // 图像文件名缓存
 
@@ -80,7 +78,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // 设置标题为设备地址
-        setTitle("注册:"+ registerInfo.getMacAddress());
+        setTitle("设备:"+ registerInfo.getMacAddress());
 
         // 设置设备昵名
         etName = findViewById(R.id.et_device_nickname);
@@ -107,10 +105,6 @@ public class RegisterActivity extends AppCompatActivity {
                 openAlbum();
             }
         });
-
-        // 设置重连次数
-        etReconnectTimes = findViewById(R.id.et_device_reconnecttimes);
-        etReconnectTimes.setText(String.valueOf(registerInfo.getReconnectTimes()));
 
         // 设置设备打开后是否自动连接
         cbIsAutoconnect = findViewById(R.id.cb_device_isautoconnect);
@@ -154,7 +148,6 @@ public class RegisterActivity extends AppCompatActivity {
                 }
 
                 registerInfo.setAutoConnect(cbIsAutoconnect.isChecked());
-                registerInfo.setReconnectTimes(Integer.parseInt(etReconnectTimes.getText().toString()));
                 registerInfo.setWarnWhenBleError(cbWarnWhenBleError.isChecked());
 
                 Intent intent = new Intent();
@@ -265,7 +258,6 @@ public class RegisterActivity extends AppCompatActivity {
             cacheImagePath = DEFAULT_DEVICE_IMAGEPATH;
             Glide.with(this).load(type.getDefaultImage()).into(ivImage);
             cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
-            etReconnectTimes.setText(String.valueOf(DEFAULT_DEVICE_RECONNECT_TIMES));
             cbWarnWhenBleError.setChecked(DEFAULT_WARN_WHEN_BLE_ERROR);
         }
     }

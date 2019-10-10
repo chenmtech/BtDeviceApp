@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import android.content.Context;
+import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
@@ -52,12 +53,12 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
 public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoListener {
     private final static String TAG = "EcgMonitorDevice";
-    private static final int DEFAULT_VALUE_1MV_AFTER_CALIBRATION = 65536; // 缺省1mV定标值
-    private static final int DEFAULT_SAMPLERATE = 125;                          // 缺省ECG信号采样率,Hz
-    private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I;     // 缺省导联为L1
-    private static final float DEFAULT_SECOND_PER_GRID = 0.04f;                 // 缺省横向每个栅格代表的秒数，对应于走纸速度
-    private static final float DEFAULT_MV_PER_GRID = 0.1f;                      // 缺省纵向每个栅格代表的mV，对应于灵敏度
-    private static final int DEFAULT_PIXEL_PER_GRID = 10;                       // 缺省每个栅格包含的像素个数
+    private static final int DEFAULT_VALUE_1MV_AFTER_CALIBRATION = 164; // 缺省1mV定标值
+    private static final int DEFAULT_SAMPLE_RATE = 125; // 缺省ECG信号采样率,Hz
+    private static final EcgLeadType DEFAULT_LEADTYPE = EcgLeadType.LEAD_I; // 缺省导联为L1
+    private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
+    private static final float DEFAULT_MV_PER_GRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
+    private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
 
     // 心电监护仪Service相关UUID常量
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
@@ -77,20 +78,20 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, CCC_UUID, MY_BASE_UUID, "心电数据CCC");
     private static final BleGattElement ECGMONITOR_CTRL =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null, MY_BASE_UUID, "心电Ctrl");
-    private static final BleGattElement ECGMONITOR_SAMPLERATE =
+    private static final BleGattElement ECGMONITOR_SAMPLE_RATE =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorSampleRateUuid, null, MY_BASE_UUID, "采样率");
-    private static final BleGattElement ECGMONITOR_LEADTYPE =
+    private static final BleGattElement ECGMONITOR_LEAD_TYPE =
             new BleGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null, MY_BASE_UUID, "导联类型");
     private static final BleGattElement BATTERY_DATA =
             new BleGattElement(batteryServiceUuid, batteryDataUuid, null, MY_BASE_UUID, "电池电量数据");
 
     // ECGMONITOR_CTRL Element的控制常量
     private static final byte ECGMONITOR_CTRL_STOP = (byte) 0x00; // 停止采集
-    private static final byte ECGMONITOR_CTRL_STARTSIGNAL = (byte) 0x01; // 启动采集Ecg信号
-    private static final byte ECGMONITOR_CTRL_START1MV = (byte) 0x02; // 启动采集1mV定标
+    private static final byte ECGMONITOR_CTRL_START_SIGNAL = (byte) 0x01; // 启动采集Ecg信号
+    private static final byte ECGMONITOR_CTRL_START_1MV = (byte) 0x02; // 启动采集1mV定标
 
 
-    private int sampleRate = DEFAULT_SAMPLERATE; // 采样率
+    private int sampleRate = DEFAULT_SAMPLE_RATE; // 采样率
     private EcgLeadType leadType = DEFAULT_LEADTYPE; // 导联类型
     private int value1mVBeforeCalibration = 0; // 定标之前1mV对应的数值
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
@@ -104,7 +105,24 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
     private final EcgDataProcessor ecgDataProcessor = new EcgDataProcessor(this); // ECG数据处理,在其内部的单线程ExecutorService中执行
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
     private EcgFile ecgFile; // 心电记录文件，可记录心电信号以及留言和心率信息
-    private OnEcgMonitorDeviceListener listener; // 心电监护仪设备监听器
+    private OnEcgMonitorListener listener; // 心电监护仪设备监听器
+
+    public interface OnEcgMonitorListener {
+        void onEcgMonitorStateUpdated(EcgMonitorState state); // 更新心电监护仪状态
+        void onSampleRateChanged(int sampleRate); // 更新采样率
+        void onLeadTypeChanged(EcgLeadType leadType); // 更新导联类型
+        void onCalibrationValueChanged(int calibrationValueBefore, int calibrationValueAfter);  // 更新标定值
+        void onSignalRecordStateUpdated(boolean isRecord); // 更新记录状态
+        void onEcgViewUpdated(int xPixelPerData, float yValuePerPixel, int gridPixels); // 更新EcgView
+        void onEcgSignalUpdated(int ecgSignal); // 更新Ecg信号
+        void onEcgSignalShowStarted(int sampleRate); // 启动信号显示
+        void onEcgSignalShowStoped(); // 停止信号显示
+        void onSignalSecNumChanged(int second); // 更新信号记录秒数
+        void onEcgHrChanged(int hr); // 更新心率值，单位bpm
+        void onEcgHrInfoUpdated(EcgHrStatisticInfoAnalyzer hrInfoObject); // 更新心率信息
+        void onHrAbnormalNotified(); // 通知心率值异常
+        void onBatteryChanged(int bat); // 电池电量改变
+    }
 
     // 构造器
     EcgMonitorDevice(Context context, BleDeviceRegisterInfo basicInfo) {
@@ -164,14 +182,14 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     @Override
     protected boolean executeAfterConnectSuccess() {
-        BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLERATE, ECGMONITOR_LEADTYPE};
+        BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLE_RATE, ECGMONITOR_LEAD_TYPE};
 
         if(!containGattElements(elements)) {
             ViseLog.e("Ecg Monitor Elements有错。");
             return false;
         }
 
-        updateSampleRate(DEFAULT_SAMPLERATE);
+        updateSampleRate(DEFAULT_SAMPLE_RATE);
         updateLeadType(DEFAULT_LEADTYPE);
         updateCalibrationValue(value1mVBeforeCalibration);
 
@@ -312,25 +330,21 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         signalRecorder.addCommentContent(content);
     }
 
-
-
-
-
-
-
     // 读采样率
     private void readSampleRate() {
-        read(ECGMONITOR_SAMPLERATE, new IBleDataCallback() {
+        read(ECGMONITOR_SAMPLE_RATE, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 int sampleRate = (data[0] & 0xff) | ((data[1] << 8) & 0xff00);
-
                 updateSampleRate(sampleRate);
-
                 // 有了采样率，可以初始化1mV定标值计算器
                 Ecg1mVCaliValueCalculator caliValue1mVCalculator = new Ecg1mVCaliValueCalculator(EcgMonitorDevice.this, sampleRate);
-
                 ecgDataProcessor.setCaliValueCalculator(caliValue1mVCalculator);
+                // 初始化EcgView
+                initializeEcgView(sampleRate);
+                if(listener != null) {
+                    listener.onEcgSignalShowStarted(sampleRate);
+                }
             }
 
             @Override
@@ -342,11 +356,10 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 读导联类型
     private void readLeadType() {
-        read(ECGMONITOR_LEADTYPE, new IBleDataCallback() {
+        read(ECGMONITOR_LEAD_TYPE, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 leadType = EcgLeadType.getFromCode(data[0]);
-
                 updateLeadType(leadType);
             }
 
@@ -359,7 +372,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 启动ECG信号采集
     public void startEcgSignalSampling() {
-        IBleDataCallback notificationCallback = new IBleDataCallback() {
+        IBleDataCallback receiveCallback = new IBleDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BleGattElement element) {
                 ecgDataProcessor.processData(data, false);
@@ -372,9 +385,9 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         };
 
         // enable ECG data notification
-        notify(ECGMONITOR_DATA_CCC, true, notificationCallback);
+        notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
 
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STARTSIGNAL, new IBleDataCallback() {
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_SIGNAL, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setEcgMonitorState(EcgMonitorState.SAMPLEING);
@@ -397,6 +410,20 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     // 启动1mV定标
     public void start1mVCalibration() {
+        // disable ECG data notification and stop ecg sampling
+        notify(ECGMONITOR_DATA_CCC, false, null);
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+
+            }
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
+
+        // enable ECG data notification
         IBleDataCallback receiveCallback = new IBleDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BleGattElement element) {
@@ -408,29 +435,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
             }
         };
-
-        // enable ECG data notification
-        notify(ECGMONITOR_DATA_CCC, false, null);
-
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleDataCallback() {
-            @Override
-            public void onSuccess(byte[] data, BleGattElement element) {
-
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        });
-
-        /*try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
-
-        // enable ECG data notification
         notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
 
         runInstantly(new IBleDataCallback() {
@@ -439,22 +443,20 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
                 ViseLog.e("启动1mV定标");
 
                 setEcgMonitorState(EcgMonitorState.CALIBRATING);
-
                 ecgDataProcessor.start();
             }
-
             @Override
             public void onFailure(BleException exception) {
 
             }
         });
 
-        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START1MV, new IBleDataCallback() {
+        // start 1mv sampling
+        write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_1MV, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
 
             }
-
             @Override
             public void onFailure(BleException exception) {
 
@@ -467,7 +469,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         ViseLog.e("停止数据采样");
 
         notify(ECGMONITOR_DATA_CCC, false, null);
-
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
@@ -519,21 +520,13 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         ViseLog.e("停止电池电量测量服务");
     }
 
-
-
-
-
-
-
-
-
     // 登记心电监护仪设备监听器
-    public void setEcgMonitorDeviceListener(OnEcgMonitorDeviceListener listener) {
+    public void setEcgMonitorListener(OnEcgMonitorListener listener) {
         this.listener = listener;
     }
 
     // 删除心电监护仪设备监听器
-    public void removeEcgMonitorDeviceListener() {
+    public void removeEcgMonitorListener() {
         listener = null;
     }
 
@@ -568,7 +561,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
 
     public void onHrAbnormalNotified() {
         if(listener != null) {
-            listener.onNotifyHrAbnormal();
+            listener.onHrAbnormalNotified();
         }
     }
 
@@ -595,7 +588,7 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
             try {
                 ecgFile = EcgFile.create(sampleRate, DEFAULT_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
             } catch (IOException e) {
-                new android.os.Handler(Looper.getMainLooper()).post(new Runnable() {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(MyApplication.getContext(), "无法记录心电信息", Toast.LENGTH_SHORT).show();
@@ -636,7 +629,6 @@ public class EcgMonitorDevice extends BleDevice implements OnHrStatisticInfoList
         //pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
         // 计算EcgView分辨率
         xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate)); // 计算横向分辨率
-
         yValuePerPixel = DEFAULT_VALUE_1MV_AFTER_CALIBRATION * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
         // 更新EcgView
         updateEcgView(xPixelPerData, yValuePerPixel, pixelPerGrid);

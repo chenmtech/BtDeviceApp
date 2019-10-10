@@ -19,16 +19,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgControllerAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfig;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
-import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgMonitorDeviceListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.ecghrprocess.EcgHrStatisticInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.viewcomponent.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
-import com.cmtech.android.bledeviceapp.activity.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +47,7 @@ import static android.app.Activity.RESULT_OK;
   * Version:        1.0
  */
 
-public class EcgMonitorFragment extends BleFragment implements OnEcgMonitorDeviceListener {
+public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.OnEcgMonitorListener {
     private static final String TAG = "EcgMonitorFragment";
 
     private TextView tvSampleRate; // 采样率
@@ -98,7 +96,7 @@ public class EcgMonitorFragment extends BleFragment implements OnEcgMonitorDevic
         fragTabLayout.setupWithViewPager(fragViewPager);
         samplingSignalFragment.setDevice(device);
         updateDeviceState(device.getEcgMonitorState());
-        device.setEcgMonitorDeviceListener(this);
+        device.setEcgMonitorListener(this);
     }
 
     @Override
@@ -161,7 +159,7 @@ public class EcgMonitorFragment extends BleFragment implements OnEcgMonitorDevic
         super.onDestroy();
 
         if(device != null)
-            device.removeEcgMonitorDeviceListener();
+            device.removeEcgMonitorListener();
 
         if(hrWarnAudio != null)
             hrWarnAudio.stop();
@@ -313,7 +311,7 @@ public class EcgMonitorFragment extends BleFragment implements OnEcgMonitorDevic
     }
 
     @Override
-    public void onNotifyHrAbnormal() {
+    public void onHrAbnormalNotified() {
         if(hrWarnAudio == null) {
             initHrWarnAudioTrack();
         } else {

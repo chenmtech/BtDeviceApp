@@ -12,15 +12,9 @@ import java.io.File;
  */
 
 public class EcgMonitorConstant {
-    // Ecg文件存放目录
-    public static final File ECG_FILE_DIR = MyApplication.getContext().getExternalFilesDir("ecgSignal");
-
-    // 微信的下载存储目录
-    public static final String WECHAT_DOWNLOAD_DIR = Environment.getExternalStorageDirectory().getPath() + "/tencent/MicroMsg/Download";
-
-    public static final boolean DEFAULT_WARN_WHEN_HR_ABNORMAL = true;
-
-    public static final int DEFAULT_HR_LOW_LIMIT = 50;
-
-    public static final int DEFAULT_HR_HIGH_LIMIT = 100;
+    public static final File ECG_FILE_DIR = MyApplication.getContext().getExternalFilesDir("ecgSignal"); // Ecg文件存放目录
+    public static final String WECHAT_DOWNLOAD_DIR = Environment.getExternalStorageDirectory().getPath() + "/tencent/MicroMsg/Download"; // 微信的下载存储目录
+    public static final boolean DEFAULT_WARN_WHEN_HR_ABNORMAL = true; // 缺省心率异常是否报警
+    public static final int DEFAULT_HR_LOW_LIMIT = 50; // 缺省心率下限
+    public static final int DEFAULT_HR_HIGH_LIMIT = 100; // 缺省心率上限
 }
