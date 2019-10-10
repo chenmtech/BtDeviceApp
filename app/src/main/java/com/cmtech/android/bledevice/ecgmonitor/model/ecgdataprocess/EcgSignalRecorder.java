@@ -63,7 +63,7 @@ public class EcgSignalRecorder {
         if(isRecord) {
             ecgFile.writeData(ecgSignal);
             recordDataNum++;
-            device.onRecordSecNumUpdated(getSecond());
+            device.updateRecordSecNum(getSecond());
         }
     }
 

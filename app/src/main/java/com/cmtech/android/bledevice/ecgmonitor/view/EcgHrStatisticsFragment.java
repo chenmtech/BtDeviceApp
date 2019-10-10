@@ -27,13 +27,9 @@ import com.cmtech.android.bledeviceapp.R;
  * Version:        1.0
  */
 public class EcgHrStatisticsFragment extends Fragment {
-
     private TextView tvAverageHr; // 平均心率
-
     private TextView tvMaxHr; // 最大心率
-
     private EcgHrLineChart hrLineChart;
-
     private EcgMonitorDevice device;
 
     @Nullable
@@ -49,17 +45,13 @@ public class EcgHrStatisticsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
-
         tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
-
         hrLineChart = view.findViewById(R.id.linechart_hr);
     }
 
     public void updateHrInfo(EcgHrStatisticInfoAnalyzer hrInfoObject) {
         tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
-
         tvAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));
-
         hrLineChart.showLineChart(hrInfoObject.getFilteredHrList(), "心率变化图", Color.BLUE);
     }
 }

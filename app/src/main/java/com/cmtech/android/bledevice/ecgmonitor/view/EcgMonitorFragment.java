@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
+import static com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice.VALUE_1MV_AFTER_CALIBRATION;
 
 /**
   *
@@ -86,7 +87,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         tvBattery = view.findViewById(R.id.tv_ecg_battery);
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
-        setCalibrationValue(device.getValue1mVBeforeCalibration(), device.getValue1mVAfterCalibration());
+        setCalibrationValue(device.getValue1mVBeforeCalibration(), VALUE_1MV_AFTER_CALIBRATION);
         tvHeartRate.setText("");
         initialEcgView();
         ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
@@ -272,7 +273,12 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
 
     @Override
     public void onSignalSecNumChanged(final int second) {
-        samplingSignalFragment.setSignalSecNum(second);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                samplingSignalFragment.setSignalSecNum(second);
+            }
+        });
     }
 
     @Override

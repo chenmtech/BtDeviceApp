@@ -36,39 +36,26 @@ public class EcgSignalProcessor {
     private static final String HR_PROCESSOR_KEY = "hr_processor"; // 心率处理器的String key
 
     private final EcgMonitorDevice device; // 设备
-
     private final IEcgCalibrator ecgCalibrator; // 标定处理器
-
     private final IEcgFilter ecgFilter; // 滤波器
-
     private QrsDetector qrsDetector; // QRS波检测器，可求心率值
-
     private final Map<String, IHrOperator> hrOperators; // 心率相关操作Map
 
-
-    public EcgSignalProcessor(EcgMonitorDevice device, int value1mVAfterCalibration) {
+    public EcgSignalProcessor(EcgMonitorDevice device, int value1mVAfterCalibration, List<Short> hrList) {
         if(device == null) {
             throw new IllegalArgumentException("EcgMonitorDevice is null");
         }
 
         this.device = device;
         if(value1mVAfterCalibration == 65535) {
-            ecgCalibrator = new EcgCalibrator65536(0);
+            ecgCalibrator = new EcgCalibrator65536(device.getValue1mVBeforeCalibration());
         } else {
-            ecgCalibrator = new EcgCalibrator(0, value1mVAfterCalibration);
+            ecgCalibrator = new EcgCalibrator(device.getValue1mVBeforeCalibration(), value1mVAfterCalibration);
         }
-        ecgFilter = new EcgPreFilterWith35HzNotch(1);
+        ecgFilter = new EcgPreFilterWith35HzNotch(device.getSampleRate());
         hrOperators = new ConcurrentHashMap<>();
-        HrProcessor hrProcessor = new HrProcessor(HR_FILTER_TIME_IN_SECOND, device);
+        HrProcessor hrProcessor = new HrProcessor(hrList, HR_FILTER_TIME_IN_SECOND, device);
         hrOperators.put(HR_PROCESSOR_KEY, hrProcessor);
-    }
-
-    public IEcgCalibrator getEcgCalibrator() {
-        return ecgCalibrator;
-    }
-
-    public IEcgFilter getEcgFilter() {
-        return ecgFilter;
     }
 
     public void setQrsDetector(QrsDetector qrsDetector) {
@@ -95,20 +82,13 @@ public class EcgSignalProcessor {
 
     // 处理Ecg信号
     public void process(int ecgSignal) {
-        // 标定,滤波
-        ecgSignal = (int) ecgFilter.filter(ecgCalibrator.process(ecgSignal));
-
-        // 通知信号更新
-        device.onSignalValueUpdated(ecgSignal);
-
-        // 检测Qrs波，获取心率
-        short currentHr = (short) qrsDetector.outputHR(ecgSignal);
-
+        ecgSignal = (int) ecgFilter.filter(ecgCalibrator.process(ecgSignal)); // 标定,滤波
+        device.updateSignalValue(ecgSignal); // 更新信号
+        short currentHr = (short) qrsDetector.outputHR(ecgSignal); // 检测Qrs波，获取心率
         // 通知心率值更新
         if(currentHr != INVALID_HR) {
             device.onHrValueUpdated(currentHr);
         }
-
         // 心率操作
         if (currentHr != INVALID_HR) {
             for (IHrOperator operator : hrOperators.values()) {
@@ -136,11 +116,9 @@ public class EcgSignalProcessor {
 
     public List<Short> getHrList() {
         HrProcessor hrProcessor = (HrProcessor) hrOperators.get(HR_PROCESSOR_KEY);
-
         if(hrProcessor != null) {
             return hrProcessor.getHrList();
         }
-
         return null;
     }
 

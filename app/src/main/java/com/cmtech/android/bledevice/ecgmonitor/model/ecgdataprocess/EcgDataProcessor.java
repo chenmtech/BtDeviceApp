@@ -5,6 +5,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor;
 import com.vise.log.ViseLog;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -22,36 +23,42 @@ import java.util.concurrent.ThreadFactory;
  */
 
 public class EcgDataProcessor {
-    private static final int PACKAGE_NUM_MAX_LIMIT = 16;
+    private static final int MAX_PACKAGE_NUM = 16;
     private static final int INVALID_PACKAGE_NUM = -1;
 
     private final EcgMonitorDevice device;
-
-    private Ecg1mVCaliValueCalculator caliValueCalculator; // 1mV标定值计算器
-
-    private final EcgSignalProcessor signalProcessor; // 心电信号处理器
-
+    private Value1mVBeforeCalibrationCalculator value1mVCalculator; // 定标前1mV值计算器
+    private EcgSignalProcessor signalProcessor; // 心电信号处理器
     private int nextPackageNum = INVALID_PACKAGE_NUM; // 下一个要处理的数据包序号
-
     private ExecutorService service; // 数据处理Service
 
     public EcgDataProcessor(EcgMonitorDevice device) {
         this.device = device;
-
-        signalProcessor = new EcgSignalProcessor(device, device.getValue1mVAfterCalibration());
     }
 
-    public void setCaliValueCalculator(Ecg1mVCaliValueCalculator caliValueCalculator) {
-        this.caliValueCalculator = caliValueCalculator;
+    public void setValue1mVBeforeCalibrationCalculator(Value1mVBeforeCalibrationCalculator value1mVCalculator) {
+        this.value1mVCalculator = value1mVCalculator;
     }
 
-    public EcgSignalProcessor getSignalProcessor() {
-        return signalProcessor;
+    public void setSignalProcessor(EcgSignalProcessor signalProcessor) {
+        this.signalProcessor = signalProcessor;
+    }
+
+    public void setHrAbnormalWarner(boolean isWarn, int lowLimit, int highLimit) {
+        if(signalProcessor != null) {
+            signalProcessor.setHrAbnormalWarner(isWarn, lowLimit, highLimit);
+        }
+    }
+
+    public List<Short> getHrList() {
+        if(signalProcessor != null) {
+            return signalProcessor.getHrList();
+        }
+        return null;
     }
 
     public synchronized void start() {
         nextPackageNum = 0;
-
         if(service == null || service.isTerminated()) {
             service = Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
@@ -72,7 +79,6 @@ public class EcgDataProcessor {
 
     public void close() {
         stop();
-
         if(signalProcessor != null) {
             signalProcessor.close();
 
@@ -86,25 +92,22 @@ public class EcgDataProcessor {
                 @Override
                 public void run() {
                     int packageNum = (short)((0xff & data[0]) | (0xff00 & (data[1] << 8)));
-
                     if(packageNum == nextPackageNum) {
                         int[] pack = resolveDataToPackage(data);
-
                         for (int ele : pack) {
                             if(isCalibrationData) {
-                                caliValueCalculator.process(ele);
+                                if(value1mVCalculator != null)
+                                    value1mVCalculator.process(ele);
                             } else {
-                                signalProcessor.process(ele);
+                                if(signalProcessor != null)
+                                    signalProcessor.process(ele);
                             }
                         }
-
-                        if (++nextPackageNum == PACKAGE_NUM_MAX_LIMIT) nextPackageNum = 0;
+                        if (++nextPackageNum == MAX_PACKAGE_NUM) nextPackageNum = 0;
                     } else {
                         if(nextPackageNum != INVALID_PACKAGE_NUM) {
                             ViseLog.e("数据包丢失！！！");
-
                             nextPackageNum = INVALID_PACKAGE_NUM;
-
                             device.startDisconnect();
                         }
                     }
@@ -115,11 +118,9 @@ public class EcgDataProcessor {
 
     private int[] resolveDataToPackage(byte[] data) {
         int[] pack = new int[data.length / 2 - 1];
-
         for (int i = 1; i <= pack.length; i++) {
             pack[i - 1] = (short) ((0xff & data[i * 2]) | (0xff00 & (data[i * 2 + 1] << 8)));
         }
-
         return pack;
     }
 }
