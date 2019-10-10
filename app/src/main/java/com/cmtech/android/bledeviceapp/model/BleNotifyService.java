@@ -3,7 +3,6 @@ package com.cmtech.android.bledeviceapp.model;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
@@ -14,7 +13,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.AlertDialog;
 
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
@@ -43,8 +41,8 @@ import java.util.TimerTask;
 
 public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUpdatedListener {
     private final static String TAG = "BleNotifyService";
-    private final static int NOTIFY_INTERVAL_WHEN_BLE_ERROR = 15000; // 单位：ms
-    private final static int NOTIFY_TIMES_WHEN_BLE_ERROR = 5;
+    private final static int NOTIFY_INTERVAL_BECAUSE_BLE_ERROR = 5000; // 单位：ms
+    private final static int NOTIFY_TIMES_BECAUSE_BLE_ERROR = 5;
     private final static String NOTIFY_STRING_WHEN_NO_DEVICE_OPEN = "无设备打开。";
     private final static int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
     private final static String NOTIFY_TITLE = "欢迎使用" + MyApplication.getContext().getString(R.string.app_name); // 通知栏标题
@@ -146,12 +144,8 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
     }
 
     @Override
-    public void onBleErrorNotified(final BleDevice device, boolean warn) {
-        if(warn) {
-            playWarnRingtone();
-        } else {
-            stopWarnRingtone();
-        }
+    public void onBleErrorNotified(final BleDevice device) {
+        playWarnRingtone();
     }
 
     // 播放报警声音
@@ -165,14 +159,14 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
                         WARN_RINGTONE.play();
                     }
                 }
-            }, 0, NOTIFY_INTERVAL_WHEN_BLE_ERROR);
+            }, 0, NOTIFY_INTERVAL_BECAUSE_BLE_ERROR);
 
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
                     stopWarnRingtone();
                 }
-            }, NOTIFY_INTERVAL_WHEN_BLE_ERROR *NOTIFY_TIMES_WHEN_BLE_ERROR);
+            }, NOTIFY_INTERVAL_BECAUSE_BLE_ERROR * NOTIFY_TIMES_BECAUSE_BLE_ERROR);
         }
     }
 
