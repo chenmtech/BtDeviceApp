@@ -13,7 +13,7 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgSignalRecorder;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStaticsInfoAnalyzer;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.cmtech.android.ble.BleConfig.CCC_UUID;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
 
@@ -50,7 +51,6 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
 public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
     private static final String TAG = "EcgMonitorDevice";
-    public static final int VALUE_1MV_AFTER_CALIBRATION = 65535; // 定标后1mV值
     private static final int DEFAULT_VALUE_1MV_BEFORE_CALIBRATION = 164; // 缺省定标前1mV值
     private static final int DEFAULT_SAMPLE_RATE = 125; // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // 缺省导联为L1
@@ -119,7 +119,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         void onEcgSignalShowStoped(); // 停止信号显示
         void onSignalSecNumChanged(int second); // 更新信号记录秒数
         void onEcgHrChanged(int hr); // 更新心率值，单位bpm
-        void onEcgHrStaticsInfoUpdated(EcgHrStaticsInfoAnalyzer hrStaticsInfoAnalyzer); // 更新心率统计信息
+        void onEcgHrStaticsInfoUpdated(EcgHrStatisticsInfoAnalyzer hrStaticsInfoAnalyzer); // 更新心率统计信息
         void onHrAbnormalNotified(); // 通知心率值异常
         void onBatteryChanged(int bat); // 电池电量改变
     }
@@ -173,7 +173,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         this.config.setHrHighLimit(config.getHrHighLimit());
         this.config.setMarkerList(config.getMarkerList());
         this.config.save();
-        dataProcessor.setHrAbnormalWarner(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit());
+        dataProcessor.setHrAbnormalProcessor(config.isWarnWhenHrAbnormal(), config.getHrLowLimit(), config.getHrHighLimit());
     }
     public int getSignalRecordSecond() {
         return (signalRecorder == null) ? 0 : signalRecorder.getSecond();
@@ -542,7 +542,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     }
 
     @Override
-    public void onHrStatisticInfoUpdated(final EcgHrStaticsInfoAnalyzer hrInfoObject) {
+    public void onHrStatisticInfoUpdated(final EcgHrStatisticsInfoAnalyzer hrInfoObject) {
         if(listener != null) {
             listener.onEcgHrStaticsInfoUpdated(hrInfoObject);
         }
@@ -572,7 +572,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         // 创建心电记录文件
         if(ecgFile == null) {
             try {
-                ecgFile = EcgFile.create(sampleRate, VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
+                ecgFile = EcgFile.create(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
             } catch (IOException e) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
@@ -596,7 +596,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         //pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
         // 计算EcgView分辨率
         xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate)); // 计算横向分辨率
-        yValuePerPixel = VALUE_1MV_AFTER_CALIBRATION * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
+        yValuePerPixel = STANDARD_VALUE_1MV_AFTER_CALIBRATION * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
         // 更新EcgView
         updateEcgView(xPixelPerData, yValuePerPixel, pixelPerGrid);
     }
@@ -618,7 +618,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
     private void updateCalibrationValue(final int calibrationValueBefore) {
         if(listener != null)
-            listener.onCalibrationValueChanged(calibrationValueBefore, VALUE_1MV_AFTER_CALIBRATION);
+            listener.onCalibrationValueChanged(calibrationValueBefore, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
     }
 
     private void updateRecordStatus(final boolean isRecord) {

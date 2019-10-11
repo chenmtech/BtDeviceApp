@@ -19,12 +19,12 @@ import com.cmtech.dsp.filter.structure.StructType;
  */
 
 public class EcgPreFilter implements IEcgFilter {
-    protected final static double NOTCH_BANDWIDTH_3DB = 0.5; // 陷波器的3dB带宽
-    private final static double DEFAULT_BASELINE_FREQ = 0.5;
-    private final static int DEFAULT_POWERLINE_FREQ = 50;
+    protected static final double NOTCH_BANDWIDTH_3DB = 0.5; // 陷波器的3dB带宽
+    private static final double DEFAULT_BASELINE_FREQ = 0.5; // 缺省基线漂移滤波器截止频率
+    private static final int DEFAULT_POWERLINE_FREQ = 50; // 缺省工频
 
-    private double baselineFreq = DEFAULT_BASELINE_FREQ; // 基线漂移截止频率
-    private int powerlineFreq = DEFAULT_POWERLINE_FREQ; // 工频
+    private final double baselineFreq; // 基线漂移截止频率
+    private final int powerlineFreq; // 工频
     private IDigitalFilter dcBlock;
     private IDigitalFilter notch50Hz;
 
@@ -46,7 +46,7 @@ public class EcgPreFilter implements IEcgFilter {
     }
 
     @Override
-    public void updateSampleRate(int sampleRate) {
+    public void reset(int sampleRate) {
         // 准备0.5Hz基线漂移滤波器
         dcBlock = DCBlockDesigner.design(baselineFreq, sampleRate); // 设计隔直滤波器
         dcBlock.createStructure(StructType.IIR_DCBLOCK); // 创建隔直滤波器专用结构

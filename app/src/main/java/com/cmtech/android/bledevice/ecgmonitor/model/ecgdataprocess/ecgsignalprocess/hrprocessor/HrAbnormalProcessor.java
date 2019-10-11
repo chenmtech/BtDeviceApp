@@ -5,11 +5,11 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.INVALID_HR;
 
 /**
- * HrAbnormalWarner: 心率异常报警器类
+ * HrAbnormalProcessor: 心率异常处理器类
  * Created by Chenm, 2018-12-07
  */
 
-public class HrAbnormalWarner implements IHrProcessor {
+public class HrAbnormalProcessor implements IHrProcessor {
     private static final int DEFAULT_HR_BUFFLEN = 5; // 心率值缓存长度
 
     private final EcgMonitorDevice device;
@@ -18,24 +18,20 @@ public class HrAbnormalWarner implements IHrProcessor {
     private int[] buff; // 缓存
     private int index; // 缓存索引
 
-    public HrAbnormalWarner(EcgMonitorDevice device, int lowLimit, int highLimit) {
+    public HrAbnormalProcessor(EcgMonitorDevice device) {
         this.device = device;
-
+        lowLimit = device.getConfig().getHrLowLimit();
+        highLimit = device.getConfig().getHrHighLimit();
         reset(lowLimit, highLimit);
     }
 
-    // 设置参数
+    // 重置参数
     public void reset(int lowLimit, int highLimit) {
-        reset(lowLimit, highLimit, DEFAULT_HR_BUFFLEN);
-    }
-
-    // 设置参数
-    private void reset(int lowLimit, int highLimit, int buffLen) {
         this.lowLimit = lowLimit;
         this.highLimit = highLimit;
         int half = (lowLimit+highLimit)/2;
-        buff = new int[buffLen];
-        for(int i = 0; i < buffLen; i++) {
+        buff = new int[DEFAULT_HR_BUFFLEN];
+        for(int i = 0; i < DEFAULT_HR_BUFFLEN; i++) {
             buff[i] = half;
         }
         index = 0;

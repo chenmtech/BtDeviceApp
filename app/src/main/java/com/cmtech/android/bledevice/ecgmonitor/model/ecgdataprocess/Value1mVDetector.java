@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.EcgCalibrator65536;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.IEcgCalibrator;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class Value1mVDetector {
 
     public void update() {
         sampleRate = device.getSampleRate();
-        calibrator.setValue1mVBeforeCalibration(device.getValue1mVBeforeCalibration());
+        calibrator.reset(device.getValue1mVBeforeCalibration(), IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         calibrationData = new ArrayList<>(2*sampleRate);
         done = false;
     }
@@ -62,7 +63,7 @@ public class Value1mVDetector {
             done = true;
         }
 
-        device.updateSignalValue(calibrator.process(calibrateData));
+        device.updateSignalValue(calibrator.calibrate(calibrateData));
     }
 
     // 计算定标前1mV值

@@ -46,8 +46,8 @@ public class EcgDataProcessor {
         this.signalProcessor.update();
     }
 
-    public void setHrAbnormalWarner(boolean isWarn, int lowLimit, int highLimit) {
-        signalProcessor.setHrAbnormalWarner(isWarn, lowLimit, highLimit);
+    public void setHrAbnormalProcessor(boolean isWarn, int lowLimit, int highLimit) {
+        signalProcessor.setHrAbnormalProcessor(isWarn, lowLimit, highLimit);
     }
 
     public List<Short> getHrList() {

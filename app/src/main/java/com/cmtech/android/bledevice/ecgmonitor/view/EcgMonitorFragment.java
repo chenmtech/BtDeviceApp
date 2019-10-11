@@ -22,7 +22,7 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgControllerAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStaticsInfoAnalyzer;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.viewcomponent.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice.VALUE_1MV_AFTER_CALIBRATION;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 
 /**
   *
@@ -87,7 +87,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         tvBattery = view.findViewById(R.id.tv_ecg_battery);
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
-        setCalibrationValue(device.getValue1mVBeforeCalibration(), VALUE_1MV_AFTER_CALIBRATION);
+        setCalibrationValue(device.getValue1mVBeforeCalibration(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         tvHeartRate.setText("");
         initialEcgView();
         ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
@@ -293,7 +293,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onEcgHrStaticsInfoUpdated(final EcgHrStaticsInfoAnalyzer hrStaticsInfoAnalyzer) {
+    public void onEcgHrStaticsInfoUpdated(final EcgHrStatisticsInfoAnalyzer hrStaticsInfoAnalyzer) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
