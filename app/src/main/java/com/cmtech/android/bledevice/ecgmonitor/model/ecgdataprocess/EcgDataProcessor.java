@@ -78,7 +78,7 @@ public class EcgDataProcessor {
         ExecutorUtil.shutdownNowAndAwaitTerminate(service);
     }
 
-    public synchronized void processData(final byte[] data, final boolean isCalibrationData) {
+    public synchronized void processData(final byte[] data, final boolean isValue1mV) {
         if(service != null && !service.isTerminated()) {
             service.execute(new Runnable() {
                 @Override
@@ -87,7 +87,7 @@ public class EcgDataProcessor {
                     if(packageNum == nextPackageNum) {
                         int[] pack = resolveDataToPackage(data);
                         for (int ele : pack) {
-                            if(isCalibrationData) {
+                            if(isValue1mV) {
                                 value1MVDetector.process(ele);
                             } else {
                                 signalProcessor.process(ele);

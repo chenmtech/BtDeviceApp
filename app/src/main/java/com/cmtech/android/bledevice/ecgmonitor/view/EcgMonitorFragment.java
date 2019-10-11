@@ -39,7 +39,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 /**
   *
   * ClassName:      EcgMonitorFragment
-  * Description:    心电监护仪界面
+  * Description:    心电监护仪Fragment
   * Author:         chenm
   * CreateDate:     2018/3/13 下午4:52
   * UpdateUser:     chenm
@@ -53,15 +53,15 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
 
     private TextView tvSampleRate; // 采样率
     private TextView tvLeadType; // 导联类型
-    private TextView tvValue1mV; // 1mV定标值
+    private TextView tvValue1mV; // 1mV值
     private TextView tvHeartRate; // 心率值
-    private TextView tvBattery;
+    private TextView tvBattery; // 电池电量
     private ScanWaveView ecgView; // 心电波形View
-    private AudioTrack hrWarnAudio; // 心率报警声音
-    private EcgSignalRecordFragment samplingSignalFragment = new EcgSignalRecordFragment();
-    private EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment();
-    private List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(hrStatisticsFragment, samplingSignalFragment));
-    private List<String> titleList = new ArrayList<>(Arrays.asList("心率分析", "信号采集"));
+    private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
+    private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
+    private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
+    private final List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(hrStatisticsFragment, signalRecordFragment));
+    private final List<String> titleList = new ArrayList<>(Arrays.asList("心率分析", "信号采集"));
     private EcgMonitorDevice device; // 设备
 
     public EcgMonitorFragment() {
@@ -72,6 +72,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         device = (EcgMonitorDevice) getDevice();
+        signalRecordFragment.setDevice(device);
         return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
     }
 
@@ -87,7 +88,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         tvBattery = view.findViewById(R.id.tv_ecg_battery);
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
-        setCalibrationValue(device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+        tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION));
         tvHeartRate.setText("");
         initialEcgView();
         ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
@@ -95,46 +96,47 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         EcgControllerAdapter fragAdapter = new EcgControllerAdapter(getChildFragmentManager(), getContext(), fragmentList, titleList);
         fragViewPager.setAdapter(fragAdapter);
         fragTabLayout.setupWithViewPager(fragViewPager);
-        samplingSignalFragment.setDevice(device);
         updateDeviceState(device.getEcgMonitorState());
         device.setEcgMonitorListener(this);
     }
 
     @Override
     public void close() {
-        final Dialog alertDialog = new AlertDialog.Builder(getContext()).
-                setTitle("保存记录").
-                setMessage("是否保存记录？").
-                setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(device != null) {
-                            device.setSaveFile(true);
+        if(getContext() != null) {
+            final Dialog alertDialog = new AlertDialog.Builder(getContext()).
+                    setTitle("保存记录").
+                    setMessage("是否保存记录？").
+                    setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (device != null) {
+                                device.setSaveFile(true);
+                            }
+                            EcgMonitorFragment.super.close();
                         }
-                        EcgMonitorFragment.super.close();
-                    }
-                }).setNeutralButton("取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    }).setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
 
+                }
+            }).setNegativeButton("不保存", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (device != null) {
+                        device.setSaveFile(false);
                     }
-                }).setNegativeButton("不保存", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(device != null) {
-                            device.setSaveFile(false);
-                        }
-                        EcgMonitorFragment.super.close();
-                    }
-                }).create();
-        alertDialog.show();
+                    EcgMonitorFragment.super.close();
+                }
+            }).create();
+            alertDialog.show();
+        }
     }
 
     @Override
     public void openConfigActivity() {
         Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
         intent.putExtra("configuration", device.getConfig());
-        intent.putExtra("devicenickname", device.getNickName());
+        intent.putExtra("nickname", device.getNickName());
         startActivityForResult(intent, 1);
     }
 
@@ -161,21 +163,15 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
 
         if(device != null)
             device.removeEcgMonitorListener();
-
-        if(hrWarnAudio != null)
-            hrWarnAudio.stop();
+        if(hrAbnormalWarnAudio != null)
+            hrAbnormalWarnAudio.stop();
 
         stopShow();
     }
 
     @Override
     public void onEcgMonitorStateUpdated(final EcgMonitorState state) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                updateDeviceState(state);
-            }
-        });
+        updateDeviceState(state);
     }
 
     private void updateDeviceState(final EcgMonitorState state) {
@@ -184,57 +180,27 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
 
     @Override
     public void onSampleRateChanged(final int sampleRate) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                tvSampleRate.setText(String.valueOf(sampleRate));
-            }
-        });
+        tvSampleRate.setText(String.valueOf(sampleRate));
     }
 
     @Override
     public void onLeadTypeChanged(final EcgLeadType leadType) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                tvLeadType.setText(String.format("L%s", leadType.getDescription()));
-            }
-        });
+        tvLeadType.setText(String.format("L%s", leadType.getDescription()));
     }
 
     @Override
-    public void onCalibrationValueChanged(final int calibrationValueBefore, final int calibrationValueAfter) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                setCalibrationValue(calibrationValueBefore, calibrationValueAfter);
-            }
-        });
-    }
-
-    private void setCalibrationValue(final int calibrationValueBefore, final int calibrationValueAfter) {
-        tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", calibrationValueBefore, calibrationValueAfter));
+    public void onValue1mVChanged(final int value1mV, final int value1mVAfterCalibration) {
+        tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", value1mV, value1mVAfterCalibration));
     }
 
     @Override
     public void onSignalRecordStateUpdated(final boolean isRecord) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                samplingSignalFragment.setSignalRecordStatus(isRecord);
-            }
-        });
-
+        signalRecordFragment.setSignalRecordStatus(isRecord);
     }
 
     @Override
     public void onEcgViewUpdated(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                updateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
-            }
-        });
+        updateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
     }
 
     private void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
@@ -272,13 +238,8 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onSignalSecNumChanged(final int second) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                samplingSignalFragment.setSignalSecNum(second);
-            }
-        });
+    public void onSignalSecondNumChanged(final int second) {
+        signalRecordFragment.setSignalSecNum(second);
     }
 
     @Override
@@ -289,7 +250,6 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
                 tvHeartRate.setText(String.valueOf(hr));
             }
         });
-
     }
 
     @Override
@@ -300,7 +260,6 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
                 hrStatisticsFragment.updateHrInfo(hrStaticsInfoAnalyzer);
             }
         });
-
     }
 
     @Override
@@ -318,18 +277,18 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
 
     @Override
     public void onHrAbnormalNotified() {
-        if(hrWarnAudio == null) {
+        if(hrAbnormalWarnAudio == null) {
             initHrWarnAudioTrack();
         } else {
-            switch(hrWarnAudio.getPlayState()) {
+            switch(hrAbnormalWarnAudio.getPlayState()) {
                 case AudioTrack.PLAYSTATE_PAUSED:
                 case AudioTrack.PLAYSTATE_PLAYING:
-                    hrWarnAudio.stop();
+                    hrAbnormalWarnAudio.stop();
                     break;
             }
-            hrWarnAudio.reloadStaticData();
+            hrAbnormalWarnAudio.reloadStaticData();
         }
-        hrWarnAudio.play();
+        hrAbnormalWarnAudio.play();
     }
 
     private void initHrWarnAudioTrack() {
@@ -344,10 +303,10 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
             wave[i] = (byte) (mag * Math.sin(omega * i));
         }
 
-        hrWarnAudio = new AudioTrack(AudioManager.STREAM_MUSIC, fs,
+        hrAbnormalWarnAudio = new AudioTrack(AudioManager.STREAM_MUSIC, fs,
                 AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, length, AudioTrack.MODE_STATIC);
-        hrWarnAudio.write(wave, 0, wave.length);
-        hrWarnAudio.write(wave, 0, wave.length);
+        hrAbnormalWarnAudio.write(wave, 0, wave.length);
+        hrAbnormalWarnAudio.write(wave, 0, wave.length);
     }
 
     private void runOnUiThread(Runnable runnable) {

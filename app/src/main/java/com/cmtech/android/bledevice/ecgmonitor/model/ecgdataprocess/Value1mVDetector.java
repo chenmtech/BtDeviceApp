@@ -57,7 +57,7 @@ public class Value1mVDetector {
         } else {
             device.stopDataSampling();
             int value1mV = calculateValue1mV(calibrationData); // 计算得到实际定标前1mV值
-            device.updateValue1mV(value1mV);
+            device.setValue1mV(value1mV);
             ViseLog.e(calibrationData.toString() + " " + value1mV);
             calibrationData.clear();
             done = true;

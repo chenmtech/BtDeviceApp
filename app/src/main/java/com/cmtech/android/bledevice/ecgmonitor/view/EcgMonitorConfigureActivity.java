@@ -40,7 +40,7 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if(intent != null) {
             config = (EcgMonitorConfig) intent.getSerializableExtra("configuration");
-            deviceNickName = intent.getStringExtra("devicenickname");
+            deviceNickName = intent.getStringExtra("nickname");
         }
 
         if(config == null) {

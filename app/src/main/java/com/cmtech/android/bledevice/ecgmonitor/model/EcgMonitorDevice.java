@@ -86,12 +86,12 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     // ECGMONITOR_CTRL Element的控制常量
     private static final byte ECGMONITOR_CTRL_STOP = (byte) 0x00; // 停止采集
     private static final byte ECGMONITOR_CTRL_START_SIGNAL = (byte) 0x01; // 启动采集Ecg信号
-    private static final byte ECGMONITOR_CTRL_START_1MV = (byte) 0x02; // 启动采集1mV定标
+    private static final byte ECGMONITOR_CTRL_START_1MV = (byte) 0x02; // 启动采集1mV值
 
 
     private int sampleRate = DEFAULT_SAMPLE_RATE; // 采样率
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // 导联类型
-    private int value1mV = DEFAULT_VALUE_1MV; // 定标之前1mV对应的数值
+    private int value1mV = DEFAULT_VALUE_1MV; // 定标之前1mV值
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
     private int xPixelPerData = 1; // EcgView的横向分辨率
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
@@ -111,13 +111,13 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         void onEcgMonitorStateUpdated(EcgMonitorState state); // 更新状态
         void onSampleRateChanged(int sampleRate); // 更新采样率
         void onLeadTypeChanged(EcgLeadType leadType); // 更新导联类型
-        void onCalibrationValueChanged(int calibrationValueBefore, int calibrationValueAfter);  // 更新标定值
+        void onValue1mVChanged(int value1mV, int value1mVAfterCalibration);  // 更新1mV值
         void onSignalRecordStateUpdated(boolean isRecord); // 更新记录状态
         void onEcgViewUpdated(int xPixelPerData, float yValuePerPixel, int gridPixels); // 更新EcgView
         void onEcgSignalUpdated(int ecgSignal); // 更新Ecg信号
         void onEcgSignalShowStarted(int sampleRate); // 启动信号显示
         void onEcgSignalShowStoped(); // 停止信号显示
-        void onSignalSecNumChanged(int second); // 更新信号记录秒数
+        void onSignalSecondNumChanged(int second); // 更新信号记录秒数
         void onEcgHrChanged(int hr); // 更新心率值，单位bpm
         void onEcgHrStaticsInfoUpdated(EcgHrStatisticsInfoAnalyzer hrStaticsInfoAnalyzer); // 更新心率统计信息
         void onHrAbnormalNotified(); // 通知心率值异常
@@ -201,7 +201,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
         updateSampleRate(DEFAULT_SAMPLE_RATE);
         updateLeadType(DEFAULT_LEAD_TYPE);
-        updateCalibrationValue(value1mV);
+        updateValue1mV(value1mV);
 
         containBatMeasService = containGattElement(BATTERY_DATA);
         if(containBatMeasService) {
@@ -215,8 +215,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
         stopDataSampling();
 
-        // 启动1mV定标
-        start1mVCalibration();
+        // 启动检测1mV值
+        startValue1mVDetection();
 
         return true;
     }
@@ -404,8 +404,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         });
     }
 
-    // 启动1mV定标
-    public void start1mVCalibration() {
+    // 启动检测1mV值
+    public void startValue1mVDetection() {
         // enable ECG data notification
         IBleDataCallback receiveCallback = new IBleDataCallback() {
             @Override
@@ -423,7 +423,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                ViseLog.e("启动1mV定标");
+                ViseLog.e("启动检测1mV值");
 
                 setEcgMonitorState(EcgMonitorState.CALIBRATING);
                 dataProcessor.start();
@@ -542,15 +542,25 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
     public void updateRecordSecNum(final int second) {
         if(listener != null) {
-            listener.onSignalSecNumChanged(second);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    listener.onSignalSecondNumChanged(second);
+                }
+            });
         }
     }
 
-    public void updateValue1mV(int value1mV) {
+    public void setValue1mV(final int value1mV) {
         ViseLog.e("定标前1mV值为: " + value1mV);
 
         this.value1mV = value1mV;
-        updateCalibrationValue(this.value1mV);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                updateValue1mV(value1mV);
+            }
+        });
 
         // 重置Ecg信号处理器
         dataProcessor.resetSignalProcessor();
@@ -602,9 +612,9 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             listener.onLeadTypeChanged(leadType);
     }
 
-    private void updateCalibrationValue(final int calibrationValueBefore) {
+    private void updateValue1mV(final int value1mV) {
         if(listener != null)
-            listener.onCalibrationValueChanged(calibrationValueBefore, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+            listener.onValue1mVChanged(value1mV, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
     }
 
     private void updateRecordStatus(final boolean isRecord) {

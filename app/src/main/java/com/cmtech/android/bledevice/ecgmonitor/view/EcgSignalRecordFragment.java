@@ -52,13 +52,16 @@ public class EcgSignalRecordFragment extends Fragment{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-
         return inflater.inflate(R.layout.fragment_sample_ecgsignal, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if(device == null) {
+            throw new IllegalStateException("The device is null.");
+        }
 
         tvRecordTime = view.findViewById(R.id.tv_ecg_signal_recordtime);
 
