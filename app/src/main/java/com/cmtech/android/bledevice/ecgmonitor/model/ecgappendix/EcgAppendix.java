@@ -6,10 +6,10 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
  */
 
 public abstract class EcgAppendix implements IEcgAppendix {
-    private static final int APPENDIX_TYPE_BYTE_NUM = 4; // 附加信息类型的字节数
+    private static final int TYPE_BYTE_NUM = 4; // 附加信息类型的字节数
 
     @Override
     public int length() {
-        return APPENDIX_TYPE_BYTE_NUM;
+        return TYPE_BYTE_NUM;
     }
 }

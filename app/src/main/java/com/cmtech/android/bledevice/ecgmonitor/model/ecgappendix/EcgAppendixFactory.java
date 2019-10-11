@@ -12,40 +12,33 @@ import java.io.IOException;
  */
 
 public class EcgAppendixFactory {
-
-    private static IEcgAppendix create(EcgAppendixType type) {
-        if(type == null) return null;
-
-        switch (type) {
-            case HR_INFO:
-                return new EcgHrInfoAppendix();
-            case NORMAL_COMMENT:
-                return new EcgNormalComment();
-            default:
-                return null;
-        }
-    }
-
     public static IEcgAppendix readFromStream(DataInput in) throws IOException{
-        if(in == null) throw new IllegalArgumentException();
+        if(in == null) throw new IllegalArgumentException("The data input is null.");
 
         EcgAppendixType type = EcgAppendixType.getFromCode(ByteUtil.reverseInt(in.readInt()));
-
         IEcgAppendix appendix = create(type);
-
         if(appendix != null) {
             appendix.readFromStream(in);
             return appendix;
         }
-
         return null;
     }
 
     public static void writeToStream(IEcgAppendix appendix, DataOutput out) throws IOException{
         if(out == null || appendix == null) return;
-
-        out.writeInt(ByteUtil.reverseInt(appendix.getType().getCode()));
-
+        out.writeInt(ByteUtil.reverseInt(appendix.getType().getCode())); // 写类型码
         appendix.writeToStream(out);
+    }
+
+    private static IEcgAppendix create(EcgAppendixType type) {
+        if(type == null) return null;
+        switch (type) {
+            case HR_INFO:
+                return EcgHrInfoAppendix.create();
+            case NORMAL_COMMENT:
+                return EcgNormalComment.create();
+            default:
+                return null;
+        }
     }
 }

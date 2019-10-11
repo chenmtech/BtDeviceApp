@@ -24,8 +24,7 @@ public class EcgNormalComment extends EcgAppendix{
     private long modifyTime = -1; // 修改时间
     private String content = ""; // 内容
 
-    public EcgNormalComment() {
-
+    private EcgNormalComment() {
     }
 
     private EcgNormalComment(User creator, long modifyTime) {
@@ -48,20 +47,20 @@ public class EcgNormalComment extends EcgAppendix{
         return new EcgNormalComment(creator, modifyTime);
     }
 
+    public static EcgNormalComment create() {
+        return new EcgNormalComment();
+    }
+
     public User getCreator() {
         return creator;
     }
-
     public long getModifyTime() {
         return modifyTime;
     }
-
     public void setModifyTime(long modifyTime) { this.modifyTime = modifyTime;}
-
     public String getContent() {
         return content;
     }
-
     public void setContent(String content) {
         this.content = content;
     }
@@ -84,12 +83,9 @@ public class EcgNormalComment extends EcgAppendix{
      */
     @Override
     public void readFromStream(DataInput in) throws IOException{
-        // 读创建人
-        creator.readFromStream(in);
-        // 读修改时间
-        modifyTime = ByteUtil.reverseLong(in.readLong());
-        // 读留言内容
-        content = DataIOUtil.readFixedString(in, CONTENT_CHAR_NUM);
+        creator.readFromStream(in); // 读创建人
+        modifyTime = ByteUtil.reverseLong(in.readLong()); // 读修改时间
+        content = DataIOUtil.readFixedString(in, CONTENT_CHAR_NUM); // 读留言内容
     }
 
     /**
@@ -98,12 +94,9 @@ public class EcgNormalComment extends EcgAppendix{
      */
     @Override
     public void writeToStream(DataOutput out) throws IOException{
-        // 写创建人
-        creator.writeToStream(out);
-        // 写修改时间
-        out.writeLong(ByteUtil.reverseLong(modifyTime));
-        // 写留言内容
-        DataIOUtil.writeFixedString(out, content, CONTENT_CHAR_NUM);
+        creator.writeToStream(out); // 写创建人
+        out.writeLong(ByteUtil.reverseLong(modifyTime)); // 写修改时间
+        DataIOUtil.writeFixedString(out, content, CONTENT_CHAR_NUM); // 写留言内容
     }
 
     /**
@@ -127,7 +120,6 @@ public class EcgNormalComment extends EcgAppendix{
         if(getClass() != otherObject.getClass()) return false;
 
         EcgNormalComment other = (EcgNormalComment)otherObject;
-
         // 只要手机号和修改时间相同，就认为是同一条留言
         return  (creator.getPhone().equals(other.creator.getPhone()) && (modifyTime == other.modifyTime));
     }

@@ -10,8 +10,8 @@ import java.io.IOException;
  */
 
 public interface IEcgAppendix {
-    void readFromStream(DataInput in) throws IOException;
-    void writeToStream(DataOutput out) throws IOException;
-    int length();
-    EcgAppendixType getType();
+    void readFromStream(DataInput in) throws IOException; // 读入
+    void writeToStream(DataOutput out) throws IOException; // 写出
+    int length(); // 长度
+    EcgAppendixType getType(); // 类型
 }

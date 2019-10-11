@@ -14,24 +14,25 @@ public class EcgHrInfoAppendix extends EcgAppendix{
 
     private List<Short> hrList = new ArrayList<>();
 
-    public EcgHrInfoAppendix() {
+    private EcgHrInfoAppendix() {
+    }
 
+    public static EcgHrInfoAppendix create() {
+        return new EcgHrInfoAppendix();
     }
 
     public void setHrList(List<Short> hrList) {
         this.hrList = hrList;
     }
-
     public List<Short> getHrList() {
         return hrList;
     }
 
     @Override
     public void readFromStream(DataInput in) throws IOException {
-        if(in == null) throw new IllegalArgumentException();
+        if(in == null) throw new IllegalArgumentException("The data input is null.");
 
         int hrLength = ByteUtil.reverseInt(in.readInt());
-
         for(int i = 0; i < hrLength; i++) {
             hrList.add(ByteUtil.reverseShort(in.readShort()));
         }
@@ -42,7 +43,6 @@ public class EcgHrInfoAppendix extends EcgAppendix{
         if(out == null) throw new IllegalArgumentException();
 
         out.writeInt(ByteUtil.reverseInt(hrList.size()));
-
         for(short hr : hrList) {
             out.writeShort(ByteUtil.reverseShort(hr));
         }
