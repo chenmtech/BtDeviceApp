@@ -95,7 +95,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
     private int xPixelPerData = 1; // EcgView的横向分辨率
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
-    private boolean isSaveEcgFile = false; // 是否保存心电文件
+    private boolean saveFile = false; // 是否保存心电文件
     private boolean containBatMeasService = false; // 是否测量电池电量
     private volatile EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
 
@@ -156,8 +156,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             updateRecordStatus(isRecord);
         }
     }
-    public void setSaveEcgFile(boolean saveEcgFile) {
-        isSaveEcgFile = saveEcgFile;
+    public void setSaveFile(boolean saveFile) {
+        this.saveFile = saveFile;
     }
     public int getPixelPerGrid() { return pixelPerGrid; }
     public int getXPixelPerData() { return xPixelPerData; }
@@ -266,7 +266,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         // 关闭文件
         if(ecgFile != null) {
             try {
-                if(isSaveEcgFile) {
+                if(saveFile) {
                     saveEcgFileTail();
                     ecgFile.close();
                     File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
@@ -324,8 +324,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         }
         super.disconnect();
     }
-
-
 
     // 添加留言内容
     public synchronized void addCommentContent(String content) {
