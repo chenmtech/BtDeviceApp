@@ -6,10 +6,12 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
+import android.media.AudioAttributes;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
@@ -46,7 +48,8 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
     private final static String NOTIFY_STRING_WHEN_NO_DEVICE_OPEN = "无设备打开。";
     private final static int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
     private final static String NOTIFY_TITLE = "欢迎使用" + MyApplication.getContext().getString(R.string.app_name); // 通知栏标题
-    private final static Ringtone WARN_RINGTONE = RingtoneManager.getRingtone(MyApplication.getContext(), Settings.System.DEFAULT_NOTIFICATION_URI); // 报警铃声
+    private final static Ringtone WARN_RINGTONE = RingtoneManager.getRingtone(MyApplication.getContext(), Settings.System.DEFAULT_ALARM_ALERT_URI); // 报警铃声
+    private final static Vibrator WARN_VIBRATOR = (Vibrator) MyApplication.getInstance().getSystemService(VIBRATOR_SERVICE); // 报警震动
     private Timer bleErrorWarnTimer; // BLE Error报警定时器
     private NotificationCompat.Builder notifyBuilder;
     private final BleNotifyServiceBinder binder = new BleNotifyServiceBinder();
@@ -68,6 +71,8 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
 
         initNotificationBuilder();
         sendNotification();
+
+
     }
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
@@ -125,7 +130,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
         }
 
         stopForeground(true);
-        stopWarnRingtone();
+        stopWarnWhenBleError();
         UserManager.getInstance().signOut();
 
         try {
@@ -145,11 +150,11 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
 
     @Override
     public void onBleErrorNotified(final BleDevice device) {
-        playWarnRingtone();
+        startWarnWhenBleError();
     }
 
     // 播放报警声音
-    private void playWarnRingtone() {
+    private void startWarnWhenBleError() {
         if(bleErrorWarnTimer == null) {
             bleErrorWarnTimer = new Timer();
             bleErrorWarnTimer.scheduleAtFixedRate(new TimerTask() {
@@ -158,25 +163,27 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
                     if(!WARN_RINGTONE.isPlaying()) {
                         WARN_RINGTONE.play();
                     }
+                    WARN_VIBRATOR.vibrate(1000, new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build());
                 }
             }, 0, NOTIFY_INTERVAL_BECAUSE_BLE_ERROR);
 
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    stopWarnRingtone();
+                    stopWarnWhenBleError();
                 }
             }, NOTIFY_INTERVAL_BECAUSE_BLE_ERROR * NOTIFY_TIMES_BECAUSE_BLE_ERROR);
         }
     }
 
-    private void stopWarnRingtone() {
+    public void stopWarnWhenBleError() {
         if(bleErrorWarnTimer != null) {
             bleErrorWarnTimer.cancel();
             bleErrorWarnTimer = null;
             if(WARN_RINGTONE.isPlaying()) {
                 WARN_RINGTONE.stop();
             }
+            WARN_VIBRATOR.cancel();
         }
     }
 

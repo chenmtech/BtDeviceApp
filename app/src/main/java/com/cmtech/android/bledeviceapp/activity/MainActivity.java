@@ -464,6 +464,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     isWarnBecauseBleError = false;
+                    bleNotifyService.stopWarnWhenBleError();
                 }
             }).setCancelable(false).show();
             isWarnBecauseBleError = true;
