@@ -44,9 +44,9 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-class EcgFilesManager {
+public class EcgFilesManager {
 
-    public interface OnEcgFilesChangeListener {
+    public interface OnEcgFilesChangedListener {
         void onSelectFileChanged(EcgFile ecgFile);
         void onFileListChanged(List<EcgFile> fileList);
     }
@@ -59,9 +59,9 @@ class EcgFilesManager {
     // 锁保护
     private EcgFile selectFile; // 选中的EcgFile
 
-    private OnEcgFilesChangeListener listener;
+    private OnEcgFilesChangedListener listener;
 
-    EcgFilesManager(OnEcgFilesChangeListener listener) {
+    EcgFilesManager(OnEcgFilesChangedListener listener) {
         this.listener = listener;
     }
 

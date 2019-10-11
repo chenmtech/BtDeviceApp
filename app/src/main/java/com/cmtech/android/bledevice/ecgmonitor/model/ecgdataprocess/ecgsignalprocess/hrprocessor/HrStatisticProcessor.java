@@ -51,7 +51,8 @@ public class HrStatisticProcessor implements IHrProcessor {
             listener.onHrStatisticInfoUpdated(hrStatisticInfoAnalyzer);
     }
 
-    // 重置心率数据
+    // 重置
+    @Override
     public synchronized void reset() {
         hrList.clear();
         hrStatisticInfoAnalyzer.clear();
@@ -67,10 +68,5 @@ public class HrStatisticProcessor implements IHrProcessor {
                 updateHrStatisticInfo();
             }
         }
-    }
-
-    @Override
-    public void close() {
-        reset();
     }
 }

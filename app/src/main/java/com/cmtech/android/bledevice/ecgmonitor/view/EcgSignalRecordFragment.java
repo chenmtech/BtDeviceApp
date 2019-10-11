@@ -62,7 +62,7 @@ public class EcgSignalRecordFragment extends Fragment{
 
         tvRecordTime = view.findViewById(R.id.tv_ecg_signal_recordtime);
 
-        setSignalSecNum(device.getSignalRecordSecond());
+        setSignalSecNum(device.getRecordSignalSecond());
 
         rvMarker = view.findViewById(R.id.rv_ecg_marker);
 
@@ -81,7 +81,7 @@ public class EcgSignalRecordFragment extends Fragment{
             @Override
             public void onMarkerClicked(EcgAbnormal marker) {
                 if(device != null)
-                    device.addCommentContent(DateTimeUtil.secToTimeInChinese((int)(device.getSignalRecordDataNum() / device.getSampleRate())) + '，' + marker.getDescription() + '；');
+                    device.addCommentContent(DateTimeUtil.secToTimeInChinese((int)(device.getRecordSignalDataNum() / device.getSampleRate())) + '，' + marker.getDescription() + '；');
             }
         });
 
@@ -90,12 +90,12 @@ public class EcgSignalRecordFragment extends Fragment{
         ibRecord = view.findViewById(R.id.ib_ecg_record);
 
         // 根据设备的isRecord初始化Record按钮
-        setSignalRecordStatus(device.isRecordEcgSignal());
+        setSignalRecordStatus(device.isRecordSignal());
 
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                device.setEcgSignalRecord(!device.isRecordEcgSignal());
+                device.setRecordSignal(!device.isRecordSignal());
             }
         });
     }

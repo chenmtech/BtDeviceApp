@@ -22,15 +22,13 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
-import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgCommentOperateListener;
-import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgFileExploreUpdatedListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.vise.log.ViseLog;
@@ -54,7 +52,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgFileExploreUpdatedListener, EcgFileRollWaveView.OnEcgFileRollWaveViewListener, OnEcgCommentOperateListener {
+public class EcgFileExplorerActivity extends AppCompatActivity implements EcgFileRollWaveView.OnEcgFileRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener, EcgFileExplorerModel.OnEcgFileExploreUpdatedListener {
     private static final String TAG = "EcgFileExplorerActivity";
 
     private static final float DEFAULT_SECOND_PER_HGRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
@@ -96,6 +94,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements OnEcgF
     private LinearLayout hrLayout;
 
     private TextView tvNoRecord;
+
 
 
     @Override

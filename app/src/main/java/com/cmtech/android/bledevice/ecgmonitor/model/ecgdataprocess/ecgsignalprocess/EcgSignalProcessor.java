@@ -48,9 +48,9 @@ public class EcgSignalProcessor {
         }
 
         this.device = device;
-        ecgCalibrator = new EcgCalibrator65536(device.getValue1mVBeforeCalibration());
+        ecgCalibrator = new EcgCalibrator65536(device.getValue1mV());
         ecgFilter = new EcgPreFilterWith35HzNotch(device.getSampleRate());
-
+        qrsDetector = new QrsDetector(device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         hrProcessorMap = new ConcurrentHashMap<>();
         HrStatisticProcessor hrStatisticProcessor = new HrStatisticProcessor(HR_FILTER_TIME_IN_SECOND, device);
         hrProcessorMap.put(HR_STATICS_PROCESSOR_KEY, hrStatisticProcessor);
@@ -60,28 +60,35 @@ public class EcgSignalProcessor {
         }
     }
 
-    public void update() {
-        ecgCalibrator.reset(device.getValue1mVBeforeCalibration(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+    // 重置，但不会重置心率统计处理器
+    public void reset() {
+        ecgCalibrator.reset(device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         ecgFilter.reset(device.getSampleRate());
         qrsDetector = new QrsDetector(device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
-        setHrAbnormalProcessor(device.getConfig().isWarnWhenHrAbnormal(), device.getConfig().getHrLowLimit(), device.getConfig().getHrHighLimit());
+        resetHrAbnormalProcessor();
     }
 
-    public void setHrAbnormalProcessor(boolean isWarn, int lowLimit, int highLimit) {
+    public void resetHrAbnormalProcessor() {
         HrAbnormalProcessor hrAbnormalProcessor = (HrAbnormalProcessor) hrProcessorMap.get(HR_ABNORMAL_PROCESSOR_KEY);
 
-        if (isWarn) {
+        if (device.getConfig().isWarnWhenHrAbnormal()) {
             if (hrAbnormalProcessor != null) {
-                hrAbnormalProcessor.reset(lowLimit, highLimit);
+                hrAbnormalProcessor.reset();
             } else {
                 hrAbnormalProcessor = new HrAbnormalProcessor(device);
                 hrProcessorMap.put(HR_ABNORMAL_PROCESSOR_KEY, hrAbnormalProcessor);
             }
         } else {
-            if (hrAbnormalProcessor != null) {
-                hrAbnormalProcessor.close();
-            }
             hrProcessorMap.remove(HR_ABNORMAL_PROCESSOR_KEY);
+        }
+    }
+
+    // 重置心率统计处理器，当设备关闭时调用
+    public void resetHrStatisticProcessor() {
+        HrStatisticProcessor hrStatisticProcessor = (HrStatisticProcessor) hrProcessorMap.get(HR_STATICS_PROCESSOR_KEY);
+
+        if(hrStatisticProcessor != null) {
+            hrStatisticProcessor.reset();
         }
     }
 
@@ -102,15 +109,6 @@ public class EcgSignalProcessor {
         }
     }
 
-    // 重置心率记录仪
-    public void resetHrStatisticProcessor() {
-        HrStatisticProcessor hrStatisticProcessor = (HrStatisticProcessor) hrProcessorMap.get(HR_STATICS_PROCESSOR_KEY);
-
-        if(hrStatisticProcessor != null) {
-            hrStatisticProcessor.reset();
-        }
-    }
-
     public void updateHrStatisticInfo() {
         HrStatisticProcessor hrStatisticProcessor = (HrStatisticProcessor) hrProcessorMap.get(HR_STATICS_PROCESSOR_KEY);
 
@@ -125,13 +123,6 @@ public class EcgSignalProcessor {
             return hrStatisticProcessor.getHrList();
         }
         return null;
-    }
-
-    public void close() {
-        for(IHrProcessor operator : hrProcessorMap.values()) {
-            if(operator != null)
-                operator.close();
-        }
     }
 
 }

@@ -30,16 +30,12 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 
 public class EcgFile extends AbstractRandomAccessBmeFile {
     private final EcgFileHead ecgFileHead;
-
     private final EcgFileTail ecgFileTail;
-
     private final long dataBeginPointer; // 数据起始位置指针
-
     private long dataEndPointer;  // 数据结束的文件位置指针
 
     private static class EcgFileTail {
-        static final int FILETAIL_LEN_BYTE_NUM = 8;
-
+        static final int FILE_TAIL_LEN_BYTE_NUM = 8;
         EcgHrInfoAppendix hrInfoAppendix = new EcgHrInfoAppendix(); // 心率信息
 
         List<EcgNormalComment> commentList = new ArrayList<>(); // 留言信息列表
@@ -57,13 +53,13 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
          * @param raf：数据输入流
          */
         void readFromStream(RandomAccessFile raf) throws IOException{
-            raf.seek(raf.length() - FILETAIL_LEN_BYTE_NUM);
+            raf.seek(raf.length() - FILE_TAIL_LEN_BYTE_NUM);
 
             long tailEndPointer = raf.getFilePointer();
 
             long tailLength = ByteUtil.reverseLong(raf.readLong());
 
-            long appendixLength = tailLength - FILETAIL_LEN_BYTE_NUM;
+            long appendixLength = tailLength - FILE_TAIL_LEN_BYTE_NUM;
 
             raf.seek(tailEndPointer - appendixLength);
 
@@ -135,7 +131,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
                 length += appendix.length();
             }
 
-            return length + FILETAIL_LEN_BYTE_NUM;
+            return length + FILE_TAIL_LEN_BYTE_NUM;
         }
     }
 

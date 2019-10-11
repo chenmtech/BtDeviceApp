@@ -36,13 +36,13 @@ public class Value1mVDetector {
     public Value1mVDetector(EcgMonitorDevice device) {
         this.device = device;
         this.sampleRate = device.getSampleRate();
-        calibrator = new EcgCalibrator65536(device.getValue1mVBeforeCalibration());
+        calibrator = new EcgCalibrator65536(device.getValue1mV());
         calibrationData = new ArrayList<>(2 * this.sampleRate);
     }
 
-    public void update() {
+    public void reset() {
         sampleRate = device.getSampleRate();
-        calibrator.reset(device.getValue1mVBeforeCalibration(), IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+        calibrator.reset(device.getValue1mV(), IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         calibrationData = new ArrayList<>(2*sampleRate);
         done = false;
     }
@@ -56,9 +56,9 @@ public class Value1mVDetector {
             calibrationData.add(calibrateData);
         } else {
             device.stopDataSampling();
-            int value1mVBeforeCalibration = calculateValue1mVBeforeCalibration(calibrationData); // 计算得到实际定标前1mV值
-            device.updateValue1mVBeforeCalibration(value1mVBeforeCalibration);
-            ViseLog.e(calibrationData.toString() + " " + value1mVBeforeCalibration);
+            int value1mV = calculateValue1mV(calibrationData); // 计算得到实际定标前1mV值
+            device.updateValue1mV(value1mV);
+            ViseLog.e(calibrationData.toString() + " " + value1mV);
             calibrationData.clear();
             done = true;
         }
@@ -67,7 +67,7 @@ public class Value1mVDetector {
     }
 
     // 计算定标前1mV值
-    private int calculateValue1mVBeforeCalibration(List<Integer> data) {
+    private int calculateValue1mV(List<Integer> data) {
         Integer[] arr = data.toArray(new Integer[0]);
         Arrays.sort(arr); // 从小到大排序
         int halfLen = (arr.length - 20)/2; // 去掉20个中间的数据

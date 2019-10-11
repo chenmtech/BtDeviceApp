@@ -15,5 +15,5 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpr
 
 public interface IHrProcessor {
     void process(short hr); // 心率值处理
-    void close(); // 关闭
+    void reset(); // 重置
 }

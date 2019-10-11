@@ -3,7 +3,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.vise.log.ViseLog;
 
 import java.io.IOException;
 
@@ -13,26 +12,21 @@ import java.io.IOException;
  */
 
 public class EcgSignalRecorder {
-
+    private final EcgMonitorDevice device;
     private final EcgFile ecgFile;
-
+    private final int sampleRate; // 采样频率
+    private final EcgNormalComment comment; // 当前信号的一般性留言
     private int recordDataNum = 0;
-
-    private int sampleRate; // 采样频率
-
     private boolean isRecord = false;
 
-    private final EcgNormalComment comment; // 当前信号的留言
+    public EcgSignalRecorder(EcgMonitorDevice device) {
+        if(device == null || device.getEcgFile() == null) {
+            throw new IllegalArgumentException("The device is null or the ecg file is null.");
+        }
 
-    private final EcgMonitorDevice device;
-
-    public EcgSignalRecorder(EcgMonitorDevice device, int sampleRate, EcgFile ecgFile) {
         this.device = device;
-
-        this.sampleRate = sampleRate;
-
-        this.ecgFile = ecgFile;
-
+        this.sampleRate = device.getSampleRate();
+        this.ecgFile = device.getEcgFile();
         comment = EcgNormalComment.createDefaultComment();
     }
 
@@ -40,20 +34,16 @@ public class EcgSignalRecorder {
     public int getSecond() {
         return recordDataNum /sampleRate;
     }
-
     // 获取记录的数据个数
     public long getDataNum() {
         return recordDataNum;
     }
-
     public EcgNormalComment getComment() {
         return comment;
     }
-
     public boolean isRecord() {
         return isRecord;
     }
-
     public void setRecord(boolean record) {
         isRecord = record;
     }
@@ -65,12 +55,6 @@ public class EcgSignalRecorder {
             recordDataNum++;
             device.updateRecordSecNum(getSecond());
         }
-    }
-
-    public synchronized void close() {
-        ViseLog.e("关闭EcgSignalRecorder");
-
-        isRecord = false;
     }
 
     // 添加留言的内容

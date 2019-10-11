@@ -27,7 +27,7 @@ public class EcgDataProcessor {
     private static final int INVALID_PACKAGE_NUM = -1;
 
     private final EcgMonitorDevice device;
-    private final Value1mVDetector value1MVDetector; // 定标前1mV值计算器
+    private final Value1mVDetector value1MVDetector; // 定标前1mV值检测器
     private final EcgSignalProcessor signalProcessor; // 心电信号处理器
     private int nextPackageNum = INVALID_PACKAGE_NUM; // 下一个要处理的数据包序号
     private ExecutorService service; // 数据处理Service
@@ -38,16 +38,20 @@ public class EcgDataProcessor {
         signalProcessor = new EcgSignalProcessor(device);
     }
 
-    public void updateValue1mVCalculator() {
-        this.value1MVDetector.update();
+    public void resetValue1mVCalculator() {
+        this.value1MVDetector.reset();
     }
 
-    public void updateSignalProcessor() {
-        this.signalProcessor.update();
+    public void resetSignalProcessor() {
+        signalProcessor.reset();
     }
 
-    public void setHrAbnormalProcessor(boolean isWarn, int lowLimit, int highLimit) {
-        signalProcessor.setHrAbnormalProcessor(isWarn, lowLimit, highLimit);
+    public void resetHrAbnormalProcessor() {
+        signalProcessor.resetHrAbnormalProcessor();
+    }
+
+    public void resetHrStatisticProcessor() {
+        signalProcessor.resetHrStatisticProcessor();
     }
 
     public List<Short> getHrList() {
@@ -72,12 +76,6 @@ public class EcgDataProcessor {
         ViseLog.e("停止数据处理服务");
 
         ExecutorUtil.shutdownNowAndAwaitTerminate(service);
-    }
-
-    public void close() {
-        stop();
-        signalProcessor.close();
-        //signalProcessor = null;
     }
 
     public synchronized void processData(final byte[] data, final boolean isCalibrationData) {

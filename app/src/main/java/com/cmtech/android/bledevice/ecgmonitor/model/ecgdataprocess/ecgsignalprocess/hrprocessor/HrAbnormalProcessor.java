@@ -20,15 +20,14 @@ public class HrAbnormalProcessor implements IHrProcessor {
 
     public HrAbnormalProcessor(EcgMonitorDevice device) {
         this.device = device;
-        lowLimit = device.getConfig().getHrLowLimit();
-        highLimit = device.getConfig().getHrHighLimit();
-        reset(lowLimit, highLimit);
+        reset();
     }
 
-    // 重置参数
-    public void reset(int lowLimit, int highLimit) {
-        this.lowLimit = lowLimit;
-        this.highLimit = highLimit;
+    // 重置
+    @Override
+    public void reset() {
+        this.lowLimit = device.getConfig().getHrLowLimit();
+        this.highLimit = device.getConfig().getHrHighLimit();
         int half = (lowLimit+highLimit)/2;
         buff = new int[DEFAULT_HR_BUFFLEN];
         for(int i = 0; i < DEFAULT_HR_BUFFLEN; i++) {
@@ -46,11 +45,6 @@ public class HrAbnormalProcessor implements IHrProcessor {
             }
             index = index % buff.length;
         }
-    }
-
-    @Override
-    public void close() {
-
     }
 
     // 检查心率是否异常

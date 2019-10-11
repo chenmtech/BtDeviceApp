@@ -87,7 +87,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         tvBattery = view.findViewById(R.id.tv_ecg_battery);
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
-        setCalibrationValue(device.getValue1mVBeforeCalibration(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+        setCalibrationValue(device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         tvHeartRate.setText("");
         initialEcgView();
         ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);

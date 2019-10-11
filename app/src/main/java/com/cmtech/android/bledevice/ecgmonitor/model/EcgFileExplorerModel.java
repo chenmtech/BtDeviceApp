@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import android.content.Context;
 
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
@@ -34,22 +35,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
 public class EcgFileExplorerModel {
     private final static int FILENUM_LOADED_EACH_TIMES = 5;
 
-    private class OpenFileRunnable implements Runnable {
-        private final File file;
-
-        OpenFileRunnable(File file) {
-            this.file = file;
-        }
-
-        @Override
-        public void run() {
-            try {
-                filesManager.openFile(file);
-
-            } catch (IOException e) {
-                ViseLog.e("To open ecg file is wrong." + file);
-            }
-        }
+    public interface OnEcgFileExploreUpdatedListener extends EcgFilesManager.OnEcgFilesChangedListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
     }
 
     private final File ecgFileDir; // Ecg文件路径
@@ -174,5 +160,23 @@ public class EcgFileExplorerModel {
         }
 
         filesManager.close();
+    }
+
+    private class OpenFileRunnable implements Runnable {
+        private final File file;
+
+        OpenFileRunnable(File file) {
+            this.file = file;
+        }
+
+        @Override
+        public void run() {
+            try {
+                filesManager.openFile(file);
+
+            } catch (IOException e) {
+                ViseLog.e("To open ecg file is wrong." + file);
+            }
+        }
     }
 }

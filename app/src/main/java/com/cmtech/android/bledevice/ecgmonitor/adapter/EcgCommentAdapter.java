@@ -12,7 +12,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.OnEcgCommentOperateListener;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -26,7 +25,12 @@ import java.util.List;
 public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.ViewHolder> {
     private List<EcgNormalComment> commentList; // 留言列表
 
-    private final OnEcgCommentOperateListener listener; // 附加信息操作者
+    private final OnEcgCommentListener listener; // 附加信息操作者
+
+    public interface OnEcgCommentListener {
+        void onCommentSaved(); // 保存留言
+        void onCommentDeleted(EcgNormalComment comment); // 删除留言
+    }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View appendixView;
@@ -45,7 +49,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         }
     }
 
-    public EcgCommentAdapter(List<EcgNormalComment> commentList, OnEcgCommentOperateListener listener) {
+    public EcgCommentAdapter(List<EcgNormalComment> commentList, OnEcgCommentListener listener) {
         this.commentList = commentList;
         this.listener = listener;
     }
