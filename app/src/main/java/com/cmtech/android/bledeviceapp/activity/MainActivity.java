@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                 if(resultCode == RESULT_OK) {
                     BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     if(registerInfo != null) {
-                        BleDevice device = BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
+                        BleDevice device = BleDeviceManager.createDeviceIfNotExist(bleNotifyService, registerInfo);
                         if(device != null) {
                             device.addListener(bleNotifyService);
 

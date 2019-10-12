@@ -34,6 +34,7 @@ public class MyApplication extends Application {
 
         instance = this;
 
+        // 设置BLE设备相关配置
         BleDeviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
         BleDeviceConfig.setOperateTimeout(OPERATE_TIMEOUT);
 

@@ -56,8 +56,8 @@ public class ScanActivity extends AppCompatActivity {
     private ScannedDeviceAdapter scannedDeviceAdapter;
     private RecyclerView rvScanDevice;
 
-    // 设备绑定状态改变的广播接收器
-    private final BroadcastReceiver bondReceiver = new BroadcastReceiver() {
+    // 设备绑定状态广播接收器
+    private final BroadcastReceiver bondStateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
@@ -136,7 +136,7 @@ public class ScanActivity extends AppCompatActivity {
 
         IntentFilter bondIntent = new IntentFilter();
         bondIntent.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        registerReceiver(bondReceiver, bondIntent);
+        registerReceiver(bondStateReceiver, bondIntent);
 
         startScan();
     }
@@ -187,7 +187,7 @@ public class ScanActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        unregisterReceiver(bondReceiver);
+        unregisterReceiver(bondStateReceiver);
 
         if(srlScanDevice.isRefreshing())
             srlScanDevice.setRefreshing(false);

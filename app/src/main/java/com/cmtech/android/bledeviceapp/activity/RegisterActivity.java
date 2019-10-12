@@ -92,7 +92,7 @@ public class RegisterActivity extends AppCompatActivity {
         ivImage = findViewById(R.id.iv_device_image);
         cacheImagePath = registerInfo.getImagePath();
         if("".equals(cacheImagePath)) {
-            int defaultImageId = type.getDefaultImage();
+            int defaultImageId = type.getDefaultImageId();
             Glide.with(this).load(defaultImageId).into(ivImage);
         } else {
             // 注意不要从缓存显示图像
@@ -256,7 +256,7 @@ public class RegisterActivity extends AppCompatActivity {
         if(type != null) {
             etName.setText(type.getDefaultNickname());
             cacheImagePath = DEFAULT_DEVICE_IMAGEPATH;
-            Glide.with(this).load(type.getDefaultImage()).into(ivImage);
+            Glide.with(this).load(type.getDefaultImageId()).into(ivImage);
             cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
             cbWarnWhenBleError.setChecked(DEFAULT_WARN_WHEN_BLE_ERROR);
         }

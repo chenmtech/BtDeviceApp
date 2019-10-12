@@ -118,7 +118,7 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             holder.deviceImage.setImageDrawable(drawable);
         } else {
-            Glide.with(MyApplication.getContext()).load(BleDeviceType.getFromUuid(device.getUuidString()).getDefaultImage()).into(holder.deviceImage);
+            Glide.with(MyApplication.getContext()).load(BleDeviceType.getFromUuid(device.getUuidString()).getDefaultImageId()).into(holder.deviceImage);
         }
 
         holder.deviceName.setText(device.getNickName());
