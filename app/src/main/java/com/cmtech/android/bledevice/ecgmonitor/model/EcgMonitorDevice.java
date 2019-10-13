@@ -257,7 +257,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     // 关闭设备
     @Override
     public void close() {
-        if(!isDisconnect()) {
+        if(!isDisconnected()) {
             throw new IllegalStateException("The device is not disconnected and can't be closed.");
         }
 
@@ -314,7 +314,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             stopBatteryMeasure();
             containBatMeasService = false;
         }
-        if(isConnect() && isGattExecutorAlive()) {
+        if(isConnected() && isGattExecutorAlive()) {
             stopDataSampling();
         }
         try {

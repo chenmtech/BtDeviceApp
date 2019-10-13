@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         } else {
             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
             toolbarManager.setBattery(device.getBattery());
-            updateConnectFloatingActionButton(device.getStateIcon(), device.isActing());
+            updateConnectFloatingActionButton(device.getStateIcon(), device.isChangingState());
             invalidateOptionsMenu();
             updateMainLayoutVisibility(true);
         }
@@ -296,8 +296,6 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                     if(registerInfo != null) {
                         BleDevice device = BleDeviceManager.createDeviceIfNotExist(bleNotifyService, registerInfo);
                         if(device != null) {
-                            device.addListener(bleNotifyService);
-
                             if(registerInfo.saveToPref(pref)) {
                                 Toast.makeText(MainActivity.this, "设备注册成功", Toast.LENGTH_SHORT).show();
                                 if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
@@ -450,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         BleFragment deviceFrag = fragTabManager.findFragment(device);
         if(deviceFrag != null) deviceFrag.updateState();
         if(fragTabManager.isFragmentSelected(device)) {
-            updateConnectFloatingActionButton(device.getStateIcon(), device.isActing());
+            updateConnectFloatingActionButton(device.getStateIcon(), device.isChangingState());
         }
     }
 
@@ -514,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
     // 关闭Fragment
     private void closeFragment(final BleFragment fragment) {
         BleDevice device = fragment.getDevice();
-        if(device != null && device.isDisconnect()) {
+        if(device != null && device.isDisconnected()) {
             fragment.close();
         } else {
             Toast.makeText(this, "关闭前请先断开设备。", Toast.LENGTH_LONG).show();

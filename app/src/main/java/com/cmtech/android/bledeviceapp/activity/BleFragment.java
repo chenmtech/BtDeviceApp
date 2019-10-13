@@ -90,7 +90,7 @@ public abstract class BleFragment extends Fragment{
 
     // 关闭
     public void close() {
-        if(device != null && device.isDisconnect()) {
+        if(device != null && device.isDisconnected()) {
             device.close();
 
             if(getActivity() != null) {

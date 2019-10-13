@@ -184,7 +184,7 @@ public class TempHumidDevice extends BleDevice {
 
     // 更新历史数据
     public synchronized void updateHistoryData() {
-        if(isConnect() && !isUpdatingHistoryData) {
+        if(isConnected() && !isUpdatingHistoryData) {
             isUpdatingHistoryData = true;
             if (hasTimerService)
                 readTimerServiceValue();

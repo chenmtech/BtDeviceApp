@@ -65,14 +65,8 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
         super.onCreate();
 
         initDeviceManager(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
-        for(BleDevice device : BleDeviceManager.getDeviceList()) {
-            device.addListener(this);
-        }
-
         initNotificationBuilder();
         sendNotification();
-
-
     }
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
@@ -125,8 +119,8 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
             if(device.getBleGatt() != null) {
                 device.getBleGatt().clear();
             }
+            device.removeListener(BleNotifyService.this);
             //device.close();
-            //device.removeListener(BleNotifyService.this);
         }
 
         stopForeground(true);
