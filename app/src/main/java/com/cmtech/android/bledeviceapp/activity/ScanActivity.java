@@ -47,7 +47,7 @@ import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_R
 
 public class ScanActivity extends AppCompatActivity {
     private static final String TAG = "ScanActivity";
-    private static final ScanFilter SCAN_FILTER_DEVICE_NAME = new ScanFilter.Builder().setDeviceName(BleDeviceConstant.SCAN_DEVICE_NAME).build();
+    private static final ScanFilter SCAN_FILTER_WITH_DEVICE_NAME = new ScanFilter.Builder().setDeviceName(BleDeviceConstant.SCAN_DEVICE_NAME).build();
     public static final String REGISTERED_DEVICE_MAC_LIST = "registered_device_mac_list";
 
     private final List<BleDeviceDetailInfo> scannedDeviceDetailInfoList = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
@@ -85,18 +85,18 @@ public class ScanActivity extends AppCompatActivity {
         public void onScanFailed(int errorCode) {
             switch (errorCode) {
                 case SCAN_FAILED_ALREADY_STARTED:
-                    Toast.makeText(ScanActivity.this, "正在扫描中。", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ScanActivity.this, "扫描进行中，不能重复扫描。", Toast.LENGTH_LONG).show();
                     break;
 
                 case SCAN_FAILED_BLE_CLOSED:
-                    Toast.makeText(ScanActivity.this, "蓝牙已关闭。", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ScanActivity.this, "蓝牙已关闭，无法扫描。", Toast.LENGTH_LONG).show();
                     srlScanDevice.setRefreshing(false);
                     break;
 
                 case SCAN_FAILED_BLE_INNER_ERROR:
                     srlScanDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
-                    Toast.makeText(ScanActivity.this, "蓝牙错误，必须重启蓝牙。", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ScanActivity.this, "蓝牙内部错误，必须重启蓝牙。", Toast.LENGTH_LONG).show();
                     break;
             }
         }
@@ -146,7 +146,7 @@ public class ScanActivity extends AppCompatActivity {
         scannedDeviceDetailInfoList.clear();
         scannedDeviceAdapter.notifyDataSetChanged();
         BleScanner.stopScan(bleScanCallback);
-        BleScanner.startScan(SCAN_FILTER_DEVICE_NAME, bleScanCallback);
+        BleScanner.startScan(SCAN_FILTER_WITH_DEVICE_NAME, bleScanCallback);
     }
 
     @Override

@@ -102,33 +102,35 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
 
     @Override
     public void close() {
-        if(getContext() != null) {
-            final Dialog alertDialog = new AlertDialog.Builder(getContext()).
-                    setTitle("保存记录").
-                    setMessage("是否保存记录？").
-                    setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (device != null) {
-                                device.setSaveFile(true);
+        if(device != null && device.isDisconnected()) {
+            if (getContext() != null) {
+                final Dialog alertDialog = new AlertDialog.Builder(getContext()).
+                        setTitle("保存记录").
+                        setMessage("是否保存记录？").
+                        setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (device != null) {
+                                    device.setSaveFile(true);
+                                }
+                                EcgMonitorFragment.super.close();
                             }
-                            EcgMonitorFragment.super.close();
-                        }
-                    }).setNeutralButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+                        }).setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-                }
-            }).setNegativeButton("不保存", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    if (device != null) {
-                        device.setSaveFile(false);
                     }
-                    EcgMonitorFragment.super.close();
-                }
-            }).create();
-            alertDialog.show();
+                }).setNegativeButton("不保存", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (device != null) {
+                            device.setSaveFile(false);
+                        }
+                        EcgMonitorFragment.super.close();
+                    }
+                }).create();
+                alertDialog.show();
+            }
         }
     }
 

@@ -12,6 +12,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -42,7 +43,7 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
 public class UserActivity extends AppCompatActivity {
     private EditText etNickname;
     private ImageView ivPortrait;
-    private EditText etRemark;
+    private EditText etPersonalInfo;
     private String cachePortraitPath = ""; // 头像文件路径缓存
 
     @Override
@@ -56,18 +57,18 @@ public class UserActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_setuserinfo);
         setSupportActionBar(toolbar);
 
-        TextView tvPhone = findViewById(R.id.et_userinfo_phone);
+        TextView tvPhone = findViewById(R.id.et_user_phone);
         User user = UserManager.getInstance().getUser();
         String phoneNum = user.getPhone();
         String secretPhone = String.format("%s****%s", phoneNum.substring(0,3), phoneNum.substring(7));
         tvPhone.setText(secretPhone);
 
-        etNickname = findViewById(R.id.et_userinfo_nickname);
+        etNickname = findViewById(R.id.et_user_nickname);
         etNickname.setText(user.getName());
 
-        ivPortrait = findViewById(R.id.iv_userinfo_portrait);
+        ivPortrait = findViewById(R.id.iv_user_portrait);
         cachePortraitPath = user.getPortraitPath();
-        if("".equals(cachePortraitPath)) {
+        if(TextUtils.isEmpty(cachePortraitPath)) {
             Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivPortrait);
         } else {
             Glide.with(MyApplication.getContext()).load(cachePortraitPath)
@@ -80,8 +81,8 @@ public class UserActivity extends AppCompatActivity {
             }
         });
 
-        etRemark = findViewById(R.id.et_userinfo_remark);
-        etRemark.setText(user.getPersonalInfo());
+        etPersonalInfo = findViewById(R.id.et_user_personalinfo);
+        etPersonalInfo.setText(user.getPersonalInfo());
 
         ImageButton ibLogout = findViewById(R.id.ib_logout);
         ibLogout.setOnClickListener(new View.OnClickListener() {
@@ -91,7 +92,6 @@ public class UserActivity extends AppCompatActivity {
                 intent.putExtra("logout", true);
                 setResult(RESULT_CANCELED, intent);
                 finish();
-
             }
         });
 
@@ -128,7 +128,7 @@ public class UserActivity extends AppCompatActivity {
                     }
                 }
 
-                account.setPersonalInfo(etRemark.getText().toString());
+                account.setPersonalInfo(etPersonalInfo.getText().toString());
                 account.save();
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
@@ -154,7 +154,7 @@ public class UserActivity extends AppCompatActivity {
         switch (requestCode) {
             case 1:
                 if(resultCode == RESULT_OK) {
-                    if(Build.VERSION.SDK_INT >= 19) {
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                         cachePortraitPath = handleImageOnKitKat(data);
                     } else {
                         cachePortraitPath = handleImageBeforeKitKat(data);
@@ -237,5 +237,4 @@ public class UserActivity extends AppCompatActivity {
     private void displaySelectedImage(String imagePath) {
         Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivPortrait);
     }
-
 }

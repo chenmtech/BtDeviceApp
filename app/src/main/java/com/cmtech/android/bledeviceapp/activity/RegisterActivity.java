@@ -80,7 +80,7 @@ public class RegisterActivity extends AppCompatActivity {
         // 设置标题为设备地址
         setTitle("设备:"+ registerInfo.getMacAddress());
 
-        // 设置设备昵名
+        // 设置设备昵称
         etName = findViewById(R.id.et_device_nickname);
         String deviceName = registerInfo.getNickName();
         if("".equals(deviceName)) {
@@ -110,7 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
         cbIsAutoconnect = findViewById(R.id.cb_device_isautoconnect);
         cbIsAutoconnect.setChecked(registerInfo.autoConnect());
 
-        // 设置BLE Error是否报警
+        // 设置BLE内部错误是否报警
         cbWarnWhenBleError = findViewById(R.id.cb_device_warn_when_ble_error);
         cbWarnWhenBleError.setChecked(registerInfo.isWarnWhenBleError());
 

@@ -51,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="蓝牙错误是否报警" />
+        android:text="蓝牙内部错误是否报警" />
 
     <LinearLayout
         android:layout_width="match_parent"

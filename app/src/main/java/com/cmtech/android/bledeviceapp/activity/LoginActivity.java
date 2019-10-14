@@ -45,10 +45,10 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
   * Version:        1.0
  */
 public class LoginActivity extends AppCompatActivity {
-    private final static String CHINA_PHONE_NUMBER = "86";
-    private final static int MSG_WAIT_SECOND = 1;
-    private final static long MS_PER_DAY = 24 * 60 * 60 * 1000;
-    private final static String MAGIC_PASSWORD = "abcdef";
+    private static final String CHINA_PHONE_NUMBER = "86";
+    private static final int MSG_WAIT_SECOND = 1;
+    private static final long MS_PER_DAY = 24 * 60 * 60 * 1000;
+    private static final String MAGIC_PASSWORD = "abcdef";
 
     private EditText etPhone;
     private Button btnGetVeriCode;
