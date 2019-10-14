@@ -38,7 +38,7 @@ public class EcgDataProcessor {
         signalProcessor = new EcgSignalProcessor(device);
     }
 
-    public void resetValue1mVCalculator() {
+    public void resetValue1mVDetector() {
         this.value1MVDetector.reset();
     }
 

@@ -12,7 +12,6 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgSignalRecorder;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
@@ -338,7 +337,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 sampleRate = (data[0] & 0xff) | ((data[1] << 8) & 0xff00);
                 updateSampleRate(sampleRate);
 
-                dataProcessor.resetValue1mVCalculator();
+                dataProcessor.resetValue1mVDetector();
 
                 // 初始化EcgView
                 initializeEcgView(sampleRate);

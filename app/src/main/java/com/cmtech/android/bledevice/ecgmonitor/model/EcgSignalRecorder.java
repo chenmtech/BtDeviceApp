@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
+package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
@@ -13,11 +13,11 @@ import java.io.IOException;
 
 public class EcgSignalRecorder {
     private final EcgMonitorDevice device;
-    private final EcgFile ecgFile;
+    private final EcgFile ecgFile; // ECG文件
     private final int sampleRate; // 采样频率
     private final EcgNormalComment comment; // 当前信号的一般性留言
-    private int recordDataNum = 0;
-    private boolean isRecord = false;
+    private int dataNum = 0; // 记录的数据个数
+    private boolean isRecord = false; // 是否记录
 
     public EcgSignalRecorder(EcgMonitorDevice device) {
         if(device == null || device.getEcgFile() == null) {
@@ -32,11 +32,11 @@ public class EcgSignalRecorder {
 
     // 获取记录的秒数
     public int getSecond() {
-        return recordDataNum /sampleRate;
+        return dataNum /sampleRate;
     }
     // 获取记录的数据个数
     public long getDataNum() {
-        return recordDataNum;
+        return dataNum;
     }
     public EcgNormalComment getComment() {
         return comment;
@@ -52,7 +52,7 @@ public class EcgSignalRecorder {
     public synchronized void record(int ecgSignal) throws IOException{
         if(isRecord) {
             ecgFile.writeData(ecgSignal);
-            recordDataNum++;
+            dataNum++;
             device.updateRecordSecNum(getSecond());
         }
     }
