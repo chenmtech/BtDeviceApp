@@ -6,7 +6,7 @@ import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.bledeviceapp.model.BleFactory;
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
-import com.cmtech.android.ble.core.BleDeviceType;
+import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 import com.cmtech.android.bledevice.thermo.view.ThermoFragment;
 import com.cmtech.android.bledeviceapp.R;
 

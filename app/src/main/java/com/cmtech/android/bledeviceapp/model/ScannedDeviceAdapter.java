@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
@@ -26,7 +25,7 @@ import java.util.List;
 
 public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdapter.ViewHolder> {
     private final List<BleDeviceDetailInfo> scannedDeviceDetailInfoList; // 扫描到的设备详细信息列表
-    private final List<String> registeredMacList; // 已注册设备Mac List
+    private final List<String> registeredMacList; // 已注册设备Mac地址List
     private final ScanActivity activity; // 扫描设备的Activiy
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -70,7 +69,6 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
                 }
             }
         });
-
         return holder;
     }
 

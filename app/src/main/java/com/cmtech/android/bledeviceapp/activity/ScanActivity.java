@@ -93,7 +93,7 @@ public class ScanActivity extends AppCompatActivity {
                     srlScanDevice.setRefreshing(false);
                     break;
 
-                case SCAN_FAILED_BLE_ERROR:
+                case SCAN_FAILED_BLE_INNER_ERROR:
                     srlScanDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
                     Toast.makeText(ScanActivity.this, "蓝牙错误，必须重启蓝牙。", Toast.LENGTH_LONG).show();
@@ -226,8 +226,9 @@ public class ScanActivity extends AppCompatActivity {
 
     private void registerBondedDevice(final BleDeviceDetailInfo device) {
         if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
-            Toast.makeText(this, "设备未绑定，无法注册。", Toast.LENGTH_SHORT).show();
+            throw new IllegalStateException("The device is not bonded.");
         }
+
         // 获取设备广播数据中的UUID的短串
         AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(record == null) {
@@ -237,11 +238,8 @@ public class ScanActivity extends AppCompatActivity {
 
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
         Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
-        BleDeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo();
-        registerInfo.setMacAddress(device.getAddress());
-        registerInfo.setUuidString(uuidShortString);
+        BleDeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(device.getAddress(), uuidShortString);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, 1);
     }
-
 }

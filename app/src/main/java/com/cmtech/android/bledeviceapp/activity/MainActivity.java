@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -18,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -40,6 +42,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -123,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                 if(state == STATE_ON) {
                     BleScanner.clearInnerError();
+                    BleScanner.clearScanTimes();
                     Toast.makeText(context, "蓝牙已开启。", Toast.LENGTH_SHORT).show();
                 } else if(state == STATE_OFF) {
                     Toast.makeText(context, "蓝牙已关闭。", Toast.LENGTH_SHORT).show();
@@ -316,7 +320,15 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
                         device.updateRegisterInfo(registerInfo);
                         if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
-                        fragTabManager.updateTabInfo(fragTabManager.findFragment(device), device.getImageDrawable(), device.getNickName());
+                        Drawable drawable = device.getImageDrawable();
+                        if(drawable == null) {
+                            BleDeviceType deviceType = BleDeviceType.getFromUuid(device.getUuidString());
+                            if(deviceType == null) {
+                                throw new IllegalStateException("The device type is not supported.");
+                            }
+                            drawable = ContextCompat.getDrawable(this, deviceType.getDefaultImageId());
+                        }
+                        fragTabManager.updateTabInfo(fragTabManager.findFragment(device), drawable, device.getNickName());
                         if(fragTabManager.isFragmentSelected(device)) {
                             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
                             toolbarManager.setBattery(device.getBattery());
@@ -504,7 +516,15 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         BleFactory factory = BleFactory.getFactory(device.getRegisterInfo());
         if(factory != null) {
             openDrawer(false);
-            fragTabManager.openFragment(factory.createFragment(), device.getImageDrawable(), device.getNickName());
+            Drawable drawable = device.getImageDrawable();
+            if(drawable == null) {
+                BleDeviceType deviceType = BleDeviceType.getFromUuid(device.getUuidString());
+                if(deviceType == null) {
+                    throw new IllegalStateException("The device type is not supported.");
+                }
+                drawable = ContextCompat.getDrawable(this, deviceType.getDefaultImageId());
+            }
+            fragTabManager.openFragment(factory.createFragment(), drawable, device.getNickName());
             updateMainLayout(device);
         }
     }
@@ -525,7 +545,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
     }
 
     // 从设备列表中删除设备
-    public void removeDeviceFromList(final BleDevice device) {
+    public void removeRegisteredDevice(final BleDevice device) {
         if(device == null) return;
 
         if(fragTabManager.isFragmentOpened(device)) {
@@ -554,7 +574,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
     }
 
     // 修改设备注册信息 
-    public void modifyDeviceRegisterInfo(final BleDeviceRegisterInfo registerInfo) {
+    public void modifyRegisterInfo(final BleDeviceRegisterInfo registerInfo) {
         Intent intent = new Intent(this, RegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, RC_MODIFY_REGISTER_INFO);

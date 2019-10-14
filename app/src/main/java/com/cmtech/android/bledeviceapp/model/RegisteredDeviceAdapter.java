@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.model;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,7 +15,6 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.cmtech.android.ble.core.BleDevice;
-import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -26,12 +26,8 @@ import java.util.List;
  */
 
 public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDeviceAdapter.ViewHolder> {
-
-    // 设备列表
-    private List<BleDevice> mDeviceList;
-
-    // MainActivity
-    private MainActivity activity;
+    private List<BleDevice> deviceList; // 设备列表
+    private MainActivity activity; // MainActivity
 
     class ViewHolder extends RecyclerView.ViewHolder {
         View deviceView;
@@ -47,13 +43,11 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
             deviceName = deviceView.findViewById(R.id.tv_device_nickname);
             deviceAddress = deviceView.findViewById(R.id.tv_device_macaddress);
             deviceStatus = deviceView.findViewById(R.id.tv_device_status);
-
         }
     }
 
     public RegisteredDeviceAdapter(List<BleDevice> deviceList, MainActivity activity) {
-
-        mDeviceList = deviceList;
+        this.deviceList = deviceList;
         this.activity = activity;
     }
 
@@ -67,7 +61,7 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BleDevice device = mDeviceList.get(holder.getAdapterPosition());
+                BleDevice device = deviceList.get(holder.getAdapterPosition());
                 activity.openDevice(device);
             }
         });
@@ -76,18 +70,18 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
             final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
-                    BleDevice device = mDeviceList.get(holder.getAdapterPosition());
+                    BleDevice device = deviceList.get(holder.getAdapterPosition());
                     switch (item.getItemId()){
                         case 1:
-                            activity.modifyDeviceRegisterInfo(device.getRegisterInfo());
-                            return true;
+                            activity.modifyRegisterInfo(device.getRegisterInfo());
+                            break;
                         case 2:
-                            activity.removeDeviceFromList(device);
-                            return true;
-
+                            activity.removeRegisteredDevice(device);
+                            break;
                         default:
-                            return true;
+                            break;
                     }
+                    return true;
                 }
             };
 
@@ -105,20 +99,21 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
                 return false;
             }
         });
-
         return holder;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        BleDevice device = mDeviceList.get(position);
+        BleDevice device = deviceList.get(position);
 
         String imagePath = device.getImagePath();
-        if(imagePath != null && !"".equals(imagePath)) {
+        if(!TextUtils.isEmpty(imagePath)) {
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             holder.deviceImage.setImageDrawable(drawable);
         } else {
-            Glide.with(MyApplication.getContext()).load(BleDeviceType.getFromUuid(device.getUuidString()).getDefaultImageId()).into(holder.deviceImage);
+            BleDeviceType type = BleDeviceType.getFromUuid(device.getUuidString());
+            if(type == null) return;
+            Glide.with(MyApplication.getContext()).load(type.getDefaultImageId()).into(holder.deviceImage);
         }
 
         holder.deviceName.setText(device.getNickName());
@@ -128,8 +123,6 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
 
     @Override
     public int getItemCount() {
-        return mDeviceList.size();
+        return deviceList.size();
     }
-
-
 }

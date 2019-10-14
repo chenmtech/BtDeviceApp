@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.core.BleDeviceType;
+import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 import com.cmtech.android.bledevice.temphumid.view.TempHumidFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;

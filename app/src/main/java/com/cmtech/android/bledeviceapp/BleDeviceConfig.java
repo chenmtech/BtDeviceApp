@@ -2,7 +2,7 @@ package com.cmtech.android.bledeviceapp;
 
 import com.cmtech.android.ble.BleConfig;
 import com.cmtech.android.ble.core.BleDeviceState;
-import com.cmtech.android.ble.core.BleDeviceType;
+import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 
 /**
  * BleDeviceConfig: 进行一些初始化和配置
@@ -16,8 +16,8 @@ public class BleDeviceConfig {
     }
 
     // 配置数据操作超时时间
-    public static void setOperateTimeout(int operateTimeout) {
-        BleConfig.getInstance().setOperateTimeout(operateTimeout);
+    public static void setDataOperateTimeout(int operateTimeout) {
+        BleConfig.getInstance().setDataOperateTimeout(operateTimeout);
     }
 
     // 添加支持的设备类型

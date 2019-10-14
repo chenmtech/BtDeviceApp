@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.core.BleDeviceType;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
 import com.vise.log.ViseLog;
 
@@ -34,7 +33,7 @@ public abstract class BleFactory {
     public static BleFactory getFactory(BleDeviceRegisterInfo registerInfo) {
         if(registerInfo == null) return null;
 
-        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidString());
+        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidStr());
         if(type == null) {
             ViseLog.e("The device type is not supported.");
             return null;

@@ -21,7 +21,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.core.BleDeviceType;
+import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.file.FileUtil;
@@ -30,8 +30,8 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_AUTOCONNECT;
-import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_IMAGEPATH;
+import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_AUTO_CONNECT;
+import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_IMAGE_PATH;
 import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_WARN_WHEN_BLE_ERROR;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
 
@@ -70,7 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
                 throw new IllegalStateException("创建图像目录错误");
             }
         }
-        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidString());
+        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidStr());
         if(type == null) {
             Toast.makeText(this, "设备类型未知，无法注册。", Toast.LENGTH_SHORT).show();
             finish();
@@ -252,12 +252,12 @@ public class RegisterActivity extends AppCompatActivity {
 
     // 恢复缺省设置
     private void restoreDefaultSetup() {
-        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidString());
+        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidStr());
         if(type != null) {
             etName.setText(type.getDefaultNickname());
-            cacheImagePath = DEFAULT_DEVICE_IMAGEPATH;
+            cacheImagePath = DEFAULT_DEVICE_IMAGE_PATH;
             Glide.with(this).load(type.getDefaultImageId()).into(ivImage);
-            cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTOCONNECT);
+            cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTO_CONNECT);
             cbWarnWhenBleError.setChecked(DEFAULT_WARN_WHEN_BLE_ERROR);
         }
     }

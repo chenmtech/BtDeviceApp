@@ -27,9 +27,6 @@ import java.util.List;
 public class BleDeviceManager {
     private static final List<BleDevice> DEVICE_LIST = new ArrayList<>(); // 所有注册的设备列表
 
-    private BleDeviceManager() {
-    }
-
     // 如果设备不存在，用注册信息创建一个设备
     public static BleDevice createDeviceIfNotExist(Context context, BleDeviceRegisterInfo registerInfo) {
         BleDevice device = findDevice(registerInfo);

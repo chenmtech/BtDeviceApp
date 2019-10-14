@@ -42,15 +42,16 @@ import java.util.TimerTask;
  */
 
 public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUpdatedListener {
-    private final static String TAG = "BleNotifyService";
-    private final static int NOTIFY_INTERVAL_BECAUSE_BLE_ERROR = 5000; // 单位：ms
-    private final static int NOTIFY_TIMES_BECAUSE_BLE_ERROR = 5;
-    private final static String NOTIFY_STRING_WHEN_NO_DEVICE_OPEN = "无设备打开。";
-    private final static int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
-    private final static String NOTIFY_TITLE = "欢迎使用" + MyApplication.getContext().getString(R.string.app_name); // 通知栏标题
-    private final static Ringtone WARN_RINGTONE = RingtoneManager.getRingtone(MyApplication.getContext(), Settings.System.DEFAULT_ALARM_ALERT_URI); // 报警铃声
-    private final static Vibrator WARN_VIBRATOR = (Vibrator) MyApplication.getInstance().getSystemService(VIBRATOR_SERVICE); // 报警震动
-    private Timer bleErrorWarnTimer; // BLE Error报警定时器
+    private static final String TAG = "BleNotifyService";
+    private static final int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
+    private static final String NOTIFY_TITLE = "欢迎使用" + MyApplication.getContext().getString(R.string.app_name); // 通知栏标题
+    private static final String NOTIFY_STR_WHEN_NO_DEVICE_OPEN = "无设备打开。"; // 无设备打开时的通知串
+    private static final Ringtone WARN_RINGTONE = RingtoneManager.getRingtone(MyApplication.getContext(), Settings.System.DEFAULT_ALARM_ALERT_URI); // 报警铃声
+    private static final Vibrator WARN_VIBRATOR = (Vibrator) MyApplication.getInstance().getSystemService(VIBRATOR_SERVICE); // 报警震动
+    private static final int WARN_INTERVAL = 5000; // 报警间隔时间，单位：ms
+    private static final int WARN_TIMES = 5; // 报警次数
+
+    private Timer warnTimer; // 报警定时器
     private NotificationCompat.Builder notifyBuilder;
     private final BleNotifyServiceBinder binder = new BleNotifyServiceBinder();
 
@@ -65,13 +66,14 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
         super.onCreate();
 
         initDeviceManager(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
+
         initNotificationBuilder();
         sendNotification();
     }
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
     private void initDeviceManager(SharedPreferences pref) {
-        List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.createFromPref(pref);
+        List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.createAllFromPref(pref);
         if(registerInfoList == null || registerInfoList.isEmpty()) return;
         for(BleDeviceRegisterInfo registerInfo : registerInfoList) {
            BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
@@ -147,11 +149,15 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
         startWarnWhenBleError();
     }
 
+    @Override
+    public void onBatteryUpdated(BleDevice device) {
+    }
+
     // 播放报警声音
     private void startWarnWhenBleError() {
-        if(bleErrorWarnTimer == null) {
-            bleErrorWarnTimer = new Timer();
-            bleErrorWarnTimer.scheduleAtFixedRate(new TimerTask() {
+        if(warnTimer == null) {
+            warnTimer = new Timer();
+            warnTimer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
                     if(!WARN_RINGTONE.isPlaying()) {
@@ -159,21 +165,21 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
                     }
                     WARN_VIBRATOR.vibrate(1000, new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build());
                 }
-            }, 0, NOTIFY_INTERVAL_BECAUSE_BLE_ERROR);
+            }, 0, WARN_INTERVAL);
 
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
                     stopWarnWhenBleError();
                 }
-            }, NOTIFY_INTERVAL_BECAUSE_BLE_ERROR * NOTIFY_TIMES_BECAUSE_BLE_ERROR);
+            }, WARN_INTERVAL * WARN_TIMES);
         }
     }
 
     public void stopWarnWhenBleError() {
-        if(bleErrorWarnTimer != null) {
-            bleErrorWarnTimer.cancel();
-            bleErrorWarnTimer = null;
+        if(warnTimer != null) {
+            warnTimer.cancel();
+            warnTimer = null;
             if(WARN_RINGTONE.isPlaying()) {
                 WARN_RINGTONE.stop();
             }
@@ -181,17 +187,12 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUp
         }
     }
 
-    @Override
-    public void onBatteryUpdated(BleDevice device) {
-
-    }
-
     private Notification createNotification(List<String> notifyContents){
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         inboxStyle.setBigContentTitle(NOTIFY_TITLE);
         if(notifyContents == null || notifyContents.isEmpty()) {
-            notifyBuilder.setContentText(NOTIFY_STRING_WHEN_NO_DEVICE_OPEN);
-            inboxStyle.addLine(NOTIFY_STRING_WHEN_NO_DEVICE_OPEN);
+            notifyBuilder.setContentText(NOTIFY_STR_WHEN_NO_DEVICE_OPEN);
+            inboxStyle.addLine(NOTIFY_STR_WHEN_NO_DEVICE_OPEN);
         } else {
             notifyBuilder.setContentText(String.format("有%s个设备打开", notifyContents.size()));
             for (String content : notifyContents) {

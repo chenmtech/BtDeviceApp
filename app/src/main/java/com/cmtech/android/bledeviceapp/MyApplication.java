@@ -15,7 +15,7 @@ import com.vise.log.inner.LogcatTree;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CONNECT_TIMEOUT;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.OPERATE_TIMEOUT;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DATA_OPERATE_TIMEOUT;
 
 /**
  * MyApplication
@@ -34,9 +34,9 @@ public class MyApplication extends Application {
 
         instance = this;
 
-        // 设置BLE设备相关配置
+        // BLE包配置
         BleDeviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
-        BleDeviceConfig.setOperateTimeout(OPERATE_TIMEOUT);
+        BleDeviceConfig.setDataOperateTimeout(DATA_OPERATE_TIMEOUT);
 
         BleDeviceConfig.addSupportedDeviceType(EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE);
         BleDeviceConfig.addSupportedDeviceType(TempHumidFactory.TEMPHUMID_DEVICE_TYPE);
