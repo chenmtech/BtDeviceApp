@@ -19,7 +19,6 @@ public class UnknownDeviceFragment extends BleFragment {
     TextView tvCharacteristic;
 
     public UnknownDeviceFragment() {
-
         super();
     }
 
@@ -41,11 +40,9 @@ public class UnknownDeviceFragment extends BleFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
     }
 
     @Override
     public void openConfigActivity() {
-
     }
 }

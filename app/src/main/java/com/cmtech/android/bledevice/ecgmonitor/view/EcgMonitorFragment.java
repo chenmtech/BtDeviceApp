@@ -201,11 +201,11 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onEcgViewUpdated(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
-        updateEcgView(xPixelPerData, yValuePerPixel, gridPixels);
+    public void onEcgViewSetupUpdated(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
+        updateEcgViewSetup(xPixelPerData, yValuePerPixel, gridPixels);
     }
 
-    private void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
+    private void updateEcgViewSetup(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
         ecgView.setResolution(xPixelPerData, yValuePerPixel);
         ecgView.setPixelPerGrid(gridPixels);
         ecgView.setZeroLocation(0.5);
@@ -213,7 +213,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     private void initialEcgView() {
-        updateEcgView(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
+        updateEcgViewSetup(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
     }
 
     private void startShow(int sampleRate) {
@@ -235,12 +235,12 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onEcgSignalShowStoped() {
+    public void onEcgSignalShowStopped() {
         stopShow();
     }
 
     @Override
-    public void onSignalSecondNumChanged(final int second) {
+    public void onSignalRecordSecondChanged(final int second) {
         signalRecordFragment.setSignalSecNum(second);
     }
 

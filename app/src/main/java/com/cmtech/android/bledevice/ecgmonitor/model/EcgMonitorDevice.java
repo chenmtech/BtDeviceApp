@@ -88,7 +88,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private static final byte ECGMONITOR_CTRL_START_SIGNAL = (byte) 0x01; // 启动采集Ecg信号
     private static final byte ECGMONITOR_CTRL_START_1MV = (byte) 0x02; // 启动采集1mV值
 
-
     private int sampleRate = DEFAULT_SAMPLE_RATE; // 采样率
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // 导联类型
     private int value1mV = DEFAULT_VALUE_1MV; // 定标之前1mV值
@@ -108,19 +107,19 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
     // 心电监护仪监听器
     public interface OnEcgMonitorListener {
-        void onEcgMonitorStateUpdated(EcgMonitorState state); // 更新状态
-        void onSampleRateChanged(int sampleRate); // 更新采样率
-        void onLeadTypeChanged(EcgLeadType leadType); // 更新导联类型
-        void onValue1mVChanged(int value1mV, int value1mVAfterCalibration);  // 更新1mV值
-        void onSignalRecordStateUpdated(boolean isRecord); // 更新记录状态
-        void onEcgViewUpdated(int xPixelPerData, float yValuePerPixel, int gridPixels); // 更新EcgView
-        void onEcgSignalUpdated(int ecgSignal); // 更新Ecg信号
-        void onEcgSignalShowStarted(int sampleRate); // 启动信号显示
-        void onEcgSignalShowStoped(); // 停止信号显示
-        void onSignalSecondNumChanged(int second); // 更新信号记录秒数
-        void onEcgHrChanged(int hr); // 更新心率值，单位bpm
-        void onEcgHrStaticsInfoUpdated(EcgHrStatisticsInfoAnalyzer hrStaticsInfoAnalyzer); // 更新心率统计信息
-        void onHrAbnormalNotified(); // 通知心率值异常
+        void onEcgMonitorStateUpdated(EcgMonitorState state); // 状态更新
+        void onSampleRateChanged(int sampleRate); // 采样率更新
+        void onLeadTypeChanged(EcgLeadType leadType); // 导联类型更新
+        void onValue1mVChanged(int value1mV, int value1mVAfterCalibration);  // 1mV值更新
+        void onSignalRecordStateUpdated(boolean isRecord); // 记录状态更新
+        void onEcgViewSetupUpdated(int xPixelPerData, float yValuePerPixel, int gridPixels); // EcgView设置更新
+        void onEcgSignalUpdated(int ecgSignal); // 信号更新
+        void onEcgSignalShowStarted(int sampleRate); // 信号显示启动
+        void onEcgSignalShowStopped(); // 信号显示停止
+        void onSignalRecordSecondChanged(int second); // 信号记录秒数更新
+        void onEcgHrChanged(int hr); // 心率值更新，单位bpm
+        void onEcgHrStaticsInfoUpdated(EcgHrStatisticsInfoAnalyzer hrStaticsInfoAnalyzer); // 心率统计信息更新
+        void onHrAbnormalNotified(); // 心率值异常通知
         void onBatteryChanged(int bat); // 电池电量改变
     }
 
@@ -226,7 +225,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         dataProcessor.stop();
 
         if(listener != null) {
-            listener.onEcgSignalShowStoped();
+            listener.onEcgSignalShowStopped();
         }
 
         if(containBatMeasService) {
@@ -239,7 +238,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         dataProcessor.stop();
 
         if(listener != null) {
-            listener.onEcgSignalShowStoped();
+            listener.onEcgSignalShowStopped();
         }
 
         if(containBatMeasService) {
@@ -545,7 +544,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onSignalSecondNumChanged(second);
+                    listener.onSignalRecordSecondChanged(second);
                 }
             });
         }
@@ -594,7 +593,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate)); // 计算横向分辨率
         yValuePerPixel = STANDARD_VALUE_1MV_AFTER_CALIBRATION * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
         // 更新EcgView
-        updateEcgView(xPixelPerData, yValuePerPixel, pixelPerGrid);
+        updateEcgViewSetup(xPixelPerData, yValuePerPixel, pixelPerGrid);
     }
 
     private void updateEcgMonitorState() {
@@ -622,9 +621,9 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             listener.onSignalRecordStateUpdated(isRecord);
     }
 
-    private void updateEcgView(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
+    private void updateEcgViewSetup(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
         if(listener != null)
-            listener.onEcgViewUpdated(xPixelPerData, yValuePerPixel, gridPixels);
+            listener.onEcgViewSetupUpdated(xPixelPerData, yValuePerPixel, gridPixels);
     }
 
     private void updateBattery(final int bat) {

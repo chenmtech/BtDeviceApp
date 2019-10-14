@@ -25,7 +25,7 @@ public class EcgMonitorConfig extends LitePalSupport implements Serializable {
     private boolean warnWhenHrAbnormal = DEFAULT_WARN_WHEN_HR_ABNORMAL; // hr异常时是否报警
     private int hrLowLimit = DEFAULT_HR_LOW_LIMIT; // hr异常的下限
     private int hrHighLimit = DEFAULT_HR_HIGH_LIMIT; // hr异常的上限
-    private List<String> markerList = new ArrayList<>(Arrays.asList("标记1", "标记2", "标记3", "标记4"));
+    private List<String> markerList = new ArrayList<>(Arrays.asList("标记1", "标记2", "标记3", "标记4")); //标记列表
 
     public int getId() {
         return id;

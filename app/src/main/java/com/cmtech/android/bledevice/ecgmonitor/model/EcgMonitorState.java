@@ -13,7 +13,7 @@ public enum EcgMonitorState {
 
     /**
      *
-     * @param code
+     * @param code 状态码
      * @param canStart: 是否可以开始采集信号
      * @param canStop：是否可以停止采集信号
      */
