@@ -100,6 +100,6 @@ public abstract class BleFragment extends Fragment{
     }
 
     // 打开配置Activity
-    public abstract void openConfigActivity();
+    public abstract void openConfigureActivity();
 
 }

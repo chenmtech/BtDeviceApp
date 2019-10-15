@@ -18,13 +18,13 @@ import java.util.List;
  * Version:        1.0
  */
 public class EcgHrStatisticsInfoAnalyzer {
-    private static final int HR_MIN_INTERVAL_IN_HISTOGRAM = 10;
+    private static final int HR_BAR_MIN_INTERVAL = 10;
 
     // 心率直方图的Element类
     public static class HrHistogramElement<T> {
-        private short minValue;
-        private short maxValue;
-        private T histValue;
+        private final short minValue;
+        private final short maxValue;
+        private final T histValue; // 直方图值
 
         HrHistogramElement(short minValue, short maxValue, T histValue) {
             this.minValue = minValue;
@@ -33,34 +33,25 @@ public class EcgHrStatisticsInfoAnalyzer {
         }
 
         public String getBarString() {
-            return String.valueOf(minValue) + '-' + String.valueOf(maxValue);
+            return minValue + "-" + maxValue;
         }
-
         public T getHistValue() {
             return histValue;
         }
-
         short getMinValue() {
             return minValue;
         }
-
         short getMaxValue() {
             return maxValue;
         }
     }
 
-    private int secondInHrFilter;
-
-    private List<Short> filteredHrList = new ArrayList<>();
-
+    private final int secondInHrFilter;
+    private final List<Short> filteredHrList = new ArrayList<>();
     private short maxHr;
-
     private long sumHr;
-
     private double sumTmp = 0.0;
-
     private int numTmp = 0;
-
     private double periodTmp = 0.0;
 
     public EcgHrStatisticsInfoAnalyzer(int secondInHrFilter) {
@@ -69,7 +60,6 @@ public class EcgHrStatisticsInfoAnalyzer {
 
     public EcgHrStatisticsInfoAnalyzer(List<Short> hrList, int secondInHrFilter) {
         this(secondInHrFilter);
-
         for(Short hr : hrList)
             process(hr);
     }
@@ -77,28 +67,17 @@ public class EcgHrStatisticsInfoAnalyzer {
     // 返回值：对hr滤波后，是否更新了filteredHrList
     public boolean process(short hr) {
         boolean updated = false;
-
         sumTmp += hr;
-
         numTmp++;
-
         periodTmp += 60.0/hr;
-
         if(periodTmp >= secondInHrFilter) {
             short average = (short)(sumTmp / numTmp);
-
             filteredHrList.add(average);
-
             if(maxHr < average) maxHr = average;
-
             sumHr += average;
-
             periodTmp -= secondInHrFilter;
-
             sumTmp = 0;
-
             numTmp = 0;
-
             updated = true;
         }
         return updated;
@@ -130,7 +109,6 @@ public class EcgHrStatisticsInfoAnalyzer {
         else return (short) (sumHr/filteredHrList.size());
     }
 
-
     // 产生归一化直方图
     private static List<HrHistogramElement<Float>> createNormHistogram(List<Short> hrList, int barNum) {
         List<HrHistogramElement<Integer>> histogram = createHistogram(hrList, barNum);
@@ -140,13 +118,11 @@ public class EcgHrStatisticsInfoAnalyzer {
         for(HrHistogramElement<Integer> ele : histogram) {
             sum += ele.getHistValue();
         }
-
         List<HrHistogramElement<Float>> normHist = new ArrayList<>();
         for(HrHistogramElement<Integer> ele : histogram) {
             HrHistogramElement<Float> tmp = new HrHistogramElement<>(ele.getMinValue(), ele.getMaxValue(), ((float)ele.getHistValue())/sum);
             normHist.add(tmp);
         }
-
         return normHist;
     }
 
@@ -156,10 +132,8 @@ public class EcgHrStatisticsInfoAnalyzer {
         short minValue = Collections.min(hrList);
         short maxValue = Collections.max(hrList);
         int interval = (maxValue-minValue)/barNumInHistogram+1;
-        if(interval < HR_MIN_INTERVAL_IN_HISTOGRAM) interval = HR_MIN_INTERVAL_IN_HISTOGRAM; // 直方图统计的心率最小间隔为10
-
+        if(interval < HR_BAR_MIN_INTERVAL) interval = HR_BAR_MIN_INTERVAL; // 直方图统计的心率最小间隔为10
         int[] histData = new int[barNumInHistogram];
-
         int num;
         for(short hr : hrList) {
             num = (hr-minValue)/interval;
@@ -173,7 +147,6 @@ public class EcgHrStatisticsInfoAnalyzer {
             HrHistogramElement<Integer> tmp = new HrHistogramElement<>(min, (short) (min+interval-1), histData[i]);
             histogram.add(tmp);
         }
-
         return histogram;
     }
 }

@@ -44,7 +44,7 @@ import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 import com.cmtech.android.ble.core.BleScanner;
-import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
+import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExploreActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
@@ -73,7 +73,7 @@ import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_D
  *  Created by bme on 2018/2/19.
  */
 
-public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDeviceUpdatedListener, FragTabManager.OnFragmentUpdatedListener {
+public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDeviceListener, FragTabManager.OnFragmentUpdatedListener {
     private static final String TAG = "MainActivity";
     private final static int RC_REGISTER_DEVICE = 1;     // 注册设备返回码
     private final static int RC_MODIFY_REGISTER_INFO = 2;       // 修改设备注册信息返回码
@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                         startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
                         return true;
                     case R.id.nav_query_record: // 查阅记录
-                        Intent recordIntent = new Intent(MainActivity.this, EcgFileExplorerActivity.class);
+                        Intent recordIntent = new Intent(MainActivity.this, EcgFileExploreActivity.class);
                         startActivity(recordIntent);
                         return true;
                     case R.id.nav_open_news: // 打开新闻
@@ -385,7 +385,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
             case R.id.toolbar_config:
                 fragment = (BleFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
-                    fragment.openConfigActivity();
+                    fragment.openConfigureActivity();
                 }
                 break;
 

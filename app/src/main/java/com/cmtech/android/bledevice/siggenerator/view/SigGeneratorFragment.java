@@ -43,7 +43,7 @@ public class SigGeneratorFragment extends BleFragment {
     }
 
     @Override
-    public void openConfigActivity() {
+    public void openConfigureActivity() {
 
     }
 }

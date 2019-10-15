@@ -30,7 +30,7 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.HR_FILTER_TIME_IN_SECOND;
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.HR_FILTER_SECOND;
 
 /**
   *
@@ -213,7 +213,7 @@ public class EcgFilesManager {
 
     synchronized EcgHrStatisticsInfoAnalyzer getSelectFileHrInfo() {
         if(selectFile != null) {
-            return new EcgHrStatisticsInfoAnalyzer(selectFile.getHrList(), HR_FILTER_TIME_IN_SECOND);
+            return new EcgHrStatisticsInfoAnalyzer(selectFile.getHrList(), HR_FILTER_SECOND);
         }
         return null;
     }
@@ -248,12 +248,12 @@ public class EcgFilesManager {
 
             @Override
             public void onError(Platform platform, int i, Throwable throwable) {
-                //Toast.makeText(EcgFileExplorerActivity.this, "分享错误", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(EcgFileExploreActivity.this, "分享错误", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onCancel(Platform platform, int i) {
-                //Toast.makeText(EcgFileExplorerActivity.this, "分享取消", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(EcgFileExploreActivity.this, "分享取消", Toast.LENGTH_SHORT).show();
             }
         });
 

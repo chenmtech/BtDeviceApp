@@ -39,13 +39,9 @@ import java.util.List;
  */
 public class EcgSignalRecordFragment extends Fragment{
     private ImageButton ibRecord; // 切换记录信号状态
-
     private TextView tvRecordTime; // 记录信号时长
-
     private RecyclerView rvMarker; // 标记recycleview
-
     private EcgMarkerAdapter markerAdapter; // ecg标记adapter
-
     private EcgMonitorDevice device;
 
     @Nullable
@@ -64,37 +60,27 @@ public class EcgSignalRecordFragment extends Fragment{
         }
 
         tvRecordTime = view.findViewById(R.id.tv_ecg_signal_recordtime);
-
-        setSignalSecNum(device.getRecordSignalSecond());
+        setSignalSecNum(device.getRecordSecond());
 
         rvMarker = view.findViewById(R.id.rv_ecg_marker);
-
         LinearLayoutManager markerLayoutManager = new LinearLayoutManager(getContext());
-
         markerLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
-
         rvMarker.setLayoutManager(markerLayoutManager);
-
         if(getContext() != null)
             rvMarker.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-
         List<EcgAbnormal> ecgAbnormals = new ArrayList<>(Arrays.asList(EcgAbnormal.values()));
-
         markerAdapter = new EcgMarkerAdapter(ecgAbnormals, new EcgMarkerAdapter.OnMarkerClickListener() {
             @Override
             public void onMarkerClicked(EcgAbnormal marker) {
                 if(device != null)
-                    device.addCommentContent(DateTimeUtil.secToTimeInChinese((int)(device.getRecordSignalDataNum() / device.getSampleRate())) + '，' + marker.getDescription() + '；');
+                    device.addCommentContent(DateTimeUtil.secToTimeInChinese((int)(device.getRecordDataNum() / device.getSampleRate())) + '，' + marker.getDescription() + '；');
             }
         });
-
         rvMarker.setAdapter(markerAdapter);
 
         ibRecord = view.findViewById(R.id.ib_ecg_record);
-
         // 根据设备的isRecord初始化Record按钮
         setSignalRecordStatus(device.isRecordSignal());
-
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,19 +89,17 @@ public class EcgSignalRecordFragment extends Fragment{
         });
     }
 
-    public void setSignalSecNum(final int second) {
-        tvRecordTime.setText(DateTimeUtil.secToTimeInChinese(second));
-    }
-
     public void setDevice(EcgMonitorDevice device) {
         this.device = device;
     }
 
+    public void setSignalSecNum(final int second) {
+        tvRecordTime.setText(DateTimeUtil.secToTimeInChinese(second));
+    }
+
     public void setSignalRecordStatus(final boolean isRecord) {
         int imageId = (isRecord) ? R.mipmap.ic_ecg_record_start : R.mipmap.ic_ecg_record_stop;
-
         ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
-
         markerAdapter.setEnabled(isRecord);
     }
 }

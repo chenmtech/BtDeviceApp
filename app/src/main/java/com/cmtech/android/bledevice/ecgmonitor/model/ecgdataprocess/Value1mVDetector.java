@@ -6,7 +6,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpro
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,13 +47,14 @@ public class Value1mVDetector {
         done = false;
     }
 
-    // 处理标定数据
+    // 处理1mV数据
     public void process(int datum1mV) {
         if(done) return;
 
-        // 采集1个周期的定标信号
+        // 采集1个周期的数据
         this.data1mV.add(datum1mV);
         device.updateSignalValue(calibrator.calibrate(datum1mV));
+
         if (this.data1mV.size() >= sampleRate) {
             device.stopDataSampling();
             int value1mV = calculateValue1mV(this.data1mV); // 计算得到实际定标前1mV值
@@ -64,7 +64,7 @@ public class Value1mVDetector {
         }
     }
 
-    // 计算定标前1mV值
+    // 计算1mV值
     private int calculateValue1mV(List<Integer> data) {
         Collections.sort(data);
         int halfLen = (data.size() - 20)/2; // 去掉20个中间的数据

@@ -135,7 +135,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void openConfigActivity() {
+    public void openConfigureActivity() {
         Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
         intent.putExtra("configuration", device.getConfig());
         intent.putExtra("nickname", device.getNickName());
@@ -147,10 +147,10 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case 1: // 设置设备配置返回码
+            case 1: // 修改设备配置返回码
                 if(resultCode == RESULT_OK) {
                     EcgMonitorConfig config = (EcgMonitorConfig) data.getSerializableExtra("configuration");
-                    device.updateConfig(config);
+                    device.setConfig(config);
                 }
                 break;
 
@@ -168,11 +168,11 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         if(hrAbnormalWarnAudio != null)
             hrAbnormalWarnAudio.stop();
 
-        stopShow();
+        ecgView.stop();
     }
 
     @Override
-    public void onEcgMonitorStateUpdated(final EcgMonitorState state) {
+    public void onDeviceStateUpdated(final EcgMonitorState state) {
         updateDeviceState(state);
     }
 
@@ -216,14 +216,6 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         updateEcgViewSetup(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
     }
 
-    private void startShow(int sampleRate) {
-        ecgView.start();
-    }
-
-    private void stopShow() {
-        ecgView.stop();
-    }
-
     @Override
     public void onEcgSignalUpdated(final int ecgSignal) {
         ecgView.showData(ecgSignal);
@@ -231,12 +223,12 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
 
     @Override
     public void onEcgSignalShowStarted(int sampleRate) {
-        startShow(sampleRate);
+        ecgView.start();
     }
 
     @Override
     public void onEcgSignalShowStopped() {
-        stopShow();
+        ecgView.stop();
     }
 
     @Override
@@ -245,7 +237,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onEcgHrChanged(final int hr) {
+    public void onHrChanged(final int hr) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -255,7 +247,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onEcgHrStaticsInfoUpdated(final EcgHrStatisticsInfoAnalyzer hrStaticsInfoAnalyzer) {
+    public void onHrStaticsInfoUpdated(final EcgHrStatisticsInfoAnalyzer hrStaticsInfoAnalyzer) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -266,15 +258,10 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
 
     @Override
     public void onBatteryChanged(final int bat) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(tvBattery.getVisibility() == View.GONE) {
-                    tvBattery.setVisibility(View.VISIBLE);
-                }
-                tvBattery.setText(String.valueOf(bat));
-            }
-        });
+        if(tvBattery.getVisibility() == View.GONE) {
+            tvBattery.setVisibility(View.VISIBLE);
+        }
+        tvBattery.setText(String.valueOf(bat));
     }
 
     @Override

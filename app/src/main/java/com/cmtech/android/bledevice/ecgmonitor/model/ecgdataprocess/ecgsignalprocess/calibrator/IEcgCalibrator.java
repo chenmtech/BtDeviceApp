@@ -6,7 +6,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpr
  */
 
 public interface IEcgCalibrator {
-    int STANDARD_VALUE_1MV_AFTER_CALIBRATION = 65535; // 标准的定标后1mV值
+    int STANDARD_VALUE_1MV_AFTER_CALIBRATION = 65535; // 定标后标准的1mV值
     int calibrate(int data); // 对数据做定标处理
     void reset(int value1mV, int value1mVAfterCalibration); // 重置1mV值
 }

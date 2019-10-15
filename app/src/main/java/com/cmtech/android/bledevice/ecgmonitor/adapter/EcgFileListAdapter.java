@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExplorerActivity;
+import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExploreActivity;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 
 public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.ViewHolder> {
-    private EcgFileExplorerActivity activity;
+    private EcgFileExploreActivity activity;
 
     private List<EcgFile> fileList;
 
@@ -60,7 +60,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         }
     }
 
-    public EcgFileListAdapter(EcgFileExplorerActivity activity) {
+    public EcgFileListAdapter(EcgFileExploreActivity activity) {
         this.activity = activity;
         this.fileList = new ArrayList<>();
     }

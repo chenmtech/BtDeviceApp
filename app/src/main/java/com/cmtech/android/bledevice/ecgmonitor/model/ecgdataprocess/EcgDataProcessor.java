@@ -27,41 +27,46 @@ public class EcgDataProcessor {
     private static final int INVALID_PACKAGE_NUM = -1;
 
     private final EcgMonitorDevice device;
-    private final Value1mVDetector value1MVDetector; // 定标前1mV值检测器
+    private final Value1mVDetector value1MVDetector; // 1mV值检测器
     private final EcgSignalProcessor signalProcessor; // 心电信号处理器
-    private int nextPackageNum = INVALID_PACKAGE_NUM; // 下一个要处理的数据包序号
-    private ExecutorService service; // 数据处理Service
+    private int nextPackageNum = INVALID_PACKAGE_NUM; // 下一个待处理的数据包序号
+    private ExecutorService dataProcService; // 数据处理Service
 
     public EcgDataProcessor(EcgMonitorDevice device) {
+        if(device == null) {
+            throw new IllegalArgumentException("The device is null.");
+        }
+
         this.device = device;
         value1MVDetector = new Value1mVDetector(device);
         signalProcessor = new EcgSignalProcessor(device);
     }
 
+    public void reset() {
+        resetValue1mVDetector();
+        resetSignalProcessor();
+        resetHrStatisticProcessor();
+    }
     public void resetValue1mVDetector() {
         this.value1MVDetector.reset();
     }
-
     public void resetSignalProcessor() {
         signalProcessor.reset();
     }
-
     public void resetHrAbnormalProcessor() {
         signalProcessor.resetHrAbnormalProcessor();
     }
-
     public void resetHrStatisticProcessor() {
         signalProcessor.resetHrStatisticProcessor();
     }
-
     public List<Short> getHrList() {
         return signalProcessor.getHrList();
     }
 
     public synchronized void start() {
         nextPackageNum = 0;
-        if(service == null || service.isTerminated()) {
-            service = Executors.newSingleThreadExecutor(new ThreadFactory() {
+        if(dataProcService == null || dataProcService.isTerminated()) {
+            dataProcService = Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable runnable) {
                     return new Thread(runnable, "MT_Data_Process");
@@ -75,12 +80,12 @@ public class EcgDataProcessor {
     public synchronized void stop() {
         ViseLog.e("停止数据处理服务");
 
-        ExecutorUtil.shutdownNowAndAwaitTerminate(service);
+        ExecutorUtil.shutdownNowAndAwaitTerminate(dataProcService);
     }
 
     public synchronized void processData(final byte[] data, final boolean isValue1mV) {
-        if(service != null && !service.isTerminated()) {
-            service.execute(new Runnable() {
+        if(dataProcService != null && !dataProcService.isTerminated()) {
+            dataProcService.execute(new Runnable() {
                 @Override
                 public void run() {
                     int packageNum = (short)((0xff & data[0]) | (0xff00 & (data[1] << 8)));

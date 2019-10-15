@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfoAnalyzer;
 import com.cmtech.android.bledeviceapp.R;
 
@@ -30,7 +29,6 @@ public class EcgHrStatisticsFragment extends Fragment {
     private TextView tvAverageHr; // 平均心率
     private TextView tvMaxHr; // 最大心率
     private EcgHrLineChart hrLineChart;
-    private EcgMonitorDevice device;
 
     @Nullable
     @Override

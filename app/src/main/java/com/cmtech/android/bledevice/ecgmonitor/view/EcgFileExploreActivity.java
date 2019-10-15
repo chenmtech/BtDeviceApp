@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorerModel;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfoAnalyzer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
@@ -42,7 +42,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 
 /**
   *
-  * ClassName:      EcgFileExplorerActivity
+  * ClassName:      EcgFileExploreActivity
   * Description:    Ecg文件浏览Activity
   * Author:         chenm
   * CreateDate:     2018/11/10 下午5:34
@@ -52,50 +52,31 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-public class EcgFileExplorerActivity extends AppCompatActivity implements EcgFileRollWaveView.OnEcgFileRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener, EcgFileExplorerModel.OnEcgFileExploreUpdatedListener {
-    private static final String TAG = "EcgFileExplorerActivity";
+public class EcgFileExploreActivity extends AppCompatActivity implements EcgFileRollWaveView.OnEcgFileRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener, EcgFileExplorer.OnEcgFileExplorerListener {
+    private static final String TAG = "EcgFileExploreActivity";
 
-    private static final float DEFAULT_SECOND_PER_HGRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
-    private static final float DEFAULT_MV_PER_VGRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
+    private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
+    private static final float DEFAULT_MV_PER_GRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
 
     private int sampleRate;
-
-    private EcgFileExplorerModel model;      // 文件浏览器模型实例
-
+    private EcgFileExplorer model;      // 文件浏览器模型实例
     private EcgFileRollWaveView signalView; // signalView
-
     private EcgFileListAdapter fileAdapter; // 文件Adapter
-
     private RecyclerView rvFiles; // 文件RecycleView
-
     private EcgCommentAdapter commentAdapter; // 留言Adapter
-
     private RecyclerView rvComments; // 留言RecycleView
-
     private TextView tvTotalTime; // 总时长
-
     private TextView tvCurrentTime; // 当前播放的信号的时刻
-
     private SeekBar sbReplay; // 播放条
-
     private ImageButton btnSwitchReplayState; // 转换回放状态
-
     private EcgHrHistogramChart hrHistChart; // 心率直方图
-
     private EcgHrLineChart hrLineChart; // 心率折线图
-
     private TextView tvAverageHr; // 平均心率
-
     private TextView tvMaxHr; // 最大心率
-
     private LinearLayout signalLayout;
-
     private LinearLayout hrLayout;
-
     private TextView tvNoRecord;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +88,7 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements EcgFil
         setSupportActionBar(toolbar);
 
         try {
-            model = new EcgFileExplorerModel(ECG_FILE_DIR, this);
+            model = new EcgFileExplorer(ECG_FILE_DIR, this);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "心电文件目录错误。", Toast.LENGTH_SHORT).show();
@@ -276,9 +257,9 @@ public class EcgFileExplorerActivity extends AppCompatActivity implements EcgFil
 
         int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
 
-        int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_HGRID * ecgFile.getSampleRate())); // 计算横向分辨率
+        int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * ecgFile.getSampleRate())); // 计算横向分辨率
 
-        float vValuePerPixel = value1mV * DEFAULT_MV_PER_VGRID / pixelPerGrid; // 计算纵向分辨率
+        float vValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
 
         signalView.stopShow();
 

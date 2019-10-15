@@ -29,8 +29,7 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
 
     private EcgMonitorConfig config;
     private String deviceNickName;
-
-    private EcgMonitorConfig configBackup = new EcgMonitorConfig();
+    private final EcgMonitorConfig configBackup = new EcgMonitorConfig();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +43,7 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
         }
 
         if(config == null) {
-            finish();
+            throw new IllegalStateException("The configure of device is null.");
         }
 
         configBackup.setWarnWhenHrAbnormal(config.isWarnWhenHrAbnormal());

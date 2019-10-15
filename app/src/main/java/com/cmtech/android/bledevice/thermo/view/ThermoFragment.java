@@ -65,7 +65,7 @@ public class ThermoFragment extends BleFragment implements IThermoDataObserver {
     }
 
     @Override
-    public void openConfigActivity() {
+    public void openConfigureActivity() {
 
     }
 

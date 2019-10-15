@@ -22,8 +22,8 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
 
 /**
   *
-  * ClassName:      EcgFileExplorerModel
-  * Description:    Ecg文件浏览器模型类
+  * ClassName:      EcgFileExplorer
+  * Description:    Ecg文件浏览器类
   * Author:         chenm
   * CreateDate:     2018/11/10 下午4:09
   * UpdateUser:     chenm
@@ -32,20 +32,20 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
   * Version:        1.0
  */
 
-public class EcgFileExplorerModel {
+public class EcgFileExplorer {
     private final static int FILENUM_LOADED_EACH_TIMES = 5;
 
-    public interface OnEcgFileExploreUpdatedListener extends EcgFilesManager.OnEcgFilesChangedListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
+    public interface OnEcgFileExplorerListener extends EcgFilesManager.OnEcgFilesChangedListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
     }
 
     private final File ecgFileDir; // Ecg文件路径
     private final List<File> fileList;
     private Iterator<File> fileIterator;
     private final EcgFilesManager filesManager; // 文件列表管理器
-    private final OnEcgFileExploreUpdatedListener listener; // 文件浏览监听器
+    private final OnEcgFileExplorerListener listener; // 文件浏览监听器
     private final ExecutorService openFileService = Executors.newSingleThreadExecutor();
 
-    public EcgFileExplorerModel(File ecgFileDir, OnEcgFileExploreUpdatedListener listener) throws IOException{
+    public EcgFileExplorer(File ecgFileDir, OnEcgFileExplorerListener listener) throws IOException{
         if(ecgFileDir == null) {
             throw new IOException("The ecg file dir is null");
         }

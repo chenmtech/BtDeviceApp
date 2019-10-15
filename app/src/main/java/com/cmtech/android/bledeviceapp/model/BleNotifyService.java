@@ -41,7 +41,7 @@ import java.util.TimerTask;
  * Version:        1.0
  */
 
-public class BleNotifyService extends Service implements BleDevice.OnBleDeviceUpdatedListener {
+public class BleNotifyService extends Service implements BleDevice.OnBleDeviceListener {
     private static final String TAG = "BleNotifyService";
     private static final int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
     private static final String NOTIFY_TITLE = "欢迎使用" + MyApplication.getContext().getString(R.string.app_name); // 通知栏标题

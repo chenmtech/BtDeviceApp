@@ -1,10 +1,11 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 
 import java.io.IOException;
+
+import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 
 /**
  * EcgSignalRecorder: 心电信号记录仪，包含心电信号的文件记录，以及留言信息的管理
@@ -14,8 +15,9 @@ import java.io.IOException;
 public class EcgSignalRecorder {
     private final EcgMonitorDevice device;
     private final EcgFile ecgFile; // ECG文件
-    private final int sampleRate; // 采样频率
     private final EcgNormalComment comment; // 当前信号的一般性留言
+    private final int sampleRate; // 采样频率
+    private final int[] onePeriodValue1mV;
     private int dataNum = 0; // 记录的数据个数
     private boolean isRecord = false; // 是否记录
 
@@ -25,9 +27,18 @@ public class EcgSignalRecorder {
         }
 
         this.device = device;
-        this.sampleRate = device.getSampleRate();
         this.ecgFile = device.getEcgFile();
         comment = EcgNormalComment.createDefaultComment();
+
+        this.sampleRate = device.getSampleRate();
+        onePeriodValue1mV = new int[sampleRate];
+        for(int i = 0; i < sampleRate; i++) {
+            if(i <= sampleRate/2) {
+                onePeriodValue1mV[i] = STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+            } else {
+                onePeriodValue1mV[i] = -STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+            }
+        }
     }
 
     // 获取记录的秒数
@@ -44,16 +55,25 @@ public class EcgSignalRecorder {
     public boolean isRecord() {
         return isRecord;
     }
-    public void setRecord(boolean record) {
+    public synchronized void setRecord(boolean record){
         isRecord = record;
+        if(isRecord) {
+            try {
+                ecgFile.writeData(onePeriodValue1mV);
+                dataNum += sampleRate;
+                device.updateRecordSecond(getSecond());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    // 记录心电信号
+   // 记录心电信号
     public synchronized void record(int ecgSignal) throws IOException{
         if(isRecord) {
             ecgFile.writeData(ecgSignal);
             dataNum++;
-            device.updateRecordSecNum(getSecond());
+            device.updateRecordSecond(getSecond());
         }
     }
 

@@ -97,7 +97,7 @@ public class TempHumidFragment extends BleFragment implements ITempHumidDataObse
     }
 
     @Override
-    public void openConfigActivity() {
+    public void openConfigureActivity() {
 
     }
 

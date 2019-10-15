@@ -43,6 +43,6 @@ public class UnknownDeviceFragment extends BleFragment {
     }
 
     @Override
-    public void openConfigActivity() {
+    public void openConfigureActivity() {
     }
 }
