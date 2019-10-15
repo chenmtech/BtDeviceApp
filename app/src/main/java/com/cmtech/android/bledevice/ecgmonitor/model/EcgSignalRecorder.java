@@ -17,7 +17,7 @@ public class EcgSignalRecorder {
     private final EcgFile ecgFile; // ECG文件
     private final EcgNormalComment comment; // 当前信号的一般性留言
     private final int sampleRate; // 采样频率
-    private final int[] onePeriodValue1mV;
+    private final int[] caliWaveData;
     private int dataNum = 0; // 记录的数据个数
     private boolean isRecord = false; // 是否记录
 
@@ -31,12 +31,12 @@ public class EcgSignalRecorder {
         comment = EcgNormalComment.createDefaultComment();
 
         this.sampleRate = device.getSampleRate();
-        onePeriodValue1mV = new int[sampleRate];
+        caliWaveData = new int[sampleRate];
         for(int i = 0; i < sampleRate; i++) {
-            if(i <= sampleRate/2) {
-                onePeriodValue1mV[i] = STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+            if(i > sampleRate/4 && i < sampleRate*3/4) {
+                caliWaveData[i] = STANDARD_VALUE_1MV_AFTER_CALIBRATION;
             } else {
-                onePeriodValue1mV[i] = -STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+                caliWaveData[i] = 0;
             }
         }
     }
@@ -59,7 +59,7 @@ public class EcgSignalRecorder {
         isRecord = record;
         if(isRecord) {
             try {
-                ecgFile.writeData(onePeriodValue1mV);
+                ecgFile.writeData(caliWaveData);
                 dataNum += sampleRate;
                 device.updateRecordSecond(getSecond());
             } catch (IOException e) {

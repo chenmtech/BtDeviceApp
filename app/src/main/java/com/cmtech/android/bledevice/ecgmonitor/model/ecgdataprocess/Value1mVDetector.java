@@ -30,19 +30,16 @@ public class Value1mVDetector {
     private final EcgMonitorDevice device;
     private int sampleRate; // 采样率
     private List<Integer> data1mV; // 1mV数据
-    private final IEcgCalibrator calibrator; // 定标器
     private boolean done = false; // 是否已经检测完成
 
     public Value1mVDetector(EcgMonitorDevice device) {
         this.device = device;
         this.sampleRate = device.getSampleRate();
-        calibrator = new EcgCalibrator65536(device.getValue1mV());
         data1mV = new ArrayList<>(2 * this.sampleRate);
     }
 
     public void reset() {
         sampleRate = device.getSampleRate();
-        calibrator.reset(device.getValue1mV(), IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         data1mV = new ArrayList<>(2*sampleRate);
         done = false;
     }
@@ -53,8 +50,6 @@ public class Value1mVDetector {
 
         // 采集1个周期的数据
         this.data1mV.add(datum1mV);
-        device.updateSignalValue(calibrator.calibrate(datum1mV));
-
         if (this.data1mV.size() >= sampleRate) {
             device.stopDataSampling();
             int value1mV = calculateValue1mV(this.data1mV); // 计算得到实际定标前1mV值

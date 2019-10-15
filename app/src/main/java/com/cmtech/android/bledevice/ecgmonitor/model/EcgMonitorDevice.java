@@ -579,6 +579,14 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             signalRecorder = new EcgSignalRecorder(this);
         }
 
+        // 产生1mV定标信号
+        for(int i = 0; i < sampleRate; i++) {
+            if(i > sampleRate/4 && i < sampleRate*3/4)
+                updateSignalValue(STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+            else
+                updateSignalValue(0);
+        }
+
         startEcgSignalSampling();
     }
 
