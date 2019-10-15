@@ -52,22 +52,23 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-public class EcgFileExploreActivity extends AppCompatActivity implements EcgFileRollWaveView.OnEcgFileRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener, EcgFileExplorer.OnEcgFileExplorerListener {
+public class EcgFileExploreActivity extends AppCompatActivity implements EcgFileExplorer.OnEcgFileExplorerListener, EcgFileRollWaveView.OnEcgFileRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener  {
     private static final String TAG = "EcgFileExploreActivity";
 
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
+    private static final int DEFAULT_FILENUM_LOADED_EACH_TIMES = 5; // 缺省每次加载的文件数
 
-    private int sampleRate;
-    private EcgFileExplorer model;      // 文件浏览器模型实例
+    private EcgFileExplorer explorer;      // 文件浏览器实例
+    private int selectFileSampleRate; // 选中文件的采样率
     private EcgFileRollWaveView signalView; // signalView
     private EcgFileListAdapter fileAdapter; // 文件Adapter
     private RecyclerView rvFiles; // 文件RecycleView
     private EcgCommentAdapter commentAdapter; // 留言Adapter
     private RecyclerView rvComments; // 留言RecycleView
     private TextView tvTotalTime; // 总时长
-    private TextView tvCurrentTime; // 当前播放的信号的时刻
+    private TextView tvCurrentTime; // 当前播放信号的时刻
     private SeekBar sbReplay; // 播放条
     private ImageButton btnSwitchReplayState; // 转换回放状态
     private EcgHrHistogramChart hrHistChart; // 心率直方图
@@ -88,15 +89,14 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         setSupportActionBar(toolbar);
 
         try {
-            model = new EcgFileExplorer(ECG_FILE_DIR, this);
+            explorer = new EcgFileExplorer(ECG_FILE_DIR, this);
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "心电文件目录错误。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "创建心电文件浏览器错误。", Toast.LENGTH_SHORT).show();
             finish();
         }
 
         signalLayout = findViewById(R.id.layout_ecgfile_ecgsignal);
-
         hrLayout = findViewById(R.id.layout_ecgfile_hr);
 
         rvFiles = findViewById(R.id.rv_ecgfile_list);
@@ -113,8 +113,8 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
                 super.onScrollStateChanged(recyclerView, newState);
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
-                if(newState==RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1){
-                    model.loadNextFiles();
+                if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1){
+                    explorer.loadNextFiles(DEFAULT_FILENUM_LOADED_EACH_TIMES);
                 }
 
             }
@@ -126,7 +126,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
 
                 if(layoutManager != null)
-                    lastVisibleItem=layoutManager.findLastVisibleItemPosition();
+                    lastVisibleItem = layoutManager.findLastVisibleItemPosition();
             }
         });
 
@@ -188,7 +188,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
 
         tvNoRecord = findViewById(R.id.tv_no_record);
 
-        model.loadNextFiles();
+        explorer.loadNextFiles(1);
     }
 
 
@@ -228,25 +228,25 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
 
         signalView.stopShow();
 
-        model.close();
+        explorer.close();
     }
 
     public void changeSelectFile(EcgFile ecgFile) {
         signalView.stopShow();
 
-        model.selectFile(ecgFile);
+        explorer.selectFile(ecgFile);
     }
 
     private void importFromWechat() {
-        model.importFromWechat();
+        explorer.importFromWechat();
     }
 
     private void deleteSelectedFile() {
-        model.deleteSelectFile(this);
+        explorer.deleteSelectFile(this);
     }
 
     private void shareFileThroughWechat() {
-        model.shareSelectFileThroughWechat(this);
+        explorer.shareSelectFileThroughWechat(this);
     }
 
 
@@ -305,9 +305,9 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
 
                     initEcgView(selectFile, 0.5);
 
-                    sampleRate = selectFile.getSampleRate();
+                    selectFileSampleRate = selectFile.getSampleRate();
 
-                    int secondInSignal = selectFile.getDataNum()/sampleRate;
+                    int secondInSignal = selectFile.getDataNum()/ selectFileSampleRate;
 
                     tvCurrentTime.setText(DateTimeUtil.secToTime(0));
                     tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
@@ -332,7 +332,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
                         hrLayout.setVisibility(View.VISIBLE);
                     }
 
-                    model.getSelectFileHrInfo();
+                    explorer.getSelectFileHrInfo();
                 } else {
                     signalView.stopShow();
 
@@ -389,7 +389,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
 
     @Override
     public void onDataLocationUpdated(long dataLocation) {
-        int second = (int)(dataLocation/sampleRate);
+        int second = (int)(dataLocation/ selectFileSampleRate);
 
         tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
 
@@ -399,7 +399,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
 
     @Override
     public void onCommentSaved() {
-        model.saveSelectFileComment();
+        explorer.saveSelectFileComment();
     }
 
     @Override

@@ -33,7 +33,6 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
  */
 
 public class EcgFileExplorer {
-    private final static int FILENUM_LOADED_EACH_TIMES = 5;
 
     public interface OnEcgFileExplorerListener extends EcgFilesManager.OnEcgFilesChangedListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
     }
@@ -75,11 +74,7 @@ public class EcgFileExplorer {
         this.listener = listener;
     }
 
-    public void loadNextFiles() {
-        loadNextFiles(FILENUM_LOADED_EACH_TIMES);
-    }
-
-    private void loadNextFiles(int num) {
+    public void loadNextFiles(int num) {
         int i = 0;
         while(i < num && fileIterator.hasNext()) {
             File file = fileIterator.next();
