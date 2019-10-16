@@ -3,10 +3,12 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 import android.content.Context;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,26 +38,31 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
 public class EcgFileExplorer {
     private final File ecgFileDir; // Ecg文件路径
     private final EcgFilesManager filesManager; // 文件列表管理器
-    private final List<File> ecgFileList;
     private Iterator<File> fileIterator;
     private final ExecutorService openFileService = Executors.newSingleThreadExecutor();
-    private final OnEcgFileExplorerListener listener; // 文件浏览监听器
+    private final HrStatisticProcessor.OnHrStatisticInfoUpdatedListener listener; // 文件浏览监听器
     public interface OnEcgFileExplorerListener extends EcgFilesManager.OnEcgFilesChangedListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
     }
 
-    public EcgFileExplorer(File ecgFileDir, OnEcgFileExplorerListener listener) throws IOException{
+    public EcgFileExplorer(File ecgFileDir, OnEcgFileExplorerListener listener) {
         if(ecgFileDir == null) {
-            throw new IOException("The ecg file dir is null");
+            throw new IllegalArgumentException("The ecg file dir is null");
         }
         if(!ecgFileDir.exists() && !ecgFileDir.mkdir()) {
-            throw new IOException("The ecg file dir doesn't exist.");
+            throw new IllegalStateException("The ecg file dir doesn't exist.");
         }
         if(ecgFileDir.exists() && !ecgFileDir.isDirectory()) {
-            throw new IOException("The ecg file dir is invalid.");
+            throw new IllegalStateException("The ecg file dir is invalid.");
         }
 
         filesManager = new EcgFilesManager(listener);
         this.ecgFileDir = ecgFileDir;
+        initFileIterator();
+
+        this.listener = listener;
+    }
+
+    private void initFileIterator() {
         File[] files = BmeFileUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
         Arrays.sort(files, new Comparator<File>() {
             @Override
@@ -68,9 +75,8 @@ public class EcgFileExplorer {
                 return (createTime2 > createTime1) ? 1 : -1;
             }
         });
-        ecgFileList = new ArrayList<>(Arrays.asList(files));
-        fileIterator = ecgFileList.iterator();
-        this.listener = listener;
+        List<File> fileList = new ArrayList<>(Arrays.asList(files));
+        fileIterator = fileList.iterator();
     }
 
     public void loadNextFiles(int num) {
@@ -99,13 +105,54 @@ public class EcgFileExplorer {
 
     // 从微信导入文件
     public void importFromWechat() {
+        filesManager.close();
         File weChatDir = new File(WECHAT_DOWNLOAD_DIR);
-        filesManager.importFiles(weChatDir, ecgFileDir);
+        importFiles(weChatDir, ecgFileDir);
+        initFileIterator();
+    }
+
+    private void importFiles(File srcDir, File destDir) {
+        File[] fileList = BmeFileUtil.listDirBmeFiles(srcDir);
+        boolean changed = false;
+        EcgFile srcEcgFile = null;
+        EcgFile destEcgFile = null;
+        for(File srcFile : fileList) {
+            try {
+                File destFile = FileUtil.getFile(destDir, srcFile.getName());
+                if(destFile.exists()) {
+                    srcEcgFile = EcgFile.open(srcFile.getCanonicalPath());
+                    destEcgFile = EcgFile.open(destFile.getCanonicalPath());
+                    if(copyComments(srcEcgFile, destEcgFile)) {
+                        changed = true;
+                        destEcgFile.saveFileTail();
+                    }
+                } else {
+                    FileUtil.copyFile(srcFile, destFile);
+                    changed = true;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if(srcEcgFile != null) {
+                        srcEcgFile.close();
+                        srcEcgFile = null;
+                    }
+
+                    if(destEcgFile != null) {
+                        destEcgFile.close();
+                        destEcgFile = null;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     // 用微信分享一个文件
     public void shareSelectFileThroughWechat(final Context context) {
-        filesManager.shareSelectFileThroughWechat(context);
+        filesManager.shareSelectedFileThroughWechat(context);
     }
 
     // 保存留言信息
@@ -120,12 +167,34 @@ public class EcgFileExplorer {
     public void getSelectedFileHrStatisticsInfo() {
         if(listener != null)
             listener.onHrStatisticInfoUpdated(filesManager.getSelectedFileHrStatisticsInfo());
-
     }
 
     public void close() {
         ExecutorUtil.shutdownNowAndAwaitTerminate(openFileService);
         filesManager.close();
+    }
+
+    // 拷贝文件留言
+    private boolean copyComments(EcgFile srcFile, EcgFile destFile) {
+        List<EcgNormalComment> srcComments = srcFile.getCommentList();
+        List<EcgNormalComment> destComments = destFile.getCommentList();
+
+        boolean update = false;
+        boolean needAdd = true;
+        for(EcgNormalComment srcComment : srcComments) {
+            for(EcgNormalComment destComment : destComments) {
+                if(srcComment.getCreator().equals(destComment.getCreator()) && srcComment.getModifyTime() <= destComment.getModifyTime()) {
+                    needAdd = false;
+                    break;
+                }
+            }
+            if(needAdd) {
+                destFile.addComment(srcComment);
+                update = true;
+            }
+            needAdd = true;
+        }
+        return update;
     }
 
     private class OpenFileRunnable implements Runnable {

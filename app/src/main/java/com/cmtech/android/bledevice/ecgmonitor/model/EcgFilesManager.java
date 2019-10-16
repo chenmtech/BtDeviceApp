@@ -46,13 +46,14 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 public class EcgFilesManager {
     private final List<EcgFile> ecgFileList = new ArrayList<>(); // 文件目录中包含的心电文件列表
     private final List<EcgFile> unmodifiedFileList = Collections.unmodifiableList(ecgFileList);
+    private final OnEcgFilesChangedListener listener; // ECG文件改变监听器
     private EcgFile selectedFile; // 选中的EcgFile
 
-    private OnEcgFilesChangedListener listener;
     public interface OnEcgFilesChangedListener {
         void onFileSelected(EcgFile ecgFile);
         void onFileListChanged(List<EcgFile> fileList);
     }
+
     EcgFilesManager(OnEcgFilesChangedListener listener) {
         this.listener = listener;
     }
@@ -68,7 +69,7 @@ public class EcgFilesManager {
         ViseLog.e(ecgFile.toString());
     }
 
-    // 添加一个文件
+    // 添加文件
     private synchronized boolean add(EcgFile file) {
         if(file == null) {
             return false;
@@ -153,128 +154,100 @@ public class EcgFilesManager {
     }
 
     // ******这个功能还没有完成
-    // 从fromDir导入文件到toDir
-    synchronized void importFiles(File fromDir, File toDir) {
-        File[] fileList = BmeFileUtil.listDirBmeFiles(fromDir);
-
-        boolean updated = false;
-
-        for(File file : fileList) {
-            EcgFile tmpEcgFile = null;
-            EcgFile toEcgFile = null;
+    // 从srcDir导入文件到destDir
+    synchronized void importFiles(File srcDir, File destDir) {
+        File[] fileList = BmeFileUtil.listDirBmeFiles(srcDir);
+        boolean changed = false;
+        for(File srcFile : fileList) {
+            EcgFile srcEcgFile = null;
+            EcgFile destEcgFile = null;
             try {
-                tmpEcgFile = EcgFile.open(file.getCanonicalPath());
-
-                tmpEcgFile.close();
-
-                File toFile = FileUtil.getFile(toDir, file.getName());
-
-                if(toFile.exists()) {
-                    toEcgFile = EcgFile.open(toFile.getCanonicalPath());
-
-                    if(mergeEcgFileComments(tmpEcgFile, toEcgFile))
-                        updated = true;
-
-                    file.delete();
+                srcEcgFile = EcgFile.open(srcFile.getCanonicalPath());
+                srcEcgFile.close();
+                File destFile = FileUtil.getFile(destDir, srcFile.getName());
+                if(destFile.exists()) {
+                    destEcgFile = EcgFile.open(destFile.getCanonicalPath());
+                    if(copyComments(srcEcgFile, destEcgFile)) {
+                        changed = true;
+                        destEcgFile.saveFileTail();
+                    }
+                    destEcgFile.close();
                 } else {
-                    FileUtil.moveFile(file, toFile);
-
-                    toEcgFile = EcgFile.open(toFile.getCanonicalPath());
-
-                    add(toEcgFile);
-
-                    updated = true;
+                    FileUtil.copyFile(srcFile, destFile);
+                    changed = true;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                if(tmpEcgFile != null) {
+                if(srcEcgFile != null) {
                     try {
-                        tmpEcgFile.close();
+                        srcEcgFile.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-                if(toEcgFile != null) {
+                if(destEcgFile != null) {
                     try {
-                        toEcgFile.saveFileTail();
-                        toEcgFile.close();
+                        destEcgFile.saveFileTail();
+                        destEcgFile.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
         }
-
-        if(updated) {
-            sortFilesByCreatedTime(ecgFileList);
-
-            select(ecgFileList.get(ecgFileList.size() - 1));
-        }
     }
 
-    // 融合文件留言
-    private boolean mergeEcgFileComments(EcgFile srcFile, EcgFile destFile) {
+    // 拷贝文件留言
+    private boolean copyComments(EcgFile srcFile, EcgFile destFile) {
         List<EcgNormalComment> srcComments = srcFile.getCommentList();
         List<EcgNormalComment> destComments = destFile.getCommentList();
-        List<EcgNormalComment> needAddComments = new ArrayList<>();
 
+        boolean update = false;
+        boolean needAdd = true;
         for(EcgNormalComment srcComment : srcComments) {
             for(EcgNormalComment destComment : destComments) {
-                if(!srcComment.equals(destComment)) {
-                    needAddComments.add(srcComment);
+                if(srcComment.getCreator().equals(destComment.getCreator()) && srcComment.getModifyTime() <= destComment.getModifyTime()) {
+                    needAdd = false;
+                    break;
                 }
             }
+            if(needAdd) {
+                destFile.addComment(srcComment);
+                update = true;
+            }
+            needAdd = true;
         }
-
-        if(needAddComments.isEmpty())
-            return false;
-        else {
-            destFile.addComment(needAddComments);
-            return true;
-        }
+        return update;
     }
 
-    // 通过微信分享一个文件
-    synchronized void shareSelectFileThroughWechat(final Context context) {
+    // 通过微信分享选中文件
+    synchronized void shareSelectedFileThroughWechat(final Context context) {
         if(selectedFile == null) return;
-
         Platform.ShareParams sp = new Platform.ShareParams();
-
         sp.setShareType(SHARE_FILE);
-
         String fileShortName = selectedFile.getFile().getName();
-
         sp.setTitle(fileShortName);
-
         sp.setText(fileShortName);
-
         Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_kang);
-
         sp.setImageData(bmp);
-
         sp.setFilePath(selectedFile.getFileName());
-
-        Platform wxPlatform = ShareSDK.getPlatform(Wechat.NAME);
-
-        wxPlatform.setPlatformActionListener(new PlatformActionListener() {
+        Platform platform = ShareSDK.getPlatform(Wechat.NAME);
+        platform.setPlatformActionListener(new PlatformActionListener() {
             @Override
             public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                Toast.makeText(context, "分享成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "微信分享成功", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onError(Platform platform, int i, Throwable throwable) {
-                //Toast.makeText(EcgFileExploreActivity.this, "分享错误", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "分享错误", Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onCancel(Platform platform, int i) {
-                //Toast.makeText(EcgFileExploreActivity.this, "分享取消", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "分享被取消", Toast.LENGTH_SHORT).show();
             }
         });
-
-        wxPlatform.share(sp);
+        platform.share(sp);
     }
 
     synchronized void close() {

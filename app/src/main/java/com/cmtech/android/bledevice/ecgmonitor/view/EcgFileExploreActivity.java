@@ -17,7 +17,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
@@ -33,7 +32,6 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.vise.log.ViseLog;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,10 +56,10 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
-    private static final int DEFAULT_FILENUM_LOADED_EACH_TIMES = 5; // 缺省每次加载的文件数
+    private static final int DEFAULT_LOADED_FILENUM_EACH_TIMES = 5; // 缺省每次加载的文件数
 
     private EcgFileExplorer explorer;      // 文件浏览器实例
-    private int selectFileSampleRate; // 选中文件的采样率
+    private int selectedFileSampleRate; // 选中文件的采样率
     private EcgFileRollWaveView signalView; // signalView
     private EcgFileListAdapter fileAdapter; // 文件Adapter
     private RecyclerView rvFiles; // 文件RecycleView
@@ -88,13 +86,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         Toolbar toolbar = findViewById(R.id.tb_ecgexplorer);
         setSupportActionBar(toolbar);
 
-        try {
-            explorer = new EcgFileExplorer(ECG_FILE_DIR, this);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "创建心电文件浏览器错误。", Toast.LENGTH_SHORT).show();
-            finish();
-        }
+        explorer = new EcgFileExplorer(ECG_FILE_DIR, this);
 
         signalLayout = findViewById(R.id.layout_ecgfile_ecgsignal);
         hrLayout = findViewById(R.id.layout_ecgfile_hr);
@@ -114,7 +106,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1){
-                    explorer.loadNextFiles(DEFAULT_FILENUM_LOADED_EACH_TIMES);
+                    explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
                 }
 
             }
@@ -184,7 +176,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         tvMaxHr = findViewById(R.id.tv_max_hr_value);
         tvNoRecord = findViewById(R.id.tv_no_record);
 
-        explorer.loadNextFiles(DEFAULT_FILENUM_LOADED_EACH_TIMES);
+        explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
     }
 
 
@@ -221,9 +213,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         signalView.stopShow();
-
         explorer.close();
     }
 
@@ -233,7 +223,9 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
     }
 
     private void importFromWechat() {
+        signalView.stopShow();
         explorer.importFromWechat();
+        explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
     }
 
     private void deleteSelectedFile() {
@@ -300,9 +292,9 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
 
                     initEcgView(selectedFile, 0.5);
 
-                    selectFileSampleRate = selectedFile.getSampleRate();
+                    selectedFileSampleRate = selectedFile.getSampleRate();
 
-                    int secondInSignal = selectedFile.getDataNum()/ selectFileSampleRate;
+                    int secondInSignal = selectedFile.getDataNum()/ selectedFileSampleRate;
 
                     tvCurrentTime.setText(DateTimeUtil.secToTime(0));
                     tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
@@ -384,7 +376,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
 
     @Override
     public void onDataLocationUpdated(long dataLocation) {
-        int second = (int)(dataLocation/ selectFileSampleRate);
+        int second = (int)(dataLocation/ selectedFileSampleRate);
 
         tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
 
