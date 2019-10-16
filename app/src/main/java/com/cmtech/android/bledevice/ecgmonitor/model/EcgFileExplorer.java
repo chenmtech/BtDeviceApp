@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.MACADDRESS_CHAR_NUM;
 
 /**
@@ -33,16 +34,14 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
  */
 
 public class EcgFileExplorer {
-
+    private final File ecgFileDir; // Ecg文件路径
+    private final EcgFilesManager filesManager; // 文件列表管理器
+    private final List<File> ecgFileList;
+    private Iterator<File> fileIterator;
+    private final ExecutorService openFileService = Executors.newSingleThreadExecutor();
+    private final OnEcgFileExplorerListener listener; // 文件浏览监听器
     public interface OnEcgFileExplorerListener extends EcgFilesManager.OnEcgFilesChangedListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
     }
-
-    private final File ecgFileDir; // Ecg文件路径
-    private final List<File> fileList;
-    private Iterator<File> fileIterator;
-    private final EcgFilesManager filesManager; // 文件列表管理器
-    private final OnEcgFileExplorerListener listener; // 文件浏览监听器
-    private final ExecutorService openFileService = Executors.newSingleThreadExecutor();
 
     public EcgFileExplorer(File ecgFileDir, OnEcgFileExplorerListener listener) throws IOException{
         if(ecgFileDir == null) {
@@ -69,8 +68,8 @@ public class EcgFileExplorer {
                 return (createTime2 > createTime1) ? 1 : -1;
             }
         });
-        fileList = new ArrayList<>(Arrays.asList(files));
-        fileIterator = fileList.iterator();
+        ecgFileList = new ArrayList<>(Arrays.asList(files));
+        fileIterator = ecgFileList.iterator();
         this.listener = listener;
     }
 
@@ -95,12 +94,13 @@ public class EcgFileExplorer {
 
     // 删除选中文件
     public void deleteSelectFile(Context context) {
-        filesManager.deleteSelectFile(context);
+        filesManager.deleteSelectedFile(context);
     }
 
     // 从微信导入文件
     public void importFromWechat() {
-        filesManager.importToFromWechat(ecgFileDir);
+        File weChatDir = new File(WECHAT_DOWNLOAD_DIR);
+        filesManager.importFiles(weChatDir, ecgFileDir);
     }
 
     // 用微信分享一个文件
@@ -109,18 +109,17 @@ public class EcgFileExplorer {
     }
 
     // 保存留言信息
-    public void saveSelectFileComment() {
+    public void saveSelectedFileComment() {
         try {
-            filesManager.saveSelectFileComment();
+            filesManager.saveSelectedFileComment();
         } catch (IOException e) {
             ViseLog.e("保存留言错误。");
         }
-
     }
 
-    public void getSelectFileHrInfo() {
+    public void getSelectedFileHrStatisticsInfo() {
         if(listener != null)
-            listener.onHrStatisticInfoUpdated(filesManager.getSelectFileHrInfo());
+            listener.onHrStatisticInfoUpdated(filesManager.getSelectedFileHrStatisticsInfo());
 
     }
 
@@ -141,7 +140,7 @@ public class EcgFileExplorer {
             try {
                 filesManager.openFile(file);
             } catch (IOException e) {
-                ViseLog.e("To open ecg file is wrong." + file);
+                ViseLog.e("The file is wrong: " + file);
             }
         }
     }

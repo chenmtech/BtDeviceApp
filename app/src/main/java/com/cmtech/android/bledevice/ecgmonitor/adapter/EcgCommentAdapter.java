@@ -19,6 +19,7 @@ import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -50,7 +51,8 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     }
 
     public EcgCommentAdapter(List<EcgNormalComment> commentList, OnEcgCommentListener listener) {
-        this.commentList = commentList;
+        if(commentList == null) this.commentList = new ArrayList<>();
+        else this.commentList = commentList;
         this.listener = listener;
     }
 

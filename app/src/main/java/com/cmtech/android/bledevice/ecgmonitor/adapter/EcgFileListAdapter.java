@@ -78,7 +78,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activity.changeSelectFile(fileList.get(holder.getAdapterPosition()));
+                activity.changeSelectedFile(fileList.get(holder.getAdapterPosition()));
             }
         });
 
@@ -109,7 +109,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             holder.tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
         }
 
-        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
+        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreatedTime());
         holder.tvCreateTime.setText(createTime);
 
         if(file.getDataNum() == 0) {
@@ -143,7 +143,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
     }
 
 
-    public void updateSelectFile(EcgFile selectFile) {
+    public void updateSelectedFile(EcgFile selectFile) {
         this.selectFile = selectFile;
         notifyDataSetChanged();
     }

@@ -136,7 +136,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         commentLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvComments.setLayoutManager(commentLayoutManager);
         rvComments.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        commentAdapter = new EcgCommentAdapter(new ArrayList<EcgNormalComment>(), this);
+        commentAdapter = new EcgCommentAdapter(null, this);
         rvComments.setAdapter(commentAdapter);
 
         signalView = findViewById(R.id.rwv_ecgview);
@@ -179,16 +179,12 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         });
 
         hrHistChart = findViewById(R.id.chart_hr_histogram);
-
         hrLineChart = findViewById(R.id.linechart_hr);
-
         tvAverageHr = findViewById(R.id.tv_average_hr_value);
-
         tvMaxHr = findViewById(R.id.tv_max_hr_value);
-
         tvNoRecord = findViewById(R.id.tv_no_record);
 
-        explorer.loadNextFiles(1);
+        explorer.loadNextFiles(DEFAULT_FILENUM_LOADED_EACH_TIMES);
     }
 
 
@@ -231,9 +227,8 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         explorer.close();
     }
 
-    public void changeSelectFile(EcgFile ecgFile) {
+    public void changeSelectedFile(EcgFile ecgFile) {
         signalView.stopShow();
-
         explorer.selectFile(ecgFile);
     }
 
@@ -294,45 +289,45 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
     }
 
     @Override
-    public void onSelectFileChanged(final EcgFile selectFile) {
+    public void onFileSelected(final EcgFile selectedFile) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                fileAdapter.updateSelectFile(selectFile);
+                fileAdapter.updateSelectedFile(selectedFile);
 
-                if(selectFile != null) {
-                    ViseLog.e(selectFile);
+                if(selectedFile != null) {
+                    ViseLog.e(selectedFile);
 
-                    initEcgView(selectFile, 0.5);
+                    initEcgView(selectedFile, 0.5);
 
-                    selectFileSampleRate = selectFile.getSampleRate();
+                    selectFileSampleRate = selectedFile.getSampleRate();
 
-                    int secondInSignal = selectFile.getDataNum()/ selectFileSampleRate;
+                    int secondInSignal = selectedFile.getDataNum()/ selectFileSampleRate;
 
                     tvCurrentTime.setText(DateTimeUtil.secToTime(0));
                     tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
                     sbReplay.setMax(secondInSignal);
 
-                    List<EcgNormalComment> commentList = getCommentListInFile(selectFile);
+                    List<EcgNormalComment> commentList = getCommentListInFile(selectedFile);
                     commentAdapter.updateCommentList(commentList);
                     if(commentList.size() > 0)
                         rvComments.smoothScrollToPosition(0);
 
                     signalView.startShow();
 
-                    if(selectFile.getDataNum() == 0) {
+                    if(selectedFile.getDataNum() == 0) {
                         signalLayout.setVisibility(View.GONE);
                     } else {
                         signalLayout.setVisibility(View.VISIBLE);
                     }
 
-                    if(selectFile.getHrList().size() == 0) {
+                    if(selectedFile.getHrList().size() == 0) {
                         hrLayout.setVisibility(View.GONE);
                     } else {
                         hrLayout.setVisibility(View.VISIBLE);
                     }
 
-                    explorer.getSelectFileHrInfo();
+                    explorer.getSelectedFileHrStatisticsInfo();
                 } else {
                     signalView.stopShow();
 
@@ -399,7 +394,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
 
     @Override
     public void onCommentSaved() {
-        explorer.saveSelectFileComment();
+        explorer.saveSelectedFileComment();
     }
 
     @Override

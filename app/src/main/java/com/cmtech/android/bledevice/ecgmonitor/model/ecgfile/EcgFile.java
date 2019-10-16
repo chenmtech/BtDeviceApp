@@ -180,8 +180,8 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     public String getCreatorName() {
         return getCreator().getName();
     }
-    public long getCreateTime() {
-        return ((BmeFileHead30)getBmeFileHead()).getCreateTime();
+    public long getCreatedTime() {
+        return ((BmeFileHead30)getBmeFileHead()).getCreatedTime();
     }
     public List<Short> getHrList() {
         return ecgFileTail.hrInfoAppendix.getHrList();
@@ -203,7 +203,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         return 0;
     }
 
-    public synchronized void save() throws IOException{
+    public synchronized void saveFileTail() throws IOException{
         long curPointer = raf.getFilePointer();
         dataEndPointer = updateDataEndPointer();
         ecgFileTail.writeToStream(raf, dataEndPointer);
