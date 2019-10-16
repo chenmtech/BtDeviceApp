@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.adapter;
 
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -18,7 +19,9 @@ import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 
 
@@ -35,18 +38,16 @@ import java.util.List;
  */
 
 public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.ViewHolder> {
-    private EcgFileExploreActivity activity;
-
-    private List<EcgFile> fileList;
-
-    private EcgFile selectFile;
-
+    private final EcgFileExploreActivity activity;
+    private List<EcgFile> fileList = new ArrayList<>();
+    private List<File> updatedFileList = new ArrayList<>();
+    private EcgFile selectedFile;
     private Drawable defaultBackground; // 缺省背景
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View fileView;
         TextView tvCreator; // 创建人
-        TextView tvCreateTime; // 创建时间
+        TextView tvCreatedTime; // 创建时间
         TextView tvLength; // 信号长度
         TextView tvHrNum; // 心率次数
 
@@ -54,7 +55,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             super(itemView);
             fileView = itemView;
             tvCreator = fileView.findViewById(R.id.ecgfile_creator);
-            tvCreateTime = fileView.findViewById(R.id.ecgfile_createtime);
+            tvCreatedTime = fileView.findViewById(R.id.ecgfile_createtime);
             tvLength = fileView.findViewById(R.id.ecgfile_length);
             tvHrNum = fileView.findViewById(R.id.ecgfile_hr_num);
         }
@@ -62,7 +63,6 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
     public EcgFileListAdapter(EcgFileExploreActivity activity) {
         this.activity = activity;
-        this.fileList = new ArrayList<>();
     }
 
     @NonNull
@@ -72,16 +72,13 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
                 .inflate(R.layout.recycle_item_ecg_file, parent, false);
 
         final EcgFileListAdapter.ViewHolder holder = new EcgFileListAdapter.ViewHolder(view);
-
         defaultBackground = holder.fileView.getBackground();
-
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activity.changeSelectedFile(fileList.get(holder.getAdapterPosition()));
+                activity.selectFile(fileList.get(holder.getAdapterPosition()));
             }
         });
-
         holder.tvCreator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,34 +94,35 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
     @Override
     public void onBindViewHolder(@NonNull EcgFileListAdapter.ViewHolder holder, final int position) {
         EcgFile file = fileList.get(position);
-
         if(file == null) return;
 
         User fileCreator = file.getCreator();
-
         User account = UserManager.getInstance().getUser();
         if(fileCreator.equals(account)) {
-            holder.tvCreator.setText(Html.fromHtml("<u>您</u>"));
+            holder.tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
             holder.tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
         }
 
-        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreatedTime());
-        holder.tvCreateTime.setText(createTime);
+        String createdTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreatedTime());
+        holder.tvCreatedTime.setText(createdTime);
 
         if(file.getDataNum() == 0) {
             holder.tvLength.setText("无");
         } else {
-            String fileTimeLength = DateTimeUtil.secToTimeInChinese(file.getDataNum() / file.getSampleRate());
-            holder.tvLength.setText(fileTimeLength);
+            String dataTimeLength = DateTimeUtil.secToTimeInChinese(file.getDataNum() / file.getSampleRate());
+            holder.tvLength.setText(dataTimeLength);
         }
 
         int hrNum = file.getHrList().size();
         holder.tvHrNum.setText(String.valueOf(hrNum));
 
         int bgdColor;
-        if(file.equals(selectFile)) {
-            bgdColor = MyApplication.getContext().getResources().getColor(R.color.secondary);
+        if(file.equals(selectedFile)) {
+            bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
+            holder.fileView.setBackgroundColor(bgdColor);
+        } else if(updatedFileList.contains(file.getFile())) {
+            bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.green);
             holder.fileView.setBackgroundColor(bgdColor);
         } else {
             holder.fileView.setBackground(defaultBackground);
@@ -139,13 +137,13 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
     public void updateFileList(List<EcgFile> fileList) {
         this.fileList = fileList;
+        updatedFileList = activity.getUpdatedFiles();
         notifyDataSetChanged();
     }
 
 
     public void updateSelectedFile(EcgFile selectFile) {
-        this.selectFile = selectFile;
+        this.selectedFile = selectFile;
         notifyDataSetChanged();
     }
-
 }

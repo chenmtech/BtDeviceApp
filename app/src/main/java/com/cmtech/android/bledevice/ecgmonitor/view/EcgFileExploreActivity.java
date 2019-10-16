@@ -21,8 +21,10 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorer;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgFilesManager;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfoAnalyzer;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -32,6 +34,7 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.vise.log.ViseLog;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +53,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-public class EcgFileExploreActivity extends AppCompatActivity implements EcgFileExplorer.OnEcgFileExplorerListener, EcgFileRollWaveView.OnEcgFileRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener  {
+public class EcgFileExploreActivity extends AppCompatActivity implements EcgFilesManager.OnEcgFileDirListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener, EcgFileRollWaveView.OnEcgFileRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener  {
     private static final String TAG = "EcgFileExploreActivity";
 
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
@@ -98,17 +101,16 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         rvFiles.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
         fileAdapter = new EcgFileListAdapter(this);
         rvFiles.setAdapter(fileAdapter);
-        rvFiles.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            int lastVisibleItem ;
+        rvFiles.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            int lastVisibleItem;
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
-                if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1){
+                if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1) {
                     explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
                 }
-
             }
 
             @Override
@@ -116,12 +118,10 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
                 super.onScrolled(recyclerView, dx, dy);
 
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-
                 if(layoutManager != null)
                     lastVisibleItem = layoutManager.findLastVisibleItemPosition();
             }
         });
-
 
         rvComments = findViewById(R.id.rv_ecgcomment_list);
         LinearLayoutManager commentLayoutManager = new LinearLayoutManager(this);
@@ -203,23 +203,11 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
                 break;
 
             case R.id.explorer_share:
-                shareFileThroughWechat();
+                shareSelectedFileThroughWechat();
                 break;
 
         }
         return true;
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        signalView.stopShow();
-        explorer.close();
-    }
-
-    public void changeSelectedFile(EcgFile ecgFile) {
-        signalView.stopShow();
-        explorer.selectFile(ecgFile);
     }
 
     private void importFromWechat() {
@@ -232,52 +220,24 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         explorer.deleteSelectFile(this);
     }
 
-    private void shareFileThroughWechat() {
-        explorer.shareSelectFileThroughWechat(this);
+    private void shareSelectedFileThroughWechat() {
+        explorer.shareSelectedFileThroughWechat(this);
     }
 
-
-    private void initEcgView(EcgFile ecgFile, double zeroLocation) {
-        if(ecgFile == null) return;
-
-        int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;
-
-        int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
-
-        int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * ecgFile.getSampleRate())); // 计算横向分辨率
-
-        float vValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         signalView.stopShow();
-
-        signalView.setRes(hPixelPerData, vValuePerPixel);
-        signalView.setGridWidth(pixelPerGrid);
-        signalView.setZeroLocation(zeroLocation);
-        signalView.clearData();
-        signalView.initView();
-
-        signalView.setEcgFile(ecgFile);
+        explorer.close();
     }
 
+    public void selectFile(EcgFile ecgFile) {
+        signalView.stopShow();
+        explorer.selectFile(ecgFile);
+    }
 
-    // 获取选中文件的留言列表
-    private List<EcgNormalComment> getCommentListInFile(EcgFile ecgFile) {
-        if(ecgFile == null)
-            return new ArrayList<>();
-        else {
-            User account = UserManager.getInstance().getUser();
-            boolean found = false;
-            for(EcgNormalComment appendix : ecgFile.getCommentList()) {
-                if(appendix.getCreator().equals(account)) {
-                    found = true;
-                    break;
-                }
-            }
-            if(!found) {
-                ecgFile.addComment(EcgNormalComment.createDefaultComment());
-            }
-            return ecgFile.getCommentList();
-        }
+    public List<File> getUpdatedFiles() {
+        return explorer.getUpdatedFiles();
     }
 
     @Override
@@ -291,11 +251,8 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
                     ViseLog.e(selectedFile);
 
                     initEcgView(selectedFile, 0.5);
-
                     selectedFileSampleRate = selectedFile.getSampleRate();
-
                     int secondInSignal = selectedFile.getDataNum()/ selectedFileSampleRate;
-
                     tvCurrentTime.setText(DateTimeUtil.secToTime(0));
                     tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
                     sbReplay.setMax(secondInSignal);
@@ -313,24 +270,55 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
                         signalLayout.setVisibility(View.VISIBLE);
                     }
 
-                    if(selectedFile.getHrList().size() == 0) {
+                    if(selectedFile.getHrList().isEmpty()) {
                         hrLayout.setVisibility(View.GONE);
                     } else {
                         hrLayout.setVisibility(View.VISIBLE);
                     }
 
-                    explorer.getSelectedFileHrStatisticsInfo();
+                    updateSelectedFileHrStatisticsInfo(explorer.getSelectedFileHrStatisticsInfo());
                 } else {
                     signalView.stopShow();
-
                     signalLayout.setVisibility(View.GONE);
-
                     hrLayout.setVisibility(View.GONE);
                 }
             }
         });
+    }
 
+    private void initEcgView(EcgFile ecgFile, double zeroLocation) {
+        if(ecgFile == null) return;
+        int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;
+        int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
+        int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * ecgFile.getSampleRate())); // 计算横向分辨率
+        float vValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
+        signalView.stopShow();
+        signalView.setRes(hPixelPerData, vValuePerPixel);
+        signalView.setGridWidth(pixelPerGrid);
+        signalView.setZeroLocation(zeroLocation);
+        signalView.clearData();
+        signalView.initView();
+        signalView.setEcgFile(ecgFile);
+    }
 
+    // 获取选中文件的留言列表
+    private List<EcgNormalComment> getCommentListInFile(EcgFile ecgFile) {
+        if(ecgFile == null)
+            return new ArrayList<>();
+        else {
+            User account = UserManager.getInstance().getUser();
+            boolean found = false;
+            for(EcgNormalComment comment : ecgFile.getCommentList()) {
+                if(comment.getCreator().equals(account)) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found) {
+                ecgFile.addComment(EcgNormalComment.createDefaultComment());
+            }
+            return ecgFile.getCommentList();
+        }
     }
 
     @Override
@@ -353,36 +341,33 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
     }
 
     @Override
-    public void onHrStatisticInfoUpdated(EcgHrStatisticsInfoAnalyzer hrInfoObject) {
-        tvAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));
+    public void onHrStatisticInfoUpdated(EcgHrStatisticsInfo hrStatisticsInfo) {
+        updateSelectedFileHrStatisticsInfo(hrStatisticsInfo);
+    }
 
-        tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
-
-        hrLineChart.showLineChart(hrInfoObject.getFilteredHrList(), "心率时序图", Color.BLUE);
-
-        hrHistChart.update(hrInfoObject.getNormHistogram(HR_HISTOGRAM_BAR_NUM));
+    private void updateSelectedFileHrStatisticsInfo(EcgHrStatisticsInfo hrStatisticsInfo) {
+        tvAverageHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
+        tvMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
+        hrLineChart.showLineChart(hrStatisticsInfo.getFilteredHrList(), "心率时序图", Color.BLUE);
+        hrHistChart.update(hrStatisticsInfo.getNormHistogram(HR_HISTOGRAM_BAR_NUM));
     }
 
     @Override
     public void onShowStateUpdated(boolean isReplay) {
         if(isReplay) {
             btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_32px));
-            sbReplay.setEnabled(false);
         } else {
             btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_32px));
-            sbReplay.setEnabled(true);
         }
+        sbReplay.setEnabled(!isReplay);
     }
 
     @Override
     public void onDataLocationUpdated(long dataLocation) {
         int second = (int)(dataLocation/ selectedFileSampleRate);
-
         tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
-
         sbReplay.setProgress(second);
     }
-
 
     @Override
     public void onCommentSaved() {
@@ -395,21 +380,18 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
             signalView.stopShow();
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("删除一条Ecg附加信息");
-        builder.setMessage("确定删除该Ecg附加信息吗？");
+        builder.setTitle("删除留言").setMessage("确定删除该留言吗？");
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //fileReplayModel.deleteComment(appendix);
             }
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+        }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 
             }
-        });
-        builder.show();
+        }).show();
     }
 
 }

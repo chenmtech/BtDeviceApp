@@ -7,11 +7,9 @@ import android.graphics.BitmapFactory;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfoAnalyzer;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -44,58 +42,57 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
  */
 
 public class EcgFilesManager {
-    private final List<EcgFile> ecgFileList = new ArrayList<>(); // 文件目录中包含的心电文件列表
-    private final List<EcgFile> unmodifiedFileList = Collections.unmodifiableList(ecgFileList);
-    private final OnEcgFilesChangedListener listener; // ECG文件改变监听器
+    private final List<EcgFile> openedFileList = new ArrayList<>(); // 打开的心电文件列表
+    private final List<EcgFile> unmodifiedFileList = Collections.unmodifiableList(openedFileList);
+    private final OnEcgFileDirListener listener; // ECG文件目录监听器
     private EcgFile selectedFile; // 选中的EcgFile
 
-    public interface OnEcgFilesChangedListener {
-        void onFileSelected(EcgFile ecgFile);
-        void onFileListChanged(List<EcgFile> fileList);
+    public interface OnEcgFileDirListener {
+        void onFileSelected(EcgFile ecgFile); // 文件被选中
+        void onFileListChanged(List<EcgFile> fileList); // 文件列表改变
     }
 
-    EcgFilesManager(OnEcgFilesChangedListener listener) {
+    EcgFilesManager(OnEcgFileDirListener listener) {
         this.listener = listener;
     }
 
     // 打开文件
-    void openFile(File file) throws IOException{
-        EcgFile ecgFile = EcgFile.open(file.getCanonicalPath());
-        if(!add(ecgFile)) {
-            ecgFile.close();
-            return;
-        }
-
-        ViseLog.e(ecgFile.toString());
-    }
-
-    // 添加文件
-    private synchronized boolean add(EcgFile file) {
-        if(file == null) {
-            return false;
-        }
-
-        boolean isAdded = false;
-        if(!ecgFileList.contains(file)) {
-            ecgFileList.add(file);
-            sortFilesByCreatedTime(ecgFileList);
-            notifyFileListChanged();
-            if(ecgFileList.size() == 1) {
-                select(file);
+    synchronized void openFile(File file) throws IOException{
+        boolean contain = false;
+        for(EcgFile ecgFile : openedFileList) {
+            if(ecgFile.getFile().getCanonicalPath().equalsIgnoreCase(file.getCanonicalPath())) {
+                contain = true;
+                break;
             }
-            isAdded = true;
         }
-        return isAdded;
+
+        if(!contain) {
+            EcgFile ecgFile = EcgFile.open(file.getCanonicalPath());
+            openedFileList.add(ecgFile);
+            if(openedFileList.size() > 1) {
+                Collections.sort(openedFileList, new Comparator<EcgFile>() {
+                    @Override
+                    public int compare(EcgFile o1, EcgFile o2) {
+                        return (int) (o2.getCreatedTime() - o1.getCreatedTime());
+                    }
+                });
+            }
+            notifyFileListChanged();
+            if(openedFileList.size() == 1) {
+                select(ecgFile);
+            }
+            ViseLog.e(ecgFile.toString());
+        }
     }
 
     // 选中文件
     synchronized void select(EcgFile file) {
         if(file == null) {
             selectedFile = null;
-            notifySelectedFileChanged(null);
-        } else if(ecgFileList.contains(file)) {
+            notifySelectedFileChanged();
+        } else if(openedFileList.contains(file)) {
             selectedFile = file;
-            notifySelectedFileChanged(file);
+            notifySelectedFileChanged();
         }
     }
 
@@ -121,19 +118,15 @@ public class EcgFilesManager {
 
     // 删除文件
     private synchronized void delete(EcgFile file) {
-        if(file == null) {
-            return;
-        }
-
         try {
-            int index = ecgFileList.indexOf(file);
+            int index = openedFileList.indexOf(file);
             if(index != -1) {
                 FileUtil.deleteFile(file.getFile());
-                if(ecgFileList.remove(file)) {
+                if(openedFileList.remove(file)) {
                     notifyFileListChanged();
                 }
-                index = (index > ecgFileList.size() - 1) ? ecgFileList.size() - 1 : index;
-                select((index < 0) ? null : ecgFileList.get(index));
+                index = (index > openedFileList.size() - 1) ? openedFileList.size() - 1 : index;
+                select((index < 0) ? null : openedFileList.get(index));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -146,79 +139,11 @@ public class EcgFilesManager {
         }
     }
 
-    synchronized EcgHrStatisticsInfoAnalyzer getSelectedFileHrStatisticsInfo() {
+    synchronized EcgHrStatisticsInfo getSelectedFileHrStatisticsInfo() {
         if(selectedFile != null) {
-            return new EcgHrStatisticsInfoAnalyzer(selectedFile.getHrList(), HR_FILTER_SECOND);
+            return new EcgHrStatisticsInfo(selectedFile.getHrList(), HR_FILTER_SECOND);
         }
         return null;
-    }
-
-    // ******这个功能还没有完成
-    // 从srcDir导入文件到destDir
-    synchronized void importFiles(File srcDir, File destDir) {
-        File[] fileList = BmeFileUtil.listDirBmeFiles(srcDir);
-        boolean changed = false;
-        for(File srcFile : fileList) {
-            EcgFile srcEcgFile = null;
-            EcgFile destEcgFile = null;
-            try {
-                srcEcgFile = EcgFile.open(srcFile.getCanonicalPath());
-                srcEcgFile.close();
-                File destFile = FileUtil.getFile(destDir, srcFile.getName());
-                if(destFile.exists()) {
-                    destEcgFile = EcgFile.open(destFile.getCanonicalPath());
-                    if(copyComments(srcEcgFile, destEcgFile)) {
-                        changed = true;
-                        destEcgFile.saveFileTail();
-                    }
-                    destEcgFile.close();
-                } else {
-                    FileUtil.copyFile(srcFile, destFile);
-                    changed = true;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if(srcEcgFile != null) {
-                    try {
-                        srcEcgFile.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if(destEcgFile != null) {
-                    try {
-                        destEcgFile.saveFileTail();
-                        destEcgFile.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
-    // 拷贝文件留言
-    private boolean copyComments(EcgFile srcFile, EcgFile destFile) {
-        List<EcgNormalComment> srcComments = srcFile.getCommentList();
-        List<EcgNormalComment> destComments = destFile.getCommentList();
-
-        boolean update = false;
-        boolean needAdd = true;
-        for(EcgNormalComment srcComment : srcComments) {
-            for(EcgNormalComment destComment : destComments) {
-                if(srcComment.getCreator().equals(destComment.getCreator()) && srcComment.getModifyTime() <= destComment.getModifyTime()) {
-                    needAdd = false;
-                    break;
-                }
-            }
-            if(needAdd) {
-                destFile.addComment(srcComment);
-                update = true;
-            }
-            needAdd = true;
-        }
-        return update;
     }
 
     // 通过微信分享选中文件
@@ -250,8 +175,9 @@ public class EcgFilesManager {
         platform.share(sp);
     }
 
+    // 关闭管理器
     synchronized void close() {
-        for(EcgFile file : ecgFileList) {
+        for(EcgFile file : openedFileList) {
             try {
                 file.close();
             } catch (IOException e) {
@@ -259,7 +185,7 @@ public class EcgFilesManager {
             }
         }
 
-        ecgFileList.clear();
+        openedFileList.clear();
     }
 
     private void notifyFileListChanged() {
@@ -268,20 +194,9 @@ public class EcgFilesManager {
         }
     }
 
-    private void notifySelectedFileChanged(final EcgFile file) {
+    private void notifySelectedFileChanged() {
         if(listener != null) {
-            listener.onFileSelected(file);
+            listener.onFileSelected(selectedFile);
         }
-    }
-
-    // 按照创建时间给EcgFile文件列表排序
-    private void sortFilesByCreatedTime(List<EcgFile> fileList) {
-        if(fileList.size() <= 1) return;
-        Collections.sort(fileList, new Comparator<EcgFile>() {
-            @Override
-            public int compare(EcgFile o1, EcgFile o2) {
-                return (int)(o2.getCreatedTime() - o1.getCreatedTime());
-            }
-        });
     }
 }

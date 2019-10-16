@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
@@ -13,7 +13,7 @@ import com.vise.utils.file.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -36,15 +36,13 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
  */
 
 public class EcgFileExplorer {
-    private final File ecgFileDir; // Ecg文件路径
     private final EcgFilesManager filesManager; // 文件列表管理器
-    private Iterator<File> fileIterator;
-    private final ExecutorService openFileService = Executors.newSingleThreadExecutor();
-    private final HrStatisticProcessor.OnHrStatisticInfoUpdatedListener listener; // 文件浏览监听器
-    public interface OnEcgFileExplorerListener extends EcgFilesManager.OnEcgFilesChangedListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
-    }
+    private final File ecgFileDir; // Ecg文件路径
+    private Iterator<File> fileIterator; // 文件迭代器
+    private List<File> updatedFiles;
+    private final ExecutorService openFileService = Executors.newSingleThreadExecutor(); // 打开文件服务
 
-    public EcgFileExplorer(File ecgFileDir, OnEcgFileExplorerListener listener) {
+    public EcgFileExplorer(File ecgFileDir, EcgFilesManager.OnEcgFileDirListener listener) {
         if(ecgFileDir == null) {
             throw new IllegalArgumentException("The ecg file dir is null");
         }
@@ -58,33 +56,31 @@ public class EcgFileExplorer {
         filesManager = new EcgFilesManager(listener);
         this.ecgFileDir = ecgFileDir;
         initFileIterator();
-
-        this.listener = listener;
+        updatedFiles = new ArrayList<>();
     }
 
+    // 初始化文件迭代器，文件按照创建时间排序
     private void initFileIterator() {
-        File[] files = BmeFileUtil.listDirBmeFiles(ecgFileDir); // 列出所有bme文件
-        Arrays.sort(files, new Comparator<File>() {
+        List<File> fileList = BmeFileUtil.listDirBmeFiles(ecgFileDir);
+        Collections.sort(fileList, new Comparator<File>() {
             @Override
             public int compare(File o1, File o2) {
                 String f1 = o1.getName();
                 String f2 = o2.getName();
-                long createTime1 = Long.parseLong(f1.substring(MACADDRESS_CHAR_NUM, f1.length()-4));
-                long createTime2 = Long.parseLong(f2.substring(MACADDRESS_CHAR_NUM, f2.length()-4));
-                if(createTime1 == createTime2) return 0;
-                return (createTime2 > createTime1) ? 1 : -1;
+                long createdTime1 = Long.parseLong(f1.substring(MACADDRESS_CHAR_NUM, f1.length()-4));
+                long createdTime2 = Long.parseLong(f2.substring(MACADDRESS_CHAR_NUM, f2.length()-4));
+                if(createdTime1 == createdTime2) return 0;
+                return (createdTime2 > createdTime1) ? 1 : -1;
             }
         });
-        List<File> fileList = new ArrayList<>(Arrays.asList(files));
         fileIterator = fileList.iterator();
     }
 
     public void loadNextFiles(int num) {
         int i = 0;
-        while(i < num && fileIterator.hasNext()) {
+        while(i++ < num && fileIterator.hasNext()) {
             File file = fileIterator.next();
             openFile(file);
-            i++;
         }
     }
 
@@ -107,13 +103,19 @@ public class EcgFileExplorer {
     public void importFromWechat() {
         filesManager.close();
         File weChatDir = new File(WECHAT_DOWNLOAD_DIR);
-        importFiles(weChatDir, ecgFileDir);
+        List<File> changed = importFiles(weChatDir, ecgFileDir);
+        if(changed != null && !changed.isEmpty()) {
+            updatedFiles.addAll(changed);
+        }
         initFileIterator();
     }
 
-    private void importFiles(File srcDir, File destDir) {
-        File[] fileList = BmeFileUtil.listDirBmeFiles(srcDir);
-        boolean changed = false;
+    // 导入新文件或者修改发生变化的文件
+    private List<File> importFiles(File srcDir, File destDir) {
+        List<File> fileList = BmeFileUtil.listDirBmeFiles(srcDir);
+        if(fileList == null || fileList.isEmpty()) return null;
+
+        List<File> changedFiles = new ArrayList<>();
         EcgFile srcEcgFile = null;
         EcgFile destEcgFile = null;
         for(File srcFile : fileList) {
@@ -123,12 +125,12 @@ public class EcgFileExplorer {
                     srcEcgFile = EcgFile.open(srcFile.getCanonicalPath());
                     destEcgFile = EcgFile.open(destFile.getCanonicalPath());
                     if(copyComments(srcEcgFile, destEcgFile)) {
-                        changed = true;
                         destEcgFile.saveFileTail();
+                        changedFiles.add(destFile);
                     }
                 } else {
                     FileUtil.copyFile(srcFile, destFile);
-                    changed = true;
+                    changedFiles.add(destFile);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -148,10 +150,11 @@ public class EcgFileExplorer {
                 }
             }
         }
+        return changedFiles;
     }
 
     // 用微信分享一个文件
-    public void shareSelectFileThroughWechat(final Context context) {
+    public void shareSelectedFileThroughWechat(final Context context) {
         filesManager.shareSelectedFileThroughWechat(context);
     }
 
@@ -164,9 +167,12 @@ public class EcgFileExplorer {
         }
     }
 
-    public void getSelectedFileHrStatisticsInfo() {
-        if(listener != null)
-            listener.onHrStatisticInfoUpdated(filesManager.getSelectedFileHrStatisticsInfo());
+    public EcgHrStatisticsInfo getSelectedFileHrStatisticsInfo() {
+        return filesManager.getSelectedFileHrStatisticsInfo();
+    }
+
+    public List<File> getUpdatedFiles() {
+        return updatedFiles;
     }
 
     public void close() {

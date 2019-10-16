@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfoAnalyzer;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledeviceapp.R;
 
 /**
@@ -47,7 +47,7 @@ public class EcgHrStatisticsFragment extends Fragment {
         hrLineChart = view.findViewById(R.id.linechart_hr);
     }
 
-    public void updateHrInfo(EcgHrStatisticsInfoAnalyzer hrInfoObject) {
+    public void updateHrInfo(EcgHrStatisticsInfo hrInfoObject) {
         tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
         tvAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));
         hrLineChart.showLineChart(hrInfoObject.getFilteredHrList(), "心率变化图", Color.BLUE);

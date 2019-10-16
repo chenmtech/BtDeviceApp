@@ -12,7 +12,7 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfoAnalyzer;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
@@ -117,7 +117,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         void onEcgSignalShowStopped(); // 信号显示停止
         void onSignalRecordSecondChanged(int second); // 信号记录秒数更新
         void onHrChanged(int hr); // 心率值更新，单位bpm
-        void onHrStaticsInfoUpdated(EcgHrStatisticsInfoAnalyzer hrStaticsInfoAnalyzer); // 心率统计信息更新
+        void onHrStaticsInfoUpdated(EcgHrStatisticsInfo hrStaticsInfoAnalyzer); // 心率统计信息更新
         void onHrAbnormalNotified(); // 心率值异常通知
         void onBatteryChanged(int bat); // 电池电量改变
     }
@@ -638,7 +638,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     }
 
     @Override
-    public void onHrStatisticInfoUpdated(final EcgHrStatisticsInfoAnalyzer hrStatisticsInfoAnalyzer) {
+    public void onHrStatisticInfoUpdated(final EcgHrStatisticsInfo hrStatisticsInfoAnalyzer) {
         if(listener != null) {
             listener.onHrStaticsInfoUpdated(hrStatisticsInfoAnalyzer);
         }
