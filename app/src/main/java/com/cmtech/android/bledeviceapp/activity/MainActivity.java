@@ -273,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
             toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
             toolbarManager.setBattery(device.getBattery());
             updateConnectFloatingActionButton(device.getStateIcon(), device.isChangingState());
-            invalidateOptionsMenu();
+            updateCloseMenuItemVisible(device.canClosed());
             updateMainLayoutVisibility(true);
         }
     }
