@@ -23,8 +23,8 @@ import static com.cmtech.android.ble.core.BleDevice.NO_BATTERY;
  * Author:         chenm
  * CreateDate:     2019/4/20 上午5:47
  * UpdateUser:     更新者
- * UpdateDate:     2019/4/20 上午5:47
- * UpdateRemark:   更新说明
+ * UpdateDate:     2019/10/17 下午4:47
+ * UpdateRemark:   更新了菜单项的操作
  * Version:        1.0
  */
 
@@ -37,8 +37,7 @@ public class MainToolbarManager {
     private final Context context;
     private final Toolbar toolbar;
     private final TextView tvBattery;
-    private MenuItem menuConfig;
-    private MenuItem menuClose;
+    private MenuItem[] menuItems;
 
     public MainToolbarManager(Context context, Toolbar toolbar, TextView tvBattery) {
         this.context = context;
@@ -46,9 +45,8 @@ public class MainToolbarManager {
         this.tvBattery = tvBattery;
     }
 
-    public void setMenuItems(MenuItem menuConfig, MenuItem menuClose) {
-        this.menuConfig = menuConfig;
-        this.menuClose = menuClose;
+    public void setMenuItems(MenuItem[] menuItems) {
+        this.menuItems = menuItems;
     }
 
     public void set(int flag, Object... objects) {
@@ -66,7 +64,7 @@ public class MainToolbarManager {
         }
         if((flag & FLAG_MENU) != 0) {
             boolean[] showMenu = (boolean[]) objects[i];
-            updateMenuItem(showMenu[0], showMenu[1]);
+            updateMenuItemsVisible(showMenu);
         }
     }
 
@@ -103,10 +101,35 @@ public class MainToolbarManager {
         toolbar.setNavigationIcon(drawable);
     }
 
-    public void updateMenuItem(boolean showMenuConfig, boolean showMenuClose) {
-        if(menuConfig == null || menuClose == null) return;
+    public void updateMenuItemsVisible(boolean[] showMenu) {
+        if(menuItems == null || menuItems.length == 0 || showMenu == null || showMenu.length == 0 || showMenu.length != menuItems.length) return;
 
-        menuConfig.setVisible(showMenuConfig);
-        menuClose.setVisible(showMenuClose);
+        int i = 0;
+        for(MenuItem item : menuItems) {
+            item.setVisible(showMenu[i++]);
+        }
+    }
+
+    public void updateMenuItemVisible(MenuItem item, boolean showMenu) {
+        for(MenuItem ele : menuItems) {
+            if(ele == item) {
+                ele.setVisible(showMenu);
+            }
+        }
+    }
+
+    public void updateMenuItemVisible(int itemIndex, boolean showMenu) {
+        if(itemIndex >= 0 && itemIndex < menuItems.length && showMenu != menuItems[itemIndex].isVisible())
+            menuItems[itemIndex].setVisible(showMenu);
+    }
+
+    public boolean[] getMenuItemsVisible() {
+        if(menuItems == null || menuItems.length == 0) return null;
+        boolean[] visible = new boolean[menuItems.length];
+        int i = 0;
+        for(MenuItem item : menuItems) {
+            visible[i++] = item.isVisible();
+        }
+        return visible;
     }
 }

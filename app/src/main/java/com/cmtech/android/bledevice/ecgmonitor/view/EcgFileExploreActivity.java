@@ -110,7 +110,9 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1) {
-                    loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
+                    if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
+                        Toast.makeText(EcgFileExploreActivity.this, "无信号可载入。", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
@@ -177,19 +179,15 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         tvMaxHr = findViewById(R.id.tv_max_hr_value);
         tvNoRecord = findViewById(R.id.tv_no_record);
 
-        new Handler(getMainLooper()).postDelayed(new Runnable() {
+        tvNoRecord.setText("正在载入信号");
+        new Handler(getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
+                if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
+                    tvNoRecord.setText("无信号可载入。");
+                }
             }
-        }, 1000);
-    }
-
-    private void loadNextFiles(int num) {
-        Toast.makeText(this, "正在导入信号。", Toast.LENGTH_SHORT).show();
-        if(explorer.loadNextFiles(num) == 0) {
-            Toast.makeText(this, "无信号可导入。", Toast.LENGTH_SHORT).show();
-        }
+        });
     }
 
     @Override
@@ -225,7 +223,15 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     private void importFromWechat() {
         signalView.stopShow();
         explorer.importFromWechat();
-        loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
+        tvNoRecord.setText("正在载入信号");
+        new Handler(getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
+                    tvNoRecord.setText("无信号可载入。");
+                }
+            }
+        });
     }
 
     private void deleteSelectedFile() {

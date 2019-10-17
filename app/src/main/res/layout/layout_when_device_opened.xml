@@ -29,20 +29,6 @@
     </FrameLayout>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_close"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tablayout_device"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="5dp"
-        android:src="@mipmap/ic_close_32px"
-        app:backgroundTint="@color/primary"
-        app:borderWidth="0dp"
-        app:elevation="8dp"
-        app:fabSize="normal"
-        app:pressedTranslationZ="16dp" />
-
-    <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

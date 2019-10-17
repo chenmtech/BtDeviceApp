@@ -252,8 +252,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     // 关闭设备
     @Override
     public void close() {
-        if(!isDisconnected()) {
-            throw new IllegalStateException("The device is not disconnected and can't be closed.");
+        if(!canClosed()) {
+            throw new IllegalStateException("The device can't be closed.");
         }
 
         ViseLog.e("EcgMonitorDevice.close()");

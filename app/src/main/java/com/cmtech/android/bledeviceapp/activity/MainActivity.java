@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
     private LinearLayout noDeviceOpenedLayout; // 无设备打开时的界面
     private RelativeLayout hasDeviceOpenedLayout; // 有设备打开时的界面，即包含设备Fragment和Tablayout的主界面
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
-    private FloatingActionButton fabClose; // 关闭设备的FAB
     private TextView tvUserName; // 账户名称控件
     private ImageView ivUserPortrait; // 头像控件
     private boolean isWarnBecauseBleError = false;
@@ -192,17 +191,6 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                 BleFragment fragment = (BleFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.switchState();
-                }
-            }
-        });
-
-        fabClose = findViewById(R.id.fab_close);
-        fabClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                BleFragment fragment = (BleFragment) fragTabManager.getCurrentFragment();
-                if(fragment != null) {
-                    closeFragment(fragment);
                 }
             }
         });
@@ -358,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         getMenuInflater().inflate(R.menu.menu_main_activity, menu);
         MenuItem menuConfig = menu.findItem(R.id.toolbar_config);
         MenuItem menuClose = menu.findItem(R.id.toolbar_close);
-        toolbarManager.setMenuItems(menuConfig, menuClose);
+        toolbarManager.setMenuItems(new MenuItem[]{menuConfig, menuClose});
         return true;
     }
 
@@ -367,9 +355,9 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         super.onPrepareOptionsMenu(menu);
 
         if(fragTabManager.size() == 0) {
-            toolbarManager.updateMenuItem(false, true);
+            toolbarManager.updateMenuItemsVisible(new boolean[]{false, true});
         } else {
-            toolbarManager.updateMenuItem(true, false);
+            toolbarManager.updateMenuItemsVisible(new boolean[]{true, true});
         }
         return true;
     }
@@ -461,6 +449,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         if(deviceFrag != null) deviceFrag.updateState();
         if(fragTabManager.isFragmentSelected(device)) {
             updateConnectFloatingActionButton(device.getStateIcon(), device.isChangingState());
+            updateCloseMenuItemVisible(device.canClosed());
         }
     }
 
@@ -531,11 +520,13 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
 
     // 关闭Fragment
     private void closeFragment(final BleFragment fragment) {
+        if(fragment == null || fragment.getDevice() == null) return;
+
         BleDevice device = fragment.getDevice();
-        if(device != null && device.isDisconnected()) {
+        if(device.canClosed()) {
             fragment.close();
         } else {
-            Toast.makeText(this, "关闭前请先断开设备。", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "当前无法关闭设备。", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -639,7 +630,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         }
     }
 
-    // 更新浮动动作按钮
+    // 更新连接浮动动作按钮
     private void updateConnectFloatingActionButton(int icon, boolean isRotate) {
         float degree;
         long duration;
@@ -663,4 +654,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         connectFabAnimator.start();
     }
 
+    private void updateCloseMenuItemVisible(boolean canClosed) {
+        toolbarManager.updateMenuItemVisible(1, canClosed);
+    }
 }
