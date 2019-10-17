@@ -76,12 +76,14 @@ public class EcgFileExplorer {
         fileIterator = fileList.iterator();
     }
 
-    public void loadNextFiles(int num) {
+    public int loadNextFiles(int num) {
         int i = 0;
-        while(i++ < num && fileIterator.hasNext()) {
+        while(i < num && fileIterator.hasNext()) {
             File file = fileIterator.next();
             openFile(file);
+            i++;
         }
+        return i;
     }
 
     private void openFile(File file) {

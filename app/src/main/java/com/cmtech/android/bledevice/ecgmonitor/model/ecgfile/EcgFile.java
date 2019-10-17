@@ -250,7 +250,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
 
     @Override
     public String toString() {
-        return super.toString() + ";" + ecgFileHead + ";" + ecgFileTail;
+        return super.toString() + "-" + ecgFileHead + "-" + ecgFileTail;
     }
 
     @Override

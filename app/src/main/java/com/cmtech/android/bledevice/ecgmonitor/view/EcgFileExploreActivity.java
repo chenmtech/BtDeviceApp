@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor.view;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
@@ -108,7 +110,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1) {
-                    explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
+                    loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
                 }
             }
 
@@ -175,9 +177,20 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         tvMaxHr = findViewById(R.id.tv_max_hr_value);
         tvNoRecord = findViewById(R.id.tv_no_record);
 
-        explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
+        new Handler(getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
+            }
+        }, 1000);
     }
 
+    private void loadNextFiles(int num) {
+        Toast.makeText(this, "正在导入信号。", Toast.LENGTH_SHORT).show();
+        if(explorer.loadNextFiles(num) == 0) {
+            Toast.makeText(this, "无信号可导入。", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -212,7 +225,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     private void importFromWechat() {
         signalView.stopShow();
         explorer.importFromWechat();
-        explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
+        loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
     }
 
     private void deleteSelectedFile() {
@@ -247,7 +260,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
                 fileAdapter.updateSelectedFile(selectedFile);
 
                 if(selectedFile != null) {
-                    ViseLog.e(selectedFile);
+                    ViseLog.e("The selected file is: " + selectedFile.getFileName());
 
                     initEcgView(selectedFile, 0.5);
                     int secondInSignal = selectedFile.getDataNum()/ selectedFile.getSampleRate();

@@ -10,7 +10,6 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.R;
-import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
 import java.io.File;
@@ -81,7 +80,7 @@ public class OpenedEcgFilesManager {
             if(openedFileList.size() == 1) {
                 select(ecgFile);
             }
-            ViseLog.e(ecgFile.toString());
+            //ViseLog.e(ecgFile.toString());
         }
     }
 
@@ -177,6 +176,8 @@ public class OpenedEcgFilesManager {
 
     // 关闭管理器
     synchronized void close() {
+        select(null);
+
         for(EcgFile file : openedFileList) {
             try {
                 file.close();
@@ -186,6 +187,8 @@ public class OpenedEcgFilesManager {
         }
 
         openedFileList.clear();
+
+        notifyFileListChanged();
     }
 
     private void notifyFileListChanged() {
