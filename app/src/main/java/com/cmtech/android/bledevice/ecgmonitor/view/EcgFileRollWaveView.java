@@ -27,7 +27,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
     // EcgFile滚动波形视图显示监听器接口
     public interface OnEcgFileRollWaveViewListener {
         void onShowStateUpdated(boolean isReplay); // 更新显示状态
-        void onDataLocationUpdated(long dataLocation); // 更新当前数据位置
+        void onDataLocationUpdated(long dataLocation, int sampleRate); // 更新当前数据位置
     }
 
     private OnEcgFileRollWaveViewListener listener;
@@ -63,7 +63,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
                             cacheData.clear();
                             cacheMarked.clear();
                             if(listener != null) {
-                                listener.onDataLocationUpdated(num);
+                                listener.onDataLocationUpdated(num, ecgFile.getSampleRate());
                             }
                         }
                     } catch (IOException e) {
@@ -215,7 +215,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
         num = (int)location;
 
         if(listener != null) {
-            listener.onDataLocationUpdated(num);
+            listener.onDataLocationUpdated(num, ecgFile.getSampleRate());
         }
     }
 

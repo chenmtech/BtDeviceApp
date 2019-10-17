@@ -21,7 +21,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorer;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgFilesManager;
+import com.cmtech.android.bledevice.ecgmonitor.model.OpenedEcgFilesManager;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
@@ -53,7 +53,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-public class EcgFileExploreActivity extends AppCompatActivity implements EcgFilesManager.OnEcgFileDirListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener, EcgFileRollWaveView.OnEcgFileRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener  {
+public class EcgFileExploreActivity extends AppCompatActivity implements OpenedEcgFilesManager.OnOpenedEcgFilesListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener, EcgFileRollWaveView.OnEcgFileRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener  {
     private static final String TAG = "EcgFileExploreActivity";
 
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
@@ -62,7 +62,6 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
     private static final int DEFAULT_LOADED_FILENUM_EACH_TIMES = 5; // 缺省每次加载的文件数
 
     private EcgFileExplorer explorer;      // 文件浏览器实例
-    private int selectedFileSampleRate; // 选中文件的采样率
     private EcgFileRollWaveView signalView; // signalView
     private EcgFileListAdapter fileAdapter; // 文件Adapter
     private RecyclerView rvFiles; // 文件RecycleView
@@ -251,8 +250,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
                     ViseLog.e(selectedFile);
 
                     initEcgView(selectedFile, 0.5);
-                    selectedFileSampleRate = selectedFile.getSampleRate();
-                    int secondInSignal = selectedFile.getDataNum()/ selectedFileSampleRate;
+                    int secondInSignal = selectedFile.getDataNum()/ selectedFile.getSampleRate();
                     tvCurrentTime.setText(DateTimeUtil.secToTime(0));
                     tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
                     sbReplay.setMax(secondInSignal);
@@ -363,8 +361,8 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
     }
 
     @Override
-    public void onDataLocationUpdated(long dataLocation) {
-        int second = (int)(dataLocation/ selectedFileSampleRate);
+    public void onDataLocationUpdated(long dataLocation, int sampleRate) {
+        int second = (int)(dataLocation/ sampleRate);
         tvCurrentTime.setText(String.valueOf(DateTimeUtil.secToTime(second)));
         sbReplay.setProgress(second);
     }

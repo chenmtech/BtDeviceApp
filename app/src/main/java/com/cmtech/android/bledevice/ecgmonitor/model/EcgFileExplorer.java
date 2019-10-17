@@ -36,13 +36,13 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
  */
 
 public class EcgFileExplorer {
-    private final EcgFilesManager filesManager; // 文件列表管理器
+    private final OpenedEcgFilesManager filesManager; // 文件列表管理器
     private final File ecgFileDir; // Ecg文件路径
     private Iterator<File> fileIterator; // 文件迭代器
     private List<File> updatedFiles;
     private final ExecutorService openFileService = Executors.newSingleThreadExecutor(); // 打开文件服务
 
-    public EcgFileExplorer(File ecgFileDir, EcgFilesManager.OnEcgFileDirListener listener) {
+    public EcgFileExplorer(File ecgFileDir, OpenedEcgFilesManager.OnOpenedEcgFilesListener listener) {
         if(ecgFileDir == null) {
             throw new IllegalArgumentException("The ecg file dir is null");
         }
@@ -53,7 +53,7 @@ public class EcgFileExplorer {
             throw new IllegalStateException("The ecg file dir is invalid.");
         }
 
-        filesManager = new EcgFilesManager(listener);
+        filesManager = new OpenedEcgFilesManager(listener);
         this.ecgFileDir = ecgFileDir;
         initFileIterator();
         updatedFiles = new ArrayList<>();
@@ -88,10 +88,10 @@ public class EcgFileExplorer {
         openFileService.execute(new OpenFileRunnable(file));
     }
 
-    // 选中一个文件
+    // 选中文件
     public void selectFile(EcgFile ecgFile) {
-        if(ecgFile == null) return;
-        filesManager.select(ecgFile);
+        if(ecgFile != null)
+            filesManager.select(ecgFile);
     }
 
     // 删除选中文件

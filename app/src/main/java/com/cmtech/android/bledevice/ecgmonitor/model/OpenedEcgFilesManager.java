@@ -31,8 +31,8 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 
 /**
   *
-  * ClassName:      EcgFilesManager
-  * Description:    Ecg文件管理器
+  * ClassName:      OpenedEcgFilesManager
+  * Description:    打开的Ecg文件管理器
   * Author:         chenm
   * CreateDate:     2019/4/12 上午8:03
   * UpdateUser:     chenm
@@ -41,18 +41,18 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-public class EcgFilesManager {
+public class OpenedEcgFilesManager {
     private final List<EcgFile> openedFileList = new ArrayList<>(); // 打开的心电文件列表
     private final List<EcgFile> unmodifiedFileList = Collections.unmodifiableList(openedFileList);
-    private final OnEcgFileDirListener listener; // ECG文件目录监听器
+    private final OnOpenedEcgFilesListener listener; // ECG文件目录监听器
     private EcgFile selectedFile; // 选中的EcgFile
 
-    public interface OnEcgFileDirListener {
+    public interface OnOpenedEcgFilesListener {
         void onFileSelected(EcgFile ecgFile); // 文件被选中
         void onFileListChanged(List<EcgFile> fileList); // 文件列表改变
     }
 
-    EcgFilesManager(OnEcgFileDirListener listener) {
+    OpenedEcgFilesManager(OnOpenedEcgFilesListener listener) {
         this.listener = listener;
     }
 
@@ -60,7 +60,7 @@ public class EcgFilesManager {
     synchronized void openFile(File file) throws IOException{
         boolean contain = false;
         for(EcgFile ecgFile : openedFileList) {
-            if(ecgFile.getFile().getCanonicalPath().equalsIgnoreCase(file.getCanonicalPath())) {
+            if(ecgFile.getFile().getName().equalsIgnoreCase(file.getName())) {
                 contain = true;
                 break;
             }
