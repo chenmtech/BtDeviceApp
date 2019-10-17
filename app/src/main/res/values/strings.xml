@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">康明智联</string>
-
     <string name="welcome_text_format">欢迎使用%1$s</string>
-
     <string name="register_device">注册设备</string>
-
     <string name="query_record">查阅记录</string>
-
     <string name="open_news">康明新闻</string>
-
+    <string name="delete">删除</string>
+    <string name="share">分享</string>
     <drawable name="clr_normal">@color/accent</drawable>
-
     <drawable name="clr_pressed">@color/red</drawable>
 
 </resources>

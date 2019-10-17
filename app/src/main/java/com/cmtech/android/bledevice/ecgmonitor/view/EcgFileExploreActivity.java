@@ -79,7 +79,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     private TextView tvMaxHr; // 最大心率
     private LinearLayout signalLayout;
     private LinearLayout hrLayout;
-    private TextView tvNoRecord;
+    private TextView tvPromptInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +87,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         setContentView(R.layout.activity_ecgfile_explorer);
 
         // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_ecgexplorer);
+        Toolbar toolbar = findViewById(R.id.tb_ecgfile_explorer);
         setSupportActionBar(toolbar);
 
         explorer = new EcgFileExplorer(ECG_FILE_DIR, this);
@@ -173,18 +173,26 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
             }
         });
 
+        ImageButton ibUpdate = findViewById(R.id.ib_update_ecgfiles);
+        ibUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                importFromWechat();
+            }
+        });
+
         hrHistChart = findViewById(R.id.chart_hr_histogram);
         hrLineChart = findViewById(R.id.linechart_hr);
         tvAverageHr = findViewById(R.id.tv_average_hr_value);
         tvMaxHr = findViewById(R.id.tv_max_hr_value);
-        tvNoRecord = findViewById(R.id.tv_no_record);
 
-        tvNoRecord.setText("正在载入信号");
+        tvPromptInfo = findViewById(R.id.tv_prompt_info);
+        tvPromptInfo.setText("正在载入信号");
         new Handler(getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
-                    tvNoRecord.setText("无信号可载入。");
+                    tvPromptInfo.setText("无信号可载入。");
                 }
             }
         });
@@ -192,7 +200,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_explore_record, menu);
+        getMenuInflater().inflate(R.menu.menu_ecgfile_explore_activity, menu);
         return true;
     }
 
@@ -202,10 +210,6 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
             case android.R.id.home:
                 setResult(RESULT_CANCELED, null);
                 finish();
-                break;
-
-            case R.id.explorer_update:
-                importFromWechat();
                 break;
 
             case R.id.explorer_delete:
@@ -223,12 +227,12 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     private void importFromWechat() {
         signalView.stopShow();
         explorer.importFromWechat();
-        tvNoRecord.setText("正在载入信号");
+        tvPromptInfo.setText("正在载入信号");
         new Handler(getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
-                    tvNoRecord.setText("无信号可载入。");
+                    tvPromptInfo.setText("无信号可载入。");
                 }
             }
         });
@@ -345,10 +349,10 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
             public void run() {
                 if(fileList == null || fileList.isEmpty()) {
                     rvFiles.setVisibility(View.INVISIBLE);
-                    tvNoRecord.setVisibility(View.VISIBLE);
+                    tvPromptInfo.setVisibility(View.VISIBLE);
                 }else {
                     rvFiles.setVisibility(View.VISIBLE);
-                    tvNoRecord.setVisibility(View.INVISIBLE);
+                    tvPromptInfo.setVisibility(View.INVISIBLE);
                 }
 
                 fileAdapter.updateFileList(fileList);
@@ -372,9 +376,9 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     @Override
     public void onShowStateUpdated(boolean isReplay) {
         if(isReplay) {
-            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_pause_32px));
+            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_pause_32px));
         } else {
-            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_ecg_play_32px));
+            btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_play_32px));
         }
         sbReplay.setEnabled(!isReplay);
     }

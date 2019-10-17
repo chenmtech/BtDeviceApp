@@ -51,21 +51,18 @@
         android:orientation="horizontal">
         <Button
             android:id="@+id/btn_ecgmonitor_config_cancel"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/minWidth0DpButtonStyle"
             android:text="取消"/>
         <Button
             android:id="@+id/btn_ecgmonitor_config_default"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/minWidth0DpButtonStyle"
             android:text="恢复默认"/>
         <Button
             android:id="@+id/btn_ecgmonitor_config_ok"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/minWidth0DpButtonStyle"

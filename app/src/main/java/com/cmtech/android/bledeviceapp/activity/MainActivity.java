@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -147,9 +148,13 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         }
 
         // 启动并绑定通知服务
-        Intent startServiceIntent = new Intent(this, BleNotifyService.class);
-        startService(startServiceIntent);
-        bindService(startServiceIntent, serviceConnection, BIND_AUTO_CREATE);
+        Intent serviceIntent = new Intent(this, BleNotifyService.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent);
+        } else {
+            startService(serviceIntent);
+        }
+        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
 
         // 登记蓝牙状态改变广播接收器
         IntentFilter bleStateIntent = new IntentFilter();

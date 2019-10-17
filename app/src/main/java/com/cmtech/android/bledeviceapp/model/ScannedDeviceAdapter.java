@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
@@ -65,6 +66,8 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
                     BleDeviceDetailInfo detailInfo = scannedDeviceDetailInfoList.get(holder.getAdapterPosition());
                     if(!isRegistered(detailInfo)) {
                         activity.registerDevice(detailInfo);
+                    } else {
+                        Toast.makeText(activity, "该设备已注册。", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

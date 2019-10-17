@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -55,6 +57,7 @@ public class ScanActivity extends AppCompatActivity {
     private SwipeRefreshLayout srlScanDevice;
     private ScannedDeviceAdapter scannedDeviceAdapter;
     private RecyclerView rvScanDevice;
+    private Handler mHandle = new Handler(Looper.getMainLooper());
 
     // 设备绑定状态广播接收器
     private final BroadcastReceiver bondStateReceiver = new BroadcastReceiver() {
@@ -143,10 +146,23 @@ public class ScanActivity extends AppCompatActivity {
 
     // 开始扫描
     private void startScan() {
+        mHandle.removeCallbacksAndMessages(null);
+
         scannedDeviceDetailInfoList.clear();
         scannedDeviceAdapter.notifyDataSetChanged();
         BleScanner.stopScan(bleScanCallback);
+        srlScanDevice.setRefreshing(true);
         BleScanner.startScan(SCAN_FILTER_WITH_DEVICE_NAME, bleScanCallback);
+
+        mHandle.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(srlScanDevice.isRefreshing())
+                    srlScanDevice.setRefreshing(false);
+
+                BleScanner.stopScan(bleScanCallback);
+            }
+        }, 10000);
     }
 
     @Override
@@ -186,6 +202,8 @@ public class ScanActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        mHandle.removeCallbacksAndMessages(null);
 
         unregisterReceiver(bondStateReceiver);
 

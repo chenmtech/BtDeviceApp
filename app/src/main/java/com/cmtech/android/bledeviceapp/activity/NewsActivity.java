@@ -13,11 +13,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
 
@@ -46,14 +48,14 @@ public class NewsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         pbNewsLoad = findViewById(R.id.pb_news_loading);
         wvNews = findViewById(R.id.wv_news);
-        wvNews.loadUrl("https://www.baidu.cn");
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            wvNews.getSettings().setSafeBrowsingEnabled(false);
-        }
+        wvNews.loadUrl("http//www.gdmu.edu.cn");
 
         WebSettings settings = wvNews.getSettings();
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            settings.setSafeBrowsingEnabled(false);
+        }*/
         settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
 
         wvNews.setWebViewClient(new WebViewClient() {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -84,6 +86,10 @@ public class NewsActivity extends AppCompatActivity {
                 pbNewsLoad.setVisibility(View.VISIBLE);
             }
 
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                Toast.makeText(NewsActivity.this, "网络连接失败", Toast.LENGTH_SHORT).show();
+            }
         });
 
         wvNews.setWebChromeClient(new WebChromeClient() {

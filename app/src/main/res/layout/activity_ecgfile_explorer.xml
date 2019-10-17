@@ -3,7 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:toolbar="http://schemas.android.com/apk/res-auto"
     xmlns:cmtech="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -14,7 +13,7 @@
         android:orientation="vertical">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/tb_ecgexplorer"
+            android:id="@+id/tb_ecgfile_explorer"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
@@ -27,13 +26,26 @@
             android:layout_height="4dp"
             android:background="@color/primary_dark"/>
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:text="记录列表"
-            android:textSize="20sp"
-            android:textColor="@color/black"/>
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="记录列表"
+                android:textSize="26sp"
+                android:textColor="@color/black"/>
+            <ImageButton
+                android:id="@+id/ib_update_ecgfiles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@color/primary"
+                android:src="@mipmap/ic_update_24px"
+                android:contentDescription="@null"/>
+        </LinearLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -49,7 +61,7 @@
 
 
             <TextView
-                android:id="@+id/tv_no_record"
+                android:id="@+id/tv_prompt_info"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
@@ -123,7 +135,7 @@
                     android:layout_marginStart="5dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:src="@mipmap/ic_ecg_play_32px"
+                    android:src="@mipmap/ic_play_32px"
                     android:minHeight="0dp"
                     android:visibility="gone"
                     android:contentDescription="@null"/>

@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -64,7 +65,7 @@
 
         <activity
             android:name=".activity.RegisterActivity"
-            android:label="设置设备信息"
+            android:label="设置设备注册信息"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity
             android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgMonitorConfigureActivity"
