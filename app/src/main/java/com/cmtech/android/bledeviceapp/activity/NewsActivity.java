@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,12 +47,12 @@ public class NewsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         pbNewsLoad = findViewById(R.id.pb_news_loading);
         wvNews = findViewById(R.id.wv_news);
-        wvNews.loadUrl("http//www.gdmu.edu.cn");
+        wvNews.loadUrl("https://www.gdmu.edu.cn");
 
         WebSettings settings = wvNews.getSettings();
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             settings.setSafeBrowsingEnabled(false);
-        }*/
+        }
         settings.setJavaScriptEnabled(true);
         settings.setDomStorageEnabled(true);
 

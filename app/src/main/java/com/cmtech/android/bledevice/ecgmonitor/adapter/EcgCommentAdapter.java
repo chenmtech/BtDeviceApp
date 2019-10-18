@@ -80,8 +80,10 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
                 if(listener != null && creator.equals(account)) {
                     EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
                     comment.setContent(holder.etContent.getText().toString());
-                    comment.setModifyTime(new Date().getTime());
+                    long modifyTime = new Date().getTime();
+                    comment.setModifyTime(modifyTime);
                     listener.onCommentSaved();
+                    holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime));
                 }
             }
         });
@@ -95,7 +97,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         User creator = appendix.getCreator();
         User account = UserManager.getInstance().getUser();
         if(creator.equals(account)) {
-            holder.tvCreatorName.setText(Html.fromHtml("<u>您本人</u>"));
+            holder.tvCreatorName.setText(Html.fromHtml("<u>您</u>"));
         } else {
             holder.tvCreatorName.setText(Html.fromHtml("<u>" + appendix.getCreator().getName() + "</u>"));
         }
@@ -105,6 +107,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
         if(listener != null && creator.equals(account)) {
             holder.ibSave.setVisibility(View.VISIBLE);
+            holder.etContent.setEnabled(true);
             holder.etContent.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -112,10 +115,9 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
                     return false;
                 }
             });
-
         } else {
             holder.ibSave.setVisibility(View.GONE);
-
+            holder.etContent.setEnabled(false);
         }
     }
 

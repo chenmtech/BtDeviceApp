@@ -101,7 +101,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float v, float v1) {
             showAt((long)(num+v));
-            return false;
+            return true;
         }
 
         @Override

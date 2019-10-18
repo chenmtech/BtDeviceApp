@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 import android.content.Context;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
+import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
@@ -122,9 +123,10 @@ public class EcgFileExplorer {
         EcgFile destEcgFile = null;
         for(File srcFile : fileList) {
             try {
-                File destFile = FileUtil.getFile(destDir, srcFile.getName());
+                srcEcgFile = EcgFile.open(srcFile.getCanonicalPath());
+                String fileName = EcgMonitorUtil.makeFileName(srcEcgFile.getMacAddress(), srcEcgFile.getCreatedTime());
+                File destFile = FileUtil.getFile(destDir, fileName);
                 if(destFile.exists()) {
-                    srcEcgFile = EcgFile.open(srcFile.getCanonicalPath());
                     destEcgFile = EcgFile.open(destFile.getCanonicalPath());
                     if(copyComments(srcEcgFile, destEcgFile)) {
                         destEcgFile.saveFileTail();
@@ -134,6 +136,9 @@ public class EcgFileExplorer {
                     FileUtil.copyFile(srcFile, destFile);
                     changedFiles.add(destFile);
                 }
+                srcEcgFile.close();
+                srcEcgFile = null;
+                FileUtil.deleteFile(srcFile);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -142,7 +147,6 @@ public class EcgFileExplorer {
                         srcEcgFile.close();
                         srcEcgFile = null;
                     }
-
                     if(destEcgFile != null) {
                         destEcgFile.close();
                         destEcgFile = null;

@@ -11,17 +11,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExploreActivity;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExploreActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Dictionary;
 import java.util.List;
 
 
@@ -50,6 +49,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         TextView tvCreatedTime; // 创建时间
         TextView tvLength; // 信号长度
         TextView tvHrNum; // 心率次数
+        TextView tvIsUpdate; // 是否已更新
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -58,6 +58,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             tvCreatedTime = fileView.findViewById(R.id.ecgfile_createtime);
             tvLength = fileView.findViewById(R.id.ecgfile_length);
             tvHrNum = fileView.findViewById(R.id.ecgfile_hr_num);
+            tvIsUpdate = fileView.findViewById(R.id.ecgfile_update);
         }
     }
 
@@ -117,15 +118,17 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         int hrNum = file.getHrList().size();
         holder.tvHrNum.setText(String.valueOf(hrNum));
 
-        int bgdColor;
         if(file.equals(selectedFile)) {
-            bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
-            holder.fileView.setBackgroundColor(bgdColor);
-        } else if(updatedFileList.contains(file.getFile())) {
-            bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.green);
+            int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
         } else {
             holder.fileView.setBackground(defaultBackground);
+        }
+
+        if (updatedFileList.contains(file.getFile())) {
+            holder.tvIsUpdate.setVisibility(View.VISIBLE);
+        } else {
+            holder.tvIsUpdate.setVisibility(View.GONE);
         }
     }
 

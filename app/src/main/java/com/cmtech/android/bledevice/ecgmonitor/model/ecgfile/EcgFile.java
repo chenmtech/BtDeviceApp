@@ -187,6 +187,9 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     public void setHrList(List<Short> hrList) {
         ecgFileTail.hrInfoAppendix.setHrList(hrList);
     }
+    public String getMacAddress() {
+        return ecgFileHead.getMacAddress();
+    }
 
     @Override
     protected int availableDataFromCurrentPos() {

@@ -25,6 +25,15 @@
             android:textAppearance="@style/PersonTextAppearance"
             android:textSize="12sp"/>
 
+        <TextView
+            android:id="@+id/ecgfile_update"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(*)"
+            android:textColor="@color/red"
+            android:textSize="12sp"
+            android:visibility="gone"/>
+
     </LinearLayout>
 
     <LinearLayout
