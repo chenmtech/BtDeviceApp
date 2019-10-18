@@ -61,14 +61,13 @@ public class RegisterActivity extends AppCompatActivity {
             if(registerInfo == null) {
                 Toast.makeText(this, "设备注册信息无效", Toast.LENGTH_SHORT).show();
                 finish();
+                return;
             }
         }
-        if(DIR_IMAGE == null)
-            throw new IllegalStateException("图像目录为空");
-        if(!DIR_IMAGE.exists()) {
-            if(!DIR_IMAGE.mkdir()) {
-                throw new IllegalStateException("创建图像目录错误");
-            }
+        if(DIR_IMAGE == null || (!DIR_IMAGE.exists() && !DIR_IMAGE.mkdir())) {
+            Toast.makeText(this, "图像目录错误。", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
         BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidStr());
         if(type == null) {

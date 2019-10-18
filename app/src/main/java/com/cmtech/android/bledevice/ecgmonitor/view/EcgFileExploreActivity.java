@@ -37,6 +37,7 @@ import com.cmtech.bmefile.BmeFileHead30;
 import com.vise.log.ViseLog;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,7 +91,14 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         Toolbar toolbar = findViewById(R.id.tb_ecgfile_explorer);
         setSupportActionBar(toolbar);
 
-        explorer = new EcgFileExplorer(ECG_FILE_DIR, this);
+        try {
+            explorer = new EcgFileExplorer(ECG_FILE_DIR, this);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "心电记录目录错误。", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         signalLayout = findViewById(R.id.layout_ecgfile_ecgsignal);
         hrLayout = findViewById(R.id.layout_ecgfile_hr);

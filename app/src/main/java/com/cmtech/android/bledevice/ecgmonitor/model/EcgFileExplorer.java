@@ -42,15 +42,15 @@ public class EcgFileExplorer {
     private List<File> updatedFiles;
     private final ExecutorService openFileService = Executors.newSingleThreadExecutor(); // 打开文件服务
 
-    public EcgFileExplorer(File ecgFileDir, OpenedEcgFilesManager.OnOpenedEcgFilesListener listener) {
+    public EcgFileExplorer(File ecgFileDir, OpenedEcgFilesManager.OnOpenedEcgFilesListener listener) throws IOException{
         if(ecgFileDir == null) {
-            throw new IllegalArgumentException("The ecg file dir is null");
+            throw new IOException("The ecg file dir is null");
         }
         if(!ecgFileDir.exists() && !ecgFileDir.mkdir()) {
-            throw new IllegalStateException("The ecg file dir doesn't exist.");
+            throw new IOException("The ecg file dir doesn't exist.");
         }
         if(ecgFileDir.exists() && !ecgFileDir.isDirectory()) {
-            throw new IllegalStateException("The ecg file dir is invalid.");
+            throw new IOException("The ecg file dir is invalid.");
         }
 
         filesManager = new OpenedEcgFilesManager(listener);

@@ -31,6 +31,10 @@ public class BleDeviceType {
         this.factoryClassName = factoryClassName;
     }
 
+    public static List<BleDeviceType> getSupportedDeviceTypes() {
+        return SUPPORTED_DEVICE_TYPES;
+    }
+
     public static void addSupportedType(BleDeviceType deviceType) {
         if(!SUPPORTED_DEVICE_TYPES.contains(deviceType)) {
             SUPPORTED_DEVICE_TYPES.add(deviceType);

@@ -120,9 +120,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         }
     }
 
-    /**
-     * 打开已有EcgFile文件时使用的私有构造器
-     */
+    // 打开已有EcgFile文件时使用的私有构造器
     private EcgFile(String fileName) throws IOException {
         super(fileName);
         ecgFileHead = new EcgFileHead();

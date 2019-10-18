@@ -1,26 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkable="false">
-
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group
+        android:id="@+id/group1"
+        android:checkable="false">
         <item
             android:id="@+id/nav_register_device"
             android:title="@string/register_device"
             android:icon="@mipmap/ic_search_device"/>
+    </group>
 
+    <group
+        android:id="@+id/group2"
+        android:checkable="false">
         <item
             android:id="@+id/nav_query_record"
             android:title="@string/query_record"
-            android:icon="@mipmap/ic_query_record"/>
+            android:icon="@mipmap/ic_query_record"
+            app:actionLayout="@layout/anchor"/>
+    </group>
 
+    <group
+        android:id="@+id/group3"
+        android:checkable="false">
         <item
             android:id="@+id/nav_open_news"
             android:title="@string/open_news"
             android:icon="@mipmap/ic_open_news"/>
+    </group>
 
+    <group
+        android:id="@+id/group4"
+        android:checkable="false">
         <item
             android:id="@+id/nav_exit"
             android:title="退出"
             android:icon="@mipmap/ic_menu_exit"/>
-
     </group>
 </menu>

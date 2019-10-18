@@ -2,6 +2,7 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -25,8 +26,11 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuBuilder;
+import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -43,12 +47,12 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
-import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExploreActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
+import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 import com.cmtech.android.bledeviceapp.model.BleFactory;
 import com.cmtech.android.bledeviceapp.model.BleFragTabManager;
 import com.cmtech.android.bledeviceapp.model.BleNotifyService;
@@ -66,6 +70,9 @@ import java.util.List;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static com.cmtech.android.ble.core.BleDevice.NO_BATTERY;
+import static com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE;
+import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
+import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
 import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_DEVICE_MAC_LIST;
 
@@ -241,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         });
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @SuppressLint("RestrictedApi")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -251,8 +259,32 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                         startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
                         return true;
                     case R.id.nav_query_record: // 查阅记录
-                        Intent recordIntent = new Intent(MainActivity.this, EcgFileExploreActivity.class);
-                        startActivity(recordIntent);
+                        PopupMenu popupMenu = new PopupMenu(MainActivity.this, item.getActionView());
+                        popupMenu.inflate(R.menu.menu_query_record);
+                        List<BleDeviceType> types = BleDeviceType.getSupportedDeviceTypes();
+                        popupMenu.getMenu().findItem(R.id.nav_ecg_record).setVisible(types.contains(ECGMONITOR_DEVICE_TYPE));
+                        popupMenu.getMenu().findItem(R.id.nav_temphumid_record).setVisible(types.contains(TEMPHUMID_DEVICE_TYPE));
+                        popupMenu.getMenu().findItem(R.id.nav_thermo_record).setVisible(types.contains(THERMO_DEVICE_TYPE));
+                        @SuppressLint("RestrictedApi")
+                        MenuPopupHelper popupHelper = new MenuPopupHelper(MainActivity.this, (MenuBuilder) popupMenu.getMenu(), item.getActionView());
+                        popupHelper.setForceShowIcon(true);
+                        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem menuItem) {
+                                switch (menuItem.getItemId()) {
+                                    case R.id.nav_ecg_record:
+                                        Intent recordIntent = new Intent(MainActivity.this, EcgFileExploreActivity.class);
+                                        startActivity(recordIntent);
+                                        return true;
+                                    case R.id.nav_temphumid_record:
+                                    case R.id.nav_thermo_record:
+                                        Toast.makeText(MainActivity.this, "当前无记录。", Toast.LENGTH_SHORT).show();
+                                        return true;
+                                }
+                                return false;
+                            }
+                        });
+                        popupHelper.show();
                         return true;
                     case R.id.nav_open_news: // 打开新闻
                         Intent newsIntent = new Intent(MainActivity.this, NewsActivity.class);

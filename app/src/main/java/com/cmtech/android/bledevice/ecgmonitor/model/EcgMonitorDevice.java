@@ -264,8 +264,10 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 if(isSaveFile) {
                     saveEcgFile();
                     ecgFile.close();
-                    File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
-                    FileUtil.moveFile(ecgFile.getFile(), toFile);
+                    if(ECG_FILE_DIR != null) {
+                        File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
+                        FileUtil.moveFile(ecgFile.getFile(), toFile);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -278,7 +280,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                     e.printStackTrace();
                 }
             }
-
             ViseLog.e("关闭Ecg文件。");
         }
 
