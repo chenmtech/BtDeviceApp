@@ -60,6 +60,8 @@ public class UserActivity extends AppCompatActivity {
         TextView tvPhone = findViewById(R.id.et_user_phone);
         User user = UserManager.getInstance().getUser();
         String phoneNum = user.getPhone();
+        phoneNum = String.format("00000000000%s", phoneNum);
+        phoneNum = phoneNum.substring(phoneNum.length()-11);
         String secretPhone = String.format("%s****%s", phoneNum.substring(0,3), phoneNum.substring(7));
         tvPhone.setText(secretPhone);
 
