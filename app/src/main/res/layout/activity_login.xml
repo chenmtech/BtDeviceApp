@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="手机号登录"
+            android:text="手机验证码登录"
             android:textColor="@color/green"/>
 
         <LinearLayout

@@ -44,6 +44,7 @@ public class UserActivity extends AppCompatActivity {
     private EditText etNickname;
     private ImageView ivPortrait;
     private EditText etPersonalInfo;
+
     private String cachePortraitPath = ""; // 头像文件路径缓存
 
     @Override
@@ -62,8 +63,8 @@ public class UserActivity extends AppCompatActivity {
         String phoneNum = user.getPhone();
         phoneNum = String.format("00000000000%s", phoneNum);
         phoneNum = phoneNum.substring(phoneNum.length()-11);
-        String secretPhone = String.format("%s****%s", phoneNum.substring(0,3), phoneNum.substring(7));
-        tvPhone.setText(secretPhone);
+        String phoneStr = String.format("%s****%s", phoneNum.substring(0,3), phoneNum.substring(7));
+        tvPhone.setText(phoneStr);
 
         etNickname = findViewById(R.id.et_user_nickname);
         etNickname.setText(user.getName());
@@ -73,8 +74,7 @@ public class UserActivity extends AppCompatActivity {
         if(TextUtils.isEmpty(cachePortraitPath)) {
             Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivPortrait);
         } else {
-            Glide.with(MyApplication.getContext()).load(cachePortraitPath)
-                    .skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivPortrait);
+            Glide.with(MyApplication.getContext()).load(cachePortraitPath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivPortrait);
         }
         ivPortrait.setOnClickListener(new View.OnClickListener() {
             @Override

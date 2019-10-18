@@ -45,17 +45,20 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
   * Version:        1.0
  */
 public class LoginActivity extends AppCompatActivity {
-    private static final String CHINA_PHONE_NUMBER = "86";
-    private static final int MSG_WAIT_SECOND = 1;
-    private static final long MS_PER_DAY = 24 * 60 * 60 * 1000;
-    private static final String MAGIC_PASSWORD = "abcdef";
+    private static final String CHINA_PHONE_NUMBER = "86"; // 中国手机号
+    private static final int MSG_COUNT_DOWN = 1; // 倒计时消息
+    private static final long MS_PER_DAY = 24 * 60 * 60 * 1000; // 每天的毫秒数
+    private static final String MAGIC_VERI_CODE = "abcdef"; // 万能验证码
+    private static final int DAY_NUM = 3; // 连续未登录天数，超过这个天数将要求重新登录
+    private static final String KEY_PHONE = "phone";
+    private static final String KEY_TIME = "time";
 
     private EditText etPhone;
     private Button btnGetVeriCode;
+
     private SharedPreferences pref;
     private String phone; // 手机号
-    private String veriCode; // 验证码
-    private Thread countDownThread; // 倒计时线程
+    private Thread countThread; // 倒计时线程
 
     // 手机短信验证回调事件处理器
     private final EventHandler eventHandler = new EventHandler() {
@@ -104,12 +107,11 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-    private final Handler waitASecondHandler = new Handler(new Handler.Callback() {
+    private final Handler countHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if(msg.what == MSG_WAIT_SECOND) {
+            if(msg.what == MSG_COUNT_DOWN) {
                 int nSecond = msg.arg1;
-
                 if(nSecond != 0)
                     LoginActivity.this.btnGetVeriCode.setText(String.format(Locale.getDefault(), "%d秒后\n重新获取", nSecond));
                 else {
@@ -137,14 +139,14 @@ public class LoginActivity extends AppCompatActivity {
         tvWelcome.setText(welcomeText);
 
         pref = PreferenceManager.getDefaultSharedPreferences(this);
-        phone = pref.getString("phone", "");
-        etPhone = findViewById(R.id.phone);
-        etPhone.setText(phone);
-
-        long lastLoginTime = pref.getLong("login_time", -1);
-        if(System.currentTimeMillis() - lastLoginTime < 3*MS_PER_DAY) {
+        phone = pref.getString(KEY_PHONE, "");
+        long lastLoginTime = pref.getLong(KEY_TIME, -1);
+        if(System.currentTimeMillis() - lastLoginTime < DAY_NUM*MS_PER_DAY) {
             signIn(phone, false);
         }
+
+        etPhone = findViewById(R.id.phone);
+        etPhone.setText(phone);
 
         btnGetVeriCode = findViewById(R.id.btn_get_vericode);
         btnGetVeriCode.setOnClickListener(new View.OnClickListener() {
@@ -153,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
                 phone = etPhone.getText().toString();
                 getVeriCode(phone); // 获取验证码
                 btnGetVeriCode.setEnabled(false);
-                startCountDownTimer();
+                startCountDown();
             }
         });
 
@@ -162,14 +164,14 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    stopCountDownTimer();
+                    stopCountDown();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
                 phone = etPhone.getText().toString();
                 EditText etVeriCode = findViewById(R.id.verficationcode);
-                veriCode = etVeriCode.getText().toString();
-                if(veriCode.equals(MAGIC_PASSWORD)) {
+                String veriCode = etVeriCode.getText().toString();
+                if(veriCode.equals(MAGIC_VERI_CODE)) {
                     signIn(phone, true);
                 } else {
                     verify(phone, veriCode); // 验证
@@ -183,12 +185,10 @@ public class LoginActivity extends AppCompatActivity {
     private void checkPermissions() {
         List<String> permission = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            //校验是否具有模糊定位权限
             if (ContextCompat.checkSelfPermission(LoginActivity.this, ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 permission.add(ACCESS_COARSE_LOCATION);
             }
         }
-        //校验是否具有外部存储的权限
         if(ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             permission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -205,7 +205,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case 1: {
+            case 1:
                 for(int result : grantResults) {
                     if(result != PackageManager.PERMISSION_GRANTED) {
                         Toast.makeText(this, "没有必要的权限，程序无法正常运行", Toast.LENGTH_SHORT).show();
@@ -213,7 +213,7 @@ public class LoginActivity extends AppCompatActivity {
                         break;
                     }
                 }
-            }
+                break;
         }
     }
 
@@ -223,7 +223,7 @@ public class LoginActivity extends AppCompatActivity {
 
         SMSSDK.unregisterEventHandler(eventHandler);
         try {
-            stopCountDownTimer();
+            stopCountDown();
         } catch (InterruptedException ignored) {
         }
     }
@@ -233,7 +233,7 @@ public class LoginActivity extends AppCompatActivity {
         UserManager manager = UserManager.getInstance();
         if(manager.signIn(phone) || manager.signUp(phone)) {
             if(isSaveLoginInfo)
-                saveLoginInfoToPref();
+                saveLoginInfo(pref, phone, System.currentTimeMillis());
 
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
@@ -244,10 +244,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     // 将登录信息保存到Pref
-    private void saveLoginInfoToPref() {
+    public static void saveLoginInfo(SharedPreferences pref, String phone, long time) {
         SharedPreferences.Editor editor = pref.edit();
-        editor.putString("phone", phone);
-        editor.putLong("login_time", System.currentTimeMillis());
+        editor.putString(KEY_PHONE, phone);
+        editor.putLong(KEY_TIME, time);
         editor.commit();
     }
 
@@ -263,29 +263,29 @@ public class LoginActivity extends AppCompatActivity {
         SMSSDK.submitVerificationCode(CHINA_PHONE_NUMBER, phone, veriCode);
     }
 
-    private void startCountDownTimer() {
-        countDownThread = new Thread(new Runnable() {
+    private void startCountDown() {
+        countThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 int nSecond = 60;
                 try {
                     while (--nSecond >= 0) {
                         Thread.sleep(1000);
-                        Message.obtain(waitASecondHandler, MSG_WAIT_SECOND, nSecond, 0).sendToTarget();
+                        Message.obtain(countHandler, MSG_COUNT_DOWN, nSecond, 0).sendToTarget();
                     }
                 } catch (InterruptedException e) {
-                    ViseLog.e("The timer of getting veri code is interrupted.");
+                    ViseLog.i("The timer of getting veri code is interrupted.");
                     Thread.currentThread().interrupt();
                 }
             }
         });
-        countDownThread.start();
+        countThread.start();
     }
 
-    private void stopCountDownTimer() throws InterruptedException{
-        if (countDownThread != null && countDownThread.isAlive()) {
-            countDownThread.interrupt();
-            countDownThread.join();
+    private void stopCountDown() throws InterruptedException{
+        if (countThread != null && countThread.isAlive()) {
+            countThread.interrupt();
+            countThread.join();
         }
     }
 

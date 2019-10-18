@@ -33,6 +33,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -227,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         }
 
         User user = UserManager.getInstance().getUser();
-        if(user.getName() == null || "".equals(user.getName().trim())) {
+        if(TextUtils.isEmpty(user.getName())) {
             Intent intent = new Intent(MainActivity.this, UserActivity.class);
             startActivityForResult(intent, RC_MODIFY_USER_INFO);
         }
@@ -623,18 +624,17 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         }
     }
 
+    // 退出登录
     private void logoutUser() {
         if(BleDeviceManager.existOpenedDevice()) {
-            Toast.makeText(this, "请先关闭设备。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "有设备打开，请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
         }
 
         UserManager.getInstance().signOut();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString("phone", "");
-        editor.putLong("login_time", -1);
-        editor.commit();
+        LoginActivity.saveLoginInfo(pref, "", -1);
+
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
