@@ -189,14 +189,24 @@ public class EcgFileExplorer {
 
         boolean update = false;
         boolean needAdd = true;
+        EcgNormalComment removeComment = null;
         for(EcgNormalComment srcComment : srcComments) {
             for(EcgNormalComment destComment : destComments) {
-                if(srcComment.getCreator().equals(destComment.getCreator()) && srcComment.getModifyTime() <= destComment.getModifyTime()) {
-                    needAdd = false;
-                    break;
+                if(srcComment.getCreator().equals(destComment.getCreator())) {
+                    if(srcComment.getModifyTime() <= destComment.getModifyTime()) {
+                        needAdd = false;
+                        break;
+                    } else {
+                        removeComment = destComment;
+                        break;
+                    }
                 }
             }
             if(needAdd) {
+                if(removeComment != null) {
+                    destFile.deleteComment(removeComment);
+                    removeComment = null;
+                }
                 destFile.addComment(srcComment);
                 update = true;
             }
