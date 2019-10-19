@@ -208,7 +208,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_ecgfile_explore_activity, menu);
+        getMenuInflater().inflate(R.menu.menu_ecgfile_explore, menu);
         return true;
     }
 

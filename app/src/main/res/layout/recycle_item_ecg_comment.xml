@@ -55,7 +55,7 @@
             android:id="@+id/ib_ecgappendix_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_yes_32px"
+            android:src="@mipmap/ic_save_color_32px"
             android:contentDescription="save appendix"
             android:layout_toStartOf="@id/ecgappendix_reviseat"
             android:background="@color/primary"

@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main_activity, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         MenuItem menuConfig = menu.findItem(R.id.toolbar_config);
         MenuItem menuClose = menu.findItem(R.id.toolbar_close);
         toolbarManager.setMenuItems(new MenuItem[]{menuConfig, menuClose});
