@@ -55,7 +55,6 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     private TextView tvLeadType; // 导联类型
     private TextView tvValue1mV; // 1mV值
     private TextView tvHeartRate; // 心率值
-    private TextView tvBattery; // 电池电量
     private ScanWaveView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
@@ -85,7 +84,6 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
         ecgView = view.findViewById(R.id.rwv_ecgview);
-        tvBattery = view.findViewById(R.id.tv_ecg_battery);
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
         tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION));
@@ -258,10 +256,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
 
     @Override
     public void onBatteryChanged(final int bat) {
-        if(tvBattery.getVisibility() == View.GONE) {
-            tvBattery.setVisibility(View.VISIBLE);
-        }
-        tvBattery.setText(String.valueOf(bat));
+
     }
 
     @Override

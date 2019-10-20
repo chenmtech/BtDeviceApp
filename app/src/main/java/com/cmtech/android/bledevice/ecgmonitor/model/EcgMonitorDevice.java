@@ -16,7 +16,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpro
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -91,6 +90,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // 导联类型
     private int value1mV = DEFAULT_VALUE_1MV; // 定标之前1mV值
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
+    private final int[] caliData1mV; // 1mV定标信号
     private int xPixelPerData = 1; // EcgView的横向分辨率
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
     private boolean isSaveFile = false; // 是否保存心电文件
@@ -125,6 +125,15 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     // 构造器
     EcgMonitorDevice(Context context, BleDeviceRegisterInfo registerInfo) {
         super(context, registerInfo);
+
+        caliData1mV = new int[3*pixelPerGrid];
+        for(int i = 0; i < caliData1mV.length; i++) {
+            if(i > pixelPerGrid && i < 2*pixelPerGrid) {
+                caliData1mV[i] = STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+            } else {
+                caliData1mV[i] = 0;
+            }
+        }
 
         // 从数据库获取设备的配置信息
         List<EcgMonitorConfig> foundConfig = LitePal.where("macAddress = ?", registerInfo.getMacAddress()).find(EcgMonitorConfig.class);
@@ -187,6 +196,9 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     public EcgFile getEcgFile() {
         return ecgFile;
     }
+    public int[] getCaliData1mV() {
+        return caliData1mV;
+    }
 
     @Override
     protected boolean executeAfterConnectSuccess() {
@@ -212,8 +224,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         readLeadType();
         // 停止数据采样
         stopDataSampling();
-        // 启动1mV值检测
-        startValue1mVDetection();
+        // 启动1mV值采样
+        startValue1mVSampling();
 
         return true;
     }
@@ -400,8 +412,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         });
     }
 
-    // 启动检测1mV值
-    public void startValue1mVDetection() {
+    // 启动1mV信号采样
+    public void startValue1mVSampling() {
         // enable ECG data notification
         IBleDataCallback receiveCallback = new IBleDataCallback() {
             @Override
@@ -419,7 +431,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                ViseLog.e("启动检测1mV值");
+                ViseLog.e("启动1mV值采样");
 
                 setEcgMonitorState(EcgMonitorState.CALIBRATING);
                 dataProcessor.start();
@@ -569,7 +581,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(MyApplication.getContext(), "无法记录心电信息", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "无法记录心电信息", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -580,14 +592,12 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             signalRecorder = new EcgSignalRecorder(this);
         }
 
-        // 产生1mV定标信号
-        for(int i = 0; i < sampleRate; i++) {
-            if(i > sampleRate/4 && i < sampleRate*3/4)
-                updateSignalValue(STANDARD_VALUE_1MV_AFTER_CALIBRATION);
-            else
-                updateSignalValue(0);
+        // 输出1mV定标信号
+        for(int data : caliData1mV) {
+            updateSignalValue(data);
         }
 
+        // 启动心电信号采样
         startEcgSignalSampling();
     }
 

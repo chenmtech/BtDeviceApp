@@ -43,10 +43,10 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         private ViewHolder(View itemView) {
             super(itemView);
             appendixView = itemView;
-            etContent = appendixView.findViewById(R.id.ecgappendix_content);
-            tvCreatorName = appendixView.findViewById(R.id.ecgappendix_creator);
+            etContent = appendixView.findViewById(R.id.et_comment_content);
+            tvCreatorName = appendixView.findViewById(R.id.tv_comment_creator);
             tvModifyTime = appendixView.findViewById(R.id.ecgappendix_modifytime);
-            ibSave = appendixView.findViewById(R.id.ib_ecgappendix_save);
+            ibSave = appendixView.findViewById(R.id.ib_save_comment);
         }
     }
 
@@ -93,17 +93,19 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull final EcgCommentAdapter.ViewHolder holder, final int position) {
-        EcgNormalComment appendix = commentList.get(position);
-        User creator = appendix.getCreator();
+        EcgNormalComment comment = commentList.get(position);
+        User creator = comment.getCreator();
         User account = UserManager.getInstance().getUser();
         if(creator.equals(account)) {
             holder.tvCreatorName.setText(Html.fromHtml("<u>您</u>"));
+            holder.etContent.setHint("请输入。");
         } else {
-            holder.tvCreatorName.setText(Html.fromHtml("<u>" + appendix.getCreator().getName() + "</u>"));
+            holder.tvCreatorName.setText(Html.fromHtml("<u>" + comment.getCreator().getName() + "</u>"));
+            holder.etContent.setHint("");
         }
 
-        holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(appendix.getModifyTime()));
-        holder.etContent.setText(appendix.getContent());
+        holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(comment.getModifyTime()));
+        holder.etContent.setText(comment.getContent());
 
         if(listener != null && creator.equals(account)) {
             holder.ibSave.setVisibility(View.VISIBLE);
