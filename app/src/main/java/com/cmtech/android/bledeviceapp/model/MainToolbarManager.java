@@ -13,7 +13,7 @@ import android.support.v7.widget.Toolbar;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.view.BitmapUtil;
 
-import static com.cmtech.android.ble.core.BleDevice.NO_BATTERY;
+import static com.cmtech.android.ble.core.BleDevice.INVALID_BATTERY;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -74,7 +74,7 @@ public class MainToolbarManager {
     }
 
     public void setBattery(int battery) {
-        if(battery == NO_BATTERY) {
+        if(battery == INVALID_BATTERY) {
             tvBattery.setVisibility(View.GONE);
         } else {
             tvBattery.setVisibility(View.VISIBLE);

@@ -255,7 +255,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     // 关闭设备
     @Override
     public void close() {
-        if(!canClosed()) {
+        if(!isStopped()) {
             throw new IllegalStateException("The device can't be closed.");
         }
 

@@ -100,7 +100,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
 
     @Override
     public void close() {
-        if(device != null && device.canClosed()) {
+        if(device != null && device.isStopped()) {
             if (getContext() != null) {
                 final Dialog alertDialog = new AlertDialog.Builder(getContext()).
                         setTitle("保存记录").

@@ -91,7 +91,7 @@ public class BleDeviceManager {
     }
 
     // 是否有打开的设备
-    public static boolean existOpenedDevice() {
+    public static boolean hasOpenedDevice() {
         for(BleDevice device : DEVICE_LIST) {
             if(!device.isClosed()) {
                 return true;

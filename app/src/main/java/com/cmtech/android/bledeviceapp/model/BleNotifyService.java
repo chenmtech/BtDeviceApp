@@ -79,7 +79,10 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
         List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.createAllFromPref(pref);
         if(registerInfoList == null || registerInfoList.isEmpty()) return;
         for(BleDeviceRegisterInfo registerInfo : registerInfoList) {
-           BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
+           BleDevice device = BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
+           if(device != null) {
+               device.addListener(this);
+           }
         }
     }
 
@@ -155,7 +158,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
     }
 
     @Override
-    public void onBleErrorNotified(final BleDevice device) {
+    public void onBleInnerErrorNotified(final BleDevice device) {
         startWarnWhenBleError();
     }
 
