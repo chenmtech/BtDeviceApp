@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.adapter;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -20,15 +19,11 @@ import java.util.List;
  * Version:        1.0
  */
 public class EcgControllerAdapter extends FragmentPagerAdapter {
-    private Context context;
+    private final List<Fragment> fragmentList;
+    private final List<String> titleList;
 
-    private List<Fragment> fragmentList;
-
-    private List<String> titleList;
-
-    public EcgControllerAdapter(FragmentManager fm, Context context, List<Fragment> fragmentList, List<String> titleList) {
+    public EcgControllerAdapter(FragmentManager fm, List<Fragment> fragmentList, List<String> titleList) {
         super(fm);
-        this.context = context;
         this.fragmentList = fragmentList;
         this.titleList = titleList;
     }

@@ -253,10 +253,10 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.nav_register_device: // 注册设备
-                        List<String> deviceMacList = BleDeviceManager.getDeviceMacList();
+                    case R.id.nav_scan_device: // 扫描设备
+                        List<String> registeredMacList = BleDeviceManager.getDeviceMacList();
                         Intent scanIntent = new Intent(MainActivity.this, ScanActivity.class);
-                        scanIntent.putExtra(REGISTERED_DEVICE_MAC_LIST, (Serializable) deviceMacList);
+                        scanIntent.putExtra(REGISTERED_DEVICE_MAC_LIST, (Serializable) registeredMacList);
                         startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
                         return true;
                     case R.id.nav_query_record: // 查阅记录

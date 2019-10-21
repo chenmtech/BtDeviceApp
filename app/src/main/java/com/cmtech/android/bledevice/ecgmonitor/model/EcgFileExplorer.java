@@ -126,6 +126,8 @@ public class EcgFileExplorer {
                 srcEcgFile = EcgFile.open(srcFile.getCanonicalPath());
                 String fileName = EcgMonitorUtil.makeFileName(srcEcgFile.getMacAddress(), srcEcgFile.getCreatedTime());
                 File destFile = FileUtil.getFile(destDir, fileName);
+                ViseLog.e("srcfile = " + srcFile);
+                ViseLog.e("destFile = " + destFile);
                 if(destFile.exists()) {
                     destEcgFile = EcgFile.open(destFile.getCanonicalPath());
                     if(copyComments(srcEcgFile, destEcgFile)) {
@@ -133,7 +135,8 @@ public class EcgFileExplorer {
                         changedFiles.add(destFile);
                     }
                 } else {
-                    FileUtil.copyFile(srcFile, destFile);
+                    srcEcgFile.close();
+                    FileUtil.moveFile(srcFile, destFile);
                     changedFiles.add(destFile);
                 }
                 srcEcgFile.close();

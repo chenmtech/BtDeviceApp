@@ -399,7 +399,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     }
 
     @Override
-    public void onCommentSaved() {
+    public void onSelectedCommentSaved() {
         explorer.saveSelectedFileComment();
     }
 

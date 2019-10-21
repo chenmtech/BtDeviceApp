@@ -59,8 +59,8 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
     private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
-    private final List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(hrStatisticsFragment, signalRecordFragment));
-    private final List<String> titleList = new ArrayList<>(Arrays.asList("心率分析", "信号采集"));
+    private final List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(signalRecordFragment, hrStatisticsFragment));
+    private final List<String> titleList = new ArrayList<>(Arrays.asList("信号记录", "心率统计"));
     private EcgMonitorDevice device; // 设备
 
     public EcgMonitorFragment() {
@@ -91,7 +91,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         initialEcgView();
         ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
         TabLayout fragTabLayout = view.findViewById(R.id.tl_ecg_controller);
-        EcgControllerAdapter fragAdapter = new EcgControllerAdapter(getChildFragmentManager(), getContext(), fragmentList, titleList);
+        EcgControllerAdapter fragAdapter = new EcgControllerAdapter(getChildFragmentManager(), fragmentList, titleList);
         fragViewPager.setAdapter(fragAdapter);
         fragTabLayout.setupWithViewPager(fragViewPager);
         updateDeviceState(device.getEcgMonitorState());

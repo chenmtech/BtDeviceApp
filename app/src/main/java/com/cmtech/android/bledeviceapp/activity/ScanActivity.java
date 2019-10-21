@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanFilter;
 import android.content.BroadcastReceiver;
@@ -92,8 +93,11 @@ public class ScanActivity extends AppCompatActivity {
                     break;
 
                 case SCAN_FAILED_BLE_CLOSED:
-                    Toast.makeText(ScanActivity.this, "蓝牙已关闭，无法扫描。", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ScanActivity.this, "蓝牙已关闭，无法扫描，请打开蓝牙。", Toast.LENGTH_LONG).show();
                     srlScanDevice.setRefreshing(false);
+                    BleScanner.stopScan(this);
+                    Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivity(intent);
                     break;
 
                 case SCAN_FAILED_BLE_INNER_ERROR:
@@ -104,7 +108,6 @@ public class ScanActivity extends AppCompatActivity {
             }
         }
     };
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

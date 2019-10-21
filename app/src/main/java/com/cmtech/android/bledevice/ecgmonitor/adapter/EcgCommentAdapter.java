@@ -13,23 +13,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ *
+ * ClassName:      EcgCommentAdapter
+ * Description:    Ecg留言Adapter
+ * Author:         chenm
+ * CreateDate:     2018/11/10 下午4:09
+ * UpdateUser:     chenm
+ * UpdateDate:     2019/4/12 下午4:09
+ * UpdateRemark:   优化代码
+ * Version:        1.0
+ */
+
 public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.ViewHolder> {
     private List<EcgNormalComment> commentList; // 留言列表
-
-    private final OnEcgCommentListener listener; // 附加信息操作者
+    private final OnEcgCommentListener listener; // 留言监听器
 
     public interface OnEcgCommentListener {
-        void onCommentSaved(); // 保存留言
+        void onSelectedCommentSaved(); // 保存选中留言
         void onCommentDeleted(EcgNormalComment comment); // 删除留言
     }
 
@@ -45,7 +55,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             appendixView = itemView;
             etContent = appendixView.findViewById(R.id.et_comment_content);
             tvCreatorName = appendixView.findViewById(R.id.tv_comment_creator);
-            tvModifyTime = appendixView.findViewById(R.id.ecgappendix_modifytime);
+            tvModifyTime = appendixView.findViewById(R.id.tv_comment_modify_time);
             ibSave = appendixView.findViewById(R.id.ib_save_comment);
         }
     }
@@ -68,21 +78,21 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             @Override
             public void onClick(View view) {
                 User creator = commentList.get(holder.getAdapterPosition()).getCreator();
-                Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(view.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
         holder.ibSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                User creator = commentList.get(holder.getAdapterPosition()).getCreator();
+                EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
+                User creator = comment.getCreator();
                 User account = UserManager.getInstance().getUser();
                 if(listener != null && creator.equals(account)) {
-                    EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
                     comment.setContent(holder.etContent.getText().toString());
                     long modifyTime = new Date().getTime();
                     comment.setModifyTime(modifyTime);
-                    listener.onCommentSaved();
+                    listener.onSelectedCommentSaved();
                     holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime));
                 }
             }
@@ -129,8 +139,8 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     }
 
     public void updateCommentList(List<EcgNormalComment> commentList) {
-        this.commentList = commentList;
+        if(commentList == null) this.commentList = new ArrayList<>();
+        else this.commentList = commentList;
         notifyDataSetChanged();
     }
-
 }

@@ -151,8 +151,11 @@ public class OpenedEcgFilesManager {
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
         String fileShortName = selectedFile.getFile().getName();
+        //sp.setTitle("分享文件");
+        //String time = DateTimeUtil.timeToShortString(new Date().getTime());
+        //sp.setTitle("心电记录by " + UserManager.getInstance().getUser().getName() + " " + time);
         sp.setTitle(fileShortName);
-        sp.setText(fileShortName);
+        sp.setComment("hi");
         Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_kang);
         sp.setImageData(bmp);
         sp.setFilePath(selectedFile.getFileName());
@@ -160,7 +163,9 @@ public class OpenedEcgFilesManager {
         platform.setPlatformActionListener(new PlatformActionListener() {
             @Override
             public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                Toast.makeText(context, "微信分享成功", Toast.LENGTH_SHORT).show();
+                //ViseLog.e("Code i = " + i);
+                //ViseLog.e("hashMap = " + hashMap);
+                //Toast.makeText(context, "微信分享成功", Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onError(Platform platform, int i, Throwable throwable) {

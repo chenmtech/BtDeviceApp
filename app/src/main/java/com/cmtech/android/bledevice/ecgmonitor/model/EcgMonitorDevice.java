@@ -90,7 +90,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // 导联类型
     private int value1mV = DEFAULT_VALUE_1MV; // 定标之前1mV值
     private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
-    private final int[] caliData1mV; // 1mV定标信号
+    private int[] caliData1mV; // 1mV定标信号
     private int xPixelPerData = 1; // EcgView的横向分辨率
     private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
     private boolean isSaveFile = false; // 是否保存心电文件
@@ -125,15 +125,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     // 构造器
     EcgMonitorDevice(Context context, BleDeviceRegisterInfo registerInfo) {
         super(context, registerInfo);
-
-        caliData1mV = new int[3*pixelPerGrid];
-        for(int i = 0; i < caliData1mV.length; i++) {
-            if(i > pixelPerGrid && i < 2*pixelPerGrid) {
-                caliData1mV[i] = STANDARD_VALUE_1MV_AFTER_CALIBRATION;
-            } else {
-                caliData1mV[i] = 0;
-            }
-        }
 
         // 从数据库获取设备的配置信息
         List<EcgMonitorConfig> foundConfig = LitePal.where("macAddress = ?", registerInfo.getMacAddress()).find(EcgMonitorConfig.class);
@@ -353,6 +344,17 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 initializeEcgView(sampleRate);
                 if(listener != null) {
                     listener.onEcgSignalShowStarted(sampleRate);
+                }
+
+                // 生成1mV定标信号
+                int dataNum = 15*pixelPerGrid/xPixelPerData;
+                caliData1mV = new int[dataNum];
+                for(int i = 0; i < dataNum; i++) {
+                    if(i > dataNum/3 && i < dataNum*2/3) {
+                        caliData1mV[i] = STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+                    } else {
+                        caliData1mV[i] = 0;
+                    }
                 }
             }
 
