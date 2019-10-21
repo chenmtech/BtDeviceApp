@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -128,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
     };
 
     // 蓝牙状态改变广播接收器
-    private static final BroadcastReceiver btStateChangedReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver btStateChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) {
@@ -139,6 +140,19 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                     Toast.makeText(context, "蓝牙已开启。", Toast.LENGTH_SHORT).show();
                 } else if(state == STATE_OFF) {
                     Toast.makeText(context, "蓝牙已关闭。", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    };
+
+    // 绑定状态广播接收器
+    private final BroadcastReceiver bondStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if(device.getBondState() == BluetoothDevice.BOND_BONDED && device.getAddress().equalsIgnoreCase(device.getAddress())) {
+                    Toast.makeText(context, device.getAddress() + "绑定成功。", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -169,6 +183,11 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         IntentFilter bleStateIntent = new IntentFilter();
         bleStateIntent.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(btStateChangedReceiver, bleStateIntent);
+
+        // 登记绑定状态广播接收器
+        IntentFilter bondIntent = new IntentFilter();
+        bondIntent.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        registerReceiver(bondStateReceiver, bondIntent);
 
         if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -447,6 +466,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         }
 
         unregisterReceiver(btStateChangedReceiver);
+        unregisterReceiver(bondStateReceiver);
     }
 
     private void requestFinish() {
@@ -483,7 +503,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
 
     // 设备状态更新
     @Override
-    public void onConnectStateUpdated(final BleDevice device) {
+    public void onDeviceStateUpdated(final BleDevice device) {
         // 更新设备列表Adapter
         if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
         // 更新设备的Fragment界面

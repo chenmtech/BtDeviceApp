@@ -153,7 +153,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
     }
 
     @Override
-    public void onConnectStateUpdated(final BleDevice device) {
+    public void onDeviceStateUpdated(final BleDevice device) {
         sendNotification();
     }
 
