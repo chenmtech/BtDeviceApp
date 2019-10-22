@@ -34,7 +34,6 @@ public class BleDeviceManager {
             ViseLog.e("The device has existed.");
             return null;
         }
-
         device = createDevice(context, registerInfo); // 创建设备
         if(device == null) return null;
 
@@ -57,7 +56,6 @@ public class BleDeviceManager {
     // 用设备mac地址寻找设备
     public static BleDevice findDevice(String macAddress) {
         if(TextUtils.isEmpty(macAddress)) return null;
-
         for(BleDevice device : DEVICE_LIST) {
             if(macAddress.equalsIgnoreCase(device.getMacAddress())) {
                 return device;

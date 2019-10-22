@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private TextView tvUserName; // 账户名称控件
     private ImageView ivUserPortrait; // 头像控件
-    private boolean isWarnBecauseBleError = false;
+    private boolean isWarningBleInnerError = false;
     private boolean stopNotifyService = false; // 是否停止通知服务
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -324,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         if(device == null) {
             toolbarManager.setTitle(getString(R.string.app_name), "无设备打开");
             toolbarManager.setBattery(INVALID_BATTERY);
-            updateConnectFloatingActionButton(BleDeviceState.DEVICE_CLOSED.getIcon(), false);
+            updateConnectFloatingActionButton(BleDeviceState.CLOSED.getIcon(), false);
             invalidateOptionsMenu();
             updateMainLayoutVisibility(false);
         } else {
@@ -517,18 +517,18 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
 
     // BLE错误通知
     @Override
-    public void onBleInnerErrorNotified(final BleDevice device) {
-        if(!isWarnBecauseBleError) {
+    public void onBleInnerErrorNotified() {
+        if(!isWarningBleInnerError) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("蓝牙错误").setMessage("设备无法连接，需要重启蓝牙。");
             builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    isWarnBecauseBleError = false;
-                    bleNotifyService.stopWarnWhenBleError();
+                    isWarningBleInnerError = false;
+                    bleNotifyService.stopWarningBleInnerError();
                 }
             }).setCancelable(false).show();
-            isWarnBecauseBleError = true;
+            isWarningBleInnerError = true;
         }
     }
 

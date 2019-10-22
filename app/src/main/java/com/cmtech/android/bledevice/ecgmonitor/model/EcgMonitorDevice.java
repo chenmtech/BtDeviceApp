@@ -3,7 +3,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.BleDevice;
@@ -583,7 +582,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(context, "无法记录心电信息", Toast.LENGTH_SHORT).show();
+                        showMessageUsingToast("无法记录心电信息。");
                     }
                 });
             }

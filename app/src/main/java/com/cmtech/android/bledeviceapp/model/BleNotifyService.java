@@ -76,7 +76,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
     private void initDeviceManager(SharedPreferences pref) {
-        List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.createAllFromPref(pref);
+        List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.readAllFromPref(pref);
         if(registerInfoList == null || registerInfoList.isEmpty()) return;
         for(BleDeviceRegisterInfo registerInfo : registerInfoList) {
            BleDevice device = BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
@@ -139,7 +139,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
         }
 
         stopForeground(true);
-        stopWarnWhenBleError();
+        stopWarningBleInnerError();
         UserManager.getInstance().signOut();
 
         try {
@@ -158,16 +158,16 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
     }
 
     @Override
-    public void onBleInnerErrorNotified(final BleDevice device) {
-        startWarnWhenBleError();
+    public void onBleInnerErrorNotified() {
+        startWarningBleInnerError();
     }
 
     @Override
     public void onBatteryUpdated(BleDevice device) {
     }
 
-    // 播放报警声音
-    private void startWarnWhenBleError() {
+    // 启动蓝牙内部错误报警
+    private void startWarningBleInnerError() {
         if(warnTimer == null) {
             warnTimer = new Timer();
             warnTimer.scheduleAtFixedRate(new TimerTask() {
@@ -183,13 +183,13 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
             new Timer().schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    stopWarnWhenBleError();
+                    stopWarningBleInnerError();
                 }
             }, WARN_INTERVAL * WARN_TIMES);
         }
     }
 
-    public void stopWarnWhenBleError() {
+    public void stopWarningBleInnerError() {
         if(warnTimer != null) {
             warnTimer.cancel();
             warnTimer = null;
