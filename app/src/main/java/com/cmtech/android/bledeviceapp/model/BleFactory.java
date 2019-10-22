@@ -23,7 +23,7 @@ import java.lang.reflect.Constructor;
 
 
 public abstract class BleFactory {
-    protected BleDeviceRegisterInfo registerInfo; // 设备注册信息
+    protected final BleDeviceRegisterInfo registerInfo; // 设备注册信息
 
     protected BleFactory(BleDeviceRegisterInfo registerInfo) {
         this.registerInfo = registerInfo;
@@ -41,6 +41,7 @@ public abstract class BleFactory {
 
         String factoryClassName = type.getFactoryClassName();
         if(factoryClassName == null) {
+            ViseLog.e("The factory class name is null.");
             return null;
         }
 
@@ -50,7 +51,7 @@ public abstract class BleFactory {
             constructor.setAccessible(true);
             factory = (BleFactory) constructor.newInstance(registerInfo);
         } catch (Exception e) {
-            ViseLog.e("The device factory can't be created.");
+            ViseLog.e("The device factory can't be found.");
             factory = null;
         }
         return factory;

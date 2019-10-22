@@ -47,8 +47,8 @@ import java.util.TimerTask;
 public class BleNotifyService extends Service implements BleDevice.OnBleDeviceListener {
     private static final String TAG = "BleNotifyService";
     private static final int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
-    private static final String NOTIFY_TITLE = "欢迎使用" + MyApplication.getContext().getString(R.string.app_name); // 通知栏标题
-    private static final String NOTIFY_STR_WHEN_NO_DEVICE_OPEN = "无设备打开。"; // 无设备打开时的通知串
+    private String notifyTitle; // 通知栏标题
+    private String strWhenNoDeviceOpened; // 无设备打开时的通知串
     private static final Ringtone WARN_RINGTONE = RingtoneManager.getRingtone(MyApplication.getContext(), Settings.System.DEFAULT_ALARM_ALERT_URI); // 报警铃声
     private static final Vibrator WARN_VIBRATOR = (Vibrator) MyApplication.getInstance().getSystemService(VIBRATOR_SERVICE); // 报警震动
     private static final int WARN_INTERVAL = 5000; // 报警间隔时间，单位：ms
@@ -67,6 +67,9 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
     @Override
     public void onCreate() {
         super.onCreate();
+
+        notifyTitle = getString(R.string.welcome_text_format, getString(R.string.app_name));
+        strWhenNoDeviceOpened = getString(R.string.no_device_opened);
 
         initDeviceManager(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
 
@@ -93,7 +96,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
         notifyBuilder.setAutoCancel(false); //禁止用户点击删除按钮删除
         notifyBuilder.setOngoing(true); //禁止滑动删除
         notifyBuilder.setShowWhen(true); //右上角的时间显示
-        notifyBuilder.setContentTitle(NOTIFY_TITLE); //设置通知栏的标题与内容
+        notifyBuilder.setContentTitle(notifyTitle); //设置通知栏的标题与内容
 
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
@@ -202,12 +205,12 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
 
     private Notification createNotification(List<String> notifyContents){
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
-        inboxStyle.setBigContentTitle(NOTIFY_TITLE);
+        inboxStyle.setBigContentTitle(notifyTitle);
         if(notifyContents == null || notifyContents.isEmpty()) {
-            notifyBuilder.setContentText(NOTIFY_STR_WHEN_NO_DEVICE_OPEN);
-            inboxStyle.addLine(NOTIFY_STR_WHEN_NO_DEVICE_OPEN);
+            notifyBuilder.setContentText(strWhenNoDeviceOpened);
+            inboxStyle.addLine(strWhenNoDeviceOpened);
         } else {
-            notifyBuilder.setContentText(String.format("有%s个设备打开", notifyContents.size()));
+            notifyBuilder.setContentText(getString(R.string.some_devices_opened, notifyContents.size()));
             for (String content : notifyContents) {
                 inboxStyle.addLine(content);
             }

@@ -83,7 +83,7 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
 
     @Override
     public String toString() {
-        return "用户名：" + name + ' ' + "个人信息：" + personalInfo;
+        return "User Name：" + name + ' ' + "Personal Info：" + personalInfo;
     }
 
     @Override
