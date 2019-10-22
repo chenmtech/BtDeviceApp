@@ -55,6 +55,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private static final float DEFAULT_MV_PER_GRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
 
+    public static final int NOTIFY_CANNOT_RECORD_ECG_SIGNAL = 6;
+
     // 心电监护仪Service相关UUID常量
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
     private static final String ecgMonitorDataUuid          = "aa41";           // ECG数据特征UUID:aa41
@@ -582,7 +584,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        showMessageUsingToast("无法记录心电信息。");
+                        sendNotification(NOTIFY_CANNOT_RECORD_ECG_SIGNAL);
                     }
                 });
             }

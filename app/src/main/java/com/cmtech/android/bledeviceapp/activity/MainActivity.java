@@ -73,6 +73,7 @@ import java.util.List;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static com.cmtech.android.ble.core.BleDevice.INVALID_BATTERY;
+import static com.cmtech.android.ble.core.BleDevice.NOTIFY_BLE_INNER_ERROR;
 import static com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;
@@ -515,20 +516,24 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         }
     }
 
-    // BLE错误通知
+    // 设备通知更新
     @Override
-    public void onBleInnerErrorNotified() {
-        if(!isWarningBleInnerError) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("蓝牙错误").setMessage("设备无法连接，需要重启蓝牙。");
-            builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    isWarningBleInnerError = false;
-                    bleNotifyService.stopWarningBleInnerError();
+    public void onDeviceNotificationUpdated(int notify) {
+        switch (notify) {
+            case NOTIFY_BLE_INNER_ERROR:
+                if(!isWarningBleInnerError) {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("蓝牙错误").setMessage("设备无法连接，需要重启蓝牙。");
+                    builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            isWarningBleInnerError = false;
+                            bleNotifyService.stopWarningBleInnerError();
+                        }
+                    }).setCancelable(false).show();
+                    isWarningBleInnerError = true;
                 }
-            }).setCancelable(false).show();
-            isWarningBleInnerError = true;
+                break;
         }
     }
 
