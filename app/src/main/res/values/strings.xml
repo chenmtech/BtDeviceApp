@@ -9,6 +9,7 @@
     <string name="open_news">康明新闻</string>
     <string name="delete">删除</string>
     <string name="share">分享</string>
+    <string name="cannot_record_ecg_signal">无法记录心电信号</string>
     <drawable name="clr_normal">@color/accent</drawable>
     <drawable name="clr_pressed">@color/red</drawable>
 

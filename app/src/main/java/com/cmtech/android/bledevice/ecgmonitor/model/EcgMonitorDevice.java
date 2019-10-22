@@ -15,6 +15,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpro
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
+import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -54,8 +55,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
     private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
-
-    public static final int NOTIFY_CANNOT_RECORD_ECG_SIGNAL = 6;
 
     // 心电监护仪Service相关UUID常量
     private static final String ecgMonitorServiceUuid       = "aa40";           // 心电监护仪服务UUID:aa40
@@ -584,7 +583,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        sendNotification(NOTIFY_CANNOT_RECORD_ECG_SIGNAL);
+                        sendNotification(R.string.cannot_record_ecg_signal);
                     }
                 });
             }

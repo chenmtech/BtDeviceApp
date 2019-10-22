@@ -57,7 +57,7 @@ public abstract class BleFragment extends Fragment{
         if(bundle == null) throw new IllegalStateException();
         String deviceMac = bundle.getString(ARG_DEVICE_MAC);
         device = BleDeviceManager.findDevice(deviceMac);
-        if(device == null) throw new IllegalArgumentException("The device is null.");
+        if(device == null) throw new IllegalStateException("The device of the fragment doesn't exist.");
 
         // 更新状态
         updateState();

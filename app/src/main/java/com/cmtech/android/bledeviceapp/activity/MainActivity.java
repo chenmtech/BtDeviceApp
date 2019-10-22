@@ -36,6 +36,7 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -73,7 +74,6 @@ import java.util.List;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static com.cmtech.android.ble.core.BleDevice.INVALID_BATTERY;
-import static com.cmtech.android.ble.core.BleDevice.NOTIFY_BLE_INNER_ERROR;
 import static com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;
@@ -504,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
 
     // 设备状态更新
     @Override
-    public void onDeviceStateUpdated(final BleDevice device) {
+    public void onStateUpdated(final BleDevice device) {
         // 更新设备列表Adapter
         if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
         // 更新设备的Fragment界面
@@ -518,12 +518,12 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
 
     // 设备通知更新
     @Override
-    public void onDeviceNotificationUpdated(int notify) {
-        switch (notify) {
-            case NOTIFY_BLE_INNER_ERROR:
+    public void onNotificationUpdated(BleDevice device, int strId) {
+        switch (strId) {
+            case R.string.scan_fail_ble_inner_error:
                 if(!isWarningBleInnerError) {
                     final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("蓝牙错误").setMessage("设备无法连接，需要重启蓝牙。");
+                    builder.setTitle("蓝牙内部错误").setMessage(device.getNickName() + "无法连接，需要重启蓝牙。");
                     builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
@@ -534,7 +534,23 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                     isWarningBleInnerError = true;
                 }
                 break;
+            case R.string.scan_fail_ble_closed:
+                showMessageUsingToast(getString(R.string.scan_fail_ble_closed));
+                break;
+            case R.string.scan_fail_already_started:
+            case R.string.invalid_operate_at_current_state:
+            case R.string.ready_connect_pls_wait:
+            case R.string.pls_bond_device:
+                showMessageUsingToast(device.getNickName() + ":" + getString(strId));
+                break;
+
         }
+    }
+
+    private void showMessageUsingToast(String msg) {
+        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 
     // 电量更新

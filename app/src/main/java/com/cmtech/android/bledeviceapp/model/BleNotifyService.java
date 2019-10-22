@@ -5,7 +5,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,7 +18,6 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
@@ -32,13 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.cmtech.android.ble.core.BleDevice.NOTIFY_ALREADY_START_SCAN_ERROR;
-import static com.cmtech.android.ble.core.BleDevice.NOTIFY_BLE_INNER_ERROR;
-import static com.cmtech.android.ble.core.BleDevice.NOTIFY_BOND_DEVICE;
-import static com.cmtech.android.ble.core.BleDevice.NOTIFY_BT_CLOSED_ERROR;
-import static com.cmtech.android.ble.core.BleDevice.NOTIFY_INVALID_OPERATION;
-import static com.cmtech.android.ble.core.BleDevice.NOTIFY_READY_CONNECT;
 
 
 /**
@@ -165,33 +156,15 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
     }
 
     @Override
-    public void onDeviceStateUpdated(final BleDevice device) {
+    public void onStateUpdated(final BleDevice device) {
         sendNotification();
     }
 
     @Override
-    public void onDeviceNotificationUpdated(int notify) {
-        switch (notify) {
-            case NOTIFY_BLE_INNER_ERROR:
+    public void onNotificationUpdated(BleDevice device, int strId) {
+        switch (strId) {
+            case R.string.scan_fail_ble_inner_error:
                 startWarningBleInnerError();
-                break;
-            case NOTIFY_ALREADY_START_SCAN_ERROR:
-                showMessageUsingToast(getString(R.string.scan_fail_already_started));
-                break;
-            case NOTIFY_BT_CLOSED_ERROR:
-                showMessageUsingToast(getString(R.string.scan_fail_ble_closed));
-                Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                break;
-            case NOTIFY_INVALID_OPERATION:
-                showMessageUsingToast(getString(R.string.invalid_operate_at_current_state));
-                break;
-            case NOTIFY_READY_CONNECT:
-                showMessageUsingToast(getString(R.string.ready_connect_pls_wait));
-                break;
-            case NOTIFY_BOND_DEVICE:
-                showMessageUsingToast(getString(R.string.pls_bond_device));
                 break;
         }
     }
@@ -255,7 +228,4 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
         return notification;
     }
 
-    protected void showMessageUsingToast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    }
 }

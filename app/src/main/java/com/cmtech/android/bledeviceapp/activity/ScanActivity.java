@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +17,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -132,7 +134,11 @@ public class ScanActivity extends AppCompatActivity {
         rvScanDevice.setAdapter(scannedDeviceAdapter);
 
         srlScanDevice = findViewById(R.id.srl_scandevice);
-        srlScanDevice.setProgressViewOffset(true, 300, 400);
+        Display display = getWindowManager().getDefaultDisplay();
+        Point pt = new Point();
+        display.getSize(pt);
+        int height = pt.y;
+        srlScanDevice.setProgressViewOffset(true, height/2-50, height/2);
         srlScanDevice.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
