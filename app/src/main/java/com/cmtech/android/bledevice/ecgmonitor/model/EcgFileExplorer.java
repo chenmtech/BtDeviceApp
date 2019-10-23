@@ -37,13 +37,18 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
  */
 
 public class EcgFileExplorer {
-    private final OpenedEcgFilesManager filesManager; // 文件列表管理器
+    private final OpenedEcgFilesManager filesManager; // 打开的文件管理器
     private final File ecgFileDir; // Ecg文件路径
     private Iterator<File> fileIterator; // 文件迭代器
-    private List<File> updatedFiles;
+    private List<File> updatedFiles; // 更新的文件
     private final ExecutorService openFileService = Executors.newSingleThreadExecutor(); // 打开文件服务
 
-    public EcgFileExplorer(File ecgFileDir, OpenedEcgFilesManager.OnOpenedEcgFilesListener listener) throws IOException{
+    public static final int FILE_ORDER_CREATED_TIME = 0; // 文件按创建时间排序
+    public static final int FILE_ORDER_MODIFIED_TIME = 1; // 文件按修改时间排序
+
+    private final int fileOrder;
+
+    public EcgFileExplorer(File ecgFileDir, int fileOrder, OpenedEcgFilesManager.OnOpenedEcgFilesListener listener) throws IOException{
         if(ecgFileDir == null) {
             throw new IOException("The ecg file dir is null");
         }
@@ -54,24 +59,32 @@ public class EcgFileExplorer {
             throw new IOException("The ecg file dir is invalid.");
         }
 
-        filesManager = new OpenedEcgFilesManager(listener);
         this.ecgFileDir = ecgFileDir;
-        initFileIterator();
+        this.fileOrder = fileOrder;
+        filesManager = new OpenedEcgFilesManager(fileOrder, listener);
+        getFileList(fileOrder);
         updatedFiles = new ArrayList<>();
     }
 
-    // 初始化文件迭代器，文件按照创建时间排序
-    private void initFileIterator() {
+    // 获取文件列表，并排序
+    private void getFileList(final int fileOrder) {
         List<File> fileList = BmeFileUtil.listDirBmeFiles(ecgFileDir);
         Collections.sort(fileList, new Comparator<File>() {
             @Override
             public int compare(File o1, File o2) {
-                String f1 = o1.getName();
-                String f2 = o2.getName();
-                long createdTime1 = Long.parseLong(f1.substring(MACADDRESS_CHAR_NUM, f1.length()-4));
-                long createdTime2 = Long.parseLong(f2.substring(MACADDRESS_CHAR_NUM, f2.length()-4));
-                if(createdTime1 == createdTime2) return 0;
-                return (createdTime2 > createdTime1) ? 1 : -1;
+                long time1;
+                long time2;
+                if(fileOrder == FILE_ORDER_CREATED_TIME) {
+                    String f1 = o1.getName();
+                    String f2 = o2.getName();
+                    time1 = Long.parseLong(f1.substring(MACADDRESS_CHAR_NUM, f1.length()-4));
+                    time2 = Long.parseLong(f2.substring(MACADDRESS_CHAR_NUM, f2.length()-4));
+                } else {
+                    time1 = o1.lastModified();
+                    time2 = o2.lastModified();
+                }
+                if(time1 == time2) return 0;
+                return (time2 > time1) ? 1 : -1;
             }
         });
         fileIterator = fileList.iterator();
@@ -106,11 +119,11 @@ public class EcgFileExplorer {
     public void importFromWechat() {
         filesManager.close();
         File weChatDir = new File(WECHAT_DOWNLOAD_DIR);
-        List<File> changed = importFiles(weChatDir, ecgFileDir);
-        if(changed != null && !changed.isEmpty()) {
-            updatedFiles.addAll(changed);
+        List<File> updated = importFiles(weChatDir, ecgFileDir);
+        if(updated != null && !updated.isEmpty()) {
+            updatedFiles.addAll(updated);
         }
-        initFileIterator();
+        getFileList(fileOrder);
     }
 
     // 导入新文件或者修改发生变化的文件

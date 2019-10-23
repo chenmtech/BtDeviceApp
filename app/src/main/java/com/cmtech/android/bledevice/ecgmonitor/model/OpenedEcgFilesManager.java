@@ -26,6 +26,7 @@ import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
+import static com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorer.FILE_ORDER_CREATED_TIME;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.HR_FILTER_SECOND;
 
 /**
@@ -45,13 +46,15 @@ public class OpenedEcgFilesManager {
     private final List<EcgFile> unmodifiedFileList = Collections.unmodifiableList(openedFileList);
     private final OnOpenedEcgFilesListener listener; // ECG文件目录监听器
     private EcgFile selectedFile; // 选中的EcgFile
+    private final int fileOrder;
 
     public interface OnOpenedEcgFilesListener {
         void onFileSelected(EcgFile ecgFile); // 文件被选中
         void onFileListChanged(List<EcgFile> fileList); // 文件列表改变
     }
 
-    OpenedEcgFilesManager(OnOpenedEcgFilesListener listener) {
+    OpenedEcgFilesManager(int fileOrder, OnOpenedEcgFilesListener listener) {
+        this.fileOrder = fileOrder;
         this.listener = listener;
     }
 
@@ -72,7 +75,17 @@ public class OpenedEcgFilesManager {
                 Collections.sort(openedFileList, new Comparator<EcgFile>() {
                     @Override
                     public int compare(EcgFile o1, EcgFile o2) {
-                        return (int) (o2.getCreatedTime() - o1.getCreatedTime());
+                        long time1;
+                        long time2;
+                        if(fileOrder == FILE_ORDER_CREATED_TIME) {
+                            time1 = o1.getCreatedTime();
+                            time2 = o2.getCreatedTime();
+                        } else {
+                            time1 = o1.getFile().lastModified();
+                            time2 = o2.getFile().lastModified();
+                        }
+                        if(time1 == time2) return 0;
+                        return (time2 > time1) ? 1 : -1;
                     }
                 });
             }

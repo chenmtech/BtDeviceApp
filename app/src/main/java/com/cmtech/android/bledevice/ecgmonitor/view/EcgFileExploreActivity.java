@@ -92,7 +92,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         setSupportActionBar(toolbar);
 
         try {
-            explorer = new EcgFileExplorer(ECG_FILE_DIR, this);
+            explorer = new EcgFileExplorer(ECG_FILE_DIR, EcgFileExplorer.FILE_ORDER_MODIFIED_TIME, this);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "心电记录目录错误。", Toast.LENGTH_SHORT).show();
