@@ -1,7 +1,5 @@
 package com.cmtech.android.bledevice.siggenerator.model;
 
-import android.content.Context;
-
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
@@ -35,8 +33,8 @@ public class SigGeneratorDevice extends BleDevice {
     private static final byte SIGGENERATOR_CTRL_START =             (byte) 0x01;        // 启动信号
 
     // 构造器
-    public SigGeneratorDevice(Context context, BleDeviceRegisterInfo basicInfo) {
-        super(context, basicInfo);
+    public SigGeneratorDevice(BleDeviceRegisterInfo registerInfo) {
+        super(registerInfo);
 
     }
 

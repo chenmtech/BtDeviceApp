@@ -48,13 +48,14 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.OnEcgMonitorListener {
+public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.OnEcgMonitorListener, ScanWaveView.OnScanWaveViewListener {
     private static final String TAG = "EcgMonitorFragment";
 
     private TextView tvSampleRate; // 采样率
     private TextView tvLeadType; // 导联类型
     private TextView tvValue1mV; // 1mV值
     private TextView tvHeartRate; // 心率值
+    private TextView tvPauseShowing;
     private ScanWaveView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
@@ -83,6 +84,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         tvLeadType = view.findViewById(R.id.tv_ecg_leadtype);
         tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
+        tvPauseShowing = view.findViewById(R.id.tv_pause_showing);
         ecgView = view.findViewById(R.id.rwv_ecgview);
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
@@ -96,6 +98,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         fragTabLayout.setupWithViewPager(fragViewPager);
         updateDeviceState(device.getEcgMonitorState());
         device.setEcgMonitorListener(this);
+        ecgView.setListener(this);
     }
 
     @Override
@@ -298,4 +301,12 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
             getActivity().runOnUiThread(runnable);
     }
 
+    @Override
+    public void onShowStateUpdated(boolean isShow) {
+        if(isShow) {
+            tvPauseShowing.setVisibility(View.GONE);
+        } else {
+            tvPauseShowing.setVisibility(View.VISIBLE);
+        }
+    }
 }

@@ -24,8 +24,8 @@ public class TempHumidFactory extends BleFactory {
     }
 
     @Override
-    public BleDevice createDevice(Context context) {
-        return new TempHumidDevice(context, registerInfo);
+    public BleDevice createDevice() {
+        return new TempHumidDevice(registerInfo);
     }
 
     @Override

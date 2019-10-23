@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -121,8 +120,8 @@ public class TempHumidDevice extends BleDevice {
 
 
     // 构造器
-    public TempHumidDevice(Context context, BleDeviceRegisterInfo basicInfo) {
-        super(context, basicInfo);
+    public TempHumidDevice(BleDeviceRegisterInfo registerInfo) {
+        super(registerInfo);
         initializeAfterConstruction();
 
     }

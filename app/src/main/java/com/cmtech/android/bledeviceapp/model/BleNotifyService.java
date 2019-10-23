@@ -5,6 +5,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,6 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.cmtech.android.ble.core.BleDevice.MSG_BLE_INNER_ERROR;
+import static com.cmtech.android.ble.core.BleDevice.MSG_BT_CLOSED;
 
 
 /**
@@ -82,7 +86,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
         List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.readAllFromPref(pref);
         if(registerInfoList == null || registerInfoList.isEmpty()) return;
         for(BleDeviceRegisterInfo registerInfo : registerInfoList) {
-           BleDevice device = BleDeviceManager.createDeviceIfNotExist(this, registerInfo);
+           BleDevice device = BleDeviceManager.createDeviceIfNotExist(registerInfo);
            if(device != null) {
                device.addListener(this);
            }
@@ -161,11 +165,13 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
     }
 
     @Override
-    public void onNotificationUpdated(BleDevice device, int strId) {
-        switch (strId) {
-            case R.string.scan_fail_ble_inner_error:
-                startWarningBleInnerError();
-                break;
+    public void onExceptionMsgNotified(BleDevice device, int msgId) {
+        if(msgId == MSG_BLE_INNER_ERROR) {
+            startWarningBleInnerError();
+        } else if(msgId == MSG_BT_CLOSED) {
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         }
     }
 

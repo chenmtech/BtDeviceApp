@@ -23,8 +23,8 @@ public class ThermoFactory extends BleFactory {
     }
 
     @Override
-    public BleDevice createDevice(Context context) {
-        return new ThermoDevice(context, registerInfo);
+    public BleDevice createDevice() {
+        return new ThermoDevice(registerInfo);
     }
 
     @Override

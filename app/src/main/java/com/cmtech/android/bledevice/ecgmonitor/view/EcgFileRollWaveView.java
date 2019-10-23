@@ -24,14 +24,6 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 public class EcgFileRollWaveView extends ColorRollWaveView {
     private static final int MIN_SHOW_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
 
-    // EcgFile滚动波形视图显示监听器接口
-    public interface OnEcgFileRollWaveViewListener {
-        void onShowStateUpdated(boolean isReplay); // 更新显示状态
-        void onDataLocationUpdated(long dataLocation, int sampleRate); // 更新当前数据位置
-    }
-
-    private OnEcgFileRollWaveViewListener listener;
-
     private EcgFile ecgFile; // 要播放的Ecg文件
     private boolean replaying = false; // 是否正在播放
     private int num = 0; // 当前读取的文件中的第几个数据
@@ -219,8 +211,4 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
         }
     }
 
-    // 登记心电回放观察者
-    public void setOnEcgFileRollWaveViewListener(OnEcgFileRollWaveViewListener listener) {
-        this.listener = listener;
-    }
 }

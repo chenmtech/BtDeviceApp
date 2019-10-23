@@ -23,8 +23,8 @@ public class SigGeneratorFactory extends BleFactory {
     }
 
     @Override
-    public BleDevice createDevice(Context context) {
-        return new SigGeneratorDevice(context, registerInfo);
+    public BleDevice createDevice() {
+        return new SigGeneratorDevice(registerInfo);
     }
 
     @Override

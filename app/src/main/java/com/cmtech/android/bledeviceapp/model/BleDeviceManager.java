@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import android.content.Context;
 import android.text.TextUtils;
 
 import com.cmtech.android.ble.core.BleDevice;
@@ -28,13 +27,13 @@ public class BleDeviceManager {
     private static final List<BleDevice> DEVICE_LIST = new ArrayList<>(); // 所有注册的设备列表
 
     // 如果设备不存在，用注册信息创建一个设备
-    public static BleDevice createDeviceIfNotExist(Context context, BleDeviceRegisterInfo registerInfo) {
+    public static BleDevice createDeviceIfNotExist(BleDeviceRegisterInfo registerInfo) {
         BleDevice device = findDevice(registerInfo);
         if(device != null) {
             ViseLog.e("The device has existed.");
             return null;
         }
-        device = createDevice(context, registerInfo); // 创建设备
+        device = createDevice(registerInfo); // 创建设备
         if(device == null) return null;
 
         DEVICE_LIST.add(device); // 将设备添加到设备列表
@@ -64,9 +63,9 @@ public class BleDeviceManager {
         return null;
     }
 
-    private static BleDevice createDevice(Context context, BleDeviceRegisterInfo registerInfo) {
+    private static BleDevice createDevice(BleDeviceRegisterInfo registerInfo) {
         BleFactory factory = BleFactory.getFactory(registerInfo); // 获取相应的工厂
-        return (factory == null) ? null : factory.createDevice(context);
+        return (factory == null) ? null : factory.createDevice();
     }
 
     // 删除一个设备

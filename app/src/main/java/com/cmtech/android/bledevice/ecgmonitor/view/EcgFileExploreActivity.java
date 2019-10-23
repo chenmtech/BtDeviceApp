@@ -56,7 +56,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
   * Version:        1.0
  */
 
-public class EcgFileExploreActivity extends AppCompatActivity implements OpenedEcgFilesManager.OnOpenedEcgFilesListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener, EcgFileRollWaveView.OnEcgFileRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener  {
+public class EcgFileExploreActivity extends AppCompatActivity implements OpenedEcgFilesManager.OnOpenedEcgFilesListener, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener, EcgFileRollWaveView.OnRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener  {
     private static final String TAG = "EcgFileExploreActivity";
 
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
@@ -118,9 +118,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1) {
-                    if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
-                        Toast.makeText(EcgFileExploreActivity.this, "无信号可载入。", Toast.LENGTH_SHORT).show();
-                    }
+                    explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
                 }
             }
 
@@ -143,7 +141,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         rvComments.setAdapter(commentAdapter);
 
         signalView = findViewById(R.id.rwv_ecgview);
-        signalView.setOnEcgFileRollWaveViewListener(this);
+        signalView.setListener(this);
 
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvTotalTime = findViewById(R.id.tv_total_time);
@@ -224,7 +222,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
                 deleteSelectedFile();
                 break;
 
-            case R.id.explorer_share:
+            case R.id.share_with_wechat:
                 shareSelectedFileThroughWechat();
                 break;
 
@@ -382,13 +380,13 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     }
 
     @Override
-    public void onShowStateUpdated(boolean isReplay) {
-        if(isReplay) {
+    public void onShowStateUpdated(boolean isShow) {
+        if(isShow) {
             btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_pause_32px));
         } else {
             btnSwitchReplayState.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), R.mipmap.ic_play_32px));
         }
-        sbReplay.setEnabled(!isReplay);
+        sbReplay.setEnabled(!isShow);
     }
 
     @Override

@@ -63,11 +63,14 @@ public abstract class BleFragment extends Fragment{
         updateState();
 
         // 注册设备状态观察者
-        device.addListener((MainActivity) getActivity());
-        device.updateState();
+        MainActivity activity = (MainActivity) getActivity();
+        if(activity != null) {
+            device.addListener(activity);
+            device.updateState();
 
-        // 打开设备
-        device.open();
+            // 打开设备
+            device.open(activity.getBleNotifyService());
+        }
     }
 
     @Override

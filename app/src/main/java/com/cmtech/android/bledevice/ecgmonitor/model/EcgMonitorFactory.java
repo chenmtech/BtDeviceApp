@@ -24,8 +24,8 @@ public class EcgMonitorFactory extends BleFactory {
     }
 
     @Override
-    public BleDevice createDevice(Context context) {
-        return new EcgMonitorDevice(context, registerInfo);
+    public BleDevice createDevice() {
+        return new EcgMonitorDevice(registerInfo);
     }
 
     @Override

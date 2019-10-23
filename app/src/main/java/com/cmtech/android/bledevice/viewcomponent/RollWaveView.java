@@ -28,7 +28,6 @@ import java.util.List;
  */
 
 public class RollWaveView extends View {
-
     private static final int DEFAULT_SIZE = 100; // 缺省View的大小
     private static final int DEFAULT_XRES = 2; // 缺省的X方向的分辨率
     private static final float DEFAULT_YRES = 1.0f; // 缺省的Y方向的分辨率
@@ -58,6 +57,13 @@ public class RollWaveView extends View {
     private final int gridColor; // 栅格线颜色
     private final int waveColor; // 波形颜色
     private final boolean showGridLine; // 是否显示栅格线
+
+    // 滚动波形视图监听器接口
+    public interface OnRollWaveViewListener {
+        void onShowStateUpdated(boolean isShow); // 更新显示状态
+        void onDataLocationUpdated(long dataLocation, int sampleRate); // 更新当前数据位置
+    }
+    protected OnRollWaveViewListener listener;
 
     public RollWaveView(Context context) {
         super(context);
@@ -319,5 +325,9 @@ public class RollWaveView extends View {
 
         //mainPaint.setColor(waveColor);
         //mainPaint.setStrokeWidth(2);
+    }
+
+    public void setListener(OnRollWaveViewListener listener) {
+        this.listener = listener;
     }
 }

@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.thermo.model;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -69,8 +68,8 @@ public class ThermoDevice extends BleDevice {
         updateThermoData();
     }
 
-    public ThermoDevice(Context context, BleDeviceRegisterInfo basicInfo) {
-        super(context, basicInfo);
+    public ThermoDevice(BleDeviceRegisterInfo registerInfo) {
+        super(registerInfo);
         initializeAfterConstruction();
     }
 

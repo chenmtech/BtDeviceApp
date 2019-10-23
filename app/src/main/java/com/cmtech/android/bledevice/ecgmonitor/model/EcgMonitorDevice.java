@@ -123,8 +123,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     }
 
     // 构造器
-    EcgMonitorDevice(Context context, BleDeviceRegisterInfo registerInfo) {
-        super(context, registerInfo);
+    EcgMonitorDevice(BleDeviceRegisterInfo registerInfo) {
+        super(registerInfo);
 
         // 从数据库获取设备的配置信息
         List<EcgMonitorConfig> foundConfig = LitePal.where("macAddress = ?", registerInfo.getMacAddress()).find(EcgMonitorConfig.class);
@@ -246,10 +246,10 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     }
 
     @Override
-    public void open() {
+    public void open(Context context) {
         ViseLog.e("EcgMonitorDevice.open()");
 
-        super.open();
+        super.open(context);
     }
 
     // 关闭设备
@@ -583,7 +583,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        sendNotification(R.string.cannot_record_ecg_signal);
+                        sendExceptionMessage(R.string.record_ecg_signal_failed);
                     }
                 });
             }

@@ -49,7 +49,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         TextView tvCreatedTime; // 创建时间
         TextView tvLength; // 信号长度
         TextView tvHrNum; // 心率次数
-        TextView tvIsUpdate; // 是否已更新
+        View vIsUpdate; // 是否已更新
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -58,7 +58,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             tvCreatedTime = fileView.findViewById(R.id.ecgfile_createtime);
             tvLength = fileView.findViewById(R.id.ecgfile_length);
             tvHrNum = fileView.findViewById(R.id.ecgfile_hr_num);
-            tvIsUpdate = fileView.findViewById(R.id.ecgfile_update);
+            vIsUpdate = fileView.findViewById(R.id.ecgfile_update);
         }
     }
 
@@ -126,9 +126,9 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         }
 
         if (updatedFileList.contains(file.getFile())) {
-            holder.tvIsUpdate.setVisibility(View.VISIBLE);
+            holder.vIsUpdate.setVisibility(View.VISIBLE);
         } else {
-            holder.tvIsUpdate.setVisibility(View.GONE);
+            holder.vIsUpdate.setVisibility(View.GONE);
         }
     }
 

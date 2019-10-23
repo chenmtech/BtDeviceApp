@@ -74,6 +74,7 @@ import java.util.List;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static com.cmtech.android.ble.core.BleDevice.INVALID_BATTERY;
+import static com.cmtech.android.ble.core.BleDevice.MSG_BLE_INNER_ERROR;
 import static com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;
@@ -93,6 +94,9 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
     private BleNotifyService bleNotifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
+    public BleNotifyService getBleNotifyService() {
+        return bleNotifyService;
+    }
     private BleFragTabManager fragTabManager; // BleFragment和TabLayout管理器
     private MainToolbarManager toolbarManager; // 工具条管理器
 
@@ -345,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                 if(resultCode == RESULT_OK) {
                     BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     if(registerInfo != null) {
-                        BleDevice device = BleDeviceManager.createDeviceIfNotExist(bleNotifyService, registerInfo);
+                        BleDevice device = BleDeviceManager.createDeviceIfNotExist(registerInfo);
                         if(device != null) {
                             if(registerInfo.saveToPref(pref)) {
                                 Toast.makeText(MainActivity.this, "设备注册成功", Toast.LENGTH_SHORT).show();
@@ -516,34 +520,24 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         }
     }
 
-    // 设备通知更新
+    // 提示信息产生
     @Override
-    public void onNotificationUpdated(BleDevice device, int strId) {
-        switch (strId) {
-            case R.string.scan_fail_ble_inner_error:
-                if(!isWarningBleInnerError) {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("蓝牙内部错误").setMessage(device.getNickName() + "无法连接，需要重启蓝牙。");
-                    builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            isWarningBleInnerError = false;
-                            bleNotifyService.stopWarningBleInnerError();
-                        }
-                    }).setCancelable(false).show();
-                    isWarningBleInnerError = true;
-                }
-                break;
-            case R.string.scan_fail_ble_closed:
-                showMessageUsingToast(getString(R.string.scan_fail_ble_closed));
-                break;
-            case R.string.scan_fail_already_started:
-            case R.string.invalid_operate_at_current_state:
-            case R.string.ready_connect_pls_wait:
-            case R.string.pls_bond_device:
-                showMessageUsingToast(device.getNickName() + ":" + getString(strId));
-                break;
-
+    public void onExceptionMsgNotified(BleDevice device, int msgId) {
+        if(msgId == MSG_BLE_INNER_ERROR) {
+            if(!isWarningBleInnerError) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("蓝牙内部错误").setMessage(device.getNickName() + "无法连接，需要重启蓝牙。");
+                builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        isWarningBleInnerError = false;
+                        bleNotifyService.stopWarningBleInnerError();
+                    }
+                }).setCancelable(false).show();
+                isWarningBleInnerError = true;
+            }
+        } else {
+            showMessageUsingToast(device.getNickName() + "-" + getString(msgId));
         }
     }
 
