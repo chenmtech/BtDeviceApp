@@ -1,42 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp">
-
+    android:layout_margin="2dp">
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="记录人:"
+            android:text="上次修改时间:"
+            android:textColor="@color/black"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/tv_modified_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLength="10"
+            android:text="未知"
+            android:textColor="@color/black"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="采集人:"
             android:textColor="@color/secondary_text"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
 
         <TextView
             android:id="@+id/ecgfile_creator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
             android:maxLength="10"
             android:text="匿名"
             android:textAppearance="@style/PersonTextAppearance"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="记录时间:"
+            android:text="采集时间:"
             android:textColor="@color/secondary_text"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
 
         <TextView
             android:id="@+id/ecgfile_createtime"
@@ -44,41 +59,35 @@
             android:layout_height="wrap_content"
             android:text="未知"
             android:textColor="@color/primary_text"
-            android:textSize="12sp"/>
-
+            android:textSize="14sp"/>
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="采集信号:"
+            android:text="记录信号:"
             android:textColor="@color/secondary_text"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
 
         <TextView
             android:id="@+id/ecgfile_length"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
             android:text="未知"
             android:textColor="@color/primary_text"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="记录心跳:"
             android:textColor="@color/secondary_text"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
 
         <TextView
             android:id="@+id/ecgfile_hr_num"
@@ -86,21 +95,20 @@
             android:layout_height="wrap_content"
             android:text="0"
             android:textColor="@color/primary_text"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="次"
             android:textColor="@color/secondary_text"
-            android:textSize="12sp"/>
-
+            android:textSize="14sp"/>
     </LinearLayout>
 
     <View
         android:id="@+id/ecgfile_update"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_height="2dp"
         android:background="@color/red"
         android:visibility="gone"/>
 </LinearLayout>

@@ -105,9 +105,9 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
         rvFiles = findViewById(R.id.rv_ecgfile_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
-        fileLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvFiles.setLayoutManager(fileLayoutManager);
-        rvFiles.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL));
+        rvFiles.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         fileAdapter = new EcgFileListAdapter(this);
         rvFiles.setAdapter(fileAdapter);
         rvFiles.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -361,7 +361,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
                     tvPromptInfo.setVisibility(View.INVISIBLE);
                 }
 
-                fileAdapter.updateFileList(fileList);
+                fileAdapter.updateFileList(fileList, getUpdatedFiles());
             }
         });
 

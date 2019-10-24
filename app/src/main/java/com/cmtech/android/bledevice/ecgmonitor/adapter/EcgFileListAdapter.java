@@ -50,6 +50,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         TextView tvLength; // 信号长度
         TextView tvHrNum; // 心率次数
         View vIsUpdate; // 是否已更新
+        TextView tvModifiedTime;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -59,11 +60,18 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             tvLength = fileView.findViewById(R.id.ecgfile_length);
             tvHrNum = fileView.findViewById(R.id.ecgfile_hr_num);
             vIsUpdate = fileView.findViewById(R.id.ecgfile_update);
+            tvModifiedTime = fileView.findViewById(R.id.tv_modified_time);
         }
     }
 
     public EcgFileListAdapter(EcgFileExploreActivity activity) {
         this.activity = activity;
+    }
+
+    public EcgFileListAdapter(EcgFileExploreActivity activity, List<EcgFile> fileList, List<File> updatedFileList) {
+        this.activity = activity;
+        this.fileList = fileList;
+        this.updatedFileList = updatedFileList;
     }
 
     @NonNull
@@ -88,7 +96,6 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
                 Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
         });
-
         return holder;
     }
 
@@ -96,6 +103,8 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
     public void onBindViewHolder(@NonNull EcgFileListAdapter.ViewHolder holder, final int position) {
         EcgFile file = fileList.get(position);
         if(file == null) return;
+
+        holder.tvModifiedTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(file.getFile().lastModified()));
 
         User fileCreator = file.getCreator();
         User account = UserManager.getInstance().getUser();
@@ -137,13 +146,11 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         return fileList.size();
     }
 
-
-    public void updateFileList(List<EcgFile> fileList) {
+    public void updateFileList(List<EcgFile> fileList, List<File> updatedFileList) {
         this.fileList = fileList;
-        updatedFileList = activity.getUpdatedFiles();
+        this.updatedFileList = updatedFileList;
         notifyDataSetChanged();
     }
-
 
     public void updateSelectedFile(EcgFile selectFile) {
         this.selectedFile = selectFile;

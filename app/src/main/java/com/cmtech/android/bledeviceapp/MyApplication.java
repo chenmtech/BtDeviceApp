@@ -3,6 +3,8 @@ package com.cmtech.android.bledeviceapp;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorFactory;
 import com.cmtech.android.bledevice.siggenerator.model.SigGeneratorFactory;
@@ -64,5 +66,17 @@ public class MyApplication extends Application {
     // 获取Application Context
     public static Context getContext() {
         return instance.getApplicationContext();
+    }
+
+    public static void showMessageUsingToast(String msg) {
+        Toast toast = Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+    }
+
+    public static void showMessageLongUsingToast(String msg) {
+        Toast toast = Toast.makeText(getContext(), msg, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 }

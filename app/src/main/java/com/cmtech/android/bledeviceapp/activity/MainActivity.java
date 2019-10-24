@@ -36,7 +36,6 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -78,6 +77,8 @@ import static com.cmtech.android.ble.core.BleDevice.MSG_BLE_INNER_ERROR;
 import static com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;
+import static com.cmtech.android.bledeviceapp.MyApplication.showMessageLongUsingToast;
+import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingToast;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
 import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_DEVICE_MAC_LIST;
 
@@ -156,8 +157,19 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         public void onReceive(Context context, Intent intent) {
             if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device.getBondState() == BluetoothDevice.BOND_BONDED && device.getAddress().equalsIgnoreCase(device.getAddress())) {
+                if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
                     Toast.makeText(context, device.getAddress() + "绑定成功。", Toast.LENGTH_SHORT).show();
+                } else if(device.getBondState() == BluetoothDevice.BOND_BONDING){
+                    Toast.makeText(context, device.getAddress() + "绑定中。", Toast.LENGTH_SHORT).show();
+                } else if(device.getBondState() == BluetoothDevice.BOND_NONE) {
+                    Toast.makeText(context, device.getAddress() + "绑定失败。", Toast.LENGTH_SHORT).show();
+                }
+            } else if(BluetoothDevice.ACTION_PAIRING_REQUEST.equals(intent.getAction())) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if(device.getBondState() != BluetoothDevice.BOND_BONDED) {
+                    String strPsw = "000000";
+                    device.setPin(strPsw.getBytes());
+                    abortBroadcast();
                 }
             }
         }
@@ -192,6 +204,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         // 登记绑定状态广播接收器
         IntentFilter bondIntent = new IntentFilter();
         bondIntent.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        bondIntent.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
         registerReceiver(bondStateReceiver, bondIntent);
 
         if(BleScanner.isBleDisabled()) {
@@ -388,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                             toolbarManager.setBattery(device.getBattery());
                         }
                     } else {
-                        Toast.makeText(MainActivity.this, "设备信息修改失败", Toast.LENGTH_SHORT).show();
+                        showMessageUsingToast("设备信息修改失败");
                     }
                 }
                 break;
@@ -541,12 +554,6 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         }
     }
 
-    private void showMessageUsingToast(String msg) {
-        Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        toast.show();
-    }
-
     // 电量更新
     @Override
     public void onBatteryUpdated(final BleDevice device) {
@@ -612,7 +619,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         if(device.isStopped()) {
             fragment.close();
         } else {
-            Toast.makeText(this, "当前无法关闭设备。", Toast.LENGTH_LONG).show();
+            showMessageLongUsingToast("当前无法关闭设备。");
         }
     }
 
@@ -626,7 +633,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         if(device == null) return;
 
         if(fragTabManager.isFragmentOpened(device)) {
-            Toast.makeText(this, "请先关闭该设备。", Toast.LENGTH_SHORT).show();
+            showMessageUsingToast("请先关闭该设备。");
             return;
         }
 
@@ -742,4 +749,5 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
     private void updateCloseMenuItemVisible(boolean canClosed) {
         toolbarManager.updateMenuItemVisible(1, canClosed);
     }
+
 }

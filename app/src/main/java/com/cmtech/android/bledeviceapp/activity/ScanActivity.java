@@ -20,12 +20,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
+import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleScanner;
-import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.BleDeviceConstant;
@@ -36,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
+import static com.cmtech.android.bledeviceapp.MyApplication.showMessageLongUsingToast;
+import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingToast;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
 
 /**
@@ -91,11 +92,11 @@ public class ScanActivity extends AppCompatActivity {
         public void onScanFailed(int errorCode) {
             switch (errorCode) {
                 case SCAN_FAILED_ALREADY_STARTED:
-                    Toast.makeText(ScanActivity.this, "扫描进行中，不能重复扫描。", Toast.LENGTH_LONG).show();
+                    showMessageLongUsingToast("扫描进行中，不能重复扫描。");
                     break;
 
                 case SCAN_FAILED_BLE_CLOSED:
-                    Toast.makeText(ScanActivity.this, "蓝牙已关闭，无法扫描，请打开蓝牙。", Toast.LENGTH_LONG).show();
+                    showMessageLongUsingToast("蓝牙已关闭，无法扫描，请打开蓝牙。");
                     srlScanDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -105,7 +106,7 @@ public class ScanActivity extends AppCompatActivity {
                 case SCAN_FAILED_BLE_INNER_ERROR:
                     srlScanDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
-                    Toast.makeText(ScanActivity.this, "蓝牙内部错误，必须重启蓝牙。", Toast.LENGTH_LONG).show();
+                    showMessageLongUsingToast("蓝牙内部错误，必须重启蓝牙。");
                     break;
             }
         }
@@ -228,6 +229,7 @@ public class ScanActivity extends AppCompatActivity {
         srlScanDevice.setRefreshing(false);
 
         if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
+            showMessageUsingToast("设备未配对，需要先配对。");
             device.getDevice().createBond();
         } else {
             registerBondedDevice(device);
@@ -259,7 +261,7 @@ public class ScanActivity extends AppCompatActivity {
         // 获取设备广播数据中的UUID的短串
         AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(record == null) {
-            Toast.makeText(this, "获取设备UUID信息错误，无法注册。", Toast.LENGTH_SHORT).show();
+            showMessageUsingToast("获取设备UUID信息错误，无法注册。");
             return;
         }
 
