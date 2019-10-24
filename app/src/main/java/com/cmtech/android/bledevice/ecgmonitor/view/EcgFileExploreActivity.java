@@ -65,22 +65,40 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     private static final int DEFAULT_LOADED_FILENUM_EACH_TIMES = 5; // 缺省每次加载的文件数
 
     private EcgFileExplorer explorer;      // 文件浏览器实例
-    private EcgFileRollWaveView signalView; // signalView
     private EcgFileListAdapter fileAdapter; // 文件Adapter
     private RecyclerView rvFiles; // 文件RecycleView
-    private EcgCommentAdapter commentAdapter; // 留言Adapter
-    private RecyclerView rvComments; // 留言RecycleView
-    private TextView tvTotalTime; // 总时长
-    private TextView tvCurrentTime; // 当前播放信号的时刻
-    private SeekBar sbReplay; // 播放条
-    private ImageButton btnSwitchReplayState; // 转换回放状态
-    private EcgHrHistogramChart hrHistChart; // 心率直方图
-    private EcgHrLineChart hrLineChart; // 心率折线图
-    private TextView tvAverageHr; // 平均心率
-    private TextView tvMaxHr; // 最大心率
-    private LinearLayout signalLayout;
-    private LinearLayout hrLayout;
-    private TextView tvPromptInfo;
+    private TextView tvPromptInfo; // 提示信息
+
+    public LinearLayout signalLayout;
+    public EcgFileRollWaveView signalView; // signalView
+    public EcgCommentAdapter commentAdapter; // 留言Adapter
+    public RecyclerView rvComments; // 留言RecycleView
+    public TextView tvTotalTime; // 总时长
+    public TextView tvCurrentTime; // 当前播放信号的时刻
+    public SeekBar sbReplay; // 播放条
+    public ImageButton btnSwitchReplayState; // 转换回放状态
+
+    public LinearLayout hrLayout;
+    public TextView tvAverageHr; // 平均心率
+    public TextView tvMaxHr; // 最大心率
+    public EcgHrLineChart hrLineChart; // 心率折线图
+    public EcgHrHistogramChart hrHistChart; // 心率直方图
+
+    public void updateSelectedComponent(EcgFileListAdapter.ViewHolder holder) {
+        signalLayout = holder.signalLayout;
+        signalView = holder.signalView;
+        commentAdapter = holder.commentAdapter;
+        rvComments = holder.rvComments;
+        tvTotalTime = holder.tvTotalTime;
+        tvCurrentTime = holder.tvCurrentTime;
+        sbReplay = holder.sbReplay;
+        btnSwitchReplayState = holder.btnSwitchReplayState;
+        hrLayout = holder.hrLayout;
+        tvAverageHr = holder.tvAverageHr;
+        tvMaxHr = holder.tvMaxHr;
+        hrLineChart = holder.hrLineChart;
+        hrHistChart = holder.hrHistChart;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,9 +117,6 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
             finish();
             return;
         }
-
-        signalLayout = findViewById(R.id.layout_ecgfile_ecgsignal);
-        hrLayout = findViewById(R.id.layout_ecgfile_hr);
 
         rvFiles = findViewById(R.id.rv_ecgfile_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
@@ -132,65 +147,13 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
             }
         });
 
-        rvComments = findViewById(R.id.rv_ecgcomment_list);
-        LinearLayoutManager commentLayoutManager = new LinearLayoutManager(this);
-        commentLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        rvComments.setLayoutManager(commentLayoutManager);
-        rvComments.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        commentAdapter = new EcgCommentAdapter(null, this);
-        rvComments.setAdapter(commentAdapter);
-
-        signalView = findViewById(R.id.rwv_ecgview);
-        signalView.setListener(this);
-
-        tvCurrentTime = findViewById(R.id.tv_current_time);
-        tvTotalTime = findViewById(R.id.tv_total_time);
-
-        btnSwitchReplayState = findViewById(R.id.ib_ecgreplay_startandstop);
-        btnSwitchReplayState.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(signalView.isStart()) {
-                    signalView.stopShow();
-                } else {
-                    signalView.startShow();
-                }
-            }
-        });
-
-        sbReplay = findViewById(R.id.sb_ecgfile);
-        sbReplay.setEnabled(false);
-        sbReplay.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if(b) {
-                    signalView.showAtSecond(i);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        ImageButton ibUpdate = findViewById(R.id.ib_update_ecgfiles);
+        ImageButton ibUpdate = findViewById(R.id.ib_update_ecgfile_list);
         ibUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 importFromWechat();
             }
         });
-
-        hrHistChart = findViewById(R.id.chart_hr_histogram);
-        hrLineChart = findViewById(R.id.linechart_hr);
-        tvAverageHr = findViewById(R.id.tv_average_hr_value);
-        tvMaxHr = findViewById(R.id.tv_max_hr_value);
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("正在载入信号");
@@ -231,7 +194,9 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     }
 
     private void importFromWechat() {
-        signalView.stopShow();
+        if(signalView != null) {
+            signalView.stopShow();
+        }
         explorer.importFromWechat();
         tvPromptInfo.setText("正在载入信号");
         new Handler(getMainLooper()).post(new Runnable() {
@@ -255,12 +220,14 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        signalView.stopShow();
+        if(signalView != null)
+            signalView.stopShow();
         explorer.close();
     }
 
     public void selectFile(EcgFile ecgFile) {
-        signalView.stopShow();
+        if(signalView != null)
+            signalView.stopShow();
         explorer.selectFile(ecgFile);
     }
 
@@ -275,7 +242,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
             public void run() {
                 fileAdapter.updateSelectedFile(selectedFile);
 
-                if(selectedFile != null) {
+                /*if(selectedFile != null) {
                     ViseLog.e("The selected file is: " + selectedFile.getFileName());
 
                     initEcgView(selectedFile, 0.5);
@@ -305,47 +272,13 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
                     updateSelectedFileHrStatisticsInfo(explorer.getSelectedFileHrStatisticsInfo());
                 } else {
-                    signalView.stopShow();
-                    signalLayout.setVisibility(View.GONE);
-                    hrLayout.setVisibility(View.GONE);
-                }
+                    if(signalView != null)
+                        signalView.stopShow();
+                    //signalLayout.setVisibility(View.GONE);
+                    //hrLayout.setVisibility(View.GONE);
+                }*/
             }
         });
-    }
-
-    private void initEcgView(EcgFile ecgFile, double zeroLocation) {
-        if(ecgFile == null) return;
-        int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;
-        int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
-        int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * ecgFile.getSampleRate())); // 计算横向分辨率
-        float vValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
-        signalView.stopShow();
-        signalView.setRes(hPixelPerData, vValuePerPixel);
-        signalView.setGridWidth(pixelPerGrid);
-        signalView.setZeroLocation(zeroLocation);
-        signalView.clearData();
-        signalView.initView();
-        signalView.setEcgFile(ecgFile);
-    }
-
-    // 获取选中文件的留言列表
-    private List<EcgNormalComment> getCommentListInFile(EcgFile ecgFile) {
-        if(ecgFile == null)
-            return new ArrayList<>();
-        else {
-            User account = UserManager.getInstance().getUser();
-            boolean found = false;
-            for(EcgNormalComment comment : ecgFile.getCommentList()) {
-                if(comment.getCreator().equals(account)) {
-                    found = true;
-                    break;
-                }
-            }
-            if(!found) {
-                ecgFile.addComment(EcgNormalComment.createDefaultComment());
-            }
-            return ecgFile.getCommentList();
-        }
     }
 
     @Override
@@ -370,6 +303,14 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     @Override
     public void onHrStatisticInfoUpdated(EcgHrStatisticsInfo hrStatisticsInfo) {
         updateSelectedFileHrStatisticsInfo(hrStatisticsInfo);
+    }
+
+    public void updateSelectedFileHrStatisticsInfo() {
+        EcgHrStatisticsInfo hrStatisticsInfo = explorer.getSelectedFileHrStatisticsInfo();
+        tvAverageHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
+        tvMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
+        hrLineChart.showLineChart(hrStatisticsInfo.getFilteredHrList(), "心率时序图", Color.BLUE);
+        hrHistChart.update(hrStatisticsInfo.getNormHistogram(HR_HISTOGRAM_BAR_NUM));
     }
 
     private void updateSelectedFileHrStatisticsInfo(EcgHrStatisticsInfo hrStatisticsInfo) {
