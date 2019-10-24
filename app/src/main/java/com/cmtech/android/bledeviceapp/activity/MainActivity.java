@@ -266,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         }
 
         User user = UserManager.getInstance().getUser();
+        user.setName("test");
         if(TextUtils.isEmpty(user.getName())) {
             Intent intent = new Intent(MainActivity.this, UserActivity.class);
             startActivityForResult(intent, RC_MODIFY_USER_INFO);

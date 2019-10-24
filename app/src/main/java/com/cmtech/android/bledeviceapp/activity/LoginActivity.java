@@ -25,6 +25,7 @@ import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -130,7 +131,9 @@ public class LoginActivity extends AppCompatActivity {
 
         // 检查权限
         checkPermissions();
+    }
 
+    private void initialize() {
         // 注册一个事件回调，用于处理SMSSDK接口请求的结果
         SMSSDK.registerEventHandler(eventHandler);
 
@@ -141,6 +144,7 @@ public class LoginActivity extends AppCompatActivity {
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         phone = pref.getString(KEY_PHONE, "");
         long lastLoginTime = pref.getLong(KEY_TIME, -1);
+        lastLoginTime = new Date(119, 9, 24).getTime();
         if(System.currentTimeMillis() - lastLoginTime < DAY_NUM*MS_PER_DAY) {
             signIn(phone, false);
         }
@@ -178,7 +182,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     // 检查权限
@@ -195,6 +198,8 @@ public class LoginActivity extends AppCompatActivity {
         }
         if(permission.size() != 0)
             ActivityCompat.requestPermissions(LoginActivity.this, permission.toArray(new String[0]), 1);
+        else
+            initialize();
     }
 
     @Override
@@ -215,6 +220,8 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 break;
         }
+
+        initialize();
     }
 
     @Override

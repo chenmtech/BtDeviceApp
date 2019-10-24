@@ -1,12 +1,8 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.ScanFilter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -62,24 +58,6 @@ public class ScanActivity extends AppCompatActivity {
     private ScannedDeviceAdapter scannedDeviceAdapter;
     private RecyclerView rvScanDevice;
     private Handler mHandle = new Handler(Looper.getMainLooper());
-
-    // 设备绑定状态广播接收器
-    private final BroadcastReceiver bondStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    for (BleDeviceDetailInfo detailInfo : scannedDeviceDetailInfoList) {
-                        if(detailInfo.getAddress().equalsIgnoreCase(device.getAddress())) {
-                            registerBondedDevice(detailInfo);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    };
 
     // 扫描回调
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
@@ -147,10 +125,6 @@ public class ScanActivity extends AppCompatActivity {
             }
         });
 
-        IntentFilter bondIntent = new IntentFilter();
-        bondIntent.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        registerReceiver(bondStateReceiver, bondIntent);
-
         startScan();
     }
 
@@ -215,8 +189,6 @@ public class ScanActivity extends AppCompatActivity {
 
         mHandle.removeCallbacksAndMessages(null);
 
-        unregisterReceiver(bondStateReceiver);
-
         if(srlScanDevice.isRefreshing())
             srlScanDevice.setRefreshing(false);
 
@@ -228,12 +200,18 @@ public class ScanActivity extends AppCompatActivity {
         BleScanner.stopScan(bleScanCallback);
         srlScanDevice.setRefreshing(false);
 
-        if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
-            showMessageUsingToast("设备未配对，需要先配对。");
-            device.getDevice().createBond();
-        } else {
-            registerBondedDevice(device);
+        // 获取设备广播数据中的UUID的短串
+        AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
+        if(record == null) {
+            showMessageUsingToast("获取设备UUID信息错误，无法注册。");
+            return;
         }
+
+        String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
+        Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
+        BleDeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(device.getAddress(), uuidShortString);
+        intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
+        startActivityForResult(intent, 1);
     }
 
     private void addDeviceDetailInfoToList(final BleDeviceDetailInfo device) {
@@ -251,24 +229,5 @@ public class ScanActivity extends AppCompatActivity {
             scannedDeviceAdapter.notifyDataSetChanged();
             rvScanDevice.scrollToPosition(scannedDeviceDetailInfoList.size()-1);
         }
-    }
-
-    private void registerBondedDevice(final BleDeviceDetailInfo device) {
-        if(device.getDevice().getBondState() != BluetoothDevice.BOND_BONDED) {
-            throw new IllegalStateException("The device is not bonded.");
-        }
-
-        // 获取设备广播数据中的UUID的短串
-        AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
-        if(record == null) {
-            showMessageUsingToast("获取设备UUID信息错误，无法注册。");
-            return;
-        }
-
-        String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
-        Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
-        BleDeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(device.getAddress(), uuidShortString);
-        intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
-        startActivityForResult(intent, 1);
     }
 }
