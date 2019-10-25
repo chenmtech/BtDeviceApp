@@ -113,7 +113,7 @@ public class OpenedEcgFilesManager {
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    delete(selectedFile);
+                    doDeleteSelectFile();
                 }
             }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
                 @Override
@@ -125,16 +125,14 @@ public class OpenedEcgFilesManager {
     }
 
     // 删除文件
-    private synchronized void delete(EcgFile file) {
+    private synchronized void doDeleteSelectFile() {
         try {
-            int index = openedFileList.indexOf(file);
-            if(index != -1) {
-                FileUtil.deleteFile(file.getFile());
-                if(openedFileList.remove(file)) {
+            if(selectedFile != null) {
+                FileUtil.deleteFile(selectedFile.getFile());
+                if(openedFileList.remove(selectedFile)) {
                     notifyFileListChanged();
                 }
-                index = (index > openedFileList.size() - 1) ? openedFileList.size() - 1 : index;
-                select((index < 0) ? null : openedFileList.get(index));
+                select(null);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -172,9 +170,6 @@ public class OpenedEcgFilesManager {
         platform.setPlatformActionListener(new PlatformActionListener() {
             @Override
             public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                //ViseLog.e("Code i = " + i);
-                //ViseLog.e("hashMap = " + hashMap);
-                //Toast.makeText(context, "微信分享成功", Toast.LENGTH_SHORT).show();
             }
             @Override
             public void onError(Platform platform, int i, Throwable throwable) {
