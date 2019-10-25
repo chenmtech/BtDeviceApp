@@ -1,8 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.EcgCalibrator65536;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.IEcgCalibrator;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -53,8 +51,8 @@ public class Value1mVDetector {
         if (this.data1mV.size() >= sampleRate) {
             device.stopDataSampling();
             int value1mV = calculateValue1mV(this.data1mV); // 计算得到实际定标前1mV值
-            device.setValue1mV(value1mV);
             ViseLog.e(this.data1mV.toString() + " " + value1mV);
+            device.setValue1mV(value1mV);
             done = true;
         }
     }

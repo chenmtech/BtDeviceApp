@@ -39,6 +39,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.View.GONE;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.HR_HISTOGRAM_BAR_NUM;
 
 
@@ -214,14 +215,21 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
         final EcgFileListAdapter.ViewHolder holder = new EcgFileListAdapter.ViewHolder(view);
         defaultBackground = holder.fileView.getBackground();
-        holder.fileView.setOnClickListener(new View.OnClickListener() {
+        holder.introLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EcgFile newSelectFile = fileList.get(holder.getAdapterPosition());
                 if(newSelectFile == selectedFile) {
-                    activity.selectFile(null);
+                    if(holder.expandLayout.getVisibility() == GONE) {
+                        holder.expandLayout.setVisibility(View.VISIBLE);
+                        holder.signalView.startShow();
+                    }
+                    else {
+                        holder.expandLayout.setVisibility(GONE);
+                        holder.signalView.stopShow();
+                    }
                 } else {
-                    activity.selectFile(fileList.get(holder.getAdapterPosition()));
+                    activity.selectFile(newSelectFile);
                 }
             }
         });
@@ -267,14 +275,14 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         if (updatedFileList.contains(file.getFile())) {
             holder.vIsUpdate.setVisibility(View.VISIBLE);
         } else {
-            holder.vIsUpdate.setVisibility(View.GONE);
+            holder.vIsUpdate.setVisibility(GONE);
         }
 
         if(file.equals(selectedFile)) {
             int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
             holder.introLayout.setBackgroundColor(bgdColor);
             holder.expandLayout.setVisibility(View.VISIBLE);
-            holder.tvArrow.setText("\u2191");
+            holder.tvArrow.setText("");
 
             if(selectedFile != null) {
                 ViseLog.e("The selected file is: " + selectedFile.getFileName());
@@ -303,13 +311,13 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
                 holder.signalView.startShow();
 
                 if(selectedFile.getDataNum() == 0) {
-                    holder.signalLayout.setVisibility(View.GONE);
+                    holder.signalLayout.setVisibility(GONE);
                 } else {
                     holder.signalLayout.setVisibility(View.VISIBLE);
                 }
 
                 if(selectedFile.getHrList().isEmpty()) {
-                    holder.hrLayout.setVisibility(View.GONE);
+                    holder.hrLayout.setVisibility(GONE);
                 } else {
                     holder.hrLayout.setVisibility(View.VISIBLE);
                 }
@@ -330,8 +338,8 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         } else {
             holder.introLayout.setBackground(defaultBackground);
             holder.signalView.stopShow();
-            holder.expandLayout.setVisibility(View.GONE);
-            holder.tvArrow.setText("\u2193");
+            holder.expandLayout.setVisibility(GONE);
+            holder.tvArrow.setText("");
         }
     }
 

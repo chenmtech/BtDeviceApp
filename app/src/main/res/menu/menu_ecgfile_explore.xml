@@ -2,16 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/explorer_update"
+        android:icon="@mipmap/ic_update_32px"
+        android:orderInCategory="0"
+        android:title= "@string/delete"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/explorer_delete"
         android:icon="@mipmap/ic_delete_32px"
-        android:orderInCategory="0"
+        android:orderInCategory="1"
         android:title= "@string/delete"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/explorer_share"
         android:icon="@mipmap/ic_share_32px"
-        android:orderInCategory="1"
+        android:orderInCategory="2"
         android:title= "@string/share"
         app:showAsAction="always">
         <menu>

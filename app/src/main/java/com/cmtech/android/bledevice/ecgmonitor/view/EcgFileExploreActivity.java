@@ -10,7 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,7 +41,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FIL
 public class EcgFileExploreActivity extends AppCompatActivity implements OpenedEcgFilesManager.OnOpenedEcgFilesListener {
     private static final String TAG = "EcgFileExploreActivity";
 
-    private static final int DEFAULT_LOADED_FILENUM_EACH_TIMES = 5; // 缺省每次加载的文件数
+    private static final int DEFAULT_LOADED_FILENUM_EACH_TIMES = 10; // 缺省每次加载的文件数
 
     private EcgFileExplorer explorer;      // 文件浏览器实例
     private EcgFileListAdapter fileAdapter; // 文件Adapter
@@ -96,14 +95,6 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
             }
         });
 
-        ImageButton ibUpdate = findViewById(R.id.ib_update_ecgfile_list);
-        ibUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                importFromWechat();
-            }
-        });
-
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("正在载入信号");
         new Handler(getMainLooper()).post(new Runnable() {
@@ -128,6 +119,10 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
             case android.R.id.home:
                 setResult(RESULT_CANCELED, null);
                 finish();
+                break;
+
+            case R.id.ecgfile_update:
+                importFromWechat();
                 break;
 
             case R.id.explorer_delete:
@@ -155,11 +150,11 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         });
     }
 
-    private void deleteSelectedFile() {
+    public void deleteSelectedFile() {
         explorer.deleteSelectFile(this);
     }
 
-    private void shareSelectedFileThroughWechat() {
+    public void shareSelectedFileThroughWechat() {
         explorer.shareSelectedFileThroughWechat(this);
     }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:toolbar="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -25,35 +25,18 @@
             android:layout_height="4dp"
             android:background="@color/primary_dark"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="记录列表"
-                android:textSize="26sp"
-                android:textColor="@color/black"/>
-            <ImageButton
-                android:id="@+id/ib_update_ecgfile_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@color/primary"
-                android:src="@mipmap/ic_update_24px"
-                android:contentDescription="@null"/>
-        </LinearLayout>
-
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_ecgfile_list"
+            <android.support.v4.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="invisible"/>
+                android:layout_height="match_parent">
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_ecgfile_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="invisible"/>
+            </android.support.v4.widget.NestedScrollView>
 
             <TextView
                 android:id="@+id/tv_prompt_info"
@@ -65,4 +48,4 @@
                 android:visibility="visible" />
         </FrameLayout>
     </LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+</LinearLayout>
