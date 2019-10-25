@@ -106,8 +106,7 @@ public class EcgFileExplorer {
 
     // 选中文件
     public void selectFile(EcgFile ecgFile) {
-        if(ecgFile != null)
-            filesManager.select(ecgFile);
+        filesManager.select(ecgFile);
     }
 
     // 删除选中文件

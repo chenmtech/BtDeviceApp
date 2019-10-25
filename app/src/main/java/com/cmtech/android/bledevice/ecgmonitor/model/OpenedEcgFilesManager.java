@@ -90,10 +90,6 @@ public class OpenedEcgFilesManager {
                 });
             }
             notifyFileListChanged();
-            if(openedFileList.size() == 1) {
-                select(ecgFile);
-            }
-            //ViseLog.e(ecgFile.toString());
         }
     }
 
