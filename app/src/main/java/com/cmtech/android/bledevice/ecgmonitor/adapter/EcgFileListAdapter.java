@@ -222,7 +222,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
                 if(newSelectFile == selectedFile) {
                     if(holder.expandLayout.getVisibility() == GONE) {
                         holder.expandLayout.setVisibility(View.VISIBLE);
-                        holder.signalView.startShow();
+                        //holder.signalView.startShow();
                     }
                     else {
                         holder.expandLayout.setVisibility(GONE);

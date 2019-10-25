@@ -175,12 +175,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
     @Override
     public void onFileSelected(final EcgFile selectedFile) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                fileAdapter.updateSelectedFile(selectedFile);
-            }
-        });
+        fileAdapter.updateSelectedFile(selectedFile);
     }
 
     @Override
