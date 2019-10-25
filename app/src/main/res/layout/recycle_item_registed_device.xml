@@ -45,7 +45,5 @@
             android:gravity="end"
             android:text="设备Mac地址"
             android:textSize="12sp"/>
-
     </LinearLayout>
-
 </LinearLayout>

@@ -76,6 +76,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         TextView tvLength; // 信号长度
         TextView tvHrNum; // 心率次数
         View vIsUpdate; // 是否已更新
+        TextView tvArrow;
         LinearLayout expandLayout;
 
         LinearLayout signalLayout;
@@ -104,6 +105,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             tvLength = fileView.findViewById(R.id.ecgfile_length);
             tvHrNum = fileView.findViewById(R.id.ecgfile_hr_num);
             vIsUpdate = fileView.findViewById(R.id.ecgfile_update);
+            tvArrow = fileView.findViewById(R.id.tv_arrow);
             expandLayout = fileView.findViewById(R.id.layout_ecgfile_expand_part);
 
             signalLayout = fileView.findViewById(R.id.layout_ecgfile_signal);
@@ -272,6 +274,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
             holder.introLayout.setBackgroundColor(bgdColor);
             holder.expandLayout.setVisibility(View.VISIBLE);
+            holder.tvArrow.setText("\u2191");
 
             if(selectedFile != null) {
                 ViseLog.e("The selected file is: " + selectedFile.getFileName());
@@ -328,6 +331,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             holder.introLayout.setBackground(defaultBackground);
             holder.signalView.stopShow();
             holder.expandLayout.setVisibility(View.GONE);
+            holder.tvArrow.setText("\u2193");
         }
     }
 
