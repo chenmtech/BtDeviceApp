@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
+import com.cmtech.android.ble.BleConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorFactory;
 import com.cmtech.android.bledevice.siggenerator.model.SigGeneratorFactory;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidFactory;
@@ -16,6 +17,7 @@ import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
 
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.AUTO_SCAN_INTERVAL;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CONNECT_TIMEOUT;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DATA_OPERATE_TIMEOUT;
 
@@ -37,8 +39,9 @@ public class MyApplication extends Application {
         instance = this;
 
         // BLE包配置
-        BleDeviceConfig.setConnectTimeout(CONNECT_TIMEOUT);
-        BleDeviceConfig.setDataOperateTimeout(DATA_OPERATE_TIMEOUT);
+        BleConfig.getInstance().setConnectTimeout(CONNECT_TIMEOUT);
+        BleConfig.getInstance().setDataOperateTimeout(DATA_OPERATE_TIMEOUT);
+        BleConfig.getInstance().setAutoScanInterval(AUTO_SCAN_INTERVAL);
 
         BleDeviceConfig.addSupportedDeviceType(EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE);
         BleDeviceConfig.addSupportedDeviceType(TempHumidFactory.TEMPHUMID_DEVICE_TYPE);

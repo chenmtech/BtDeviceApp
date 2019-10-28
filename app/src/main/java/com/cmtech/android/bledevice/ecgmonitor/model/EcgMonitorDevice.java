@@ -583,7 +583,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        sendExceptionMessage(R.string.record_ecg_signal_failed);
+                        notifyExceptionMessage(R.string.record_ecg_signal_failed);
                     }
                 });
             }

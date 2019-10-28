@@ -10,16 +10,6 @@ import com.cmtech.android.bledeviceapp.model.BleDeviceType;
  */
 
 public class BleDeviceConfig {
-    // 配置连接超时时间
-    public static void setConnectTimeout(int connectTimeout) {
-        BleConfig.getInstance().setConnectTimeout(connectTimeout);
-    }
-
-    // 配置数据操作超时时间
-    public static void setDataOperateTimeout(int operateTimeout) {
-        BleConfig.getInstance().setDataOperateTimeout(operateTimeout);
-    }
-
     // 添加支持的设备类型
     public static void addSupportedDeviceType(BleDeviceType deviceType) {
         BleDeviceType.addSupportedType(deviceType);
