@@ -28,15 +28,11 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <android.support.v4.widget.NestedScrollView
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_ecgfile_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_ecgfile_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="invisible"/>
-            </android.support.v4.widget.NestedScrollView>
+                android:layout_height="match_parent"
+                android:visibility="invisible"/>
 
             <TextView
                 android:id="@+id/tv_prompt_info"

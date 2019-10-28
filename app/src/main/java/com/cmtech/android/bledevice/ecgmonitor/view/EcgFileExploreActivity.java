@@ -1,10 +1,12 @@
 package com.cmtech.android.bledevice.ecgmonitor.view;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -47,6 +49,20 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     private EcgFileListAdapter fileAdapter; // 文件Adapter
     private RecyclerView rvFiles; // 文件RecycleView
     private TextView tvPromptInfo; // 提示信息
+
+    public class TopSmoothScroller extends LinearSmoothScroller {
+        TopSmoothScroller(Context context) {
+            super(context);
+        }
+        @Override
+        protected int getHorizontalSnapPreference() {
+            return SNAP_TO_START;//具体见源码注释
+        }
+        @Override
+        protected int getVerticalSnapPreference() {
+            return SNAP_TO_START;//具体见源码注释
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +110,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
                     lastVisibleItem = layoutManager.findLastVisibleItemPosition();
             }
         });
+        rvFiles.setNestedScrollingEnabled(false);
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("正在载入信号");
@@ -165,8 +182,10 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         explorer.close();
     }
 
-    public void selectFile(EcgFile ecgFile) {
+    public void selectFile(final EcgFile ecgFile) {
+
         explorer.selectFile(ecgFile);
+
     }
 
     public List<File> getUpdatedFiles() {
@@ -176,6 +195,12 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     @Override
     public void onFileSelected(final EcgFile selectedFile) {
         fileAdapter.updateSelectedFile(selectedFile);
+
+        if(selectedFile != null) {
+            TopSmoothScroller smoothScroller = new TopSmoothScroller(EcgFileExploreActivity.this);
+            smoothScroller.setTargetPosition(fileAdapter.getItemPosition(selectedFile));
+            rvFiles.getLayoutManager().startSmoothScroll(smoothScroller);
+        }
     }
 
     @Override

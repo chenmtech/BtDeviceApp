@@ -387,4 +387,8 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             }
         }
     }
+
+    public int getItemPosition(EcgFile file) {
+        return fileList.indexOf(file);
+    }
 }
