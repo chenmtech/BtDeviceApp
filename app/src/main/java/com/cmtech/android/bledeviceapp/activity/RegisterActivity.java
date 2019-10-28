@@ -64,7 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
         }
-        if(DIR_IMAGE == null || (!DIR_IMAGE.exists() && !DIR_IMAGE.mkdir())) {
+        if(DIR_IMAGE == null || !DIR_IMAGE.exists()) {
             Toast.makeText(this, "图像目录错误。", Toast.LENGTH_SHORT).show();
             finish();
             return;

@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG_SIGNAL;
 
 /**
   *
@@ -58,7 +58,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         setSupportActionBar(toolbar);
 
         try {
-            explorer = new EcgFileExplorer(ECG_FILE_DIR, EcgFileExplorer.FILE_ORDER_MODIFIED_TIME, this);
+            explorer = new EcgFileExplorer(DIR_ECG_SIGNAL, EcgFileExplorer.FILE_ORDER_MODIFIED_TIME, this);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "心电记录目录错误。", Toast.LENGTH_SHORT).show();

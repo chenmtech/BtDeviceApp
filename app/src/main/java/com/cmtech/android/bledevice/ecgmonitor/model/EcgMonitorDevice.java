@@ -30,7 +30,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static com.cmtech.android.ble.BleConfig.CCC_UUID;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.ECG_FILE_DIR;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
@@ -267,8 +267,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 if(isSaveFile) {
                     saveEcgFile();
                     ecgFile.close();
-                    if(ECG_FILE_DIR != null) {
-                        File toFile = FileUtil.getFile(ECG_FILE_DIR, ecgFile.getFile().getName());
+                    if(DIR_ECG_SIGNAL != null) {
+                        File toFile = FileUtil.getFile(DIR_ECG_SIGNAL, ecgFile.getFile().getName());
                         FileUtil.moveFile(ecgFile.getFile(), toFile);
                     }
                 }

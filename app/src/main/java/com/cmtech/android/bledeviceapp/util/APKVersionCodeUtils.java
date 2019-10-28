@@ -3,13 +3,9 @@ package com.cmtech.android.bledeviceapp.util;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
-/**
- * Created by Laizhen on 2017/4/21.
- */
-
 public class APKVersionCodeUtils {
     /**
-     * 获取当前本地apk的版本
+     * 获取apk的数字版本
      *
      * @param mContext
      * @return
@@ -17,7 +13,6 @@ public class APKVersionCodeUtils {
     public static int getVersionCode(Context mContext) {
         int versionCode = 0;
         try {
-            //获取软件版本号，对应AndroidManifest.xml下android:versionCode
             versionCode = mContext.getPackageManager().
                     getPackageInfo(mContext.getPackageName(), 0).versionCode;
         } catch (PackageManager.NameNotFoundException e) {
@@ -27,7 +22,7 @@ public class APKVersionCodeUtils {
     }
 
     /**
-     * 获取版本号名称
+     * 获取apk版本名称
      *
      * @param context 上下文
      * @return

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.WECHAT_DOWNLOAD_DIR;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_WECHAT_DOWNLOAD;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.MACADDRESS_CHAR_NUM;
 
 /**
@@ -117,8 +117,7 @@ public class EcgFileExplorer {
     // 从微信导入文件
     public void importFromWechat() {
         filesManager.close();
-        File weChatDir = new File(WECHAT_DOWNLOAD_DIR);
-        List<File> updated = importFiles(weChatDir, ecgFileDir);
+        List<File> updated = importFiles(DIR_WECHAT_DOWNLOAD, ecgFileDir);
         if(updated != null && !updated.isEmpty()) {
             updatedFiles.addAll(updated);
         }
