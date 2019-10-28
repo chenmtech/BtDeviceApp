@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="2dp">
-    <!--文件介绍部分-->
+    <!--记录简介部分-->
     <LinearLayout
-        android:id="@+id/layout_ecgfile_introduction"
+        android:id="@+id/layout_ecg_record_introduction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
@@ -131,7 +131,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text=""
-            android:textSize="20dp"/>
+            android:textSize="20sp"/>
     </LinearLayout>
 
     <LinearLayout

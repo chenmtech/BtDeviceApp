@@ -7,11 +7,10 @@
     <string name="scan_device">扫描设备</string>
     <string name="query_record">查阅记录</string>
     <string name="open_news">康明新闻</string>
-    <string name="delete">删除</string>
-    <string name="share">分享</string>
-    <string name="record_ecg_signal_failed">无法记录心电信号</string>
-    <string name="no_record_currently">当前无记录</string>
+    <string name="delete">delete</string>
+    <string name="share">share</string>
+    <string name="record_ecg_signal_failed">The ECG signal can\'t be recorded.</string>
+    <string name="no_record_currently">No Record Currently</string>
     <drawable name="clr_normal">@color/accent</drawable>
     <drawable name="clr_pressed">@color/red</drawable>
-
 </resources>

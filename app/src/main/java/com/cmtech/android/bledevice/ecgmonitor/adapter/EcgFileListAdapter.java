@@ -98,7 +98,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             super(itemView);
             fileView = itemView;
 
-            introLayout = fileView.findViewById(R.id.layout_ecgfile_introduction);
+            introLayout = fileView.findViewById(R.id.layout_ecg_record_introduction);
             tvModifyTime = fileView.findViewById(R.id.tv_modify_time);
             tvCreator = fileView.findViewById(R.id.ecgfile_creator);
             tvCreateTime = fileView.findViewById(R.id.ecgfile_createtime);
@@ -210,7 +210,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
     @Override
     public EcgFileListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_ecg_file, parent, false);
+                .inflate(R.layout.recycle_item_ecg_record, parent, false);
 
         final EcgFileListAdapter.ViewHolder holder = new EcgFileListAdapter.ViewHolder(view);
         defaultBackground = holder.fileView.getBackground();

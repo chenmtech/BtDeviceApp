@@ -67,10 +67,10 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ecgfile_explorer);
+        setContentView(R.layout.activity_ecg_record_explorer);
 
         // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_ecgfile_explorer);
+        Toolbar toolbar = findViewById(R.id.tb_ecg_record_explorer);
         setSupportActionBar(toolbar);
 
         try {
@@ -82,7 +82,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
             return;
         }
 
-        rvFiles = findViewById(R.id.rv_ecgfile_list);
+        rvFiles = findViewById(R.id.rv_ecg_record_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvFiles.setLayoutManager(fileLayoutManager);
