@@ -110,7 +110,6 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
                     lastVisibleItem = layoutManager.findLastVisibleItemPosition();
             }
         });
-        rvFiles.setNestedScrollingEnabled(false);
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("正在载入信号");
@@ -183,9 +182,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     }
 
     public void selectFile(final EcgFile ecgFile) {
-
         explorer.selectFile(ecgFile);
-
     }
 
     public List<File> getUpdatedFiles() {
