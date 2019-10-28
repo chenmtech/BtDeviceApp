@@ -59,7 +59,6 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
     private final EcgFileExploreActivity activity;
     private List<EcgFile> fileList = new ArrayList<>();
     private List<File> updatedFileList = new ArrayList<>();
-    private EcgHrStatisticsInfo hrStatisticsInfo;
     private EcgFile selectedFile;
     private Drawable defaultBackground; // 缺省背景
 
@@ -322,7 +321,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
                     holder.hrLayout.setVisibility(View.VISIBLE);
                 }
 
-                hrStatisticsInfo = activity.getSelectedFileHrStatisticsInfo();
+                EcgHrStatisticsInfo hrStatisticsInfo = activity.getSelectedFileHrStatisticsInfo();
                 if(hrStatisticsInfo != null) {
                     holder.tvAverageHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
                     holder.tvMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
