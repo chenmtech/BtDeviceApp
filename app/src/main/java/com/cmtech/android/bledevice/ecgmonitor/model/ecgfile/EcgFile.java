@@ -157,7 +157,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         // 创建bmeFileHead文件头
         BmeFileHead30 bmeFileHead = new BmeFileHead30("an ecg file", BmeFileDataType.INT32, sampleRate, value1mV, fileCreateTime);
         // 创建ecgFileHead文件头
-        String simpleMacAddress = EcgMonitorUtil.cutColonInMacAddress(macAddress);
+        String simpleMacAddress = EcgMonitorUtil.cutMacAddressColon(macAddress);
         EcgFileHead ecgFileHead = new EcgFileHead(UserManager.getInstance().getUser(), simpleMacAddress, leadType);
         // 创建ecgFile
         String fileName = EcgMonitorUtil.makeFileName(macAddress, fileCreateTime);

@@ -97,7 +97,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         fragViewPager.setAdapter(fragAdapter);
         fragTabLayout.setupWithViewPager(fragViewPager);
         updateDeviceState(device.getEcgMonitorState());
-        device.setEcgMonitorListener(this);
+        device.setListener(this);
         ecgView.setListener(this);
     }
 
@@ -165,7 +165,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         super.onDestroy();
 
         if(device != null)
-            device.removeEcgMonitorListener();
+            device.removeListener();
         if(hrAbnormalWarnAudio != null)
             hrAbnormalWarnAudio.stop();
 
@@ -173,7 +173,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onDeviceStateUpdated(final EcgMonitorState state) {
+    public void onStateUpdated(final EcgMonitorState state) {
         updateDeviceState(state);
     }
 
@@ -182,27 +182,27 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onSampleRateChanged(final int sampleRate) {
+    public void onSampleRateUpdated(final int sampleRate) {
         tvSampleRate.setText(String.valueOf(sampleRate));
     }
 
     @Override
-    public void onLeadTypeChanged(final EcgLeadType leadType) {
+    public void onLeadTypeUpdated(final EcgLeadType leadType) {
         tvLeadType.setText(String.format("L%s", leadType.getDescription()));
     }
 
     @Override
-    public void onValue1mVChanged(final int value1mV, final int value1mVAfterCalibration) {
+    public void onValue1mVUpdated(final int value1mV, final int value1mVAfterCalibration) {
         tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", value1mV, value1mVAfterCalibration));
     }
 
     @Override
-    public void onSignalRecordStateUpdated(final boolean isRecord) {
+    public void onRecordStateUpdated(final boolean isRecord) {
         signalRecordFragment.setSignalRecordStatus(isRecord);
     }
 
     @Override
-    public void onEcgViewSetupUpdated(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
+    public void onSignalShowSetupUpdated(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
         updateEcgViewSetup(xPixelPerData, yValuePerPixel, gridPixels);
     }
 
@@ -218,7 +218,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onEcgSignalUpdated(final int ecgSignal) {
+    public void onEcgSignalShowed(final int ecgSignal) {
         ecgView.showData(ecgSignal);
     }
 
@@ -233,12 +233,12 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onSignalRecordSecondChanged(final int second) {
+    public void onRecordSecondUpdated(final int second) {
         signalRecordFragment.setSignalSecNum(second);
     }
 
     @Override
-    public void onHrChanged(final int hr) {
+    public void onHrUpdated(final int hr) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -258,7 +258,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onBatteryChanged(final int bat) {
+    public void onBatteryUpdated(final int bat) {
 
     }
 

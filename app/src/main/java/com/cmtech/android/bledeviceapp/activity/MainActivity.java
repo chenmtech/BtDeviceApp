@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                 if(state == STATE_ON) {
                     BleScanner.clearInnerError();
-                    BleScanner.clearScanTimes();
+                    BleScanner.resetScanTimes();
                     Toast.makeText(context, "蓝牙已开启。", Toast.LENGTH_SHORT).show();
                 } else if(state == STATE_OFF) {
                     Toast.makeText(context, "蓝牙已关闭。", Toast.LENGTH_SHORT).show();

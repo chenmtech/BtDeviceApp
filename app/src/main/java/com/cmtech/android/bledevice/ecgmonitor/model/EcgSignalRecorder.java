@@ -5,8 +5,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 
 import java.io.IOException;
 
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
-
 /**
  * EcgSignalRecorder: 心电信号记录仪，包含心电信号的文件记录，以及留言信息的管理
  * Created by Chenm, 2018-12-27
@@ -18,7 +16,7 @@ public class EcgSignalRecorder {
     private final EcgNormalComment comment; // 当前信号的一般性留言
     private final int sampleRate; // 采样频率
     private int dataNum = 0; // 记录的数据个数
-    private boolean isRecord = false; // 是否记录
+    private boolean isRecording = false; // 是否记录
 
     public EcgSignalRecorder(EcgMonitorDevice device) {
         if(device == null || device.getEcgFile() == null) {
@@ -43,15 +41,15 @@ public class EcgSignalRecorder {
     public EcgNormalComment getComment() {
         return comment;
     }
-    public boolean isRecord() {
-        return isRecord;
+    public boolean isRecording() {
+        return isRecording;
     }
-    public synchronized void setRecord(boolean record){
-        isRecord = record;
-        if(isRecord) {
+    public synchronized void setRecording(boolean recording){
+        isRecording = recording;
+        if(isRecording) {
             try {
-                ecgFile.writeData(device.getCaliData1mV());
-                dataNum += device.getCaliData1mV().length;
+                ecgFile.writeData(device.getWaveData1mV());
+                dataNum += device.getWaveData1mV().length;
                 device.updateRecordSecond(getSecond());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -61,7 +59,7 @@ public class EcgSignalRecorder {
 
    // 记录心电信号
     public synchronized void record(int ecgSignal) throws IOException{
-        if(isRecord) {
+        if(isRecording) {
             ecgFile.writeData(ecgSignal);
             dataNum++;
             device.updateRecordSecond(getSecond());
@@ -70,7 +68,7 @@ public class EcgSignalRecorder {
 
     // 添加留言的内容
     public void addCommentContent(String content) {
-        if(isRecord)
+        if(isRecording)
             comment.appendContent(content);
     }
 }

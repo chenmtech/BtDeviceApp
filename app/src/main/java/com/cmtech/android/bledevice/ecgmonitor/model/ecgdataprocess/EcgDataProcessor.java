@@ -27,18 +27,18 @@ public class EcgDataProcessor {
     private static final int INVALID_PACKAGE_NUM = -1;
 
     private final EcgMonitorDevice device;
-    private final Value1mVDetector value1MVDetector; // 1mV值检测器
+    private final Value1mVDetector value1mVDetector; // 1mV值检测器
     private final EcgSignalProcessor signalProcessor; // 心电信号处理器
     private int nextPackageNum = INVALID_PACKAGE_NUM; // 下一个待处理的数据包序号
     private ExecutorService dataProcService; // 数据处理Service
 
     public EcgDataProcessor(EcgMonitorDevice device) {
         if(device == null) {
-            throw new IllegalArgumentException("The device is null.");
+            throw new NullPointerException("The device is null.");
         }
 
         this.device = device;
-        value1MVDetector = new Value1mVDetector(device);
+        value1mVDetector = new Value1mVDetector(device);
         signalProcessor = new EcgSignalProcessor(device);
     }
 
@@ -48,7 +48,7 @@ public class EcgDataProcessor {
         resetHrStatisticProcessor();
     }
     public void resetValue1mVDetector() {
-        this.value1MVDetector.reset();
+        this.value1mVDetector.reset();
     }
     public void resetSignalProcessor() {
         signalProcessor.reset();
@@ -93,7 +93,7 @@ public class EcgDataProcessor {
                         int[] pack = resolveDataToPackage(data);
                         for (int ele : pack) {
                             if(isValue1mV) {
-                                value1MVDetector.process(ele);
+                                value1mVDetector.process(ele);
                             } else {
                                 signalProcessor.process(ele);
                             }
@@ -103,7 +103,7 @@ public class EcgDataProcessor {
                         if(nextPackageNum != INVALID_PACKAGE_NUM) {
                             ViseLog.e("数据包丢失！！！");
                             nextPackageNum = INVALID_PACKAGE_NUM;
-                            device.requestDisconnect(false);
+                            device.callDisconnect(false);
                         }
                     }
                 }

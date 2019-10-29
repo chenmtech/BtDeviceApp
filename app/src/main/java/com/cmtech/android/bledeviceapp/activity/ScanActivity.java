@@ -69,11 +69,11 @@ public class ScanActivity extends AppCompatActivity {
         @Override
         public void onScanFailed(int errorCode) {
             switch (errorCode) {
-                case SCAN_FAILED_ALREADY_STARTED:
+                case CODE_ALREADY_STARTED:
                     showMessageLongUsingToast("扫描进行中，不能重复扫描。");
                     break;
 
-                case SCAN_FAILED_BLE_CLOSED:
+                case CODE_BLE_CLOSED:
                     showMessageLongUsingToast("蓝牙已关闭，无法扫描，请打开蓝牙。");
                     srlScanDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
@@ -81,7 +81,7 @@ public class ScanActivity extends AppCompatActivity {
                     startActivity(intent);
                     break;
 
-                case SCAN_FAILED_BLE_INNER_ERROR:
+                case CODE_BLE_INNER_ERROR:
                     srlScanDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
                     showMessageLongUsingToast("蓝牙内部错误，必须重启蓝牙。");

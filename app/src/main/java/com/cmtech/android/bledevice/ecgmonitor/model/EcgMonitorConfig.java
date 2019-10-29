@@ -39,7 +39,7 @@ public class EcgMonitorConfig extends LitePalSupport implements Serializable {
     public void setMacAddress(String macAddress) {
         this.macAddress = macAddress;
     }
-    public boolean isWarnWhenHrAbnormal() {
+    public boolean warnWhenHrAbnormal() {
         return warnWhenHrAbnormal;
     }
     public void setWarnWhenHrAbnormal(boolean warnWhenHrAbnormal) {
@@ -62,5 +62,12 @@ public class EcgMonitorConfig extends LitePalSupport implements Serializable {
     }
     public void setMarkerList(List<String> markerList) {
         Collections.copy(this.markerList, markerList);
+    }
+
+    public void copyFrom(EcgMonitorConfig config) {
+        warnWhenHrAbnormal = config.warnWhenHrAbnormal;
+        hrLowLimit = config.hrLowLimit;
+        hrHighLimit = config.hrHighLimit;
+        setMarkerList(config.getMarkerList());
     }
 }

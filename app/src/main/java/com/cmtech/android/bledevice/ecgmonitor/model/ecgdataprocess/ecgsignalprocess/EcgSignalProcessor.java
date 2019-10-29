@@ -54,7 +54,7 @@ public class EcgSignalProcessor {
         hrProcessorMap = new ConcurrentHashMap<>();
         HrStatisticProcessor hrStatisticProcessor = new HrStatisticProcessor(HR_FILTER_SECOND, device);
         hrProcessorMap.put(HR_STATISTICS_PROCESSOR_KEY, hrStatisticProcessor);
-        if(device.getConfig().isWarnWhenHrAbnormal()) {
+        if(device.getConfig().warnWhenHrAbnormal()) {
             HrAbnormalProcessor hrAbnormalProcessor = new HrAbnormalProcessor(device);
             hrProcessorMap.put(HR_ABNORMAL_PROCESSOR_KEY, hrAbnormalProcessor);
         }
@@ -71,7 +71,7 @@ public class EcgSignalProcessor {
     public void resetHrAbnormalProcessor() {
         HrAbnormalProcessor hrAbnormalProcessor = (HrAbnormalProcessor) hrProcessorMap.get(HR_ABNORMAL_PROCESSOR_KEY);
 
-        if (device.getConfig().isWarnWhenHrAbnormal()) {
+        if (device.getConfig().warnWhenHrAbnormal()) {
             if (hrAbnormalProcessor != null) {
                 hrAbnormalProcessor.reset();
             } else {

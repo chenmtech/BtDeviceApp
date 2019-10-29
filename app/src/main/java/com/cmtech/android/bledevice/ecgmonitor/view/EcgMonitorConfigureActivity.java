@@ -46,7 +46,7 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
             throw new IllegalStateException("The configure of device is null.");
         }
 
-        configBackup.setWarnWhenHrAbnormal(config.isWarnWhenHrAbnormal());
+        configBackup.setWarnWhenHrAbnormal(config.warnWhenHrAbnormal());
         configBackup.setHrLowLimit(config.getHrLowLimit());
         configBackup.setHrHighLimit(config.getHrHighLimit());
 
@@ -54,7 +54,7 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
         setTitle(deviceNickName + "：" + config.getMacAddress());
 
         cbIsWarnWhenHrAbnormal = findViewById(R.id.cb_ecgmonitor_warnwhenhrabnormal);
-        cbIsWarnWhenHrAbnormal.setChecked(config.isWarnWhenHrAbnormal());
+        cbIsWarnWhenHrAbnormal.setChecked(config.warnWhenHrAbnormal());
 
         etHrLowLimit = findViewById(R.id.et_hr_low_limit);
         etHrLowLimit.setText(String.valueOf(config.getHrLowLimit()));
