@@ -55,13 +55,11 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     private TextView tvLeadType; // 导联类型
     private TextView tvValue1mV; // 1mV值
     private TextView tvHeartRate; // 心率值
-    private TextView tvPauseShowing;
+    private TextView tvPauseShowing; // 暂停显示提示
     private ScanWaveView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
     private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
-    private final List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(signalRecordFragment, hrStatisticsFragment));
-    private final List<String> titleList = new ArrayList<>(Arrays.asList("信号记录", "心率统计"));
     private EcgMonitorDevice device; // 设备
 
     public EcgMonitorFragment() {
@@ -93,12 +91,18 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         initialEcgView();
         ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
         TabLayout fragTabLayout = view.findViewById(R.id.tl_ecg_controller);
+        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(signalRecordFragment, hrStatisticsFragment));
+        List<String> titleList = new ArrayList<>(Arrays.asList(EcgSignalRecordFragment.TITLE, EcgHrStatisticsFragment.TITLE));
         EcgControllerAdapter fragAdapter = new EcgControllerAdapter(getChildFragmentManager(), fragmentList, titleList);
         fragViewPager.setAdapter(fragAdapter);
         fragTabLayout.setupWithViewPager(fragViewPager);
         updateDeviceState(device.getEcgMonitorState());
         device.setListener(this);
         ecgView.setListener(this);
+    }
+
+    private void initialEcgView() {
+        updateEcgViewSetup(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
     }
 
     @Override
@@ -211,10 +215,6 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         ecgView.setPixelPerGrid(gridPixels);
         ecgView.setZeroLocation(0.5);
         ecgView.initialize();
-    }
-
-    private void initialEcgView() {
-        updateEcgViewSetup(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
     }
 
     @Override

@@ -26,6 +26,7 @@ import com.cmtech.android.bledeviceapp.R;
  * Version:        1.0
  */
 public class EcgHrStatisticsFragment extends Fragment {
+    public static final String TITLE = "心率统计";
     private TextView tvAverageHr; // 平均心率
     private TextView tvMaxHr; // 最大心率
     private EcgHrLineChart hrLineChart;

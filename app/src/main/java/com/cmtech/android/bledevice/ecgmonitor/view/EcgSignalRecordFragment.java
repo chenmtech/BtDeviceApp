@@ -38,6 +38,7 @@ import java.util.List;
  * Version:        1.0
  */
 public class EcgSignalRecordFragment extends Fragment{
+    public static final String TITLE = "信号记录";
     private ImageButton ibRecord; // 切换记录信号状态
     private TextView tvRecordTime; // 记录信号时长
     private RecyclerView rvMarker; // 标记recycleview
