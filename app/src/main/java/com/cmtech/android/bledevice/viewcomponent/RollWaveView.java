@@ -313,18 +313,6 @@ public class RollWaveView extends View {
             else
                 paint.setStrokeWidth(1);
         }
-
-        // 画定标脉冲
-/*        mainPaint.setStrokeWidth(2);
-		mainPaint.setColor(Color.BLACK);
-		c.drawLine(0, initY, 2*gridWidth, initY, mainPaint);
-		c.drawLine(2*gridWidth, initY, 2*gridWidth, initY-10*gridWidth, mainPaint);
-		c.drawLine(2*gridWidth, initY-10*gridWidth, 7*gridWidth, initY-10*gridWidth, mainPaint);
-        c.drawLine(7*gridWidth, initY-10*gridWidth, 7*gridWidth, initY, mainPaint);
-        c.drawLine(7*gridWidth, initY, 10*gridWidth, initY, mainPaint);*/
-
-        //mainPaint.setColor(waveColor);
-        //mainPaint.setStrokeWidth(2);
     }
 
     public void setListener(OnRollWaveViewListener listener) {
