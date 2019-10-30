@@ -113,14 +113,14 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("正在载入信号");
-        new Handler(getMainLooper()).post(new Runnable() {
+        new Handler(getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
                 if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
                     tvPromptInfo.setText("无信号可载入。");
                 }
             }
-        });
+        }, 300);
     }
 
     @Override
@@ -154,6 +154,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     }
 
     private void importFromWechat() {
+        fileAdapter.clear();
         explorer.importFromWechat();
         tvPromptInfo.setText("正在载入信号");
         new Handler(getMainLooper()).post(new Runnable() {
@@ -198,6 +199,20 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
             smoothScroller.setTargetPosition(fileAdapter.getItemPosition(selectedFile));
             if(rvFiles.getLayoutManager() != null)
                 rvFiles.getLayoutManager().startSmoothScroll(smoothScroller);
+        }
+    }
+
+    @Override
+    public void onFileInserted(final EcgFile ecgFile) {
+        if(ecgFile != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    rvFiles.setVisibility(View.VISIBLE);
+                    tvPromptInfo.setVisibility(View.INVISIBLE);
+                    fileAdapter.insertNewFile(ecgFile);
+                }
+            });
         }
     }
 

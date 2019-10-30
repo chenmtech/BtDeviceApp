@@ -62,12 +62,12 @@ public class EcgFileExplorer {
         this.ecgFileDir = ecgFileDir;
         this.fileOrder = fileOrder;
         filesManager = new OpenedEcgFilesManager(fileOrder, listener);
-        getFileList(fileOrder);
+        updateFileList(fileOrder);
         updatedFiles = new ArrayList<>();
     }
 
     // 获取文件列表，并排序
-    private void getFileList(final int fileOrder) {
+    private void updateFileList(final int fileOrder) {
         List<File> fileList = BmeFileUtil.listDirBmeFiles(ecgFileDir);
         Collections.sort(fileList, new Comparator<File>() {
             @Override
@@ -121,7 +121,7 @@ public class EcgFileExplorer {
         if(updated != null && !updated.isEmpty()) {
             updatedFiles.addAll(updated);
         }
-        getFileList(fileOrder);
+        updateFileList(fileOrder);
     }
 
     // 导入新文件或者修改发生变化的文件

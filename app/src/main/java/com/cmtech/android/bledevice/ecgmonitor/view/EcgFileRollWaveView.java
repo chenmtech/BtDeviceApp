@@ -140,7 +140,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
     }
 
     public void startShow() {
-        if(!replaying) {
+        if(!replaying && ecgFile != null) {
             if(ecgFile.isEOD()) {
                 ecgFile.seekData(0);
                 clearData();

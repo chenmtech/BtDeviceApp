@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,7 +25,6 @@ import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
-import static com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorer.FILE_ORDER_CREATED_TIME;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.HR_FILTER_SECOND;
 
 /**
@@ -72,25 +70,9 @@ public class OpenedEcgFilesManager {
         if(!contain) {
             EcgFile ecgFile = EcgFile.open(file.getCanonicalPath());
             openedFileList.add(ecgFile);
-            if(openedFileList.size() > 1) {
-                Collections.sort(openedFileList, new Comparator<EcgFile>() {
-                    @Override
-                    public int compare(EcgFile o1, EcgFile o2) {
-                        long time1;
-                        long time2;
-                        if(fileOrder == FILE_ORDER_CREATED_TIME) {
-                            time1 = o1.getCreatedTime();
-                            time2 = o2.getCreatedTime();
-                        } else {
-                            time1 = o1.getFile().lastModified();
-                            time2 = o2.getFile().lastModified();
-                        }
-                        if(time1 == time2) return 0;
-                        return (time2 > time1) ? 1 : -1;
-                    }
-                });
-            }
-            notifyFileListChanged();
+            //notifyFileListChanged();
+            if(listener != null)
+                listener.onFileInserted(ecgFile);
         }
     }
 

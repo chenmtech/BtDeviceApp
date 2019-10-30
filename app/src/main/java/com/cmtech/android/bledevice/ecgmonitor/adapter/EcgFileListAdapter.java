@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.HR_HISTOGRAM_BAR_NUM;
 
 
@@ -57,11 +58,13 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 
 public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.ViewHolder>{
     private final EcgFileExploreActivity activity;
-    private List<EcgFile> fileList = new ArrayList<>();
+    private List<EcgFile> ecgFileList = new ArrayList<>();
     private List<File> updatedFileList = new ArrayList<>();
-    private EcgFile selectedFile;
+    private EcgFile selectedEcgFile;
     private Drawable defaultBackground; // 缺省背景
     private EcgFileRollWaveView signalView;
+    private int expandVisibility = GONE;
+    private int curSelectedPos = -1;
 
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
@@ -201,9 +204,9 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         this.activity = activity;
     }
 
-    public EcgFileListAdapter(EcgFileExploreActivity activity, List<EcgFile> fileList, List<File> updatedFileList) {
+    public EcgFileListAdapter(EcgFileExploreActivity activity, List<EcgFile> ecgFileList, List<File> updatedFileList) {
         this.activity = activity;
-        this.fileList = fileList;
+        this.ecgFileList = ecgFileList;
         this.updatedFileList = updatedFileList;
     }
 
@@ -215,19 +218,17 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
         final EcgFileListAdapter.ViewHolder holder = new EcgFileListAdapter.ViewHolder(view);
         defaultBackground = holder.fileView.getBackground();
-        holder.introLayout.setOnClickListener(new View.OnClickListener() {
+        holder.tvArrow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EcgFile newSelectFile = fileList.get(holder.getAdapterPosition());
-                if(newSelectFile == selectedFile) {
+                EcgFile newSelectFile = ecgFileList.get(holder.getAdapterPosition());
+                if(newSelectFile == selectedEcgFile) {
                     if(holder.expandLayout.getVisibility() == GONE) {
-                        holder.expandLayout.setVisibility(View.VISIBLE);
-                        //holder.signalView.startShow();
+                        setExpandLayoutVisibility(holder, VISIBLE);
+                    } else {
+                        setExpandLayoutVisibility(holder, GONE);
                     }
-                    else {
-                        holder.expandLayout.setVisibility(GONE);
-                        holder.signalView.stopShow();
-                    }
+                    expandVisibility = holder.expandLayout.getVisibility();
                 } else {
                     activity.selectFile(newSelectFile);
                 }
@@ -236,7 +237,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         holder.tvCreator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EcgFile file = fileList.get(holder.getAdapterPosition());
+                EcgFile file = ecgFileList.get(holder.getAdapterPosition());
                 User creator = file.getCreator();
                 Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
@@ -246,7 +247,8 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull EcgFileListAdapter.ViewHolder holder, final int position) {
-        EcgFile file = fileList.get(position);
+        ViseLog.e("onBindViewHolder " + position);
+        EcgFile file = ecgFileList.get(position);
         if(file == null) return;
 
         holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(file.getFile().lastModified()));
@@ -278,18 +280,17 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             holder.vIsUpdate.setVisibility(GONE);
         }
 
-        if(file.equals(selectedFile)) {
+        if(file.equals(selectedEcgFile)) {
             int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
             holder.introLayout.setBackgroundColor(bgdColor);
-            holder.expandLayout.setVisibility(View.VISIBLE);
-            holder.tvArrow.setText("");
 
-            if(selectedFile != null) {
-                ViseLog.e("The selected file is: " + selectedFile.getFileName());
-
+            if(curSelectedPos != holder.getAdapterPosition()) {
+                ViseLog.e("The selected file is: " + selectedEcgFile.getFileName());
+                setExpandLayoutVisibility(holder,VISIBLE);
+                expandVisibility = VISIBLE;
                 int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;
-                int value1mV = ((BmeFileHead30)selectedFile.getBmeFileHead()).getCalibrationValue();
-                int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * selectedFile.getSampleRate())); // 计算横向分辨率
+                int value1mV = ((BmeFileHead30) selectedEcgFile.getBmeFileHead()).getCalibrationValue();
+                int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * selectedEcgFile.getSampleRate())); // 计算横向分辨率
                 float vValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
                 holder.signalView.stopShow();
                 holder.signalView.setRes(hPixelPerData, vValuePerPixel);
@@ -297,27 +298,26 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
                 holder.signalView.setZeroLocation(0.5);
                 holder.signalView.clearData();
                 holder.signalView.initView();
-                holder.signalView.setEcgFile(selectedFile);
-                int secondInSignal = selectedFile.getDataNum()/ selectedFile.getSampleRate();
+                holder.signalView.setEcgFile(selectedEcgFile);
+                int secondInSignal = selectedEcgFile.getDataNum()/ selectedEcgFile.getSampleRate();
                 holder.tvCurrentTime.setText(DateTimeUtil.secToTime(0));
                 holder.tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
                 holder.sbReplay.setMax(secondInSignal);
 
-                List<EcgNormalComment> commentList = getCommentListInFile(selectedFile);
+                List<EcgNormalComment> commentList = getCommentListInFile(selectedEcgFile);
                 holder.commentAdapter.updateCommentList(commentList);
                 if(commentList.size() > 0)
                     holder.rvComments.smoothScrollToPosition(0);
 
                 holder.signalView.startShow();
-                signalView = holder.signalView;
 
-                if(selectedFile.getDataNum() == 0) {
+                if(selectedEcgFile.getDataNum() == 0) {
                     holder.signalLayout.setVisibility(GONE);
                 } else {
                     holder.signalLayout.setVisibility(View.VISIBLE);
                 }
 
-                if(selectedFile.getHrList().isEmpty()) {
+                if(selectedEcgFile.getHrList().isEmpty()) {
                     holder.hrLayout.setVisibility(GONE);
                 } else {
                     holder.hrLayout.setVisibility(View.VISIBLE);
@@ -330,18 +330,22 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
                     holder.hrLineChart.showLineChart(hrStatisticsInfo.getFilteredHrList(), "心率时序图", Color.BLUE);
                     holder.hrHistChart.update(hrStatisticsInfo.getNormHistogram(HR_HISTOGRAM_BAR_NUM));
                 }
+
+                signalView = holder.signalView;
+                curSelectedPos = holder.getAdapterPosition();
             } else {
-                if(holder.signalView != null)
-                    holder.signalView.stopShow();
-                //signalLayout.setVisibility(View.GONE);
-                //hrLayout.setVisibility(View.GONE);
+                holder.expandLayout.setVisibility(expandVisibility);
             }
         } else {
             holder.introLayout.setBackground(defaultBackground);
-            holder.signalView.stopShow();
-            holder.expandLayout.setVisibility(GONE);
-            holder.tvArrow.setText("");
+            //holder.signalView.stopShow();
+            setExpandLayoutVisibility(holder, GONE);
         }
+    }
+
+    private void setExpandLayoutVisibility(ViewHolder holder, int visibility) {
+        holder.expandLayout.setVisibility(visibility);
+        holder.tvArrow.setText(visibility == VISIBLE ? "\u2B06" : "\u2B07");
     }
 
     // 获取选中文件的留言列表
@@ -366,36 +370,50 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
     @Override
     public int getItemCount() {
-        return fileList.size();
+        return ecgFileList.size();
     }
 
     public void updateFileList(List<EcgFile> fileList, List<File> updatedFileList) {
         if(signalView != null) {
             signalView.stopShow();
         }
-        this.fileList = fileList;
-        this.updatedFileList = updatedFileList;
+        this.ecgFileList = new ArrayList<>(fileList);
+        this.updatedFileList = new ArrayList<>(updatedFileList);
         notifyDataSetChanged();
     }
 
     public void updateSelectedFile(EcgFile selectFile) {
+        if(this.selectedEcgFile == selectFile) {
+            return;
+        }
+
         if(signalView != null)
             signalView.stopShow();
 
-        int curPos = fileList.indexOf(this.selectedFile);
-        this.selectedFile = selectFile;
+        int curPos = ecgFileList.indexOf(this.selectedEcgFile);
+        this.selectedEcgFile = selectFile;
         if(curPos != -1) {
             notifyItemChanged(curPos);
         }
         if(selectFile != null) {
-            curPos = fileList.indexOf(selectFile);
+            curPos = ecgFileList.indexOf(selectFile);
             if(curPos != -1) {
                 notifyItemChanged(curPos);
             }
         }
     }
 
+    public void insertNewFile(EcgFile file) {
+        ViseLog.e("insert " + file);
+        ecgFileList.add(file);
+        notifyItemInserted(getItemPosition(file));
+    }
+
     public int getItemPosition(EcgFile file) {
-        return fileList.indexOf(file);
+        return ecgFileList.indexOf(file);
+    }
+
+    public void clear() {
+        ecgFileList.clear();
     }
 }
