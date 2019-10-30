@@ -218,7 +218,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
         final EcgFileListAdapter.ViewHolder holder = new EcgFileListAdapter.ViewHolder(view);
         defaultBackground = holder.fileView.getBackground();
-        holder.tvArrow.setOnClickListener(new View.OnClickListener() {
+        holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EcgFile newSelectFile = ecgFileList.get(holder.getAdapterPosition());

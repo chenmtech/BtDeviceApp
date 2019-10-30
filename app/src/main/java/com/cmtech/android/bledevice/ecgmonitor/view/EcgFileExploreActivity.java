@@ -154,17 +154,20 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     }
 
     private void importFromWechat() {
-        fileAdapter.clear();
-        explorer.importFromWechat();
-        tvPromptInfo.setText("正在载入信号");
-        new Handler(getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
-                    tvPromptInfo.setText("无信号可载入。");
+        boolean updated = explorer.importFromWechat();
+
+        if(updated) {
+            fileAdapter.clear();
+            tvPromptInfo.setText("正在载入信号");
+            new Handler(getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
+                        tvPromptInfo.setText("无信号可载入。");
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public void deleteSelectedFile() {

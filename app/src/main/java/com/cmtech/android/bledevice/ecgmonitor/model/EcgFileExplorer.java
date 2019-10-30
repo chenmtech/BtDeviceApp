@@ -115,17 +115,19 @@ public class EcgFileExplorer {
     }
 
     // 从微信导入文件
-    public void importFromWechat() {
-        filesManager.close();
-        List<File> updated = importFiles(DIR_WECHAT_DOWNLOAD, ecgFileDir);
-        if(updated != null && !updated.isEmpty()) {
-            updatedFiles.addAll(updated);
+    public boolean importFromWechat() {
+        List<File> updatedFileList = importUpdatedFiles(DIR_WECHAT_DOWNLOAD, ecgFileDir);
+        if(updatedFileList != null && !updatedFileList.isEmpty()) {
+            filesManager.close();
+            updatedFiles.addAll(updatedFileList);
+            updateFileList(fileOrder);
+            return true;
         }
-        updateFileList(fileOrder);
+        return false;
     }
 
-    // 导入新文件或者修改发生变化的文件
-    private List<File> importFiles(File srcDir, File destDir) {
+    // 导入新文件或者发生变化的文件
+    private List<File> importUpdatedFiles(File srcDir, File destDir) {
         List<File> fileList = BmeFileUtil.listDirBmeFiles(srcDir);
         if(fileList == null || fileList.isEmpty()) return null;
 

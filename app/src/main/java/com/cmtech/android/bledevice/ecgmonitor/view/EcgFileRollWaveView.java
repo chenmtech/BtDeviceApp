@@ -181,6 +181,8 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
 
     // 显示指定数据位置信号
     public void showAt(long location) {
+        if(ecgFile == null) return;
+
         if(location >= ecgFile.getDataNum()) {
             location = ecgFile.getDataNum()-1;
         } else if(location < 0) {
