@@ -61,12 +61,12 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             super(itemView);
             fileView = itemView;
 
-            introLayout = fileView.findViewById(R.id.layout_ecg_record_introduction);
+            introLayout = fileView.findViewById(R.id.layout_introduction);
             tvModifyTime = fileView.findViewById(R.id.tv_modify_time);
-            tvCreator = fileView.findViewById(R.id.ecgfile_creator);
-            tvCreateTime = fileView.findViewById(R.id.ecgfile_createtime);
-            tvLength = fileView.findViewById(R.id.ecgfile_length);
-            tvHrNum = fileView.findViewById(R.id.ecgfile_hr_num);
+            tvCreator = fileView.findViewById(R.id.tv_creator);
+            tvCreateTime = fileView.findViewById(R.id.tv_create_time);
+            tvLength = fileView.findViewById(R.id.tv_signal_length);
+            tvHrNum = fileView.findViewById(R.id.tv_hr_num);
             vIsUpdate = fileView.findViewById(R.id.ecgfile_update);
         }
     }

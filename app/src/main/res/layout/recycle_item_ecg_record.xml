@@ -36,7 +36,7 @@
             android:textSize="14sp"/>
 
         <TextView
-            android:id="@+id/ecgfile_creator"
+            android:id="@+id/tv_creator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
@@ -53,7 +53,7 @@
             android:textSize="14sp"/>
 
         <TextView
-            android:id="@+id/ecgfile_createtime"
+            android:id="@+id/tv_create_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="未知"
@@ -73,7 +73,7 @@
             android:textSize="14sp"/>
 
         <TextView
-            android:id="@+id/ecgfile_length"
+            android:id="@+id/tv_signal_length"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
@@ -89,7 +89,7 @@
             android:textSize="14sp"/>
 
         <TextView
-            android:id="@+id/ecgfile_hr_num"
+            android:id="@+id/tv_hr_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"

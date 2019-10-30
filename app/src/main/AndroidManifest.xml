@@ -31,7 +31,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:name">
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgFileActivity"></activity>
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgRecordActivity"></activity>
         <activity
             android:name=".activity.LoginActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"

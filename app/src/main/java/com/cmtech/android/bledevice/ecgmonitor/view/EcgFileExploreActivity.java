@@ -171,7 +171,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
 
     public void selectFile(final EcgFile ecgFile) {
         explorer.selectFile(ecgFile);
-        Intent intent = new Intent(this, EcgFileActivity.class);
+        Intent intent = new Intent(this, EcgRecordActivity.class);
         intent.putExtra("file_name", ecgFile.getFileName());
         startActivity(intent);
     }
