@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.view;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioFormat;
@@ -55,7 +54,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     private TextView tvLeadType; // 导联类型
     private TextView tvValue1mV; // 1mV值
     private TextView tvHeartRate; // 心率值
-    private TextView tvPauseShowing; // 暂停显示提示
+    private TextView tvPauseShowing; // 暂停显示
     private ScanWaveView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
@@ -109,18 +108,16 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     public void close() {
         if(device != null && device.isStopped()) {
             if (getContext() != null) {
-                final Dialog alertDialog = new AlertDialog.Builder(getContext()).
-                        setTitle("保存记录").
-                        setMessage("是否保存记录？").
-                        setPositiveButton("保存", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (device != null) {
-                                    device.setSaveFile(true);
-                                }
-                                EcgMonitorFragment.super.close();
-                            }
-                        }).setNeutralButton("取消", new DialogInterface.OnClickListener() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext()).setTitle("保存记录").setMessage("是否保存记录？");
+                builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (device != null) {
+                            device.setSaveFile(true);
+                        }
+                        EcgMonitorFragment.super.close();
+                    }
+                }).setNeutralButton("取消", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -133,8 +130,8 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
                         }
                         EcgMonitorFragment.super.close();
                     }
-                }).create();
-                alertDialog.show();
+                });
+                builder.create().show();
             }
         }
     }
@@ -155,7 +152,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
             case 1: // 修改设备配置返回码
                 if(resultCode == RESULT_OK) {
                     EcgMonitorConfig config = (EcgMonitorConfig) data.getSerializableExtra("configuration");
-                    device.setConfig(config);
+                    device.updateConfig(config);
                 }
                 break;
 

@@ -173,7 +173,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     public EcgMonitorConfig getConfig() {
         return config;
     }
-    public void setConfig(EcgMonitorConfig config) {
+    public void updateConfig(EcgMonitorConfig config) {
         this.config.copyFrom(config);
         this.config.save();
         dataProcessor.resetHrAbnormalProcessor();
