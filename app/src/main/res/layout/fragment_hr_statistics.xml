@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/layout_hr_commoninfo"/>
+    <include layout="@layout/layout_hr_common_info"/>
 
-    <include layout="@layout/layout_hr_linechart"/>
+    <include layout="@layout/layout_hr_line_chart"/>
 
 </LinearLayout>
