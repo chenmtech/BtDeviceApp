@@ -1,12 +1,11 @@
 package com.cmtech.android.bledevice.ecgmonitor.view;
 
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -17,7 +16,6 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorer;
-import com.cmtech.android.bledevice.ecgmonitor.model.OpenedEcgFilesManager;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.R;
@@ -40,7 +38,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG
   * Version:        1.0
  */
 
-public class EcgFileExploreActivity extends AppCompatActivity implements OpenedEcgFilesManager.OnOpenedEcgFilesListener {
+public class EcgFileExploreActivity extends AppCompatActivity implements EcgFileExplorer.OnEcgFilesListener {
     private static final String TAG = "EcgFileExploreActivity";
 
     private static final int DEFAULT_LOADED_FILENUM_EACH_TIMES = 10; // 缺省每次加载的文件数
@@ -49,20 +47,6 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     private EcgFileListAdapter fileAdapter; // 文件Adapter
     private RecyclerView rvFiles; // 文件RecycleView
     private TextView tvPromptInfo; // 提示信息
-
-    public class TopSmoothScroller extends LinearSmoothScroller {
-        TopSmoothScroller(Context context) {
-            super(context);
-        }
-        @Override
-        protected int getHorizontalSnapPreference() {
-            return SNAP_TO_START;
-        }
-        @Override
-        protected int getVerticalSnapPreference() {
-            return SNAP_TO_START;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +71,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvFiles.setLayoutManager(fileLayoutManager);
         rvFiles.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        fileAdapter = new EcgFileListAdapter(this);
+        fileAdapter = new EcgFileListAdapter(this, explorer.getFileList(), explorer.getUpdatedFiles(), explorer.getSelectedFile());
         rvFiles.setAdapter(fileAdapter);
         rvFiles.addOnScrollListener(new RecyclerView.OnScrollListener() {
             int lastVisibleItem;
@@ -113,14 +97,14 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("正在载入信号");
-        new Handler(getMainLooper()).postDelayed(new Runnable() {
+        new Handler(getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
                     tvPromptInfo.setText("无信号可载入。");
                 }
             }
-        }, 300);
+        });
     }
 
     @Override
@@ -187,6 +171,9 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
 
     public void selectFile(final EcgFile ecgFile) {
         explorer.selectFile(ecgFile);
+        Intent intent = new Intent(this, EcgFileActivity.class);
+        intent.putExtra("file_name", ecgFile.getFileName());
+        startActivity(intent);
     }
 
     public List<File> getUpdatedFiles() {
@@ -196,17 +183,10 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
     @Override
     public void onFileSelected(final EcgFile selectedFile) {
         fileAdapter.updateSelectedFile(selectedFile);
-
-        if(selectedFile != null) {
-            TopSmoothScroller smoothScroller = new TopSmoothScroller(EcgFileExploreActivity.this);
-            smoothScroller.setTargetPosition(fileAdapter.getItemPosition(selectedFile));
-            if(rvFiles.getLayoutManager() != null)
-                rvFiles.getLayoutManager().startSmoothScroll(smoothScroller);
-        }
     }
 
     @Override
-    public void onFileInserted(final EcgFile ecgFile) {
+    public void onNewFileAdded(final EcgFile ecgFile) {
         if(ecgFile != null) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -235,7 +215,6 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
                 fileAdapter.updateFileList(fileList, getUpdatedFiles());
             }
         });
-
     }
 
     public EcgHrStatisticsInfo getSelectedFileHrStatisticsInfo() {

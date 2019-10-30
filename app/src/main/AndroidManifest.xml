@@ -18,7 +18,8 @@
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-feature android:name="android.hardware.location.network"/>
+
+    <uses-feature android:name="android.hardware.location.network" />
 
     <application
         android:name=".MyApplication"
@@ -30,39 +31,36 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:name">
-
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgFileActivity"></activity>
         <activity
             android:name=".activity.LoginActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.NewsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait" />
-
-
         <activity
             android:name=".activity.ScanActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".activity.RegisterActivity"
             android:label="设置设备注册信息"
@@ -71,13 +69,9 @@
             android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgMonitorConfigureActivity"
             android:label="配置心电带设备"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
-
         <activity android:name="com.cmtech.android.bledevice.temphumid.view.TempHumidConfigureActivity" />
-
         <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoConfigureActivity" />
-
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExploreActivity" />
-
         <activity android:name=".activity.UserActivity" />
 
         <service

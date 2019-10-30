@@ -1,283 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:cmtech="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="2dp">
-    <!--记录简介部分-->
     <LinearLayout
-        android:id="@+id/layout_ecg_record_introduction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="4dp"
         android:orientation="horizontal">
-        <LinearLayout
-            android:layout_width="0dp"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="最后修改时间:"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"/>
-
-                <TextView
-                    android:id="@+id/tv_modify_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="未知"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="采集人:"
-                    android:textColor="@color/secondary_text"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:id="@+id/ecgfile_creator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:maxLength="10"
-                    android:text="匿名"
-                    android:textAppearance="@style/PersonTextAppearance"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="采集时间:"
-                    android:textColor="@color/secondary_text"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:id="@+id/ecgfile_createtime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="未知"
-                    android:textColor="@color/primary_text"
-                    android:textSize="14sp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="记录信号:"
-                    android:textColor="@color/secondary_text"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:id="@+id/ecgfile_length"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:text="未知"
-                    android:textColor="@color/primary_text"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="记录心跳:"
-                    android:textColor="@color/secondary_text"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:id="@+id/ecgfile_hr_num"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="@color/primary_text"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="次"
-                    android:textColor="@color/secondary_text"
-                    android:textSize="14sp"/>
-            </LinearLayout>
-
-            <View
-                android:id="@+id/ecgfile_update"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="@color/red"
-                android:visibility="gone"/>
-        </LinearLayout>
+            android:text="最后修改时间:"
+            android:textColor="@color/black"
+            android:textSize="16sp"/>
 
         <TextView
-            android:id="@+id/tv_arrow"
-            android:layout_width="30dp"
+            android:id="@+id/tv_modify_time"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text=""
-            android:textSize="20sp"/>
+            android:text="未知"
+            android:textColor="@color/black"
+            android:textSize="16sp"/>
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/layout_ecgfile_expand_part"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
-        <!--心电信号部分-->
-        <LinearLayout
-            android:id="@+id/layout_ecgfile_signal"
-            android:layout_width="match_parent"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:background="@color/primary_dark"/>
+            android:text="采集人:"
+            android:textColor="@color/secondary_text"
+            android:textSize="14sp"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:text="心电信号"
-                android:textSize="18sp"
-                android:textColor="@color/black"/>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:layout_marginEnd="6dp">
-
-                <com.cmtech.android.bledevice.ecgmonitor.view.EcgFileRollWaveView
-                    android:id="@+id/rwv_ecgview"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    cmtech:background_color="#666"
-                    cmtech:grid_color="#f00"
-                    cmtech:wave_color="#ff0"
-                    cmtech:show_gridline="true"/>
-
-                <TextView
-                    android:id="@+id/tv_current_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|bottom"
-                    android:text="00:00:00"
-                    android:textColor="#fff"
-                    android:textSize="16sp"/>
-            </FrameLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:layout_marginEnd="6dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp">
-
-                <ImageButton
-                    android:id="@+id/ib_ecgreplay_startandstop"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/primary_dark"
-                    android:layout_marginStart="5dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:src="@mipmap/ic_play_32px"
-                    android:minHeight="0dp"
-                    android:visibility="gone"
-                    android:contentDescription="@null"/>
-
-                <SeekBar
-                    android:id="@+id/sb_ecgfile"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="center_vertical"/>
-
-                <TextView
-                    android:id="@+id/tv_total_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="6dp"
-                    android:text="00:00:00"
-                    android:textColor="@color/primary_text"
-                    android:textSize="12sp"/>
-
-            </LinearLayout>
-
-            <android.support.v7.widget.RecyclerView
-                android:id = "@+id/rv_ecgcomment_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="50dp"
-                android:layout_margin="8sp"/>
-
-        </LinearLayout>
-
-        <!--心率部分-->
-        <LinearLayout
-            android:id="@+id/layout_ecgfile_hr"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/ecgfile_creator"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:background="@color/primary_dark"/>
+            android:layout_marginEnd="10dp"
+            android:maxLength="10"
+            android:text="匿名"
+            android:textAppearance="@style/PersonTextAppearance"
+            android:textSize="14sp"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:text="心率分析"
-                android:textSize="18sp"
-                android:textColor="@color/black"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="采集时间:"
+            android:textColor="@color/secondary_text"
+            android:textSize="14sp"/>
 
-            <include layout="@layout/layout_hr_commoninfo"/>
-
-            <include layout="@layout/layout_hr_linechart"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_margin="6dp"
-                android:background="@color/primary_dark"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_margin="6dp"
-                android:text="统计分布"
-                android:textSize="12sp"
-                android:textColor="@color/primary_text"/>
-
-            <include layout="@layout/layout_hr_histchart"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"/>
-        </LinearLayout>
+        <TextView
+            android:id="@+id/ecgfile_createtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="未知"
+            android:textColor="@color/primary_text"
+            android:textSize="14sp"/>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="记录信号:"
+            android:textColor="@color/secondary_text"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/ecgfile_length"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="未知"
+            android:textColor="@color/primary_text"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="记录心跳:"
+            android:textColor="@color/secondary_text"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/ecgfile_hr_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textColor="@color/primary_text"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="次"
+            android:textColor="@color/secondary_text"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/ecgfile_update"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/red"
+        android:visibility="gone"/>
 </LinearLayout>
