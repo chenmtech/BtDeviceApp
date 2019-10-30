@@ -61,6 +61,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
     private List<File> updatedFileList = new ArrayList<>();
     private EcgFile selectedFile;
     private Drawable defaultBackground; // 缺省背景
+    private EcgFileRollWaveView signalView;
 
     private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
     private static final float DEFAULT_MV_PER_GRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
@@ -308,6 +309,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
                     holder.rvComments.smoothScrollToPosition(0);
 
                 holder.signalView.startShow();
+                signalView = holder.signalView;
 
                 if(selectedFile.getDataNum() == 0) {
                     holder.signalLayout.setVisibility(GONE);
@@ -368,12 +370,18 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
     }
 
     public void updateFileList(List<EcgFile> fileList, List<File> updatedFileList) {
+        if(signalView != null) {
+            signalView.stopShow();
+        }
         this.fileList = fileList;
         this.updatedFileList = updatedFileList;
         notifyDataSetChanged();
     }
 
     public void updateSelectedFile(EcgFile selectFile) {
+        if(signalView != null)
+            signalView.stopShow();
+
         int curPos = fileList.indexOf(this.selectedFile);
         this.selectedFile = selectFile;
         if(curPos != -1) {

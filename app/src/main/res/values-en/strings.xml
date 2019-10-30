@@ -7,6 +7,7 @@
     <string name="scan_device">扫描设备</string>
     <string name="query_record">查阅记录</string>
     <string name="open_news">康明新闻</string>
+    <string name="update">update</string>
     <string name="delete">delete</string>
     <string name="share">share</string>
     <string name="record_ecg_signal_failed">The ECG signal can\'t be recorded.</string>

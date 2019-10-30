@@ -56,11 +56,11 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         }
         @Override
         protected int getHorizontalSnapPreference() {
-            return SNAP_TO_START;//具体见源码注释
+            return SNAP_TO_START;
         }
         @Override
         protected int getVerticalSnapPreference() {
-            return SNAP_TO_START;//具体见源码注释
+            return SNAP_TO_START;
         }
     }
 
@@ -137,11 +137,11 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
                 finish();
                 break;
 
-            case R.id.ecgfile_update:
+            case R.id.ecg_record_update:
                 importFromWechat();
                 break;
 
-            case R.id.explorer_delete:
+            case R.id.ecg_record_delete:
                 deleteSelectedFile();
                 break;
 
@@ -196,7 +196,8 @@ public class EcgFileExploreActivity extends AppCompatActivity implements OpenedE
         if(selectedFile != null) {
             TopSmoothScroller smoothScroller = new TopSmoothScroller(EcgFileExploreActivity.this);
             smoothScroller.setTargetPosition(fileAdapter.getItemPosition(selectedFile));
-            rvFiles.getLayoutManager().startSmoothScroll(smoothScroller);
+            if(rvFiles.getLayoutManager() != null)
+                rvFiles.getLayoutManager().startSmoothScroll(smoothScroller);
         }
     }
 

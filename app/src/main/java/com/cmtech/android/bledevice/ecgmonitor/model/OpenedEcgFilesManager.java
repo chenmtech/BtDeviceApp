@@ -45,11 +45,12 @@ public class OpenedEcgFilesManager {
     private final List<EcgFile> openedFileList = new ArrayList<>(); // 打开的心电文件列表
     private final List<EcgFile> unmodifiedFileList = Collections.unmodifiableList(openedFileList);
     private final OnOpenedEcgFilesListener listener; // ECG文件目录监听器
-    private EcgFile selectedFile; // 选中的EcgFile
+    private volatile EcgFile selectedFile; // 选中的EcgFile
     private final int fileOrder;
 
     public interface OnOpenedEcgFilesListener {
         void onFileSelected(EcgFile ecgFile); // 文件被选中
+        void onFileInserted(EcgFile ecgFile);
         void onFileListChanged(List<EcgFile> fileList); // 文件列表改变
     }
 
