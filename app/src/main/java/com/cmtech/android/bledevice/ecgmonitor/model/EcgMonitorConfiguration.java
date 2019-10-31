@@ -13,11 +13,11 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DEFAULT
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DEFAULT_WARN_WHEN_HR_ABNORMAL;
 
 /**
- * EcgMonitorConfig: 心电带配置类
+ * EcgMonitorConfiguration: 心电带配置类
  * Created by bme on 2018/12/20.
  */
 
-public class EcgMonitorConfig extends LitePalSupport implements Serializable {
+public class EcgMonitorConfiguration extends LitePalSupport implements Serializable {
     private final static long serialVersionUID = 1L;
 
     private int id; // id
@@ -64,7 +64,7 @@ public class EcgMonitorConfig extends LitePalSupport implements Serializable {
         Collections.copy(this.markerList, markerList);
     }
 
-    public void copyFrom(EcgMonitorConfig config) {
+    public void copyFrom(EcgMonitorConfiguration config) {
         warnWhenHrAbnormal = config.warnWhenHrAbnormal;
         hrLowLimit = config.hrLowLimit;
         hrHighLimit = config.hrHighLimit;

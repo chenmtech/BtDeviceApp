@@ -95,7 +95,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private boolean containBatteryService = false; // 是否包含电池电量测量服务
     private volatile EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
 
-    private final EcgMonitorConfig config; // 心电监护仪的配置信息
+    private final EcgMonitorConfiguration config; // 心电监护仪的配置信息
     private final EcgDataProcessor dataProcessor; // 心电数据处理器,在其内部的单线程ExecutorService中执行
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
     private EcgFile ecgFile; // 心电记录文件，可记录心电信号数据、用户留言和心率信息
@@ -125,9 +125,9 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         super(registerInfo);
 
         // 从数据库获取设备的配置信息
-        List<EcgMonitorConfig> configs = LitePal.where("macAddress = ?", registerInfo.getMacAddress()).find(EcgMonitorConfig.class);
+        List<EcgMonitorConfiguration> configs = LitePal.where("macAddress = ?", registerInfo.getMacAddress()).find(EcgMonitorConfiguration.class);
         if(configs == null || configs.isEmpty()) {
-            config = new EcgMonitorConfig();
+            config = new EcgMonitorConfiguration();
             config.setMacAddress(registerInfo.getMacAddress());
             config.save();
         } else {
@@ -164,10 +164,10 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             updateEcgMonitorState();
         }
     }
-    public EcgMonitorConfig getConfig() {
+    public EcgMonitorConfiguration getConfig() {
         return config;
     }
-    public void updateConfig(EcgMonitorConfig config) {
+    public void updateConfig(EcgMonitorConfiguration config) {
         this.config.copyFrom(config);
         this.config.save();
         dataProcessor.resetHrAbnormalProcessor();

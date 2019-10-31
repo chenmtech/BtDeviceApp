@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCtrlPanelAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfig;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
@@ -152,7 +152,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         switch (requestCode) {
             case 1: // 修改设备配置返回码
                 if(resultCode == RESULT_OK) {
-                    EcgMonitorConfig config = (EcgMonitorConfig) data.getSerializableExtra("configuration");
+                    EcgMonitorConfiguration config = (EcgMonitorConfiguration) data.getSerializableExtra("configuration");
                     device.updateConfig(config);
                 }
                 break;
