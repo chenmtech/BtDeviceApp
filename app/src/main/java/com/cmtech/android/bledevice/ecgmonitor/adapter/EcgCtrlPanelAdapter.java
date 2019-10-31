@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.ecgmonitor.adapter
- * ClassName:      EcgControllerAdapter
+ * ClassName:      EcgCtrlPanelAdapter
  * Description:    Ecg控制Adapter
  * Author:         chenm
  * CreateDate:     2019/4/15 上午5:44
@@ -18,11 +18,11 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class EcgControllerAdapter extends FragmentPagerAdapter {
+public class EcgCtrlPanelAdapter extends FragmentPagerAdapter {
     private final List<Fragment> fragmentList;
     private final List<String> titleList;
 
-    public EcgControllerAdapter(FragmentManager fm, List<Fragment> fragmentList, List<String> titleList) {
+    public EcgCtrlPanelAdapter(FragmentManager fm, List<Fragment> fragmentList, List<String> titleList) {
         super(fm);
         this.fragmentList = fragmentList;
         this.titleList = titleList;

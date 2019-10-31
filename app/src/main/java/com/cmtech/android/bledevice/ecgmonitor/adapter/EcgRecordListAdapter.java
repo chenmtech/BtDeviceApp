@@ -14,7 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExploreActivity;
+import com.cmtech.android.bledevice.ecgmonitor.view.EcgRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
@@ -28,8 +28,8 @@ import java.util.List;
 
 /**
   *
-  * ClassName:      EcgFileListAdapter
-  * Description:    Ecg文件列表Adapter
+  * ClassName:      EcgRecordListAdapter
+  * Description:    Ecg记录列表Adapter
   * Author:         chenm
   * CreateDate:     2018/11/10 下午4:09
   * UpdateUser:     chenm
@@ -38,8 +38,8 @@ import java.util.List;
   * Version:        1.0
  */
 
-public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.ViewHolder>{
-    private final EcgFileExploreActivity activity;
+public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdapter.ViewHolder>{
+    private final EcgRecordExplorerActivity activity;
     private final List<EcgFile> ecgFileList;
     private final List<File> updatedFileList;
     private EcgFile selectedEcgFile;
@@ -68,7 +68,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         }
     }
 
-    public EcgFileListAdapter(EcgFileExploreActivity activity, List<EcgFile> ecgFileList, List<File> updatedFileList, EcgFile selectedEcgFile) {
+    public EcgRecordListAdapter(EcgRecordExplorerActivity activity, List<EcgFile> ecgFileList, List<File> updatedFileList, EcgFile selectedEcgFile) {
         this.activity = activity;
         this.ecgFileList = ecgFileList;
         this.updatedFileList = updatedFileList;
@@ -77,11 +77,11 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
 
     @NonNull
     @Override
-    public EcgFileListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public EcgRecordListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_ecg_record, parent, false);
 
-        final EcgFileListAdapter.ViewHolder holder = new EcgFileListAdapter.ViewHolder(view);
+        final EcgRecordListAdapter.ViewHolder holder = new EcgRecordListAdapter.ViewHolder(view);
 
         defaultBackground = holder.fileView.getBackground();
         holder.fileView.setOnClickListener(new View.OnClickListener() {
@@ -103,7 +103,7 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
     }
 
     @Override
-    public void onBindViewHolder(@NonNull EcgFileListAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull EcgRecordListAdapter.ViewHolder holder, final int position) {
         ViseLog.e("onBindViewHolder " + position);
         EcgFile file = ecgFileList.get(position);
         if(file == null) return;

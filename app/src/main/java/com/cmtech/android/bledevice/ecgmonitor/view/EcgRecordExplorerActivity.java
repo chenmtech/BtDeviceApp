@@ -14,11 +14,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorer;
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgRecordListAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecordExplorer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.R;
-import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,8 +27,8 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG
 
 /**
   *
-  * ClassName:      EcgFileExploreActivity
-  * Description:    Ecg文件浏览Activity
+  * ClassName:      EcgRecordExplorerActivity
+  * Description:    Ecg记录浏览Activity
   * Author:         chenm
   * CreateDate:     2018/11/10 下午5:34
   * UpdateUser:     chenm
@@ -38,13 +37,13 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG
   * Version:        1.0
  */
 
-public class EcgFileExploreActivity extends AppCompatActivity implements EcgFileExplorer.OnEcgFilesListener {
-    private static final String TAG = "EcgFileExploreActivity";
+public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgRecordExplorer.OnEcgFilesListener {
+    private static final String TAG = "EcgRecordExplorerActivity";
 
     private static final int DEFAULT_LOADED_FILENUM_EACH_TIMES = 10; // 缺省每次加载的文件数
 
-    private EcgFileExplorer explorer;      // 文件浏览器实例
-    private EcgFileListAdapter fileAdapter; // 文件Adapter
+    private EcgRecordExplorer explorer;      // 文件浏览器实例
+    private EcgRecordListAdapter fileAdapter; // 文件Adapter
     private RecyclerView rvFiles; // 文件RecycleView
     private TextView tvPromptInfo; // 提示信息
 
@@ -58,7 +57,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         setSupportActionBar(toolbar);
 
         try {
-            explorer = new EcgFileExplorer(DIR_ECG_SIGNAL, EcgFileExplorer.FILE_ORDER_MODIFIED_TIME, this);
+            explorer = new EcgRecordExplorer(DIR_ECG_SIGNAL, EcgRecordExplorer.FILE_ORDER_MODIFIED_TIME, this);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "心电记录目录错误。", Toast.LENGTH_SHORT).show();
@@ -71,7 +70,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvFiles.setLayoutManager(fileLayoutManager);
         rvFiles.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        fileAdapter = new EcgFileListAdapter(this, explorer.getFileList(), explorer.getUpdatedFiles(), explorer.getSelectedFile());
+        fileAdapter = new EcgRecordListAdapter(this, explorer.getFileList(), explorer.getUpdatedFiles(), explorer.getSelectedFile());
         rvFiles.setAdapter(fileAdapter);
         rvFiles.addOnScrollListener(new RecyclerView.OnScrollListener() {
             int lastVisibleItem;
@@ -223,9 +222,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         switch (requestCode) {
             case 1: // 心电记录返回
                 if(resultCode == RESULT_OK) {
-                    ViseLog.e("hi,getbackpress");
                     boolean updated = data.getBooleanExtra("updated", false);
-                    ViseLog.e("updated is " + updated);
                     if(updated) {
                         explorer.addUpdatedFile(explorer.getSelectedFile().getFile());
                         fileAdapter.notifyDataSetChanged();

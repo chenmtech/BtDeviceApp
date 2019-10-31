@@ -51,7 +51,7 @@ import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.BleScanner;
-import com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExploreActivity;
+import com.cmtech.android.bledevice.ecgmonitor.view.EcgRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                             public boolean onMenuItemClick(MenuItem menuItem) {
                                 switch (menuItem.getItemId()) {
                                     case R.id.nav_ecg_record:
-                                        Intent recordIntent = new Intent(MainActivity.this, EcgFileExploreActivity.class);
+                                        Intent recordIntent = new Intent(MainActivity.this, EcgRecordExplorerActivity.class);
                                         startActivity(recordIntent);
                                         return true;
                                     case R.id.nav_temphumid_record:

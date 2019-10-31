@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgControllerAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfig;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
@@ -92,7 +92,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
         TabLayout fragTabLayout = view.findViewById(R.id.tl_ecg_controller);
         List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(signalRecordFragment, hrStatisticsFragment));
         List<String> titleList = new ArrayList<>(Arrays.asList(EcgSignalRecordFragment.TITLE, EcgHrStatisticsFragment.TITLE));
-        EcgControllerAdapter fragAdapter = new EcgControllerAdapter(getChildFragmentManager(), fragmentList, titleList);
+        EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         fragViewPager.setAdapter(fragAdapter);
         fragTabLayout.setupWithViewPager(fragViewPager);
         updateDeviceState(device.getEcgMonitorState());

@@ -38,8 +38,8 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
 
 /**
   *
-  * ClassName:      EcgFileExplorer
-  * Description:    Ecg文件浏览器类
+  * ClassName:      EcgRecordExplorer
+  * Description:    Ecg记录浏览器类
   * Author:         chenm
   * CreateDate:     2018/11/10 下午4:09
   * UpdateUser:     chenm
@@ -48,7 +48,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
   * Version:        1.0
  */
 
-public class EcgFileExplorer {
+public class EcgRecordExplorer {
     public static final int FILE_ORDER_CREATED_TIME = 0; // 文件按创建时间排序
     public static final int FILE_ORDER_MODIFIED_TIME = 1; // 文件按修改时间排序
 
@@ -68,7 +68,7 @@ public class EcgFileExplorer {
         void onFileListChanged(List<EcgFile> fileList); // 文件列表改变
     }
 
-    public EcgFileExplorer(File ecgFileDir, int fileOrder, OnEcgFilesListener listener) throws IOException{
+    public EcgRecordExplorer(File ecgFileDir, int fileOrder, OnEcgFilesListener listener) throws IOException{
         if(ecgFileDir == null) {
             throw new IOException("The ecg file dir is null");
         }

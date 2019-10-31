@@ -71,7 +71,7 @@
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity android:name="com.cmtech.android.bledevice.temphumid.view.TempHumidConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoConfigureActivity" />
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgFileExploreActivity" />
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgRecordExplorerActivity" />
         <activity android:name=".activity.UserActivity" />
 
         <service
