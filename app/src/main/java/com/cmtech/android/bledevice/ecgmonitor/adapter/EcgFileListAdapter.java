@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.adapter;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -23,8 +24,6 @@ import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.util.List;
-
-import static android.view.View.GONE;
 
 
 /**
@@ -55,7 +54,6 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         TextView tvCreateTime; // 创建时间
         TextView tvLength; // 信号长度
         TextView tvHrNum; // 心率次数
-        View vIsUpdate; // 是否已更新
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -67,7 +65,6 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             tvCreateTime = fileView.findViewById(R.id.tv_create_time);
             tvLength = fileView.findViewById(R.id.tv_signal_length);
             tvHrNum = fileView.findViewById(R.id.tv_hr_num);
-            vIsUpdate = fileView.findViewById(R.id.ecgfile_update);
         }
     }
 
@@ -135,9 +132,9 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
         holder.tvHrNum.setText(String.valueOf(hrNum));
 
         if (updatedFileList.contains(file.getFile())) {
-            holder.vIsUpdate.setVisibility(View.VISIBLE);
+            holder.tvModifyTime.setTextColor(Color.RED);
         } else {
-            holder.vIsUpdate.setVisibility(GONE);
+            holder.tvModifyTime.setTextColor(Color.BLACK);
         }
 
         if(file.equals(selectedEcgFile)) {
@@ -164,6 +161,8 @@ public class EcgFileListAdapter extends RecyclerView.Adapter<EcgFileListAdapter.
             this.selectedEcgFile = selectFile;
             notifyItemChanged(beforePos);
             notifyItemChanged(afterPos);
+        } else {
+            notifyItemChanged(beforePos);
         }
     }
 

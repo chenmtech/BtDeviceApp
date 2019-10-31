@@ -10,7 +10,6 @@ import android.widget.Toast;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
@@ -35,7 +34,6 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_WECHAT_DOWNLOAD;
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.HR_FILTER_SECOND;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.MACADDRESS_CHAR_NUM;
 
 /**
@@ -120,6 +118,11 @@ public class EcgFileExplorer {
     }
     public List<File> getUpdatedFiles() {
         return updatedFiles;
+    }
+    public void addUpdatedFile(File file) {
+        if(!updatedFiles.contains(file)) {
+            updatedFiles.add(file);
+        }
     }
     public EcgFile getSelectedFile() {
         return selectedFile;
@@ -270,24 +273,6 @@ public class EcgFileExplorer {
             }
         });
         platform.share(sp);
-    }
-
-    // 保存留言信息
-    public void saveSelectedFileComment() {
-        try {
-            if(selectedFile != null) {
-                selectedFile.saveFileTail();
-            }
-        } catch (IOException e) {
-            ViseLog.e("保存留言错误。");
-        }
-    }
-
-    public EcgHrStatisticsInfo getSelectedFileHrStatisticsInfo() {
-        if(selectedFile != null) {
-            return new EcgHrStatisticsInfo(selectedFile.getHrList(), HR_FILTER_SECOND);
-        }
-        return null;
     }
 
     // 关闭管理器

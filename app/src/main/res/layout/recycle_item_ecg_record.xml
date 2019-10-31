@@ -11,7 +11,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="最后修改时间:"
+            android:text="更新时间:"
             android:textColor="@color/black"
             android:textSize="16sp"/>
 
@@ -31,7 +31,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="采集人:"
+            android:text="记录人:"
             android:textColor="@color/secondary_text"
             android:textSize="14sp"/>
 
@@ -48,7 +48,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="采集时间:"
+            android:text="记录时间:"
             android:textColor="@color/secondary_text"
             android:textSize="14sp"/>
 
@@ -68,7 +68,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="记录信号:"
+            android:text="记录信号长:"
             android:textColor="@color/secondary_text"
             android:textSize="14sp"/>
 
@@ -84,7 +84,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="记录心跳:"
+            android:text="记录心跳次数:"
             android:textColor="@color/secondary_text"
             android:textSize="14sp"/>
 
@@ -94,13 +94,6 @@
             android:layout_height="wrap_content"
             android:text="0"
             android:textColor="@color/primary_text"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="次"
-            android:textColor="@color/secondary_text"
             android:textSize="14sp"/>
     </LinearLayout>
 

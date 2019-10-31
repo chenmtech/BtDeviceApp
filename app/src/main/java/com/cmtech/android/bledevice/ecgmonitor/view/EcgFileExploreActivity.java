@@ -16,9 +16,9 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgFileListAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgFileExplorer;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.R;
+import com.vise.log.ViseLog;
 
 import java.io.File;
 import java.io.IOException;
@@ -173,7 +173,7 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         explorer.selectFile(ecgFile);
         Intent intent = new Intent(this, EcgRecordActivity.class);
         intent.putExtra("file_name", ecgFile.getFileName());
-        startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
     public List<File> getUpdatedFiles() {
@@ -217,12 +217,22 @@ public class EcgFileExploreActivity extends AppCompatActivity implements EcgFile
         });
     }
 
-    public EcgHrStatisticsInfo getSelectedFileHrStatisticsInfo() {
-        return explorer.getSelectedFileHrStatisticsInfo();
-    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 1: // 心电记录返回
+                if(resultCode == RESULT_OK) {
+                    ViseLog.e("hi,getbackpress");
+                    boolean updated = data.getBooleanExtra("updated", false);
+                    ViseLog.e("updated is " + updated);
+                    if(updated) {
+                        explorer.addUpdatedFile(explorer.getSelectedFile().getFile());
+                        fileAdapter.notifyDataSetChanged();
+                    }
+                }
+                break;
 
-    public void saveSelectedFileComment() {
-        explorer.saveSelectedFileComment();
+        }
     }
-
 }
