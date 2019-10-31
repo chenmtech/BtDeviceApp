@@ -54,7 +54,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
     private String notifyTitle; // 通知栏标题
     private String strWhenNoDeviceOpened; // 无设备打开时的通知串
     private static final Ringtone WARN_RINGTONE = RingtoneManager.getRingtone(MyApplication.getContext(), Settings.System.DEFAULT_ALARM_ALERT_URI); // 报警铃声
-    private static final Vibrator WARN_VIBRATOR = (Vibrator) MyApplication.getInstance().getSystemService(VIBRATOR_SERVICE); // 报警震动
+    private static final Vibrator WARN_VIBRATOR = (Vibrator) MyApplication.getContext().getSystemService(VIBRATOR_SERVICE); // 报警震动
     private static final int WARN_INTERVAL = 5000; // 报警间隔时间，单位：ms
     private static final int WARN_TIMES = 5; // 报警次数
 

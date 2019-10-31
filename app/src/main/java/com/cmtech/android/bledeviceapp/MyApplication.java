@@ -28,9 +28,6 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DATA_OPERATE_TIM
 
 public class MyApplication extends Application {
     private static MyApplication instance;
-    public static MyApplication getInstance() {
-        return instance;
-    }
 
     @Override
     public void onCreate() {
@@ -58,6 +55,10 @@ public class MyApplication extends Application {
                 .configTagPrefix("BleDeviceApp")     //设置标签前缀
                 .configLevel(Log.VERBOSE);      //设置日志最小输出级别，默认Log.VERBOSE
         ViseLog.plant(new LogcatTree());        //添加打印日志信息到Logcat的树
+    }
+
+    public static MyApplication getInstance() {
+        return instance;
     }
 
     // 获取Application Context
