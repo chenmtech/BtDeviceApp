@@ -32,6 +32,9 @@ import java.util.concurrent.TimeUnit;
 import static com.cmtech.android.ble.BleConfig.CCC_UUID;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+import static com.cmtech.android.bledevice.ecgmonitor.view.EcgMonitorFragment.ZERO_LOCATION_IN_ECG_VIEW;
+import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.PIXEL_PER_GRID;
+import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.SECOND_PER_GRID;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
 
@@ -52,9 +55,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private static final int DEFAULT_VALUE_1MV = 164; // 缺省定标前1mV值
     private static final int DEFAULT_SAMPLE_RATE = 125; // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // 缺省导联为L1
-    private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
-    private static final float DEFAULT_MV_PER_GRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
-    private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
     private static final int READ_BATTERY_PERIOD = 10; // 读电池电量的周期，分钟
 
     // 心电监护仪Service相关UUID常量
@@ -91,9 +91,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // 导联类型
     private int value1mV = DEFAULT_VALUE_1MV; // 定标之前1mV值
     private int[] waveData1mV; // 1mV波形数据，它的长度与采样率有关，幅度变化恒定，在读取采样率之后初始化
-    private final int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // EcgView中每小格的像素个数
-    private int xPixelPerData = 1; // EcgView的横向分辨率
-    private float yValuePerPixel = 100.0f; // EcgView的纵向分辨率
     private boolean isSaveFile = false; // 是否保存心电文件
     private boolean containBatteryService = false; // 是否包含电池电量测量服务
     private volatile EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
@@ -112,7 +109,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         void onLeadTypeUpdated(EcgLeadType leadType); // 导联类型更新
         void onValue1mVUpdated(int value1mV, int value1mVAfterCalibration);  // 1mV值更新
         void onRecordStateUpdated(boolean isRecord); // 记录状态更新
-        void onSignalShowSetupUpdated(int xPixelPerData, float yValuePerPixel, int gridPixels); // 信号显示设置更新
+        void onShowSetupUpdated(int sampleRate, int value1mV, double zeroLocation); // 信号显示设置更新
         void onEcgSignalShowed(int ecgSignal); // 信号显示
         void onEcgSignalShowStarted(int sampleRate); // 信号显示启动
         void onEcgSignalShowStopped(); // 信号显示停止
@@ -158,9 +155,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     public void setSaveFile(boolean saveFile) {
         this.isSaveFile = saveFile;
     }
-    public int getPixelPerGrid() { return pixelPerGrid; }
-    public int getXPixelPerData() { return xPixelPerData; }
-    public float getYValuePerPixel() { return yValuePerPixel; }
     public EcgMonitorState getEcgMonitorState() {
         return state;
     }
@@ -343,7 +337,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                     listener.onEcgSignalShowStarted(sampleRate);
                 }
                 // 生成1mV波形数据
-                int N = 15*pixelPerGrid/xPixelPerData;
+                int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * sampleRate));
+                int N = 15*PIXEL_PER_GRID/pixelPerData; // 15个栅格所需数据个数
                 waveData1mV = new int[N];
                 for(int i = 0; i < N; i++) {
                     if(i > N/3 && i < N*2/3) {
@@ -600,12 +595,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
     // 初始化信号显示设置
     private void initializeSignalShowSetup(int sampleRate) {
-        //pixelPerGrid = DEFAULT_PIXEL_PER_GRID;                   // 每小格的像素个数
-        // 计算信号显示所需分辨率
-        xPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * sampleRate)); // 计算横向分辨率
-        yValuePerPixel = STANDARD_VALUE_1MV_AFTER_CALIBRATION * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
         // 更新信号显示设置
-        updateSignalShowSetup(xPixelPerData, yValuePerPixel, pixelPerGrid);
+        updateSignalShowSetup(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
     }
 
     private void updateEcgMonitorState() {
@@ -633,9 +624,9 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             listener.onRecordStateUpdated(isRecord);
     }
 
-    private void updateSignalShowSetup(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
+    private void updateSignalShowSetup(int sampleRate, int value1mV) {
         if(listener != null)
-            listener.onSignalShowSetupUpdated(xPixelPerData, yValuePerPixel, gridPixels);
+            listener.onShowSetupUpdated(sampleRate, value1mV, ZERO_LOCATION_IN_ECG_VIEW);
     }
 
     private void updateBattery(final int bat) {

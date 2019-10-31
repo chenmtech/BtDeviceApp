@@ -27,7 +27,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.bmefile.BmeFileHead30;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
@@ -38,9 +37,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.HR_HISTOGRAM_BAR_NUM;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener{
-    private static final float DEFAULT_SECOND_PER_GRID = 0.04f; // 缺省横向每个栅格代表的秒数，对应于走纸速度
-    private static final float DEFAULT_MV_PER_GRID = 0.1f; // 缺省纵向每个栅格代表的mV，对应于灵敏度
-    private static final int DEFAULT_PIXEL_PER_GRID = 10; // 缺省每个栅格包含的像素个数
+    public static final double ZERO_LOCATION_IN_ECG_VIEW = 0.5;
 
     private EcgFile file;
     private long modifyTime;
@@ -52,7 +49,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private TextView tvHrNum; // 心率次数
 
     private LinearLayout signalLayout;
-    private EcgFileRollWaveView signalView; // signalView
+    private RollEcgRecordWaveView signalView; // signalView
     private TextView tvTotalTime; // 总时长
     private TextView tvCurrentTime; // 当前播放信号的时刻
     private SeekBar sbReplay; // 播放条
@@ -161,7 +158,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         int hrNum = file.getHrList().size();
         tvHrNum.setText(String.valueOf(hrNum));
 
-        initEcgView(file, 0.5);
+        initEcgView(file);
         int secondInSignal = file.getDataNum()/ file.getSampleRate();
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));
         tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
@@ -193,19 +190,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         hrHistChart.update(hrStatisticsInfo.getNormHistogram(HR_HISTOGRAM_BAR_NUM));
     }
 
-    private void initEcgView(EcgFile ecgFile, double zeroLocation) {
+    private void initEcgView(EcgFile ecgFile) {
         if(ecgFile == null) return;
-        int pixelPerGrid = DEFAULT_PIXEL_PER_GRID;
-        int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
-        int hPixelPerData = Math.round(pixelPerGrid / (DEFAULT_SECOND_PER_GRID * ecgFile.getSampleRate())); // 计算横向分辨率
-        float vValuePerPixel = value1mV * DEFAULT_MV_PER_GRID / pixelPerGrid; // 计算纵向分辨率
-        signalView.stopShow();
-        signalView.setRes(hPixelPerData, vValuePerPixel);
-        signalView.setGridWidth(pixelPerGrid);
-        signalView.setZeroLocation(zeroLocation);
-        signalView.clearData();
-        signalView.initView();
-        signalView.setEcgFile(ecgFile);
+        signalView.setEcgRecord(ecgFile);
+        signalView.setZeroLocation(ZERO_LOCATION_IN_ECG_VIEW);
     }
 
     // 获取选中文件的留言列表

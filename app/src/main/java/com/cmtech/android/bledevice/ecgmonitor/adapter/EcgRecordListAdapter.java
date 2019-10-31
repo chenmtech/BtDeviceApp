@@ -9,7 +9,6 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +47,6 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     class ViewHolder extends RecyclerView.ViewHolder {
         View fileView;
 
-        LinearLayout introLayout;
         TextView tvModifyTime; // 更新时间
         TextView tvCreator; // 创建人
         TextView tvCreateTime; // 创建时间
@@ -58,8 +56,6 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         ViewHolder(View itemView) {
             super(itemView);
             fileView = itemView;
-
-            introLayout = fileView.findViewById(R.id.layout_introduction);
             tvModifyTime = fileView.findViewById(R.id.tv_modify_time);
             tvCreator = fileView.findViewById(R.id.tv_creator);
             tvCreateTime = fileView.findViewById(R.id.tv_create_time);

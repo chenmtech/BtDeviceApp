@@ -49,13 +49,14 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 
 public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.OnEcgMonitorListener, ScanWaveView.OnScanWaveViewListener {
     private static final String TAG = "EcgMonitorFragment";
+    public static final double ZERO_LOCATION_IN_ECG_VIEW = 0.5;
 
     private TextView tvSampleRate; // 采样率
     private TextView tvLeadType; // 导联类型
     private TextView tvValue1mV; // 1mV值
     private TextView tvHeartRate; // 心率值
     private TextView tvPauseShowing; // 暂停显示
-    private ScanWaveView ecgView; // 心电波形View
+    private ScanEcgView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
     private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
@@ -101,7 +102,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     private void initialEcgView() {
-        updateEcgViewSetup(device.getXPixelPerData(), device.getYValuePerPixel(), device.getPixelPerGrid());
+        ecgView.updateShowSetup(device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, ZERO_LOCATION_IN_ECG_VIEW);
     }
 
     @Override
@@ -203,15 +204,8 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onSignalShowSetupUpdated(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
-        updateEcgViewSetup(xPixelPerData, yValuePerPixel, gridPixels);
-    }
-
-    private void updateEcgViewSetup(final int xPixelPerData, final float yValuePerPixel, final int gridPixels) {
-        ecgView.setResolution(xPixelPerData, yValuePerPixel);
-        ecgView.setPixelPerGrid(gridPixels);
-        ecgView.setZeroLocation(0.5);
-        ecgView.initialize();
+    public void onShowSetupUpdated(int sampleRate, int value1mV, double zeroLocation) {
+        ecgView.updateShowSetup(sampleRate, value1mV, zeroLocation);
     }
 
     @Override

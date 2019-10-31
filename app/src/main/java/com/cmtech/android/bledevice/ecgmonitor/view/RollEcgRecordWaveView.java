@@ -7,6 +7,7 @@ import android.view.MotionEvent;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.viewcomponent.ColorRollWaveView;
+import com.cmtech.bmefile.BmeFileHead30;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,14 +15,17 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.MV_PER_GRID;
+import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.PIXEL_PER_GRID;
+import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.SECOND_PER_GRID;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
- * EcgFileRollWaveView: 用于播放心电文件的卷轴滚动式的波形显示视图
+ * EcgFileRollWaveView: 用于播放心电记录的卷轴滚动式的波形显示视图
  * Created by bme on 2018/12/06.
  */
 
-public class EcgFileRollWaveView extends ColorRollWaveView {
+public class RollEcgRecordWaveView extends ColorRollWaveView {
     private static final int MIN_SHOW_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
 
     private EcgFile ecgFile; // 要播放的Ecg文件
@@ -107,13 +111,13 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
         }
     };
 
-    public EcgFileRollWaveView(Context context) {
+    public RollEcgRecordWaveView(Context context) {
         super(context);
         gestureDetector = new GestureDetector(context, gestureListener);
         gestureDetector.setIsLongpressEnabled(false);
     }
 
-    public EcgFileRollWaveView(Context context, AttributeSet attrs) {
+    public RollEcgRecordWaveView(Context context, AttributeSet attrs) {
         super(context, attrs);
         gestureDetector = new GestureDetector(context, gestureListener);
         gestureDetector.setIsLongpressEnabled(false);
@@ -125,7 +129,7 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
         return true;
     }
 
-    public void setEcgFile(EcgFile ecgFile) {
+    public void setEcgRecord(EcgFile ecgFile) {
         stopShow();
         this.ecgFile = ecgFile;
         int sampleInterval = 1000/ecgFile.getSampleRate();
@@ -133,6 +137,18 @@ public class EcgFileRollWaveView extends ColorRollWaveView {
         interval = dataNumReadEachUpdate *sampleInterval;
         ecgFile.seekData(0);
         num = 0;
+
+        intialShowSetup();
+    }
+
+    private void intialShowSetup() {
+        int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
+        int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * ecgFile.getSampleRate())); // 计算横向分辨率
+        float valuePerPixel = value1mV * MV_PER_GRID / PIXEL_PER_GRID; // 计算纵向分辨率
+        setResolution(pixelPerData, valuePerPixel);
+        setPixelPerGrid(PIXEL_PER_GRID);
+        clearData();
+        initialize();
     }
 
     public boolean isStart() {

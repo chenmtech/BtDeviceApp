@@ -50,10 +50,10 @@ import java.util.concurrent.ThreadFactory;
 
 public class ScanWaveView extends View {
     private static final int DEFAULT_SIZE = 100; // 缺省View的大小
-    private static final int DEFAULT_XPIXELPERDATA = 2; // 缺省的X方向的分辨率
-    private static final float DEFAULT_YVALUEPERPIXEL = 1.0f; // 缺省的Y方向的分辨率
-    private static final double DEFAULT_ZERO_LOCATION = 0.5; // 缺省的零线位置在Y方向的高度的比例
-    private static final int DEFAULT_PIXELPERGRID = 10; // 每个栅格的像素个数
+    private static final int DEFAULT_PIXEL_PER_DATA = 2; // 缺省横向每个数据占的像素数
+    private static final float DEFAULT_VALUE_PER_PIXEL = 1.0f; // 缺省纵向每个像素代表的数值
+    private static final double DEFAULT_ZERO_LOCATION = 0.5; // 缺省的零值位置在纵向的高度比
+    private static final int DEFAULT_PIXEL_PER_GRID = 10; // 每个栅格的像素个数
     private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK;
     private static final int DEFAULT_GRID_COLOR = Color.RED;
     private static final int DEFAULT_WAVE_COLOR = Color.YELLOW;
@@ -76,9 +76,9 @@ public class ScanWaveView extends View {
     private PorterDuffXfermode srcInMode = new PorterDuffXfermode(PorterDuff.Mode.SRC_IN);
 
     // View初始化主要需要设置下面4个参数
-    private int pixelPerGrid = DEFAULT_PIXELPERGRID; // 每个栅格的像素个数
-    private int xPixelPerData = DEFAULT_XPIXELPERDATA; //X方向分辨率，表示X方向每个数据点占多少个像素，pixel/data
-    private float yValuePerPixel = DEFAULT_YVALUEPERPIXEL; //Y方向分辨率，表示Y方向每个像素代表的信号值，value/pixel
+    private int pixelPerGrid = DEFAULT_PIXEL_PER_GRID; // 每个栅格的像素个数
+    private int xPixelPerData = DEFAULT_PIXEL_PER_DATA; //X方向分辨率，表示X方向每个数据点占多少个像素，pixel/data
+    private float yValuePerPixel = DEFAULT_VALUE_PER_PIXEL; //Y方向分辨率，表示Y方向每个像素代表的信号值，value/pixel
     private double zeroLocation = DEFAULT_ZERO_LOCATION; //表示零值位置占视图高度的百分比
 
     private boolean showGridLine = true; // 是否显示栅格线

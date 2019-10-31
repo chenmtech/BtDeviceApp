@@ -105,7 +105,7 @@ public class RollWaveView extends View {
         wavePaint.setColor(waveColor);
     }
 
-    public void setGridWidth(int gridWidth) {
+    public void setPixelPerGrid(int gridWidth) {
         this.gridWidth = gridWidth;
     }
     public int getXRes()
@@ -116,7 +116,7 @@ public class RollWaveView extends View {
     {
         return yRes;
     }
-    public void setRes(int xRes, float yRes)
+    public void setResolution(int xRes, float yRes)
     {
         if((xRes < 1) || (yRes < 0)) return;
         this.xRes = xRes;
@@ -180,11 +180,11 @@ public class RollWaveView extends View {
         viewHeight = getHeight();
         setDataNumXDirection(viewWidth, xRes);
 
-        initView();
+        initialize();
         drawDataOnForeCanvas();
     }
 
-    public void initView()
+    public void initialize()
     {
         // 清除缓存区
         //viewData.reset();
