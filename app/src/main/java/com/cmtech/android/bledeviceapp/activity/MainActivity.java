@@ -77,8 +77,8 @@ import static com.cmtech.android.ble.core.BleDevice.MSG_BLE_INNER_ERROR;
 import static com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;
-import static com.cmtech.android.bledeviceapp.MyApplication.showMessageLongUsingToast;
-import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingToast;
+import static com.cmtech.android.bledeviceapp.MyApplication.showLongToastMessage;
+import static com.cmtech.android.bledeviceapp.MyApplication.showShortToastMessage;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
 import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_DEVICE_MAC_LIST;
 
@@ -401,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                             toolbarManager.setBattery(device.getBattery());
                         }
                     } else {
-                        showMessageUsingToast("设备信息修改失败");
+                        showShortToastMessage("设备信息修改失败");
                     }
                 }
                 break;
@@ -550,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                 isWarningBleInnerError = true;
             }
         } else {
-            showMessageUsingToast(device.getNickName() + "-" + getString(msgId));
+            showShortToastMessage(device.getNickName() + "-" + getString(msgId));
         }
     }
 
@@ -619,7 +619,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         if(device.isStopped()) {
             fragment.close();
         } else {
-            showMessageLongUsingToast("当前无法关闭设备。");
+            showLongToastMessage("当前无法关闭设备。");
         }
     }
 
@@ -633,7 +633,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         if(device == null) return;
 
         if(fragTabManager.isFragmentOpened(device)) {
-            showMessageUsingToast("请先关闭该设备。");
+            showShortToastMessage("请先关闭该设备。");
             return;
         }
 

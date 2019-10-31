@@ -37,32 +37,26 @@ public class MyApplication extends Application {
         super.onCreate();
 
         instance = this;
-
+        // 初始化LitePal
+        LitePal.initialize(getApplicationContext());
+        LitePal.getDatabase();
         // BLE包配置
         BleConfig.getInstance().setConnectTimeout(CONNECT_TIMEOUT);
         BleConfig.getInstance().setDataOperateTimeout(DATA_OPERATE_TIMEOUT);
         BleConfig.getInstance().setAutoScanInterval(AUTO_SCAN_INTERVAL);
-
+        // 配置支持的设备类型
         BleDeviceConfig.addSupportedDeviceType(EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE);
         BleDeviceConfig.addSupportedDeviceType(TempHumidFactory.TEMPHUMID_DEVICE_TYPE);
         BleDeviceConfig.addSupportedDeviceType(ThermoFactory.THERMO_DEVICE_TYPE);
         BleDeviceConfig.addSupportedDeviceType(SigGeneratorFactory.SIGGENERATOR_DEVICE_TYPE);
-
-        // 初始化LitePal
-        LitePal.initialize(getApplicationContext());
-        LitePal.getDatabase();
-
         // 初始化MobSDK
         MobSDK.init(getApplicationContext(), "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");
-
         // 初始化ViseLog
         ViseLog.getLogConfig()
                 .configAllowLog(true)           //是否输出日志
                 .configShowBorders(false)        //是否排版显示
                 .configTagPrefix("BleDeviceApp")     //设置标签前缀
-                //.configFormatTag("%d{HH:mm:ss:SSS} %t %c{-5}")//个性化设置标签，默认显示包名
                 .configLevel(Log.VERBOSE);      //设置日志最小输出级别，默认Log.VERBOSE
-
         ViseLog.plant(new LogcatTree());        //添加打印日志信息到Logcat的树
     }
 
@@ -71,13 +65,13 @@ public class MyApplication extends Application {
         return instance.getApplicationContext();
     }
 
-    public static void showMessageUsingToast(String msg) {
+    public static void showShortToastMessage(String msg) {
         Toast toast = Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
 
-    public static void showMessageLongUsingToast(String msg) {
+    public static void showLongToastMessage(String msg) {
         Toast toast = Toast.makeText(getContext(), msg, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
