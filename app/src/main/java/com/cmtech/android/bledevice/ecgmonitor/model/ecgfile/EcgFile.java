@@ -31,7 +31,7 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 public class EcgFile extends AbstractRandomAccessBmeFile {
     private final EcgFileHead ecgFileHead;
     private final EcgFileTail ecgFileTail;
-    private final long dataBeginPointer; // 数据起始位置指针
+    private final long dataBeginPointer; // 数据起始的文件位置指针
     private long dataEndPointer;  // 数据结束的文件位置指针
 
     private static class EcgFileTail {
