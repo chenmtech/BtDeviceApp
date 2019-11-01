@@ -1,12 +1,14 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgHrAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead30;
+import com.cmtech.bmefile.DataIOUtil;
 
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
@@ -31,44 +33,15 @@ public class EcgRecord extends LitePalSupport {
     private String sigFileName = "";
     @Column(ignore = true)
     private RandomAccessFile sigRaf;
-    private String hrFileName = "";
-    @Column(ignore = true)
-    private RandomAccessFile hrRaf;
-    private List<EcgNormalComment> commentList = new ArrayList<>();
+    private final EcgHrAppendix hrAppendix;
+    private final List<EcgNormalComment> commentList = new ArrayList<>();
 
-    private EcgRecord(BmeFileHead30 bmeHead, EcgFileHead ecgHead, String recordName) throws IOException{
+    private EcgRecord(BmeFileHead30 bmeHead, EcgFileHead ecgHead, String recordName) {
         this.bmeHead = bmeHead;
         this.ecgHead = ecgHead;
         this.recordName = recordName;
-
-        String sigFileName = "sig_" + recordName;
-        RandomAccessFile raf = createRandomAccessFile(sigFileName);
-        if(raf == null) {
-            throw new IOException();
-        }
-        this.sigFileName = sigFileName;
-        this.sigRaf = raf;
-
-        String hrFileName = "hr_" + recordName;
-        raf = createRandomAccessFile(hrFileName);
-        if(raf == null) {
-            throw new IOException();
-        }
-        this.hrFileName = hrFileName;
-        this.hrRaf = raf;
-    }
-
-    private RandomAccessFile createRandomAccessFile(String fileName) {
-        File file = new File(fileName);
-        try {
-            if(file.exists() || file.createNewFile()) {
-                return new RandomAccessFile(file, "rw");
-            }
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
+        this.sigFileName = "sig_" + recordName;
+        this.hrAppendix = EcgHrAppendix.create();
     }
 
     // 创建新文件
@@ -81,8 +54,28 @@ public class EcgRecord extends LitePalSupport {
         EcgFileHead ecgFileHead = new EcgFileHead(creator, address, leadType);
 
         String recordName = EcgMonitorUtil.makeFileName(macAddress, time);
+        return new EcgRecord(bmeFileHead, ecgFileHead, recordName);
+    }
+
+    public void openSigFile() {
+        if(sigRaf == null) {
+            sigRaf = createRandomAccessFile(sigFileName);
+        } else {
+            try {
+                sigRaf.seek(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private RandomAccessFile createRandomAccessFile(String fileName) {
+        File file = new File(fileName);
         try {
-            return new EcgRecord(bmeFileHead, ecgFileHead, recordName);
+            if(file.exists() || file.createNewFile()) {
+                return new RandomAccessFile(file, "rw");
+            }
+            return null;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -125,26 +118,72 @@ public class EcgRecord extends LitePalSupport {
         commentList.remove(comment);
     }
 
+    // 读单个byte数据
+    public byte readByte() throws IOException{
+        return sigRaf.readByte();
+    }
+
+    // 读单个int数据
+    public int readInt() throws IOException {
+        return DataIOUtil.readInt(sigRaf, bmeHead.getByteOrder());
+    }
+
+    // 读单个double数据
+    public double readDouble() throws IOException{
+        return DataIOUtil.readDouble(sigRaf, bmeHead.getByteOrder());
+    }
+
+    // 写单个byte数据
+    public void writeData(byte data) throws IOException{
+        sigRaf.writeByte(data);
+    }
+
+    // 写单个int数据
+    public void writeData(int data) throws IOException{
+        DataIOUtil.writeInt(sigRaf, data, bmeHead.getByteOrder());
+    }
+
+    // 写单个double数据
+    public void writeData(double data) throws IOException{
+        DataIOUtil.writeDouble(sigRaf, data, bmeHead.getByteOrder());
+    }
+
+    // 写byte数组
+    public void writeData(byte[] data) throws IOException{
+        for(byte num : data) {
+            writeData(num);
+        }
+    }
+
+    // 写int数组
+    public void writeData(int[] data) throws IOException{
+        for(int num : data) {
+            writeData(num);
+        }
+    }
+
+    // 写double数组
+    public void writeData(double[] data) throws IOException{
+        for(double num : data) {
+            writeData(num);
+        }
+    }
 
     public void close() {
         try {
             if(sigRaf != null) {
                 sigRaf.close();
             }
-            if(hrRaf != null) {
-                hrRaf.close();
-            }
         } catch(IOException e) {
             e.printStackTrace();
         } finally {
             sigRaf = null;
-            hrRaf = null;
         }
     }
 
     @Override
     public String toString() {
-        return bmeHead + "-" + ecgHead + "-" + sigFileName + "-" + hrFileName + "-" +commentList;
+        return bmeHead + "-" + ecgHead + "-" + sigFileName + "-" + hrAppendix + "-" +commentList;
     }
 
     @Override
