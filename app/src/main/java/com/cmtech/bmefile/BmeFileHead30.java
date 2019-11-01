@@ -17,23 +17,23 @@ public class BmeFileHead30 extends BmeFileHead10 {
     private static final int CREATE_TIME_BYTE_NUM = 8; // 创建时间的字节数
 
     private int caliValue = 1; // 定标值。作用是所有数据都需要与定标值相除，得到实际数据代表的物理信号大小
-    private long createdTime = 0; // 创建时间
+    private long createTime = 0; // 创建时间
 
-    BmeFileHead30() {
+    public BmeFileHead30() {
         super();
     }
 
-    public BmeFileHead30(String info, BmeFileDataType dataType, int sampleRate, int caliValue, long createdTime) {
+    public BmeFileHead30(String info, BmeFileDataType dataType, int sampleRate, int caliValue, long createTime) {
         super(info, dataType, sampleRate);
         this.caliValue = caliValue;
-        this.createdTime = createdTime;
+        this.createTime = createTime;
     }
 
     public int getCaliValue() {
         return caliValue;
     }
-    public long getCreatedTime() {
-        return createdTime;
+    public long getCreateTime() {
+        return createTime;
     }
     @Override
     public byte[] getVersion() {
@@ -44,22 +44,22 @@ public class BmeFileHead30 extends BmeFileHead10 {
     public void readFromStream(DataInput in) throws IOException{
         super.readFromStream(in);
         caliValue = ByteUtil.reverseInt(in.readInt());
-        createdTime = ByteUtil.reverseLong(in.readLong());
+        createTime = ByteUtil.reverseLong(in.readLong());
     }
 
     @Override
     public void writeToStream(DataOutput out) throws IOException{
         super.writeToStream(out);
         out.writeInt(ByteUtil.reverseInt(caliValue)); // 写定标值
-        out.writeLong(ByteUtil.reverseLong(createdTime)); // 写创建时间
+        out.writeLong(ByteUtil.reverseLong(createTime)); // 写创建时间
     }
 
     @Override
     public String toString() {
         return "BmeFileHead30:"
-                + super.toString()
+                + super.toString() + ";"
                 + caliValue + ";"
-                + createdTime;
+                + createTime;
     }
 
     public int getLength() {

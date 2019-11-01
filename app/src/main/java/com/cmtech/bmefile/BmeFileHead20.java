@@ -24,7 +24,7 @@ public class BmeFileHead20 extends BmeFileHead {
 
 	private ByteOrder byteOrder = DEFAULT_BYTE_ORDER;
 	
-	BmeFileHead20() {
+	public BmeFileHead20() {
 		super();
 	}
 	

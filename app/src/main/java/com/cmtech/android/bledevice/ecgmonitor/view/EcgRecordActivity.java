@@ -145,7 +145,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
         }
 
-        String createdTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreatedTime());
+        String createdTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
         tvCreateTime.setText(createdTime);
 
         if(file.getDataNum() == 0) {

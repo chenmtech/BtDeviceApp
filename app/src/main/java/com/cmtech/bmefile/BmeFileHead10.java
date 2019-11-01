@@ -16,14 +16,12 @@ public class BmeFileHead10 extends BmeFileHead {
 	static final byte[] VER = new byte[] {0x00, 0x01}; // 版本号
     private static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN; // 字节序,1.0版本为little endian
 	
-	BmeFileHead10() {
+	public BmeFileHead10() {
 		super();
 	}
-	
-	BmeFileHead10(String info, BmeFileDataType dataType, int sampleRate) {
+	public BmeFileHead10(String info, BmeFileDataType dataType, int sampleRate) {
 		super(info, dataType, sampleRate);
 	}
-	
 	public BmeFileHead10(BmeFileHead fileHead) {
 		super(fileHead);
 	}

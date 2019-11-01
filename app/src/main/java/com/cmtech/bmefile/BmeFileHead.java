@@ -16,24 +16,24 @@ public abstract class BmeFileHead {
     private static final int SAMPLE_RATE_BYTE_NUM = 4; // 采样率的字节数
     public static final int INVALID_SAMPLE_RATE = -1; // 无效采样率
 
-	private String info = "Unknown"; // 信息字符串
-	private BmeFileDataType dataType = BmeFileDataType.DOUBLE; // 数据类型
-	private int sampleRate = INVALID_SAMPLE_RATE; // 采样频率
+    private String info = "Unknown"; // 信息字符串
+    private int dataTypeCode = BmeFileDataType.DOUBLE.getCode(); // 数据类型码
+    private int sampleRate = INVALID_SAMPLE_RATE; // 采样频率
 
-	public BmeFileHead() {
-	}
-	
-	public BmeFileHead(String info, BmeFileDataType dataType, int sampleRate) {
-		this.info = info;
-		this.dataType = dataType;
-		this.sampleRate = sampleRate;
-	}
-	
-	public BmeFileHead(BmeFileHead fileHead) {
-		info = fileHead.info;
-		dataType = fileHead.dataType;
-		sampleRate = fileHead.sampleRate;
-	}
+    public BmeFileHead() {
+    }
+
+    public BmeFileHead(String info, BmeFileDataType dataType, int sampleRate) {
+        this.info = info;
+        this.dataTypeCode = dataType.getCode();
+        this.sampleRate = sampleRate;
+    }
+
+    public BmeFileHead(BmeFileHead fileHead) {
+        info = fileHead.info;
+        dataTypeCode = fileHead.dataTypeCode;
+        sampleRate = fileHead.sampleRate;
+    }
 
     public String getInfo() {
         return info;
@@ -42,10 +42,10 @@ public abstract class BmeFileHead {
         this.info = info;
     }
     public BmeFileDataType getDataType() {
-        return dataType;
+        return BmeFileDataType.getFromCode(dataTypeCode);
     }
     public void setDataType(BmeFileDataType dataType) {
-        this.dataType = dataType;
+        this.dataTypeCode = dataType.getCode();
     }
     public int getSampleRate() {
         return sampleRate;
@@ -53,21 +53,21 @@ public abstract class BmeFileHead {
     public void setSampleRate(int fs) {
         this.sampleRate = fs;
     }
-	public int getLength() {
-	    return INFO_LENGTH_BYTE_NUM + info.getBytes().length + DATA_TYPE_BYTE_NUM + SAMPLE_RATE_BYTE_NUM;
+    public int getLength() {
+        return INFO_LENGTH_BYTE_NUM + info.getBytes().length + DATA_TYPE_BYTE_NUM + SAMPLE_RATE_BYTE_NUM;
     }
 
     @Override
     public String toString() {
         return "BmeFileHead:"
                 + info + ";"
-                + dataType + ";"
+                + BmeFileDataType.getFromCode(dataTypeCode) + ";"
                 + sampleRate;
     }
 
     public abstract byte[] getVersion(); // 获取版本号
-	public abstract ByteOrder getByteOrder(); // 获取数据字节序
-	public abstract void setByteOrder(ByteOrder byteOrder); // 设置数据字节序
-	public abstract void readFromStream(DataInput in) throws IOException; // 从输入流读取文件头
-	public abstract void writeToStream(DataOutput out) throws IOException; // 将文件头写到输出流
+    public abstract ByteOrder getByteOrder(); // 获取数据字节序
+    public abstract void setByteOrder(ByteOrder byteOrder); // 设置数据字节序
+    public abstract void readFromStream(DataInput in) throws IOException; // 从输入流读取文件头
+    public abstract void writeToStream(DataOutput out) throws IOException; // 将文件头写到输出流
 }

@@ -178,8 +178,8 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     public String getCreatorName() {
         return getCreator().getName();
     }
-    public long getCreatedTime() {
-        return ((BmeFileHead30)getBmeFileHead()).getCreatedTime();
+    public long getCreateTime() {
+        return ((BmeFileHead30)getBmeFileHead()).getCreateTime();
     }
     public List<Short> getHrList() {
         return ecgFileTail.hrInfoAppendix.getHrList();
