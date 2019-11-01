@@ -11,10 +11,10 @@ import java.nio.ByteOrder;
  */
 
 public abstract class BmeFileHead {
-    private static final int INFO_LENGTH_BYTE_NUM = 4;
-    private static final int DATA_TYPE_BYTE_NUM = 1;
-    private static final int SAMPLE_RATE_BYTE_NUM = 4;
-    public static final int INVALID_SAMPLE_RATE = -1;
+    private static final int INFO_LENGTH_BYTE_NUM = 4; // 信息长度的字节数
+    private static final int DATA_TYPE_BYTE_NUM = 1; // 数据类型的字节数
+    private static final int SAMPLE_RATE_BYTE_NUM = 4; // 采样率的字节数
+    public static final int INVALID_SAMPLE_RATE = -1; // 无效采样率
 
 	private String info = "Unknown"; // 信息字符串
 	private BmeFileDataType dataType = BmeFileDataType.DOUBLE; // 数据类型

@@ -14,7 +14,6 @@ import java.nio.ByteOrder;
 
 public class BmeFileHead10 extends BmeFileHead {
 	static final byte[] VER = new byte[] {0x00, 0x01}; // 版本号
-
     private static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN; // 字节序,1.0版本为little endian
 	
 	BmeFileHead10() {
@@ -33,16 +32,14 @@ public class BmeFileHead10 extends BmeFileHead {
 	public byte[] getVersion() {
 		return BmeFileHead10.VER;
 	}
-
 	@Override
 	public ByteOrder getByteOrder() {
 		return BYTE_ORDER;
 	}
-	
 	@Override
 	public void setByteOrder(ByteOrder byteOrder) {
         if(byteOrder != ByteOrder.LITTLE_ENDIAN) {
-            throw new IllegalArgumentException("The byteOrder must be Little Endian.");
+            throw new IllegalArgumentException("The byte order of BmeFileHead1.0 must be Little Endian.");
         }
 	}
 	

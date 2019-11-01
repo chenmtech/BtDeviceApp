@@ -142,7 +142,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
     }
 
     private void intialShowSetup() {
-        int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCalibrationValue();
+        int value1mV = ((BmeFileHead30)ecgFile.getBmeFileHead()).getCaliValue();
         int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * ecgFile.getSampleRate())); // 计算横向分辨率
         float valuePerPixel = value1mV * MV_PER_GRID / PIXEL_PER_GRID; // 计算纵向分辨率
         setResolution(pixelPerData, valuePerPixel);

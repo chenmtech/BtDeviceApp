@@ -134,7 +134,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     }
 
     // 创建新文件时使用的私有构造器
-    private EcgFile(String fileName, BmeFileHead head, final EcgFileHead ecgFileHead) throws IOException {
+    private EcgFile(String fileName, BmeFileHead head, EcgFileHead ecgFileHead) throws IOException {
         super(fileName, head);
         this.ecgFileHead = ecgFileHead;
         ecgFileHead.writeToStream(raf);
