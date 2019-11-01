@@ -1,7 +1,5 @@
 package com.cmtech.bmefile;
 
-import com.cmtech.android.bledeviceapp.util.DataIOUtil;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
