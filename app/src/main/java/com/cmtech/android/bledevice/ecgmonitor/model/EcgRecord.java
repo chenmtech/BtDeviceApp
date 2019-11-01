@@ -24,6 +24,8 @@ import static com.cmtech.bmefile.BmeFileHead.INVALID_SAMPLE_RATE;
 
 public class EcgRecord extends LitePalSupport {
     private int id;
+    @Column(unique = true)
+    private final String recordName;
     private final BmeFileHead30 bmeHead;
     private final EcgFileHead ecgHead;
     private String sigFileName = "";
@@ -37,6 +39,7 @@ public class EcgRecord extends LitePalSupport {
     private EcgRecord(BmeFileHead30 bmeHead, EcgFileHead ecgHead, String recordName) throws IOException{
         this.bmeHead = bmeHead;
         this.ecgHead = ecgHead;
+        this.recordName = recordName;
 
         String sigFileName = "sig_" + recordName;
         RandomAccessFile raf = createRandomAccessFile(sigFileName);
@@ -106,11 +109,6 @@ public class EcgRecord extends LitePalSupport {
     }
     public long getCreateTime() {
         return bmeHead.getCreateTime();
-    }
-    public List<Short> getHrList() {
-        return null;
-    }
-    public void setHrList(List<Short> hrList) {
     }
     public String getMacAddress() {
         return ecgHead.getMacAddress();
