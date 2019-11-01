@@ -33,7 +33,7 @@ public class RandomAccessBmeFile extends AbstractRandomAccessBmeFile {
 
     // 用缺省文件头创建新的文件
     public static RandomAccessBmeFile create(String fileName) throws IOException{
-        return new RandomAccessBmeFile(fileName, DEFAULT_BMEFILE_HEAD);
+        return new RandomAccessBmeFile(fileName, DEFAULT_BME_FILE_HEAD);
     }
 
     // 用指定的文件头创建新的文件
@@ -44,7 +44,7 @@ public class RandomAccessBmeFile extends AbstractRandomAccessBmeFile {
     @Override
     protected int availableDataFromCurrentPos() {
         try {
-            return (int)((raf.length()-raf.getFilePointer())/fileHead.getDataType().getByteNum());
+            return (int)((raf.length()-raf.getFilePointer())/ head.getDataType().getByteNum());
         } catch (IOException e) {
             return 0;
         }

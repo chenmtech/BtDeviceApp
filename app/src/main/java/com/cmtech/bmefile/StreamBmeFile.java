@@ -34,7 +34,7 @@ public class StreamBmeFile extends BmeFile {
 
     // 用缺省文件头创建新的文件
     public static StreamBmeFile create(String fileName) throws IOException{
-        return new StreamBmeFile(fileName, DEFAULT_BMEFILE_HEAD);
+        return new StreamBmeFile(fileName, DEFAULT_BME_FILE_HEAD);
     }
 
     // 用指定的文件头创建新的文件
@@ -57,7 +57,7 @@ public class StreamBmeFile extends BmeFile {
     @Override
     protected int availableDataFromCurrentPos() {
         try {
-            return ((DataInputStream)in).available()/fileHead.getDataType().getByteNum();
+            return ((DataInputStream)in).available()/ head.getDataType().getByteNum();
         } catch (IOException e) {
             return 0;
         }

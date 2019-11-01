@@ -6,7 +6,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
  */
 
 public enum EcgAppendixType {
-    HR_INFO(0, "心率信息"),
+    HEART_RATE(0, "心率信息"),
     NORMAL_COMMENT(1, "一般留言");
 
     private final int code;

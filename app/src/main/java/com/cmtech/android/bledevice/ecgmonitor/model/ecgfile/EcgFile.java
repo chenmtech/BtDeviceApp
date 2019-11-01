@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendixFactory;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgHrInfoAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgHrAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
 import com.cmtech.android.bledeviceapp.model.User;
@@ -36,7 +36,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
 
     private static class EcgFileTail {
         static final int FILE_TAIL_LEN_BYTE_NUM = 8;
-        EcgHrInfoAppendix hrInfoAppendix = EcgHrInfoAppendix.create(); // 心率信息
+        EcgHrAppendix hrInfoAppendix = EcgHrAppendix.create(); // 心率信息
         List<EcgNormalComment> commentList = new ArrayList<>(); // 留言信息列表
         boolean needWriteHrInfo; // 是否需要写心率信息
         long hrInfoEndPointer; // 心率信息结束指针
@@ -59,10 +59,10 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
             raf.seek(tailEndPointer - appendixLength);
             // 读心率信息
             IEcgAppendix appendix = EcgAppendixFactory.readFromStream(raf);
-            if(!(appendix instanceof EcgHrInfoAppendix)) {
+            if(!(appendix instanceof EcgHrAppendix)) {
                 throw new IOException();
             }
-            fileTail.hrInfoAppendix = (EcgHrInfoAppendix)appendix;
+            fileTail.hrInfoAppendix = (EcgHrAppendix)appendix;
             fileTail.hrInfoEndPointer = raf.getFilePointer();
 
             // 读留言信息
@@ -195,7 +195,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     protected int availableDataFromCurrentPos() {
         if(raf != null) {
             try {
-                return (int)((dataEndPointer - raf.getFilePointer())/fileHead.getDataType().getByteNum());
+                return (int)((dataEndPointer - raf.getFilePointer())/ head.getDataType().getByteNum());
             } catch (IOException e) {
                 e.printStackTrace();
                 return 0;
@@ -212,7 +212,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     }
 
     private long updateDataEndPointer() {
-        return dataBeginPointer + dataNum * fileHead.getDataType().getByteNum();
+        return dataBeginPointer + dataNum * head.getDataType().getByteNum();
     }
 
     // 是否已经到达数据尾部

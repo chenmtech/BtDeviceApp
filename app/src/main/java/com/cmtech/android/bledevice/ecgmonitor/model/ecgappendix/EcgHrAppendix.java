@@ -8,17 +8,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EcgHrInfoAppendix extends EcgAppendix{
+public class EcgHrAppendix extends EcgAppendix{
     private static final int HR_LIST_LEN_BYTE_NUM = 4;
     private static final int BYTE_NUM_PER_HR_VALUE = 2;
 
     private List<Short> hrList = new ArrayList<>();
 
-    private EcgHrInfoAppendix() {
+    private EcgHrAppendix() {
     }
 
-    public static EcgHrInfoAppendix create() {
-        return new EcgHrInfoAppendix();
+    public static EcgHrAppendix create() {
+        return new EcgHrAppendix();
     }
 
     public void setHrList(List<Short> hrList) {
@@ -55,7 +55,7 @@ public class EcgHrInfoAppendix extends EcgAppendix{
 
     @Override
     public EcgAppendixType getType() {
-        return EcgAppendixType.HR_INFO;
+        return EcgAppendixType.HEART_RATE;
     }
 
     @Override

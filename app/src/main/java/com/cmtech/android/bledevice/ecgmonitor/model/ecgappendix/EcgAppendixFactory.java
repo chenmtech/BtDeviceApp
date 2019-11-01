@@ -33,8 +33,8 @@ public class EcgAppendixFactory {
     private static IEcgAppendix create(EcgAppendixType type) {
         if(type == null) return null;
         switch (type) {
-            case HR_INFO:
-                return EcgHrInfoAppendix.create();
+            case HEART_RATE:
+                return EcgHrAppendix.create();
             case NORMAL_COMMENT:
                 return EcgNormalComment.create();
             default:

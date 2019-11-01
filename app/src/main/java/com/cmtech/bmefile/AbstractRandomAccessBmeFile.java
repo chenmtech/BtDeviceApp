@@ -10,7 +10,6 @@ import java.io.RandomAccessFile;
  */
 
 public abstract class AbstractRandomAccessBmeFile extends BmeFile {
-
     protected RandomAccessFile raf;
 
     protected AbstractRandomAccessBmeFile(String fileName) throws IOException {
@@ -30,7 +29,7 @@ public abstract class AbstractRandomAccessBmeFile extends BmeFile {
 
     @Override
     protected boolean isEof() throws IOException {
-        return (raf == null ||raf.length() == raf.getFilePointer());
+        return (raf == null || raf.length() == raf.getFilePointer());
     }
 
     @Override
@@ -42,7 +41,6 @@ public abstract class AbstractRandomAccessBmeFile extends BmeFile {
         } catch(IOException e) {
             throw new IOException(e);
         } finally {
-            //fileInOperation.remove(file.getCanonicalPath());
             in = null;
             out = null;
             raf = null;
