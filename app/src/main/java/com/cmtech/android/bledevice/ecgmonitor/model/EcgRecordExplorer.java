@@ -206,7 +206,7 @@ public class EcgRecordExplorer {
         for(File srcFile : fileList) {
             try {
                 srcEcgFile = EcgFile.open(srcFile.getCanonicalPath());
-                String fileName = EcgMonitorUtil.makeFileName(srcEcgFile.getMacAddress(), srcEcgFile.getCreatedTime());
+                String fileName = EcgMonitorUtil.makeFileName(srcEcgFile.getMacAddress(), srcEcgFile.getCreateTime());
                 File destFile = FileUtil.getFile(destDir, fileName);
                 ViseLog.e("srcfile = " + srcFile);
                 ViseLog.e("destFile = " + destFile);
