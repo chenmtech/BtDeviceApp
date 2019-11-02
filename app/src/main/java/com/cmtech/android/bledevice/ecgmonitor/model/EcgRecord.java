@@ -9,6 +9,7 @@ import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.DataIOUtil;
+import com.vise.log.ViseLog;
 
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
@@ -106,6 +107,9 @@ public class EcgRecord extends LitePalSupport {
     public String getMacAddress() {
         return ecgHead.getMacAddress();
     }
+    public int getCaliValue() {
+        return bmeHead.getCaliValue();
+    }
     public List<EcgNormalComment> getCommentList() {
         return commentList;
     }
@@ -117,55 +121,74 @@ public class EcgRecord extends LitePalSupport {
     public void deleteComment(EcgNormalComment comment) {
         commentList.remove(comment);
     }
-
     // 读单个byte数据
     public byte readByte() throws IOException{
         return sigRaf.readByte();
     }
-
     // 读单个int数据
     public int readInt() throws IOException {
         return DataIOUtil.readInt(sigRaf, bmeHead.getByteOrder());
     }
-
     // 读单个double数据
     public double readDouble() throws IOException{
         return DataIOUtil.readDouble(sigRaf, bmeHead.getByteOrder());
     }
-
     // 写单个byte数据
     public void writeData(byte data) throws IOException{
         sigRaf.writeByte(data);
     }
-
     // 写单个int数据
     public void writeData(int data) throws IOException{
         DataIOUtil.writeInt(sigRaf, data, bmeHead.getByteOrder());
     }
-
     // 写单个double数据
     public void writeData(double data) throws IOException{
         DataIOUtil.writeDouble(sigRaf, data, bmeHead.getByteOrder());
     }
-
     // 写byte数组
     public void writeData(byte[] data) throws IOException{
         for(byte num : data) {
             writeData(num);
         }
     }
-
     // 写int数组
     public void writeData(int[] data) throws IOException{
         for(int num : data) {
             writeData(num);
         }
     }
-
     // 写double数组
     public void writeData(double[] data) throws IOException{
         for(double num : data) {
             writeData(num);
+        }
+    }
+    // 将文件指针定位到某个数据位置
+    public void seekData(int dataNum) {
+        try {
+            if(sigRaf != null)
+                sigRaf.seek(dataNum * getDataType().getByteNum());
+        } catch (IOException e) {
+            ViseLog.e("seekData " + dataNum + "is wrong.");
+        }
+    }
+    public int getDataNum() {
+        if(sigRaf != null) {
+            try {
+                return (int)(sigRaf.getFilePointer() / getDataType().getByteNum());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return 0;
+    }
+    // 是否已经到达数据尾部
+    public boolean isEOD() {
+        try {
+            return (sigRaf == null || sigRaf.getFilePointer() == sigRaf.length());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return true;
         }
     }
 
@@ -192,11 +215,11 @@ public class EcgRecord extends LitePalSupport {
         if(otherObject == null) return false;
         if(getClass() != otherObject.getClass()) return false;
         EcgRecord other = (EcgRecord) otherObject;
-        return id == other.id;
+        return recordName.equals(other.recordName);
     }
 
     @Override
     public int hashCode() {
-        return Integer.valueOf(id).hashCode();
+        return recordName.hashCode();
     }
 }

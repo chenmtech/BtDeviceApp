@@ -190,6 +190,9 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     public String getMacAddress() {
         return ecgFileHead.getMacAddress();
     }
+    public int getCaliValue() {
+        return ((BmeFileHead30)head).getCaliValue();
+    }
 
     @Override
     protected int availableDataFromCurrentPos() {
