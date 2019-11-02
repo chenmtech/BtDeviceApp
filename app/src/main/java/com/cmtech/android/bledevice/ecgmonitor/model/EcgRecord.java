@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgHrAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.User;
@@ -41,7 +42,7 @@ public class EcgRecord extends LitePalSupport {
         this.bmeHead = bmeHead;
         this.ecgHead = ecgHead;
         this.recordName = recordName;
-        this.sigFileName = "sig_" + recordName;
+        this.sigFileName = "sig_" + recordName + ".bme";
         this.hrAppendix = EcgHrAppendix.create();
     }
 
@@ -54,19 +55,51 @@ public class EcgRecord extends LitePalSupport {
         String address = EcgMonitorUtil.cutMacAddressColon(macAddress);
         EcgFileHead ecgFileHead = new EcgFileHead(creator, address, leadType);
 
-        String recordName = EcgMonitorUtil.makeFileName(macAddress, time);
+        String recordName = EcgMonitorUtil.makeRecordName(macAddress, time);
         return new EcgRecord(bmeFileHead, ecgFileHead, recordName);
     }
 
-    public void openSigFile() {
+    public static EcgRecord create(EcgFile ecgFile) {
+        BmeFileHead30 bmeHead = (BmeFileHead30) ecgFile.getBmeFileHead();
+        EcgFileHead ecgHead = ecgFile.getEcgFileHead();
+        String recordName = ecgFile.getFileName();
+        if(recordName != null) {
+            recordName = recordName.substring(recordName.lastIndexOf(File.separator) + 1);
+            recordName = recordName.substring(0, recordName.lastIndexOf("."));
+        }
+        EcgRecord record = new EcgRecord(bmeHead, ecgHead, recordName);
+        try {
+            record.openSigFile();
+            record.readSignal(ecgFile);
+            record.closeSigFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return record;
+    }
+
+    public void openSigFile() throws IOException{
         if(sigRaf == null) {
             sigRaf = createRandomAccessFile(sigFileName);
         } else {
-            try {
-                sigRaf.seek(0);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            sigRaf.seek(0);
+        }
+    }
+
+    public void readSignal(EcgFile ecgFile) throws IOException{
+        ecgFile.seekData(0);
+        while (!ecgFile.isEOD()) {
+            DataIOUtil.writeInt(sigRaf, ecgFile.readInt(), bmeHead.getByteOrder());
+        }
+        ecgFile.seekData(0);
+        sigRaf.seek(0);
+    }
+
+    public void closeSigFile() throws IOException {
+        if(sigRaf != null) {
+            sigRaf.close();
+            sigRaf = null;
         }
     }
 
@@ -189,18 +222,6 @@ public class EcgRecord extends LitePalSupport {
         } catch (IOException e) {
             e.printStackTrace();
             return true;
-        }
-    }
-
-    public void close() {
-        try {
-            if(sigRaf != null) {
-                sigRaf.close();
-            }
-        } catch(IOException e) {
-            e.printStackTrace();
-        } finally {
-            sigRaf = null;
         }
     }
 

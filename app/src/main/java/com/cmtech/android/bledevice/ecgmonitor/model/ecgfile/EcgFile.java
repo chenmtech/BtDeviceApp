@@ -169,6 +169,9 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         return new EcgFile(fileName, head, ecgFileHead);
     }
 
+    public EcgFileHead getEcgFileHead() {
+        return ecgFileHead;
+    }
     public List<EcgNormalComment> getCommentList() {
         return ecgFileTail.commentList;
     }

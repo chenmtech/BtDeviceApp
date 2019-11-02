@@ -22,4 +22,10 @@ public class EcgMonitorUtil {
         }
         return address.toString();
     }
+
+    // 创建Ecg recordName：去掉'：'的macAddress + 时间
+    public static String makeRecordName(String macAddress, long timeInMillis) {
+        String address = cutMacAddressColon(macAddress);
+        return address + timeInMillis;
+    }
 }
