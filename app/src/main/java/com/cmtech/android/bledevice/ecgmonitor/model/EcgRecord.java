@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgHrAppendix;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
@@ -17,7 +16,6 @@ import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteOrder;
@@ -26,12 +24,14 @@ import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG_SIGNAL;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 import static com.cmtech.bmefile.BmeFileHead.INVALID_SAMPLE_RATE;
 
 public class EcgRecord extends LitePalSupport {
     private int id;
     @Column(unique = true)
     private final String recordName;
+    private long lastModifyTime;
     private final BmeFileHead30 bmeHead;
     private final EcgFileHead ecgHead;
     private String sigFileName = "";
@@ -40,15 +40,16 @@ public class EcgRecord extends LitePalSupport {
     private List<Short> hrList;
     private final List<EcgNormalComment> commentList;
 
-    private EcgRecord(BmeFileHead30 bmeHead, EcgFileHead ecgHead, String recordName) {
-        this(bmeHead, ecgHead, recordName, new ArrayList<Short>(), new ArrayList<EcgNormalComment>());
+    private EcgRecord(String recordName, BmeFileHead30 bmeHead, EcgFileHead ecgHead, String sigFileName) {
+        this(recordName, bmeHead, ecgHead, sigFileName, new ArrayList<Short>(), new ArrayList<EcgNormalComment>());
     }
 
-    private EcgRecord(BmeFileHead30 bmeHead, EcgFileHead ecgHead, String recordName, List<Short> hrList, List<EcgNormalComment> commentList) {
+    private EcgRecord(String recordName, BmeFileHead30 bmeHead, EcgFileHead ecgHead, String sigFileName, List<Short> hrList, List<EcgNormalComment> commentList) {
+        this.recordName = recordName;
+        this.lastModifyTime = new Date().getTime();
         this.bmeHead = bmeHead;
         this.ecgHead = ecgHead;
-        this.recordName = recordName;
-        this.sigFileName = DIR_ECG_SIGNAL.getAbsolutePath() + "sig_" + recordName + ".bme";
+        this.sigFileName = sigFileName;
         this.hrList = hrList;
         this.commentList = commentList;
     }
@@ -63,7 +64,8 @@ public class EcgRecord extends LitePalSupport {
         EcgFileHead ecgFileHead = new EcgFileHead(creator, address, leadType);
 
         String recordName = EcgMonitorUtil.makeRecordName(macAddress, time);
-        return new EcgRecord(bmeFileHead, ecgFileHead, recordName);
+        String sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + recordName + ".bme";
+        return new EcgRecord(recordName, bmeFileHead, ecgFileHead, sigFileName);
     }
 
     public static EcgRecord create(EcgFile ecgFile) {
@@ -71,10 +73,14 @@ public class EcgRecord extends LitePalSupport {
         EcgFileHead ecgHead = ecgFile.getEcgFileHead();
         String fileName = ecgFile.getFileName();
         String recordName = fileName.substring(fileName.lastIndexOf(File.separator) + 1, fileName.lastIndexOf("."));
-        EcgRecord record = new EcgRecord(bmeHead, ecgHead, recordName, ecgFile.getHrList(), ecgFile.getCommentList());
+        String sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + recordName + ".bme";
+        EcgRecord record = new EcgRecord(recordName, bmeHead, ecgHead, sigFileName, ecgFile.getHrList(), ecgFile.getCommentList());
         try {
             record.openSigFile();
-            record.readSignal(ecgFile);
+            ecgFile.seekData(0);
+            while (!ecgFile.isEOD()) {
+                DataIOUtil.writeInt(record.sigRaf, ecgFile.readInt(), bmeHead.getByteOrder());
+            }
             record.closeSigFile();
         } catch (IOException e) {
             e.printStackTrace();
@@ -85,19 +91,8 @@ public class EcgRecord extends LitePalSupport {
 
     public void openSigFile() throws IOException{
         if(sigRaf == null) {
-            sigRaf = createRandomAccessFile(sigFileName);
-        } else {
-            sigRaf.seek(0);
+            sigRaf = createSigRandomAccessFile(sigFileName);
         }
-    }
-
-    public void readSignal(EcgFile ecgFile) throws IOException{
-        ecgFile.seekData(0);
-        while (!ecgFile.isEOD()) {
-            DataIOUtil.writeInt(sigRaf, ecgFile.readInt(), bmeHead.getByteOrder());
-        }
-        ecgFile.seekData(0);
-        sigRaf.seek(0);
     }
 
     public void closeSigFile() throws IOException {
@@ -107,7 +102,7 @@ public class EcgRecord extends LitePalSupport {
         }
     }
 
-    private RandomAccessFile createRandomAccessFile(String fileName) {
+    private RandomAccessFile createSigRandomAccessFile(String fileName) {
         File file = new File(fileName);
         try {
             if(file.exists() || file.createNewFile()) {
@@ -120,6 +115,9 @@ public class EcgRecord extends LitePalSupport {
         }
     }
 
+    public long getLastModifyTime() {
+        return lastModifyTime;
+    }
     public BmeFileDataType getDataType() {
         return (bmeHead == null) ? null : bmeHead.getDataType();
     }
@@ -252,5 +250,25 @@ public class EcgRecord extends LitePalSupport {
     @Override
     public int hashCode() {
         return recordName.hashCode();
+    }
+
+    @Override
+    public boolean save() {
+        if(DIR_ECG_SIGNAL != null) {
+            try {
+                if(sigRaf != null)
+                    sigRaf.close();
+                File sigFile = new File(sigFileName);
+                if(sigFile.exists()) {
+                    File toFile = FileUtil.getFile(DIR_ECG_SIGNAL, new File(sigFileName).getName());
+                    FileUtil.moveFile(new File(sigFileName), toFile);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        this.lastModifyTime = new Date().getTime();
+        return super.save();
     }
 }

@@ -19,8 +19,11 @@ public class EcgSignalRecorder {
     private boolean isRecording = false; // 是否记录
 
     public EcgSignalRecorder(EcgMonitorDevice device) {
-        if(device == null || device.getEcgRecord() == null) {
-            throw new NullPointerException("The device is null or the ecg record is null.");
+        if(device == null) {
+            throw new NullPointerException("The device is null.");
+        }
+        if(device.getEcgRecord() == null) {
+            throw new NullPointerException("The ecg record is null.");
         }
 
         this.device = device;
@@ -48,6 +51,7 @@ public class EcgSignalRecorder {
         isRecording = recording;
         if(isRecording) {
             try {
+                ecgRecord.openSigFile();
                 ecgRecord.writeData(device.getWaveData1mV());
                 dataNum += device.getWaveData1mV().length;
                 device.updateRecordSecond(getSecond());

@@ -18,6 +18,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
@@ -29,8 +30,11 @@ import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
+import org.litepal.LitePal;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.HR_FILTER_SECOND;
@@ -39,7 +43,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener{
     public static final double ZERO_LOCATION_IN_ECG_VIEW = 0.5;
 
-    private EcgFile file;
+    private EcgRecord record;
     private long modifyTime;
 
     private TextView tvModifyTime; // 更新时间
@@ -70,14 +74,16 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
         String fileName = getIntent().getStringExtra("file_name");
         try {
-            file = EcgFile.open(fileName);
+            //record = EcgFile.open(fileName);
+            record = LitePal.find(EcgRecord.class, 0, true);
+            record.openSigFile();
         } catch (IOException e) {
             e.printStackTrace();
             setResult(RESULT_CANCELED);
             finish();
         }
 
-        modifyTime = file.getFile().lastModified();
+        modifyTime = record.getLastModifyTime();
 
         tvModifyTime = findViewById(R.id.tv_modify_time);
         tvCreator = findViewById(R.id.tv_creator);
@@ -135,84 +141,84 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void initialize() {
-        tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(file.getFile().lastModified()));
+        tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime));
 
-        User fileCreator = file.getCreator();
+        User fileCreator = record.getCreator();
         User account = UserManager.getInstance().getUser();
         if(fileCreator.equals(account)) {
             tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
-            tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
+            tvCreator.setText(Html.fromHtml("<u>" + record.getCreatorName() + "</u>"));
         }
 
-        String createdTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
+        String createdTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         tvCreateTime.setText(createdTime);
 
-        if(file.getDataNum() == 0) {
+        if(record.getDataNum() == 0) {
             tvLength.setText("无");
         } else {
-            String dataTimeLength = DateTimeUtil.secToTimeInChinese(file.getDataNum() / file.getSampleRate());
+            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNum() / record.getSampleRate());
             tvLength.setText(dataTimeLength);
         }
 
-        int hrNum = file.getHrList().size();
+        int hrNum = record.getHrList().size();
         tvHrNum.setText(String.valueOf(hrNum));
 
-        initEcgView(file);
-        int secondInSignal = file.getDataNum()/ file.getSampleRate();
+        initEcgView(record);
+        int secondInSignal = record.getDataNum()/ record.getSampleRate();
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));
         tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
         sbReplay.setMax(secondInSignal);
 
-        List<EcgNormalComment> commentList = getCommentListInFile(file);
+        List<EcgNormalComment> commentList = getCommentListInRecord(record);
         commentAdapter.updateCommentList(commentList);
         if(commentList.size() > 0)
             rvComments.smoothScrollToPosition(0);
 
         signalView.startShow();
 
-        if(file.getDataNum() == 0) {
+        if(record.getDataNum() == 0) {
             signalLayout.setVisibility(View.GONE);
         } else {
             signalLayout.setVisibility(View.VISIBLE);
         }
 
-        if(file.getHrList().isEmpty()) {
+        if(record.getHrList().isEmpty()) {
             hrLayout.setVisibility(View.GONE);
         } else {
             hrLayout.setVisibility(View.VISIBLE);
         }
 
-        EcgHrStatisticsInfo hrStatisticsInfo = new EcgHrStatisticsInfo(file.getHrList(), HR_FILTER_SECOND);
+        EcgHrStatisticsInfo hrStatisticsInfo = new EcgHrStatisticsInfo(record.getHrList(), HR_FILTER_SECOND);
         tvAverageHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
         tvMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
         hrLineChart.showLineChart(hrStatisticsInfo.getFilteredHrList(), "心率时序图", Color.BLUE);
         hrHistChart.update(hrStatisticsInfo.getNormHistogram(HR_HISTOGRAM_BAR_NUM));
     }
 
-    private void initEcgView(EcgFile ecgFile) {
-        if(ecgFile == null) return;
-        signalView.setEcgRecord(ecgFile);
+    private void initEcgView(EcgRecord ecgRecord) {
+        if(ecgRecord == null) return;
+        signalView.setEcgRecord(ecgRecord);
         signalView.setZeroLocation(ZERO_LOCATION_IN_ECG_VIEW);
     }
 
     // 获取选中文件的留言列表
-    private List<EcgNormalComment> getCommentListInFile(EcgFile ecgFile) {
-        if(ecgFile == null)
+    private List<EcgNormalComment> getCommentListInRecord(EcgRecord ecgRecord) {
+        if(ecgRecord == null)
             return new ArrayList<>();
         else {
             User account = UserManager.getInstance().getUser();
             boolean found = false;
-            for(EcgNormalComment comment : ecgFile.getCommentList()) {
+            for(EcgNormalComment comment : ecgRecord.getCommentList()) {
                 if(comment.getCreator().equals(account)) {
                     found = true;
                     break;
                 }
             }
             if(!found) {
-                ecgFile.addComment(EcgNormalComment.createDefaultComment());
+                ecgRecord.addComment(EcgNormalComment.createDefaultComment());
             }
-            return ecgFile.getCommentList();
+            return ecgRecord.getCommentList();
         }
     }
 
@@ -235,13 +241,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     @Override
     public void onSelectedCommentSaved() {
-        try {
-            if(file != null) {
-                file.saveFileTail();
-                tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(file.getFile().lastModified()));
-            }
-        } catch (IOException e) {
-            ViseLog.e("保存留言错误。");
+        if(record != null) {
+            record.save();
+            tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(record.getLastModifyTime()));
         }
     }
 
@@ -266,7 +268,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        intent.putExtra("updated", modifyTime != file.getFile().lastModified());
+        intent.putExtra("updated", modifyTime != record.getLastModifyTime());
         setResult(RESULT_OK, intent);
         finish();
     }
@@ -277,7 +279,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
         signalView.stopShow();
         try {
-            file.close();
+            record.closeSigFile();
         } catch (IOException e) {
             e.printStackTrace();
         }

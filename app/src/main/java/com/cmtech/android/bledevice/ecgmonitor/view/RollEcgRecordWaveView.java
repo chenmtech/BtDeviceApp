@@ -5,9 +5,9 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.viewcomponent.ColorRollWaveView;
-import com.cmtech.bmefile.BmeFileHead30;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 public class RollEcgRecordWaveView extends ColorRollWaveView {
     private static final int MIN_SHOW_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
 
-    private EcgFile ecgFile; // 要播放的Ecg文件
+    private EcgRecord ecgRecord; // 要播放的Ecg文件
     private boolean replaying = false; // 是否正在播放
     private int num = 0; // 当前读取的文件中的第几个数据
     private int interval = 0; // 每次更新显示的时间间隔，为采样间隔的整数倍
@@ -44,14 +44,14 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
                 @Override
                 public void run() {
                     try {
-                        if(ecgFile.isEOD()) {
+                        if(ecgRecord.isEOD()) {
                             stopShow();
                         } else {
                             // 读出数据
                             for (int i = 0; i < dataNumReadEachUpdate; i++, num++) {
-                                cacheData.add(ecgFile.readInt());
+                                cacheData.add(ecgRecord.readInt());
                                 cacheMarked.add(false);
-                                if (ecgFile.isEOD()) {
+                                if (ecgRecord.isEOD()) {
                                     break;
                                 }
                             }
@@ -59,7 +59,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
                             cacheData.clear();
                             cacheMarked.clear();
                             if(listener != null) {
-                                listener.onDataLocationUpdated(num, ecgFile.getSampleRate());
+                                listener.onDataLocationUpdated(num, ecgRecord.getSampleRate());
                             }
                         }
                     } catch (IOException e) {
@@ -129,21 +129,21 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
         return true;
     }
 
-    public void setEcgRecord(EcgFile ecgFile) {
+    public void setEcgRecord(EcgRecord ecgRecord) {
         stopShow();
-        this.ecgFile = ecgFile;
-        int sampleInterval = 1000/ecgFile.getSampleRate();
+        this.ecgRecord = ecgRecord;
+        int sampleInterval = 1000/ecgRecord.getSampleRate();
         dataNumReadEachUpdate = (int)(Math.ceil((double) MIN_SHOW_INTERVAL /sampleInterval));
         interval = dataNumReadEachUpdate *sampleInterval;
-        ecgFile.seekData(0);
+        ecgRecord.seekData(0);
         num = 0;
 
         intialShowSetup();
     }
 
     private void intialShowSetup() {
-        int value1mV = ecgFile.getCaliValue();
-        int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * ecgFile.getSampleRate())); // 计算横向分辨率
+        int value1mV = ecgRecord.getCaliValue();
+        int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * ecgRecord.getSampleRate())); // 计算横向分辨率
         float valuePerPixel = value1mV * MV_PER_GRID / PIXEL_PER_GRID; // 计算纵向分辨率
         setResolution(pixelPerData, valuePerPixel);
         setPixelPerGrid(PIXEL_PER_GRID);
@@ -156,9 +156,9 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
     }
 
     public void startShow() {
-        if(!replaying && ecgFile != null) {
-            if(ecgFile.isEOD()) {
-                ecgFile.seekData(0);
+        if(!replaying && ecgRecord != null) {
+            if(ecgRecord.isEOD()) {
+                ecgRecord.seekData(0);
                 clearData();
                 num = 0;
             }
@@ -192,15 +192,15 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
 
     // 显示指定秒数的信号
     public void showAtSecond(int second) {
-        showAt(second*ecgFile.getSampleRate());
+        showAt(second* ecgRecord.getSampleRate());
     }
 
     // 显示指定数据位置信号
     public void showAt(long location) {
-        if(ecgFile == null) return;
+        if(ecgRecord == null) return;
 
-        if(location >= ecgFile.getDataNum()) {
-            location = ecgFile.getDataNum()-1;
+        if(location >= ecgRecord.getDataNum()) {
+            location = ecgRecord.getDataNum()-1;
         } else if(location < 0) {
             location = 0;
         }
@@ -209,11 +209,11 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
             begin = 0;
         }
 
-        ecgFile.seekData((int)begin);
+        ecgRecord.seekData((int)begin);
         clearData();
         while(begin++ <= location) {
             try {
-                addData(ecgFile.readInt(), false);
+                addData(ecgRecord.readInt(), false);
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
@@ -225,7 +225,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
         num = (int)location;
 
         if(listener != null) {
-            listener.onDataLocationUpdated(num, ecgFile.getSampleRate());
+            listener.onDataLocationUpdated(num, ecgRecord.getSampleRate());
         }
     }
 

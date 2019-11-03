@@ -99,7 +99,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private final EcgMonitorConfiguration config; // 心电监护仪的配置信息
     private final EcgDataProcessor dataProcessor; // 心电数据处理器,在其内部的单线程ExecutorService中执行
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
-    private EcgFile ecgFile; // 心电记录文件，可记录心电信号数据、用户留言和心率信息
     private EcgRecord ecgRecord; // 心电记录，可记录心电信号数据、用户留言和心率信息
     private ScheduledExecutorService batteryService; // 电池电量测量Service
     private OnEcgMonitorListener listener; // 心电监护仪监听器
@@ -179,7 +178,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     }
     public long getRecordDataNum() { return (signalRecorder == null) ? 0 : signalRecorder.getDataNum(); }
     public EcgRecord getEcgRecord() {
-        return null;
+        return ecgRecord;
     }
     public int[] getWaveData1mV() {
         return waveData1mV;
@@ -256,29 +255,13 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
         ViseLog.e("EcgMonitorDevice.close()");
 
-        // 关闭文件
-        if(ecgFile != null) {
-            try {
-                if(isSaveFile) {
-                    saveEcgRecord();
-                    ecgFile.close();
-                    if(DIR_ECG_SIGNAL != null) {
-                        File toFile = FileUtil.getFile(DIR_ECG_SIGNAL, ecgFile.getFile().getName());
-                        FileUtil.moveFile(ecgFile.getFile(), toFile);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    ecgFile.close();
-                    FileUtil.deleteFile(ecgFile.getFile());
-                    ecgFile = null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        // 关闭记录
+        if(ecgRecord != null) {
+            if(isSaveFile) {
+                saveEcgRecord();
             }
-            ViseLog.e("关闭Ecg文件。");
+            ecgRecord = null;
+            ViseLog.e("关闭Ecg记录。");
         }
 
         // 关闭信号记录器
@@ -571,6 +554,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         if(ecgRecord == null) {
             ecgRecord = EcgRecord.create(UserManager.getInstance().getUser(), sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
         }
+
+        ViseLog.e("ecgRecord: " + ecgRecord);
 
         // 创建心电信号记录仪
         if(ecgRecord != null && signalRecorder == null) {
