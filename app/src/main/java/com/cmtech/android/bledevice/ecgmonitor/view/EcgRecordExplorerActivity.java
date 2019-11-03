@@ -155,7 +155,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
     }
 
     public void deleteSelectedFile() {
-        explorer.deleteSelectFile(this);
+        explorer.deleteSelectRecord(this);
     }
 
     public void shareSelectedFileThroughWechat() {

@@ -116,12 +116,12 @@ public class EcgRecordExplorer {
     public List<EcgRecord> getRecordList() {
         return unmodifiedRecordList;
     }
-    public List<File> getUpdatedRecords() {
+    public List<EcgRecord> getUpdatedRecords() {
         return updatedRecords;
     }
-    public void addUpdatedFile(File file) {
-        if(!updatedRecords.contains(file)) {
-            updatedRecords.add(file);
+    public void addUpdatedFile(EcgRecord record) {
+        if(!updatedRecords.contains(record)) {
+            updatedRecords.add(record);
         }
     }
     public EcgRecord getSelectedRecord() {
@@ -134,7 +134,7 @@ public class EcgRecordExplorer {
         int i = 0;
         while(i < num && fileIterator.hasNext()) {
             File file = fileIterator.next();
-            openFileService.execute(new LoadFileRunnable(file));
+            //openFileService.execute(new LoadFileRunnable(file));
             i++;
         }
         return i;
@@ -148,8 +148,8 @@ public class EcgRecordExplorer {
         }
     }
 
-    // 删除选中文件
-    public void deleteSelectFile(Context context) {
+    // 删除选中记录
+    public void deleteSelectRecord(Context context) {
         if(selectedRecord != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("删除心电记录").setMessage("确定删除该心电记录吗？");
@@ -157,7 +157,7 @@ public class EcgRecordExplorer {
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    doDeleteSelectFile();
+                    doDeleteSelectRecord();
                 }
             }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
                 @Override
@@ -169,7 +169,7 @@ public class EcgRecordExplorer {
     }
 
     // 删除文件
-    private synchronized void doDeleteSelectFile() {
+    private synchronized void doDeleteSelectRecord() {
         try {
             if(selectedRecord != null) {
                 FileUtil.deleteFile(selectedRecord.getFile());
@@ -188,7 +188,7 @@ public class EcgRecordExplorer {
         List<File> updatedFileList = importUpdatedFiles(DIR_WECHAT_DOWNLOAD, ecgFileDir);
         if(updatedFileList != null && !updatedFileList.isEmpty()) {
             close();
-            updatedRecords.addAll(updatedFileList);
+            //updatedRecords.addAll(updatedFileList);
             updateFileIterator(fileOrder);
             return true;
         }
@@ -249,15 +249,12 @@ public class EcgRecordExplorer {
         if(selectedRecord == null) return;
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
-        String fileShortName = selectedRecord.getFile().getName();
-        //sp.setTitle("分享文件");
-        //String time = DateTimeUtil.timeToShortString(new Date().getTime());
-        //sp.setTitle("心电记录by " + UserManager.getInstance().getUser().getName() + " " + time);
+        String fileShortName = selectedRecord.getRecordName();
         sp.setTitle(fileShortName);
         sp.setComment("hi");
         Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_kang);
         sp.setImageData(bmp);
-        sp.setFilePath(selectedRecord.getFileName());
+        //sp.setFilePath(selectedRecord.getFileName());
         Platform platform = ShareSDK.getPlatform(Wechat.NAME);
         platform.setPlatformActionListener(new PlatformActionListener() {
             @Override
