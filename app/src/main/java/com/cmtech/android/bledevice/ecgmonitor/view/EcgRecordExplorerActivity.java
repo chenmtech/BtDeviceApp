@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgRecordListAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecordExplorer;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.R;
@@ -37,7 +38,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG
   * Version:        1.0
  */
 
-public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgRecordExplorer.OnEcgFilesListener {
+public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgRecordExplorer.OnEcgRecordsListener {
     private static final String TAG = "EcgRecordExplorerActivity";
 
     private static final int DEFAULT_LOADED_FILENUM_EACH_TIMES = 10; // 缺省每次加载的文件数
@@ -57,7 +58,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
         setSupportActionBar(toolbar);
 
         try {
-            explorer = new EcgRecordExplorer(DIR_ECG_SIGNAL, EcgRecordExplorer.FILE_ORDER_MODIFIED_TIME, this);
+            explorer = new EcgRecordExplorer(DIR_ECG_SIGNAL, EcgRecordExplorer.ORDER_MODIFY_TIME, this);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "心电记录目录错误。", Toast.LENGTH_SHORT).show();
@@ -70,7 +71,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvFiles.setLayoutManager(fileLayoutManager);
         rvFiles.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        fileAdapter = new EcgRecordListAdapter(this, explorer.getFileList(), explorer.getUpdatedFiles(), explorer.getSelectedFile());
+        fileAdapter = new EcgRecordListAdapter(this, explorer.getRecordList(), explorer.getUpdatedRecords(), explorer.getSelectedRecord());
         rvFiles.setAdapter(fileAdapter);
         rvFiles.addOnScrollListener(new RecyclerView.OnScrollListener() {
             int lastVisibleItem;
@@ -80,7 +81,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1) {
-                    explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES);
+                    explorer.loadNextRecords(DEFAULT_LOADED_FILENUM_EACH_TIMES);
                 }
             }
 
@@ -99,7 +100,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
         new Handler(getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
+                if(explorer.loadNextRecords(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
                     tvPromptInfo.setText("无信号可载入。");
                 }
             }
@@ -145,7 +146,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
             new Handler(getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    if(explorer.loadNextFiles(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
+                    if(explorer.loadNextRecords(DEFAULT_LOADED_FILENUM_EACH_TIMES) == 0) {
                         tvPromptInfo.setText("无信号可载入。");
                     }
                 }
@@ -176,34 +177,34 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
     }
 
     public List<File> getUpdatedFiles() {
-        return explorer.getUpdatedFiles();
+        return explorer.getUpdatedRecords();
     }
 
     @Override
-    public void onFileSelected(final EcgFile selectedFile) {
-        fileAdapter.updateSelectedFile(selectedFile);
+    public void onRecordSelected(final EcgRecord selectedRecord) {
+        fileAdapter.updateSelectedFile(selectedRecord);
     }
 
     @Override
-    public void onNewFileAdded(final EcgFile ecgFile) {
-        if(ecgFile != null) {
+    public void onNewRecordAdded(final EcgRecord ecgRecord) {
+        if(ecgRecord != null) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     rvFiles.setVisibility(View.VISIBLE);
                     tvPromptInfo.setVisibility(View.INVISIBLE);
-                    fileAdapter.insertNewFile(ecgFile);
+                    fileAdapter.insertNewFile(ecgRecord);
                 }
             });
         }
     }
 
     @Override
-    public void onFileListChanged(final List<EcgFile> fileList) {
+    public void onRecordListChanged(final List<EcgRecord> recordList) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(fileList == null || fileList.isEmpty()) {
+                if(recordList == null || recordList.isEmpty()) {
                     rvFiles.setVisibility(View.INVISIBLE);
                     tvPromptInfo.setVisibility(View.VISIBLE);
                 }else {
@@ -211,7 +212,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                     tvPromptInfo.setVisibility(View.INVISIBLE);
                 }
 
-                fileAdapter.updateFileList(fileList, getUpdatedFiles());
+                fileAdapter.updateFileList(recordList, getUpdatedFiles());
             }
         });
     }
@@ -224,7 +225,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                 if(resultCode == RESULT_OK) {
                     boolean updated = data.getBooleanExtra("updated", false);
                     if(updated) {
-                        explorer.addUpdatedFile(explorer.getSelectedFile().getFile());
+                        explorer.addUpdatedFile(explorer.getSelectedRecord().getFile());
                         fileAdapter.notifyDataSetChanged();
                     }
                 }

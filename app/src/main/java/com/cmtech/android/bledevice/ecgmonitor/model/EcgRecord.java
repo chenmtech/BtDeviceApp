@@ -115,6 +115,9 @@ public class EcgRecord extends LitePalSupport {
         }
     }
 
+    public String getRecordName() {
+        return recordName;
+    }
     public long getLastModifyTime() {
         return lastModifyTime;
     }

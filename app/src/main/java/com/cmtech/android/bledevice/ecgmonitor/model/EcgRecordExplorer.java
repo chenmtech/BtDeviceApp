@@ -49,26 +49,26 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.
  */
 
 public class EcgRecordExplorer {
-    public static final int FILE_ORDER_CREATED_TIME = 0; // 文件按创建时间排序
-    public static final int FILE_ORDER_MODIFIED_TIME = 1; // 文件按修改时间排序
+    public static final int ORDER_CREATE_TIME = 0; // 按创建时间排序
+    public static final int ORDER_MODIFY_TIME = 1; // 按修改时间排序
 
     private final File ecgFileDir; // Ecg文件路径
-    private final List<EcgFile> fileList = new ArrayList<>(); // 心电文件列表
-    private final List<EcgFile> unmodifiedFileList = Collections.unmodifiableList(fileList);
+    private final List<EcgRecord> recordList = new ArrayList<>(); // 心电记录列表
+    private final List<EcgRecord> unmodifiedRecordList = Collections.unmodifiableList(recordList);
     private Iterator<File> fileIterator; // 文件迭代器
-    private List<File> updatedFiles; // 已更新文件
-    private volatile EcgFile selectedFile; // 被选中的EcgFile
+    private List<EcgRecord> updatedRecords; // 已更新文件
+    private volatile EcgRecord selectedRecord; // 被选中的记录
     private final int fileOrder;
     private final ExecutorService openFileService = Executors.newSingleThreadExecutor(); // 打开文件服务
-    private final OnEcgFilesListener listener; // ECG文件监听器
+    private final OnEcgRecordsListener listener; // ECG文件监听器
 
-    public interface OnEcgFilesListener {
-        void onFileSelected(EcgFile ecgFile); // 文件被选中
-        void onNewFileAdded(EcgFile ecgFile); // 添加新文件
-        void onFileListChanged(List<EcgFile> fileList); // 文件列表改变
+    public interface OnEcgRecordsListener {
+        void onRecordSelected(EcgRecord ecgRecord); // 文件被选中
+        void onNewRecordAdded(EcgRecord ecgRecord); // 添加新文件
+        void onRecordListChanged(List<EcgRecord> recordList); // 文件列表改变
     }
 
-    public EcgRecordExplorer(File ecgFileDir, int fileOrder, OnEcgFilesListener listener) throws IOException{
+    public EcgRecordExplorer(File ecgFileDir, int fileOrder, OnEcgRecordsListener listener) throws IOException{
         if(ecgFileDir == null) {
             throw new IOException("The ecg file dir is null");
         }
@@ -82,7 +82,7 @@ public class EcgRecordExplorer {
         this.ecgFileDir = ecgFileDir;
         this.fileOrder = fileOrder;
         this.listener = listener;
-        updatedFiles = new ArrayList<>();
+        updatedRecords = new ArrayList<>();
         updateFileIterator(fileOrder);
     }
 
@@ -94,7 +94,7 @@ public class EcgRecordExplorer {
             public int compare(File o1, File o2) {
                 long time1;
                 long time2;
-                if(fileOrder == FILE_ORDER_CREATED_TIME) {
+                if(fileOrder == ORDER_CREATE_TIME) {
                     String f1 = o1.getName();
                     String f2 = o2.getName();
                     time1 = Long.parseLong(f1.substring(MACADDRESS_CHAR_NUM, f1.length()-4));
@@ -113,22 +113,22 @@ public class EcgRecordExplorer {
             fileIterator = null;
     }
 
-    public List<EcgFile> getFileList() {
-        return unmodifiedFileList;
+    public List<EcgRecord> getRecordList() {
+        return unmodifiedRecordList;
     }
-    public List<File> getUpdatedFiles() {
-        return updatedFiles;
+    public List<File> getUpdatedRecords() {
+        return updatedRecords;
     }
     public void addUpdatedFile(File file) {
-        if(!updatedFiles.contains(file)) {
-            updatedFiles.add(file);
+        if(!updatedRecords.contains(file)) {
+            updatedRecords.add(file);
         }
     }
-    public EcgFile getSelectedFile() {
-        return selectedFile;
+    public EcgRecord getSelectedRecord() {
+        return selectedRecord;
     }
 
-    public int loadNextFiles(int num) {
+    public int loadNextRecords(int num) {
         if(fileIterator == null) return 0;
 
         int i = 0;
@@ -141,16 +141,16 @@ public class EcgRecordExplorer {
     }
 
     // 选中文件
-    public void selectFile(EcgFile file) {
-        if(selectedFile != file) {
-            selectedFile = file;
+    public void selectFile(EcgRecord record) {
+        if(selectedRecord != record) {
+            selectedRecord = record;
             notifySelectedFileChanged();
         }
     }
 
     // 删除选中文件
     public void deleteSelectFile(Context context) {
-        if(selectedFile != null) {
+        if(selectedRecord != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle("删除心电记录").setMessage("确定删除该心电记录吗？");
 
@@ -171,9 +171,9 @@ public class EcgRecordExplorer {
     // 删除文件
     private synchronized void doDeleteSelectFile() {
         try {
-            if(selectedFile != null) {
-                FileUtil.deleteFile(selectedFile.getFile());
-                if(fileList.remove(selectedFile)) {
+            if(selectedRecord != null) {
+                FileUtil.deleteFile(selectedRecord.getFile());
+                if(recordList.remove(selectedRecord)) {
                     notifyFileListChanged();
                 }
                 selectFile(null);
@@ -188,7 +188,7 @@ public class EcgRecordExplorer {
         List<File> updatedFileList = importUpdatedFiles(DIR_WECHAT_DOWNLOAD, ecgFileDir);
         if(updatedFileList != null && !updatedFileList.isEmpty()) {
             close();
-            updatedFiles.addAll(updatedFileList);
+            updatedRecords.addAll(updatedFileList);
             updateFileIterator(fileOrder);
             return true;
         }
@@ -246,10 +246,10 @@ public class EcgRecordExplorer {
 
     // 通过微信分享选中文件
     public void shareSelectedFileThroughWechat(final Context context) {
-        if(selectedFile == null) return;
+        if(selectedRecord == null) return;
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
-        String fileShortName = selectedFile.getFile().getName();
+        String fileShortName = selectedRecord.getFile().getName();
         //sp.setTitle("分享文件");
         //String time = DateTimeUtil.timeToShortString(new Date().getTime());
         //sp.setTitle("心电记录by " + UserManager.getInstance().getUser().getName() + " " + time);
@@ -257,7 +257,7 @@ public class EcgRecordExplorer {
         sp.setComment("hi");
         Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_kang);
         sp.setImageData(bmp);
-        sp.setFilePath(selectedFile.getFileName());
+        sp.setFilePath(selectedRecord.getFileName());
         Platform platform = ShareSDK.getPlatform(Wechat.NAME);
         platform.setPlatformActionListener(new PlatformActionListener() {
             @Override
@@ -281,15 +281,15 @@ public class EcgRecordExplorer {
 
         selectFile(null);
 
-        for(EcgFile file : fileList) {
+        for(EcgRecord record : recordList) {
             try {
-                file.close();
+                record.closeSigFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        fileList.clear();
+        recordList.clear();
 
         notifyFileListChanged();
     }
@@ -328,51 +328,49 @@ public class EcgRecordExplorer {
     }
 
     private class LoadFileRunnable implements Runnable {
-        private final File file;
+        private final EcgRecord record;
 
-        LoadFileRunnable(File file) {
-            this.file = file;
+        LoadFileRunnable(EcgRecord record) {
+            this.record = record;
         }
 
         @Override
         public void run() {
             try {
-                loadFileInfo(file);
+                loadRecord(record);
             } catch (IOException e) {
-                ViseLog.e("The file is wrong: " + file);
+                ViseLog.e("The record is wrong: " + record);
             }
         }
     }
 
 
-    // 打开文件
-    private synchronized void loadFileInfo(File file) throws IOException{
+    // 加载记录
+    private synchronized void loadRecord(EcgRecord record) throws IOException{
         boolean contain = false;
-        for(EcgFile ecgFile : fileList) {
-            if(ecgFile.getFile().getName().equalsIgnoreCase(file.getName())) {
+        for(EcgRecord ele : recordList) {
+            if(ele.equals(record)) {
                 contain = true;
                 break;
             }
         }
 
         if(!contain) {
-            EcgFile ecgFile = EcgFile.open(file.getCanonicalPath());
-            ecgFile.close();
-            fileList.add(ecgFile);
+            recordList.add(record);
             if(listener != null)
-                listener.onNewFileAdded(ecgFile);
+                listener.onNewRecordAdded(record);
         }
     }
 
     private void notifyFileListChanged() {
         if(listener != null) {
-            listener.onFileListChanged(fileList);
+            listener.onRecordListChanged(recordList);
         }
     }
 
     private void notifySelectedFileChanged() {
         if(listener != null) {
-            listener.onFileSelected(selectedFile);
+            listener.onRecordSelected(selectedRecord);
         }
     }
 }
