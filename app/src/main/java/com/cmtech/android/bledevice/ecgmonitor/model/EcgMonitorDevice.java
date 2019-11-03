@@ -16,6 +16,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpro
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
@@ -99,6 +100,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private final EcgDataProcessor dataProcessor; // 心电数据处理器,在其内部的单线程ExecutorService中执行
     private EcgSignalRecorder signalRecorder; // 心电信号记录仪
     private EcgFile ecgFile; // 心电记录文件，可记录心电信号数据、用户留言和心率信息
+    private EcgRecord ecgRecord; // 心电记录，可记录心电信号数据、用户留言和心率信息
     private ScheduledExecutorService batteryService; // 电池电量测量Service
     private OnEcgMonitorListener listener; // 心电监护仪监听器
 
@@ -176,8 +178,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         return (signalRecorder == null) ? 0 : signalRecorder.getSecond();
     }
     public long getRecordDataNum() { return (signalRecorder == null) ? 0 : signalRecorder.getDataNum(); }
-    public EcgFile getEcgFile() {
-        return ecgFile;
+    public EcgRecord getEcgRecord() {
+        return null;
     }
     public int[] getWaveData1mV() {
         return waveData1mV;
@@ -258,7 +260,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         if(ecgFile != null) {
             try {
                 if(isSaveFile) {
-                    saveEcgFile();
+                    saveEcgRecord();
                     ecgFile.close();
                     if(DIR_ECG_SIGNAL != null) {
                         File toFile = FileUtil.getFile(DIR_ECG_SIGNAL, ecgFile.getFile().getName());
@@ -291,11 +293,11 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         super.close();
     }
 
-    private void saveEcgFile() throws IOException{
-        ecgFile.setHrList(dataProcessor.getHrList());
+    private void saveEcgRecord() {
+        ecgRecord.setHrList(dataProcessor.getHrList());
         if(signalRecorder != null)
-            ecgFile.addComment(signalRecorder.getComment());
-        ecgFile.saveFileTail();
+            ecgRecord.addComment(signalRecorder.getComment());
+        ecgRecord.save();
     }
 
     @Override
@@ -566,21 +568,12 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         dataProcessor.resetSignalProcessor();
 
         // 创建心电记录文件
-        if(ecgFile == null) {
-            try {
-                ecgFile = EcgFile.create(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
-            } catch (IOException e) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyExceptionMessage(R.string.record_ecg_signal_failed);
-                    }
-                });
-            }
+        if(ecgRecord == null) {
+            ecgRecord = EcgRecord.create(UserManager.getInstance().getUser(), sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
         }
 
         // 创建心电信号记录仪
-        if(ecgFile != null && signalRecorder == null) {
+        if(ecgRecord != null && signalRecorder == null) {
             signalRecorder = new EcgSignalRecorder(this);
         }
 

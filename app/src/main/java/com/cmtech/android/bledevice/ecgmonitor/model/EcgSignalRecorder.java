@@ -12,19 +12,19 @@ import java.io.IOException;
 
 public class EcgSignalRecorder {
     private final EcgMonitorDevice device;
-    private final EcgFile ecgFile; // ECG文件
+    private final EcgRecord ecgRecord; // ECG记录
     private final EcgNormalComment comment; // 当前信号的一般性留言
     private final int sampleRate; // 采样频率
     private int dataNum = 0; // 记录的数据个数
     private boolean isRecording = false; // 是否记录
 
     public EcgSignalRecorder(EcgMonitorDevice device) {
-        if(device == null || device.getEcgFile() == null) {
-            throw new IllegalArgumentException("The device is null or the ecg file is null.");
+        if(device == null || device.getEcgRecord() == null) {
+            throw new NullPointerException("The device is null or the ecg record is null.");
         }
 
         this.device = device;
-        this.ecgFile = device.getEcgFile();
+        this.ecgRecord = device.getEcgRecord();
         comment = EcgNormalComment.createDefaultComment();
 
         this.sampleRate = device.getSampleRate();
@@ -48,7 +48,7 @@ public class EcgSignalRecorder {
         isRecording = recording;
         if(isRecording) {
             try {
-                ecgFile.writeData(device.getWaveData1mV());
+                ecgRecord.writeData(device.getWaveData1mV());
                 dataNum += device.getWaveData1mV().length;
                 device.updateRecordSecond(getSecond());
             } catch (IOException e) {
@@ -60,7 +60,7 @@ public class EcgSignalRecorder {
    // 记录心电信号
     public synchronized void record(int ecgSignal) throws IOException{
         if(isRecording) {
-            ecgFile.writeData(ecgSignal);
+            ecgRecord.writeData(ecgSignal);
             dataNum++;
             device.updateRecordSecond(getSecond());
         }

@@ -11,6 +11,7 @@ import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
 
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.bmefile.BmeFileHead.INVALID_SAMPLE_RATE;
 
 public class EcgRecord extends LitePalSupport {
@@ -35,15 +37,20 @@ public class EcgRecord extends LitePalSupport {
     private String sigFileName = "";
     @Column(ignore = true)
     private RandomAccessFile sigRaf;
-    private final EcgHrAppendix hrAppendix;
-    private final List<EcgNormalComment> commentList = new ArrayList<>();
+    private List<Short> hrList;
+    private final List<EcgNormalComment> commentList;
 
     private EcgRecord(BmeFileHead30 bmeHead, EcgFileHead ecgHead, String recordName) {
+        this(bmeHead, ecgHead, recordName, new ArrayList<Short>(), new ArrayList<EcgNormalComment>());
+    }
+
+    private EcgRecord(BmeFileHead30 bmeHead, EcgFileHead ecgHead, String recordName, List<Short> hrList, List<EcgNormalComment> commentList) {
         this.bmeHead = bmeHead;
         this.ecgHead = ecgHead;
         this.recordName = recordName;
-        this.sigFileName = "sig_" + recordName + ".bme";
-        this.hrAppendix = EcgHrAppendix.create();
+        this.sigFileName = DIR_ECG_SIGNAL.getAbsolutePath() + "sig_" + recordName + ".bme";
+        this.hrList = hrList;
+        this.commentList = commentList;
     }
 
     // 创建新文件
@@ -62,12 +69,9 @@ public class EcgRecord extends LitePalSupport {
     public static EcgRecord create(EcgFile ecgFile) {
         BmeFileHead30 bmeHead = (BmeFileHead30) ecgFile.getBmeFileHead();
         EcgFileHead ecgHead = ecgFile.getEcgFileHead();
-        String recordName = ecgFile.getFileName();
-        if(recordName != null) {
-            recordName = recordName.substring(recordName.lastIndexOf(File.separator) + 1);
-            recordName = recordName.substring(0, recordName.lastIndexOf("."));
-        }
-        EcgRecord record = new EcgRecord(bmeHead, ecgHead, recordName);
+        String fileName = ecgFile.getFileName();
+        String recordName = fileName.substring(fileName.lastIndexOf(File.separator) + 1, fileName.lastIndexOf("."));
+        EcgRecord record = new EcgRecord(bmeHead, ecgHead, recordName, ecgFile.getHrList(), ecgFile.getCommentList());
         try {
             record.openSigFile();
             record.readSignal(ecgFile);
@@ -154,6 +158,12 @@ public class EcgRecord extends LitePalSupport {
     public void deleteComment(EcgNormalComment comment) {
         commentList.remove(comment);
     }
+    public void setHrList(List<Short> hrList) {
+        this.hrList = hrList;
+    }
+    public List<Short> getHrList() {
+        return hrList;
+    }
     // 读单个byte数据
     public byte readByte() throws IOException{
         return sigRaf.readByte();
@@ -227,7 +237,7 @@ public class EcgRecord extends LitePalSupport {
 
     @Override
     public String toString() {
-        return bmeHead + "-" + ecgHead + "-" + sigFileName + "-" + hrAppendix + "-" +commentList;
+        return bmeHead + "-" + ecgHead + "-" + sigFileName + "-" + hrList + "-" +commentList;
     }
 
     @Override
