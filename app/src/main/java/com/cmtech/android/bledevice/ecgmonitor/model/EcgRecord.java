@@ -40,16 +40,17 @@ public class EcgRecord extends LitePalSupport {
     private List<Short> hrList;
     private final List<EcgNormalComment> commentList;
 
-    private EcgRecord(String recordName, BmeFileHead30 bmeHead, EcgFileHead ecgHead, String sigFileName) {
-        this(recordName, bmeHead, ecgHead, sigFileName, new ArrayList<Short>(), new ArrayList<EcgNormalComment>());
+    private EcgRecord(String recordName, BmeFileHead30 bmeHead, EcgFileHead ecgHead) throws IOException{
+        this(recordName, bmeHead, ecgHead, new ArrayList<Short>(), new ArrayList<EcgNormalComment>());
     }
 
-    private EcgRecord(String recordName, BmeFileHead30 bmeHead, EcgFileHead ecgHead, String sigFileName, List<Short> hrList, List<EcgNormalComment> commentList) {
+    private EcgRecord(String recordName, BmeFileHead30 bmeHead, EcgFileHead ecgHead, List<Short> hrList, List<EcgNormalComment> commentList) throws IOException{
         this.recordName = recordName;
         this.lastModifyTime = new Date().getTime();
         this.bmeHead = bmeHead;
         this.ecgHead = ecgHead;
-        this.sigFileName = sigFileName;
+        this.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + recordName + ".bme";
+        createSigFile();
         this.hrList = hrList;
         this.commentList = commentList;
     }
@@ -64,8 +65,12 @@ public class EcgRecord extends LitePalSupport {
         EcgFileHead ecgFileHead = new EcgFileHead(creator, address, leadType);
 
         String recordName = EcgMonitorUtil.makeRecordName(macAddress, time);
-        String sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + recordName + ".bme";
-        return new EcgRecord(recordName, bmeFileHead, ecgFileHead, sigFileName);
+        try {
+            return new EcgRecord(recordName, bmeFileHead, ecgFileHead);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static EcgRecord create(EcgFile ecgFile) {
@@ -73,25 +78,42 @@ public class EcgRecord extends LitePalSupport {
         EcgFileHead ecgHead = ecgFile.getEcgFileHead();
         String fileName = ecgFile.getFileName();
         String recordName = fileName.substring(fileName.lastIndexOf(File.separator) + 1, fileName.lastIndexOf("."));
-        String sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + recordName + ".bme";
-        EcgRecord record = new EcgRecord(recordName, bmeHead, ecgHead, sigFileName, ecgFile.getHrList(), ecgFile.getCommentList());
+
         try {
+            EcgRecord record = new EcgRecord(recordName, bmeHead, ecgHead, ecgFile.getHrList(), ecgFile.getCommentList());
             record.openSigFile();
             ecgFile.seekData(0);
             while (!ecgFile.isEOD()) {
                 DataIOUtil.writeInt(record.sigRaf, ecgFile.readInt(), bmeHead.getByteOrder());
             }
             record.closeSigFile();
+            return record;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
-        return record;
     }
 
+    // 创建信号文件
+    private void createSigFile() throws IOException{
+        File sigFile = new File(sigFileName);
+        if(sigFile.exists()) {
+            if(!sigFile.delete())
+                throw new IOException();
+        }
+        if(!sigFile.createNewFile())
+            throw new IOException();
+    }
+
+    // 打开信号文件，赋值sigRaf，文件指针归0
     public void openSigFile() throws IOException{
+        File sigFile = new File(sigFileName);
+        if(!sigFile.exists()) throw new IOException();
+
         if(sigRaf == null) {
-            sigRaf = createSigRandomAccessFile(sigFileName);
+            sigRaf = new RandomAccessFile(sigFile, "rw");
+        } else {
+            sigRaf.seek(0);
         }
     }
 
@@ -99,19 +121,6 @@ public class EcgRecord extends LitePalSupport {
         if(sigRaf != null) {
             sigRaf.close();
             sigRaf = null;
-        }
-    }
-
-    private RandomAccessFile createSigRandomAccessFile(String fileName) {
-        File file = new File(fileName);
-        try {
-            if(file.exists() || file.createNewFile()) {
-                return new RandomAccessFile(file, "rw");
-            }
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
