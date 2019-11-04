@@ -87,8 +87,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private int sampleRate = DEFAULT_SAMPLE_RATE; // 采样率
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // 导联类型
     private int value1mV = DEFAULT_VALUE_1MV; // 定标之前1mV值
-    private int[] waveData1mV; // 1mV波形数据，它的长度与采样率有关，幅度变化恒定，在读取采样率之后初始化
-    private boolean isSaveFile = false; // 是否保存心电文件
+    private int[] wave1mV; // 1mV波形数据，它的长度与采样率有关，幅度变化恒定，在读取采样率之后初始化
+    private boolean saveRecord = false; // 是否保存心电记录
     private boolean containBatteryService = false; // 是否包含电池电量测量服务
     private volatile EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
 
@@ -149,8 +149,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             updateRecordStatus(record);
         }
     }
-    public void setSaveFile(boolean saveFile) {
-        this.isSaveFile = saveFile;
+    public void setSaveRecord(boolean saveRecord) {
+        this.saveRecord = saveRecord;
     }
     public EcgMonitorState getEcgMonitorState() {
         return state;
@@ -176,8 +176,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     public EcgRecord getEcgRecord() {
         return ecgRecord;
     }
-    public int[] getWaveData1mV() {
-        return waveData1mV;
+    public int[] getWave1mV() {
+        return wave1mV;
     }
 
     @Override
@@ -253,11 +253,17 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
         // 关闭记录
         if(ecgRecord != null) {
-            if(isSaveFile) {
-                saveEcgRecord();
+            try {
+                ecgRecord.closeSigFile();
+                if(saveRecord) {
+                    saveEcgRecord();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                ecgRecord = null;
+                ViseLog.e("关闭Ecg记录。");
             }
-            ecgRecord = null;
-            ViseLog.e("关闭Ecg记录。");
         }
 
         // 关闭信号记录器
@@ -275,14 +281,13 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private void saveEcgRecord() {
         try {
             ecgRecord.moveSigFileTo(DIR_ECG_SIGNAL);
+            ecgRecord.setHrList(dataProcessor.getHrList());
+            if(signalRecorder != null)
+                ecgRecord.addComment(signalRecorder.getComment());
+            ecgRecord.save();
         } catch (IOException e) {
             e.printStackTrace();
-            return;
         }
-        ecgRecord.setHrList(dataProcessor.getHrList());
-        if(signalRecorder != null)
-            ecgRecord.addComment(signalRecorder.getComment());
-        ecgRecord.save();
     }
 
     @Override
@@ -326,12 +331,12 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 // 生成1mV波形数据
                 int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * sampleRate));
                 int N = 15*PIXEL_PER_GRID/pixelPerData; // 15个栅格所需数据个数
-                waveData1mV = new int[N];
+                wave1mV = new int[N];
                 for(int i = 0; i < N; i++) {
                     if(i > N/3 && i < N*2/3) {
-                        waveData1mV[i] = STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+                        wave1mV[i] = STANDARD_VALUE_1MV_AFTER_CALIBRATION;
                     } else {
-                        waveData1mV[i] = 0;
+                        wave1mV[i] = 0;
                     }
                 }
             }
@@ -565,7 +570,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         }
 
         // 输出1mV定标信号
-        for(int data : waveData1mV) {
+        for(int data : wave1mV) {
             updateSignalValue(data);
         }
 

@@ -132,6 +132,7 @@ public class EcgRecord extends LitePalSupport {
                 sigRaf.close();
             File toFile = FileUtil.getFile(directory, sigFile.getName());
             FileUtil.moveFile(sigFile, toFile);
+            this.sigFileName = toFile.getAbsolutePath();
         }
     }
 

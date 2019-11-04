@@ -114,7 +114,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (device != null) {
-                            device.setSaveFile(true);
+                            device.setSaveRecord(true);
                         }
                         EcgMonitorFragment.super.close();
                     }
@@ -127,7 +127,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (device != null) {
-                            device.setSaveFile(false);
+                            device.setSaveRecord(false);
                         }
                         EcgMonitorFragment.super.close();
                     }

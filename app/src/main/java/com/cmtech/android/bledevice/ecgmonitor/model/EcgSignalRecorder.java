@@ -51,8 +51,8 @@ public class EcgSignalRecorder {
         if(isRecording) {
             try {
                 ecgRecord.openSigFile();
-                ecgRecord.writeSignal(device.getWaveData1mV());
-                dataNum += device.getWaveData1mV().length;
+                ecgRecord.writeSignal(device.getWave1mV());
+                dataNum += device.getWave1mV().length;
                 device.updateRecordSecond(getSecond());
             } catch (IOException e) {
                 e.printStackTrace();
