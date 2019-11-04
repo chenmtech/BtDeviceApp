@@ -51,7 +51,7 @@ public class EcgSignalRecorder {
         if(isRecording) {
             try {
                 ecgRecord.openSigFile();
-                ecgRecord.writeSignal(device.getWave1mV());
+                ecgRecord.writeData(device.getWave1mV());
                 dataNum += device.getWave1mV().length;
                 device.updateRecordSecond(getSecond());
             } catch (IOException e) {
@@ -63,7 +63,7 @@ public class EcgSignalRecorder {
    // 记录心电信号
     public synchronized void record(int ecgSignal) throws IOException{
         if(isRecording) {
-            ecgRecord.writeSignal(ecgSignal);
+            ecgRecord.writeData(ecgSignal);
             dataNum++;
             device.updateRecordSecond(getSecond());
         }

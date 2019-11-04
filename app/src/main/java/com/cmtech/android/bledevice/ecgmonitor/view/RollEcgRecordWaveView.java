@@ -48,7 +48,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
                         } else {
                             // 读出数据
                             for (int i = 0; i < dataNumReadEachUpdate; i++, num++) {
-                                cacheData.add(ecgRecord.readSignal());
+                                cacheData.add(ecgRecord.readData());
                                 cacheMarked.add(false);
                                 if (ecgRecord.isEOD()) {
                                     break;
@@ -212,7 +212,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
         clearData();
         while(begin++ <= location) {
             try {
-                addData(ecgRecord.readSignal(), false);
+                addData(ecgRecord.readData(), false);
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

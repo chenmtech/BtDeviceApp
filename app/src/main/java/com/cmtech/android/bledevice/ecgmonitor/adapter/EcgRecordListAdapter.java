@@ -39,7 +39,7 @@ import java.util.List;
 public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdapter.ViewHolder>{
     private final EcgRecordExplorerActivity activity;
     private final List<EcgRecord> recordList;
-    private final List<EcgRecord> updatedFileList;
+    private final List<EcgRecord> updatedRecords;
     private EcgRecord selectedRecord;
     private Drawable defaultBackground; // 缺省背景
 
@@ -63,10 +63,10 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         }
     }
 
-    public EcgRecordListAdapter(EcgRecordExplorerActivity activity, List<EcgRecord> recordList, List<EcgRecord> updatedFileList, EcgRecord selectedRecord) {
+    public EcgRecordListAdapter(EcgRecordExplorerActivity activity, List<EcgRecord> recordList, List<EcgRecord> updatedRecords, EcgRecord selectedRecord) {
         this.activity = activity;
         this.recordList = recordList;
-        this.updatedFileList = updatedFileList;
+        this.updatedRecords = updatedRecords;
         this.selectedRecord = selectedRecord;
     }
 
@@ -82,16 +82,13 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EcgRecord newSelectFile = recordList.get(holder.getAdapterPosition());
-                activity.selectFile(newSelectFile);
+                activity.selectRecord(recordList.get(holder.getAdapterPosition()));
             }
         });
         holder.tvCreator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EcgRecord file = recordList.get(holder.getAdapterPosition());
-                User creator = file.getCreator();
-                Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyApplication.getContext(), recordList.get(holder.getAdapterPosition()).getCreator().toString(), Toast.LENGTH_SHORT).show();
             }
         });
         return holder;
@@ -100,39 +97,39 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     @Override
     public void onBindViewHolder(@NonNull EcgRecordListAdapter.ViewHolder holder, final int position) {
         ViseLog.e("onBindViewHolder " + position);
-        EcgRecord file = recordList.get(position);
-        if(file == null) return;
+        EcgRecord record = recordList.get(position);
+        if(record == null) return;
 
-        holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(file.getLastModifyTime()));
+        holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(record.getLastModifyTime()));
 
-        User fileCreator = file.getCreator();
+        User creator = record.getCreator();
         User account = UserManager.getInstance().getUser();
-        if(fileCreator.equals(account)) {
+        if(creator.equals(account)) {
             holder.tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
-            holder.tvCreator.setText(Html.fromHtml("<u>" + file.getCreatorName() + "</u>"));
+            holder.tvCreator.setText(Html.fromHtml("<u>" + creator.getName() + "</u>"));
         }
 
-        String createdTime = DateTimeUtil.timeToShortStringWithTodayYesterday(file.getCreateTime());
-        holder.tvCreateTime.setText(createdTime);
+        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
+        holder.tvCreateTime.setText(createTime);
 
-        if(file.getDataNum() == 0) {
+        if(record.getDataNum() == 0) {
             holder.tvLength.setText("无");
         } else {
-            String dataTimeLength = DateTimeUtil.secToTimeInChinese(file.getDataNum() / file.getSampleRate());
+            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNum() / record.getSampleRate());
             holder.tvLength.setText(dataTimeLength);
         }
 
-        int hrNum = file.getHrList().size();
+        int hrNum = record.getHrList().size();
         holder.tvHrNum.setText(String.valueOf(hrNum));
 
-        if (updatedFileList.contains(file)) {
+        if (updatedRecords.contains(record)) {
             holder.tvModifyTime.setTextColor(Color.RED);
         } else {
             holder.tvModifyTime.setTextColor(Color.BLACK);
         }
 
-        if(file.equals(selectedRecord)) {
+        if(record.equals(selectedRecord)) {
             int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
         } else {
@@ -144,7 +141,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         return recordList.size();
     }
 
-    public void updateFileList(List<EcgRecord> fileList, List<EcgRecord> updatedFileList) {
+    public void updateRecordList(List<EcgRecord> fileList, List<EcgRecord> updatedFileList) {
         notifyDataSetChanged();
     }
 

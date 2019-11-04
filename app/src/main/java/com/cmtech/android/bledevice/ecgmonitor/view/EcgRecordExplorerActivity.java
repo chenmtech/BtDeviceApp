@@ -1,7 +1,9 @@
 package com.cmtech.android.bledevice.ecgmonitor.view;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,7 +38,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
     private static final int DEFAULT_LOAD_RECORD_NUM_EACH_TIMES = 10; // 缺省每次加载的记录数
 
     private EcgRecordExplorer explorer;      // 记录浏览器实例
-    private EcgRecordListAdapter fileAdapter; // 记录Adapter
+    private EcgRecordListAdapter recordAdapter; // 记录Adapter
     private RecyclerView rvRecords; // 记录RecycleView
     private TextView tvPromptInfo; // 提示信息
 
@@ -56,8 +58,8 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvRecords.setLayoutManager(fileLayoutManager);
         rvRecords.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        fileAdapter = new EcgRecordListAdapter(this, explorer.getRecordList(), explorer.getUpdatedRecords(), explorer.getSelectedRecord());
-        rvRecords.setAdapter(fileAdapter);
+        recordAdapter = new EcgRecordListAdapter(this, explorer.getRecordList(), explorer.getUpdatedRecords(), explorer.getSelectedRecord());
+        rvRecords.setAdapter(recordAdapter);
         rvRecords.addOnScrollListener(new RecyclerView.OnScrollListener() {
             int lastVisibleItem;
             @Override
@@ -65,7 +67,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                 super.onScrollStateChanged(recyclerView, newState);
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
-                if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == fileAdapter.getItemCount()-1) {
+                if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == recordAdapter.getItemCount()-1) {
                     //explorer.loadNextRecords(DEFAULT_LOAD_RECORD_NUM_EACH_TIMES);
                 }
             }
@@ -88,7 +90,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_ecgfile_explore, menu);
+        getMenuInflater().inflate(R.menu.menu_ecg_record_explore, menu);
         return true;
     }
 
@@ -105,11 +107,11 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                 break;
 
             case R.id.ecg_record_delete:
-                deleteSelectedFile();
+                deleteSelectedRecord();
                 break;
 
             case R.id.share_with_wechat:
-                shareSelectedFileThroughWechat();
+                shareSelectedRecordThroughWechat();
                 break;
 
         }
@@ -120,7 +122,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
         boolean updated = explorer.importFromWechat();
 
         if(updated) {
-            fileAdapter.clear();
+            recordAdapter.clear();
             tvPromptInfo.setText("正在载入信号");
             /*new Handler(getMainLooper()).post(new Runnable() {
                 @Override
@@ -133,12 +135,28 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
         }
     }
 
-    public void deleteSelectedFile() {
-        explorer.deleteSelectRecord(this);
+    public void deleteSelectedRecord() {
+        EcgRecord selectedRecord = explorer.getSelectedRecord();
+        if(selectedRecord != null) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("删除心电记录").setMessage("确定删除该心电记录吗？");
+
+            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    explorer.deleteSelectRecord();
+                }
+            }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            }).show();
+        }
     }
 
-    public void shareSelectedFileThroughWechat() {
-        explorer.shareSelectedFileThroughWechat(this);
+    public void shareSelectedRecordThroughWechat() {
+        explorer.shareSelectedRecordThroughWechat(this);
     }
 
     @Override
@@ -148,20 +166,20 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
         explorer.close();
     }
 
-    public void selectFile(final EcgRecord ecgFile) {
-        explorer.selectRecord(ecgFile);
-        Intent intent = new Intent(this, EcgRecordActivity.class);
-        intent.putExtra("record_id", ecgFile.getId());
-        startActivityForResult(intent, 1);
+    public void selectRecord(final EcgRecord record) {
+        explorer.selectRecord(record);
     }
 
-    public List<EcgRecord> getUpdatedFiles() {
+    public List<EcgRecord> getUpdatedRecords() {
         return explorer.getUpdatedRecords();
     }
 
     @Override
     public void onRecordSelected(final EcgRecord selectedRecord) {
-        fileAdapter.updateSelectedFile(selectedRecord);
+        recordAdapter.updateSelectedFile(selectedRecord);
+        Intent intent = new Intent(this, EcgRecordActivity.class);
+        intent.putExtra("record_id", selectedRecord.getId());
+        startActivityForResult(intent, 1);
     }
 
     @Override
@@ -172,7 +190,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                 public void run() {
                     rvRecords.setVisibility(View.VISIBLE);
                     tvPromptInfo.setVisibility(View.INVISIBLE);
-                    fileAdapter.insertNewFile(ecgRecord);
+                    recordAdapter.insertNewFile(ecgRecord);
                 }
             });
         }
@@ -191,7 +209,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                     tvPromptInfo.setVisibility(View.INVISIBLE);
                 }
 
-                fileAdapter.updateFileList(recordList, getUpdatedFiles());
+                recordAdapter.updateRecordList(recordList, getUpdatedRecords());
             }
         });
     }
@@ -205,7 +223,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                     boolean updated = data.getBooleanExtra("updated", false);
                     if(updated) {
                         explorer.addUpdatedRecord(explorer.getSelectedRecord());
-                        fileAdapter.notifyDataSetChanged();
+                        recordAdapter.notifyDataSetChanged();
                     }
                 }
                 break;

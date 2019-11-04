@@ -49,14 +49,14 @@ public class EcgRecordExplorer {
     public static final int ORDER_MODIFY_TIME = 1; // 按修改时间排序
 
     private List<EcgRecord> recordList; // 心电记录列表
-    private List<EcgRecord> updatedRecords; // 已更新记录
+    private List<EcgRecord> updatedRecords; // 已更新记录列表
     private volatile EcgRecord selectedRecord; // 被选中的记录
     private final int recordOrder; // 记录排序方式
     private final OnEcgRecordsListener listener; // ECG记录监听器
 
     public interface OnEcgRecordsListener {
-        void onRecordSelected(EcgRecord ecgRecord); // 记录被选中
-        void onRecordAdded(EcgRecord ecgRecord); // 添加记录
+        void onRecordSelected(EcgRecord ecgRecord); // 记录选中
+        void onRecordAdded(EcgRecord ecgRecord); // 记录添加
         void onRecordListChanged(List<EcgRecord> recordList); // 记录列表改变
     }
 
@@ -66,11 +66,11 @@ public class EcgRecordExplorer {
         updatedRecords = new ArrayList<>();
         this.recordList = LitePal.findAll(EcgRecord.class, true);
         ViseLog.e(recordList);
-        sortRecordList(recordOrder);
+        sortRecords(recordOrder);
     }
 
-    // 排序记录列表
-    private void sortRecordList(final int recordOrder) {
+    // 排序记录
+    private void sortRecords(final int recordOrder) {
         if(recordList != null && recordList.size() > 1) {
             Collections.sort(recordList, new Comparator<EcgRecord>() {
                 @Override
@@ -110,32 +110,18 @@ public class EcgRecordExplorer {
     public void selectRecord(EcgRecord record) {
         if(selectedRecord != record) {
             selectedRecord = record;
-            notifySelectedFileChanged();
+            notifySelectedRecordChanged();
         }
     }
 
-    // 删除选中记录
-    public void deleteSelectRecord(Context context) {
-        if(selectedRecord != null) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle("删除心电记录").setMessage("确定删除该心电记录吗？");
-
-            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    doDeleteSelectRecord();
-                }
-            }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            }).show();
+    private void notifySelectedRecordChanged() {
+        if(listener != null) {
+            listener.onRecordSelected(selectedRecord);
         }
     }
 
-    // 删除文件
-    private synchronized void doDeleteSelectRecord() {
+    // 删除选中文件
+    public synchronized void deleteSelectRecord() {
         try {
             if(selectedRecord != null) {
                 FileUtil.deleteFile(new File(selectedRecord.getSigFileName()));
@@ -156,7 +142,7 @@ public class EcgRecordExplorer {
         if(updatedFileList != null && !updatedFileList.isEmpty()) {
             close();
             //updatedRecords.addAll(updatedFileList);
-            sortRecordList(recordOrder);
+            sortRecords(recordOrder);
             return true;
         }*/
         return false;
@@ -211,8 +197,8 @@ public class EcgRecordExplorer {
         return changedFiles;
     }
 
-    // 通过微信分享选中文件
-    public void shareSelectedFileThroughWechat(final Context context) {
+    // 通过微信分享选中记录
+    public void shareSelectedRecordThroughWechat(final Context context) {
         if(selectedRecord == null) return;
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
@@ -242,7 +228,6 @@ public class EcgRecordExplorer {
     // 关闭管理器
     public synchronized void close() {
         selectRecord(null);
-
         for(EcgRecord record : recordList) {
             try {
                 record.closeSigFile();
@@ -250,9 +235,8 @@ public class EcgRecordExplorer {
                 e.printStackTrace();
             }
         }
-
         recordList.clear();
-
+        updatedRecords.clear();
         notifyRecordListChanged();
     }
 
@@ -292,12 +276,6 @@ public class EcgRecordExplorer {
     private void notifyRecordListChanged() {
         if(listener != null) {
             listener.onRecordListChanged(recordList);
-        }
-    }
-
-    private void notifySelectedFileChanged() {
-        if(listener != null) {
-            listener.onRecordSelected(selectedRecord);
         }
     }
 }

@@ -36,6 +36,7 @@ public class EcgRecord extends LitePalSupport {
     private final BmeFileHead30 bmeHead;
     private final EcgFileHead ecgHead;
     private String sigFileName = "";
+    private int dataNum;
     @Column(ignore = true)
     private RandomAccessFile sigRaf;
     private List<Short> hrList;
@@ -94,6 +95,7 @@ public class EcgRecord extends LitePalSupport {
             record.openSigFile();
             while (!ecgFile.isEOD()) {
                 DataIOUtil.writeInt(record.sigRaf, ecgFile.readInt(), bmeHead.getByteOrder());
+                record.dataNum++;
             }
             record.closeSigFile();
             return record;
@@ -143,6 +145,9 @@ public class EcgRecord extends LitePalSupport {
     public String getSigFileName() {
         return sigFileName;
     }
+    public int getDataNum() {
+        return dataNum;
+    }
     public BmeFileDataType getDataType() {
         return (bmeHead == null) ? null : bmeHead.getDataType();
     }
@@ -188,37 +193,28 @@ public class EcgRecord extends LitePalSupport {
         return hrList;
     }
     // 读单个信号数据
-    public int readSignal() throws IOException {
+    public int readData() throws IOException {
         return DataIOUtil.readInt(sigRaf, bmeHead.getByteOrder());
     }
     // 写单个信号数据
-    public void writeSignal(int data) throws IOException{
+    public void writeData(int data) throws IOException{
         DataIOUtil.writeInt(sigRaf, data, bmeHead.getByteOrder());
+        dataNum++;
     }
     // 写信号数组
-    public void writeSignal(int[] data) throws IOException{
+    public void writeData(int[] data) throws IOException{
         for(int num : data) {
-            writeSignal(num);
+            writeData(num);
         }
     }
     // 将文件指针定位到某个数据位置
     public void seekData(int dataNum) {
         try {
-            if(sigRaf != null)
+            if(sigRaf != null && dataNum >= 0 && dataNum <= this.dataNum)
                 sigRaf.seek(dataNum * getDataType().getByteNum());
         } catch (IOException e) {
             ViseLog.e("seekData " + dataNum + "is wrong.");
         }
-    }
-    public int getDataNum() {
-        if(sigRaf != null) {
-            try {
-                return (int)(sigRaf.getFilePointer() / getDataType().getByteNum());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return 0;
     }
     // 是否已经到达数据尾部
     public boolean isEOD() {
