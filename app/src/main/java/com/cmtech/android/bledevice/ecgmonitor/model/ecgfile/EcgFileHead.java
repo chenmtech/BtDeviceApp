@@ -2,13 +2,16 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
+import com.vise.log.ViseLog;
 
+import org.litepal.LitePal;
 import org.litepal.crud.LitePalSupport;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * EcgFileHead: 心电文件头
@@ -21,7 +24,8 @@ public class EcgFileHead extends LitePalSupport {
     private static final byte[] VER = new byte[] {0x01, 0x01}; // 心电文件头版本号1.1，便于以后升级
     private static final int LEAD_TYPE_BYTE_NUM = 1;
 
-    private User creator = new User(); // 创建人
+    private int id;
+    private User creator; // 创建人
     private String macAddress = ""; // 蓝牙设备地址
     private int leadTypeCode = EcgLeadType.LEAD_I.getCode(); // 导联类型代码
 
@@ -38,6 +42,15 @@ public class EcgFileHead extends LitePalSupport {
         return macAddress;
     }
     public User getCreator() {
+        if(creator == null) {
+            List<User> creators = LitePal.where("ecgfilehead_id = ?", String.valueOf(id)).find(User.class);
+            if(creators.isEmpty()) {
+                creator = new User();
+            } else {
+                creator = creators.get(0);
+            }
+        }
+        ViseLog.e(creator);
         return creator;
     }
     public EcgLeadType getLeadType() {
@@ -55,7 +68,7 @@ public class EcgFileHead extends LitePalSupport {
         byte[] ver = new byte[2];
         in.readFully(ver);
         // 读创建人信息
-        creator.readFromStream(in);
+        getCreator().readFromStream(in);
         // 读macAddress
         macAddress = DataIOUtil.readFixedString(in, MACADDRESS_CHAR_NUM);
         // 读导联类型码
@@ -68,7 +81,7 @@ public class EcgFileHead extends LitePalSupport {
         // 写版本号
         out.write(VER);
         // 写创建人信息
-        creator.writeToStream(out);
+        getCreator().writeToStream(out);
         // 写macAddress
         DataIOUtil.writeFixedString(out, macAddress, MACADDRESS_CHAR_NUM);
         // 写导联类型
@@ -79,12 +92,18 @@ public class EcgFileHead extends LitePalSupport {
     public String toString() {
         return getClass().getSimpleName() + ':'
                 + "版本号：" + Arrays.toString(VER) + ';'
-                + creator.toString() + ';'
+                + getCreator().toString() + ';'
                 + "设备地址：" + macAddress + ';'
                 + "导联类型：" + EcgLeadType.getFromCode(leadTypeCode).getDescription();
     }
 
     public int length() {
-        return TAG.length + VER.length + creator.length() + MACADDRESS_CHAR_NUM *2 + LEAD_TYPE_BYTE_NUM;
+        return TAG.length + VER.length + getCreator().length() + MACADDRESS_CHAR_NUM *2 + LEAD_TYPE_BYTE_NUM;
+    }
+
+    @Override
+    public boolean save() {
+        creator.save();
+        return super.save();
     }
 }

@@ -155,7 +155,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
     }
 
     public void startShow() {
-        if(!replaying && ecgRecord != null) {
+        if(!replaying && ecgRecord != null && interval > 0) {
             if(ecgRecord.isEOD()) {
                 ecgRecord.seekData(0);
                 clearData();
