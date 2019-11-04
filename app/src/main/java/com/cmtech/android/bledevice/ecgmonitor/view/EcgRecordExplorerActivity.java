@@ -17,10 +17,8 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgRecordListAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecordExplorer;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.R;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -169,14 +167,14 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
         explorer.close();
     }
 
-    public void selectFile(final EcgFile ecgFile) {
-        explorer.selectFile(ecgFile);
+    public void selectFile(final EcgRecord ecgFile) {
+        explorer.selectRecord(ecgFile);
         Intent intent = new Intent(this, EcgRecordActivity.class);
-        intent.putExtra("file_name", ecgFile.getFileName());
+        intent.putExtra("record_id", ecgFile.getId());
         startActivityForResult(intent, 1);
     }
 
-    public List<File> getUpdatedFiles() {
+    public List<EcgRecord> getUpdatedFiles() {
         return explorer.getUpdatedRecords();
     }
 
@@ -225,7 +223,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                 if(resultCode == RESULT_OK) {
                     boolean updated = data.getBooleanExtra("updated", false);
                     if(updated) {
-                        explorer.addUpdatedFile(explorer.getSelectedRecord().getFile());
+                        explorer.addUpdatedFile(explorer.getSelectedRecord());
                         fileAdapter.notifyDataSetChanged();
                     }
                 }

@@ -6,7 +6,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.viewcomponent.ColorRollWaveView;
 
 import java.io.IOException;
@@ -49,7 +48,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
                         } else {
                             // 读出数据
                             for (int i = 0; i < dataNumReadEachUpdate; i++, num++) {
-                                cacheData.add(ecgRecord.readInt());
+                                cacheData.add(ecgRecord.readSignal());
                                 cacheMarked.add(false);
                                 if (ecgRecord.isEOD()) {
                                     break;
@@ -213,7 +212,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
         clearData();
         while(begin++ <= location) {
             try {
-                addData(ecgRecord.readInt(), false);
+                addData(ecgRecord.readSignal(), false);
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

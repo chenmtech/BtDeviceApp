@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 
 import java.io.IOException;
 
@@ -52,7 +51,7 @@ public class EcgSignalRecorder {
         if(isRecording) {
             try {
                 ecgRecord.openSigFile();
-                ecgRecord.writeData(device.getWaveData1mV());
+                ecgRecord.writeSignal(device.getWaveData1mV());
                 dataNum += device.getWaveData1mV().length;
                 device.updateRecordSecond(getSecond());
             } catch (IOException e) {
@@ -64,7 +63,7 @@ public class EcgSignalRecorder {
    // 记录心电信号
     public synchronized void record(int ecgSignal) throws IOException{
         if(isRecording) {
-            ecgRecord.writeData(ecgSignal);
+            ecgRecord.writeSignal(ecgSignal);
             dataNum++;
             device.updateRecordSecond(getSecond());
         }

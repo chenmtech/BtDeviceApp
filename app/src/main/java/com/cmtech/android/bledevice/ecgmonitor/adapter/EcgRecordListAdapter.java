@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -21,7 +21,6 @@ import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
-import java.io.File;
 import java.util.List;
 
 
@@ -39,9 +38,9 @@ import java.util.List;
 
 public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdapter.ViewHolder>{
     private final EcgRecordExplorerActivity activity;
-    private final List<EcgFile> ecgFileList;
-    private final List<File> updatedFileList;
-    private EcgFile selectedEcgFile;
+    private final List<EcgRecord> recordList;
+    private final List<EcgRecord> updatedFileList;
+    private EcgRecord selectedRecord;
     private Drawable defaultBackground; // 缺省背景
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -64,11 +63,11 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         }
     }
 
-    public EcgRecordListAdapter(EcgRecordExplorerActivity activity, List<EcgFile> ecgFileList, List<File> updatedFileList, EcgFile selectedEcgFile) {
+    public EcgRecordListAdapter(EcgRecordExplorerActivity activity, List<EcgRecord> recordList, List<EcgRecord> updatedFileList, EcgRecord selectedRecord) {
         this.activity = activity;
-        this.ecgFileList = ecgFileList;
+        this.recordList = recordList;
         this.updatedFileList = updatedFileList;
-        this.selectedEcgFile = selectedEcgFile;
+        this.selectedRecord = selectedRecord;
     }
 
     @NonNull
@@ -83,14 +82,14 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EcgFile newSelectFile = ecgFileList.get(holder.getAdapterPosition());
+                EcgRecord newSelectFile = recordList.get(holder.getAdapterPosition());
                 activity.selectFile(newSelectFile);
             }
         });
         holder.tvCreator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EcgFile file = ecgFileList.get(holder.getAdapterPosition());
+                EcgRecord file = recordList.get(holder.getAdapterPosition());
                 User creator = file.getCreator();
                 Toast.makeText(MyApplication.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
@@ -101,10 +100,10 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     @Override
     public void onBindViewHolder(@NonNull EcgRecordListAdapter.ViewHolder holder, final int position) {
         ViseLog.e("onBindViewHolder " + position);
-        EcgFile file = ecgFileList.get(position);
+        EcgRecord file = recordList.get(position);
         if(file == null) return;
 
-        holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(file.getFile().lastModified()));
+        holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(file.getLastModifyTime()));
 
         User fileCreator = file.getCreator();
         User account = UserManager.getInstance().getUser();
@@ -127,13 +126,13 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         int hrNum = file.getHrList().size();
         holder.tvHrNum.setText(String.valueOf(hrNum));
 
-        if (updatedFileList.contains(file.getFile())) {
+        if (updatedFileList.contains(file)) {
             holder.tvModifyTime.setTextColor(Color.RED);
         } else {
             holder.tvModifyTime.setTextColor(Color.BLACK);
         }
 
-        if(file.equals(selectedEcgFile)) {
+        if(file.equals(selectedRecord)) {
             int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
         } else {
@@ -142,19 +141,19 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     }
     @Override
     public int getItemCount() {
-        return ecgFileList.size();
+        return recordList.size();
     }
 
-    public void updateFileList(List<EcgFile> fileList, List<File> updatedFileList) {
+    public void updateFileList(List<EcgRecord> fileList, List<EcgRecord> updatedFileList) {
         notifyDataSetChanged();
     }
 
-    public void updateSelectedFile(EcgFile selectFile) {
-        int beforePos = ecgFileList.indexOf(this.selectedEcgFile);
-        int afterPos = ecgFileList.indexOf(selectFile);
+    public void updateSelectedFile(EcgRecord selectFile) {
+        int beforePos = recordList.indexOf(this.selectedRecord);
+        int afterPos = recordList.indexOf(selectFile);
 
         if(beforePos != afterPos) {
-            this.selectedEcgFile = selectFile;
+            this.selectedRecord = selectFile;
             notifyItemChanged(beforePos);
             notifyItemChanged(afterPos);
         } else {
@@ -162,7 +161,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         }
     }
 
-    public void insertNewFile(EcgFile file) {
+    public void insertNewFile(EcgRecord file) {
         ViseLog.e("insert " + file);
 
         //notifyItemInserted(getItemCount()-1);
@@ -170,6 +169,6 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     }
 
     public void clear() {
-        ecgFileList.clear();
+        recordList.clear();
     }
 }

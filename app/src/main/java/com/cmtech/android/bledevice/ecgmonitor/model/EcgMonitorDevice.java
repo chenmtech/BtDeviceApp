@@ -13,16 +13,12 @@ import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.vise.log.ViseLog;
-import com.vise.utils.file.FileUtil;
 
 import org.litepal.LitePal;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -277,6 +273,12 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     }
 
     private void saveEcgRecord() {
+        try {
+            ecgRecord.moveSigFileTo(DIR_ECG_SIGNAL);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
         ecgRecord.setHrList(dataProcessor.getHrList());
         if(signalRecorder != null)
             ecgRecord.addComment(signalRecorder.getComment());

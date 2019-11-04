@@ -21,20 +21,17 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.viewcomponent.RollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.HR_FILTER_SECOND;
@@ -72,10 +69,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ecg_record);
 
-        String fileName = getIntent().getStringExtra("file_name");
+        int recordId = getIntent().getIntExtra("record_id", -1);
         try {
-            //record = EcgFile.open(fileName);
-            record = LitePal.find(EcgRecord.class, 0, true);
+            record = LitePal.find(EcgRecord.class, recordId, true);
             record.openSigFile();
         } catch (IOException e) {
             e.printStackTrace();

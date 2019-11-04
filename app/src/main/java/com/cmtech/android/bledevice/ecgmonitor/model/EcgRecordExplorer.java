@@ -16,6 +16,8 @@ import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
+import org.litepal.LitePal;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -141,7 +143,7 @@ public class EcgRecordExplorer {
     }
 
     // 选中文件
-    public void selectFile(EcgRecord record) {
+    public void selectRecord(EcgRecord record) {
         if(selectedRecord != record) {
             selectedRecord = record;
             notifySelectedFileChanged();
@@ -172,11 +174,12 @@ public class EcgRecordExplorer {
     private synchronized void doDeleteSelectRecord() {
         try {
             if(selectedRecord != null) {
-                FileUtil.deleteFile(selectedRecord.getFile());
+                FileUtil.deleteFile(new File(selectedRecord.getSigFileName()));
+                LitePal.delete(EcgRecord.class, selectedRecord.getId());
                 if(recordList.remove(selectedRecord)) {
-                    notifyFileListChanged();
+                    notifyRecordListChanged();
                 }
-                selectFile(null);
+                selectRecord(null);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -276,7 +279,7 @@ public class EcgRecordExplorer {
     public synchronized void close() {
         ExecutorUtil.shutdownNowAndAwaitTerminate(openFileService);
 
-        selectFile(null);
+        selectRecord(null);
 
         for(EcgRecord record : recordList) {
             try {
@@ -288,7 +291,7 @@ public class EcgRecordExplorer {
 
         recordList.clear();
 
-        notifyFileListChanged();
+        notifyRecordListChanged();
     }
 
     // 拷贝文件留言
@@ -359,7 +362,7 @@ public class EcgRecordExplorer {
         }
     }
 
-    private void notifyFileListChanged() {
+    private void notifyRecordListChanged() {
         if(listener != null) {
             listener.onRecordListChanged(recordList);
         }

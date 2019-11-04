@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 import static com.cmtech.bmefile.BmeFileHead.INVALID_SAMPLE_RATE;
 
@@ -53,6 +52,17 @@ public class EcgRecord extends LitePalSupport {
         createSigFile();
         this.hrList = hrList;
         this.commentList = commentList;
+    }
+
+    // 创建信号文件
+    private void createSigFile() throws IOException{
+        File sigFile = new File(sigFileName);
+        if(sigFile.exists()) {
+            if(!sigFile.delete())
+                throw new IOException();
+        }
+        if(!sigFile.createNewFile())
+            throw new IOException();
     }
 
     // 创建新文件
@@ -94,17 +104,6 @@ public class EcgRecord extends LitePalSupport {
         }
     }
 
-    // 创建信号文件
-    private void createSigFile() throws IOException{
-        File sigFile = new File(sigFileName);
-        if(sigFile.exists()) {
-            if(!sigFile.delete())
-                throw new IOException();
-        }
-        if(!sigFile.createNewFile())
-            throw new IOException();
-    }
-
     // 打开信号文件，赋值sigRaf，文件指针归0
     public void openSigFile() throws IOException{
         File sigFile = new File(sigFileName);
@@ -117,6 +116,7 @@ public class EcgRecord extends LitePalSupport {
         }
     }
 
+    // 关闭信号文件
     public void closeSigFile() throws IOException {
         if(sigRaf != null) {
             sigRaf.close();
@@ -124,11 +124,28 @@ public class EcgRecord extends LitePalSupport {
         }
     }
 
+    // 将信号文件移动到directory
+    public void moveSigFileTo(File directory) throws IOException{
+        File sigFile = new File(sigFileName);
+        if(sigFile.exists() && directory != null) {
+            if(sigRaf != null)
+                sigRaf.close();
+            File toFile = FileUtil.getFile(directory, sigFile.getName());
+            FileUtil.moveFile(sigFile, toFile);
+        }
+    }
+
+    public int getId() {
+        return id;
+    }
     public String getRecordName() {
         return recordName;
     }
     public long getLastModifyTime() {
         return lastModifyTime;
+    }
+    public String getSigFileName() {
+        return sigFileName;
     }
     public BmeFileDataType getDataType() {
         return (bmeHead == null) ? null : bmeHead.getDataType();
@@ -174,46 +191,18 @@ public class EcgRecord extends LitePalSupport {
     public List<Short> getHrList() {
         return hrList;
     }
-    // 读单个byte数据
-    public byte readByte() throws IOException{
-        return sigRaf.readByte();
-    }
-    // 读单个int数据
-    public int readInt() throws IOException {
+    // 读单个信号数据
+    public int readSignal() throws IOException {
         return DataIOUtil.readInt(sigRaf, bmeHead.getByteOrder());
     }
-    // 读单个double数据
-    public double readDouble() throws IOException{
-        return DataIOUtil.readDouble(sigRaf, bmeHead.getByteOrder());
-    }
-    // 写单个byte数据
-    public void writeData(byte data) throws IOException{
-        sigRaf.writeByte(data);
-    }
-    // 写单个int数据
-    public void writeData(int data) throws IOException{
+    // 写单个信号数据
+    public void writeSignal(int data) throws IOException{
         DataIOUtil.writeInt(sigRaf, data, bmeHead.getByteOrder());
     }
-    // 写单个double数据
-    public void writeData(double data) throws IOException{
-        DataIOUtil.writeDouble(sigRaf, data, bmeHead.getByteOrder());
-    }
-    // 写byte数组
-    public void writeData(byte[] data) throws IOException{
-        for(byte num : data) {
-            writeData(num);
-        }
-    }
-    // 写int数组
-    public void writeData(int[] data) throws IOException{
+    // 写信号数组
+    public void writeSignal(int[] data) throws IOException{
         for(int num : data) {
-            writeData(num);
-        }
-    }
-    // 写double数组
-    public void writeData(double[] data) throws IOException{
-        for(double num : data) {
-            writeData(num);
+            writeSignal(num);
         }
     }
     // 将文件指针定位到某个数据位置
@@ -266,20 +255,6 @@ public class EcgRecord extends LitePalSupport {
 
     @Override
     public boolean save() {
-        if(DIR_ECG_SIGNAL != null) {
-            try {
-                if(sigRaf != null)
-                    sigRaf.close();
-                File sigFile = new File(sigFileName);
-                if(sigFile.exists()) {
-                    File toFile = FileUtil.getFile(DIR_ECG_SIGNAL, new File(sigFileName).getName());
-                    FileUtil.moveFile(new File(sigFileName), toFile);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
         this.lastModifyTime = new Date().getTime();
         return super.save();
     }
