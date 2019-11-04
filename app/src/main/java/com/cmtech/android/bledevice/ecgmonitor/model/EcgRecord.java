@@ -47,27 +47,26 @@ public class EcgRecord extends LitePalSupport {
 
     private EcgRecord(String recordName, BmeFileHead30 bmeHead, EcgFileHead ecgHead, List<Short> hrList, List<EcgNormalComment> commentList) throws IOException{
         this.recordName = recordName;
-        this.lastModifyTime = new Date().getTime();
         this.bmeHead = bmeHead;
         this.ecgHead = ecgHead;
         this.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + recordName + ".bme";
         createSigFile();
         this.hrList = hrList;
         this.commentList = commentList;
+        this.lastModifyTime = new Date().getTime();
     }
 
     // 创建信号文件
     private void createSigFile() throws IOException{
         File sigFile = new File(sigFileName);
-        if(sigFile.exists()) {
-            if(!sigFile.delete())
-                throw new IOException();
+        if(sigFile.exists() && !sigFile.delete()) {
+            throw new IOException();
         }
         if(!sigFile.createNewFile())
             throw new IOException();
     }
 
-    // 创建新文件
+    // 创建记录
     public static EcgRecord create(User creator, int sampleRate, int value1mV, String macAddress, EcgLeadType leadType) {
         long time = new Date().getTime();
         // 创建bmeFileHead文件头
@@ -86,15 +85,13 @@ public class EcgRecord extends LitePalSupport {
     }
 
     public static EcgRecord create(EcgFile ecgFile) {
-        BmeFileHead30 bmeHead = (BmeFileHead30) ecgFile.getBmeFileHead();
-        EcgFileHead ecgHead = ecgFile.getEcgFileHead();
         String fileName = ecgFile.getFileName();
         String recordName = fileName.substring(fileName.lastIndexOf(File.separator) + 1, fileName.lastIndexOf("."));
-
+        BmeFileHead30 bmeHead = (BmeFileHead30) ecgFile.getBmeFileHead();
+        EcgFileHead ecgHead = ecgFile.getEcgFileHead();
         try {
             EcgRecord record = new EcgRecord(recordName, bmeHead, ecgHead, ecgFile.getHrList(), ecgFile.getCommentList());
             record.openSigFile();
-            ecgFile.seekData(0);
             while (!ecgFile.isEOD()) {
                 DataIOUtil.writeInt(record.sigRaf, ecgFile.readInt(), bmeHead.getByteOrder());
             }
@@ -106,16 +103,12 @@ public class EcgRecord extends LitePalSupport {
         }
     }
 
-    // 打开信号文件，赋值sigRaf，文件指针归0
+    // 打开信号文件: 赋值sigRaf
     public void openSigFile() throws IOException{
         File sigFile = new File(sigFileName);
         if(!sigFile.exists()) throw new IOException();
-
-        if(sigRaf == null) {
-            sigRaf = new RandomAccessFile(sigFile, "rw");
-        } else {
-            sigRaf.seek(0);
-        }
+        if(sigRaf != null) sigRaf.close();
+        sigRaf = new RandomAccessFile(sigFile, "rw");
     }
 
     // 关闭信号文件
@@ -129,7 +122,7 @@ public class EcgRecord extends LitePalSupport {
     // 将信号文件移动到directory
     public void moveSigFileTo(File directory) throws IOException{
         File sigFile = new File(sigFileName);
-        if(sigFile.exists() && directory != null) {
+        if(sigFile.exists() && directory != null && directory.isDirectory()) {
             if(sigRaf != null)
                 sigRaf.close();
             File toFile = FileUtil.getFile(directory, sigFile.getName());

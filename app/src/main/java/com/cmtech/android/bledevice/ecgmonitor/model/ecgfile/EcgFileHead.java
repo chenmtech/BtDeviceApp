@@ -50,7 +50,6 @@ public class EcgFileHead extends LitePalSupport {
                 creator = creators.get(0);
             }
         }
-        ViseLog.e(creator);
         return creator;
     }
     public EcgLeadType getLeadType() {
@@ -103,7 +102,8 @@ public class EcgFileHead extends LitePalSupport {
 
     @Override
     public boolean save() {
-        creator.save();
+        if(creator != null)
+            creator.save();
         return super.save();
     }
 }

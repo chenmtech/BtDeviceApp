@@ -6,10 +6,13 @@ import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
+import org.litepal.LitePal;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * EcgNormalComment: 心电一般留言类
@@ -20,6 +23,7 @@ public class EcgNormalComment extends EcgAppendix{
     private static final int CONTENT_CHAR_NUM = 500; // 内容字符数
     private static final int MODIFY_TIME_BYTE_NUM = 8;
 
+    private int id;
     private User creator = new User(); // 创建人
     private long modifyTime = -1; // 修改时间
     private String content = ""; // 内容
@@ -48,6 +52,13 @@ public class EcgNormalComment extends EcgAppendix{
     }
 
     public User getCreator() {
+        if(creator == null) {
+            List<User> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(User.class);
+            if(!creators.isEmpty())
+                creator = creators.get(0);
+            else
+                creator = new User();
+        }
         return creator;
     }
     public long getModifyTime() {
@@ -79,7 +90,7 @@ public class EcgNormalComment extends EcgAppendix{
      */
     @Override
     public void readFromStream(DataInput in) throws IOException{
-        creator.readFromStream(in); // 读创建人
+        getCreator().readFromStream(in); // 读创建人
         modifyTime = ByteUtil.reverseLong(in.readLong()); // 读修改时间
         content = DataIOUtil.readFixedString(in, CONTENT_CHAR_NUM); // 读留言内容
     }
@@ -90,7 +101,7 @@ public class EcgNormalComment extends EcgAppendix{
      */
     @Override
     public void writeToStream(DataOutput out) throws IOException{
-        creator.writeToStream(out); // 写创建人
+        getCreator().writeToStream(out); // 写创建人
         out.writeLong(ByteUtil.reverseLong(modifyTime)); // 写修改时间
         DataIOUtil.writeFixedString(out, content, CONTENT_CHAR_NUM); // 写留言内容
     }
@@ -101,12 +112,12 @@ public class EcgNormalComment extends EcgAppendix{
      */
     @Override
     public int length() {
-        return  super.length() + creator.length() + MODIFY_TIME_BYTE_NUM + 2* CONTENT_CHAR_NUM;
+        return  super.length() + getCreator().length() + MODIFY_TIME_BYTE_NUM + 2* CONTENT_CHAR_NUM;
     }
 
     @Override
     public String toString() {
-        return creator.getName() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + ' ' + content;
+        return getCreator().getName() + "@" + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + ' ' + content;
     }
 
     @Override
@@ -114,17 +125,23 @@ public class EcgNormalComment extends EcgAppendix{
         if(this == otherObject) return true;
         if(otherObject == null) return false;
         if(getClass() != otherObject.getClass()) return false;
-
         EcgNormalComment other = (EcgNormalComment)otherObject;
-        // 只要手机号和修改时间相同，就认为是同一条留言
-        return  (creator.getPhone().equals(other.creator.getPhone()) && (modifyTime == other.modifyTime));
+        // 只要创建人和修改时间相同，就认为是同一条留言
+        return  (getCreator().equals(other.getCreator()) && (modifyTime == other.modifyTime));
     }
 
     @Override
     public int hashCode() {
         int result = 17;
-        result = 37*result + creator.hashCode();
+        result = 37*result + getCreator().hashCode();
         result = 37*result + (int)(modifyTime^(modifyTime>>32));
         return result;
+    }
+
+    @Override
+    public boolean save() {
+        if(creator != null)
+            creator.save();
+        return super.save();
     }
 }

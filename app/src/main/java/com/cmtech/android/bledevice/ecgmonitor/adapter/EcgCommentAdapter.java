@@ -73,11 +73,12 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
                 .inflate(R.layout.recycle_item_ecg_comment, parent, false);
 
         final EcgCommentAdapter.ViewHolder holder = new EcgCommentAdapter.ViewHolder(view);
+        final EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
+        final User creator = comment.getCreator();
 
         holder.tvCreatorName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                User creator = commentList.get(holder.getAdapterPosition()).getCreator();
                 Toast.makeText(view.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -85,8 +86,6 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         holder.ibSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
-                User creator = comment.getCreator();
                 User account = UserManager.getInstance().getUser();
                 if(listener != null && creator.equals(account)) {
                     comment.setContent(holder.etContent.getText().toString());
@@ -110,7 +109,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             holder.tvCreatorName.setText(Html.fromHtml("<u>您</u>"));
             holder.etContent.setHint("请输入。");
         } else {
-            holder.tvCreatorName.setText(Html.fromHtml("<u>" + comment.getCreator().getName() + "</u>"));
+            holder.tvCreatorName.setText(Html.fromHtml("<u>" + creator.getName() + "</u>"));
             holder.etContent.setHint("");
         }
 
