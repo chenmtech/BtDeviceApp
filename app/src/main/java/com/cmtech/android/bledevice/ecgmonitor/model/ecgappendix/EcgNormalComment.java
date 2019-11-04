@@ -29,12 +29,8 @@ public class EcgNormalComment extends EcgAppendix{
 
     private EcgNormalComment(User creator, long modifyTime) {
         this();
-        try {
-            this.creator = (User) creator.clone();
-            this.modifyTime = modifyTime;
-        } catch (CloneNotSupportedException e) {
-            throw new IllegalStateException();
-        }
+        this.creator = creator;
+        this.modifyTime = modifyTime;
     }
 
     /**
