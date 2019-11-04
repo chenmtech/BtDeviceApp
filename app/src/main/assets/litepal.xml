@@ -3,7 +3,7 @@
 <litepal>
     <dbname value = "BtDeviceApp"/>
 
-    <version value="3"/>
+    <version value="1"/>
 
     <list>
         <mapping class="com.cmtech.android.bledeviceapp.model.User"/>
@@ -11,6 +11,7 @@
         <mapping class="com.cmtech.android.bledevice.temphumid.model.TempHumidHistoryData"/>
         <mapping class="com.cmtech.bmefile.BmeFileHead30"/>
         <mapping class="com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead"/>
+        <mapping class="com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment"/>
         <mapping class="com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord"/>
     </list>
 </litepal>

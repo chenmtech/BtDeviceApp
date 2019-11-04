@@ -1,5 +1,7 @@
 package com.cmtech.bmefile;
 
+import org.litepal.crud.LitePalSupport;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -10,7 +12,7 @@ import java.nio.ByteOrder;
  * created by chenm, 2018-02-12
  */
 
-public abstract class BmeFileHead {
+public abstract class BmeFileHead extends LitePalSupport {
     private static final int INFO_LENGTH_BYTE_NUM = 4; // 信息长度的字节数
     private static final int DATA_TYPE_BYTE_NUM = 1; // 数据类型的字节数
     private static final int SAMPLE_RATE_BYTE_NUM = 4; // 采样率的字节数

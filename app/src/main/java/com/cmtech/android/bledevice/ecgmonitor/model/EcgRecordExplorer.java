@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
@@ -24,10 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
@@ -35,8 +31,6 @@ import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
-import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_WECHAT_DOWNLOAD;
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead.MACADDRESS_CHAR_NUM;
 
 /**
   *
@@ -54,92 +48,62 @@ public class EcgRecordExplorer {
     public static final int ORDER_CREATE_TIME = 0; // 按创建时间排序
     public static final int ORDER_MODIFY_TIME = 1; // 按修改时间排序
 
-    private final File ecgFileDir; // Ecg文件路径
-    private final List<EcgRecord> recordList = new ArrayList<>(); // 心电记录列表
-    private final List<EcgRecord> unmodifiedRecordList = Collections.unmodifiableList(recordList);
-    private Iterator<File> fileIterator; // 文件迭代器
-    private List<EcgRecord> updatedRecords; // 已更新文件
+    private List<EcgRecord> recordList; // 心电记录列表
+    private List<EcgRecord> updatedRecords; // 已更新记录
     private volatile EcgRecord selectedRecord; // 被选中的记录
-    private final int fileOrder;
-    private final ExecutorService openFileService = Executors.newSingleThreadExecutor(); // 打开文件服务
-    private final OnEcgRecordsListener listener; // ECG文件监听器
+    private final int recordOrder; // 记录排序方式
+    private final OnEcgRecordsListener listener; // ECG记录监听器
 
     public interface OnEcgRecordsListener {
-        void onRecordSelected(EcgRecord ecgRecord); // 文件被选中
-        void onNewRecordAdded(EcgRecord ecgRecord); // 添加新文件
-        void onRecordListChanged(List<EcgRecord> recordList); // 文件列表改变
+        void onRecordSelected(EcgRecord ecgRecord); // 记录被选中
+        void onRecordAdded(EcgRecord ecgRecord); // 添加记录
+        void onRecordListChanged(List<EcgRecord> recordList); // 记录列表改变
     }
 
-    public EcgRecordExplorer(File ecgFileDir, int fileOrder, OnEcgRecordsListener listener) throws IOException{
-        if(ecgFileDir == null) {
-            throw new IOException("The ecg file dir is null");
-        }
-        if(!ecgFileDir.exists() && !ecgFileDir.mkdir()) {
-            throw new IOException("The ecg file dir doesn't exist.");
-        }
-        if(ecgFileDir.exists() && !ecgFileDir.isDirectory()) {
-            throw new IOException("The ecg file dir is invalid.");
-        }
-
-        this.ecgFileDir = ecgFileDir;
-        this.fileOrder = fileOrder;
+    public EcgRecordExplorer(int recordOrder, OnEcgRecordsListener listener) {
+        this.recordOrder = recordOrder;
         this.listener = listener;
         updatedRecords = new ArrayList<>();
-        updateFileIterator(fileOrder);
+        this.recordList = LitePal.findAll(EcgRecord.class, true);
+        ViseLog.e(recordList);
+        sortRecordList(recordOrder);
     }
 
-    // 获取文件列表，并排序
-    private void updateFileIterator(final int fileOrder) {
-        List<File> fileList = BmeFileUtil.listDirBmeFiles(ecgFileDir);
-        Collections.sort(fileList, new Comparator<File>() {
-            @Override
-            public int compare(File o1, File o2) {
-                long time1;
-                long time2;
-                if(fileOrder == ORDER_CREATE_TIME) {
-                    String f1 = o1.getName();
-                    String f2 = o2.getName();
-                    time1 = Long.parseLong(f1.substring(MACADDRESS_CHAR_NUM, f1.length()-4));
-                    time2 = Long.parseLong(f2.substring(MACADDRESS_CHAR_NUM, f2.length()-4));
-                } else {
-                    time1 = o1.lastModified();
-                    time2 = o2.lastModified();
+    // 排序记录列表
+    private void sortRecordList(final int recordOrder) {
+        if(recordList != null && recordList.size() > 1) {
+            Collections.sort(recordList, new Comparator<EcgRecord>() {
+                @Override
+                public int compare(EcgRecord o1, EcgRecord o2) {
+                    long time1;
+                    long time2;
+                    if(recordOrder == ORDER_CREATE_TIME) {
+                        time1 = o1.getCreateTime();
+                        time2 = o2.getCreateTime();
+                    } else {
+                        time1 = o1.getLastModifyTime();
+                        time2 = o2.getLastModifyTime();
+                    }
+                    if(time1 == time2) return 0;
+                    return (time2 > time1) ? 1 : -1;
                 }
-                if(time1 == time2) return 0;
-                return (time2 > time1) ? 1 : -1;
-            }
-        });
-        if(fileList != null)
-            fileIterator = fileList.iterator();
-        else
-            fileIterator = null;
+            });
+        }
     }
 
     public List<EcgRecord> getRecordList() {
-        return unmodifiedRecordList;
+        return recordList;
     }
     public List<EcgRecord> getUpdatedRecords() {
         return updatedRecords;
     }
-    public void addUpdatedFile(EcgRecord record) {
+    public void addUpdatedRecord(EcgRecord record) {
         if(!updatedRecords.contains(record)) {
             updatedRecords.add(record);
         }
     }
     public EcgRecord getSelectedRecord() {
         return selectedRecord;
-    }
-
-    public int loadNextRecords(int num) {
-        if(fileIterator == null) return 0;
-
-        int i = 0;
-        while(i < num && fileIterator.hasNext()) {
-            File file = fileIterator.next();
-            //openFileService.execute(new LoadFileRunnable(file));
-            i++;
-        }
-        return i;
     }
 
     // 选中文件
@@ -188,13 +152,13 @@ public class EcgRecordExplorer {
 
     // 从微信导入文件
     public boolean importFromWechat() {
-        List<File> updatedFileList = importUpdatedFiles(DIR_WECHAT_DOWNLOAD, ecgFileDir);
+        /*List<File> updatedFileList = importUpdatedFiles(DIR_WECHAT_DOWNLOAD, ecgFileDir);
         if(updatedFileList != null && !updatedFileList.isEmpty()) {
             close();
             //updatedRecords.addAll(updatedFileList);
-            updateFileIterator(fileOrder);
+            sortRecordList(recordOrder);
             return true;
-        }
+        }*/
         return false;
     }
 
@@ -277,8 +241,6 @@ public class EcgRecordExplorer {
 
     // 关闭管理器
     public synchronized void close() {
-        ExecutorUtil.shutdownNowAndAwaitTerminate(openFileService);
-
         selectRecord(null);
 
         for(EcgRecord record : recordList) {
@@ -325,41 +287,6 @@ public class EcgRecordExplorer {
             needAdd = true;
         }
         return update;
-    }
-
-    private class LoadFileRunnable implements Runnable {
-        private final EcgRecord record;
-
-        LoadFileRunnable(EcgRecord record) {
-            this.record = record;
-        }
-
-        @Override
-        public void run() {
-            try {
-                loadRecord(record);
-            } catch (IOException e) {
-                ViseLog.e("The record is wrong: " + record);
-            }
-        }
-    }
-
-
-    // 加载记录
-    private synchronized void loadRecord(EcgRecord record) throws IOException{
-        boolean contain = false;
-        for(EcgRecord ele : recordList) {
-            if(ele.equals(record)) {
-                contain = true;
-                break;
-            }
-        }
-
-        if(!contain) {
-            recordList.add(record);
-            if(listener != null)
-                listener.onNewRecordAdded(record);
-        }
     }
 
     private void notifyRecordListChanged() {

@@ -6,6 +6,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFileHead;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.BmeFileDataType;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.DataIOUtil;
@@ -37,7 +38,7 @@ public class EcgRecord extends LitePalSupport {
     @Column(ignore = true)
     private RandomAccessFile sigRaf;
     private List<Short> hrList;
-    private final List<EcgNormalComment> commentList;
+    private List<EcgNormalComment> commentList;
 
     private EcgRecord(String recordName, BmeFileHead30 bmeHead, EcgFileHead ecgHead) throws IOException{
         this(recordName, bmeHead, ecgHead, new ArrayList<Short>(), new ArrayList<EcgNormalComment>());
@@ -237,7 +238,7 @@ public class EcgRecord extends LitePalSupport {
 
     @Override
     public String toString() {
-        return bmeHead + "-" + ecgHead + "-" + sigFileName + "-" + hrList + "-" +commentList;
+        return DateTimeUtil.timeToShortStringWithTodayYesterday(lastModifyTime) + bmeHead + "-" + ecgHead + "-" + sigFileName + "-" + hrList + "-" +commentList;
     }
 
     @Override

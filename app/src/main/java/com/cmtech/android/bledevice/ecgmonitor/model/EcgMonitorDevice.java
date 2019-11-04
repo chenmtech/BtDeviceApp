@@ -284,7 +284,9 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             ecgRecord.setHrList(dataProcessor.getHrList());
             if(signalRecorder != null)
                 ecgRecord.addComment(signalRecorder.getComment());
-            ecgRecord.save();
+            if(!ecgRecord.save()) {
+                ViseLog.e("record save false");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
