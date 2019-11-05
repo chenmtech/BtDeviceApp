@@ -3,7 +3,7 @@
 <litepal>
     <dbname value = "BtDeviceApp"/>
 
-    <version value="6"/>
+    <version value="8"/>
 
     <list>
         <mapping class="com.cmtech.bmefile.BmeFileHead30"/>

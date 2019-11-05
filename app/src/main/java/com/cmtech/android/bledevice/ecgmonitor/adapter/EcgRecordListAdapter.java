@@ -100,7 +100,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         EcgRecord record = recordList.get(position);
         if(record == null) return;
 
-        holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(record.getLastModifyTime()));
+        holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(record.getModifyTime()));
 
         User creator = record.getCreator();
         User account = AccountManager.getInstance().getAccount();
@@ -113,10 +113,10 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
 
-        if(record.getDataNum() == 0) {
+        if(record.getDataNumInSignal() == 0) {
             holder.tvLength.setText("无");
         } else {
-            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNum() / record.getSampleRate());
+            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNumInSignal() / record.getSampleRate());
             holder.tvLength.setText(dataTimeLength);
         }
 

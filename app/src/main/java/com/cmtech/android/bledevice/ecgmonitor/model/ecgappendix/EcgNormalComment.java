@@ -8,6 +8,7 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
+import org.litepal.annotation.Column;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -29,6 +30,10 @@ public class EcgNormalComment extends EcgAppendix{
     private long modifyTime = -1; // 修改时间
     private String content = ""; // 内容
 
+    private EcgNormalComment() {
+
+    }
+
     private EcgNormalComment(User creator, long modifyTime) {
         this.creator = (User) creator.clone();
         this.modifyTime = modifyTime;
@@ -45,11 +50,13 @@ public class EcgNormalComment extends EcgAppendix{
     }
 
     public User getCreator() {
-        List<User> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(User.class);
-        if (!creators.isEmpty())
-            creator = creators.get(0);
-        else
-            creator = new User();
+        if(creator == null) {
+            List<User> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(User.class);
+            if (!creators.isEmpty())
+                creator = creators.get(0);
+            else
+                creator = new User();
+        }
         return creator;
     }
     public long getModifyTime() {
@@ -129,7 +136,6 @@ public class EcgNormalComment extends EcgAppendix{
     public boolean save() {
         ViseLog.e("comment save");
         if(creator != null) {
-            creator.setPersonalInfo("comment");
             creator.save();
         }
         return super.save();

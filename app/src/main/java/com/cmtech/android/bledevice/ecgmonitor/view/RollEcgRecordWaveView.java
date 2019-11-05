@@ -198,8 +198,8 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
     public void showAt(long location) {
         if(ecgRecord == null) return;
 
-        if(location >= ecgRecord.getDataNum()) {
-            location = ecgRecord.getDataNum()-1;
+        if(location >= ecgRecord.getDataNumInSignal()) {
+            location = ecgRecord.getDataNumInSignal()-1;
         } else if(location < 0) {
             location = 0;
         }

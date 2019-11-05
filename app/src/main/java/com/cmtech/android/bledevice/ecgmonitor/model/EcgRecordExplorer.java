@@ -62,11 +62,6 @@ public class EcgRecordExplorer {
         this.listener = listener;
         updatedRecords = new ArrayList<>();
         this.recordList = LitePal.findAll(EcgRecord.class, true);
-        if(recordList != null) {
-            for(EcgRecord record : recordList) {
-                record.loadCommentListFromDb();
-            }
-        }
         ViseLog.e(recordList);
         sortRecords(recordOrder);
         List<User> users = LitePal.findAll(User.class);
@@ -85,8 +80,8 @@ public class EcgRecordExplorer {
                         time1 = o1.getCreateTime();
                         time2 = o2.getCreateTime();
                     } else {
-                        time1 = o1.getLastModifyTime();
-                        time2 = o2.getLastModifyTime();
+                        time1 = o1.getModifyTime();
+                        time2 = o2.getModifyTime();
                     }
                     if(time1 == time2) return 0;
                     return (time2 > time1) ? 1 : -1;

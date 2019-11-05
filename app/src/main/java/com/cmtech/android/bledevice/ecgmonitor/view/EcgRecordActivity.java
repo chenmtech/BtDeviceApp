@@ -79,7 +79,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             finish();
         }
 
-        modifyTime = record.getLastModifyTime();
+        modifyTime = record.getModifyTime();
 
         tvModifyTime = findViewById(R.id.tv_modify_time);
         tvCreator = findViewById(R.id.tv_creator);
@@ -150,10 +150,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         String createdTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         tvCreateTime.setText(createdTime);
 
-        if(record.getDataNum() == 0) {
+        if(record.getDataNumInSignal() == 0) {
             tvLength.setText("无");
         } else {
-            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNum() / record.getSampleRate());
+            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNumInSignal() / record.getSampleRate());
             tvLength.setText(dataTimeLength);
         }
 
@@ -161,7 +161,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvHrNum.setText(String.valueOf(hrNum));
 
         initEcgView(record);
-        int secondInSignal = record.getDataNum()/ record.getSampleRate();
+        int secondInSignal = record.getDataNumInSignal()/ record.getSampleRate();
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));
         tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
         sbReplay.setMax(secondInSignal);
@@ -173,7 +173,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
         signalView.startShow();
 
-        if(record.getDataNum() == 0) {
+        if(record.getDataNumInSignal() == 0) {
             signalLayout.setVisibility(View.GONE);
         } else {
             signalLayout.setVisibility(View.VISIBLE);
@@ -239,7 +239,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     public void onSelectedCommentSaved() {
         if(record != null) {
             record.save();
-            tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(record.getLastModifyTime()));
+            tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(record.getModifyTime()));
         }
     }
 
@@ -264,7 +264,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        intent.putExtra("updated", modifyTime != record.getLastModifyTime());
+        intent.putExtra("updated", modifyTime != record.getModifyTime());
         setResult(RESULT_OK, intent);
         finish();
     }

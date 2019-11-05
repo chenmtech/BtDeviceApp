@@ -31,16 +31,24 @@ import static com.cmtech.bmefile.BmeFileHead.INVALID_SAMPLE_RATE;
 public class EcgRecord extends LitePalSupport {
     private int id;
     @Column(unique = true)
-    private final String recordName;
-    private long lastModifyTime;
-    private final BmeFileHead30 bmeHead;
-    private final EcgFileHead ecgHead;
-    private String sigFileName = "";
-    private int dataNum;
+    private final String recordName; // 记录名
+    private long modifyTime; // 修改时间
+    private final BmeFileHead30 bmeHead; // BME头
+    private final EcgFileHead ecgHead; // ECG头
+    private String sigFileName = ""; // 信号文件名
+    private int dataNumInSignal; // 信号中的数据个数
     @Column(ignore = true)
-    private RandomAccessFile sigRaf;
-    private List<Short> hrList;
-    private List<EcgNormalComment> commentList;
+    private RandomAccessFile sigRaf; // 信号文件RAF
+    private List<Short> hrList; // 心率值列表
+    private List<EcgNormalComment> commentList; // 留言列表
+
+    private EcgRecord() {
+        recordName = "";
+        bmeHead = null;
+        ecgHead = null;
+        hrList = new ArrayList<>();
+
+    }
 
     private EcgRecord(String recordName, BmeFileHead30 bmeHead, EcgFileHead ecgHead) throws IOException{
         this(recordName, bmeHead, ecgHead, new ArrayList<Short>(), new ArrayList<EcgNormalComment>());
@@ -54,7 +62,7 @@ public class EcgRecord extends LitePalSupport {
         createSigFile();
         this.hrList = hrList;
         this.commentList = commentList;
-        this.lastModifyTime = new Date().getTime();
+        this.modifyTime = new Date().getTime();
     }
 
     // 创建信号文件
@@ -73,9 +81,7 @@ public class EcgRecord extends LitePalSupport {
         // 创建bmeFileHead文件头
         BmeFileHead30 bmeFileHead = new BmeFileHead30("an ecg file", BmeFileDataType.INT32, sampleRate, value1mV, time);
         // 创建ecgFileHead文件头
-        String address = EcgMonitorUtil.cutMacAddressColon(macAddress);
-        EcgFileHead ecgFileHead = new EcgFileHead(creator, address, leadType);
-
+        EcgFileHead ecgFileHead = new EcgFileHead(creator, EcgMonitorUtil.cutMacAddressColon(macAddress), leadType);
         String recordName = EcgMonitorUtil.makeRecordName(macAddress, time);
         try {
             return new EcgRecord(recordName, bmeFileHead, ecgFileHead);
@@ -92,10 +98,11 @@ public class EcgRecord extends LitePalSupport {
         EcgFileHead ecgHead = ecgFile.getEcgFileHead();
         try {
             EcgRecord record = new EcgRecord(recordName, bmeHead, ecgHead, ecgFile.getHrList(), ecgFile.getCommentList());
+            // 拷贝信号数据
             record.openSigFile();
             while (!ecgFile.isEOD()) {
                 DataIOUtil.writeInt(record.sigRaf, ecgFile.readInt(), bmeHead.getByteOrder());
-                record.dataNum++;
+                record.dataNumInSignal++;
             }
             record.closeSigFile();
             return record;
@@ -107,9 +114,9 @@ public class EcgRecord extends LitePalSupport {
 
     // 打开信号文件: 赋值sigRaf
     public void openSigFile() throws IOException{
+        if(sigRaf != null) sigRaf.close();
         File sigFile = new File(sigFileName);
         if(!sigFile.exists()) throw new IOException();
-        if(sigRaf != null) sigRaf.close();
         sigRaf = new RandomAccessFile(sigFile, "rw");
     }
 
@@ -125,8 +132,7 @@ public class EcgRecord extends LitePalSupport {
     public void moveSigFileTo(File directory) throws IOException{
         File sigFile = new File(sigFileName);
         if(sigFile.exists() && directory != null && directory.isDirectory()) {
-            if(sigRaf != null)
-                sigRaf.close();
+            if(sigRaf != null) sigRaf.close();
             File toFile = FileUtil.getFile(directory, sigFile.getName());
             FileUtil.moveFile(sigFile, toFile);
             this.sigFileName = toFile.getAbsolutePath();
@@ -139,14 +145,14 @@ public class EcgRecord extends LitePalSupport {
     public String getRecordName() {
         return recordName;
     }
-    public long getLastModifyTime() {
-        return lastModifyTime;
+    public long getModifyTime() {
+        return modifyTime;
     }
     public String getSigFileName() {
         return sigFileName;
     }
-    public int getDataNum() {
-        return dataNum;
+    public int getDataNumInSignal() {
+        return dataNumInSignal;
     }
     public BmeFileDataType getDataType() {
         return (bmeHead == null) ? null : bmeHead.getDataType();
@@ -179,11 +185,16 @@ public class EcgRecord extends LitePalSupport {
         return commentList;
     }
     public void loadCommentListFromDb() {
-        commentList = LitePal.where("ecgrecord_id = ?", String.valueOf(id)).find(EcgNormalComment.class);
+        for(EcgNormalComment comment : commentList) {
+            ViseLog.e(comment);
+            ViseLog.e(comment.getCreator());
+        }
+        //commentList = LitePal.where("ecgrecord_id = ?", String.valueOf(id)).find(EcgNormalComment.class);
     }
     // 添加一条留言
     public void addComment(EcgNormalComment comment) {
-        commentList.add(comment);
+        if(!commentList.contains(comment))
+            commentList.add(comment);
     }
     // 删除一条留言
     public void deleteComment(EcgNormalComment comment) {
@@ -202,7 +213,7 @@ public class EcgRecord extends LitePalSupport {
     // 写单个信号数据
     public void writeData(int data) throws IOException{
         DataIOUtil.writeInt(sigRaf, data, bmeHead.getByteOrder());
-        dataNum++;
+        dataNumInSignal++;
     }
     // 写信号数组
     public void writeData(int[] data) throws IOException{
@@ -213,10 +224,10 @@ public class EcgRecord extends LitePalSupport {
     // 将文件指针定位到某个数据位置
     public void seekData(int dataNum) {
         try {
-            if(sigRaf != null && dataNum >= 0 && dataNum <= this.dataNum)
+            if(sigRaf != null && dataNum >= 0 && dataNum <= this.dataNumInSignal)
                 sigRaf.seek(dataNum * getDataType().getByteNum());
         } catch (IOException e) {
-            ViseLog.e("seekData " + dataNum + "is wrong.");
+            ViseLog.e("seekData wrong.");
         }
     }
     // 是否已经到达数据尾部
@@ -231,7 +242,7 @@ public class EcgRecord extends LitePalSupport {
 
     @Override
     public String toString() {
-        return DateTimeUtil.timeToShortStringWithTodayYesterday(lastModifyTime) + bmeHead + "-" + ecgHead + "-" + sigFileName + "-" + hrList + "-" +commentList;
+        return DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + bmeHead + "-" + ecgHead + "-" + sigFileName + "-" + dataNumInSignal + "-" + hrList + "-" +commentList;
     }
 
     @Override
@@ -250,7 +261,7 @@ public class EcgRecord extends LitePalSupport {
 
     @Override
     public boolean save() {
-        this.lastModifyTime = new Date().getTime();
+        this.modifyTime = new Date().getTime();
         bmeHead.save();
         ecgHead.save();
         for(EcgNormalComment comment : commentList) {

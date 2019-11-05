@@ -32,6 +32,10 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
     private String portraitPath = "";
     private String personalInfo = "";
 
+    public User() {
+
+    }
+
     public int getId() {
         return id;
     }

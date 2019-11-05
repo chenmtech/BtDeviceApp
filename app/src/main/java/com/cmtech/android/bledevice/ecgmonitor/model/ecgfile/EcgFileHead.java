@@ -104,7 +104,6 @@ public class EcgFileHead extends LitePalSupport {
     public boolean save() {
         ViseLog.e("head save");
         if(creator != null) {
-            creator.setPersonalInfo("head");
             creator.save();
         }
         return super.save();
