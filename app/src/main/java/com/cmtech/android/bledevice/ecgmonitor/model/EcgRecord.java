@@ -138,7 +138,7 @@ public class EcgRecord extends LitePalSupport {
             this.sigFileName = toFile.getAbsolutePath();
         }
     }
-    
+
     // 保存为EcgFile
     public EcgFile saveAsEcgFile(File directory) {
         return null;
