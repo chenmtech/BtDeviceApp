@@ -2,7 +2,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
-import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 import org.litepal.crud.LitePalSupport;
@@ -33,7 +32,7 @@ public class EcgFileHead extends LitePalSupport {
     }
 
     public EcgFileHead(User creator, String macAddress, EcgLeadType leadType) {
-        this.creator = creator;
+        this.creator = (User) creator.clone();
         this.macAddress = macAddress;
         this.leadTypeCode = leadType.getCode();
     }
@@ -44,7 +43,7 @@ public class EcgFileHead extends LitePalSupport {
     public User getCreator() {
         if(creator == null) {
             List<User> creators = LitePal.where("ecgfilehead_id = ?", String.valueOf(id)).find(User.class);
-            if(creators.isEmpty()) {
+            if (creators.isEmpty()) {
                 creator = new User();
             } else {
                 creator = creators.get(0);

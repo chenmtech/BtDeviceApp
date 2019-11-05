@@ -2,7 +2,6 @@ package com.cmtech.android.bledeviceapp.model;
 
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 
-import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
 import java.io.DataInput;
@@ -28,7 +27,6 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
     private static final int PERSONAL_INFO_CHAR_LEN = 50;
 
     private int id; // id
-    @Column(unique = true)
     private String phone = "";
     private String name = "";
     private String portraitPath = "";
@@ -103,8 +101,8 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        User account = (User) super.clone();
+    public Object clone() {
+        User account = new User();
         account.phone = phone;
         account.name = name;
         account.portraitPath = portraitPath;

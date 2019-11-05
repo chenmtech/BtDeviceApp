@@ -13,7 +13,6 @@ import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
-import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
@@ -250,7 +249,9 @@ public class EcgRecord extends LitePalSupport {
         this.lastModifyTime = new Date().getTime();
         bmeHead.save();
         ecgHead.save();
-        LitePal.saveAll(commentList);
+        for(EcgNormalComment comment : commentList) {
+            comment.save();
+        }
         return super.save();
     }
 }

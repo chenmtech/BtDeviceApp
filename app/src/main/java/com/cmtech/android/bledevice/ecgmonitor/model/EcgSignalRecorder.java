@@ -28,7 +28,7 @@ public class EcgSignalRecorder {
         this.device = device;
         this.ecgRecord = device.getEcgRecord();
         comment = EcgNormalComment.createDefaultComment();
-
+        this.ecgRecord.addComment(EcgNormalComment.createDefaultComment());
         this.sampleRate = device.getSampleRate();
     }
 
@@ -39,9 +39,6 @@ public class EcgSignalRecorder {
     // 获取记录的数据个数
     public long getDataNum() {
         return dataNum;
-    }
-    public EcgNormalComment getComment() {
-        return comment;
     }
     public boolean isRecording() {
         return isRecording;

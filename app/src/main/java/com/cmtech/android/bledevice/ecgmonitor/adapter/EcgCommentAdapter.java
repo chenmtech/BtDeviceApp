@@ -73,12 +73,11 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
                 .inflate(R.layout.recycle_item_ecg_comment, parent, false);
 
         final EcgCommentAdapter.ViewHolder holder = new EcgCommentAdapter.ViewHolder(view);
-        final EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
-        final User creator = comment.getCreator();
 
         holder.tvCreatorName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                final User creator = commentList.get(holder.getAdapterPosition()).getCreator();
                 Toast.makeText(view.getContext(), creator.toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -86,6 +85,8 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         holder.ibSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                final EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
+                final User creator = comment.getCreator();
                 User account = UserManager.getInstance().getUser();
                 if(listener != null && creator.equals(account)) {
                     comment.setContent(holder.etContent.getText().toString());

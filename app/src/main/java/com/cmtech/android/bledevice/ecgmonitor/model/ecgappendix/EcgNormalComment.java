@@ -5,6 +5,7 @@ import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
@@ -32,8 +33,7 @@ public class EcgNormalComment extends EcgAppendix{
     }
 
     private EcgNormalComment(User creator, long modifyTime) {
-        this();
-        this.creator = creator;
+        this.creator = (User) creator.clone();
         this.modifyTime = modifyTime;
     }
 
@@ -54,7 +54,7 @@ public class EcgNormalComment extends EcgAppendix{
     public User getCreator() {
         if(creator == null) {
             List<User> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(User.class);
-            if(!creators.isEmpty())
+            if (!creators.isEmpty())
                 creator = creators.get(0);
             else
                 creator = new User();
@@ -140,6 +140,7 @@ public class EcgNormalComment extends EcgAppendix{
 
     @Override
     public boolean save() {
+        ViseLog.e("comment save");
         if(creator != null)
             creator.save();
         return super.save();

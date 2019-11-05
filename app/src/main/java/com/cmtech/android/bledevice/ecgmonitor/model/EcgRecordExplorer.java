@@ -1,16 +1,14 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.v7.app.AlertDialog;
-import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -22,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 import cn.sharesdk.framework.Platform;
@@ -67,6 +64,8 @@ public class EcgRecordExplorer {
         this.recordList = LitePal.findAll(EcgRecord.class, true);
         ViseLog.e(recordList);
         sortRecords(recordOrder);
+        List<User> users = LitePal.findAll(User.class);
+        ViseLog.e(users);
     }
 
     // 排序记录
@@ -198,30 +197,18 @@ public class EcgRecordExplorer {
     }
 
     // 通过微信分享选中记录
-    public void shareSelectedRecordThroughWechat(final Context context) {
+    public void shareSelectedRecordThroughWechat(PlatformActionListener listener) {
         if(selectedRecord == null) return;
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
         String fileShortName = selectedRecord.getRecordName();
         sp.setTitle(fileShortName);
         sp.setComment("hi");
-        Bitmap bmp = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_kang);
+        Bitmap bmp = BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_kang);
         sp.setImageData(bmp);
         //sp.setFilePath(selectedRecord.getFileName());
         Platform platform = ShareSDK.getPlatform(Wechat.NAME);
-        platform.setPlatformActionListener(new PlatformActionListener() {
-            @Override
-            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-            }
-            @Override
-            public void onError(Platform platform, int i, Throwable throwable) {
-                Toast.makeText(context, "分享错误", Toast.LENGTH_SHORT).show();
-            }
-            @Override
-            public void onCancel(Platform platform, int i) {
-                Toast.makeText(context, "分享被取消", Toast.LENGTH_SHORT).show();
-            }
-        });
+        platform.setPlatformActionListener(listener);
         platform.share(sp);
     }
 

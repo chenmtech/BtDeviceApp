@@ -13,13 +13,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgRecordListAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecordExplorer;
 import com.cmtech.android.bledeviceapp.R;
 
+import java.util.HashMap;
 import java.util.List;
+
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.PlatformActionListener;
 
 /**
   *
@@ -156,7 +161,23 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
     }
 
     public void shareSelectedRecordThroughWechat() {
-        explorer.shareSelectedRecordThroughWechat(this);
+        explorer.shareSelectedRecordThroughWechat(new PlatformActionListener() {
+
+            @Override
+            public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
+
+            }
+
+            @Override
+            public void onError(Platform platform, int i, Throwable throwable) {
+                Toast.makeText(EcgRecordExplorerActivity.this, "分享错误", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancel(Platform platform, int i) {
+                Toast.makeText(EcgRecordExplorerActivity.this, "分享取消", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -177,9 +198,11 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
     @Override
     public void onRecordSelected(final EcgRecord selectedRecord) {
         recordAdapter.updateSelectedFile(selectedRecord);
-        Intent intent = new Intent(this, EcgRecordActivity.class);
-        intent.putExtra("record_id", selectedRecord.getId());
-        startActivityForResult(intent, 1);
+        if(selectedRecord != null) {
+            Intent intent = new Intent(this, EcgRecordActivity.class);
+            intent.putExtra("record_id", selectedRecord.getId());
+            startActivityForResult(intent, 1);
+        }
     }
 
     @Override
