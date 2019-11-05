@@ -47,7 +47,7 @@ public class EcgRecord extends LitePalSupport {
         bmeHead = null;
         ecgHead = null;
         hrList = new ArrayList<>();
-
+        commentList = new ArrayList<>();
     }
 
     private EcgRecord(String recordName, BmeFileHead30 bmeHead, EcgFileHead ecgHead) throws IOException{

@@ -28,6 +28,7 @@ import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_WECHAT_DOWNLOAD;
 
 /**
   *
@@ -137,13 +138,14 @@ public class EcgRecordExplorer {
 
     // 从微信导入文件
     public boolean importFromWechat() {
-        /*List<File> updatedFileList = importUpdatedFiles(DIR_WECHAT_DOWNLOAD, ecgFileDir);
-        if(updatedFileList != null && !updatedFileList.isEmpty()) {
+        List<EcgRecord> updatedRecords = importRecords(DIR_WECHAT_DOWNLOAD);
+        if(updatedRecords != null && !updatedRecords.isEmpty()) {
             close();
-            //updatedRecords.addAll(updatedFileList);
+            this.updatedRecords.addAll(updatedRecords);
             sortRecords(recordOrder);
+            notifyRecordListChanged();
             return true;
-        }*/
+        }
         return false;
     }
 
@@ -152,7 +154,7 @@ public class EcgRecordExplorer {
         List<File> fileList = BmeFileUtil.listDirBmeFiles(srcDir);
         if(fileList == null || fileList.isEmpty()) return null;
 
-        List<File> changedFiles = new ArrayList<>();
+        List<File> updatedFiles = new ArrayList<>();
         EcgFile srcEcgFile = null;
         EcgFile destEcgFile = null;
         for(File srcFile : fileList) {
@@ -166,12 +168,12 @@ public class EcgRecordExplorer {
                     destEcgFile = EcgFile.open(destFile.getCanonicalPath());
                     if(copyComments(srcEcgFile, destEcgFile)) {
                         destEcgFile.saveFileTail();
-                        changedFiles.add(destFile);
+                        updatedFiles.add(destFile);
                     }
                 } else {
                     srcEcgFile.close();
                     FileUtil.moveFile(srcFile, destFile);
-                    changedFiles.add(destFile);
+                    updatedFiles.add(destFile);
                 }
                 srcEcgFile.close();
                 srcEcgFile = null;
@@ -193,7 +195,47 @@ public class EcgRecordExplorer {
                 }
             }
         }
-        return changedFiles;
+        return updatedFiles;
+    }
+
+    // 从指定文件路径导入Ecg记录
+    private List<EcgRecord> importRecords(File dir) {
+        List<File> fileList = BmeFileUtil.listDirBmeFiles(dir);
+        if(fileList == null || fileList.isEmpty()) return null;
+        List<EcgRecord> updatedRecords = new ArrayList<>();
+        EcgFile ecgFile = null;
+        for(File file : fileList) {
+            try {
+                ecgFile = EcgFile.open(file.getAbsolutePath());
+                EcgRecord srcRecord = EcgRecord.create(ecgFile);
+                int index = recordList.indexOf(srcRecord);
+                if(index != -1) {
+                    EcgRecord destRecord = recordList.get(index);
+                    if(copyComments(srcRecord, destRecord)) {
+                        destRecord.save();
+                        updatedRecords.add(destRecord);
+                    }
+                } else {
+                    srcRecord.save();
+                    recordList.add(srcRecord);
+                    updatedRecords.add(srcRecord);
+                }
+                ecgFile.close();
+                FileUtil.deleteFile(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if(ecgFile != null) {
+                        ecgFile.close();
+                        ecgFile = null;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return updatedRecords;
     }
 
     // 通过微信分享选中记录
@@ -253,6 +295,39 @@ public class EcgRecordExplorer {
                     removeComment = null;
                 }
                 destFile.addComment(srcComment);
+                update = true;
+            }
+            needAdd = true;
+        }
+        return update;
+    }
+
+    // 拷贝记录留言
+    private boolean copyComments(EcgRecord srcRecord, EcgRecord destRecord) {
+        List<EcgNormalComment> srcComments = srcRecord.getCommentList();
+        List<EcgNormalComment> destComments = destRecord.getCommentList();
+
+        boolean update = false;
+        boolean needAdd = true;
+        EcgNormalComment tmpComment = null;
+        for(EcgNormalComment srcComment : srcComments) {
+            for(EcgNormalComment destComment : destComments) {
+                if(srcComment.getCreator().equals(destComment.getCreator())) {
+                    if(srcComment.getModifyTime() <= destComment.getModifyTime()) {
+                        needAdd = false;
+                        break;
+                    } else {
+                        tmpComment = destComment;
+                        break;
+                    }
+                }
+            }
+            if(needAdd) {
+                if(tmpComment != null) {
+                    destRecord.deleteComment(tmpComment);
+                    tmpComment = null;
+                }
+                destRecord.addComment(srcComment);
                 update = true;
             }
             needAdd = true;

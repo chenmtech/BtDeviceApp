@@ -124,20 +124,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
     }
 
     private void importFromWechat() {
-        boolean updated = explorer.importFromWechat();
-
-        if(updated) {
-            recordAdapter.clear();
-            tvPromptInfo.setText("正在载入信号");
-            /*new Handler(getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    if(explorer.loadNextRecords(DEFAULT_LOAD_RECORD_NUM_EACH_TIMES) == 0) {
-                        tvPromptInfo.setText("无信号可载入。");
-                    }
-                }
-            });*/
-        }
+        explorer.importFromWechat();
     }
 
     public void deleteSelectedRecord() {
