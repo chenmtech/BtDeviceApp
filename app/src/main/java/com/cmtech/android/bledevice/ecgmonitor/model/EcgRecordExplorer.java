@@ -62,6 +62,11 @@ public class EcgRecordExplorer {
         this.listener = listener;
         updatedRecords = new ArrayList<>();
         this.recordList = LitePal.findAll(EcgRecord.class, true);
+        if(recordList != null) {
+            for(EcgRecord record : recordList) {
+                record.loadCommentListFromDb();
+            }
+        }
         ViseLog.e(recordList);
         sortRecords(recordOrder);
         List<User> users = LitePal.findAll(User.class);
@@ -124,7 +129,7 @@ public class EcgRecordExplorer {
         try {
             if(selectedRecord != null) {
                 FileUtil.deleteFile(new File(selectedRecord.getSigFileName()));
-                LitePal.delete(EcgRecord.class, selectedRecord.getId());
+                selectedRecord.delete();
                 if(recordList.remove(selectedRecord)) {
                     notifyRecordListChanged();
                 }

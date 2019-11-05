@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
+import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 import org.litepal.crud.LitePalSupport;
@@ -101,8 +102,20 @@ public class EcgFileHead extends LitePalSupport {
 
     @Override
     public boolean save() {
-        if(creator != null)
+        ViseLog.e("head save");
+        if(creator != null) {
+            creator.setPersonalInfo("head");
             creator.save();
+        }
         return super.save();
+    }
+
+    @Override
+    public int delete() {
+        ViseLog.e("head delete");
+        if(creator != null) {
+            creator.delete();
+        }
+        return super.delete();
     }
 }

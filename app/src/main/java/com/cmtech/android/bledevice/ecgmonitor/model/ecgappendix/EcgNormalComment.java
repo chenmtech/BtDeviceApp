@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
-import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -25,12 +25,9 @@ public class EcgNormalComment extends EcgAppendix{
     private static final int MODIFY_TIME_BYTE_NUM = 8;
 
     private int id;
-    private User creator = new User(); // 创建人
+    private User creator; // 创建人
     private long modifyTime = -1; // 修改时间
     private String content = ""; // 内容
-
-    private EcgNormalComment() {
-    }
 
     private EcgNormalComment(User creator, long modifyTime) {
         this.creator = (User) creator.clone();
@@ -41,24 +38,18 @@ public class EcgNormalComment extends EcgAppendix{
      * 用当前账户和当前时间创建默认留言
      * @return 默认留言对象
      */
-    public static EcgNormalComment createDefaultComment() {
+    public static EcgNormalComment create() {
         User creator = UserManager.getInstance().getUser();
         long modifyTime = new Date().getTime();
         return new EcgNormalComment(creator, modifyTime);
     }
 
-    public static EcgNormalComment create() {
-        return new EcgNormalComment();
-    }
-
     public User getCreator() {
-        if(creator == null) {
-            List<User> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(User.class);
-            if (!creators.isEmpty())
-                creator = creators.get(0);
-            else
-                creator = new User();
-        }
+        List<User> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(User.class);
+        if (!creators.isEmpty())
+            creator = creators.get(0);
+        else
+            creator = new User();
         return creator;
     }
     public long getModifyTime() {
@@ -141,8 +132,17 @@ public class EcgNormalComment extends EcgAppendix{
     @Override
     public boolean save() {
         ViseLog.e("comment save");
-        if(creator != null)
+        if(creator != null) {
+            creator.setPersonalInfo("comment");
             creator.save();
+        }
         return super.save();
+    }
+
+    @Override
+    public int delete() {
+        ViseLog.e("comment delete");
+        getCreator().delete();
+        return super.delete();
     }
 }

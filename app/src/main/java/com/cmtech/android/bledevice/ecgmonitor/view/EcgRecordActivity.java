@@ -212,7 +212,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                 }
             }
             if(!found) {
-                ecgRecord.addComment(EcgNormalComment.createDefaultComment());
+                ecgRecord.addComment(EcgNormalComment.create());
             }
             return ecgRecord.getCommentList();
         }

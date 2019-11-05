@@ -13,6 +13,7 @@ import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
+import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
@@ -177,6 +178,9 @@ public class EcgRecord extends LitePalSupport {
     public List<EcgNormalComment> getCommentList() {
         return commentList;
     }
+    public void loadCommentListFromDb() {
+        commentList = LitePal.where("ecgrecord_id = ?", String.valueOf(id)).find(EcgNormalComment.class);
+    }
     // 添加一条留言
     public void addComment(EcgNormalComment comment) {
         commentList.add(comment);
@@ -253,5 +257,16 @@ public class EcgRecord extends LitePalSupport {
             comment.save();
         }
         return super.save();
+    }
+
+    @Override
+    public int delete() {
+        if(ecgHead != null) {
+            ecgHead.delete();
+        }
+        for(EcgNormalComment comment : commentList) {
+            comment.delete();
+        }
+        return super.delete();
     }
 }

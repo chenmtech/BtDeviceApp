@@ -27,8 +27,8 @@ public class EcgSignalRecorder {
 
         this.device = device;
         this.ecgRecord = device.getEcgRecord();
-        comment = EcgNormalComment.createDefaultComment();
-        this.ecgRecord.addComment(EcgNormalComment.createDefaultComment());
+        comment = EcgNormalComment.create();
+        this.ecgRecord.addComment(comment);
         this.sampleRate = device.getSampleRate();
     }
 
