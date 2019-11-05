@@ -45,6 +45,7 @@ public class EcgNormalComment extends EcgAppendix{
     }
 
     public User getCreator() {
+        /这里有错
         List<User> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(User.class);
         if (!creators.isEmpty())
             creator = creators.get(0);
