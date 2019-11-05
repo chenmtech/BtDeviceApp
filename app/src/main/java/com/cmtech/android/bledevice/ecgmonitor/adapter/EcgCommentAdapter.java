@@ -15,7 +15,7 @@ import android.widget.Toast;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
-import com.cmtech.android.bledeviceapp.model.UserManager;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.util.ArrayList;
@@ -87,7 +87,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             public void onClick(View view) {
                 final EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
                 final User creator = comment.getCreator();
-                User account = UserManager.getInstance().getUser();
+                User account = AccountManager.getInstance().getAccount();
                 if(listener != null && creator.equals(account)) {
                     comment.setContent(holder.etContent.getText().toString());
                     long modifyTime = new Date().getTime();
@@ -105,7 +105,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     public void onBindViewHolder(@NonNull final EcgCommentAdapter.ViewHolder holder, final int position) {
         EcgNormalComment comment = commentList.get(position);
         User creator = comment.getCreator();
-        User account = UserManager.getInstance().getUser();
+        User account = AccountManager.getInstance().getAccount();
         if(creator.equals(account)) {
             holder.tvCreatorName.setText(Html.fromHtml("<u>您</u>"));
             holder.etContent.setHint("请输入。");

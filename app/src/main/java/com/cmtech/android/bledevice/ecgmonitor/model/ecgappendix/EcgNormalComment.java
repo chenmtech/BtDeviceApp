@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
 
 import com.cmtech.android.bledeviceapp.model.User;
-import com.cmtech.android.bledeviceapp.model.UserManager;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -39,13 +39,12 @@ public class EcgNormalComment extends EcgAppendix{
      * @return 默认留言对象
      */
     public static EcgNormalComment create() {
-        User creator = UserManager.getInstance().getUser();
+        User creator = AccountManager.getInstance().getAccount();
         long modifyTime = new Date().getTime();
         return new EcgNormalComment(creator, modifyTime);
     }
 
     public User getCreator() {
-        /这里有错
         List<User> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(User.class);
         if (!creators.isEmpty())
             creator = creators.get(0);
@@ -63,10 +62,6 @@ public class EcgNormalComment extends EcgAppendix{
     public void setContent(String content) {
         this.content = content;
     }
-
-    /**
-     * 添加留言内容
-      */
     public void appendContent(String content) {
         this.content += content;
     }

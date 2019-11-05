@@ -25,8 +25,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
-import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -52,14 +52,14 @@ public class UserActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_info);
 
-        if(!UserManager.getInstance().isSignIn()) finish();
+        if(!AccountManager.getInstance().isSignIn()) finish();
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_setuserinfo);
         setSupportActionBar(toolbar);
 
         TextView tvPhone = findViewById(R.id.et_user_phone);
-        User user = UserManager.getInstance().getUser();
+        User user = AccountManager.getInstance().getAccount();
         String phoneNum = user.getPhone();
         phoneNum = String.format("00000000000%s", phoneNum);
         phoneNum = phoneNum.substring(phoneNum.length()-11);
@@ -101,7 +101,7 @@ public class UserActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                User account = UserManager.getInstance().getUser();
+                User account = AccountManager.getInstance().getAccount();
                 account.setName(etNickname.getText().toString());
 
                 if(!cachePortraitPath.equals(account.getPortraitPath())) {

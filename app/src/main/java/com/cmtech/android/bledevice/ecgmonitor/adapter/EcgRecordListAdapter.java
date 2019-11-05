@@ -17,7 +17,7 @@ import com.cmtech.android.bledevice.ecgmonitor.view.EcgRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
-import com.cmtech.android.bledeviceapp.model.UserManager;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
@@ -103,7 +103,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(record.getLastModifyTime()));
 
         User creator = record.getCreator();
-        User account = UserManager.getInstance().getUser();
+        User account = AccountManager.getInstance().getAccount();
         if(creator.equals(account)) {
             holder.tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {

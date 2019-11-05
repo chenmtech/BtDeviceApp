@@ -54,6 +54,7 @@ import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 import com.cmtech.android.bledeviceapp.model.BleFactory;
@@ -63,7 +64,6 @@ import com.cmtech.android.bledeviceapp.model.FragTabManager;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.RegisteredDeviceAdapter;
 import com.cmtech.android.bledeviceapp.model.User;
-import com.cmtech.android.bledeviceapp.model.UserManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.vise.log.ViseLog;
 
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
-        if(!UserManager.getInstance().isSignIn()) {
+        if(!AccountManager.getInstance().isSignIn()) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         setSupportActionBar(toolbar);
         TextView tvDeviceBattery = findViewById(R.id.tv_device_battery);
         toolbarManager = new MainToolbarManager(this, toolbar, tvDeviceBattery);
-        toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortraitPath());
+        toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getPortraitPath());
 
         // 初始化已注册设备列表
         RecyclerView rvDevices = findViewById(R.id.rv_registed_device);
@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
             }
         }
 
-        User user = UserManager.getInstance().getUser();
+        User user = AccountManager.getInstance().getAccount();
         if(TextUtils.isEmpty(user.getName())) {
             Intent intent = new Intent(MainActivity.this, UserActivity.class);
             startActivityForResult(intent, RC_MODIFY_USER_INFO);
@@ -409,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
             case RC_MODIFY_USER_INFO: // 修改用户信息返回
                 if(resultCode == RESULT_OK) {
                     updateNavigation();
-                    toolbarManager.setNavigationIcon(UserManager.getInstance().getUser().getPortraitPath());
+                    toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getPortraitPath());
                 } else {
                     boolean logout = (data != null && data.getBooleanExtra("logout", false));
                     if(logout) {
@@ -686,7 +686,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
             return;
         }
 
-        UserManager.getInstance().signOut();
+        AccountManager.getInstance().signOut();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         LoginActivity.saveLoginInfo(pref, "", -1);
 
@@ -696,7 +696,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
     }
 
     private void updateNavigation() {
-        User user = UserManager.getInstance().getUser();
+        User user = AccountManager.getInstance().getAccount();
         if(user == null) {
             throw new IllegalStateException();
         }

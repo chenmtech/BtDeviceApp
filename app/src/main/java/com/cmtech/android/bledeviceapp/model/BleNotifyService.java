@@ -147,7 +147,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
 
         stopForeground(true);
         stopWarningBleInnerError();
-        UserManager.getInstance().signOut();
+        AccountManager.getInstance().signOut();
 
         try {
             Thread.sleep(500);

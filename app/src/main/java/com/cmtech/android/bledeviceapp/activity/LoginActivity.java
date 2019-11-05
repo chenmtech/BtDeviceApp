@@ -21,7 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.UserManager;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -235,7 +235,7 @@ public class LoginActivity extends AppCompatActivity {
 
     // 登录
     private void signIn(String phone, boolean isSaveLoginInfo) {
-        UserManager manager = UserManager.getInstance();
+        AccountManager manager = AccountManager.getInstance();
         if(manager.signIn(phone) || manager.signUp(phone)) {
             if(isSaveLoginInfo)
                 saveLoginInfo(pref, phone, System.currentTimeMillis());

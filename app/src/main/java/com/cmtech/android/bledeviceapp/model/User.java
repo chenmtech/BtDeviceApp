@@ -95,7 +95,7 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
     public boolean equals(Object otherObject) {
         if(this == otherObject) return true;
         if(otherObject == null) return false;
-        if(getClass() != otherObject.getClass()) return false;
+        if(!(otherObject instanceof User)) return false;
         User other = (User) otherObject;
         return phone.equals(other.phone);
     }

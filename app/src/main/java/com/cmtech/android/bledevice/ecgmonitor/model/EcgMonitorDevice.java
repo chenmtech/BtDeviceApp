@@ -14,7 +14,7 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProce
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
-import com.cmtech.android.bledeviceapp.model.UserManager;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -559,7 +559,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
         // 创建心电记录文件
         if(ecgRecord == null) {
-            ecgRecord = EcgRecord.create(UserManager.getInstance().getUser(), sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
+            ecgRecord = EcgRecord.create(AccountManager.getInstance().getAccount(), sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
         }
 
         ViseLog.e("ecgRecord: " + ecgRecord);
