@@ -29,6 +29,7 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_WECHAT_DOWNLOAD;
+import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 
 /**
   *
@@ -241,6 +242,7 @@ public class EcgRecordExplorer {
     // 通过微信分享选中记录
     public void shareSelectedRecordThroughWechat(PlatformActionListener listener) {
         if(selectedRecord == null) return;
+        EcgFile ecgFile = selectedRecord.saveAsEcgFile(DIR_CACHE);
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
         String fileShortName = selectedRecord.getRecordName();
@@ -248,7 +250,7 @@ public class EcgRecordExplorer {
         sp.setComment("hi");
         Bitmap bmp = BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_kang);
         sp.setImageData(bmp);
-        //sp.setFilePath(selectedRecord.getFileName());
+        sp.setFilePath(ecgFile.getFileName());
         Platform platform = ShareSDK.getPlatform(Wechat.NAME);
         platform.setPlatformActionListener(listener);
         platform.share(sp);
