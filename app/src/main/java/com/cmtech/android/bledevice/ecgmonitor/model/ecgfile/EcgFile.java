@@ -80,6 +80,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         for(int i = 0; i < getDataNum(); i++) {
             DataIOUtil.writeInt(raf, record.readData(), head.getByteOrder());
         }
+        record.closeSigFile();
         // 写心率信息
         hrList = record.getHrList();
         raf.writeInt(ByteUtil.reverseInt(hrList.size()));
