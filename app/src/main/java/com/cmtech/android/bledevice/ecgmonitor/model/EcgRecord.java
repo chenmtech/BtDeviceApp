@@ -99,7 +99,7 @@ public class EcgRecord extends LitePalSupport {
             EcgRecord record = new EcgRecord(recordName, bmeHead, ecgHead, ecgFile.getHrList(), ecgFile.getCommentList());
             // 拷贝信号数据
             record.openSigFile();
-            while (!ecgFile.isEOD()) {
+            for(int i = 0 ; i < ecgFile.getDataNum(); i++) {
                 DataIOUtil.writeInt(record.sigRaf, ecgFile.readInt(), bmeHead.getByteOrder());
                 record.dataNumInSignal++;
             }
