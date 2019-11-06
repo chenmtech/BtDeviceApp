@@ -139,8 +139,18 @@ public class EcgRecord extends LitePalSupport {
     }
 
     // 保存为EcgFile
-    public EcgFile saveAsEcgFile(File directory) {
-        return EcgFile.create(directory, this);
+    public String saveAsEcgFile(File directory) {
+        EcgFile ecgFile = EcgFile.create(directory, this);
+        if(ecgFile != null) {
+            try {
+                ecgFile.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return ecgFile.getFileName();
+        } else {
+            return null;
+        }
     }
 
     public int getId() {

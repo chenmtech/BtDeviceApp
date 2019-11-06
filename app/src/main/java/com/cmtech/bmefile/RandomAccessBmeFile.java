@@ -15,7 +15,7 @@ public class RandomAccessBmeFile extends AbstractRandomAccessBmeFile {
 
         dataBeginPointer = raf.getFilePointer();
 
-        dataNum = availableDataFromCurrentPos();
+        setDataNum(availableDataFromCurrentPos());
     }
 
     private RandomAccessBmeFile(String fileName, BmeFileHead head) throws IOException{
@@ -23,7 +23,7 @@ public class RandomAccessBmeFile extends AbstractRandomAccessBmeFile {
 
         dataBeginPointer = raf.getFilePointer();
 
-        dataNum = 0;
+        setDataNum(0);
     }
 
     // 打开已有文件

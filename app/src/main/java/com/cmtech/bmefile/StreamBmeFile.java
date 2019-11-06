@@ -18,13 +18,13 @@ public class StreamBmeFile extends BmeFile {
     // 用于打开已有流文件
     private StreamBmeFile(String fileName) throws IOException {
         super(fileName);
-        dataNum = availableDataFromCurrentPos();
+        setDataNum(availableDataFromCurrentPos());
     }
 
     // 用于创建新的流文件
     private StreamBmeFile(String fileName, BmeFileHead head) throws IOException{
         super(fileName, head);
-        dataNum = 0;
+        setDataNum(0);
     }
 
     // 打开已有文件

@@ -4,10 +4,8 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgCommentFactory;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.IEcgComment;
-import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.bmefile.AbstractRandomAccessBmeFile;
-import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.DataIOUtil;
 
 import java.io.File;
@@ -101,26 +99,8 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
     public List<EcgNormalComment> getCommentList() {
         return commentList;
     }
-    public User getCreator() {
-        return ecgHead.getCreator();
-    }
-    public String getCreatorName() {
-        return getCreator().getName();
-    }
-    public long getCreateTime() {
-        return ((BmeFileHead30)getBmeFileHead()).getCreateTime();
-    }
     public List<Short> getHrList() {
         return hrList;
-    }
-    public void setHrList(List<Short> hrList) {
-        this.hrList = hrList;
-    }
-    public String getMacAddress() {
-        return ecgHead.getMacAddress();
-    }
-    public int getCaliValue() {
-        return ((BmeFileHead30)head).getCaliValue();
     }
 
     @Override
