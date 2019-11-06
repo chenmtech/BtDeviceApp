@@ -3,7 +3,6 @@ package com.cmtech.android.bledevice.ecgmonitor.model;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -151,7 +150,7 @@ public class EcgRecordExplorer {
     }
 
     // 导入新文件或者发生变化的文件
-    private List<File> importUpdatedFiles(File srcDir, File destDir) {
+    /*private List<File> importUpdatedFiles(File srcDir, File destDir) {
         List<File> fileList = BmeFileUtil.listDirBmeFiles(srcDir);
         if(fileList == null || fileList.isEmpty()) return null;
 
@@ -167,7 +166,7 @@ public class EcgRecordExplorer {
                 ViseLog.e("destFile = " + destFile);
                 if(destFile.exists()) {
                     destEcgFile = EcgFile.open(destFile.getCanonicalPath());
-                    if(copyComments(srcEcgFile, destEcgFile)) {
+                    if(updateComments(srcEcgFile, destEcgFile)) {
                         destEcgFile.saveFileTail();
                         updatedFiles.add(destFile);
                     }
@@ -197,7 +196,7 @@ public class EcgRecordExplorer {
             }
         }
         return updatedFiles;
-    }
+    }*/
 
     // 从指定文件路径导入Ecg记录
     private List<EcgRecord> importRecords(File dir) {
@@ -213,7 +212,7 @@ public class EcgRecordExplorer {
                     int index = recordList.indexOf(srcRecord);
                     if (index != -1) {
                         EcgRecord destRecord = recordList.get(index);
-                        if (copyComments(srcRecord, destRecord)) {
+                        if (updateComments(srcRecord, destRecord)) {
                             destRecord.save();
                             updatedRecords.add(destRecord);
                         }
@@ -274,7 +273,7 @@ public class EcgRecordExplorer {
     }
 
     // 拷贝文件留言
-    private boolean copyComments(EcgFile srcFile, EcgFile destFile) {
+    /*private boolean updateComments(EcgFile srcFile, EcgFile destFile) {
         List<EcgNormalComment> srcComments = srcFile.getCommentList();
         List<EcgNormalComment> destComments = destFile.getCommentList();
 
@@ -304,10 +303,10 @@ public class EcgRecordExplorer {
             needAdd = true;
         }
         return update;
-    }
+    }*/
 
-    // 拷贝记录留言
-    private boolean copyComments(EcgRecord srcRecord, EcgRecord destRecord) {
+    // 更新记录留言
+    private boolean updateComments(EcgRecord srcRecord, EcgRecord destRecord) {
         List<EcgNormalComment> srcComments = srcRecord.getCommentList();
         List<EcgNormalComment> destComments = destRecord.getCommentList();
 

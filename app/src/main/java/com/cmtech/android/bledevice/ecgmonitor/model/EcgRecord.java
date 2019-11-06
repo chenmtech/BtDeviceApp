@@ -152,6 +152,12 @@ public class EcgRecord extends LitePalSupport {
     public long getModifyTime() {
         return modifyTime;
     }
+    public BmeFileHead30 getBmeHead() {
+        return bmeHead;
+    }
+    public EcgFileHead getEcgHead() {
+        return ecgHead;
+    }
     public String getSigFileName() {
         return sigFileName;
     }
@@ -187,13 +193,6 @@ public class EcgRecord extends LitePalSupport {
     }
     public List<EcgNormalComment> getCommentList() {
         return commentList;
-    }
-    public void loadCommentListFromDb() {
-        for(EcgNormalComment comment : commentList) {
-            ViseLog.e(comment);
-            ViseLog.e(comment.getCreator());
-        }
-        //commentList = LitePal.where("ecgrecord_id = ?", String.valueOf(id)).find(EcgNormalComment.class);
     }
     // 添加一条留言
     public void addComment(EcgNormalComment comment) {
