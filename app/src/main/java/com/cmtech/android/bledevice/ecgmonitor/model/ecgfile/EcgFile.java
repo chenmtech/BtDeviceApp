@@ -7,17 +7,13 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.IEcgComment;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.bmefile.AbstractRandomAccessBmeFile;
-import com.cmtech.bmefile.BmeFileHead;
 import com.cmtech.bmefile.BmeFileHead30;
 import com.cmtech.bmefile.DataIOUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 
 /**
  * EcgFile: 心电文件类，可随机访问
@@ -62,36 +58,41 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         raf.seek(dataBeginPointer); // 回到数据开始位置
     }
 
-    public static EcgFile create(EcgRecord record) throws IOException {
-        String fileName = DIR_CACHE.getAbsolutePath() + File.separator + record.getRecordName() + ".bme";
-        return new EcgFile(fileName, record.getBmeHead(), record.getEcgHead(), record.getDataNumInSignal(), record.getSigFileName(), record.getHrList(), record.getCommentList());
+    public static EcgFile create(File directory, EcgRecord record) {
+        String fileName = directory.getAbsolutePath() + File.separator + record.getRecordName() + ".bme";
+        try {
+            return new EcgFile(fileName, record);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // 创建新文件时使用的私有构造器
-    private EcgFile(String fileName, BmeFileHead head, EcgFileHead ecgHead, int dataNum, String sigFileName, List<Short> hrList, List<EcgNormalComment> commentList) throws IOException {
-        super(fileName, head);
-        this.ecgHead = ecgHead;
+    private EcgFile(String fileName, EcgRecord record) throws IOException {
+        super(fileName, record.getBmeHead());
+        this.ecgHead = record.getEcgHead();
         ecgHead.writeToStream(raf);
-        setDataNum(dataNum);
-        DataIOUtil.writeInt(raf, dataNum, head.getByteOrder());
+        setDataNum(record.getDataNumInSignal());
+        DataIOUtil.writeInt(raf, getDataNum(), head.getByteOrder());
         dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
-        File sigFile = new File(sigFileName);
-        RandomAccessFile rafSig = new RandomAccessFile(sigFile, "rw");
-        for(int i = 0; i < dataNum; i++) {
-            DataIOUtil.writeInt(raf, rafSig.readInt(), head.getByteOrder());
+        record.openSigFile();
+        for(int i = 0; i < getDataNum(); i++) {
+            DataIOUtil.writeInt(raf, record.readData(), head.getByteOrder());
         }
         // 写心率信息
+        hrList = record.getHrList();
         raf.writeInt(ByteUtil.reverseInt(hrList.size()));
         for(short hr : hrList) {
             raf.writeShort(ByteUtil.reverseShort(hr));
         }
         // 写留言信息
+        commentList = record.getCommentList();
         raf.writeInt(ByteUtil.reverseInt(commentList.size()));
         for(EcgNormalComment comment : commentList) {
             EcgCommentFactory.writeToStream(comment, raf);
         }
     }
-
 
     public EcgFileHead getEcgHead() {
         return ecgHead;

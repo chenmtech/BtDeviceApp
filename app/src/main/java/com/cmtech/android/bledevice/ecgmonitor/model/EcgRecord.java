@@ -140,7 +140,7 @@ public class EcgRecord extends LitePalSupport {
 
     // 保存为EcgFile
     public EcgFile saveAsEcgFile(File directory) {
-        return null;
+        return EcgFile.create(directory, this);
     }
 
     public int getId() {

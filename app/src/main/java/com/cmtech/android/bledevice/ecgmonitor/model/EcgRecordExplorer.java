@@ -149,55 +149,6 @@ public class EcgRecordExplorer {
         return false;
     }
 
-    // 导入新文件或者发生变化的文件
-    /*private List<File> importUpdatedFiles(File srcDir, File destDir) {
-        List<File> fileList = BmeFileUtil.listDirBmeFiles(srcDir);
-        if(fileList == null || fileList.isEmpty()) return null;
-
-        List<File> updatedFiles = new ArrayList<>();
-        EcgFile srcEcgFile = null;
-        EcgFile destEcgFile = null;
-        for(File srcFile : fileList) {
-            try {
-                srcEcgFile = EcgFile.open(srcFile.getCanonicalPath());
-                String fileName = EcgMonitorUtil.makeFileName(srcEcgFile.getMacAddress(), srcEcgFile.getCreateTime());
-                File destFile = FileUtil.getFile(destDir, fileName);
-                ViseLog.e("srcfile = " + srcFile);
-                ViseLog.e("destFile = " + destFile);
-                if(destFile.exists()) {
-                    destEcgFile = EcgFile.open(destFile.getCanonicalPath());
-                    if(updateComments(srcEcgFile, destEcgFile)) {
-                        destEcgFile.saveFileTail();
-                        updatedFiles.add(destFile);
-                    }
-                } else {
-                    srcEcgFile.close();
-                    FileUtil.moveFile(srcFile, destFile);
-                    updatedFiles.add(destFile);
-                }
-                srcEcgFile.close();
-                srcEcgFile = null;
-                FileUtil.deleteFile(srcFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if(srcEcgFile != null) {
-                        srcEcgFile.close();
-                        srcEcgFile = null;
-                    }
-                    if(destEcgFile != null) {
-                        destEcgFile.close();
-                        destEcgFile = null;
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return updatedFiles;
-    }*/
-
     // 从指定文件路径导入Ecg记录
     private List<EcgRecord> importRecords(File dir) {
         List<File> fileList = BmeFileUtil.listDirBmeFiles(dir);
@@ -273,39 +224,6 @@ public class EcgRecordExplorer {
         updatedRecords.clear();
         notifyRecordListChanged();
     }
-
-    // 拷贝文件留言
-    /*private boolean updateComments(EcgFile srcFile, EcgFile destFile) {
-        List<EcgNormalComment> srcComments = srcFile.getCommentList();
-        List<EcgNormalComment> destComments = destFile.getCommentList();
-
-        boolean update = false;
-        boolean needAdd = true;
-        EcgNormalComment removeComment = null;
-        for(EcgNormalComment srcComment : srcComments) {
-            for(EcgNormalComment destComment : destComments) {
-                if(srcComment.getCreator().equals(destComment.getCreator())) {
-                    if(srcComment.getModifyTime() <= destComment.getModifyTime()) {
-                        needAdd = false;
-                        break;
-                    } else {
-                        removeComment = destComment;
-                        break;
-                    }
-                }
-            }
-            if(needAdd) {
-                if(removeComment != null) {
-                    destFile.deleteComment(removeComment);
-                    removeComment = null;
-                }
-                destFile.addComment(srcComment);
-                update = true;
-            }
-            needAdd = true;
-        }
-        return update;
-    }*/
 
     // 更新记录留言
     private boolean updateComments(EcgRecord srcRecord, EcgRecord destRecord) {
