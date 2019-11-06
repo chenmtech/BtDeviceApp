@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
@@ -8,17 +8,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EcgHrAppendix extends EcgAppendix{
+public class EcgHrComment extends EcgComment {
     private static final int HR_LIST_LEN_BYTE_NUM = 4;
     private static final int BYTE_NUM_PER_HR_VALUE = 2;
 
     private List<Short> hrList = new ArrayList<>();
 
-    private EcgHrAppendix() {
+    private EcgHrComment() {
     }
 
-    public static EcgHrAppendix create() {
-        return new EcgHrAppendix();
+    public static EcgHrComment create() {
+        return new EcgHrComment();
     }
 
     public void setHrList(List<Short> hrList) {
@@ -54,8 +54,8 @@ public class EcgHrAppendix extends EcgAppendix{
     }
 
     @Override
-    public EcgAppendixType getType() {
-        return EcgAppendixType.HEART_RATE;
+    public EcgCommentType getType() {
+        return EcgCommentType.HEART_RATE;
     }
 
     @Override

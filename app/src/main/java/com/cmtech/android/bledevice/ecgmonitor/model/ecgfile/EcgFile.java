@@ -1,10 +1,10 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgAppendixFactory;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgHrAppendix;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.IEcgAppendix;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgCommentFactory;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgHrComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.IEcgComment;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -36,7 +36,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
 
     private static class EcgFileTail {
         static final int FILE_TAIL_LEN_BYTE_NUM = 8;
-        EcgHrAppendix hrInfoAppendix = EcgHrAppendix.create(); // 心率信息
+        EcgHrComment hrInfoAppendix = EcgHrComment.create(); // 心率信息
         List<EcgNormalComment> commentList = new ArrayList<>(); // 留言信息列表
         boolean needWriteHrInfo; // 是否需要写心率信息
         long hrInfoEndPointer; // 心率信息结束指针
@@ -58,16 +58,16 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
 
             raf.seek(tailEndPointer - appendixLength);
             // 读心率信息
-            IEcgAppendix appendix = EcgAppendixFactory.readFromStream(raf);
-            if(!(appendix instanceof EcgHrAppendix)) {
+            IEcgComment appendix = EcgCommentFactory.readFromStream(raf);
+            if(!(appendix instanceof EcgHrComment)) {
                 throw new IOException();
             }
-            fileTail.hrInfoAppendix = (EcgHrAppendix)appendix;
+            fileTail.hrInfoAppendix = (EcgHrComment)appendix;
             fileTail.hrInfoEndPointer = raf.getFilePointer();
 
             // 读留言信息
             while (raf.getFilePointer() < tailEndPointer) {
-                appendix = EcgAppendixFactory.readFromStream(raf);
+                appendix = EcgCommentFactory.readFromStream(raf);
                 if(appendix instanceof EcgNormalComment) {
                     fileTail.commentList.add((EcgNormalComment) appendix);
                 }
@@ -85,7 +85,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
             if(needWriteHrInfo) {
                 raf.seek(dataEndPointer);
                 // 写心率信息
-                EcgAppendixFactory.writeToStream(hrInfoAppendix, raf);
+                EcgCommentFactory.writeToStream(hrInfoAppendix, raf);
                 hrInfoEndPointer = raf.getFilePointer();
                 needWriteHrInfo = false;
             } else {
@@ -94,7 +94,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
 
             // 写留言信息
             for(EcgNormalComment comment : commentList) {
-                EcgAppendixFactory.writeToStream(comment, raf);
+                EcgCommentFactory.writeToStream(comment, raf);
             }
 
             // 最后写入文件尾总长度

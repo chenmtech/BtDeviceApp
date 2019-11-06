@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.viewcomponent.RollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;

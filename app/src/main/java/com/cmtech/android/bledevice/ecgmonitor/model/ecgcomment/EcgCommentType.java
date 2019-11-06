@@ -1,18 +1,18 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment;
 
 /**
- * EcgAppendixType: 心电附加信息类型
+ * EcgCommentType: 心电留言类型
  * Created by bme on 2019/1/9.
  */
 
-public enum EcgAppendixType {
+public enum EcgCommentType {
     HEART_RATE(0, "心率信息"),
     NORMAL_COMMENT(1, "一般留言");
 
     private final int code;
     private final String description;
 
-    EcgAppendixType(int code, String description) {
+    EcgCommentType(int code, String description) {
         this.code = code;
         this.description = description;
     }
@@ -24,15 +24,15 @@ public enum EcgAppendixType {
         return description;
     }
     public static String getDescriptionFromCode(int code) {
-        for(EcgAppendixType ele : EcgAppendixType.values()) {
+        for(EcgCommentType ele : EcgCommentType.values()) {
             if(ele.code == code) {
                 return ele.description;
             }
         }
         return "";
     }
-    public static EcgAppendixType getFromCode(int code) {
-        for(EcgAppendixType ele : EcgAppendixType.values()) {
+    public static EcgCommentType getFromCode(int code) {
+        for(EcgCommentType ele : EcgCommentType.values()) {
             if(ele.code == code) {
                 return ele;
             }

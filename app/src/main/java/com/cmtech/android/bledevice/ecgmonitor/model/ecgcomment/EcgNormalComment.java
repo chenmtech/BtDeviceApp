@@ -1,14 +1,13 @@
-package com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix;
+package com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment;
 
-import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
-import org.litepal.annotation.Column;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -21,9 +20,9 @@ import java.util.List;
  * Created by bme on 2019/1/9.
  */
 
-public class EcgNormalComment extends EcgAppendix{
-    private static final int CONTENT_CHAR_NUM = 500; // 内容字符数
+public class EcgNormalComment extends EcgComment {
     private static final int MODIFY_TIME_BYTE_NUM = 8;
+    private static final int CONTENT_CHAR_NUM = 500; // 内容字符数
 
     private int id;
     private User creator; // 创建人
@@ -31,7 +30,6 @@ public class EcgNormalComment extends EcgAppendix{
     private String content = ""; // 内容
 
     private EcgNormalComment() {
-
     }
 
     private EcgNormalComment(User creator, long modifyTime) {
@@ -74,8 +72,8 @@ public class EcgNormalComment extends EcgAppendix{
     }
 
     @Override
-    public EcgAppendixType getType() {
-        return EcgAppendixType.NORMAL_COMMENT;
+    public EcgCommentType getType() {
+        return EcgCommentType.NORMAL_COMMENT;
     }
 
     /**

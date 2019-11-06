@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgappendix.EcgNormalComment;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -209,17 +209,19 @@ public class EcgRecordExplorer {
             try {
                 ecgFile = EcgFile.open(file.getAbsolutePath());
                 EcgRecord srcRecord = EcgRecord.create(ecgFile);
-                int index = recordList.indexOf(srcRecord);
-                if(index != -1) {
-                    EcgRecord destRecord = recordList.get(index);
-                    if(copyComments(srcRecord, destRecord)) {
-                        destRecord.save();
-                        updatedRecords.add(destRecord);
+                if(srcRecord != null) {
+                    int index = recordList.indexOf(srcRecord);
+                    if (index != -1) {
+                        EcgRecord destRecord = recordList.get(index);
+                        if (copyComments(srcRecord, destRecord)) {
+                            destRecord.save();
+                            updatedRecords.add(destRecord);
+                        }
+                    } else {
+                        srcRecord.save();
+                        recordList.add(srcRecord);
+                        updatedRecords.add(srcRecord);
                     }
-                } else {
-                    srcRecord.save();
-                    recordList.add(srcRecord);
-                    updatedRecords.add(srcRecord);
                 }
                 ecgFile.close();
                 FileUtil.deleteFile(file);
