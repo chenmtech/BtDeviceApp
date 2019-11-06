@@ -207,22 +207,24 @@ public class EcgRecordExplorer {
         for(File file : fileList) {
             try {
                 ecgFile = EcgFile.open(file.getAbsolutePath());
-                EcgRecord srcRecord = EcgRecord.create(ecgFile);
-                if(srcRecord != null) {
-                    int index = recordList.indexOf(srcRecord);
-                    if (index != -1) {
-                        EcgRecord destRecord = recordList.get(index);
-                        if (updateComments(srcRecord, destRecord)) {
-                            destRecord.save();
-                            updatedRecords.add(destRecord);
+                if(ecgFile != null) {
+                    EcgRecord srcRecord = EcgRecord.create(ecgFile);
+                    if (srcRecord != null) {
+                        int index = recordList.indexOf(srcRecord);
+                        if (index != -1) {
+                            EcgRecord destRecord = recordList.get(index);
+                            if (updateComments(srcRecord, destRecord)) {
+                                destRecord.save();
+                                updatedRecords.add(destRecord);
+                            }
+                        } else {
+                            srcRecord.save();
+                            recordList.add(srcRecord);
+                            updatedRecords.add(srcRecord);
                         }
-                    } else {
-                        srcRecord.save();
-                        recordList.add(srcRecord);
-                        updatedRecords.add(srcRecord);
                     }
+                    ecgFile.close();
                 }
-                ecgFile.close();
                 FileUtil.deleteFile(file);
             } catch (IOException e) {
                 e.printStackTrace();

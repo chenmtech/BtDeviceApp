@@ -22,7 +22,7 @@ public abstract class BmeFile {
 	protected DataInput in; // 输入流
 	protected DataOutput out; // 输出流
 	protected BmeFileHead head; // 文件头
-	protected int dataNum; // 文件包含的数据个数
+	private int dataNum; // 文件包含的数据个数
 
     // 为已存在文件生成BmeFile
 	BmeFile(String fileName) throws IOException{
@@ -52,7 +52,9 @@ public abstract class BmeFile {
     public int getDataNum() {
         return dataNum;
     }
-
+    public void setDataNum(int dataNum) {
+	    this.dataNum = dataNum;
+    }
 	private BmeFileHead readHead() throws IOException{
         if(in != null || out != null)
             throw new IllegalStateException();

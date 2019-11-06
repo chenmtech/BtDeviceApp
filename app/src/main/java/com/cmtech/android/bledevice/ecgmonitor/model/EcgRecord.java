@@ -94,7 +94,7 @@ public class EcgRecord extends LitePalSupport {
         String fileName = ecgFile.getFileName();
         String recordName = fileName.substring(fileName.lastIndexOf(File.separator) + 1, fileName.lastIndexOf("."));
         BmeFileHead30 bmeHead = (BmeFileHead30) ecgFile.getBmeFileHead();
-        EcgFileHead ecgHead = ecgFile.getEcgFileHead();
+        EcgFileHead ecgHead = ecgFile.getEcgHead();
         try {
             EcgRecord record = new EcgRecord(recordName, bmeHead, ecgHead, ecgFile.getHrList(), ecgFile.getCommentList());
             // 拷贝信号数据
