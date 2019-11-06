@@ -11,18 +11,20 @@ import com.cmtech.bmefile.DataIOUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Dictionary;
 import java.util.List;
 
 /**
- * EcgFile: 心电文件类，可随机访问
+ * EcgFile: 心电文件类
  * Created by bme on 2018/11/20.
  */
 
 public class EcgFile extends AbstractRandomAccessBmeFile {
-    private final EcgFileHead ecgHead;
-    private final long dataBeginPointer; // 数据起始位置指针
-    private List<Short> hrList = new ArrayList<>(); // 心率列表
-    private List<EcgNormalComment> commentList = new ArrayList<>(); // 留言列表
+    private final EcgFileHead ecgHead; // ECG文件头
+    private final long dataBeginPointer; // 数据起始位置文件指针
+    private final List<Short> hrList; // 心率值列表
+    private final List<EcgNormalComment> commentList; // 留言列表
 
     // 打开已有文件
     public static EcgFile open(String fileName) {
@@ -39,13 +41,15 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         super(fileName);
         ecgHead = new EcgFileHead();
         ecgHead.readFromStream(raf);
-        setDataNum(DataIOUtil.readInt(raf, head.getByteOrder()));
+        setDataNum(ByteUtil.reverseInt(raf.readInt()));
         dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
         raf.seek(dataBeginPointer + getDataNum() * head.getDataType().getByteNum());
+        hrList = new ArrayList<>();
         int hrLength = ByteUtil.reverseInt(raf.readInt());
         for(int i = 0; i < hrLength; i++) {
             hrList.add(ByteUtil.reverseShort(raf.readShort()));
         }
+        commentList = new ArrayList<>();
         int commentSize = ByteUtil.reverseInt(raf.readInt());
         for(int i = 0; i < commentSize; i++) {
             IEcgComment comment = EcgCommentFactory.readFromStream(raf);
@@ -72,7 +76,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         this.ecgHead = record.getEcgHead();
         ecgHead.writeToStream(raf);
         setDataNum(record.getDataNumInSignal());
-        DataIOUtil.writeInt(raf, getDataNum(), head.getByteOrder());
+        raf.writeInt(ByteUtil.reverseInt(getDataNum()));
         dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
         record.openSigFile();
         for(int i = 0; i < getDataNum(); i++) {

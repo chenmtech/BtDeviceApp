@@ -31,10 +31,10 @@ public abstract class BmeFile {
             this.file = file;
             head = readHead();
             if(head == null) {
-                throw new IOException("The bem file head is wrong: " + fileName);
+                throw new IOException("The bme file head is wrong: " + fileName);
             }
         } else {
-            throw new IOException();
+            throw new IOException("The file can't be opened.");
         }
 	}
 
@@ -57,7 +57,7 @@ public abstract class BmeFile {
     }
 	private BmeFileHead readHead() throws IOException{
         if(in != null || out != null)
-            throw new IllegalStateException();
+            throw new NullPointerException("The file IO is null.");
 
         createIOStream();
         // 读BmeFile标识符
@@ -148,11 +148,9 @@ public abstract class BmeFile {
 	public File getFile() {
 	    return file;
     }
-
 	public String getFileName() {
 		return (file == null) ? "" : file.toString();
 	}
-
     public BmeFileHead getBmeFileHead() {
         return head;
     }
