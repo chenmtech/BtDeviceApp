@@ -72,7 +72,7 @@ public class OnEcgRecordWebListener implements OnEcgRecordListener {
     }
 
     @Override
-    public void onSignalUpdated(int ecgSignal) {
+    public void onEcgSignalUpdated(int ecgSignal) {
         String data = createDataUrlString(TYPE_CODE_ECG_SIGNAL, String.valueOf(ecgSignal));
         HttpUtils.upload(data);
     }

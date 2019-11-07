@@ -10,7 +10,7 @@ public interface OnEcgRecordListener {
     void onCaliValueUpdated(int caliValue); // 更新标定值
     void onDeviceAddressUpdated(String address); // 更新设备地址
     void onLeadTypeUpdated(int leadTypeCode); // 更新导联类型
-    void onSignalUpdated(int ecgSignal); // 更新信号值
+    void onEcgSignalUpdated(int ecgSignal); // 更新信号值
     void onHrValueUpdated(short hr); // 更新心率值
     void onStart(); // 开始记录
     void onStop(); // 停止记录

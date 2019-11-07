@@ -1,5 +1,4 @@
 package com.cmtech.android.bledeviceapp.util;
-import android.util.Log;
 
 import java.io.IOException;
 
