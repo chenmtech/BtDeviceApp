@@ -119,7 +119,7 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
 
     @Override
     protected int availableDataFromCurrentPos() {
-        return 0;
+        throw new IllegalStateException();
     }
 
     @Override

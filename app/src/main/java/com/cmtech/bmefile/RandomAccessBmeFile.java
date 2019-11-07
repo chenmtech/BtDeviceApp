@@ -12,17 +12,13 @@ public class RandomAccessBmeFile extends AbstractRandomAccessBmeFile {
 
     private RandomAccessBmeFile(String fileName) throws IOException {
         super(fileName);
-
         dataBeginPointer = raf.getFilePointer();
-
         setDataNum(availableDataFromCurrentPos());
     }
 
     private RandomAccessBmeFile(String fileName, BmeFileHead head) throws IOException{
         super(fileName, head);
-
         dataBeginPointer = raf.getFilePointer();
-
         setDataNum(0);
     }
 
