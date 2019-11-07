@@ -82,4 +82,5 @@ dependencies {
     implementation files('libs/jcip-annotations-src.jar')
     implementation 'net.jcip:jcip-annotations:1.0'
     implementation 'org.litepal.android:java:3.0.0'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
 }
