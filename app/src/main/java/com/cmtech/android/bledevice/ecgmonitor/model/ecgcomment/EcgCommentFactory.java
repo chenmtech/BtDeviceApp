@@ -15,19 +15,19 @@ public class EcgCommentFactory {
     public static IEcgComment readFromStream(DataInput in) throws IOException{
         if(in == null) throw new IllegalArgumentException("The data input is null.");
 
-        EcgCommentType type = EcgCommentType.getFromCode(ByteUtil.reverseInt(in.readInt()));
-        IEcgComment appendix = create(type);
-        if(appendix != null) {
-            appendix.readFromStream(in);
-            return appendix;
+        EcgCommentType type = EcgCommentType.getFromCode(in.readInt());
+        IEcgComment comment = create(type);
+        if(comment != null) {
+            comment.readFromStream(in);
+            return comment;
         }
         return null;
     }
 
-    public static void writeToStream(IEcgComment appendix, DataOutput out) throws IOException{
-        if(out == null || appendix == null) return;
-        out.writeInt(ByteUtil.reverseInt(appendix.getType().getCode())); // 写类型码
-        appendix.writeToStream(out);
+    public static void writeToStream(IEcgComment comment, DataOutput out) throws IOException{
+        if(out == null || comment == null) return;
+        out.writeInt(comment.getType().getCode()); // 写类型码
+        comment.writeToStream(out);
     }
 
     private static IEcgComment create(EcgCommentType type) {

@@ -83,7 +83,7 @@ public class EcgNormalComment extends EcgComment {
     @Override
     public void readFromStream(DataInput in) throws IOException{
         getCreator().readFromStream(in); // 读创建人
-        modifyTime = ByteUtil.reverseLong(in.readLong()); // 读修改时间
+        modifyTime = in.readLong(); // 读修改时间
         content = DataIOUtil.readFixedString(in, CONTENT_CHAR_NUM); // 读留言内容
     }
 
@@ -94,7 +94,7 @@ public class EcgNormalComment extends EcgComment {
     @Override
     public void writeToStream(DataOutput out) throws IOException{
         getCreator().writeToStream(out); // 写创建人
-        out.writeLong(ByteUtil.reverseLong(modifyTime)); // 写修改时间
+        out.writeLong(modifyTime); // 写修改时间
         DataIOUtil.writeFixedString(out, content, CONTENT_CHAR_NUM); // 写留言内容
     }
 

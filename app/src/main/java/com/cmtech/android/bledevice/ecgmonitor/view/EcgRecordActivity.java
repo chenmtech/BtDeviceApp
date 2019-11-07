@@ -198,7 +198,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         signalView.setZeroLocation(ZERO_LOCATION_IN_ECG_VIEW);
     }
 
-    // 获取选中文件的留言列表
+    // 获取选中记录的留言列表，如果没有当前账户的留言，就加入一条当前账户的留言
     private List<EcgNormalComment> getCommentListInRecord(EcgRecord ecgRecord) {
         if(ecgRecord == null)
             return new ArrayList<>();

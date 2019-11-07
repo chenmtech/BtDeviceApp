@@ -1,6 +1,11 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
+import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
@@ -15,8 +20,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.wechat.friends.Wechat;
 
+import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_WECHAT_DOWNLOAD;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 
@@ -172,27 +181,20 @@ public class EcgRecordExplorer {
 
     // 通过微信分享选中记录
     public void shareSelectedRecordThroughWechat(PlatformActionListener listener) {
-        /*if(selectedRecord == null) return;
-        String ecgFileName = selectedRecord.saveAsEcgFile(DIR_CACHE);
-        if(ecgFileName == null) return;
-        Platform.ShareParams sp = new Platform.ShareParams();
-        sp.setShareType(SHARE_FILE);
-        String fileShortName = selectedRecord.getRecordName();
-        sp.setTitle(fileShortName);
-        sp.setComment("hi");
-        Bitmap bmp = BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_kang);
-        sp.setImageData(bmp);
-        sp.setFilePath(ecgFileName);
-        Platform platform = ShareSDK.getPlatform(Wechat.NAME);
-        platform.setPlatformActionListener(listener);
-        platform.share(sp);*/
         if(selectedRecord == null) return;
         String fileName = DIR_CACHE.getAbsolutePath() + File.separator + selectedRecord.getRecordName() + ".bme";
         if(!selectedRecord.save(fileName)) return;
-        EcgRecord record = EcgRecord.load(fileName);
-        if(record != null) {
-            ViseLog.e(record);
-        }
+        Platform.ShareParams sp = new Platform.ShareParams();
+        sp.setShareType(SHARE_FILE);
+        String recordName = selectedRecord.getRecordName();
+        sp.setTitle(recordName);
+        sp.setComment("hi");
+        Bitmap bmp = BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_kang);
+        sp.setImageData(bmp);
+        sp.setFilePath(fileName);
+        Platform platform = ShareSDK.getPlatform(Wechat.NAME);
+        platform.setPlatformActionListener(listener);
+        platform.share(sp);
     }
 
     // 关闭管理器

@@ -11,6 +11,7 @@ import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
+import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
@@ -27,7 +28,7 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 public class EcgRecord extends LitePalSupport {
     private static final byte[] ECG = {'E', 'C', 'G'}; // 心电标识
     private static final int RECORD_NAME_CHAR_NUM = 30; // 记录名字符数
-    public static final int DEVICE_ADDRESS_CHAR_NUM = 12; // 设备地址字符数
+    private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // 设备地址字符数
     public static final int INVALID_SAMPLE_RATE = -1; // 无效采样率
 
     private int id;
@@ -38,14 +39,16 @@ public class EcgRecord extends LitePalSupport {
     private long modifyTime; // 修改时间
     private int sampleRate; // 采样频率
     private int caliValue; // 标定值
-    private String macAddress; // 蓝牙设备地址
+    private String deviceAddress; // 设备地址
     private int leadTypeCode; // 导联类型代码
+    private int dataNum; // 信号数据个数
     private String sigFileName; // 信号文件名
-    private int dataNum; // 信号中的数据个数
     @Column(ignore = true)
     private RandomAccessFile sigRaf; // 信号文件RAF
-    private List<Short> hrList; // 心率值列表
+    private List<Short> hrList; // 心率列表
     private List<EcgNormalComment> commentList; // 留言列表
+
+    private boolean isModify;
 
     private EcgRecord() {
         recordName = "";
@@ -54,96 +57,38 @@ public class EcgRecord extends LitePalSupport {
         modifyTime = 0;
         sampleRate = INVALID_SAMPLE_RATE;
         caliValue = 1;
-        macAddress = "";
+        deviceAddress = "";
         leadTypeCode = EcgLeadType.LEAD_I.getCode();
         sigFileName = "";
         dataNum = 0;
         sigRaf = null;
-        hrList = new ArrayList<>();
-        commentList = new ArrayList<>();
+        hrList = null;
+        commentList = null;
+        isModify = false;
     }
 
     // 创建新记录
-    public static EcgRecord create(User creator, int sampleRate, int caliValue, String macAddress, EcgLeadType leadType) {
+    public static EcgRecord create(User creator, int sampleRate, int caliValue, String deviceAddress, EcgLeadType leadType) {
         EcgRecord record = new EcgRecord();
         record.createTime = new Date().getTime();
         record.creator = (User) creator.clone();
+        record.recordName = EcgMonitorUtil.makeRecordName(deviceAddress, record.createTime);
         record.modifyTime = record.createTime;
-        record.recordName = EcgMonitorUtil.makeRecordName(macAddress, record.createTime);
         record.sampleRate = sampleRate;
         record.caliValue = caliValue;
-        record.macAddress = EcgMonitorUtil.cutColon(macAddress);
+        record.deviceAddress = EcgMonitorUtil.cutColon(deviceAddress);
         record.leadTypeCode = leadType.getCode();
         record.dataNum = 0;
         record.hrList = new ArrayList<>();
         record.commentList = new ArrayList<>();
         record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.recordName + ".bme";
-        try {
-            record.createSigFile();
+        if(record.createSigFile()) {
             return record;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
-    public static EcgRecord load(String fileName) {
-        File file = new File(fileName);
-        RandomAccessFile raf = null;
-        try {
-            if(file.exists() && file.renameTo(file)) {
-                EcgRecord record = new EcgRecord();
-                raf = new RandomAccessFile(file, "r");
-                // 读标识符
-                byte[] ecg = new byte[3];
-                raf.readFully(ecg);
-                if(!Arrays.equals(ecg, ECG))
-                    return null;
-                record.recordName = DataIOUtil.readFixedString(raf, RECORD_NAME_CHAR_NUM);
-                record.createTime = raf.readLong();
-                record.creator = new User();
-                record.creator.readFromStream(raf);
-                record.modifyTime = raf.readLong();
-                record.sampleRate = raf.readInt();
-                record.caliValue = raf.readInt();
-                record.macAddress = DataIOUtil.readFixedString(raf, DEVICE_ADDRESS_CHAR_NUM);
-                record.leadTypeCode = (int) raf.readByte();
-                record.dataNum = raf.readInt();
-                record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.recordName + ".bme";
-                record.createSigFile();
-                record.openSigFile();
-                for(int i = 0 ; i < record.dataNum; i++) {
-                    record.sigRaf.writeInt(raf.readInt());
-                }
-                record.closeSigFile();
-                // 读心率信息
-                int hrLen = raf.readInt();
-                for(int i = 0; i < hrLen; i++) {
-                    record.hrList.add(raf.readShort());
-                }
-                // 写留言信息
-                int commentLen = raf.readInt();
-                for(int i = 0; i < commentLen; i++) {
-                    record.commentList.add((EcgNormalComment) EcgCommentFactory.readFromStream(raf));
-                }
-                raf.close();
-                return record;
-            } else {
-                throw new IOException("The file can't be opened.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            try {
-                if(raf != null)
-                    raf.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            return null;
-        }
-    }
-
-    // 保存为EcgFile
+    // 将记录保存为文件
     public boolean save(String fileName) {
         File file = new File(fileName);
         RandomAccessFile raf = null;
@@ -152,7 +97,7 @@ public class EcgRecord extends LitePalSupport {
             if(!file.createNewFile()) {
                 throw new IOException();
             }
-            raf = new RandomAccessFile(file, "w");
+            raf = new RandomAccessFile(file, "rw");
             raf.write(ECG); // 写BmeFile文件标识符
             DataIOUtil.writeFixedString(raf, recordName, RECORD_NAME_CHAR_NUM); // 写记录名
             raf.writeLong(createTime); // 写创建时间
@@ -160,11 +105,11 @@ public class EcgRecord extends LitePalSupport {
             raf.writeLong(modifyTime); // 写修改时间
             raf.writeInt(sampleRate); // 写采样频率
             raf.writeInt(caliValue); // 写定标值
-            DataIOUtil.writeFixedString(raf, macAddress, DEVICE_ADDRESS_CHAR_NUM); // 写设备地址
+            DataIOUtil.writeFixedString(raf, deviceAddress, DEVICE_ADDRESS_CHAR_NUM); // 写设备地址
             raf.writeByte(leadTypeCode); // 写导联类型
             raf.writeInt(dataNum); // 写数据个数
             openSigFile();
-            for(int i = 0; i < getDataNum(); i++) {
+            for(int i = 0; i < dataNum; i++) {
                 raf.writeInt(readData());
             }
             closeSigFile();
@@ -193,14 +138,82 @@ public class EcgRecord extends LitePalSupport {
         }
     }
 
+    // 从文件加载记录
+    public static EcgRecord load(String fileName) {
+        File file = new File(fileName);
+        RandomAccessFile raf = null;
+        try {
+            if(file.exists() && file.renameTo(file)) {
+                EcgRecord record = new EcgRecord();
+                raf = new RandomAccessFile(file, "r");
+                // 读标识符
+                byte[] ecg = new byte[3];
+                raf.readFully(ecg);
+                if(!Arrays.equals(ecg, ECG)) {
+                    raf.close();
+                    return null;
+                }
+                record.recordName = DataIOUtil.readFixedString(raf, RECORD_NAME_CHAR_NUM);
+                record.createTime = raf.readLong();
+                record.creator = new User();
+                record.creator.readFromStream(raf);
+                record.modifyTime = raf.readLong();
+                record.sampleRate = raf.readInt();
+                record.caliValue = raf.readInt();
+                record.deviceAddress = DataIOUtil.readFixedString(raf, DEVICE_ADDRESS_CHAR_NUM);
+                record.leadTypeCode = (int) raf.readByte();
+                record.dataNum = raf.readInt();
+                record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.recordName + ".bme";
+                if(!record.createSigFile()) {
+                    raf.close();
+                    return null;
+                }
+                record.openSigFile();
+                for(int i = 0 ; i < record.dataNum; i++) {
+                    record.sigRaf.writeInt(raf.readInt());
+                }
+                record.closeSigFile();
+                // 读心率信息
+                int hrLen = raf.readInt();
+                record.hrList = new ArrayList<>();
+                for(int i = 0; i < hrLen; i++) {
+                    record.hrList.add(raf.readShort());
+                }
+                // 写留言信息
+                int commentLen = raf.readInt();
+                record.commentList = new ArrayList<>();
+                for(int i = 0; i < commentLen; i++) {
+                    record.commentList.add((EcgNormalComment) EcgCommentFactory.readFromStream(raf));
+                }
+                raf.close();
+                return record;
+            } else {
+                throw new IOException("The file can't be opened.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            try {
+                if(raf != null)
+                    raf.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            return null;
+        }
+    }
+
     // 创建信号文件
-    private void createSigFile() throws IOException{
+    private boolean createSigFile() {
         File sigFile = new File(sigFileName);
         if(sigFile.exists() && !sigFile.delete()) {
-            throw new IOException();
+            return false;
         }
-        if(!sigFile.createNewFile())
-            throw new IOException();
+        try {
+            return sigFile.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // 打开信号文件: 赋值sigRaf
@@ -248,7 +261,6 @@ public class EcgRecord extends LitePalSupport {
     public int getSampleRate() {
         return sampleRate;
     }
-
     public User getCreator() {
         return creator;
     }
@@ -258,8 +270,8 @@ public class EcgRecord extends LitePalSupport {
     public long getCreateTime() {
         return createTime;
     }
-    public String getMacAddress() {
-        return macAddress;
+    public String getDeviceAddress() {
+        return deviceAddress;
     }
     public int getCaliValue() {
         return caliValue;
@@ -269,12 +281,16 @@ public class EcgRecord extends LitePalSupport {
     }
     // 添加一条留言
     public void addComment(EcgNormalComment comment) {
-        if(!commentList.contains(comment))
-            commentList.add(comment);
+        if(!commentList.contains(comment)) {
+            if(commentList.add(comment))
+                isModify = true;
+        }
     }
     // 删除一条留言
     public void deleteComment(EcgNormalComment comment) {
-        commentList.remove(comment);
+        if(commentList.remove(comment)) {
+            isModify = true;
+        }
     }
     public void setHrList(List<Short> hrList) {
         this.hrList = hrList;
@@ -290,6 +306,7 @@ public class EcgRecord extends LitePalSupport {
     public void writeData(int data) throws IOException{
         sigRaf.writeInt(data);
         dataNum++;
+        isModify = true;
     }
     // 写信号数组
     public void writeData(int[] data) throws IOException{
@@ -297,7 +314,7 @@ public class EcgRecord extends LitePalSupport {
             writeData(num);
         }
     }
-    // 将文件指针定位到某个数据位置
+    // 将信号文件指针定位到某个数据位置
     public void seekData(int dataNum) {
         try {
             if(sigRaf != null && dataNum >= 0 && dataNum <= this.dataNum)
@@ -318,7 +335,7 @@ public class EcgRecord extends LitePalSupport {
 
     @Override
     public String toString() {
-        return DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + "-" + sigFileName + "-" + dataNum + "-" + hrList + "-" +commentList;
+        return recordName + "-" + createTime + "-" + creator + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + "-" + sigFileName + "-" + dataNum + "-" + hrList + "-" +commentList;
     }
 
     @Override
@@ -337,7 +354,9 @@ public class EcgRecord extends LitePalSupport {
 
     @Override
     public boolean save() {
-        this.modifyTime = new Date().getTime();
+        if(isModify)
+            this.modifyTime = new Date().getTime();
+        creator.save();
         for(EcgNormalComment comment : commentList) {
             comment.save();
         }

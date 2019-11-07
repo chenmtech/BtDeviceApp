@@ -15,6 +15,6 @@ public class TempHumidConfigureActivity extends AppCompatActivity {
         setContentView(R.layout.activity_temphumid_configure);
 
         //Bundle bundle = (Bundle) getIntent().getExtras();
-        //ViseLog.i("" + device.getMacAddress());
+        //ViseLog.i("" + device.getDeviceAddress());
     }
 }

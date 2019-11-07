@@ -104,7 +104,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
 
         User creator = record.getCreator();
         User account = AccountManager.getInstance().getAccount();
-        if(creator.equals(account)) {
+        if(account.equals(creator)) {
             holder.tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
             holder.tvCreator.setText(Html.fromHtml("<u>" + creator.getName() + "</u>"));
