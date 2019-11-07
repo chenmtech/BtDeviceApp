@@ -29,6 +29,7 @@ public abstract class BmeFile {
         File file = new File(fileName);
         if(file.exists() && file.renameTo(file)) {
             this.file = file;
+            createIOStream();
             head = readHead();
             if(head == null) {
                 throw new IOException("The bme file head is wrong: " + fileName);
@@ -56,10 +57,6 @@ public abstract class BmeFile {
 	    this.dataNum = dataNum;
     }
 	private BmeFileHead readHead() throws IOException{
-        if(in != null || out != null)
-            throw new NullPointerException("The file IO is null.");
-
-        createIOStream();
         // 读BmeFile标识符
         byte[] bme = new byte[3];
         in.readFully(bme);

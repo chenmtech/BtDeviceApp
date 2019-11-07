@@ -150,10 +150,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         String createdTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         tvCreateTime.setText(createdTime);
 
-        if(record.getDataNumInSignal() == 0) {
+        if(record.getDataNum() == 0) {
             tvLength.setText("无");
         } else {
-            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNumInSignal() / record.getSampleRate());
+            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNum() / record.getSampleRate());
             tvLength.setText(dataTimeLength);
         }
 
@@ -161,7 +161,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvHrNum.setText(String.valueOf(hrNum));
 
         initEcgView(record);
-        int secondInSignal = record.getDataNumInSignal()/ record.getSampleRate();
+        int secondInSignal = record.getDataNum()/ record.getSampleRate();
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));
         tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
         sbReplay.setMax(secondInSignal);
@@ -173,7 +173,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
         signalView.startShow();
 
-        if(record.getDataNumInSignal() == 0) {
+        if(record.getDataNum() == 0) {
             signalLayout.setVisibility(View.GONE);
         } else {
             signalLayout.setVisibility(View.VISIBLE);

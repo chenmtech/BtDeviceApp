@@ -113,10 +113,10 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
 
-        if(record.getDataNumInSignal() == 0) {
+        if(record.getDataNum() == 0) {
             holder.tvLength.setText("无");
         } else {
-            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNumInSignal() / record.getSampleRate());
+            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNum() / record.getSampleRate());
             holder.tvLength.setText(dataTimeLength);
         }
 

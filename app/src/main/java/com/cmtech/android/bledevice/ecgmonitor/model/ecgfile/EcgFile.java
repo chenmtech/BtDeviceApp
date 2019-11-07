@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgCommentFactory;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.IEcgComment;
@@ -11,8 +12,6 @@ import com.cmtech.bmefile.DataIOUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Dictionary;
 import java.util.List;
 
 /**
@@ -21,29 +20,20 @@ import java.util.List;
  */
 
 public class EcgFile extends AbstractRandomAccessBmeFile {
+    private final long modifyTime;
     private final EcgFileHead ecgHead; // ECG文件头
-    private final long dataBeginPointer; // 数据起始位置文件指针
     private final List<Short> hrList; // 心率值列表
-    private final List<EcgNormalComment> commentList; // 留言列表
+    private final List<EcgNormalComment> commentList; // 一般留言列表
 
-    // 打开已有文件
-    public static EcgFile open(String fileName) {
-        try {
-            return new EcgFile(fileName);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    // 打开已有EcgFile文件
+    // 为已存在Ecg文件构造EcgFile
     private EcgFile(String fileName) throws IOException {
         super(fileName);
+        modifyTime = ByteUtil.reverseLong(raf.readLong());
         ecgHead = new EcgFileHead();
         ecgHead.readFromStream(raf);
         setDataNum(ByteUtil.reverseInt(raf.readInt()));
-        dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
-        raf.seek(dataBeginPointer + getDataNum() * head.getDataType().getByteNum());
+        long dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
+        raf.seek(dataBeginPointer + getDataNum() * head.getDataType().getByteNum()); // 跳过心电数据
         hrList = new ArrayList<>();
         int hrLength = ByteUtil.reverseInt(raf.readInt());
         for(int i = 0; i < hrLength; i++) {
@@ -60,24 +50,16 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         raf.seek(dataBeginPointer); // 回到数据开始位置
     }
 
-    public static EcgFile create(File directory, EcgRecord record) {
-        String fileName = directory.getAbsolutePath() + File.separator + record.getRecordName() + ".bme";
-        try {
-            return new EcgFile(fileName, record);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
-    // 创建新文件时使用的私有构造器
+    // 用Ecg记录构造EcgFile
     private EcgFile(String fileName, EcgRecord record) throws IOException {
         super(fileName, record.getBmeHead());
+        this.modifyTime = record.getModifyTime();
+        raf.writeLong(ByteUtil.reverseLong(modifyTime));
         this.ecgHead = record.getEcgHead();
         ecgHead.writeToStream(raf);
-        setDataNum(record.getDataNumInSignal());
+        setDataNum(record.getDataNum());
         raf.writeInt(ByteUtil.reverseInt(getDataNum()));
-        dataBeginPointer = raf.getFilePointer(); // 标记数据开始的位置指针
         record.openSigFile();
         for(int i = 0; i < getDataNum(); i++) {
             DataIOUtil.writeInt(raf, record.readData(), head.getByteOrder());
@@ -92,11 +74,39 @@ public class EcgFile extends AbstractRandomAccessBmeFile {
         // 写留言信息
         commentList = record.getCommentList();
         raf.writeInt(ByteUtil.reverseInt(commentList.size()));
-        for(EcgNormalComment comment : commentList) {
+        for(EcgComment comment : commentList) {
             EcgCommentFactory.writeToStream(comment, raf);
         }
     }
 
+    // 打开已有文件
+    public static EcgFile open(String fileName) {
+        try {
+            return new EcgFile(fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // 为Ecg记录创建文件
+    public static String createEcgFile(File directory, EcgRecord record) {
+        String fileName = directory.getAbsolutePath() + File.separator + record.getRecordName() + ".bme";
+        try {
+            File file = new File(fileName);
+            if(file.exists()) file.delete();
+            EcgFile ecgFile = new EcgFile(fileName, record);
+            ecgFile.close();
+            return ecgFile.getFileName();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public long getModifyTime() {
+        return modifyTime;
+    }
     public EcgFileHead getEcgHead() {
         return ecgHead;
     }

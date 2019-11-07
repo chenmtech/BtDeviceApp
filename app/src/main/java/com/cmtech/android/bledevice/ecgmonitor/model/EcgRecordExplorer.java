@@ -1,12 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
-import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
@@ -21,12 +16,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
-import cn.sharesdk.framework.ShareSDK;
-import cn.sharesdk.wechat.friends.Wechat;
 
-import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_WECHAT_DOWNLOAD;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 
@@ -195,7 +186,7 @@ public class EcgRecordExplorer {
 
     // 通过微信分享选中记录
     public void shareSelectedRecordThroughWechat(PlatformActionListener listener) {
-        if(selectedRecord == null) return;
+        /*if(selectedRecord == null) return;
         String ecgFileName = selectedRecord.saveAsEcgFile(DIR_CACHE);
         if(ecgFileName == null) return;
         Platform.ShareParams sp = new Platform.ShareParams();
@@ -208,7 +199,18 @@ public class EcgRecordExplorer {
         sp.setFilePath(ecgFileName);
         Platform platform = ShareSDK.getPlatform(Wechat.NAME);
         platform.setPlatformActionListener(listener);
-        platform.share(sp);
+        platform.share(sp);*/
+        if(selectedRecord == null) return;
+        ViseLog.e("hi1");
+        String ecgFileName = selectedRecord.saveAsEcgFile(DIR_CACHE);
+        if(ecgFileName == null) return;
+        ViseLog.e("hi2");
+        EcgFile ecgFile = EcgFile.open(ecgFileName);
+        ViseLog.e(ecgFile);
+        if(ecgFile != null) {
+            EcgRecord record = EcgRecord.create(ecgFile);
+            ViseLog.e(record);
+        }
     }
 
     // 关闭管理器
