@@ -107,7 +107,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         void onValue1mVUpdated(int value1mV, int value1mVAfterCalibration);  // 1mV值更新
         void onRecordStateUpdated(boolean isRecord); // 记录状态更新
         void onShowSetupUpdated(int sampleRate, int value1mV, double zeroLocation); // 信号显示设置更新
-        void onEcgSignalShowed(int ecgSignal); // 信号显示
+        void onEcgSignalUpdated(int ecgSignal); // 信号显示
         void onEcgSignalShowStarted(int sampleRate); // 信号显示启动
         void onEcgSignalShowStopped(); // 信号显示停止
         void onRecordSecondUpdated(int second); // 信号记录秒数更新
@@ -115,6 +115,14 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         void onHrStaticsInfoUpdated(EcgHrStatisticsInfo hrStaticsInfoAnalyzer); // 心率统计信息更新
         void onHrAbnormalNotified(); // 心率值异常通知
         void onBatteryUpdated(int bat); // 电池电量更新
+    }
+
+    public interface OnEcgSignalWebListener {
+        void onEcgSignalStarted(String sigId); // 启动信号获取，用sigId创建新的信号记录
+        void onEcgSignalParaSetup(int sampleRate, int caliValue); // 设置信号参数
+        void onEcgSignalStopped(String sigId); // 停止信号获取，保存记录
+        void onEcgSignalUpdated(int ecgSignal); // 更新心电信号
+        void onHrValueUpdated(short hrValue); // 更新心率值
     }
 
     // 构造器
@@ -511,12 +519,12 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             try {
                 signalRecorder.record(ecgSignal);
             } catch (IOException e) {
-                ViseLog.e("无法记录心电信号。");
+                e.printStackTrace();
             }
         }
         // 显示
         if(listener != null) {
-            listener.onEcgSignalShowed(ecgSignal);
+            listener.onEcgSignalUpdated(ecgSignal);
         }
     }
 

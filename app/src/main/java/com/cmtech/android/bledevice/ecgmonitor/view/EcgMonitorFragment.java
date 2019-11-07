@@ -209,7 +209,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onEcgSignalShowed(final int ecgSignal) {
+    public void onEcgSignalUpdated(final int ecgSignal) {
         ecgView.showData(ecgSignal);
     }
 
