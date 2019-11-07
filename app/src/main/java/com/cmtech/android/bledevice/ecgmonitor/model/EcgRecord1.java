@@ -24,48 +24,40 @@ import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 
-public class EcgRecord extends LitePalSupport {
+public class EcgRecord1 extends LitePalSupport {
     private static final byte[] ECG = {'E', 'C', 'G'}; // 心电标识
-    private static final int RECORD_NAME_CHAR_NUM = 30; // 记录名字符数
-    public static final int DEVICE_ADDRESS_CHAR_NUM = 12; // 设备地址字符数
+    private static final int RECORD_NAME_LEN = 30;
+    public static final int MACADDRESS_CHAR_NUM = 12; // 蓝牙设备mac地址字符数
     public static final int INVALID_SAMPLE_RATE = -1; // 无效采样率
 
     private int id;
     @Column(unique = true)
     private String recordName; // 记录名
-    private long createTime; // 创建时间
+    private long createTime = 0; // 创建时间
     private User creator; // 创建人
     private long modifyTime; // 修改时间
-    private int sampleRate; // 采样频率
-    private int caliValue; // 标定值
-    private String macAddress; // 蓝牙设备地址
-    private int leadTypeCode; // 导联类型代码
-    private String sigFileName; // 信号文件名
+    private int sampleRate = INVALID_SAMPLE_RATE; // 采样频率
+    private int caliValue = 1; // 定标值。作用是所有数据都需要与定标值相除，得到实际数据代表的物理信号大小
+    private String macAddress = ""; // 蓝牙设备地址
+    private int leadTypeCode = EcgLeadType.LEAD_I.getCode(); // 导联类型代码
+    private String sigFileName = ""; // 信号文件名
     private int dataNum; // 信号中的数据个数
     @Column(ignore = true)
     private RandomAccessFile sigRaf; // 信号文件RAF
     private List<Short> hrList; // 心率值列表
     private List<EcgNormalComment> commentList; // 留言列表
 
-    private EcgRecord() {
+    private EcgRecord1() {
         recordName = "";
-        createTime = 0;
-        creator = null;
-        modifyTime = 0;
-        sampleRate = INVALID_SAMPLE_RATE;
-        caliValue = 1;
-        macAddress = "";
-        leadTypeCode = EcgLeadType.LEAD_I.getCode();
-        sigFileName = "";
-        dataNum = 0;
-        sigRaf = null;
+        //bmeHead = null;
+        //ecgHead = null;
         hrList = new ArrayList<>();
         commentList = new ArrayList<>();
     }
 
     // 创建新记录
-    public static EcgRecord create(User creator, int sampleRate, int caliValue, String macAddress, EcgLeadType leadType) {
-        EcgRecord record = new EcgRecord();
+    public static EcgRecord1 create(User creator, int sampleRate, int caliValue, String macAddress, EcgLeadType leadType) {
+        EcgRecord1 record = new EcgRecord1();
         record.createTime = new Date().getTime();
         record.creator = (User) creator.clone();
         record.modifyTime = record.createTime;
@@ -87,26 +79,26 @@ public class EcgRecord extends LitePalSupport {
         }
     }
 
-    public static EcgRecord load(String fileName) {
+    public static EcgRecord1 load(String fileName) {
         File file = new File(fileName);
         RandomAccessFile raf = null;
         try {
             if(file.exists() && file.renameTo(file)) {
-                EcgRecord record = new EcgRecord();
+                EcgRecord1 record = new EcgRecord1();
                 raf = new RandomAccessFile(file, "r");
                 // 读标识符
                 byte[] ecg = new byte[3];
                 raf.readFully(ecg);
                 if(!Arrays.equals(ecg, ECG))
                     return null;
-                record.recordName = DataIOUtil.readFixedString(raf, RECORD_NAME_CHAR_NUM);
+                record.recordName = DataIOUtil.readFixedString(raf, RECORD_NAME_LEN);
                 record.createTime = raf.readLong();
                 record.creator = new User();
                 record.creator.readFromStream(raf);
                 record.modifyTime = raf.readLong();
                 record.sampleRate = raf.readInt();
                 record.caliValue = raf.readInt();
-                record.macAddress = DataIOUtil.readFixedString(raf, DEVICE_ADDRESS_CHAR_NUM);
+                record.macAddress = DataIOUtil.readFixedString(raf, MACADDRESS_CHAR_NUM);
                 record.leadTypeCode = (int) raf.readByte();
                 record.dataNum = raf.readInt();
                 record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.recordName + ".bme";
@@ -154,13 +146,13 @@ public class EcgRecord extends LitePalSupport {
             }
             raf = new RandomAccessFile(file, "w");
             raf.write(ECG); // 写BmeFile文件标识符
-            DataIOUtil.writeFixedString(raf, recordName, RECORD_NAME_CHAR_NUM); // 写记录名
+            DataIOUtil.writeFixedString(raf, recordName, RECORD_NAME_LEN); // 写记录名
             raf.writeLong(createTime); // 写创建时间
             creator.writeToStream(raf); // 写创建人信息
             raf.writeLong(modifyTime); // 写修改时间
             raf.writeInt(sampleRate); // 写采样频率
             raf.writeInt(caliValue); // 写定标值
-            DataIOUtil.writeFixedString(raf, macAddress, DEVICE_ADDRESS_CHAR_NUM); // 写设备地址
+            DataIOUtil.writeFixedString(raf, macAddress, MACADDRESS_CHAR_NUM); // 写设备地址
             raf.writeByte(leadTypeCode); // 写导联类型
             raf.writeInt(dataNum); // 写数据个数
             openSigFile();
@@ -326,7 +318,7 @@ public class EcgRecord extends LitePalSupport {
         if(this == otherObject) return true;
         if(otherObject == null) return false;
         if(getClass() != otherObject.getClass()) return false;
-        EcgRecord other = (EcgRecord) otherObject;
+        EcgRecord1 other = (EcgRecord1) otherObject;
         return recordName.equals(other.recordName);
     }
 

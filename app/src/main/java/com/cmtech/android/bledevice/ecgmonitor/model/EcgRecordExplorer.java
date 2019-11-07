@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.model;
 
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgFile;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
@@ -145,40 +144,27 @@ public class EcgRecordExplorer {
         List<File> fileList = BmeFileUtil.listDirBmeFiles(dir);
         if(fileList == null || fileList.isEmpty()) return null;
         List<EcgRecord> updatedRecords = new ArrayList<>();
-        EcgFile ecgFile = null;
+        EcgRecord srcRecord = null;
         for(File file : fileList) {
             try {
-                ecgFile = EcgFile.open(file.getAbsolutePath());
-                if(ecgFile != null) {
-                    EcgRecord srcRecord = EcgRecord.create(ecgFile);
-                    if (srcRecord != null) {
-                        int index = recordList.indexOf(srcRecord);
-                        if (index != -1) {
-                            EcgRecord destRecord = recordList.get(index);
-                            if (updateComments(srcRecord, destRecord)) {
-                                destRecord.save();
-                                updatedRecords.add(destRecord);
-                            }
-                        } else {
-                            srcRecord.save();
-                            recordList.add(srcRecord);
-                            updatedRecords.add(srcRecord);
+                srcRecord = EcgRecord.load(file.getAbsolutePath());
+                if (srcRecord != null) {
+                    int index = recordList.indexOf(srcRecord);
+                    if (index != -1) {
+                        EcgRecord destRecord = recordList.get(index);
+                        if (updateComments(srcRecord, destRecord)) {
+                            destRecord.save();
+                            updatedRecords.add(destRecord);
                         }
+                    } else {
+                        srcRecord.save();
+                        recordList.add(srcRecord);
+                        updatedRecords.add(srcRecord);
                     }
-                    ecgFile.close();
                 }
                 FileUtil.deleteFile(file);
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    if(ecgFile != null) {
-                        ecgFile.close();
-                        ecgFile = null;
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
         return updatedRecords;
@@ -201,14 +187,10 @@ public class EcgRecordExplorer {
         platform.setPlatformActionListener(listener);
         platform.share(sp);*/
         if(selectedRecord == null) return;
-        ViseLog.e("hi1");
-        String ecgFileName = selectedRecord.saveAsEcgFile(DIR_CACHE);
-        if(ecgFileName == null) return;
-        ViseLog.e("hi2");
-        EcgFile ecgFile = EcgFile.open(ecgFileName);
-        ViseLog.e(ecgFile);
-        if(ecgFile != null) {
-            EcgRecord record = EcgRecord.create(ecgFile);
+        String fileName = DIR_CACHE.getAbsolutePath() + File.separator + selectedRecord.getRecordName() + ".bme";
+        if(!selectedRecord.save(fileName)) return;
+        EcgRecord record = EcgRecord.load(fileName);
+        if(record != null) {
             ViseLog.e(record);
         }
     }

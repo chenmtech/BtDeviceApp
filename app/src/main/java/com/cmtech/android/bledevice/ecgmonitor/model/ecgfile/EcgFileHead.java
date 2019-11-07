@@ -2,10 +2,8 @@ package com.cmtech.android.bledevice.ecgmonitor.model.ecgfile;
 
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
-import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
-import org.litepal.crud.LitePalSupport;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -18,7 +16,7 @@ import java.util.List;
  * Created by bme on 2018/11/21.
  */
 
-public class EcgFileHead extends LitePalSupport {
+public class EcgFileHead {
     public static final int MACADDRESS_CHAR_NUM = 12; // 蓝牙设备mac地址字符数
     private static final byte[] TAG = {'E', 'C', 'G'}; // 心电文件标识
     private static final byte[] VER = new byte[] {0x01, 0x01}; // 心电文件头版本号1.1，便于以后升级
@@ -98,23 +96,5 @@ public class EcgFileHead extends LitePalSupport {
 
     public int length() {
         return TAG.length + VER.length + getCreator().length() + MACADDRESS_CHAR_NUM *2 + LEAD_TYPE_BYTE_NUM;
-    }
-
-    @Override
-    public boolean save() {
-        ViseLog.e("head save");
-        if(creator != null) {
-            creator.save();
-        }
-        return super.save();
-    }
-
-    @Override
-    public int delete() {
-        ViseLog.e("head delete");
-        if(creator != null) {
-            creator.delete();
-        }
-        return super.delete();
     }
 }
