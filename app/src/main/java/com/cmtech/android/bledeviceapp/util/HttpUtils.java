@@ -26,7 +26,7 @@ public class HttpUtils {
     public  static  String  upload(String data,Callback callback)
     {
         String result="OK";
-        String url =  upload_url+"?data="+ data;
+        String url =  upload_url + data;
         try {
             Get(url, callback);
             return result;

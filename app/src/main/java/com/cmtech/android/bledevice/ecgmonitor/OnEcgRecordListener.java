@@ -9,7 +9,8 @@ public interface OnEcgRecordListener {
     void onSampleRateUpdated(int sampleRate);
     void onCaliValueUpdated(int caliValue);
     void onDeviceAddressUpdated(String address);
-    void onLeadTypeCodeUpdated(int leadTypeCode);
+    void onLeadTypeUpdated(int leadTypeCode);
+    void onSignalUpdated(int ecgSignal);
     void onHrValueUpdated(short hr);
     void onStart();
     void onStop();
