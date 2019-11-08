@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.record;
 
-import com.cmtech.android.bledevice.ecgmonitor.EcgMonitorUtil;
+import com.cmtech.android.bledevice.ecgmonitor.util.EcgMonitorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgCommentFactory;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
