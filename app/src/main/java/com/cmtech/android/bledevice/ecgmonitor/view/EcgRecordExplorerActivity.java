@@ -219,7 +219,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                     tvPromptInfo.setVisibility(View.INVISIBLE);
                 }
 
-                recordAdapter.updateRecordList(recordList, getUpdatedRecords());
+                recordAdapter.updateRecordList();
             }
         });
     }
@@ -232,8 +232,9 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                 if(resultCode == RESULT_OK) {
                     boolean updated = data.getBooleanExtra("updated", false);
                     if(updated) {
+                        explorer.getSelectedRecord().save();
                         explorer.addUpdatedRecord(explorer.getSelectedRecord());
-                        recordAdapter.notifyDataSetChanged();
+                        recordAdapter.updateRecordList();
                     }
                 }
                 break;

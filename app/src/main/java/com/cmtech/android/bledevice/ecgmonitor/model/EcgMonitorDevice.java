@@ -12,7 +12,7 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
@@ -115,7 +115,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         void onEcgSignalShowStopped(); // 信号显示停止
         void onRecordSecondUpdated(int second); // 信号记录秒数更新
         void onHrUpdated(int hr); // 心率值更新，单位bpm
-        void onHrStaticsInfoUpdated(EcgHrStatisticsInfo hrStaticsInfoAnalyzer); // 心率统计信息更新
+        void onHrStaticsInfoUpdated(HrStatisticsInfo hrStaticsInfoAnalyzer); // 心率统计信息更新
         void onHrAbnormalNotified(); // 心率值异常通知
         void onBatteryUpdated(int bat); // 电池电量更新
     }
@@ -292,7 +292,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     private void saveEcgRecord() {
         try {
             ecgRecord.moveSigFileTo(DIR_ECG_SIGNAL);
-            ecgRecord.setHrList(dataProcessor.getHrList());
             if(!ecgRecord.save()) {
                 ViseLog.e("record save false");
             }
@@ -533,6 +532,10 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     }
 
     public void updateHrValue(final short hr) {
+        if(ecgRecord != null) {
+            ecgRecord.addHr(hr);
+        }
+
         if(listener != null) {
             listener.onHrUpdated(hr);
         }
@@ -577,6 +580,11 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
         // 创建心电信号记录仪
         if(ecgRecord != null) {
+            try {
+                ecgRecord.openSigFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             creatorComment = EcgNormalComment.create();
             ecgRecord.addComment(creatorComment);
         }
@@ -634,7 +642,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     }
 
     @Override
-    public void onHrStatisticInfoUpdated(final EcgHrStatisticsInfo hrStatisticsInfoAnalyzer) {
+    public void onHrStatisticInfoUpdated(final HrStatisticsInfo hrStatisticsInfoAnalyzer) {
         if(listener != null) {
             listener.onHrStaticsInfoUpdated(hrStatisticsInfoAnalyzer);
         }

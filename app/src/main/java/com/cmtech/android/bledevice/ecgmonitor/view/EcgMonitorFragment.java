@@ -21,7 +21,7 @@ import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorState;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgLeadType;
 import com.cmtech.android.bledevice.viewcomponent.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
@@ -239,7 +239,7 @@ public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.
     }
 
     @Override
-    public void onHrStaticsInfoUpdated(final EcgHrStatisticsInfo hrStaticsInfoAnalyzer) {
+    public void onHrStaticsInfoUpdated(final HrStatisticsInfo hrStaticsInfoAnalyzer) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

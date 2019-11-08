@@ -1,8 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor.INVALID_HR;
 
 
@@ -20,51 +17,38 @@ import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsi
 
 public class HrStatisticProcessor implements IHrProcessor {
     private final OnHrStatisticInfoUpdatedListener listener; // 心率统计信息监听器
-    private final EcgHrStatisticsInfo hrStatisticInfoAnalyzer; // 心率统计信息分析仪
-    private final List<Short> hrList = new ArrayList<>(); // 心率值list
-    private boolean isRecord = true; // 是否记录心率
+    private final HrStatisticsInfo hrStatisticInfo; // 心率统计信息分析仪
 
     public interface OnHrStatisticInfoUpdatedListener {
-        void onHrStatisticInfoUpdated(EcgHrStatisticsInfo hrInfoObject); // 心率统计信息更新
+        void onHrStatisticInfoUpdated(HrStatisticsInfo hrInfoObject); // 心率统计信息更新
     }
 
     public HrStatisticProcessor(int hrFilterTime, OnHrStatisticInfoUpdatedListener listener) {
-        hrStatisticInfoAnalyzer = new EcgHrStatisticsInfo(hrFilterTime);
+        hrStatisticInfo = new HrStatisticsInfo(hrFilterTime);
         this.listener = listener;
     }
 
-    public List<Short> getHrList() {
-        return hrList;
-    }
-
-    public EcgHrStatisticsInfo getHrStatisticInfoAnalyzer() {
-        return hrStatisticInfoAnalyzer;
-    }
-
-    public void setRecord(boolean record) {
-        isRecord = record;
+    public HrStatisticsInfo getHrStatisticInfo() {
+        return hrStatisticInfo;
     }
 
     // 更新心率统计信息
     public void updateHrStatisticInfo() {
         if(listener != null)
-            listener.onHrStatisticInfoUpdated(hrStatisticInfoAnalyzer);
+            listener.onHrStatisticInfoUpdated(hrStatisticInfo);
     }
 
     // 重置
     @Override
     public synchronized void reset() {
-        hrList.clear();
-        hrStatisticInfoAnalyzer.clear();
+        hrStatisticInfo.clear();
         updateHrStatisticInfo();
     }
 
     @Override
     public synchronized void process(short hr) {
-        if(hr != INVALID_HR && isRecord) {
-            hrList.add(hr);
-
-            if(hrStatisticInfoAnalyzer.process(hr)) {
+        if(hr != INVALID_HR) {
+            if(hrStatisticInfo.process(hr)) {
                 updateHrStatisticInfo();
             }
         }

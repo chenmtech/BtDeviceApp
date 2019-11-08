@@ -141,7 +141,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         return recordList.size();
     }
 
-    public void updateRecordList(List<EcgRecord> fileList, List<EcgRecord> updatedFileList) {
+    public void updateRecordList() {
         notifyDataSetChanged();
     }
 

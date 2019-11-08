@@ -20,7 +20,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticsInfo;
 import com.cmtech.android.bledevice.viewcomponent.RollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -185,7 +185,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             hrLayout.setVisibility(View.VISIBLE);
         }
 
-        EcgHrStatisticsInfo hrStatisticsInfo = new EcgHrStatisticsInfo(record.getHrList(), HR_FILTER_SECOND);
+        HrStatisticsInfo hrStatisticsInfo = new HrStatisticsInfo(record.getHrList(), HR_FILTER_SECOND);
         tvAverageHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
         tvMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
         hrLineChart.showLineChart(hrStatisticsInfo.getFilteredHrList(), "心率时序图", Color.BLUE);

@@ -5,7 +5,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.EcgSignalProcessor;
 import com.vise.log.ViseLog;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -45,7 +44,6 @@ public class EcgDataProcessor {
     public void reset() {
         resetValue1mVDetector();
         resetSignalProcessor();
-        resetHrStatisticProcessor();
     }
     public void resetValue1mVDetector() {
         this.value1mVDetector.reset();
@@ -55,12 +53,6 @@ public class EcgDataProcessor {
     }
     public void resetHrAbnormalProcessor() {
         signalProcessor.resetHrAbnormalProcessor();
-    }
-    public void resetHrStatisticProcessor() {
-        signalProcessor.resetHrStatisticProcessor();
-    }
-    public List<Short> getHrList() {
-        return signalProcessor.getHrList();
     }
 
     public synchronized void start() {

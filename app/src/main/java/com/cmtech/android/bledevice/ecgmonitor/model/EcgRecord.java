@@ -296,8 +296,9 @@ public class EcgRecord extends LitePalSupport {
             isModify = true;
         }
     }
-    public void setHrList(List<Short> hrList) {
-        this.hrList = hrList;
+    public void addHr(short hr) {
+        hrList.add(hr);
+        isModify = true;
     }
     public List<Short> getHrList() {
         return hrList;

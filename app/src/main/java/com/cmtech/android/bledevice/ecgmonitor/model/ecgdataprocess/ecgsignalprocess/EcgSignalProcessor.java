@@ -10,7 +10,6 @@ import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalpro
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.IHrProcessor;
 import com.cmtech.msp.qrsdetbyhamilton.QrsDetector;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -83,15 +82,6 @@ public class EcgSignalProcessor {
         }
     }
 
-    // 重置心率统计处理器，当设备关闭时调用
-    public void resetHrStatisticProcessor() {
-        HrStatisticProcessor hrStatisticProcessor = (HrStatisticProcessor) hrProcessorMap.get(HR_STATISTICS_PROCESSOR_KEY);
-
-        if(hrStatisticProcessor != null) {
-            hrStatisticProcessor.reset();
-        }
-    }
-
     // 处理Ecg信号
     public void process(int ecgSignal) {
         ecgSignal = (int) ecgFilter.filter(ecgCalibrator.calibrate(ecgSignal)); // 标定,滤波
@@ -113,14 +103,5 @@ public class EcgSignalProcessor {
         if(hrStatisticProcessor != null) {
             hrStatisticProcessor.updateHrStatisticInfo();
         }
-    }
-
-    // 获取心率值列表
-    public List<Short> getHrList() {
-        HrStatisticProcessor hrStatisticProcessor = (HrStatisticProcessor) hrProcessorMap.get(HR_STATISTICS_PROCESSOR_KEY);
-        if(hrStatisticProcessor != null) {
-            return hrStatisticProcessor.getHrList();
-        }
-        return null;
     }
 }
