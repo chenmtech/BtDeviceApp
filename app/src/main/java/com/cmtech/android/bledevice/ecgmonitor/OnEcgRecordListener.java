@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor;
 
 public interface OnEcgRecordListener {
-    void onRecordCreated(); // 创建新记录
+    void onRecordCreated(String recordName); // 创建新记录
     void onRecordNameSetup(String recordName); // 设置记录名，unique
     void onCreateTimeUpdated(long createTime); // 更新创建时间
     void onCreatorUpdated(String creatorId); // 更新创建人
