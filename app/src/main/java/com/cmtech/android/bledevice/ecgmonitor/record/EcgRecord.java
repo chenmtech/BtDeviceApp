@@ -26,19 +26,16 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
 
 public class EcgRecord extends LitePalSupport {
     private static final byte[] ECG = {'E', 'C', 'G'}; // 心电标识
-    private static final int RECORD_NAME_CHAR_NUM = 30; // 记录名字符数
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // 设备地址字符数
     public static final int INVALID_SAMPLE_RATE = -1; // 无效采样率
 
     private int id;
-    @Column(unique = true)
-    private String recordName; // 记录名
+    private String deviceAddress; // 设备地址
     private long createTime; // 创建时间
     private User creator; // 创建人
     private long modifyTime; // 修改时间
     private int sampleRate; // 采样频率
     private int caliValue; // 标定值
-    private String deviceAddress; // 设备地址
     private int leadTypeCode; // 导联类型代码
     private int dataNum; // 信号数据个数
     private String sigFileName; // 信号文件名
@@ -50,13 +47,12 @@ public class EcgRecord extends LitePalSupport {
     private boolean isModify;
 
     private EcgRecord() {
-        recordName = "";
+        deviceAddress = "";
         createTime = 0;
         creator = null;
         modifyTime = 0;
         sampleRate = INVALID_SAMPLE_RATE;
         caliValue = 1;
-        deviceAddress = "";
         leadTypeCode = EcgLeadType.LEAD_I.getCode();
         sigFileName = "";
         dataNum = 0;
@@ -72,18 +68,17 @@ public class EcgRecord extends LitePalSupport {
             throw new NullPointerException("The creator is null.");
         }
         EcgRecord record = new EcgRecord();
+        record.deviceAddress = EcgMonitorUtil.noColon(deviceAddress);
         record.createTime = new Date().getTime();
         record.creator = (User) creator.clone();
-        record.recordName = EcgMonitorUtil.makeRecordName(deviceAddress, record.createTime);
         record.modifyTime = record.createTime;
         record.sampleRate = sampleRate;
         record.caliValue = caliValue;
-        record.deviceAddress = EcgMonitorUtil.cutColon(deviceAddress);
         record.leadTypeCode = leadType.getCode();
         record.dataNum = 0;
         record.hrList = new ArrayList<>();
         record.commentList = new ArrayList<>();
-        record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.recordName + ".bme";
+        record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.getRecordId() + ".bme";
         if(record.createSigFile()) {
             return record;
         }
@@ -101,13 +96,12 @@ public class EcgRecord extends LitePalSupport {
             }
             raf = new RandomAccessFile(file, "rw");
             raf.write(ECG); // 写BmeFile文件标识符
-            DataIOUtil.writeFixedString(raf, recordName, RECORD_NAME_CHAR_NUM); // 写记录名
+            DataIOUtil.writeFixedString(raf, deviceAddress, DEVICE_ADDRESS_CHAR_NUM); // 写设备地址
             raf.writeLong(createTime); // 写创建时间
             creator.writeToStream(raf); // 写创建人信息
             raf.writeLong(modifyTime); // 写修改时间
             raf.writeInt(sampleRate); // 写采样频率
             raf.writeInt(caliValue); // 写定标值
-            DataIOUtil.writeFixedString(raf, deviceAddress, DEVICE_ADDRESS_CHAR_NUM); // 写设备地址
             raf.writeByte(leadTypeCode); // 写导联类型
             raf.writeInt(dataNum); // 写数据个数
             openSigFile();
@@ -155,17 +149,16 @@ public class EcgRecord extends LitePalSupport {
                     raf.close();
                     return null;
                 }
-                record.recordName = DataIOUtil.readFixedString(raf, RECORD_NAME_CHAR_NUM);
+                record.deviceAddress = DataIOUtil.readFixedString(raf, DEVICE_ADDRESS_CHAR_NUM);
                 record.createTime = raf.readLong();
                 record.creator = new User();
                 record.creator.readFromStream(raf);
                 record.modifyTime = raf.readLong();
                 record.sampleRate = raf.readInt();
                 record.caliValue = raf.readInt();
-                record.deviceAddress = DataIOUtil.readFixedString(raf, DEVICE_ADDRESS_CHAR_NUM);
                 record.leadTypeCode = (int) raf.readByte();
                 record.dataNum = raf.readInt();
-                record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.recordName + ".bme";
+                record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.getRecordId() + ".bme";
                 if(!record.createSigFile()) {
                     raf.close();
                     return null;
@@ -246,8 +239,8 @@ public class EcgRecord extends LitePalSupport {
     public int getId() {
         return id;
     }
-    public String getRecordName() {
-        return recordName;
+    public String getRecordId() {
+        return deviceAddress + createTime;
     }
     public long getModifyTime() {
         return modifyTime;
@@ -340,7 +333,7 @@ public class EcgRecord extends LitePalSupport {
 
     @Override
     public String toString() {
-        return recordName + "-" + createTime + "-" + creator + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + "-" + sigFileName + "-" + dataNum + "-" + hrList + "-" +commentList;
+        return deviceAddress + "-" + createTime + "-" + creator + DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime) + "-" + sigFileName + "-" + dataNum + "-" + hrList + "-" +commentList;
     }
 
     @Override
@@ -349,12 +342,12 @@ public class EcgRecord extends LitePalSupport {
         if(otherObject == null) return false;
         if(getClass() != otherObject.getClass()) return false;
         EcgRecord other = (EcgRecord) otherObject;
-        return recordName.equals(other.recordName);
+        return deviceAddress.equals(other.deviceAddress) && createTime == other.createTime;
     }
 
     @Override
     public int hashCode() {
-        return recordName.hashCode();
+        return deviceAddress.hashCode() + 31 * ((Long)createTime).hashCode();
     }
 
     @Override

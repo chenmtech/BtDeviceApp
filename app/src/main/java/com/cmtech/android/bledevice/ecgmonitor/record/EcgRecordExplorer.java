@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
@@ -183,11 +182,11 @@ public class EcgRecordExplorer {
     // 通过微信分享选中记录
     public void shareSelectedRecordThroughWechat(PlatformActionListener listener) {
         if(selectedRecord == null) return;
-        String fileName = DIR_CACHE.getAbsolutePath() + File.separator + selectedRecord.getRecordName() + ".bme";
+        String recordName = selectedRecord.getRecordId();
+        String fileName = DIR_CACHE.getAbsolutePath() + File.separator + recordName + ".bme";
         if(!selectedRecord.save(fileName)) return;
         Platform.ShareParams sp = new Platform.ShareParams();
         sp.setShareType(SHARE_FILE);
-        String recordName = selectedRecord.getRecordName();
         sp.setTitle(recordName);
         sp.setComment("hi");
         Bitmap bmp = BitmapFactory.decodeResource(MyApplication.getContext().getResources(), R.mipmap.ic_kang);
