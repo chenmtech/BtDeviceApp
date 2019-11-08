@@ -81,11 +81,11 @@ public class EcgSignalRecordFragment extends Fragment{
 
         ibRecord = view.findViewById(R.id.ib_ecg_record);
         // 根据设备的isRecord初始化Record按钮
-        setSignalRecordStatus(device.isRecording());
+        setSignalRecordStatus(device.isRecord());
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                device.setRecordStatus(!device.isRecording());
+                device.setRecord(!device.isRecord());
             }
         });
     }

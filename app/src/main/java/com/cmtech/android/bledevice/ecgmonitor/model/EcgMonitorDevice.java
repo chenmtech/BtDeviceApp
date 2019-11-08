@@ -10,6 +10,7 @@ import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
+import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.EcgDataProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.EcgHrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticProcessor;
@@ -94,10 +95,12 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
     private final EcgMonitorConfiguration config; // 心电监护仪的配置信息
     private final EcgDataProcessor dataProcessor; // 心电数据处理器,在其内部的单线程ExecutorService中执行
-    private EcgSignalRecorder signalRecorder; // 心电信号记录仪
     private EcgRecord ecgRecord; // 心电记录，可记录心电信号数据、用户留言和心率信息
     private ScheduledExecutorService batteryService; // 电池电量测量Service
     private OnEcgMonitorListener listener; // 心电监护仪监听器
+
+    private EcgNormalComment creatorComment; // 创建人留言；
+    private boolean isRecord = false; // 是否在记录信号
 
     // 心电监护仪监听器
     public interface OnEcgMonitorListener {
@@ -115,14 +118,6 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         void onHrStaticsInfoUpdated(EcgHrStatisticsInfo hrStaticsInfoAnalyzer); // 心率统计信息更新
         void onHrAbnormalNotified(); // 心率值异常通知
         void onBatteryUpdated(int bat); // 电池电量更新
-    }
-
-    public interface OnEcgSignalWebListener {
-        void onEcgSignalStarted(String sigId); // 启动信号获取，用sigId创建新的信号记录
-        void onEcgSignalParaSetup(int sampleRate, int caliValue); // 设置信号参数
-        void onEcgSignalStopped(String sigId); // 停止信号获取，保存记录
-        void onEcgSignalUpdated(int ecgSignal); // 更新心电信号
-        void onHrValueUpdated(short hrValue); // 更新心率值
     }
 
     // 构造器
@@ -147,14 +142,25 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         return leadType;
     }
     public int getValue1mV() { return value1mV; }
-    public boolean isRecording() {
-        return ((signalRecorder != null) && signalRecorder.isRecording());
+    public boolean isRecord() {
+        return ((ecgRecord != null) && isRecord);
     }
-    public synchronized void setRecordStatus(boolean record) {
-        if(signalRecorder != null && signalRecorder.isRecording() != record) {
+    public synchronized void setRecord(boolean record) {
+        if(ecgRecord != null && this.isRecord != record) {
             // 当前isRecord与要设置的isRecord不同，就意味着要改变当前的isRecord状态
-            signalRecorder.setRecording(record);
-            updateRecordStatus(record);
+            isRecord = record;
+            try {
+                if(isRecord) {
+                    ecgRecord.openSigFile();
+                    ecgRecord.writeData(getWave1mV());
+                    updateRecordSecond(ecgRecord.getRecordSecond());
+                } else {
+                    ecgRecord.closeSigFile();
+                }
+                updateRecordStatus(isRecord);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
     public void setSaveRecord(boolean saveRecord) {
@@ -178,9 +184,9 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         dataProcessor.resetHrAbnormalProcessor();
     }
     public int getRecordSecond() {
-        return (signalRecorder == null) ? 0 : signalRecorder.getSecond();
+        return (ecgRecord == null) ? 0 : ecgRecord.getRecordSecond();
     }
-    public long getRecordDataNum() { return (signalRecorder == null) ? 0 : signalRecorder.getDataNum(); }
+    public long getRecordDataNum() { return (ecgRecord == null) ? 0 : ecgRecord.getDataNum(); }
     public EcgRecord getEcgRecord() {
         return ecgRecord;
     }
@@ -274,11 +280,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             }
         }
 
-        // 关闭信号记录器
-        if(signalRecorder != null) {
-            signalRecorder.setRecording(false);
-            signalRecorder = null;
-        }
+        // 停止信号记录
+        setRecord(false);
 
         // 重置数据处理器
         dataProcessor.reset();
@@ -319,8 +322,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
     // 添加留言内容
     public synchronized void addCommentContent(String content) {
-        if(signalRecorder != null)
-            signalRecorder.addCommentContent(content);
+        if(creatorComment != null)
+            creatorComment.appendContent(content);
     }
 
     // 读采样率
@@ -515,9 +518,10 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
     public void updateSignalValue(final int ecgSignal) {
         // 记录
-        if(isRecording()) {
+        if(isRecord()) {
             try {
-                signalRecorder.record(ecgSignal);
+                ecgRecord.writeData(ecgSignal);
+                updateRecordSecond(ecgRecord.getRecordSecond());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -568,13 +572,13 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         // 创建心电记录文件
         if(ecgRecord == null) {
             ecgRecord = EcgRecord.create(AccountManager.getInstance().getAccount(), sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
+            ViseLog.e("ecgRecord: " + ecgRecord);
         }
 
-        ViseLog.e("ecgRecord: " + ecgRecord);
-
         // 创建心电信号记录仪
-        if(ecgRecord != null && signalRecorder == null) {
-            signalRecorder = new EcgSignalRecorder(this);
+        if(ecgRecord != null) {
+            creatorComment = EcgNormalComment.create();
+            ecgRecord.addComment(creatorComment);
         }
 
         // 输出1mV定标信号

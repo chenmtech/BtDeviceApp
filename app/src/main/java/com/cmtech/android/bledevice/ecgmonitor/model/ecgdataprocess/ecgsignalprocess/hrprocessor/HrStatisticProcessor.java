@@ -28,8 +28,8 @@ public class HrStatisticProcessor implements IHrProcessor {
         void onHrStatisticInfoUpdated(EcgHrStatisticsInfo hrInfoObject); // 心率统计信息更新
     }
 
-    public HrStatisticProcessor(int hrFilterTimeInSecond, OnHrStatisticInfoUpdatedListener listener) {
-        hrStatisticInfoAnalyzer = new EcgHrStatisticsInfo(hrFilterTimeInSecond);
+    public HrStatisticProcessor(int hrFilterTime, OnHrStatisticInfoUpdatedListener listener) {
+        hrStatisticInfoAnalyzer = new EcgHrStatisticsInfo(hrFilterTime);
         this.listener = listener;
     }
 

@@ -11,7 +11,6 @@ import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
-import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
@@ -62,13 +61,16 @@ public class EcgRecord extends LitePalSupport {
         sigFileName = "";
         dataNum = 0;
         sigRaf = null;
-        hrList = null;
-        commentList = null;
+        hrList = new ArrayList<>();
+        commentList = new ArrayList<>();
         isModify = false;
     }
 
     // 创建新记录
     public static EcgRecord create(User creator, int sampleRate, int caliValue, String deviceAddress, EcgLeadType leadType) {
+        if(creator == null) {
+            throw new NullPointerException("The creator is null.");
+        }
         EcgRecord record = new EcgRecord();
         record.createTime = new Date().getTime();
         record.creator = (User) creator.clone();
@@ -175,13 +177,11 @@ public class EcgRecord extends LitePalSupport {
                 record.closeSigFile();
                 // 读心率信息
                 int hrLen = raf.readInt();
-                record.hrList = new ArrayList<>();
                 for(int i = 0; i < hrLen; i++) {
                     record.hrList.add(raf.readShort());
                 }
                 // 写留言信息
                 int commentLen = raf.readInt();
-                record.commentList = new ArrayList<>();
                 for(int i = 0; i < commentLen; i++) {
                     record.commentList.add((EcgNormalComment) EcgCommentFactory.readFromStream(raf));
                 }
@@ -257,6 +257,10 @@ public class EcgRecord extends LitePalSupport {
     }
     public int getDataNum() {
         return dataNum;
+    }
+    // 获取记录的秒数
+    public int getRecordSecond() {
+        return dataNum /sampleRate;
     }
     public int getSampleRate() {
         return sampleRate;
