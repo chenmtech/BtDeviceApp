@@ -5,8 +5,8 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
-import com.cmtech.android.bledevice.viewcomponent.ColorRollWaveView;
+import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
+import com.cmtech.android.bledevice.view.ColorRollWaveView;
 
 import java.io.IOException;
 import java.util.ArrayList;

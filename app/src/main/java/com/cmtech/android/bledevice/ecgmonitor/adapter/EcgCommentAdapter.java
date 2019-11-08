@@ -12,7 +12,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment;
+import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;

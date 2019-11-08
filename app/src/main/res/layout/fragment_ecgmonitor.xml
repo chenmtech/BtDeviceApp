@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context = "com.cmtech.android.bledevice.ecgmonitor.view.EcgMonitorFragment">
+    tools:context = "com.cmtech.android.bledevice.ecgmonitor.fragment.EcgMonitorFragment">
 
     <!--采样率，导联和标定值显示，暂时不要-->
     <LinearLayout

@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.ecgfile.EcgAbnormal;
+import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgAbnormal;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.List;

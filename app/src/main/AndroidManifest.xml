@@ -31,7 +31,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:name">
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgRecordActivity"></activity>
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordActivity"></activity>
         <activity
             android:name=".activity.LoginActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -66,12 +66,12 @@
             android:label="设置设备注册信息"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity
-            android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgMonitorConfigureActivity"
+            android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorConfigureActivity"
             android:label="配置心电带设备"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity android:name="com.cmtech.android.bledevice.temphumid.view.TempHumidConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoConfigureActivity" />
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.view.EcgRecordExplorerActivity" />
+        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordExplorerActivity" />
         <activity android:name=".activity.UserActivity" />
 
         <service

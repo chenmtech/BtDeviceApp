@@ -3,7 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor.view;
 import android.content.Context;
 import android.util.AttributeSet;
 
-import com.cmtech.android.bledevice.viewcomponent.ScanWaveView;
+import com.cmtech.android.bledevice.view.ScanWaveView;
 
 public class ScanEcgView extends ScanWaveView {
     public static final int PIXEL_PER_GRID = 10; // 每个栅格包含的像素个数

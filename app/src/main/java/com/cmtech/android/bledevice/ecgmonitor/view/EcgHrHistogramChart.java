@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static com.cmtech.android.bledevice.ecgmonitor.model.ecgdataprocess.ecgsignalprocess.hrprocessor.HrStatisticsInfo.HrHistogramElement;
+import static com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo.HrHistogramElement;
 
 /**
  * HrStatisticProcessor: 心率直方图

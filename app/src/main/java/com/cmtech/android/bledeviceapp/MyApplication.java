@@ -7,7 +7,7 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.BleConfig;
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorFactory;
+import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorFactory;
 import com.cmtech.android.bledevice.siggenerator.model.SigGeneratorFactory;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;

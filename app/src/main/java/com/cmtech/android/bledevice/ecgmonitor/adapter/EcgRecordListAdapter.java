@@ -12,8 +12,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord;
-import com.cmtech.android.bledevice.ecgmonitor.view.EcgRecordExplorerActivity;
+import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;

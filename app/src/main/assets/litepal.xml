@@ -8,9 +8,9 @@
     <list>
         <mapping class="com.cmtech.android.bledeviceapp.model.User"/>
         <mapping class="com.cmtech.android.bledeviceapp.model.Account"/>
-        <mapping class="com.cmtech.android.bledevice.ecgmonitor.model.EcgMonitorConfiguration"/>
+        <mapping class="com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration"/>
         <mapping class="com.cmtech.android.bledevice.temphumid.model.TempHumidHistoryData"/>
-        <mapping class="com.cmtech.android.bledevice.ecgmonitor.model.ecgcomment.EcgNormalComment"/>
-        <mapping class="com.cmtech.android.bledevice.ecgmonitor.model.EcgRecord"/>
+        <mapping class="com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment"/>
+        <mapping class="com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord"/>
     </list>
 </litepal>
