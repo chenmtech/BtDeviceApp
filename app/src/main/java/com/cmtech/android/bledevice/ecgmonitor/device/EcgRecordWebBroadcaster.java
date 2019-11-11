@@ -52,8 +52,6 @@ public class EcgRecordWebBroadcaster {
         data.add(new Pair<>(TYPE_CODE_BROADCAST_ID, broadcastId));
         String dataUrl = createDataUrlString(data);
         HttpUtils.upload(dataUrl);
-
-        broadcastId = INVALID_BROADCAST_ID;
     }
 
     // 发送心电信号
