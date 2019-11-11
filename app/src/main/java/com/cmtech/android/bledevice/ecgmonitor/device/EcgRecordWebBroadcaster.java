@@ -28,9 +28,9 @@ public class EcgRecordWebBroadcaster implements IEcgRecordBroadcaster {
     private static final int TYPE_CODE_COMMENT_CONTENT = 11;
     private static final int TYPE_CODE_RECEIVER_ID = 12;
 
-    private static final String INVALID_BROADCAST_ID = "";
+    private static final String INVALID_BROADCAST_ID = ""; // 无效广播ID
 
-    private String broadcastId;
+    private String broadcastId; // 广播ID
 
     public EcgRecordWebBroadcaster() {
         broadcastId = INVALID_BROADCAST_ID;
