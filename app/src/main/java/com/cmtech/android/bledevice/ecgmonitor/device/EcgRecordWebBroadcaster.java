@@ -3,18 +3,14 @@ package com.cmtech.android.bledevice.ecgmonitor.device;
 import android.util.Log;
 import android.util.Pair;
 
-import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgRecordBroadcaster;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.Response;
 
-public class EcgRecordWebBroadcaster implements IEcgRecordBroadcaster {
+public class EcgRecordWebBroadcaster {
     private static final int TYPE_CODE_CREATE_CMD = 0;
     private static final int TYPE_CODE_STOP_CMD = 1;
     private static final int TYPE_CODE_BROADCAST_ID = 2;
@@ -31,16 +27,11 @@ public class EcgRecordWebBroadcaster implements IEcgRecordBroadcaster {
 
     private static final String INVALID_BROADCAST_ID = ""; // 无效广播ID
 
-    private String broadcastId; // 广播ID
-
-    public EcgRecordWebBroadcaster() {
-        broadcastId = INVALID_BROADCAST_ID;
+    private EcgRecordWebBroadcaster() {
     }
 
-    @Override
-    public void create(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
-        if(!broadcastId.equals(INVALID_BROADCAST_ID)) return;
-
+    // 创建一个心电记录广播
+    public static void create(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode, Callback callback) {
         List<Pair<Integer, String>> data = new ArrayList<>();
         data.add(new Pair<>(TYPE_CODE_CREATE_CMD, ""));
         data.add(new Pair<>(TYPE_CODE_DEVICE_ID, deviceId));
@@ -49,22 +40,11 @@ public class EcgRecordWebBroadcaster implements IEcgRecordBroadcaster {
         data.add(new Pair<>(TYPE_CODE_CALI_VALUE, String.valueOf(caliValue)));
         data.add(new Pair<>(TYPE_CODE_LEAD_TYPE, String.valueOf(leadTypeCode)));
         String urlData = createDataUrlString(data);
-        HttpUtils.upload(urlData, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                broadcastId = INVALID_BROADCAST_ID;
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                // 这里解析broadcastId
-                //broadcastId = ???
-            }
-        });
+        HttpUtils.upload(urlData, callback);
     }
 
-    @Override
-    public void stop() {
+    // 停止广播
+    public static void stop(String broadcastId) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
         List<Pair<Integer, String>> data = new ArrayList<>();
@@ -76,8 +56,8 @@ public class EcgRecordWebBroadcaster implements IEcgRecordBroadcaster {
         broadcastId = INVALID_BROADCAST_ID;
     }
 
-    @Override
-    public void sendEcgSignal(int ecgSignal) {
+    // 发送心电信号
+    public static void sendEcgSignal(String broadcastId, int ecgSignal) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
         List<Pair<Integer, String>> data = new ArrayList<>();
@@ -87,8 +67,8 @@ public class EcgRecordWebBroadcaster implements IEcgRecordBroadcaster {
         HttpUtils.upload(dataUrl);
     }
 
-    @Override
-    public void sendHrValue(short hr) {
+    // 发送心率值
+    public static void sendHrValue(String broadcastId, short hr) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
         List<Pair<Integer, String>> data = new ArrayList<>();
@@ -98,8 +78,8 @@ public class EcgRecordWebBroadcaster implements IEcgRecordBroadcaster {
         HttpUtils.upload(dataUrl);
     }
 
-    @Override
-    public void sendComment(String commenterId, String content) {
+    // 发送一条留言
+    public static void sendComment(String broadcastId, String commenterId, String content) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
         List<Pair<Integer, String>> data = new ArrayList<>();
@@ -110,8 +90,8 @@ public class EcgRecordWebBroadcaster implements IEcgRecordBroadcaster {
         HttpUtils.upload(dataUrl);
     }
 
-    @Override
-    public void addReceiver(String receiverId) {
+    // 添加一个接收者
+    public static void addReceiver(String broadcastId, String receiverId) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
         List<Pair<Integer, String>> data = new ArrayList<>();
