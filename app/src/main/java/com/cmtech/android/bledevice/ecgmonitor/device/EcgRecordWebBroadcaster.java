@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.device;
 
+import android.util.Log;
 import android.util.Pair;
 
 import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgRecordBroadcaster;
@@ -129,6 +130,8 @@ public class EcgRecordWebBroadcaster implements IEcgRecordBroadcaster {
             if(i != 0) builder.append("&");
             builder.append(ele.first).append("=").append(ele.second);
         }
-        return builder.toString();
+        String rlt = builder.toString();
+        Log.e("EcgRecordWebBroadcaster", "DataUrlString = " + rlt);
+        return rlt;
     }
 }
