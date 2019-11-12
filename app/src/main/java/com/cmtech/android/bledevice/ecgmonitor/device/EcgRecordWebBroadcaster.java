@@ -38,7 +38,9 @@ public class EcgRecordWebBroadcaster {
     private final int sampleRate;
     private final int caliValue;
     private final int leadTypeCode;
-    private final List<Integer> ecgData; // 心电数据缓存
+    private final List<Integer> ecgBuffer; // 心电缓存
+    private final List<Integer> hrBuffer; // 心率缓存
+    private volatile boolean sending;
 
     public EcgRecordWebBroadcaster(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
         this.broadcastId = INVALID_BROADCAST_ID;
@@ -47,7 +49,9 @@ public class EcgRecordWebBroadcaster {
         this.sampleRate = sampleRate;
         this.caliValue = caliValue;
         this.leadTypeCode = leadTypeCode;
-        this.ecgData = new ArrayList<>();
+        this.ecgBuffer = new ArrayList<>();
+        this.hrBuffer = new ArrayList<>();
+        sending = false;
     }
 
     // 启动广播
@@ -102,22 +106,40 @@ public class EcgRecordWebBroadcaster {
     public void sendEcgSignal(int ecgSignal) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
-        ecgData.add(ecgSignal);
-        if(ecgData.size() >= sampleRate)
-        {
-            String data = ConvertString(ecgData);
-            String sendData = "deviceId=" + broadcastId + "&type="+ String.valueOf(TYPE_CODE_ECG_SIGNAL)+"&data="+data;
-            HttpUtils.upload(sendData);
-            ecgData.clear();
-        }
+        ecgBuffer.add(ecgSignal);
+        send();
     }
 
     // 发送心率值
     public void sendHrValue(short hr) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
-        String sendData="deviceId="+broadcastId+ "&type="+ String.valueOf(TYPE_CODE_HR_VALUE)+"&data="+String.valueOf(hr);
-        HttpUtils.upload(sendData);
+        //String sendData="deviceId="+broadcastId+ "&type="+ String.valueOf(TYPE_CODE_HR_VALUE)+"&data="+String.valueOf(hr);
+        //HttpUtils.upload(sendData);
+
+        hrBuffer.add((int)hr);
+        send();
+    }
+
+    private void send() {
+        if(ecgBuffer.size() >= sampleRate && !sending) {
+            sending = true;
+            String data = ConvertString(ecgBuffer) + ConvertString(hrBuffer);
+            String sendData = "deviceId=" + broadcastId + "&type="+ String.valueOf(TYPE_CODE_ECG_SIGNAL)+"&data="+data;
+            HttpUtils.upload(sendData, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    sending = false;
+                }
+            });
+            ecgBuffer.clear();
+            hrBuffer.clear();
+        }
     }
 
     // 发送一条留言
