@@ -39,7 +39,7 @@ public class EcgRecordWebBroadcaster {
     private final int caliValue;
     private final int leadTypeCode;
     private final List<Integer> ecgBuffer; // 心电缓存
-    private final List<Integer> hrBuffer; // 心率缓存
+    private final List<Short> hrBuffer; // 心率缓存
     private volatile boolean sending;
 
     public EcgRecordWebBroadcaster(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
@@ -114,18 +114,18 @@ public class EcgRecordWebBroadcaster {
     public void sendHrValue(short hr) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
-        //String sendData="deviceId="+broadcastId+ "&type="+ String.valueOf(TYPE_CODE_HR_VALUE)+"&data="+String.valueOf(hr);
-        //HttpUtils.upload(sendData);
-
-        hrBuffer.add((int)hr);
+        hrBuffer.add(hr);
         send();
     }
 
     private void send() {
         if(ecgBuffer.size() >= sampleRate && !sending) {
             sending = true;
-            String data = ConvertString(ecgBuffer) + ConvertString(hrBuffer);
-            String sendData = "deviceId=" + broadcastId + "&type="+ String.valueOf(TYPE_CODE_ECG_SIGNAL)+"&data="+data;
+            String ecgStr = ConvertString(ecgBuffer);
+            String hrStr = ConvertString(hrBuffer);
+            String sendData = "deviceId=" + broadcastId +
+                    "&type="+ TYPE_CODE_ECG_SIGNAL+"&data="+ecgStr+
+                    "&type="+ TYPE_CODE_HR_VALUE+"&data="+hrStr;
             HttpUtils.upload(sendData, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
