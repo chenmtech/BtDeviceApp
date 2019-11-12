@@ -45,8 +45,8 @@ public class EcgRecordExplorer {
     public static final int ORDER_CREATE_TIME = 0; // 按创建时间排序
     public static final int ORDER_MODIFY_TIME = 1; // 按修改时间排序
 
-    private List<EcgRecord> recordList; // 心电记录列表
-    private List<EcgRecord> updatedRecords; // 已更新记录列表
+    private List<EcgRecord> allRecordList; // 所有心电记录列表
+    private List<EcgRecord> updatedRecordList; // 已更新记录列表
     private volatile EcgRecord selectedRecord; // 被选中的记录
     private final int recordOrder; // 记录排序方式
     private final OnEcgRecordsListener listener; // ECG记录监听器
@@ -54,15 +54,15 @@ public class EcgRecordExplorer {
     public interface OnEcgRecordsListener {
         void onRecordSelected(EcgRecord ecgRecord); // 记录选中
         void onRecordAdded(EcgRecord ecgRecord); // 记录添加
-        void onRecordListChanged(List<EcgRecord> recordList); // 记录列表改变
+        void onRecordListChanged(); // 记录列表改变
     }
 
     public EcgRecordExplorer(int recordOrder, OnEcgRecordsListener listener) {
         this.recordOrder = recordOrder;
         this.listener = listener;
-        updatedRecords = new ArrayList<>();
-        this.recordList = LitePal.findAll(EcgRecord.class, true);
-        ViseLog.e(recordList);
+        updatedRecordList = new ArrayList<>();
+        this.allRecordList = LitePal.findAll(EcgRecord.class, true);
+        ViseLog.e(allRecordList);
         sortRecords(recordOrder);
         List<User> users = LitePal.findAll(User.class);
         ViseLog.e(users);
@@ -70,8 +70,8 @@ public class EcgRecordExplorer {
 
     // 排序记录
     private void sortRecords(final int recordOrder) {
-        if(recordList != null && recordList.size() > 1) {
-            Collections.sort(recordList, new Comparator<EcgRecord>() {
+        if(allRecordList != null && allRecordList.size() > 1) {
+            Collections.sort(allRecordList, new Comparator<EcgRecord>() {
                 @Override
                 public int compare(EcgRecord o1, EcgRecord o2) {
                     long time1;
@@ -90,15 +90,15 @@ public class EcgRecordExplorer {
         }
     }
 
-    public List<EcgRecord> getRecordList() {
-        return recordList;
+    public List<EcgRecord> getAllRecordList() {
+        return allRecordList;
     }
-    public List<EcgRecord> getUpdatedRecords() {
-        return updatedRecords;
+    public List<EcgRecord> getUpdatedRecordList() {
+        return updatedRecordList;
     }
     public void addUpdatedRecord(EcgRecord record) {
-        if(!updatedRecords.contains(record)) {
-            updatedRecords.add(record);
+        if(!updatedRecordList.contains(record)) {
+            updatedRecordList.add(record);
         }
     }
     public EcgRecord getSelectedRecord() {
@@ -109,11 +109,7 @@ public class EcgRecordExplorer {
     public void selectRecord(EcgRecord record) {
         if(selectedRecord != record) {
             selectedRecord = record;
-            notifySelectedRecordChanged();
         }
-    }
-
-    private void notifySelectedRecordChanged() {
         if(listener != null) {
             listener.onRecordSelected(selectedRecord);
         }
@@ -125,7 +121,7 @@ public class EcgRecordExplorer {
             if(selectedRecord != null) {
                 FileUtil.deleteFile(new File(selectedRecord.getSigFileName()));
                 selectedRecord.delete();
-                if(recordList.remove(selectedRecord)) {
+                if(allRecordList.remove(selectedRecord)) {
                     notifyRecordListChanged();
                 }
                 selectRecord(null);
@@ -140,7 +136,7 @@ public class EcgRecordExplorer {
         List<EcgRecord> updatedRecords = importRecords(DIR_WECHAT_DOWNLOAD);
         if(updatedRecords != null && !updatedRecords.isEmpty()) {
             close();
-            this.updatedRecords.addAll(updatedRecords);
+            this.updatedRecordList.addAll(updatedRecords);
             sortRecords(recordOrder);
             notifyRecordListChanged();
             return true;
@@ -158,16 +154,16 @@ public class EcgRecordExplorer {
             try {
                 srcRecord = EcgRecord.load(file.getAbsolutePath());
                 if (srcRecord != null) {
-                    int index = recordList.indexOf(srcRecord);
+                    int index = allRecordList.indexOf(srcRecord);
                     if (index != -1) {
-                        EcgRecord destRecord = recordList.get(index);
+                        EcgRecord destRecord = allRecordList.get(index);
                         if (updateComments(srcRecord, destRecord)) {
                             destRecord.save();
                             updatedRecords.add(destRecord);
                         }
                     } else {
                         srcRecord.save();
-                        recordList.add(srcRecord);
+                        allRecordList.add(srcRecord);
                         updatedRecords.add(srcRecord);
                     }
                 }
@@ -200,15 +196,15 @@ public class EcgRecordExplorer {
     // 关闭管理器
     public synchronized void close() {
         selectRecord(null);
-        for(EcgRecord record : recordList) {
+        for(EcgRecord record : allRecordList) {
             try {
                 record.closeSigFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        recordList.clear();
-        updatedRecords.clear();
+        allRecordList.clear();
+        updatedRecordList.clear();
         notifyRecordListChanged();
     }
 
@@ -247,7 +243,7 @@ public class EcgRecordExplorer {
 
     private void notifyRecordListChanged() {
         if(listener != null) {
-            listener.onRecordListChanged(recordList);
+            listener.onRecordListChanged();
         }
     }
 }

@@ -63,7 +63,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvRecords.setLayoutManager(fileLayoutManager);
         rvRecords.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        recordAdapter = new EcgRecordListAdapter(this, explorer.getRecordList(), explorer.getUpdatedRecords(), explorer.getSelectedRecord());
+        recordAdapter = new EcgRecordListAdapter(this, explorer.getAllRecordList(), explorer.getUpdatedRecordList(), explorer.getSelectedRecord());
         rvRecords.setAdapter(recordAdapter);
         rvRecords.addOnScrollListener(new RecyclerView.OnScrollListener() {
             int lastVisibleItem;
@@ -90,7 +90,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无信号");
 
-        onRecordListChanged(explorer.getRecordList());
+        onRecordListChanged();
     }
 
     @Override
@@ -179,7 +179,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
     }
 
     public List<EcgRecord> getUpdatedRecords() {
-        return explorer.getUpdatedRecords();
+        return explorer.getUpdatedRecordList();
     }
 
     @Override
@@ -207,7 +207,8 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
     }
 
     @Override
-    public void onRecordListChanged(final List<EcgRecord> recordList) {
+    public void onRecordListChanged() {
+        final List<EcgRecord> recordList = explorer.getAllRecordList();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

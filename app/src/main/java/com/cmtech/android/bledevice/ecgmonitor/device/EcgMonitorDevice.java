@@ -153,15 +153,12 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     public synchronized void setRecord(boolean record) {
         if(ecgRecord != null && this.isRecord != record) {
             // 当前isRecord与要设置的isRecord不同，就意味着要改变当前的isRecord状态
-            isRecord = record;
             try {
-                if(isRecord) {
-                    ecgRecord.openSigFile();
+                if(record) {
                     ecgRecord.writeData(getWave1mV());
                     updateRecordSecond(ecgRecord.getRecordSecond());
-                } else {
-                    ecgRecord.closeSigFile();
                 }
+                isRecord = record;
                 updateRecordStatus(isRecord);
             } catch (IOException e) {
                 e.printStackTrace();

@@ -38,8 +38,8 @@ import java.util.List;
 
 public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdapter.ViewHolder>{
     private final EcgRecordExplorerActivity activity;
-    private final List<EcgRecord> recordList;
-    private final List<EcgRecord> updatedRecords;
+    private final List<EcgRecord> allRecordList;
+    private final List<EcgRecord> updatedRecordList;
     private EcgRecord selectedRecord;
     private Drawable defaultBackground; // 缺省背景
 
@@ -63,10 +63,10 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         }
     }
 
-    public EcgRecordListAdapter(EcgRecordExplorerActivity activity, List<EcgRecord> recordList, List<EcgRecord> updatedRecords, EcgRecord selectedRecord) {
+    public EcgRecordListAdapter(EcgRecordExplorerActivity activity, List<EcgRecord> allRecordList, List<EcgRecord> updatedRecordList, EcgRecord selectedRecord) {
         this.activity = activity;
-        this.recordList = recordList;
-        this.updatedRecords = updatedRecords;
+        this.allRecordList = allRecordList;
+        this.updatedRecordList = updatedRecordList;
         this.selectedRecord = selectedRecord;
     }
 
@@ -82,13 +82,13 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activity.selectRecord(recordList.get(holder.getAdapterPosition()));
+                activity.selectRecord(allRecordList.get(holder.getAdapterPosition()));
             }
         });
         holder.tvCreator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(MyApplication.getContext(), recordList.get(holder.getAdapterPosition()).getCreator().toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyApplication.getContext(), allRecordList.get(holder.getAdapterPosition()).getCreator().toString(), Toast.LENGTH_SHORT).show();
             }
         });
         return holder;
@@ -97,7 +97,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     @Override
     public void onBindViewHolder(@NonNull EcgRecordListAdapter.ViewHolder holder, final int position) {
         ViseLog.e("onBindViewHolder " + position);
-        EcgRecord record = recordList.get(position);
+        EcgRecord record = allRecordList.get(position);
         if(record == null) return;
 
         holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(record.getModifyTime()));
@@ -123,7 +123,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         int hrNum = record.getHrList().size();
         holder.tvHrNum.setText(String.valueOf(hrNum));
 
-        if (updatedRecords.contains(record)) {
+        if (updatedRecordList.contains(record)) {
             holder.tvModifyTime.setTextColor(Color.RED);
         } else {
             holder.tvModifyTime.setTextColor(Color.BLACK);
@@ -138,7 +138,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     }
     @Override
     public int getItemCount() {
-        return recordList.size();
+        return allRecordList.size();
     }
 
     public void updateRecordList() {
@@ -146,8 +146,8 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     }
 
     public void updateSelectedFile(EcgRecord selectFile) {
-        int beforePos = recordList.indexOf(this.selectedRecord);
-        int afterPos = recordList.indexOf(selectFile);
+        int beforePos = allRecordList.indexOf(this.selectedRecord);
+        int afterPos = allRecordList.indexOf(selectFile);
 
         if(beforePos != afterPos) {
             this.selectedRecord = selectFile;
@@ -166,6 +166,6 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     }
 
     public void clear() {
-        recordList.clear();
+        allRecordList.clear();
     }
 }
