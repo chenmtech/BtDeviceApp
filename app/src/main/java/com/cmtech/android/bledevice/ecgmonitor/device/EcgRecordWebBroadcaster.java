@@ -16,19 +16,19 @@ import okhttp3.Response;
 public class EcgRecordWebBroadcaster {
     private static final String TAG = "EcgRecordWebBroadcaster";
 
-    private static final int TYPE_CODE_CREATE_CMD = 0;
-    private static final int TYPE_CODE_STOP_CMD = 1;
-    private static final int TYPE_CODE_BROADCAST_ID = 2;
-    private static final int TYPE_CODE_DEVICE_ID = 3;
-    private static final int TYPE_CODE_CREATOR_ID = 4;
-    private static final int TYPE_CODE_SAMPLE_RATE = 5;
-    private static final int TYPE_CODE_CALI_VALUE = 6;
-    private static final int TYPE_CODE_LEAD_TYPE = 7;
-    private static final int TYPE_CODE_ECG_SIGNAL = 8;
-    private static final int TYPE_CODE_HR_VALUE = 9;
-    private static final int TYPE_CODE_COMMENTER_ID = 10;
-    private static final int TYPE_CODE_COMMENT_CONTENT = 11;
-    private static final int TYPE_CODE_RECEIVER_ID = 12;
+    private static final int TYPE_CODE_START_CMD = 0; // 启动命令
+    private static final int TYPE_CODE_STOP_CMD = 1; // 停止命令
+    private static final int TYPE_CODE_BROADCAST_ID = 2; // 广播ID
+    private static final int TYPE_CODE_DEVICE_ID = 3; // 设备ID
+    private static final int TYPE_CODE_CREATOR_ID = 4; // 创建者ID
+    private static final int TYPE_CODE_SAMPLE_RATE = 5; // 采样率
+    private static final int TYPE_CODE_CALI_VALUE = 6; // 标定值
+    private static final int TYPE_CODE_LEAD_TYPE = 7; // 导联类型
+    private static final int TYPE_CODE_ECG_SIGNAL = 8; // 心电信号
+    private static final int TYPE_CODE_HR_VALUE = 9; // 心率值
+    private static final int TYPE_CODE_COMMENTER_ID = 10; // 留言人ID
+    private static final int TYPE_CODE_COMMENT_CONTENT = 11; // 留言内容
+    private static final int TYPE_CODE_RECEIVER_ID = 12; // 接收者ID
 
     private static final String INVALID_BROADCAST_ID = ""; // 无效广播ID
 
@@ -38,7 +38,7 @@ public class EcgRecordWebBroadcaster {
     private final int sampleRate;
     private final int caliValue;
     private final int leadTypeCode;
-    private final List<Integer> ecgData;
+    private final List<Integer> ecgData; // 心电数据缓存
 
     public EcgRecordWebBroadcaster(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
         this.broadcastId = INVALID_BROADCAST_ID;
@@ -53,7 +53,7 @@ public class EcgRecordWebBroadcaster {
     // 启动广播
     public void start() {
         List<Pair<Integer, String>> data = new ArrayList<>();
-        data.add(new Pair<>(TYPE_CODE_CREATE_CMD, ""));
+        data.add(new Pair<>(TYPE_CODE_START_CMD, ""));
         data.add(new Pair<>(TYPE_CODE_DEVICE_ID, deviceId));
         data.add(new Pair<>(TYPE_CODE_CREATOR_ID, creatorId));
         data.add(new Pair<>(TYPE_CODE_SAMPLE_RATE, String.valueOf(sampleRate)));
