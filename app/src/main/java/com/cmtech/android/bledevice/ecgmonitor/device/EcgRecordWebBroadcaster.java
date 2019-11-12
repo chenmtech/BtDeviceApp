@@ -63,12 +63,13 @@ public class EcgRecordWebBroadcaster {
         HttpUtils.upload(urlData, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "broadcast start fail.");
                 broadcastId = INVALID_BROADCAST_ID;
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.e(TAG, "broadcast start success.");
+                Log.e(TAG, "broadcast started.");
                 // 这里解析Response中的broadcastId，暂时用deviceId代替
                 broadcastId = deviceId;
             }
@@ -86,11 +87,12 @@ public class EcgRecordWebBroadcaster {
         HttpUtils.upload(dataUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
+                Log.e(TAG, "broadcast stop fail.");
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                Log.e(TAG, "broadcast stopped.");
                 broadcastId = INVALID_BROADCAST_ID;
             }
         });
@@ -104,7 +106,7 @@ public class EcgRecordWebBroadcaster {
         if(ecgData.size() >= sampleRate)
         {
             String data = ConvertString(ecgData);
-            String sendData = "broadcastId=" + broadcastId + "&type="+ String.valueOf(TYPE_CODE_ECG_SIGNAL)+"&data="+data;
+            String sendData = "deviceId=" + broadcastId + "&type="+ String.valueOf(TYPE_CODE_ECG_SIGNAL)+"&data="+data;
             HttpUtils.upload(sendData);
             ecgData.clear();
         }
@@ -114,7 +116,7 @@ public class EcgRecordWebBroadcaster {
     public void sendHrValue(short hr) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
-        String sendData="broadcastId="+broadcastId+ "&type="+ String.valueOf(TYPE_CODE_HR_VALUE)+"&data="+String.valueOf(hr);
+        String sendData="deviceId="+broadcastId+ "&type="+ String.valueOf(TYPE_CODE_HR_VALUE)+"&data="+String.valueOf(hr);
         HttpUtils.upload(sendData);
     }
 

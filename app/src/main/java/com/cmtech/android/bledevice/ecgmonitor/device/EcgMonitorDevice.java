@@ -10,13 +10,14 @@ import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
-import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
-import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.process.EcgDataProcessor;
-import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
-import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
+import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
+import com.cmtech.android.bledevice.ecgmonitor.process.EcgDataProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticProcessor;
+import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
+import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
+import com.cmtech.android.bledevice.ecgmonitor.util.EcgMonitorUtil;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
@@ -31,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 
 import static com.cmtech.android.ble.BleConfig.CCC_UUID;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG_SIGNAL;
-import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.ecgmonitor.fragment.EcgMonitorFragment.ZERO_LOCATION_IN_ECG_VIEW;
+import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.PIXEL_PER_GRID;
 import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.SECOND_PER_GRID;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
@@ -103,6 +104,8 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
     private EcgNormalComment creatorComment; // 创建人留言；
     private boolean isRecord = false; // 是否在记录信号
+
+    private EcgRecordWebBroadcaster webBroadcaster;
 
     // 心电监护仪监听器
     public interface OnEcgMonitorListener {
@@ -286,7 +289,14 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         setRecord(false);
 
         // 重置数据处理器
-        dataProcessor.reset();
+        if(dataProcessor != null)
+            dataProcessor.reset();
+
+        // 停止广播
+        if(webBroadcaster != null) {
+            webBroadcaster.stop();
+            webBroadcaster = null;
+        }
 
         super.close();
     }
@@ -527,19 +537,32 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
                 e.printStackTrace();
             }
         }
+
         // 显示
         if(listener != null) {
             listener.onEcgSignalUpdated(ecgSignal);
         }
+
+        // 广播
+        if(webBroadcaster != null) {
+            webBroadcaster.sendEcgSignal(ecgSignal);
+        }
     }
 
     public void updateHrValue(final short hr) {
+        // 记录
         if(ecgRecord != null) {
             ecgRecord.addHr(hr);
         }
 
+        // 显示
         if(listener != null) {
             listener.onHrUpdated(hr);
+        }
+
+        // 广播
+        if(webBroadcaster != null) {
+            webBroadcaster.sendHrValue(hr);
         }
     }
 
@@ -574,21 +597,26 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         // 重置Ecg信号处理器
         dataProcessor.resetSignalProcessor();
 
-        // 创建心电记录文件
+        // 创建心电记录
         if(ecgRecord == null) {
             ecgRecord = EcgRecord.create(AccountManager.getInstance().getAccount(), sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
-            ViseLog.e("ecgRecord: " + ecgRecord);
+            if(ecgRecord != null) {
+                ViseLog.e("ecgRecord: " + ecgRecord);
+                try {
+                    ecgRecord.openSigFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                creatorComment = EcgNormalComment.create();
+                ecgRecord.addComment(creatorComment);
+            }
         }
 
-        // 创建心电信号记录仪
-        if(ecgRecord != null) {
-            try {
-                ecgRecord.openSigFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            creatorComment = EcgNormalComment.create();
-            ecgRecord.addComment(creatorComment);
+        if(webBroadcaster == null) {
+            webBroadcaster = new EcgRecordWebBroadcaster(EcgMonitorUtil.noColon(getMacAddress()),
+                    AccountManager.getInstance().getAccount().getPhone(),
+                    sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, leadType.getCode());
+            webBroadcaster.start();
         }
 
         // 输出1mV定标信号
