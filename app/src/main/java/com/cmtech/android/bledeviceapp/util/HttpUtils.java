@@ -10,7 +10,7 @@ import okhttp3.Response;
 
 
 public class HttpUtils {
-    public static final  String  upload_url="http://huawei.tighoo.com/home/upload";
+    public static final  String  upload_url="http://huawei.tighoo.com/home/upload?";
 
     public static void Get(String url, Callback callback) throws Exception {
         OkHttpClient client  = new OkHttpClient();

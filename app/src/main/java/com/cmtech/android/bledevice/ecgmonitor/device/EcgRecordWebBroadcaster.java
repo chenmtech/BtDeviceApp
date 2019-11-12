@@ -5,12 +5,17 @@ import android.util.Pair;
 
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Response;
 
 public class EcgRecordWebBroadcaster {
+    private static final String TAG = "EcgRecordWebBroadcaster";
+
     private static final int TYPE_CODE_CREATE_CMD = 0;
     private static final int TYPE_CODE_STOP_CMD = 1;
     private static final int TYPE_CODE_BROADCAST_ID = 2;
@@ -27,11 +32,26 @@ public class EcgRecordWebBroadcaster {
 
     private static final String INVALID_BROADCAST_ID = ""; // 无效广播ID
 
-    private EcgRecordWebBroadcaster() {
+    private String broadcastId;
+    private final String deviceId;
+    private final String creatorId;
+    private final int sampleRate;
+    private final int caliValue;
+    private final int leadTypeCode;
+    private final List<Integer> ecgData;
+
+    public EcgRecordWebBroadcaster(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
+        this.broadcastId = INVALID_BROADCAST_ID;
+        this.deviceId = deviceId;
+        this.creatorId = creatorId;
+        this.sampleRate = sampleRate;
+        this.caliValue = caliValue;
+        this.leadTypeCode = leadTypeCode;
+        this.ecgData = new ArrayList<>();
     }
 
-    // 创建一个心电记录广播
-    public static void create(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode, Callback callback) {
+    // 启动广播
+    public void start() {
         List<Pair<Integer, String>> data = new ArrayList<>();
         data.add(new Pair<>(TYPE_CODE_CREATE_CMD, ""));
         data.add(new Pair<>(TYPE_CODE_DEVICE_ID, deviceId));
@@ -40,44 +60,66 @@ public class EcgRecordWebBroadcaster {
         data.add(new Pair<>(TYPE_CODE_CALI_VALUE, String.valueOf(caliValue)));
         data.add(new Pair<>(TYPE_CODE_LEAD_TYPE, String.valueOf(leadTypeCode)));
         String urlData = createDataUrlString(data);
-        HttpUtils.upload(urlData, callback);
+        HttpUtils.upload(urlData, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                broadcastId = INVALID_BROADCAST_ID;
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.e(TAG, "broadcast start success.");
+                // 这里解析Response中的broadcastId，暂时用deviceId代替
+                broadcastId = deviceId;
+            }
+        });
     }
 
     // 停止广播
-    public static void stop(String broadcastId) {
+    public void stop() {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
         List<Pair<Integer, String>> data = new ArrayList<>();
         data.add(new Pair<>(TYPE_CODE_STOP_CMD, ""));
         data.add(new Pair<>(TYPE_CODE_BROADCAST_ID, broadcastId));
         String dataUrl = createDataUrlString(data);
-        HttpUtils.upload(dataUrl);
+        HttpUtils.upload(dataUrl, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                broadcastId = INVALID_BROADCAST_ID;
+            }
+        });
     }
 
     // 发送心电信号
-    public static void sendEcgSignal(String broadcastId, int ecgSignal) {
+    public void sendEcgSignal(int ecgSignal) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
-        List<Pair<Integer, String>> data = new ArrayList<>();
-        data.add(new Pair<>(TYPE_CODE_BROADCAST_ID, broadcastId));
-        data.add(new Pair<>(TYPE_CODE_ECG_SIGNAL, String.valueOf(ecgSignal)));
-        String dataUrl = createDataUrlString(data);
-        HttpUtils.upload(dataUrl);
+        ecgData.add(ecgSignal);
+        if(ecgData.size() >= sampleRate)
+        {
+            String data = ConvertString(ecgData);
+            String sendData = "broadcastId=" + broadcastId + "&type="+ String.valueOf(TYPE_CODE_ECG_SIGNAL)+"&data="+data;
+            HttpUtils.upload(sendData);
+            ecgData.clear();
+        }
     }
 
     // 发送心率值
-    public static void sendHrValue(String broadcastId, short hr) {
+    public void sendHrValue(short hr) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
-        List<Pair<Integer, String>> data = new ArrayList<>();
-        data.add(new Pair<>(TYPE_CODE_BROADCAST_ID, broadcastId));
-        data.add(new Pair<>(TYPE_CODE_HR_VALUE, String.valueOf(hr)));
-        String dataUrl = createDataUrlString(data);
-        HttpUtils.upload(dataUrl);
+        String sendData="broadcastId="+broadcastId+ "&type="+ String.valueOf(TYPE_CODE_HR_VALUE)+"&data="+String.valueOf(hr);
+        HttpUtils.upload(sendData);
     }
 
     // 发送一条留言
-    public static void sendComment(String broadcastId, String commenterId, String content) {
+    public void sendComment(String commenterId, String content) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
         List<Pair<Integer, String>> data = new ArrayList<>();
@@ -89,7 +131,7 @@ public class EcgRecordWebBroadcaster {
     }
 
     // 添加一个接收者
-    public static void addReceiver(String broadcastId, String receiverId) {
+    public void addReceiver(String receiverId) {
         if(broadcastId.equals(INVALID_BROADCAST_ID)) return;
 
         List<Pair<Integer, String>> data = new ArrayList<>();
@@ -111,5 +153,19 @@ public class EcgRecordWebBroadcaster {
         String rlt = builder.toString();
         Log.e("EcgRecordWebBroadcaster", "DataUrlString = " + rlt);
         return rlt;
+    }
+
+    private  static String ConvertString(List list)
+    {
+        if(list == null || list.isEmpty())
+        {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i=0;i<list.size();i++)
+        {
+            sb.append(list.get(i)+",");
+        }
+        return sb.toString();
     }
 }
