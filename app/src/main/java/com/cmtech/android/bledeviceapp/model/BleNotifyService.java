@@ -138,9 +138,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
         super.onDestroy();
 
         for(final BleDevice device : BleDeviceManager.getDeviceList()) {
-            if(device.getBleGatt() != null) {
-                device.getBleGatt().clear();
-            }
+            device.clear();
             device.removeListener(BleNotifyService.this);
             //device.close();
         }
