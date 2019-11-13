@@ -25,9 +25,9 @@ public class EcgRecordWebReceiver {
 
     private static final String download_url = "http://huawei.tighoo.com/home/download?";
     private final String receiverId;
-    private EcgRecordWebListener listener;
+    private IEcgRecordWebListener listener;
 
-    public interface EcgRecordWebListener {
+    public interface IEcgRecordWebListener {
         void onBroadcastIdListRetrievd(List<String> broadcastIdList);
         void onBroadcastInfoRead(String broadcastId, String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode);
         void onDataReceived(List<EcgDataPacket> dataList);
@@ -55,11 +55,11 @@ public class EcgRecordWebReceiver {
         this.receiverId = receiverId;
     }
 
-    public EcgRecordWebListener getListener() {
+    public IEcgRecordWebListener getListener() {
         return listener;
     }
 
-    public void setListener(EcgRecordWebListener listener) {
+    public void setListener(IEcgRecordWebListener listener) {
         this.listener = listener;
     }
 
