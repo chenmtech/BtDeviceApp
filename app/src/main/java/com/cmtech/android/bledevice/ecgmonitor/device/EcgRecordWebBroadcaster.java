@@ -29,6 +29,7 @@ public class EcgRecordWebBroadcaster {
     private static final int TYPE_CODE_COMMENTER_ID = 10; // 留言人ID
     private static final int TYPE_CODE_COMMENT_CONTENT = 11; // 留言内容
     private static final int TYPE_CODE_RECEIVER_ID = 12; // 接收者ID
+    private static final int TYPE_CODE_DATA = 13;
 
     private static final String INVALID_BROADCAST_ID = ""; // 无效广播ID
 
@@ -123,22 +124,21 @@ public class EcgRecordWebBroadcaster {
             sending = true;
             String ecgStr = ConvertString(ecgBuffer);
             String hrStr = ConvertString(hrBuffer);
-            String sendData = "deviceId=" + broadcastId +
-                    "&type="+ TYPE_CODE_ECG_SIGNAL+"&data="+ecgStr+
-                    "&type="+ TYPE_CODE_HR_VALUE+"&data="+hrStr;
+            String sendData = "type=" + TYPE_CODE_DATA + "&deviceId=" + broadcastId +
+                    "&data="+hrStr+";"+ecgStr;
             HttpUtils.upload(sendData, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-
+                    sending = false;
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     sending = false;
+                    ecgBuffer.clear();
+                    hrBuffer.clear();
                 }
             });
-            ecgBuffer.clear();
-            hrBuffer.clear();
         }
     }
 

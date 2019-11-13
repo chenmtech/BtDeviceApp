@@ -65,7 +65,9 @@ public class EcgRecordExplorer {
         ViseLog.e(allRecordList);
         sortRecords(recordOrder);
         List<User> users = LitePal.findAll(User.class);
+        List<EcgNormalComment> normalComments = LitePal.findAll(EcgNormalComment.class);
         ViseLog.e(users);
+        ViseLog.e(normalComments);
     }
 
     // 排序记录

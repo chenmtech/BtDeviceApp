@@ -17,6 +17,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,7 +40,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     private final OnEcgCommentListener listener; // 留言监听器
 
     public interface OnEcgCommentListener {
-        void onSelectedCommentSaved(); // 保存选中留言
+        void onCommentSaved(EcgNormalComment comment); // 保存留言
         void onCommentDeleted(EcgNormalComment comment); // 删除留言
     }
 
@@ -61,8 +62,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     }
 
     public EcgCommentAdapter(List<EcgNormalComment> commentList, OnEcgCommentListener listener) {
-        if(commentList == null) this.commentList = new ArrayList<>();
-        else this.commentList = commentList;
+        this.commentList = commentList;
         this.listener = listener;
     }
 
@@ -92,7 +92,9 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
                     comment.setContent(holder.etContent.getText().toString());
                     long modifyTime = new Date().getTime();
                     comment.setModifyTime(modifyTime);
-                    listener.onSelectedCommentSaved();
+                    comment.save();
+                    ViseLog.e(comment);
+                    listener.onCommentSaved(comment);
                     holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime));
                 }
             }

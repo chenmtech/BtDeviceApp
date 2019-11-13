@@ -11,6 +11,7 @@ import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
 
+import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
@@ -274,6 +275,7 @@ public class EcgRecord extends LitePalSupport {
         return caliValue;
     }
     public List<EcgNormalComment> getCommentList() {
+        commentList = LitePal.where("ecgrecord_id = ?", String.valueOf(id)).find(EcgNormalComment.class);
         return commentList;
     }
     // 添加一条留言

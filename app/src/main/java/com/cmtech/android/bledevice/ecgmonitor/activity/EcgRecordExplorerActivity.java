@@ -233,10 +233,13 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
                 if(resultCode == RESULT_OK) {
                     boolean updated = data.getBooleanExtra("updated", false);
                     if(updated) {
-                        explorer.getSelectedRecord().save();
+                        //explorer.getSelectedRecord().save();
                         explorer.addUpdatedRecord(explorer.getSelectedRecord());
                         recordAdapter.updateRecordList();
                     }
+                    //explorer.getSelectedRecord().save();
+                    //explorer.addUpdatedRecord(explorer.getSelectedRecord());
+                    //recordAdapter.updateRecordList();
                 }
                 break;
 

@@ -30,6 +30,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
@@ -41,8 +42,6 @@ import static com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalPr
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalProcessor.HR_HISTOGRAM_BAR_NUM;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener{
-    public static final double ZERO_LOCATION_IN_ECG_VIEW = 0.5;
-
     private EcgRecord record;
     private long modifyTime;
 
@@ -75,6 +74,11 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         int recordId = getIntent().getIntExtra("record_id", -1);
         try {
             record = LitePal.find(EcgRecord.class, recordId, true);
+            ViseLog.e(record);
+            if(record == null) {
+                setResult(RESULT_CANCELED);
+                finish();
+            }
             record.openSigFile();
         } catch (IOException e) {
             e.printStackTrace();
@@ -98,8 +102,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         commentLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvComments.setLayoutManager(commentLayoutManager);
         rvComments.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        commentAdapter = new EcgCommentAdapter(null, this);
+        commentAdapter = new EcgCommentAdapter(record.getCommentList(), this);
         rvComments.setAdapter(commentAdapter);
+
         tvCurrentTime = findViewById(R.id.tv_current_time);
         tvTotalTime = findViewById(R.id.tv_total_time);
         btnReplayCtrl = findViewById(R.id.ib_replay_control);
@@ -150,36 +155,42 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             tvCreator.setText(Html.fromHtml("<u>" + record.getCreatorName() + "</u>"));
         }
 
-        String createdTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
-        tvCreateTime.setText(createdTime);
+        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
+        tvCreateTime.setText(createTime);
 
+        int second = record.getDataNum()/ record.getSampleRate();
         if(record.getDataNum() == 0) {
             tvLength.setText("无");
         } else {
-            String dataTimeLength = DateTimeUtil.secToTimeInChinese(record.getDataNum() / record.getSampleRate());
-            tvLength.setText(dataTimeLength);
+            String timeLength = DateTimeUtil.secToTimeInChinese(second);
+            tvLength.setText(timeLength);
         }
 
         int hrNum = record.getHrList().size();
         tvHrNum.setText(String.valueOf(hrNum));
 
         initEcgView(record);
-        int secondInSignal = record.getDataNum()/ record.getSampleRate();
-        tvCurrentTime.setText(DateTimeUtil.secToTime(0));
-        tvTotalTime.setText(DateTimeUtil.secToTime(secondInSignal));
-        sbReplay.setMax(secondInSignal);
 
-        List<EcgNormalComment> commentList = getCommentListInRecord(record);
+        tvCurrentTime.setText(DateTimeUtil.secToTime(0));
+        tvTotalTime.setText(DateTimeUtil.secToTime(second));
+        sbReplay.setMax(second);
+
+        /*List<EcgNormalComment> commentList = getCommentListInRecord(record);
         commentAdapter.updateCommentList(commentList);
         if(commentList.size() > 0)
-            rvComments.smoothScrollToPosition(0);
+            rvComments.smoothScrollToPosition(0);*/
 
-        signalView.startShow();
+        HrStatisticsInfo hrStatisticsInfo = new HrStatisticsInfo(record.getHrList(), HR_FILTER_SECOND);
+        tvAverageHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
+        tvMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
+        hrLineChart.showLineChart(hrStatisticsInfo.getFilteredHrList(), "心率时序图", Color.BLUE);
+        hrHistChart.update(hrStatisticsInfo.getNormHistogram(HR_HISTOGRAM_BAR_NUM));
 
         if(record.getDataNum() == 0) {
             signalLayout.setVisibility(View.GONE);
         } else {
             signalLayout.setVisibility(View.VISIBLE);
+            signalView.startShow();
         }
 
         if(record.getHrList().isEmpty()) {
@@ -187,18 +198,12 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         } else {
             hrLayout.setVisibility(View.VISIBLE);
         }
-
-        HrStatisticsInfo hrStatisticsInfo = new HrStatisticsInfo(record.getHrList(), HR_FILTER_SECOND);
-        tvAverageHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
-        tvMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
-        hrLineChart.showLineChart(hrStatisticsInfo.getFilteredHrList(), "心率时序图", Color.BLUE);
-        hrHistChart.update(hrStatisticsInfo.getNormHistogram(HR_HISTOGRAM_BAR_NUM));
     }
 
     private void initEcgView(EcgRecord ecgRecord) {
         if(ecgRecord == null) return;
         signalView.setEcgRecord(ecgRecord);
-        signalView.setZeroLocation(ZERO_LOCATION_IN_ECG_VIEW);
+        signalView.setZeroLocation(RollWaveView.DEFAULT_ZERO_LOCATION);
     }
 
     // 获取选中记录的留言列表，如果没有当前账户的留言，就加入一条当前账户的留言
@@ -239,11 +244,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     @Override
-    public void onSelectedCommentSaved() {
-        if(record != null) {
-            record.save();
-            tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(record.getModifyTime()));
-        }
+    public void onCommentSaved(EcgNormalComment comment) {
+        modifyTime = comment.getModifyTime();
+        tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime));
     }
 
     @Override
