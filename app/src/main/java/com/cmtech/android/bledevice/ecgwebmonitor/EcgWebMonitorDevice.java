@@ -193,7 +193,7 @@ public class EcgWebMonitorDevice extends EcgMonitorDevice {
         }
 
         if(webBroadcaster == null) {
-            webBroadcaster = new EcgRecordWebBroadcaster(EcgMonitorUtil.noColon(getAddress()),
+            webBroadcaster = new EcgRecordWebBroadcaster(EcgMonitorUtil.deleteColon(getAddress()),
                     AccountManager.getInstance().getAccount().getPhone(),
                     sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, leadType.getCode());
             webBroadcaster.start();

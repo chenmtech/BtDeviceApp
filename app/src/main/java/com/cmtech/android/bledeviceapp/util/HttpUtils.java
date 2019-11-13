@@ -10,9 +10,7 @@ import okhttp3.Response;
 
 
 public class HttpUtils {
-    public static final  String  upload_url="http://huawei.tighoo.com/home/upload?";
-
-    public static void Get(String url, Callback callback) throws Exception {
+    public static void Get(String url, Callback callback) {
         OkHttpClient client  = new OkHttpClient();
         Request request = new Request.Builder()
                 .get() //请求参数
@@ -22,10 +20,10 @@ public class HttpUtils {
         client.newCall(request).enqueue(callback);
     }
 
-    public  static  String  upload(String data,Callback callback)
+    public  static  String  upload(String data, Callback callback)
     {
         String result="OK";
-        String url =  upload_url + data;
+        String url = data;
         try {
             Get(url, callback);
             return result;
@@ -44,10 +42,10 @@ public class HttpUtils {
              }
 
              @Override
-             public void onResponse(Call call, Response response) throws IOException {
+             public void onResponse(Call call, Response response) {
 
              }
-        });
+         });
          return result;
     }
 }

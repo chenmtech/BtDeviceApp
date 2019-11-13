@@ -69,7 +69,7 @@ public class EcgRecord extends LitePalSupport {
             throw new NullPointerException("The creator is null.");
         }
         EcgRecord record = new EcgRecord();
-        record.deviceAddress = EcgMonitorUtil.noColon(deviceAddress);
+        record.deviceAddress = EcgMonitorUtil.deleteColon(deviceAddress);
         record.createTime = new Date().getTime();
         record.creator = (User) creator.clone();
         record.modifyTime = record.createTime;

@@ -15,6 +15,7 @@ import okhttp3.Response;
 
 public class EcgRecordWebBroadcaster {
     private static final String TAG = "EcgRecordWebBroadcaster";
+    public static final  String  upload_url = "http://huawei.tighoo.com/home/upload?";
 
     private static final int TYPE_CODE_START_CMD = 0; // 启动命令
     private static final int TYPE_CODE_STOP_CMD = 1; // 停止命令
@@ -65,7 +66,7 @@ public class EcgRecordWebBroadcaster {
         data.add(new Pair<>(TYPE_CODE_CALI_VALUE, String.valueOf(caliValue)));
         data.add(new Pair<>(TYPE_CODE_LEAD_TYPE, String.valueOf(leadTypeCode)));
         String urlData = createDataUrlString(data);
-        HttpUtils.upload(urlData, new Callback() {
+        HttpUtils.upload(upload_url + urlData, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "broadcast start fail.");
@@ -89,7 +90,7 @@ public class EcgRecordWebBroadcaster {
         data.add(new Pair<>(TYPE_CODE_STOP_CMD, ""));
         data.add(new Pair<>(TYPE_CODE_BROADCAST_ID, broadcastId));
         String dataUrl = createDataUrlString(data);
-        HttpUtils.upload(dataUrl, new Callback() {
+        HttpUtils.upload(upload_url + dataUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "broadcast stop fail.");
@@ -126,7 +127,7 @@ public class EcgRecordWebBroadcaster {
             String hrStr = ConvertString(hrBuffer);
             String sendData = "type=" + TYPE_CODE_DATA + "&deviceId=" + broadcastId +
                     "&data="+hrStr+";"+ecgStr;
-            HttpUtils.upload(sendData, new Callback() {
+            HttpUtils.upload(upload_url + sendData, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     sending = false;
@@ -151,7 +152,7 @@ public class EcgRecordWebBroadcaster {
         data.add(new Pair<>(TYPE_CODE_COMMENTER_ID, commenterId));
         data.add(new Pair<>(TYPE_CODE_COMMENT_CONTENT, content));
         String dataUrl = createDataUrlString(data);
-        HttpUtils.upload(dataUrl);
+        HttpUtils.upload(upload_url + dataUrl);
     }
 
     // 添加一个接收者
@@ -162,7 +163,7 @@ public class EcgRecordWebBroadcaster {
         data.add(new Pair<>(TYPE_CODE_BROADCAST_ID, broadcastId));
         data.add(new Pair<>(TYPE_CODE_RECEIVER_ID, receiverId));
         String dataUrl = createDataUrlString(data);
-        HttpUtils.upload(dataUrl);
+        HttpUtils.upload(upload_url + dataUrl);
     }
 
     private static String createDataUrlString(List<Pair<Integer, String>> data) {
