@@ -12,8 +12,8 @@ import com.cmtech.android.bledeviceapp.R;
 public class EcgMonitorFactory extends BleFactory {
     private static final String ECGMONITOR_UUID = "aa40"; // 设备支持的服务UUID短串
     private static final String ECGMONITOR_DEFAULT_NAME = "心电带"; // 缺省设备名
-    private static final int ECGMONITOR_DEFAULT_IMAGE_ID = R.drawable.ic_ecgmonitor_defaultimage; // 缺省图标ID
-    private static final String ECGMONITOR_FACTORY = "com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorFactory"; // 工厂类名
+    private static final int ECGMONITOR_DEFAULT_IMAGE_ID = R.drawable.ic_ecgmonitor_default_image; // 缺省图标ID
+    private static final String ECGMONITOR_FACTORY = EcgMonitorFactory.class.getName();//"com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorFactory"; // 工厂类名
 
     public static final BleDeviceType ECGMONITOR_DEVICE_TYPE = new BleDeviceType(ECGMONITOR_UUID, ECGMONITOR_DEFAULT_IMAGE_ID, ECGMONITOR_DEFAULT_NAME, ECGMONITOR_FACTORY);
 

@@ -126,7 +126,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
     }
 
     // 构造器
-    EcgMonitorDevice(BleDeviceRegisterInfo registerInfo) {
+    public EcgMonitorDevice(BleDeviceRegisterInfo registerInfo) {
         super(registerInfo);
 
         // 从数据库获取设备的配置信息
