@@ -118,7 +118,7 @@ public class BleNotifyService extends Service implements BleDevice.OnBleDeviceLi
         List<String> notifyContents = new ArrayList<>();
         for(BleDevice dev : BleDeviceManager.getDeviceList()) {
             if(!dev.isClosed()) {
-                notifyContents.add(dev.getMacAddress() + ": " + dev.getStateDescription());
+                notifyContents.add(dev.getAddress() + ": " + dev.getStateDescription());
             }
         }
         Notification notification = createNotification(notifyContents);

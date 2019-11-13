@@ -41,7 +41,7 @@ public class BleDeviceManager {
         Collections.sort(DEVICE_LIST, new Comparator<BleDevice>() {
             @Override
             public int compare(BleDevice o1, BleDevice o2) {
-                return o1.getMacAddress().compareTo(o2.getMacAddress());
+                return o1.getAddress().compareTo(o2.getAddress());
             }
         });
         return device;
@@ -56,7 +56,7 @@ public class BleDeviceManager {
     public static BleDevice findDevice(String macAddress) {
         if(TextUtils.isEmpty(macAddress)) return null;
         for(BleDevice device : DEVICE_LIST) {
-            if(macAddress.equalsIgnoreCase(device.getMacAddress())) {
+            if(macAddress.equalsIgnoreCase(device.getAddress())) {
                 return device;
             }
         }
@@ -82,7 +82,7 @@ public class BleDeviceManager {
     public static List<String> getDeviceMacList() {
         List<String> deviceMacList = new ArrayList<>();
         for(BleDevice device : DEVICE_LIST) {
-            deviceMacList.add(device.getMacAddress());
+            deviceMacList.add(device.getAddress());
         }
         return deviceMacList;
     }

@@ -289,7 +289,7 @@ public class TempHumidDevice extends BleDevice {
     // 将一个数据保存到数据库中
     private void saveDataToDb(TempHumidData data) {
         TempHumidHistoryData historyData = new TempHumidHistoryData();
-        historyData.setMacAddress(getMacAddress());
+        historyData.setMacAddress(getAddress());
         historyData.setTimeInMillis(data.getTime().getTimeInMillis());
         historyData.setTemp(data.getTemp());
         historyData.setHumid(data.getHumid());
@@ -302,7 +302,7 @@ public class TempHumidDevice extends BleDevice {
         time.add(Calendar.DAY_OF_MONTH, -1);
         long timeInMillis = time.getTimeInMillis();
 
-        List<TempHumidHistoryData> historyDataList = LitePal.where("macAddress = ? and timeInMillis > ?", getMacAddress(), String.valueOf(timeInMillis)).
+        List<TempHumidHistoryData> historyDataList = LitePal.where("macAddress = ? and timeInMillis > ?", getAddress(), String.valueOf(timeInMillis)).
                 order("timeInMillis desc").find(TempHumidHistoryData.class);
         if(historyDataList.isEmpty()) {
             timeLastUpdated = null;

@@ -596,7 +596,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
 
         // 创建心电记录
         if(ecgRecord == null) {
-            ecgRecord = EcgRecord.create(AccountManager.getInstance().getAccount(), sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getMacAddress(), leadType);
+            ecgRecord = EcgRecord.create(AccountManager.getInstance().getAccount(), sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), leadType);
             if(ecgRecord != null) {
                 ViseLog.e("ecgRecord: " + ecgRecord);
                 try {
@@ -610,7 +610,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         }
 
         if(webBroadcaster == null) {
-            webBroadcaster = new EcgRecordWebBroadcaster(EcgMonitorUtil.noColon(getMacAddress()),
+            webBroadcaster = new EcgRecordWebBroadcaster(EcgMonitorUtil.noColon(getAddress()),
                     AccountManager.getInstance().getAccount().getPhone(),
                     sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, leadType.getCode());
             webBroadcaster.start();

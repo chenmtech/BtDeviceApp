@@ -116,8 +116,8 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
             Glide.with(MyApplication.getContext()).load(type.getDefaultImageId()).into(holder.deviceImage);
         }
 
-        holder.deviceName.setText(device.getNickName());
-        holder.deviceAddress.setText(device.getMacAddress());
+        holder.deviceName.setText(device.getName());
+        holder.deviceAddress.setText(device.getAddress());
         holder.deviceStatus.setText(device.getStateDescription());
     }
 

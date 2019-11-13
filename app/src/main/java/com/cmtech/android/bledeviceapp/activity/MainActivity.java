@@ -346,7 +346,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
             invalidateOptionsMenu();
             updateMainLayoutVisibility(false);
         } else {
-            toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
+            toolbarManager.setTitle(device.getName(), device.getAddress());
             toolbarManager.setBattery(device.getBattery());
             updateConnectFloatingActionButton(device.getStateIcon(), device.isWaitingResponse());
             updateCloseMenuItemVisible(device.isStopped());
@@ -395,9 +395,9 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                         } else {
                             drawable = new BitmapDrawable(getResources(), device.getImagePath());
                         }
-                        fragTabManager.updateTabInfo(fragTabManager.findFragment(device), drawable, device.getNickName());
+                        fragTabManager.updateTabInfo(fragTabManager.findFragment(device), drawable, device.getName());
                         if(fragTabManager.isFragmentSelected(device)) {
-                            toolbarManager.setTitle(device.getNickName(), device.getMacAddress());
+                            toolbarManager.setTitle(device.getName(), device.getAddress());
                             toolbarManager.setBattery(device.getBattery());
                         }
                     } else {
@@ -539,7 +539,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         if(msgId == MSG_BLE_INNER_ERROR) {
             if(!isWarningBleInnerError) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("蓝牙内部错误").setMessage(device.getNickName() + "无法连接，需要重启蓝牙。");
+                builder.setTitle("蓝牙内部错误").setMessage(device.getName() + "无法连接，需要重启蓝牙。");
                 builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -550,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                 isWarningBleInnerError = true;
             }
         } else {
-            showShortToastMessage(device.getNickName() + "-" + getString(msgId));
+            showShortToastMessage(device.getName() + "-" + getString(msgId));
         }
     }
 
@@ -606,7 +606,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
                 }
                 drawable = ContextCompat.getDrawable(this, deviceType.getDefaultImageId());
             }
-            fragTabManager.openFragment(factory.createFragment(), drawable, device.getNickName());
+            fragTabManager.openFragment(factory.createFragment(), drawable, device.getName());
             updateMainLayout(device);
         }
     }
@@ -638,7 +638,7 @@ public class MainActivity extends AppCompatActivity implements BleDevice.OnBleDe
         }
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("删除设备").setMessage("确定删除设备：" + device.getMacAddress()+'\n'+device.getNickName());
+        builder.setTitle("删除设备").setMessage("确定删除设备：" + device.getAddress()+'\n'+device.getName());
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
