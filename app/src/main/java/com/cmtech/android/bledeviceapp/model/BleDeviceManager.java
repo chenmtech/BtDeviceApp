@@ -2,8 +2,9 @@ package com.cmtech.android.bledeviceapp.model;
 
 import android.text.TextUtils;
 
-import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceState;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -24,11 +25,11 @@ import java.util.List;
  */
 
 public class BleDeviceManager {
-    private static final List<BleDevice> DEVICE_LIST = new ArrayList<>(); // 所有注册的设备列表
+    private static final List<AbstractDevice> DEVICE_LIST = new ArrayList<>(); // 所有注册的设备列表
 
     // 如果设备不存在，用注册信息创建一个设备
-    public static BleDevice createDeviceIfNotExist(BleDeviceRegisterInfo registerInfo) {
-        BleDevice device = findDevice(registerInfo);
+    public static AbstractDevice createDeviceIfNotExist(BleDeviceRegisterInfo registerInfo) {
+        AbstractDevice device = findDevice(registerInfo);
         if(device != null) {
             ViseLog.e("The device has existed.");
             return null;
@@ -38,9 +39,9 @@ public class BleDeviceManager {
 
         DEVICE_LIST.add(device); // 将设备添加到设备列表
         // 按地址排序
-        Collections.sort(DEVICE_LIST, new Comparator<BleDevice>() {
+        Collections.sort(DEVICE_LIST, new Comparator<AbstractDevice>() {
             @Override
-            public int compare(BleDevice o1, BleDevice o2) {
+            public int compare(AbstractDevice o1, AbstractDevice o2) {
                 return o1.getAddress().compareTo(o2.getAddress());
             }
         });
@@ -48,14 +49,14 @@ public class BleDeviceManager {
     }
 
     // 用注册信息寻找设备
-    public static BleDevice findDevice(BleDeviceRegisterInfo registerInfo) {
+    public static AbstractDevice findDevice(BleDeviceRegisterInfo registerInfo) {
         return (registerInfo == null) ? null : findDevice(registerInfo.getMacAddress());
     }
 
     // 用设备mac地址寻找设备
-    public static BleDevice findDevice(String macAddress) {
+    public static AbstractDevice findDevice(String macAddress) {
         if(TextUtils.isEmpty(macAddress)) return null;
-        for(BleDevice device : DEVICE_LIST) {
+        for(AbstractDevice device : DEVICE_LIST) {
             if(macAddress.equalsIgnoreCase(device.getAddress())) {
                 return device;
             }
@@ -63,25 +64,25 @@ public class BleDeviceManager {
         return null;
     }
 
-    private static BleDevice createDevice(BleDeviceRegisterInfo registerInfo) {
+    private static AbstractDevice createDevice(BleDeviceRegisterInfo registerInfo) {
         BleFactory factory = BleFactory.getFactory(registerInfo); // 获取相应的工厂
         return (factory == null) ? null : factory.createDevice();
     }
 
     // 删除一个设备
-    public static void deleteDevice(BleDevice device) {
+    public static void deleteDevice(AbstractDevice device) {
         DEVICE_LIST.remove(device);
     }
 
     // 获取设备清单
-    public static List<BleDevice> getDeviceList() {
+    public static List<AbstractDevice> getDeviceList() {
         return DEVICE_LIST;
     }
 
     // 获取所有设备的Mac列表
     public static List<String> getDeviceMacList() {
         List<String> deviceMacList = new ArrayList<>();
-        for(BleDevice device : DEVICE_LIST) {
+        for(AbstractDevice device : DEVICE_LIST) {
             deviceMacList.add(device.getAddress());
         }
         return deviceMacList;
@@ -89,8 +90,8 @@ public class BleDeviceManager {
 
     // 是否有打开的设备
     public static boolean hasOpenedDevice() {
-        for(BleDevice device : DEVICE_LIST) {
-            if(!device.isClosed()) {
+        for(AbstractDevice device : DEVICE_LIST) {
+            if(device.getState() != BleDeviceState.CLOSED) {
                 return true;
             }
         }

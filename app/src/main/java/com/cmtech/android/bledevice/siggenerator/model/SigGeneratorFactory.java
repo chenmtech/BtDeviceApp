@@ -1,13 +1,11 @@
 package com.cmtech.android.bledevice.siggenerator.model;
 
-import android.content.Context;
-
-import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 import com.cmtech.android.bledevice.siggenerator.view.SigGeneratorFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
+import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 import com.cmtech.android.bledeviceapp.model.BleFactory;
 
 public class SigGeneratorFactory extends BleFactory {
@@ -23,7 +21,7 @@ public class SigGeneratorFactory extends BleFactory {
     }
 
     @Override
-    public BleDevice createDevice() {
+    public AbstractDevice createDevice() {
         return new SigGeneratorDevice(registerInfo);
     }
 

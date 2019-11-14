@@ -31,6 +31,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static com.cmtech.android.ble.BleConfig.CCC_UUID;
+import static com.cmtech.android.ble.core.BleDeviceState.CONNECT_SUCCESS;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledevice.ecgmonitor.fragment.EcgMonitorFragment.ZERO_LOCATION_IN_ECG_VIEW;
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
@@ -317,7 +318,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             stopBatteryMeasure();
             containBatteryService = false;
         }
-        if(isConnected() && isGattExecutorAlive()) {
+        if(super.getState() == CONNECT_SUCCESS && isGattExecutorAlive()) {
             stopDataSampling();
         }
         try {

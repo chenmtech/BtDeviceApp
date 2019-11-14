@@ -4,7 +4,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
-import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
 
 import java.util.List;
@@ -32,7 +32,7 @@ public class BleFragTabManager extends FragTabManager {
     }
 
     // 寻找设备的Fragment
-    public BleFragment findFragment(BleDevice device) {
+    public BleFragment findFragment(AbstractDevice device) {
         if(device != null) {
             List<Fragment> fragments = getFragmentList();
             for (Fragment fragment : fragments) {
@@ -45,12 +45,12 @@ public class BleFragTabManager extends FragTabManager {
     }
 
     // 设备的Fragment是否打开
-    public boolean isFragmentOpened(BleDevice device) {
+    public boolean isFragmentOpened(AbstractDevice device) {
         return (findFragment(device) != null);
     }
 
     // 设备的Fragment是否被选中
-    public boolean isFragmentSelected(BleDevice device) {
+    public boolean isFragmentSelected(AbstractDevice device) {
         Fragment fragment = findFragment(device);
         return (fragment != null && fragment == getCurrentFragment());
     }

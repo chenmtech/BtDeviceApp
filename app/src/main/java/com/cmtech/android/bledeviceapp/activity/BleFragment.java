@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
-import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
 
 /**
@@ -17,7 +17,7 @@ public abstract class BleFragment extends Fragment{
     private static final String TAG = "BleFragment";
     private static final String ARG_DEVICE_MAC = "device_mac";
 
-    private BleDevice device; // 设备
+    private AbstractDevice device; // 设备
 
     protected BleFragment() {
     }
@@ -35,7 +35,7 @@ public abstract class BleFragment extends Fragment{
         }
     }
 
-    public BleDevice getDevice() {
+    public AbstractDevice getDevice() {
         return device;
     }
 

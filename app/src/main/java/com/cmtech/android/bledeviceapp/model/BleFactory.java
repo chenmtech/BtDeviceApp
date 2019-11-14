@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
 import com.vise.log.ViseLog;
@@ -55,6 +55,6 @@ public abstract class BleFactory {
         return factory;
     }
 
-    public abstract BleDevice createDevice(); // 创建Device
+    public abstract AbstractDevice createDevice(); // 创建Device
     public abstract BleFragment createFragment(); // 创建Fragment
 }
