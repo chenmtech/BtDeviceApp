@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.model;
+package com.cmtech.android.bledeviceapp.adapter;
 
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -18,6 +18,7 @@ import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 
 import java.util.List;
 

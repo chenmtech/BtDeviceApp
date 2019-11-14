@@ -62,7 +62,7 @@ import com.cmtech.android.bledeviceapp.model.BleFragTabManager;
 import com.cmtech.android.bledeviceapp.model.BleNotifyService;
 import com.cmtech.android.bledeviceapp.model.FragTabManager;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
-import com.cmtech.android.bledeviceapp.model.RegisteredDeviceAdapter;
+import com.cmtech.android.bledeviceapp.adapter.RegisteredDeviceAdapter;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.vise.log.ViseLog;

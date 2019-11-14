@@ -1,4 +1,4 @@
-package com.cmtech.android.bledeviceapp.model;
+package com.cmtech.android.bledeviceapp.adapter;
 
 import android.graphics.Paint;
 import android.support.annotation.NonNull;
@@ -15,6 +15,7 @@ import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.ScanActivity;
+import com.cmtech.android.bledeviceapp.model.BleDeviceType;
 
 import java.util.List;
 
