@@ -35,14 +35,14 @@ public class HttpUtils {
 
     public   static   String  upload(String data)
     {
-         String result =  upload(data, new Callback() {
+         String result = upload(data, new Callback() {
              @Override
              public void onFailure(Call call, IOException e) {
 
              }
 
              @Override
-             public void onResponse(Call call, Response response) {
+             public void onResponse(Call call, Response response) throws IOException {
 
              }
          });
