@@ -662,9 +662,9 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
     }
 
     @Override
-    public void onHrStatisticInfoUpdated(final HrStatisticsInfo hrStatisticsInfoAnalyzer) {
+    public void onHrStatisticInfoUpdated(final HrStatisticsInfo hrStatisticsInfo) {
         if(listener != null) {
-            listener.onHrStaticsInfoUpdated(hrStatisticsInfoAnalyzer);
+            listener.onHrStaticsInfoUpdated(hrStatisticsInfo);
         }
     }
 }

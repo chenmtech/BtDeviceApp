@@ -16,7 +16,7 @@ public interface OnEcgMonitorListener {
     void onEcgSignalShowStopped(); // 信号显示停止
     void onRecordSecondUpdated(int second); // 信号记录秒数更新
     void onHrUpdated(int hr); // 心率值更新，单位bpm
-    void onHrStaticsInfoUpdated(HrStatisticsInfo hrStaticsInfoAnalyzer); // 心率统计信息更新
+    void onHrStaticsInfoUpdated(HrStatisticsInfo hrStaticsInfo); // 心率统计信息更新
     void onHrAbnormalNotified(); // 心率值异常通知
     void onBatteryUpdated(int bat); // 电池电量更新
 }

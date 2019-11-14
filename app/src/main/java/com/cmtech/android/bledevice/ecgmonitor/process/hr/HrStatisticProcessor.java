@@ -20,7 +20,7 @@ public class HrStatisticProcessor implements IHrProcessor {
     private final HrStatisticsInfo hrStatisticInfo; // 心率统计信息分析仪
 
     public interface OnHrStatisticInfoUpdatedListener {
-        void onHrStatisticInfoUpdated(HrStatisticsInfo hrInfoObject); // 心率统计信息更新
+        void onHrStatisticInfoUpdated(HrStatisticsInfo hrStatisticsInfo); // 心率统计信息更新
     }
 
     public HrStatisticProcessor(int hrFilterTime, OnHrStatisticInfoUpdatedListener listener) {

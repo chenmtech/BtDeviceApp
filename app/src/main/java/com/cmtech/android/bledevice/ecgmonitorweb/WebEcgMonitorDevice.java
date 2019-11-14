@@ -9,12 +9,17 @@ import android.util.Log;
 
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
+import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.interfac.OnEcgMonitorListener;
+import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.WebDevice;
 import com.vise.log.ViseLog;
+
+import org.litepal.LitePal;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,9 +40,9 @@ import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.
   * Version:        1.0
  */
 
-public class WebEcgMonitorDevice extends WebDevice {
+public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
     private static final String TAG = "WebEcgMonitorDevice";
-    private static final int DEFAULT_VALUE_1MV = 164; // 缺省定标前1mV值
+    private static final int DEFAULT_VALUE_1MV = 65535; // 缺省定标1mV值
     private static final int DEFAULT_SAMPLE_RATE = 125; // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // 缺省导联为L1
 
@@ -45,8 +50,9 @@ public class WebEcgMonitorDevice extends WebDevice {
 
     private OnEcgMonitorListener listener;
     private int sampleRate = DEFAULT_SAMPLE_RATE; // 采样率
+    private int value1mV = DEFAULT_VALUE_1MV; // 定标1mV值
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // 导联类型
-    private int value1mV = DEFAULT_VALUE_1MV; // 定标之前1mV值
+    private final EcgMonitorConfiguration config; // 心电监护仪的配置信息
 
     private EcgRecord ecgRecord; // 心电记录，可记录心电信号数据、用户留言和心率信息
 
@@ -74,13 +80,36 @@ public class WebEcgMonitorDevice extends WebDevice {
     // 构造器
     WebEcgMonitorDevice(BleDeviceRegisterInfo registerInfo) {
         super(registerInfo);
+
+        // 从数据库获取设备的配置信息
+        List<EcgMonitorConfiguration> configs = LitePal.where("macAddress = ?", registerInfo.getMacAddress()).find(EcgMonitorConfiguration.class);
+        if(configs == null || configs.isEmpty()) {
+            config = new EcgMonitorConfiguration();
+            config.setMacAddress(registerInfo.getMacAddress());
+            config.save();
+        } else {
+            config = configs.get(0);
+        }
     }
 
+    @Override
     public int getSampleRate() { return sampleRate; }
     public EcgLeadType getLeadType() {
         return leadType;
     }
+    @Override
     public int getValue1mV() { return value1mV; }
+
+    @Override
+    public void setValue1mV(int value1mV) {
+        this.value1mV = value1mV;
+    }
+
+    @Override
+    public EcgMonitorConfiguration getConfig() {
+        return config;
+    }
+
     public int getRecordSecond() {
         return (ecgRecord == null) ? 0 : ecgRecord.getRecordSecond();
     }
@@ -174,6 +203,7 @@ public class WebEcgMonitorDevice extends WebDevice {
         listener = null;
     }
 
+    @Override
     public void notifyHrAbnormal() {
         if(listener != null) {
             listener.onHrAbnormalNotified();
@@ -206,6 +236,7 @@ public class WebEcgMonitorDevice extends WebDevice {
             listener.onValue1mVUpdated(value1mV, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
     }
 
+    @Override
     public void updateSignalValue(final int ecgSignal) {
         // 记录
         if(true) {
@@ -220,6 +251,26 @@ public class WebEcgMonitorDevice extends WebDevice {
         // 显示
         if(listener != null) {
             listener.onEcgSignalUpdated(ecgSignal);
+        }
+    }
+
+    @Override
+    public void updateHrValue(final short hr) {
+        // 记录
+        if(ecgRecord != null) {
+            ecgRecord.addHr(hr);
+        }
+
+        // 显示
+        if(listener != null) {
+            listener.onHrUpdated(hr);
+        }
+    }
+
+    @Override
+    public void onHrStatisticInfoUpdated(HrStatisticsInfo hrInfoObject) {
+        if(listener != null) {
+            listener.onHrStaticsInfoUpdated(hrInfoObject);
         }
     }
 }
