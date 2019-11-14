@@ -20,7 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.cmtech.android.ble.BleConfig.CCC_UUID;
-import static com.cmtech.android.ble.core.BleDeviceState.CONNECT_SUCCESS;
+import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
 
 /**
@@ -184,7 +184,7 @@ public class TempHumidDevice extends BleDevice {
 
     // 更新历史数据
     public synchronized void updateHistoryData() {
-        if(super.getState() == CONNECT_SUCCESS && !isUpdatingHistoryData) {
+        if(super.getState() == CONNECT && !isUpdatingHistoryData) {
             isUpdatingHistoryData = true;
             if (hasTimerService)
                 readTimerServiceValue();

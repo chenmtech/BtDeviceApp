@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgwebmonitor;
+package com.cmtech.android.bledevice.ecgmonitorweb;
 
 import android.util.Log;
 import android.util.Pair;
@@ -23,7 +23,7 @@ public class EcgBroadcastReceiver {
     private static final int TYPE_CODE_BROADCAST_ID = 4; // 广播ID
     private static final int TYPE_CODE_LAST_DATA_PACKET_ID = 5; // 上次接收的数据包ID
 
-    private static final String download_url = "http://huawei.tighoo.com/home/download?";
+    private static final String download_url = "http://huawei.tighoo.com/home/query?count=1";
 
     // 获取广播ID列表回调
     public interface IEcgBroadcastIdListCallback {
@@ -41,7 +41,7 @@ public class EcgBroadcastReceiver {
     }
 
     // 心电数据包
-    private static class EcgDataPacket {
+    public static class EcgDataPacket {
         private String id;
         private List<Integer> data;
 
@@ -90,7 +90,6 @@ public class EcgBroadcastReceiver {
         });
     }
 
-    // 获取broadcastId广播的信息
     public static void retrieveBroadcastInfo(String broadcastId, final IEcgBroadcastInfoCallback callback) {
         List<Pair<Integer, String>> data = new ArrayList<>();
         data.add(new Pair<>(TYPE_CODE_RETRIEVE_BROADCAST_INFO_CMD, ""));
@@ -124,6 +123,44 @@ public class EcgBroadcastReceiver {
         data.add(new Pair<>(TYPE_CODE_BROADCAST_ID, broadcastId));
         data.add(new Pair<>(TYPE_CODE_LAST_DATA_PACKET_ID, lastDataPackId));
         String dataUrl = createDataUrlString(data);
+        HttpUtils.upload(download_url, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, e.getMessage());
+                if(callback != null) {
+                    callback.onReceived(null);
+                }
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseStr = response.body().string();
+                int begin = responseStr.lastIndexOf(';');
+                int end = responseStr.lastIndexOf(',');
+                String subStr = responseStr.substring(begin+1, end);
+                String[] strArr = subStr.split(",");
+                List<Integer> intArr = new ArrayList<>();
+                for (int i = 0; i < strArr.length; i++) {
+                    intArr.add(Integer.parseInt(strArr[i]));
+                }
+                //Log.e(TAG, intArr.toString());
+                // 这里用responseStr解析出数据包List<EcgDataPacket>
+                List<EcgDataPacket> dataPackets = new ArrayList<>();
+                dataPackets.add(new EcgDataPacket("1", intArr));
+
+                if(callback != null) {
+                    callback.onReceived(dataPackets);
+                }
+            }
+        });
+    }
+
+    /*public static void readDataPackets(String broadcastId, String lastDataPackId, final IEcgBroadcastDataPacketCallback callback) {
+        List<Pair<Integer, String>> data = new ArrayList<>();
+        data.add(new Pair<>(TYPE_CODE_READ_BROADCAST_DATA_PACKET_CMD, ""));
+        data.add(new Pair<>(TYPE_CODE_BROADCAST_ID, broadcastId));
+        data.add(new Pair<>(TYPE_CODE_LAST_DATA_PACKET_ID, lastDataPackId));
+        String dataUrl = createDataUrlString(data);
         HttpUtils.upload(download_url + dataUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -144,7 +181,7 @@ public class EcgBroadcastReceiver {
                 }
             }
         });
-    }
+    }*/
 
     private static String createDataUrlString(List<Pair<Integer, String>> data) {
         if(data == null || data.isEmpty()) return "";
@@ -156,7 +193,7 @@ public class EcgBroadcastReceiver {
             builder.append(ele.first).append("=").append(ele.second);
         }
         String rlt = builder.toString();
-        Log.e("EcgRecordWebBroadcaster", "DataUrlString = " + rlt);
+        Log.e(TAG, "DataUrlString = " + rlt);
         return rlt;
     }
 }

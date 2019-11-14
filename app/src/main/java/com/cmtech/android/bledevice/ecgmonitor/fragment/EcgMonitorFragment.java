@@ -17,13 +17,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorConfigureActivity;
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorDevice;
-import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
-import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorConfigureActivity;
+import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
+import com.cmtech.android.bledevice.ecgmonitor.interfac.OnEcgMonitorListener;
+import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
@@ -49,7 +50,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.
   * Version:        1.0
  */
 
-public class EcgMonitorFragment extends BleFragment implements EcgMonitorDevice.OnEcgMonitorListener, ScanWaveView.OnScanWaveViewListener {
+public class EcgMonitorFragment extends BleFragment implements OnEcgMonitorListener, ScanWaveView.OnScanWaveViewListener {
     private static final String TAG = "EcgMonitorFragment";
     public static final double ZERO_LOCATION_IN_ECG_VIEW = 0.5;
 

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecgwebmonitor;
+package com.cmtech.android.bledevice.ecgmonitorweb;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,9 +8,6 @@ import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,30 +15,26 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorConfigureActivity;
-import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
-import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.fragment.EcgHrStatisticsFragment;
-import com.cmtech.android.bledevice.ecgmonitor.fragment.EcgMonitorFragment;
 import com.cmtech.android.bledevice.ecgmonitor.fragment.EcgSignalRecordFragment;
+import com.cmtech.android.bledevice.ecgmonitor.interfac.OnEcgMonitorListener;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
+import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.BleFragment;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 
 /**
   *
-  * ClassName:      EcgMonitorFragment
-  * Description:    心电监护仪Fragment
+  * ClassName:      WebEcgMonitorFragment
+  * Description:    网络心电监护仪Fragment
   * Author:         chenm
   * CreateDate:     2018/3/13 下午4:52
   * UpdateUser:     chenm
@@ -50,7 +43,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.
   * Version:        1.0
  */
 
-public class EcgWebMonitorFragment extends EcgMonitorFragment {
+public class WebEcgMonitorFragment extends BleFragment implements OnEcgMonitorListener, ScanWaveView.OnScanWaveViewListener{
     private static final String TAG = "EcgMonitorFragment";
     public static final double ZERO_LOCATION_IN_ECG_VIEW = 0.5;
 
@@ -63,17 +56,17 @@ public class EcgWebMonitorFragment extends EcgMonitorFragment {
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
     private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
-    private EcgMonitorDevice device; // 设备
+    private WebEcgMonitorDevice device; // 设备
 
-    public EcgWebMonitorFragment() {
+    public WebEcgMonitorFragment() {
         super();
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        device = (EcgMonitorDevice) getDevice();
-        signalRecordFragment.setDevice(device);
+        device = (WebEcgMonitorDevice) getDevice();
+        //signalRecordFragment.setDevice(device);
         return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
     }
 
@@ -81,7 +74,7 @@ public class EcgWebMonitorFragment extends EcgMonitorFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvSampleRate = view.findViewById(R.id.tv_ecg_samplerate);
+        /*tvSampleRate = view.findViewById(R.id.tv_ecg_samplerate);
         tvLeadType = view.findViewById(R.id.tv_ecg_leadtype);
         tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
@@ -101,12 +94,12 @@ public class EcgWebMonitorFragment extends EcgMonitorFragment {
         fragTabLayout.setupWithViewPager(fragViewPager);
         updateDeviceState(device.getEcgMonitorState());
         device.setListener(this);
-        ecgView.setListener(this);
+        ecgView.setListener(this);*/
     }
 
-    private void initialEcgView() {
+    /*private void initialEcgView() {
         ecgView.updateShowSetup(device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, ZERO_LOCATION_IN_ECG_VIEW);
-    }
+    }*/
 
     @Override
     public void close() {
@@ -117,9 +110,9 @@ public class EcgWebMonitorFragment extends EcgMonitorFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (device != null) {
-                            device.setSaveRecord(true);
+                            //device.setSaveRecord(true);
                         }
-                        EcgWebMonitorFragment.super.close();
+                        WebEcgMonitorFragment.super.close();
                     }
                 }).setNeutralButton("取消", new DialogInterface.OnClickListener() {
                     @Override
@@ -130,9 +123,9 @@ public class EcgWebMonitorFragment extends EcgMonitorFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (device != null) {
-                            device.setSaveRecord(false);
+                            //device.setSaveRecord(false);
                         }
-                        EcgWebMonitorFragment.super.close();
+                        WebEcgMonitorFragment.super.close();
                     }
                 });
                 builder.create().show();
@@ -143,7 +136,7 @@ public class EcgWebMonitorFragment extends EcgMonitorFragment {
     @Override
     public void openConfigureActivity() {
         Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
-        intent.putExtra("configuration", device.getConfig());
+        //intent.putExtra("configuration", device.getConfig());
         intent.putExtra("nickname", device.getName());
         startActivityForResult(intent, 1);
     }
@@ -156,7 +149,7 @@ public class EcgWebMonitorFragment extends EcgMonitorFragment {
             case 1: // 修改设备配置返回码
                 if(resultCode == RESULT_OK) {
                     EcgMonitorConfiguration config = (EcgMonitorConfiguration) data.getSerializableExtra("configuration");
-                    device.updateConfig(config);
+                    //device.updateConfig(config);
                 }
                 break;
 
