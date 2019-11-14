@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.process;
 
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorDevice;
+import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -25,12 +26,12 @@ import java.util.List;
  */
 
 public class Value1mVDetector {
-    private final EcgMonitorDevice device;
+    private final IEcgDevice device;
     private int sampleRate; // 采样率
     private List<Integer> data1mV; // 1mV数据
     private boolean done = false; // 是否已经检测完成
 
-    public Value1mVDetector(EcgMonitorDevice device) {
+    public Value1mVDetector(IEcgDevice device) {
         this.device = device;
         this.sampleRate = device.getSampleRate();
         data1mV = new ArrayList<>(2 * this.sampleRate);
@@ -49,7 +50,7 @@ public class Value1mVDetector {
         // 采集1个周期的数据
         this.data1mV.add(datum1mV);
         if (this.data1mV.size() >= sampleRate) {
-            device.stopDataSampling();
+            //device.stopDataSampling();
             int value1mV = calculateValue1mV(this.data1mV); // 计算得到实际定标前1mV值
             ViseLog.e(this.data1mV.toString() + " " + value1mV);
             device.setValue1mV(value1mV);

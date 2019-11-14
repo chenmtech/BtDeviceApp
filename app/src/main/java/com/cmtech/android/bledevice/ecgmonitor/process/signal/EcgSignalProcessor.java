@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.process.signal;
 
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorDevice;
+import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.EcgCalibrator65536;
 import com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator;
 import com.cmtech.android.bledevice.ecgmonitor.process.signal.filter.EcgPreFilterWith35HzNotch;
@@ -35,26 +36,26 @@ public class EcgSignalProcessor {
     private static final String HR_ABNORMAL_PROCESSOR_KEY = "hr_abnormal_processor"; // 心率异常处理器的String key
     private static final String HR_STATISTICS_PROCESSOR_KEY = "hr_statistics_processor"; // 心率统计处理器的String key
 
-    private final EcgMonitorDevice device; // 设备
+    private final IEcgDevice device; // 设备
     private final IEcgCalibrator ecgCalibrator; // 标定处理器
     private final IEcgFilter ecgFilter; // 滤波器
     private QrsDetector qrsDetector; // QRS波检测器，可求心率值
     private final Map<String, IHrProcessor> hrProcessorMap; // 心率处理相关操作Map
 
-    public EcgSignalProcessor(EcgMonitorDevice device) {
+    public EcgSignalProcessor(IEcgDevice device) {
         if(device == null) {
             throw new IllegalArgumentException("EcgMonitorDevice is null");
         }
 
         this.device = device;
-        ecgCalibrator = new EcgCalibrator65536(device.getValue1mV());
-        ecgFilter = new EcgPreFilterWith35HzNotch(device.getSampleRate());
-        qrsDetector = new QrsDetector(device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+        ecgCalibrator = new EcgCalibrator65536(this.device.getValue1mV());
+        ecgFilter = new EcgPreFilterWith35HzNotch(this.device.getSampleRate());
+        qrsDetector = new QrsDetector(this.device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         hrProcessorMap = new ConcurrentHashMap<>();
-        HrStatisticProcessor hrStatisticProcessor = new HrStatisticProcessor(HR_FILTER_SECOND, device);
+        HrStatisticProcessor hrStatisticProcessor = new HrStatisticProcessor(HR_FILTER_SECOND, this.device);
         hrProcessorMap.put(HR_STATISTICS_PROCESSOR_KEY, hrStatisticProcessor);
-        if(device.getConfig().warnWhenHrAbnormal()) {
-            HrAbnormalProcessor hrAbnormalProcessor = new HrAbnormalProcessor(device);
+        if(this.device.getConfig().warnWhenHrAbnormal()) {
+            HrAbnormalProcessor hrAbnormalProcessor = new HrAbnormalProcessor(this.device);
             hrProcessorMap.put(HR_ABNORMAL_PROCESSOR_KEY, hrAbnormalProcessor);
         }
     }

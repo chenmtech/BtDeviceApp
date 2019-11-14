@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.process.hr;
 
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorDevice;
+import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
 
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalProcessor.INVALID_HR;
 
@@ -12,13 +13,13 @@ import static com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalPr
 public class HrAbnormalProcessor implements IHrProcessor {
     private static final int DEFAULT_HR_BUFFLEN = 5; // 心率值缓存长度
 
-    private final EcgMonitorDevice device;
+    private final IEcgDevice device;
     private int lowLimit; // 下限
     private int highLimit; // 上限
     private int[] buff; // 缓存
     private int index; // 缓存索引
 
-    public HrAbnormalProcessor(EcgMonitorDevice device) {
+    public HrAbnormalProcessor(IEcgDevice device) {
         this.device = device;
         reset();
     }

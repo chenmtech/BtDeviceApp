@@ -1,7 +1,9 @@
 package com.cmtech.android.bledevice.ecgmonitor.process;
 
+import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorDevice;
+import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.IHrProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalProcessor;
 import com.vise.log.ViseLog;
@@ -26,20 +28,23 @@ public class EcgDataProcessor {
     private static final int MAX_PACKAGE_NUM = 16;
     private static final int INVALID_PACKAGE_NUM = -1;
 
-    private final EcgMonitorDevice device;
+    private final AbstractDevice device;
     private final Value1mVDetector value1mVDetector; // 1mV值检测器
     private final EcgSignalProcessor signalProcessor; // 心电信号处理器
     private int nextPackageNum = INVALID_PACKAGE_NUM; // 下一个待处理的数据包序号
     private ExecutorService dataProcService; // 数据处理Service
 
-    public EcgDataProcessor(EcgMonitorDevice device) {
+    public EcgDataProcessor(AbstractDevice device) {
         if(device == null) {
             throw new NullPointerException("The device is null.");
         }
+        if(!(device instanceof IEcgDevice)) {
+            throw new IllegalArgumentException();
+        }
 
         this.device = device;
-        value1mVDetector = new Value1mVDetector(device);
-        signalProcessor = new EcgSignalProcessor(device);
+        value1mVDetector = new Value1mVDetector((IEcgDevice)device);
+        signalProcessor = new EcgSignalProcessor((IEcgDevice)device);
     }
 
     public void reset() {

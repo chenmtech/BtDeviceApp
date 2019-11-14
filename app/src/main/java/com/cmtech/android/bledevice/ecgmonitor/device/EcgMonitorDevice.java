@@ -12,6 +12,7 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
+import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.interfac.OnEcgMonitorListener;
 import com.cmtech.android.bledevice.ecgmonitor.process.EcgDataProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticProcessor;
@@ -53,7 +54,7 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
   * Version:        1.0
  */
 
-public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
+public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
     private static final String TAG = "EcgMonitorDevice";
     private static final int DEFAULT_VALUE_1MV = 164; // 缺省定标前1mV值
     private static final int DEFAULT_SAMPLE_RATE = 125; // 缺省ECG信号采样率,Hz
@@ -126,10 +127,12 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         dataProcessor = new EcgDataProcessor(this);
     }
 
+    @Override
     public int getSampleRate() { return sampleRate; }
     public EcgLeadType getLeadType() {
         return leadType;
     }
+    @Override
     public int getValue1mV() { return value1mV; }
     public boolean isRecord() {
         return ((ecgRecord != null) && isRecord);
@@ -161,6 +164,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
             updateEcgMonitorState();
         }
     }
+    @Override
     public EcgMonitorConfiguration getConfig() {
         return config;
     }
@@ -508,6 +512,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         listener = null;
     }
 
+    @Override
     public void updateSignalValue(final int ecgSignal) {
         // 记录
         if(isRecord()) {
@@ -530,6 +535,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         }
     }
 
+    @Override
     public void updateHrValue(final short hr) {
         // 记录
         if(ecgRecord != null) {
@@ -547,6 +553,7 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         }
     }
 
+    @Override
     public void notifyHrAbnormal() {
         if(listener != null) {
             listener.onHrAbnormalNotified();
@@ -564,8 +571,10 @@ public class EcgMonitorDevice extends BleDevice implements HrStatisticProcessor.
         }
     }
 
+    @Override
     public void setValue1mV(final int value1mV) {
         ViseLog.e("定标前1mV值为: " + value1mV);
+        stopDataSampling();
 
         this.value1mV = value1mV;
         new Handler(Looper.getMainLooper()).post(new Runnable() {
