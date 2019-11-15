@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
@@ -23,6 +22,9 @@ import org.litepal.LitePal;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static com.cmtech.android.bledevice.ecgmonitor.fragment.EcgMonitorFragment.ZERO_LOCATION_IN_ECG_VIEW;
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
@@ -31,7 +33,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.
 /**
   *
   * ClassName:      WebEcgMonitorDevice
-  * Description:    单导联心电监护仪网络设备
+  * Description:    网络心电监护仪设备
   * Author:         chenm
   * CreateDate:     2018-09-20 07:55
   * UpdateUser:     chenm
@@ -56,6 +58,21 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
 
     private EcgRecord ecgRecord; // 心电记录，可记录心电信号数据、用户留言和心率信息
 
+    private Timer showTimer; // 定时器
+    private final LinkedBlockingQueue<Integer> showCache = new LinkedBlockingQueue<>();	//要显示的信号数据缓存
+
+    private class ShowTask extends TimerTask {
+
+        @Override
+        public void run() {
+            try {
+                updateSignalValue(showCache.take());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     // 请求处理Handler
     protected final Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -64,13 +81,20 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
                 EcgBroadcastReceiver.readDataPackets("", "-1", new EcgBroadcastReceiver.IEcgBroadcastDataPacketCallback() {
                     @Override
                     public void onReceived(List<EcgBroadcastReceiver.EcgDataPacket> dataList) {
-                        List<Integer> data = dataList.get(0).getData();
-                        for(int i = 0; i < data.size(); i++) {
-                            updateSignalValue(data.get(i));
-                            Log.e(TAG, "data = " + data.get(i));
+                        if(dataList != null) {
+                            List<Integer> data = dataList.get(0).getData();
+                            for (int i = 0; i < data.size(); i++) {
+                                try {
+                                    showCache.put(data.get(i));
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                //updateSignalValue(data.get(i));
+                                //Log.e(TAG, "data = " + data.get(i));
+                            }
+                            if (state == BleDeviceState.CONNECT)
+                                handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
                         }
-                        if(state == BleDeviceState.CONNECT)
-                            handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
                     }
                 });
             }
@@ -133,6 +157,14 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
                         listener.onEcgSignalShowStarted(sampleRate);
                     }
 
+                    if(showTimer != null) {
+                        showTimer.cancel();
+                    }
+                    // 初始化定时器
+                    showTimer = new Timer();
+                    int sampleInterval = 1000/getSampleRate();
+                    showTimer.scheduleAtFixedRate(new ShowTask(), sampleInterval, sampleInterval);
+
                     WebEcgMonitorDevice.this.value1mV = caliValue;
                     updateValue1mV(caliValue);
                     WebEcgMonitorDevice.this.leadType = EcgLeadType.getFromCode(leadTypeCode);
@@ -191,6 +223,15 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
     @Override
     public void close() {
         super.close();
+    }
+
+    @Override
+    public void callDisconnect(boolean stopAutoScan) {
+        if(showTimer != null) {
+            showTimer.cancel();
+            showCache.clear();
+        }
+        super.callDisconnect(stopAutoScan);
     }
 
     // 登记心电监护仪设备监听器

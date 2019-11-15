@@ -8,6 +8,9 @@ import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +18,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorConfigureActivity;
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.fragment.EcgHrStatisticsFragment;
-import com.cmtech.android.bledevice.ecgmonitor.fragment.EcgSignalRecordFragment;
 import com.cmtech.android.bledevice.ecgmonitor.interfac.OnEcgMonitorListener;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
@@ -27,6 +30,9 @@ import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.BleFragment;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
@@ -54,7 +60,6 @@ public class WebEcgMonitorFragment extends BleFragment implements OnEcgMonitorLi
     private TextView tvPauseShowing; // 暂停显示
     private ScanEcgView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
-    private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
     private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
     private WebEcgMonitorDevice device; // 设备
 
@@ -66,7 +71,6 @@ public class WebEcgMonitorFragment extends BleFragment implements OnEcgMonitorLi
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         device = (WebEcgMonitorDevice) getDevice();
-        //signalRecordFragment.setDevice(device);
         return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
     }
 
@@ -74,7 +78,7 @@ public class WebEcgMonitorFragment extends BleFragment implements OnEcgMonitorLi
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        /*tvSampleRate = view.findViewById(R.id.tv_ecg_samplerate);
+        tvSampleRate = view.findViewById(R.id.tv_ecg_samplerate);
         tvLeadType = view.findViewById(R.id.tv_ecg_leadtype);
         tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
@@ -82,24 +86,23 @@ public class WebEcgMonitorFragment extends BleFragment implements OnEcgMonitorLi
         ecgView = view.findViewById(R.id.rwv_signal_view);
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
-        tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION));
+        tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), device.getValue1mV()));
         tvHeartRate.setText("");
         initialEcgView();
         ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
         TabLayout fragTabLayout = view.findViewById(R.id.tl_ecg_controller);
-        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(signalRecordFragment, hrStatisticsFragment));
-        List<String> titleList = new ArrayList<>(Arrays.asList(EcgSignalRecordFragment.TITLE, EcgHrStatisticsFragment.TITLE));
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(hrStatisticsFragment));
+        List<String> titleList = new ArrayList<>(Arrays.asList(EcgHrStatisticsFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         fragViewPager.setAdapter(fragAdapter);
         fragTabLayout.setupWithViewPager(fragViewPager);
-        updateDeviceState(device.getEcgMonitorState());
         device.setListener(this);
-        ecgView.setListener(this);*/
+        ecgView.setListener(this);
     }
 
-    /*private void initialEcgView() {
-        ecgView.updateShowSetup(device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, ZERO_LOCATION_IN_ECG_VIEW);
-    }*/
+    private void initialEcgView() {
+        ecgView.updateShowSetup(device.getSampleRate(), device.getValue1mV(), ZERO_LOCATION_IN_ECG_VIEW);
+    }
 
     @Override
     public void close() {
@@ -136,7 +139,7 @@ public class WebEcgMonitorFragment extends BleFragment implements OnEcgMonitorLi
     @Override
     public void openConfigureActivity() {
         Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
-        //intent.putExtra("configuration", device.getConfig());
+        intent.putExtra("configuration", device.getConfig());
         intent.putExtra("nickname", device.getName());
         startActivityForResult(intent, 1);
     }
@@ -196,7 +199,7 @@ public class WebEcgMonitorFragment extends BleFragment implements OnEcgMonitorLi
 
     @Override
     public void onRecordStateUpdated(final boolean isRecord) {
-        signalRecordFragment.setSignalRecordStatus(isRecord);
+
     }
 
     @Override
@@ -221,7 +224,7 @@ public class WebEcgMonitorFragment extends BleFragment implements OnEcgMonitorLi
 
     @Override
     public void onRecordSecondUpdated(final int second) {
-        signalRecordFragment.setSignalSecNum(second);
+
     }
 
     @Override
