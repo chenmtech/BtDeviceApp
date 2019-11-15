@@ -108,7 +108,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
     private EcgNormalComment creatorComment; // 创建人留言；
     private boolean isRecord = false; // 是否在记录信号
 
-    private EcgRecordWebBroadcaster webBroadcaster;
+    private EcgHttpBroadcast webBroadcaster;
 
     // 构造器
     public EcgMonitorDevice(BleDeviceRegisterInfo registerInfo) {
@@ -603,7 +603,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
         }
 
         if(webBroadcaster == null) {
-            webBroadcaster = new EcgRecordWebBroadcaster(EcgMonitorUtil.deleteColon(getAddress()),
+            webBroadcaster = new EcgHttpBroadcast(EcgMonitorUtil.deleteColon(getAddress()),
                     AccountManager.getInstance().getAccount().getPhone(),
                     sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, leadType.getCode());
             webBroadcaster.start();
