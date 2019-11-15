@@ -139,14 +139,14 @@ public class EcgBroadcastReceiver {
                 int end = responseStr.lastIndexOf(',');
                 String subStr = responseStr.substring(begin+1, end);
                 String[] strArr = subStr.split(",");
-                List<Integer> intArr = new ArrayList<>();
+                List<Integer> data = new ArrayList<>();
                 for (int i = 0; i < strArr.length; i++) {
-                    intArr.add(Integer.parseInt(strArr[i]));
+                    data.add(Integer.parseInt(strArr[i]));
                 }
-                //Log.e(TAG, intArr.toString());
+                //Log.e(TAG, data.toString());
                 // 这里用responseStr解析出数据包List<EcgDataPacket>
                 List<EcgDataPacket> dataPackets = new ArrayList<>();
-                dataPackets.add(new EcgDataPacket("1", intArr));
+                dataPackets.add(new EcgDataPacket("1", data));
 
                 if(callback != null) {
                     callback.onReceived(dataPackets);
