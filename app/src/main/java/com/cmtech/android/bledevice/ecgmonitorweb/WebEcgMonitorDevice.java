@@ -78,9 +78,9 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_READ_DATA_PACKET) {
-                EcgBroadcastReceiver.readDataPackets("", "-1", new EcgBroadcastReceiver.IEcgBroadcastDataPacketCallback() {
+                EcgHttpBroadcastReceiver.readDataPackets("", "-1", new EcgHttpBroadcastReceiver.IEcgBroadcastDataPacketCallback() {
                     @Override
-                    public void onReceived(List<EcgBroadcastReceiver.EcgDataPacket> dataList) {
+                    public void onReceived(List<EcgHttpBroadcastReceiver.EcgDataPacket> dataList) {
                         if(dataList != null) {
                             List<Integer> data = dataList.get(0).getData();
                             for (int i = 0; i < data.size(); i++) {
@@ -141,7 +141,7 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
 
     @Override
     protected boolean executeAfterConnectSuccess() {
-        EcgBroadcastReceiver.retrieveBroadcastInfo("", new EcgBroadcastReceiver.IEcgBroadcastInfoCallback() {
+        EcgHttpBroadcastReceiver.retrieveBroadcastInfo("", new EcgHttpBroadcastReceiver.IEcgBroadcastInfoCallback() {
             @Override
             public void onReceived(String broadcastId, String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
                 broadcastId = "test";

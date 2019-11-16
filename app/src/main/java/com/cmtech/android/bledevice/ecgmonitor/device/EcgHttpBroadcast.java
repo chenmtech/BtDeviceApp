@@ -69,12 +69,16 @@ public class EcgHttpBroadcast {
         waitingDataResponse = false;
     }
 
+    /**
+     * 广播是否已停止
+     * @return
+     */
     private boolean isStop() {
         return broadcastId.equals(INVALID_BROADCAST_ID);
     }
 
-    /** 启动广播，这里上传广播相关参数。
-        服务器端接收后，如果允许广播，应该在Response中返回广播ID
+    /**
+     * 启动广播，这里上传广播相关参数。服务器端接收后，如果允许广播，应该在Response中返回广播ID
      */
     public void start() {
         if(!isStop()) return; // 不能重复启动
@@ -105,7 +109,8 @@ public class EcgHttpBroadcast {
         });
     }
 
-    /** 停止广播，用broadcastId标记广播。
+    /**
+     * 停止广播
      */
     public void stop() {
         if(isStop()) return;
@@ -128,7 +133,10 @@ public class EcgHttpBroadcast {
         });
     }
 
-    // 发送心电信号
+    /**
+     * 发送心电信号
+     * @param ecgSignal
+     */
     public void sendEcgSignal(int ecgSignal) {
         if(isStop()) return;
 
@@ -136,7 +144,10 @@ public class EcgHttpBroadcast {
         send();
     }
 
-    // 发送心率值
+    /**
+     * 发送心率值
+     * @param hr
+     */
     public void sendHrValue(short hr) {
         if(isStop()) return;
 
@@ -167,7 +178,11 @@ public class EcgHttpBroadcast {
         }
     }
 
-    // 发送一条留言
+    /**
+     * 发送一条留言
+     * @param commenterId : 留言人ID
+     * @param content : 留言内容
+     */
     public void sendComment(String commenterId, String content) {
         if(isStop()) return;
 
@@ -179,7 +194,10 @@ public class EcgHttpBroadcast {
         HttpUtils.upload(upload_url + dataUrl);
     }
 
-    // 添加一个接收者
+    /**
+     * 添加一个可接收该广播的接收者
+     * @param receiverId ：接收者ID
+     */
     public void addReceiver(String receiverId) {
         if(isStop()) return;
 

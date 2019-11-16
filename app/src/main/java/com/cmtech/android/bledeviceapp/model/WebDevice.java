@@ -6,7 +6,7 @@ import android.os.Looper;
 
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.bledevice.ecgmonitorweb.EcgBroadcastReceiver;
+import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpBroadcastReceiver;
 import com.vise.log.ViseLog;
 
 import java.util.List;
@@ -42,7 +42,7 @@ public abstract class WebDevice extends AbstractDevice {
     private void connect() {
         setState(CONNECTING);
 
-        EcgBroadcastReceiver.retrieveBroadcastIdList("", new EcgBroadcastReceiver.IEcgBroadcastIdListCallback() {
+        EcgHttpBroadcastReceiver.retrieveBroadcastIdList("", new EcgHttpBroadcastReceiver.IEcgBroadcastIdListCallback() {
             @Override
             public void onReceived(List<String> broadcastIdList) {
                 if(broadcastIdList == null) {

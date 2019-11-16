@@ -13,7 +13,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class EcgBroadcastReceiver {
+public class EcgHttpBroadcastReceiver {
     private static final String TAG = "EcgBroadcastReceiver";
 
     private static final int TYPE_CODE_RETRIEVE_BROADCAST_ID_LIST_CMD = 0; // 获取广播ID列表命令
@@ -59,10 +59,14 @@ public class EcgBroadcastReceiver {
         }
     }
 
-    private EcgBroadcastReceiver() {
+    private EcgHttpBroadcastReceiver() {
     }
 
-    // 获取接收者可接收的广播ID列表
+    /**
+     * 获取接收者可接收的广播ID列表
+     * @param receiverId : 接收者ID
+     * @param callback : 回调
+     */
     public static void retrieveBroadcastIdList(String receiverId, final IEcgBroadcastIdListCallback callback) {
         List<Pair<Integer, String>> data = new ArrayList<>();
         data.add(new Pair<>(TYPE_CODE_RETRIEVE_BROADCAST_ID_LIST_CMD, ""));
@@ -90,6 +94,11 @@ public class EcgBroadcastReceiver {
         });
     }
 
+    /**
+     * 获取某广播的相关信息参数
+     * @param broadcastId ： 广播ID
+     * @param callback : 回调
+     */
     public static void retrieveBroadcastInfo(String broadcastId, final IEcgBroadcastInfoCallback callback) {
         List<Pair<Integer, String>> data = new ArrayList<>();
         data.add(new Pair<>(TYPE_CODE_RETRIEVE_BROADCAST_INFO_CMD, ""));
@@ -117,6 +126,13 @@ public class EcgBroadcastReceiver {
     }
 
     // 读取broadcastId广播从lastDataPackId代表的数据包之后的数据包
+
+    /**
+     * 读取广播数据包
+     * @param broadcastId : 广播ID
+     * @param lastDataPackId : 上一次接收到的最后一个数据包ID
+     * @param callback : 回调
+     */
     public static void readDataPackets(String broadcastId, String lastDataPackId, final IEcgBroadcastDataPacketCallback callback) {
         List<Pair<Integer, String>> data = new ArrayList<>();
         data.add(new Pair<>(TYPE_CODE_READ_BROADCAST_DATA_PACKET_CMD, ""));
