@@ -39,17 +39,17 @@ import java.util.List;
  */
 public class EcgSignalRecordFragment extends Fragment{
     public static final String TITLE = "信号记录";
-    private ImageButton ibRecord; // 切换记录信号状态
-    private TextView tvRecordTime; // 记录信号时长
+    private ImageButton ibRecord; // 切换信号记录状态
+    private TextView tvRecordTime; // 已记录信号时长
     private RecyclerView rvMarker; // 标记recycleview
-    private EcgMarkerAdapter markerAdapter; // ecg标记adapter
+    private EcgMarkerAdapter markerAdapter; // 标记adapter
     private EcgMonitorDevice device;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_sample_ecgsignal, container, false);
+        return inflater.inflate(R.layout.fragment_ecg_signal_record, container, false);
     }
 
     @Override

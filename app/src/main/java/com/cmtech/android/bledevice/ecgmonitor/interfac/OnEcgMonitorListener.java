@@ -10,6 +10,7 @@ public interface OnEcgMonitorListener {
     void onLeadTypeUpdated(EcgLeadType leadType); // 导联类型更新
     void onValue1mVUpdated(int value1mV, int value1mVAfterCalibration);  // 1mV值更新
     void onRecordStateUpdated(boolean isRecord); // 记录状态更新
+    void onBroadcastStateUpdated(boolean isBroadcast); // 广播状态更新
     void onShowSetupUpdated(int sampleRate, int value1mV, double zeroLocation); // 信号显示设置更新
     void onEcgSignalUpdated(int ecgSignal); // 信号显示
     void onEcgSignalShowStarted(int sampleRate); // 信号显示启动

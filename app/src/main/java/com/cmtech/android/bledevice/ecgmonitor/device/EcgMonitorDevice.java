@@ -107,6 +107,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
 
     private EcgNormalComment creatorComment; // 创建人留言；
     private boolean isRecord = false; // 是否在记录信号
+    private boolean isBroadcast = false; // 是否在广播信号
 
     private EcgHttpBroadcast webBroadcaster;
 
@@ -150,6 +151,15 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+    public boolean isBroadcast() {
+        return webBroadcaster != null && isBroadcast;
+    }
+    public synchronized void setBroadcast(boolean broadcast) {
+        if(webBroadcaster != null && this.isBroadcast != broadcast) {
+            isBroadcast = broadcast;
+            updateBroadcastStatus(isBroadcast);
         }
     }
     public void setSaveRecord(boolean saveRecord) {
@@ -255,6 +265,8 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
 
         ViseLog.e("EcgMonitorDevice.close()");
 
+        // 停止信号记录
+        setRecord(false);
         // 关闭记录
         if(ecgRecord != null) {
             try {
@@ -270,14 +282,12 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
             }
         }
 
-        // 停止信号记录
-        setRecord(false);
-
         // 重置数据处理器
         if(dataProcessor != null)
             dataProcessor.reset();
 
         // 停止广播
+        setBroadcast(false);
         if(webBroadcaster != null) {
             webBroadcaster.stop();
             webBroadcaster = null;
@@ -530,7 +540,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
         }
 
         // 广播
-        if(webBroadcaster != null) {
+        if(isBroadcast()) {
             webBroadcaster.sendEcgSignal(ecgSignal);
         }
     }
@@ -647,6 +657,11 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
     private void updateRecordStatus(final boolean isRecord) {
         if(listener != null)
             listener.onRecordStateUpdated(isRecord);
+    }
+
+    private void updateBroadcastStatus(final boolean isBroadcast) {
+        if(listener != null)
+            listener.onBroadcastStateUpdated(isBroadcast);
     }
 
     private void updateSignalShowSetup(int sampleRate, int value1mV) {

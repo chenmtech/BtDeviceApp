@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitor.device;
 import android.util.Log;
 
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
+import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -165,11 +166,13 @@ public class EcgHttpBroadcast {
             HttpUtils.upload(upload_url + sendData, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
+                    ViseLog.e(TAG, "Send data fail.");
                     waitingDataResponse = false;
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+                    ViseLog.e("Send data success.");
                     waitingDataResponse = false;
                     ecgBuffer.clear();
                     hrBuffer.clear();

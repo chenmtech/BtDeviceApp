@@ -62,6 +62,7 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
     private ScanEcgView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
+    private final EcgSignalBroadcastFragment signalBroadcastFragment = new EcgSignalBroadcastFragment(); // 信号广播Fragment
     private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
     private EcgMonitorDevice device; // 设备
 
@@ -74,6 +75,7 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
         super.onCreateView(inflater, container, savedInstanceState);
         device = (EcgMonitorDevice) getDevice();
         signalRecordFragment.setDevice(device);
+        signalBroadcastFragment.setDevice(device);
         return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
     }
 
@@ -94,8 +96,8 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
         initialEcgView();
         ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
         TabLayout fragTabLayout = view.findViewById(R.id.tl_ecg_controller);
-        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(signalRecordFragment, hrStatisticsFragment));
-        List<String> titleList = new ArrayList<>(Arrays.asList(EcgSignalRecordFragment.TITLE, EcgHrStatisticsFragment.TITLE));
+        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(signalRecordFragment, signalBroadcastFragment, hrStatisticsFragment));
+        List<String> titleList = new ArrayList<>(Arrays.asList(EcgSignalRecordFragment.TITLE, EcgSignalBroadcastFragment.TITLE, EcgHrStatisticsFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         fragViewPager.setAdapter(fragAdapter);
         fragTabLayout.setupWithViewPager(fragViewPager);
@@ -204,6 +206,11 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
     @Override
     public void onRecordStateUpdated(final boolean isRecord) {
         signalRecordFragment.setSignalRecordStatus(isRecord);
+    }
+
+    @Override
+    public void onBroadcastStateUpdated(final boolean isBroadcast) {
+        signalBroadcastFragment.setSignalBroadcastStatus(isBroadcast);
     }
 
     @Override

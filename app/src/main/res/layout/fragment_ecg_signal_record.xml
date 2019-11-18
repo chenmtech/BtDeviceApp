@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragment_sample_ecgsignal"
+    android:id="@+id/fragment_ecg_signal_record"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="2"
-        android:layout_margin="6dp"
+        android:layout_margin="4dp"
         android:orientation="vertical"
         android:baselineAligned="false">
 
@@ -31,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="采集信号" />
+                android:text="记录信号" />
 
             <TextView
                 android:id="@+id/tv_ecg_signal_recordtime"
@@ -43,6 +43,12 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="标记：" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_ecg_marker"

@@ -22,12 +22,10 @@ public class EcgMarkerAdapter extends RecyclerView.Adapter<EcgMarkerAdapter.View
     private final OnMarkerClickListener listener;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-
         Button btnMarker;
 
         ViewHolder(View itemView) {
             super(itemView);
-
             btnMarker = itemView.findViewById(R.id.btn_ecg_marker);
         }
     }
@@ -72,5 +70,4 @@ public class EcgMarkerAdapter extends RecyclerView.Adapter<EcgMarkerAdapter.View
         this.enable = enable;
         notifyDataSetChanged();
     }
-
 }

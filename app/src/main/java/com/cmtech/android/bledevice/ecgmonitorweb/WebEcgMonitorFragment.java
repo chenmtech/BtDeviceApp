@@ -203,6 +203,11 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
     }
 
     @Override
+    public void onBroadcastStateUpdated(boolean isBroadcast) {
+
+    }
+
+    @Override
     public void onShowSetupUpdated(int sampleRate, int value1mV, double zeroLocation) {
         ecgView.updateShowSetup(sampleRate, value1mV, zeroLocation);
     }
