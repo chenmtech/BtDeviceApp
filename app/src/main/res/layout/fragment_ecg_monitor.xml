@@ -22,7 +22,7 @@
             android:text="采样率："/>
 
         <TextView
-            android:id="@+id/tv_ecg_samplerate"
+            android:id="@+id/tv_ecg_sample_rate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="未知"/>
@@ -41,7 +41,7 @@
             android:text="导联："/>
 
         <TextView
-            android:id="@+id/tv_ecg_leadtype"
+            android:id="@+id/tv_ecg_lead_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
@@ -54,7 +54,7 @@
             android:text="定标值："/>
 
         <TextView
-            android:id="@+id/tv_ecg_1mv"
+            android:id="@+id/tv_ecg_1mv_cali_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
@@ -100,7 +100,7 @@
     </FrameLayout>
 
     <android.support.design.widget.TabLayout
-        android:id="@+id/tl_ecg_controller"
+        android:id="@+id/tl_ecg_control_panel"
         android:layout_width="match_parent"
         android:layout_height="20dp"
         app:tabGravity="center"
@@ -119,7 +119,7 @@
         android:background="@color/primary_dark"/>
 
     <android.support.v4.view.ViewPager
-        android:id="@+id/vp_ecg_controller"
+        android:id="@+id/vp_ecg_control_panel"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>

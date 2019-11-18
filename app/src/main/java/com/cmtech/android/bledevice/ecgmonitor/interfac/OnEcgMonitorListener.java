@@ -12,12 +12,11 @@ public interface OnEcgMonitorListener {
     void onRecordStateUpdated(boolean isRecord); // 记录状态更新
     void onBroadcastStateUpdated(boolean isBroadcast); // 广播状态更新
     void onShowSetupUpdated(int sampleRate, int value1mV, double zeroLocation); // 信号显示设置更新
-    void onEcgSignalUpdated(int ecgSignal); // 信号显示
-    void onEcgSignalShowStarted(int sampleRate); // 信号显示启动
-    void onEcgSignalShowStopped(); // 信号显示停止
-    void onRecordSecondUpdated(int second); // 信号记录秒数更新
+    void onEcgSignalUpdated(int ecgSignal); // 心电信号更新
+    void onEcgSignalShowStateUpdated(boolean isStart); // 心电信号显示状态更新
+    void onEcgSignalRecordSecondUpdated(int second); // 心电信号记录秒数更新
     void onHrUpdated(int hr); // 心率值更新，单位bpm
-    void onHrStaticsInfoUpdated(HrStatisticsInfo hrStaticsInfo); // 心率统计信息更新
+    void onHrStatisticsInfoUpdated(HrStatisticsInfo hrStaticsInfo); // 心率统计信息更新
     void onHrAbnormalNotified(); // 心率值异常通知
     void onBatteryUpdated(int bat); // 电池电量更新
 }

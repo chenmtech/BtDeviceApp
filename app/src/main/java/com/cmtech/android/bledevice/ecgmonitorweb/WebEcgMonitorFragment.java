@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
+import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
   *
@@ -50,8 +51,7 @@ import static android.app.Activity.RESULT_OK;
  */
 
 public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonitorListener, ScanWaveView.OnScanWaveViewListener{
-    private static final String TAG = "EcgMonitorFragment";
-    public static final double ZERO_LOCATION_IN_ECG_VIEW = 0.5;
+    private static final String TAG = "WebEcgMonitorFragment";
 
     private TextView tvSampleRate; // 采样率
     private TextView tvLeadType; // 导联类型
@@ -71,16 +71,16 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         device = (WebEcgMonitorDevice) getDevice();
-        return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
+        return inflater.inflate(R.layout.fragment_ecg_monitor, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvSampleRate = view.findViewById(R.id.tv_ecg_samplerate);
-        tvLeadType = view.findViewById(R.id.tv_ecg_leadtype);
-        tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
+        tvSampleRate = view.findViewById(R.id.tv_ecg_sample_rate);
+        tvLeadType = view.findViewById(R.id.tv_ecg_lead_type);
+        tvValue1mV = view.findViewById(R.id.tv_ecg_1mv_cali_value);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
         tvPauseShowing = view.findViewById(R.id.tv_pause_showing);
         ecgView = view.findViewById(R.id.rwv_signal_view);
@@ -89,8 +89,8 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
         tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), device.getValue1mV()));
         tvHeartRate.setText("");
         initialEcgView();
-        ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
-        TabLayout fragTabLayout = view.findViewById(R.id.tl_ecg_controller);
+        ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_control_panel);
+        TabLayout fragTabLayout = view.findViewById(R.id.tl_ecg_control_panel);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(hrStatisticsFragment));
         List<String> titleList = new ArrayList<>(Arrays.asList(EcgHrStatisticsFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
@@ -101,7 +101,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
     }
 
     private void initialEcgView() {
-        ecgView.updateShowSetup(device.getSampleRate(), device.getValue1mV(), ZERO_LOCATION_IN_ECG_VIEW);
+        ecgView.updateShowSetup(device.getSampleRate(), device.getValue1mV(), DEFAULT_ZERO_LOCATION);
     }
 
     @Override
@@ -218,17 +218,15 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
     }
 
     @Override
-    public void onEcgSignalShowStarted(int sampleRate) {
-        ecgView.start();
+    public void onEcgSignalShowStateUpdated(boolean isStart) {
+        if(isStart)
+            ecgView.start();
+        else
+            ecgView.stop();
     }
 
     @Override
-    public void onEcgSignalShowStopped() {
-        ecgView.stop();
-    }
-
-    @Override
-    public void onRecordSecondUpdated(final int second) {
+    public void onEcgSignalRecordSecondUpdated(final int second) {
 
     }
 
@@ -243,7 +241,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
     }
 
     @Override
-    public void onHrStaticsInfoUpdated(final HrStatisticsInfo hrStaticsInfoAnalyzer) {
+    public void onHrStatisticsInfoUpdated(final HrStatisticsInfo hrStaticsInfoAnalyzer) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

@@ -25,9 +25,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import static com.cmtech.android.bledevice.ecgmonitor.fragment.EcgMonitorFragment.ZERO_LOCATION_IN_ECG_VIEW;
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 
 /**
@@ -154,7 +153,7 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
                     // 初始化信号显示设置
                     initializeSignalShowSetup(sampleRate);
                     if(listener != null) {
-                        listener.onEcgSignalShowStarted(sampleRate);
+                        listener.onEcgSignalShowStateUpdated(true);
                     }
 
                     if(showTimer != null) {
@@ -199,7 +198,7 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
 
     private void updateSignalShowSetup(int sampleRate, int value1mV) {
         if(listener != null)
-            listener.onShowSetupUpdated(sampleRate, value1mV, ZERO_LOCATION_IN_ECG_VIEW);
+            listener.onShowSetupUpdated(sampleRate, value1mV, DEFAULT_ZERO_LOCATION);
     }
 
     @Override
@@ -256,7 +255,7 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onRecordSecondUpdated(second);
+                    listener.onEcgSignalRecordSecondUpdated(second);
                 }
             });
         }
@@ -311,7 +310,7 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
     @Override
     public void onHrStatisticInfoUpdated(HrStatisticsInfo hrInfoObject) {
         if(listener != null) {
-            listener.onHrStaticsInfoUpdated(hrInfoObject);
+            listener.onHrStatisticsInfoUpdated(hrInfoObject);
         }
     }
 }

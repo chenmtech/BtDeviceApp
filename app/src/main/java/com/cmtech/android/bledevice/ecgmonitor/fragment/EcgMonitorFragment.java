@@ -37,6 +37,7 @@ import java.util.Locale;
 
 import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
   *
@@ -52,18 +53,17 @@ import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.
 
 public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorListener, ScanWaveView.OnScanWaveViewListener {
     private static final String TAG = "EcgMonitorFragment";
-    public static final double ZERO_LOCATION_IN_ECG_VIEW = 0.5;
 
     private TextView tvSampleRate; // 采样率
     private TextView tvLeadType; // 导联类型
-    private TextView tvValue1mV; // 1mV值
+    private TextView tvCaliValue1mV; // 1mV标定值
     private TextView tvHeartRate; // 心率值
-    private TextView tvPauseShowing; // 暂停显示
+    private TextView tvPauseShow; // 暂停显示
     private ScanEcgView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
-    private final EcgSignalRecordFragment signalRecordFragment = new EcgSignalRecordFragment(); // 信号记录Fragment
-    private final EcgSignalBroadcastFragment signalBroadcastFragment = new EcgSignalBroadcastFragment(); // 信号广播Fragment
-    private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
+    private final EcgRecordFragment recordFragment = new EcgRecordFragment(); // 信号记录Fragment
+    private final EcgBroadcastFragment broadcastFragment = new EcgBroadcastFragment(); // 信号广播Fragment
+    private final EcgHrStatisticsFragment hrFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
     private EcgMonitorDevice device; // 设备
 
     public EcgMonitorFragment() {
@@ -73,41 +73,46 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        if(!(getDevice() instanceof EcgMonitorDevice)) {
+            throw new IllegalStateException("The device type is wrong.");
+        }
         device = (EcgMonitorDevice) getDevice();
-        signalRecordFragment.setDevice(device);
-        signalBroadcastFragment.setDevice(device);
-        return inflater.inflate(R.layout.fragment_ecgmonitor, container, false);
+        recordFragment.setDevice(device);
+        broadcastFragment.setDevice(device);
+        return inflater.inflate(R.layout.fragment_ecg_monitor, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvSampleRate = view.findViewById(R.id.tv_ecg_samplerate);
-        tvLeadType = view.findViewById(R.id.tv_ecg_leadtype);
-        tvValue1mV = view.findViewById(R.id.tv_ecg_1mv);
+        tvSampleRate = view.findViewById(R.id.tv_ecg_sample_rate);
+        tvLeadType = view.findViewById(R.id.tv_ecg_lead_type);
+        tvCaliValue1mV = view.findViewById(R.id.tv_ecg_1mv_cali_value);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
-        tvPauseShowing = view.findViewById(R.id.tv_pause_showing);
+        tvPauseShow = view.findViewById(R.id.tv_pause_showing);
         ecgView = view.findViewById(R.id.rwv_signal_view);
+
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
-        tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION));
+        tvCaliValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION));
         tvHeartRate.setText("");
         initialEcgView();
-        ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_controller);
-        TabLayout fragTabLayout = view.findViewById(R.id.tl_ecg_controller);
-        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(signalRecordFragment, signalBroadcastFragment, hrStatisticsFragment));
-        List<String> titleList = new ArrayList<>(Arrays.asList(EcgSignalRecordFragment.TITLE, EcgSignalBroadcastFragment.TITLE, EcgHrStatisticsFragment.TITLE));
+        ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
+        TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
+        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(recordFragment, broadcastFragment, hrFragment));
+        List<String> titleList = new ArrayList<>(Arrays.asList(EcgRecordFragment.TITLE, EcgBroadcastFragment.TITLE, EcgHrStatisticsFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
-        fragViewPager.setAdapter(fragAdapter);
-        fragTabLayout.setupWithViewPager(fragViewPager);
+        pager.setAdapter(fragAdapter);
+        layout.setupWithViewPager(pager);
         updateDeviceState(device.getEcgMonitorState());
+
         device.setListener(this);
         ecgView.setListener(this);
     }
 
     private void initialEcgView() {
-        ecgView.updateShowSetup(device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, ZERO_LOCATION_IN_ECG_VIEW);
+        ecgView.updateShowSetup(device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, DEFAULT_ZERO_LOCATION);
     }
 
     @Override
@@ -173,6 +178,7 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
 
         if(device != null)
             device.removeListener();
+
         if(hrAbnormalWarnAudio != null)
             hrAbnormalWarnAudio.stop();
 
@@ -200,17 +206,17 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
 
     @Override
     public void onValue1mVUpdated(final int value1mV, final int value1mVAfterCalibration) {
-        tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", value1mV, value1mVAfterCalibration));
+        tvCaliValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", value1mV, value1mVAfterCalibration));
     }
 
     @Override
     public void onRecordStateUpdated(final boolean isRecord) {
-        signalRecordFragment.setSignalRecordStatus(isRecord);
+        recordFragment.setRecordStatus(isRecord);
     }
 
     @Override
     public void onBroadcastStateUpdated(final boolean isBroadcast) {
-        signalBroadcastFragment.setSignalBroadcastStatus(isBroadcast);
+        broadcastFragment.setBroadcastStatus(isBroadcast);
     }
 
     @Override
@@ -224,18 +230,16 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
     }
 
     @Override
-    public void onEcgSignalShowStarted(int sampleRate) {
-        ecgView.start();
+    public void onEcgSignalShowStateUpdated(boolean isStart) {
+        if(isStart)
+            ecgView.start();
+        else
+            ecgView.stop();
     }
 
     @Override
-    public void onEcgSignalShowStopped() {
-        ecgView.stop();
-    }
-
-    @Override
-    public void onRecordSecondUpdated(final int second) {
-        signalRecordFragment.setSignalSecNum(second);
+    public void onEcgSignalRecordSecondUpdated(final int second) {
+        recordFragment.setSignalSecNum(second);
     }
 
     @Override
@@ -249,11 +253,11 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
     }
 
     @Override
-    public void onHrStaticsInfoUpdated(final HrStatisticsInfo hrStaticsInfoAnalyzer) {
+    public void onHrStatisticsInfoUpdated(final HrStatisticsInfo hrStaticsInfoAnalyzer) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                hrStatisticsFragment.updateHrInfo(hrStaticsInfoAnalyzer);
+                hrFragment.updateHrInfo(hrStaticsInfoAnalyzer);
             }
         });
     }
@@ -305,9 +309,9 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
     @Override
     public void onShowStateUpdated(boolean isShow) {
         if(isShow) {
-            tvPauseShowing.setVisibility(View.GONE);
+            tvPauseShow.setVisibility(View.GONE);
         } else {
-            tvPauseShowing.setVisibility(View.VISIBLE);
+            tvPauseShow.setVisibility(View.VISIBLE);
         }
     }
 }

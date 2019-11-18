@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.ecgmonitor.activity
- * ClassName:      EcgSignalRecordFragment
+ * ClassName:      EcgRecordFragment
  * Description:    控制记录Ecg信号的Fragment
  * Author:         chenm
  * CreateDate:     2019-04-15 上午5:26
@@ -37,7 +37,7 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class EcgSignalRecordFragment extends Fragment{
+public class EcgRecordFragment extends Fragment{
     public static final String TITLE = "信号记录";
     private ImageButton ibRecord; // 切换信号记录状态
     private TextView tvRecordTime; // 已记录信号时长
@@ -81,7 +81,7 @@ public class EcgSignalRecordFragment extends Fragment{
 
         ibRecord = view.findViewById(R.id.ib_ecg_record);
         // 根据设备的isRecord初始化Record按钮
-        setSignalRecordStatus(device.isRecord());
+        setRecordStatus(device.isRecord());
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -98,7 +98,7 @@ public class EcgSignalRecordFragment extends Fragment{
         tvRecordTime.setText(DateTimeUtil.secToTimeInChinese(second));
     }
 
-    public void setSignalRecordStatus(final boolean isRecord) {
+    public void setRecordStatus(final boolean isRecord) {
         int imageId = (isRecord) ? R.mipmap.ic_start_48px : R.mipmap.ic_stop_48px;
         ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
         markerAdapter.setEnabled(isRecord);

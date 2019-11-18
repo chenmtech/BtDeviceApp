@@ -35,10 +35,10 @@ import java.util.concurrent.TimeUnit;
 import static com.cmtech.android.ble.BleConfig.CCC_UUID;
 import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG_SIGNAL;
-import static com.cmtech.android.bledevice.ecgmonitor.fragment.EcgMonitorFragment.ZERO_LOCATION_IN_ECG_VIEW;
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.PIXEL_PER_GRID;
 import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.SECOND_PER_GRID;
+import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
 
 
@@ -230,7 +230,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
         dataProcessor.stop();
 
         if(listener != null) {
-            listener.onEcgSignalShowStopped();
+            listener.onEcgSignalShowStateUpdated(false);
         }
         if(containBatteryService) {
             stopBatteryMeasure();
@@ -242,7 +242,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
         dataProcessor.stop();
 
         if(listener != null) {
-            listener.onEcgSignalShowStopped();
+            listener.onEcgSignalShowStateUpdated(false);
         }
         if(containBatteryService) {
             stopBatteryMeasure();
@@ -343,7 +343,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
                 // 初始化信号显示设置
                 initializeSignalShowSetup(sampleRate);
                 if(listener != null) {
-                    listener.onEcgSignalShowStarted(sampleRate);
+                    listener.onEcgSignalShowStateUpdated(true);
                 }
                 // 生成1mV波形数据
                 int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * sampleRate));
@@ -575,7 +575,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    listener.onRecordSecondUpdated(second);
+                    listener.onEcgSignalRecordSecondUpdated(second);
                 }
             });
         }
@@ -666,7 +666,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
 
     private void updateSignalShowSetup(int sampleRate, int value1mV) {
         if(listener != null)
-            listener.onShowSetupUpdated(sampleRate, value1mV, ZERO_LOCATION_IN_ECG_VIEW);
+            listener.onShowSetupUpdated(sampleRate, value1mV, DEFAULT_ZERO_LOCATION);
     }
 
     private void updateBattery(final int bat) {
@@ -679,7 +679,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
     @Override
     public void onHrStatisticInfoUpdated(final HrStatisticsInfo hrStatisticsInfo) {
         if(listener != null) {
-            listener.onHrStaticsInfoUpdated(hrStatisticsInfo);
+            listener.onHrStatisticsInfoUpdated(hrStatisticsInfo);
         }
     }
 }
