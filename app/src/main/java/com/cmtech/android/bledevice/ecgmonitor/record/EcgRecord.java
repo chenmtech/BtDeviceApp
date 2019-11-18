@@ -1,10 +1,10 @@
 package com.cmtech.android.bledevice.ecgmonitor.record;
 
-import com.cmtech.android.bledevice.ecgmonitor.util.EcgMonitorUtil;
+import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgCommentFactory;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
+import com.cmtech.android.bledevice.ecgmonitor.util.EcgMonitorUtil;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.DataIOUtil;
@@ -58,8 +58,8 @@ public class EcgRecord extends LitePalSupport {
         sigFileName = "";
         dataNum = 0;
         sigRaf = null;
-        hrList = new ArrayList<>();
-        commentList = new ArrayList<>();
+        hrList = null;
+        commentList = null;
         isModify = false;
     }
 
@@ -67,6 +67,9 @@ public class EcgRecord extends LitePalSupport {
     public static EcgRecord create(User creator, int sampleRate, int caliValue, String deviceAddress, EcgLeadType leadType) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
+        }
+        if(DIR_CACHE == null) {
+            throw new NullPointerException("The cache dir is null");
         }
         EcgRecord record = new EcgRecord();
         record.deviceAddress = EcgMonitorUtil.deleteColon(deviceAddress);
@@ -79,11 +82,77 @@ public class EcgRecord extends LitePalSupport {
         record.dataNum = 0;
         record.hrList = new ArrayList<>();
         record.commentList = new ArrayList<>();
-        record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.getRecordId() + ".bme";
+        record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.getRecordName() + ".bme";
         if(record.createSigFile()) {
             return record;
         }
         return null;
+    }
+
+    // 从文件加载记录
+    public static EcgRecord load(String fileName) {
+        if(DIR_CACHE == null) {
+            throw new NullPointerException("The cache dir is null");
+        }
+        File file = new File(fileName);
+        RandomAccessFile raf = null;
+        try {
+            if(file.exists() && file.renameTo(file)) {
+                EcgRecord record = new EcgRecord();
+                raf = new RandomAccessFile(file, "r");
+                // 读标识符
+                byte[] ecg = new byte[3];
+                raf.readFully(ecg);
+                if(!Arrays.equals(ecg, ECG)) {
+                    raf.close();
+                    return null;
+                }
+                record.deviceAddress = DataIOUtil.readFixedString(raf, DEVICE_ADDRESS_CHAR_NUM);
+                record.createTime = raf.readLong();
+                record.creator = new User();
+                record.creator.readFromStream(raf);
+                record.modifyTime = raf.readLong();
+                record.sampleRate = raf.readInt();
+                record.caliValue = raf.readInt();
+                record.leadTypeCode = (int) raf.readByte();
+                record.dataNum = raf.readInt();
+                record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.getRecordName() + ".bme";
+                if(!record.createSigFile()) {
+                    raf.close();
+                    return null;
+                }
+                record.openSigFile();
+                for(int i = 0 ; i < record.dataNum; i++) {
+                    record.sigRaf.writeInt(raf.readInt());
+                }
+                record.closeSigFile();
+                // 读心率信息
+                int hrLen = raf.readInt();
+                record.hrList = new ArrayList<>();
+                for(int i = 0; i < hrLen; i++) {
+                    record.hrList.add(raf.readShort());
+                }
+                // 写留言信息
+                int commentLen = raf.readInt();
+                record.commentList = new ArrayList<>();
+                for(int i = 0; i < commentLen; i++) {
+                    record.commentList.add((EcgNormalComment) EcgCommentFactory.readFromStream(raf));
+                }
+                raf.close();
+                return record;
+            } else {
+                throw new IOException("The ecg record file can't be opened.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            try {
+                if(raf != null)
+                    raf.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            return null;
+        }
     }
 
     // 将记录保存为文件
@@ -135,67 +204,6 @@ public class EcgRecord extends LitePalSupport {
         }
     }
 
-    // 从文件加载记录
-    public static EcgRecord load(String fileName) {
-        File file = new File(fileName);
-        RandomAccessFile raf = null;
-        try {
-            if(file.exists() && file.renameTo(file)) {
-                EcgRecord record = new EcgRecord();
-                raf = new RandomAccessFile(file, "r");
-                // 读标识符
-                byte[] ecg = new byte[3];
-                raf.readFully(ecg);
-                if(!Arrays.equals(ecg, ECG)) {
-                    raf.close();
-                    return null;
-                }
-                record.deviceAddress = DataIOUtil.readFixedString(raf, DEVICE_ADDRESS_CHAR_NUM);
-                record.createTime = raf.readLong();
-                record.creator = new User();
-                record.creator.readFromStream(raf);
-                record.modifyTime = raf.readLong();
-                record.sampleRate = raf.readInt();
-                record.caliValue = raf.readInt();
-                record.leadTypeCode = (int) raf.readByte();
-                record.dataNum = raf.readInt();
-                record.sigFileName = DIR_CACHE.getAbsolutePath() + File.separator + "sig_" + record.getRecordId() + ".bme";
-                if(!record.createSigFile()) {
-                    raf.close();
-                    return null;
-                }
-                record.openSigFile();
-                for(int i = 0 ; i < record.dataNum; i++) {
-                    record.sigRaf.writeInt(raf.readInt());
-                }
-                record.closeSigFile();
-                // 读心率信息
-                int hrLen = raf.readInt();
-                for(int i = 0; i < hrLen; i++) {
-                    record.hrList.add(raf.readShort());
-                }
-                // 写留言信息
-                int commentLen = raf.readInt();
-                for(int i = 0; i < commentLen; i++) {
-                    record.commentList.add((EcgNormalComment) EcgCommentFactory.readFromStream(raf));
-                }
-                raf.close();
-                return record;
-            } else {
-                throw new IOException("The file can't be opened.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            try {
-                if(raf != null)
-                    raf.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            return null;
-        }
-    }
-
     // 创建信号文件
     private boolean createSigFile() {
         File sigFile = new File(sigFileName);
@@ -240,7 +248,7 @@ public class EcgRecord extends LitePalSupport {
     public int getId() {
         return id;
     }
-    public String getRecordId() {
+    public String getRecordName() {
         return deviceAddress + createTime;
     }
     public long getModifyTime() {
@@ -260,6 +268,11 @@ public class EcgRecord extends LitePalSupport {
         return sampleRate;
     }
     public User getCreator() {
+        if(creator == null) {
+            List<User> users = LitePal.where("ecgrecord_id=?", String.valueOf(id)).find(User.class);
+            if(!users.isEmpty())
+                creator = users.get(0);
+        }
         return creator;
     }
     public String getCreatorName() {
@@ -275,7 +288,8 @@ public class EcgRecord extends LitePalSupport {
         return caliValue;
     }
     public List<EcgNormalComment> getCommentList() {
-        commentList = LitePal.where("ecgrecord_id = ?", String.valueOf(id)).find(EcgNormalComment.class);
+        if(commentList == null)
+            commentList = LitePal.where("ecgrecord_id = ?", String.valueOf(id)).find(EcgNormalComment.class);
         return commentList;
     }
     // 添加一条留言
@@ -356,17 +370,25 @@ public class EcgRecord extends LitePalSupport {
     public boolean save() {
         if(isModify)
             this.modifyTime = new Date().getTime();
-        creator.save();
-        for(EcgNormalComment comment : commentList) {
-            comment.save();
+        if(creator != null)
+            creator.save();
+        if(commentList != null) {
+            for (EcgNormalComment comment : commentList) {
+                comment.save();
+            }
         }
         return super.save();
     }
 
     @Override
     public int delete() {
-        for(EcgNormalComment comment : commentList) {
-            comment.delete();
+        if(creator != null)
+            creator.delete();
+
+        if(commentList != null) {
+            for (EcgNormalComment comment : commentList) {
+                comment.delete();
+            }
         }
         return super.delete();
     }

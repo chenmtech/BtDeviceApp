@@ -180,7 +180,7 @@ public class EcgRecordExplorer {
     // 通过微信分享选中记录
     public void shareSelectedRecordThroughWechat(PlatformActionListener listener) {
         if(selectedRecord == null) return;
-        String recordName = selectedRecord.getRecordId();
+        String recordName = selectedRecord.getRecordName();
         String fileName = DIR_CACHE.getAbsolutePath() + File.separator + recordName + ".bme";
         if(!selectedRecord.save(fileName)) return;
         Platform.ShareParams sp = new Platform.ShareParams();

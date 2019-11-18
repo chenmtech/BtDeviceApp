@@ -64,7 +64,6 @@ import com.cmtech.android.bledeviceapp.model.BleFragTabManager;
 import com.cmtech.android.bledeviceapp.model.BleNotifyService;
 import com.cmtech.android.bledeviceapp.model.FragTabManager;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
-import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.vise.log.ViseLog;
 
@@ -92,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     private static final String TAG = "MainActivity";
     private final static int RC_REGISTER_DEVICE = 1;     // 注册设备返回码
     private final static int RC_MODIFY_REGISTER_INFO = 2;       // 修改设备注册信息返回码
-    private final static int RC_MODIFY_USER_INFO = 3;     // 修改用户信息返回码
+    private final static int RC_MODIFY_ACCOUNT_INFO = 3;     // 修改账户信息返回码
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
     private BleNotifyService bleNotifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
@@ -107,8 +106,8 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     private LinearLayout noDeviceOpenedLayout; // 无设备打开时的界面
     private RelativeLayout hasDeviceOpenedLayout; // 有设备打开时的界面，即包含设备Fragment和Tablayout的主界面
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
-    private TextView tvUserName; // 账户名称控件
-    private ImageView ivUserPortrait; // 头像控件
+    private TextView tvAccountName; // 账户名称控件
+    private ImageView ivAccountImage; // 头像头像控件
     private boolean isWarningBleInnerError = false;
     private boolean stopNotifyService = false; // 是否停止通知服务
 
@@ -266,24 +265,24 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
             }
         }
 
-        User user = AccountManager.getInstance().getAccount();
-        if(TextUtils.isEmpty(user.getName())) {
+        Account account = AccountManager.getInstance().getAccount();
+        if(TextUtils.isEmpty(account.getName())) {
             Intent intent = new Intent(MainActivity.this, AccountActivity.class);
-            startActivityForResult(intent, RC_MODIFY_USER_INFO);
+            startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
         }
     }
 
     private void initNavigation() {
         NavigationView navView = findViewById(R.id.nav_view);
         View headerView = navView.getHeaderView(0);
-        tvUserName = headerView.findViewById(R.id.tv_user_name);
-        ivUserPortrait = headerView.findViewById(R.id.iv_account_image);
+        tvAccountName = headerView.findViewById(R.id.tv_account_name);
+        ivAccountImage = headerView.findViewById(R.id.iv_account_image);
 
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, AccountActivity.class);
-                startActivityForResult(intent, RC_MODIFY_USER_INFO);
+                startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
             }
         });
 
@@ -411,14 +410,14 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
                 }
                 break;
 
-            case RC_MODIFY_USER_INFO: // 修改用户信息返回
+            case RC_MODIFY_ACCOUNT_INFO: // 修改用户信息返回
                 if(resultCode == RESULT_OK) {
                     updateNavigation();
                     toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
                 } else {
                     boolean logout = (data != null && data.getBooleanExtra("logout", false));
                     if(logout) { // 退出登录
-                        logoutUser();
+                        logoutAccount();
                     }
                 }
                 break;
@@ -689,7 +688,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     }
 
     // 退出登录
-    private void logoutUser() {
+    private void logoutAccount() {
         if(BleDeviceManager.hasOpenedDevice()) {
             Toast.makeText(this, "有设备打开，请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
@@ -711,13 +710,13 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
         }
 
         if(account.getName() == null || "".equals(account.getName().trim())) {
-            tvUserName.setText("请设置");
+            tvAccountName.setText("请设置");
         } else {
-            tvUserName.setText(account.getName());
+            tvAccountName.setText(account.getName());
         }
         String imagePath = account.getImagePath();
         if(imagePath != null && !"".equals(imagePath))
-            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivUserPortrait);
+            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
     }
 
     // 更新MainLayout的可视性

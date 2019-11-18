@@ -19,7 +19,7 @@
             android:layout_marginBottom="5dp"/>
 
         <TextView
-            android:id="@+id/tv_user_name"
+            android:id="@+id/tv_account_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
