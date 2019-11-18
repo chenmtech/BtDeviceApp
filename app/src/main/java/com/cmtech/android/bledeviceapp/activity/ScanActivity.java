@@ -208,8 +208,8 @@ public class ScanActivity extends AppCompatActivity {
         }
 
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
-        Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
         BleDeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(device.getAddress(), uuidShortString);
+        Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, 1);
     }

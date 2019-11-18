@@ -92,11 +92,6 @@ public class BleNotifyService extends Service implements AbstractDevice.OnBleDev
                device.addListener(this);
            }
         }
-        BleDeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo("00:00:00:00:00:00", "ab40");
-        AbstractDevice device = BleDeviceManager.createDeviceIfNotExist(registerInfo);
-        if(device != null) {
-            device.addListener(this);
-        }
     }
 
     private void initNotificationBuilder() {

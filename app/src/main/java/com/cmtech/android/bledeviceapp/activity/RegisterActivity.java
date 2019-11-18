@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     public static final String DEVICE_REGISTER_INFO = "device_register_info";
 
     private BleDeviceRegisterInfo registerInfo; // 设备基本信息
-    private EditText etName; // 设备昵名
+    private EditText etName; // 设备名
     private ImageView ivImage; // 设备图像
     private CheckBox cbIsAutoconnect; // 设备是否自动连接
     private CheckBox cbWarnBleInnerError; // 设备重连失败后是否报警
@@ -81,7 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // 设置设备昵称
         etName = findViewById(R.id.et_device_nickname);
-        String deviceName = registerInfo.getNickName();
+        String deviceName = registerInfo.getName();
         if("".equals(deviceName)) {
             deviceName = type.getDefaultNickname();
         }
@@ -117,7 +117,7 @@ public class RegisterActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                registerInfo.setNickName(etName.getText().toString());
+                registerInfo.setName(etName.getText().toString());
 
                 // 如果图像有变化
                 if(!cacheImagePath.equals(registerInfo.getImagePath())) {

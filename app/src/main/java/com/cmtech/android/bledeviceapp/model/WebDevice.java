@@ -6,6 +6,7 @@ import android.os.Looper;
 
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpBroadcastReceiver;
 import com.vise.log.ViseLog;
 
@@ -89,6 +90,14 @@ public abstract class WebDevice extends AbstractDevice {
 
     @Override
     public void close() {
+        if(!isStopped()) {
+            ViseLog.e("The device can't be closed currently.");
+            return;
+        }
+
+        ViseLog.e("WebDevice.close()");
+
+        setState(BleDeviceState.CLOSED);
 
     }
 

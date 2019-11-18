@@ -17,7 +17,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -52,6 +55,7 @@ import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordExplorerActivity;
+import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpBroadcastReceiver;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RegisteredDeviceAdapter;
@@ -93,6 +97,8 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     private final static int RC_MODIFY_REGISTER_INFO = 2;       // 修改设备注册信息返回码
     private final static int RC_MODIFY_ACCOUNT_INFO = 3;     // 修改账户信息返回码
 
+    private static final int MSG_OBTAIN_BROADCAST_ID_LIST = 0;
+
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
     private BleNotifyService bleNotifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
     public BleNotifyService getBleNotifyService() {
@@ -110,6 +116,29 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     private ImageView ivAccountImage; // 头像头像控件
     private boolean isWarningBleInnerError = false;
     private boolean stopNotifyService = false; // 是否停止通知服务
+
+
+    private Handler handler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_OBTAIN_BROADCAST_ID_LIST:
+                    final List<String> broadcastIdList = (List<String>) msg.obj;
+                    ViseLog.e(broadcastIdList);
+                    if(!broadcastIdList.isEmpty()) {
+                        for(String str : broadcastIdList) {
+                            BleDeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(str, "ab40");
+                            if(BleDeviceManager.findDevice(registerInfo) == null) {
+                                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+                                intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
+                                startActivityForResult(intent, 1);
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+    };
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -211,6 +240,19 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(intent);
         }
+
+        // 获取网络广播设备列表
+        EcgHttpBroadcastReceiver.retrieveBroadcastIdList(AccountManager.getInstance().getAccount().getPhone(), new EcgHttpBroadcastReceiver.IEcgBroadcastIdListCallback() {
+            @Override
+            public void onReceived(List<String> broadcastIdList) {
+                broadcastIdList.add("00:00:00:00:00:00");
+                broadcastIdList.add("00:00:00:00:00:01");
+                Message msg = new Message();
+                msg.what = MSG_OBTAIN_BROADCAST_ID_LIST;
+                msg.obj = broadcastIdList;
+                handler.sendMessage(msg);
+            }
+        });
     }
 
     // 主界面初始化
@@ -365,19 +407,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
             case RC_REGISTER_DEVICE: // 注册设备返回
                 if(resultCode == RESULT_OK) {
                     BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
-                    if(registerInfo != null) {
-                        AbstractDevice device = BleDeviceManager.createDeviceIfNotExist(registerInfo);
-                        if(device != null) {
-                            if(registerInfo.saveToPref(pref)) {
-                                Toast.makeText(MainActivity.this, "设备注册成功", Toast.LENGTH_SHORT).show();
-                                if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
-                                device.addListener(bleNotifyService);
-                            } else {
-                                Toast.makeText(MainActivity.this, "设备注册失败", Toast.LENGTH_SHORT).show();
-                                BleDeviceManager.deleteDevice(device);
-                            }
-                        }
-                    }
+                    registerDevice(registerInfo);
                 }
                 break;
 
@@ -421,6 +451,22 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
                     }
                 }
                 break;
+        }
+    }
+
+    private void registerDevice(BleDeviceRegisterInfo registerInfo) {
+        if(registerInfo != null) {
+            AbstractDevice device = BleDeviceManager.createDeviceIfNotExist(registerInfo);
+            if(device != null) {
+                if(registerInfo.saveToPref(pref)) {
+                    Toast.makeText(MainActivity.this, "设备注册成功", Toast.LENGTH_SHORT).show();
+                    if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
+                    device.addListener(bleNotifyService);
+                } else {
+                    Toast.makeText(MainActivity.this, "设备注册失败", Toast.LENGTH_SHORT).show();
+                    BleDeviceManager.deleteDevice(device);
+                }
+            }
         }
     }
 
