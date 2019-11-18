@@ -26,6 +26,7 @@ import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.interfac.OnEcgMonitorListener;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
+import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
@@ -51,7 +52,7 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
   * Version:        1.0
  */
 
-public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorListener, ScanWaveView.OnScanWaveViewListener {
+public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorListener, OnWaveViewListener {
     private static final String TAG = "EcgMonitorFragment";
 
     private TextView tvSampleRate; // 采样率
@@ -253,11 +254,11 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
     }
 
     @Override
-    public void onHrStatisticsInfoUpdated(final HrStatisticsInfo hrStaticsInfoAnalyzer) {
+    public void onHrStatisticsInfoUpdated(final HrStatisticsInfo hrStatisticsInfo) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                hrFragment.updateHrInfo(hrStaticsInfoAnalyzer);
+                hrFragment.updateHrInfo(hrStatisticsInfo);
             }
         });
     }

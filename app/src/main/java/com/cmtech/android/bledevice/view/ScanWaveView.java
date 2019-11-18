@@ -94,11 +94,7 @@ public class ScanWaveView extends View {
         }
     }
 
-    // 扫描式波形视图监听器接口
-    public interface OnScanWaveViewListener {
-        void onShowStateUpdated(boolean isShow); // 显示状态更新
-    }
-    protected OnScanWaveViewListener listener;
+    protected OnWaveViewListener listener;
 
 
     private GestureDetector gestureDetector;
@@ -400,7 +396,7 @@ public class ScanWaveView extends View {
         //mainPaint.setStrokeWidth(2);
     }
 
-    public void setListener(OnScanWaveViewListener listener) {
+    public void setListener(OnWaveViewListener listener) {
         this.listener = listener;
     }
 }

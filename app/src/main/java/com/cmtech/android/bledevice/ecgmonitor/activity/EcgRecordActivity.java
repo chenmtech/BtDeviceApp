@@ -38,6 +38,7 @@ import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalProcessor.HR_FILTER_SECOND;
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalProcessor.HR_HISTOGRAM_BAR_NUM;
+import static com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord.INVALID_SAMPLE_RATE;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener{
     private EcgRecord record;

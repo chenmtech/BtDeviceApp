@@ -401,7 +401,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
         write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_SIGNAL, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                setEcgMonitorState(EcgMonitorState.SAMPLEING);
+                setEcgMonitorState(EcgMonitorState.SAMPLING);
                 dataProcessor.start();
 
                 ViseLog.e("启动ECG信号采样");

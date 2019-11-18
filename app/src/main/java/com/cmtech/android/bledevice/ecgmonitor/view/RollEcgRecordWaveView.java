@@ -137,10 +137,10 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
         ecgRecord.seekData(0);
         num = 0;
 
-        intialShowSetup();
+        initialShowSetup();
     }
 
-    private void intialShowSetup() {
+    private void initialShowSetup() {
         int value1mV = ecgRecord.getCaliValue();
         int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * ecgRecord.getSampleRate())); // 计算横向分辨率
         float valuePerPixel = value1mV * MV_PER_GRID / PIXEL_PER_GRID; // 计算纵向分辨率
