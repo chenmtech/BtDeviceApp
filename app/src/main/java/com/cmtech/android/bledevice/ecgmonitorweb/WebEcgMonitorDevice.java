@@ -117,6 +117,7 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
 
     @Override
     public int getSampleRate() { return sampleRate; }
+    @Override
     public EcgLeadType getLeadType() {
         return leadType;
     }

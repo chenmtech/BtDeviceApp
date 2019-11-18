@@ -50,7 +50,7 @@ public class Value1mVDetector {
         // 采集1个周期的数据
         this.data1mV.add(datum1mV);
         if (this.data1mV.size() >= sampleRate) {
-            //device.stopDataSampling();
+            //device.stopSampling();
             int value1mV = calculateValue1mV(this.data1mV); // 计算得到实际定标前1mV值
             ViseLog.e(this.data1mV.toString() + " " + value1mV);
             device.setValue1mV(value1mV);
