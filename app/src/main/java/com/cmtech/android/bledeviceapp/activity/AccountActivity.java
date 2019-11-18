@@ -25,8 +25,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.User;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -36,55 +36,53 @@ import java.io.IOException;
 import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
 
 /**
- *  UserActivity: 用户信息Activity
+ *  AccountActivity: 账户设置Activity
  *  Created by bme on 2018/10/27.
  */
 
-public class UserActivity extends AppCompatActivity {
-    private EditText etNickname;
-    private ImageView ivPortrait;
-    private EditText etPersonalInfo;
-
-    private String cachePortraitPath = ""; // 头像文件路径缓存
+public class AccountActivity extends AppCompatActivity {
+    private EditText etName;
+    private ImageView ivImage;
+    private EditText etDescription;
+    private String cacheImagePath = ""; // 头像文件路径缓存
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_info);
+        setContentView(R.layout.activity_account_info);
 
         if(!AccountManager.getInstance().isSignIn()) finish();
 
         // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_setuserinfo);
+        Toolbar toolbar = findViewById(R.id.tb_set_account_info);
         setSupportActionBar(toolbar);
 
-        TextView tvPhone = findViewById(R.id.et_user_phone);
-        User user = AccountManager.getInstance().getAccount();
-        String phoneNum = user.getPhone();
-        phoneNum = String.format("00000000000%s", phoneNum);
+        Account account = AccountManager.getInstance().getAccount();
+
+        TextView tvPhone = findViewById(R.id.et_account_phone);
+        String phoneNum = String.format("00000000000%s", account.getPhone());
         phoneNum = phoneNum.substring(phoneNum.length()-11);
-        String phoneStr = String.format("%s****%s", phoneNum.substring(0,3), phoneNum.substring(7));
-        tvPhone.setText(phoneStr);
+        tvPhone.setText(String.format("%s****%s", phoneNum.substring(0,3), phoneNum.substring(7)));
 
-        etNickname = findViewById(R.id.et_user_nickname);
-        etNickname.setText(user.getName());
+        etName = findViewById(R.id.et_account_name);
+        etName.setText(account.getName());
 
-        ivPortrait = findViewById(R.id.iv_user_portrait);
-        cachePortraitPath = user.getPortraitPath();
-        if(TextUtils.isEmpty(cachePortraitPath)) {
-            Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivPortrait);
+        ivImage = findViewById(R.id.iv_account_image);
+        cacheImagePath = account.getImagePath();
+        if(TextUtils.isEmpty(cacheImagePath)) {
+            Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivImage);
         } else {
-            Glide.with(MyApplication.getContext()).load(cachePortraitPath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivPortrait);
+            Glide.with(MyApplication.getContext()).load(cacheImagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
         }
-        ivPortrait.setOnClickListener(new View.OnClickListener() {
+        ivImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openAlbum();
             }
         });
 
-        etPersonalInfo = findViewById(R.id.et_user_personalinfo);
-        etPersonalInfo.setText(user.getPersonalInfo());
+        etDescription = findViewById(R.id.et_account_description);
+        etDescription.setText(account.getDescription());
 
         ImageButton ibLogout = findViewById(R.id.ib_logout);
         ibLogout.setOnClickListener(new View.OnClickListener() {
@@ -97,40 +95,40 @@ public class UserActivity extends AppCompatActivity {
             }
         });
 
-        Button btnOk = findViewById(R.id.btn_userinfo_ok);
+        Button btnOk = findViewById(R.id.btn_account_info_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                User account = AccountManager.getInstance().getAccount();
-                account.setName(etNickname.getText().toString());
+                Account account = AccountManager.getInstance().getAccount();
+                account.setName(etName.getText().toString());
 
-                if(!cachePortraitPath.equals(account.getPortraitPath())) {
+                if(!cacheImagePath.equals(account.getImagePath())) {
                     // 把原来的图像文件删除
-                    if(!"".equals(account.getPortraitPath())) {
-                        File imageFile = new File(account.getPortraitPath());
+                    if(!TextUtils.isEmpty(account.getImagePath())) {
+                        File imageFile = new File(account.getImagePath());
                         imageFile.delete();
                     }
 
-                    // 把当前图像保存，以手机号为文件名
-                    if("".equals(cachePortraitPath)) {
-                        account.setPortraitPath("");
+                    // 把当前图像保存到DIR_IMAGE，以手机号为文件名
+                    if(TextUtils.isEmpty(cacheImagePath)) {
+                        account.setImagePath("");
                     } else {
                         try {
-                            ivPortrait.setDrawingCacheEnabled(true);
-                            Bitmap bitmap = ivPortrait.getDrawingCache();
+                            ivImage.setDrawingCacheEnabled(true);
+                            Bitmap bitmap = ivImage.getDrawingCache();
                             File toFile = FileUtil.getFile(DIR_IMAGE, account.getPhone() + ".jpg");
                             BitmapUtil.saveBitmap(bitmap, toFile);
-                            ivPortrait.setDrawingCacheEnabled(false);
+                            ivImage.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();
-                            account.setPortraitPath(filePath);
+                            account.setImagePath(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            account.setPortraitPath("");
+                            account.setImagePath("");
                         }
                     }
                 }
 
-                account.setPersonalInfo(etPersonalInfo.getText().toString());
+                account.setDescription(etDescription.getText().toString());
                 account.save();
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
@@ -157,12 +155,12 @@ public class UserActivity extends AppCompatActivity {
             case 1:
                 if(resultCode == RESULT_OK) {
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                        cachePortraitPath = handleImageOnKitKat(data);
+                        cacheImagePath = handleImageOnKitKat(data);
                     } else {
-                        cachePortraitPath = handleImageBeforeKitKat(data);
+                        cacheImagePath = handleImageBeforeKitKat(data);
                     }
-                    if(!"".equals(cachePortraitPath)) {
-                        displaySelectedImage(cachePortraitPath);
+                    if(!TextUtils.isEmpty(cacheImagePath)) {
+                        Glide.with(MyApplication.getContext()).load(cacheImagePath).centerCrop().into(ivImage);
                     }
                 }
                 break;
@@ -234,9 +232,5 @@ public class UserActivity extends AppCompatActivity {
             cursor.close();
         }
         return path;
-    }
-
-    private void displaySelectedImage(String imagePath) {
-        Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivPortrait);
     }
 }

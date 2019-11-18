@@ -72,7 +72,7 @@
         <activity android:name="com.cmtech.android.bledevice.temphumid.view.TempHumidConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordExplorerActivity" />
-        <activity android:name=".activity.UserActivity" />
+        <activity android:name=".activity.AccountActivity" />
 
         <service
             android:name=".model.BleNotifyService"

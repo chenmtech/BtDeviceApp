@@ -55,6 +55,7 @@ import com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordExplorerActivit
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RegisteredDeviceAdapter;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
 import com.cmtech.android.bledeviceapp.model.BleDeviceType;
@@ -220,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
         setSupportActionBar(toolbar);
         TextView tvDeviceBattery = findViewById(R.id.tv_device_battery);
         toolbarManager = new MainToolbarManager(this, toolbar, tvDeviceBattery);
-        toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getPortraitPath());
+        toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
 
         // 初始化已注册设备列表
         RecyclerView rvDevices = findViewById(R.id.rv_registed_device);
@@ -267,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
 
         User user = AccountManager.getInstance().getAccount();
         if(TextUtils.isEmpty(user.getName())) {
-            Intent intent = new Intent(MainActivity.this, UserActivity.class);
+            Intent intent = new Intent(MainActivity.this, AccountActivity.class);
             startActivityForResult(intent, RC_MODIFY_USER_INFO);
         }
     }
@@ -276,12 +277,12 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
         NavigationView navView = findViewById(R.id.nav_view);
         View headerView = navView.getHeaderView(0);
         tvUserName = headerView.findViewById(R.id.tv_user_name);
-        ivUserPortrait = headerView.findViewById(R.id.iv_user_portrait);
+        ivUserPortrait = headerView.findViewById(R.id.iv_account_image);
 
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, UserActivity.class);
+                Intent intent = new Intent(MainActivity.this, AccountActivity.class);
                 startActivityForResult(intent, RC_MODIFY_USER_INFO);
             }
         });
@@ -413,10 +414,10 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
             case RC_MODIFY_USER_INFO: // 修改用户信息返回
                 if(resultCode == RESULT_OK) {
                     updateNavigation();
-                    toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getPortraitPath());
+                    toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
                 } else {
                     boolean logout = (data != null && data.getBooleanExtra("logout", false));
-                    if(logout) {
+                    if(logout) { // 退出登录
                         logoutUser();
                     }
                 }
@@ -704,17 +705,17 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     }
 
     private void updateNavigation() {
-        User user = AccountManager.getInstance().getAccount();
-        if(user == null) {
+        Account account = AccountManager.getInstance().getAccount();
+        if(account == null) {
             throw new IllegalStateException();
         }
 
-        if(user.getName() == null || "".equals(user.getName().trim())) {
+        if(account.getName() == null || "".equals(account.getName().trim())) {
             tvUserName.setText("请设置");
         } else {
-            tvUserName.setText(user.getName());
+            tvUserName.setText(account.getName());
         }
-        String imagePath = user.getPortraitPath();
+        String imagePath = account.getImagePath();
         if(imagePath != null && !"".equals(imagePath))
             Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivUserPortrait);
     }

@@ -24,13 +24,12 @@ import java.io.Serializable;
 public class User extends LitePalSupport implements Serializable, Cloneable{
     private static final int PHONE_CHAR_LEN = 15;
     private static final int NAME_CHAR_LEN = 10;
-    private static final int PERSONAL_INFO_CHAR_LEN = 50;
+    private static final int DESCRIPTION_CHAR_LEN = 50;
 
     private int id; // id
-    private String phone = "";
-    private String name = "";
-    private String portraitPath = "";
-    private String personalInfo = "";
+    private String phone = ""; // 手机号
+    private String name = ""; // 名称
+    private String description = ""; // 个人描述信息
 
     public User() {
 
@@ -54,40 +53,34 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
     public void setName(String name) {
         this.name = name;
     }
-    public String getPortraitPath() {
-        return portraitPath;
+    public String getDescription() {
+        return description;
     }
-    public void setPortraitPath(String portraitPath) {
-        this.portraitPath = portraitPath;
-    }
-    public String getPersonalInfo() {
-        return personalInfo;
-    }
-    public void setPersonalInfo(String personalInfo) {
-        this.personalInfo = personalInfo;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public boolean readFromStream(DataInput in) throws IOException{
         phone = DataIOUtil.readFixedString(in, PHONE_CHAR_LEN);
         name = DataIOUtil.readFixedString(in, NAME_CHAR_LEN);
-        personalInfo = DataIOUtil.readFixedString(in, PERSONAL_INFO_CHAR_LEN);
+        description = DataIOUtil.readFixedString(in, DESCRIPTION_CHAR_LEN);
         return true;
     }
 
     public boolean writeToStream(DataOutput out) throws IOException{
         DataIOUtil.writeFixedString(out, phone, PHONE_CHAR_LEN);
         DataIOUtil.writeFixedString(out, name, NAME_CHAR_LEN);
-        DataIOUtil.writeFixedString(out, personalInfo, PERSONAL_INFO_CHAR_LEN);
+        DataIOUtil.writeFixedString(out, description, DESCRIPTION_CHAR_LEN);
         return true;
     }
 
     public int length() {
-        return (PHONE_CHAR_LEN + NAME_CHAR_LEN + PERSONAL_INFO_CHAR_LEN)*2;
+        return (PHONE_CHAR_LEN + NAME_CHAR_LEN + DESCRIPTION_CHAR_LEN)*2;
     }
 
     @Override
     public String toString() {
-        return "User Name：" + name + ' ' + "Personal Info：" + personalInfo;
+        return "Phone: " + phone + " Name：" + name + ' ' + " Personal Info：" + description;
     }
 
     @Override
@@ -109,8 +102,7 @@ public class User extends LitePalSupport implements Serializable, Cloneable{
         User account = new User();
         account.phone = phone;
         account.name = name;
-        account.portraitPath = portraitPath;
-        account.personalInfo = personalInfo;
+        account.description = description;
         return account;
     }
 

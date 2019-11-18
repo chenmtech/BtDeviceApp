@@ -13,4 +13,12 @@ package com.cmtech.android.bledeviceapp.model;
  */
 
 public class Account extends User {
+    private String imagePath = ""; // 头像文件路径
+
+    public String getImagePath() {
+        return imagePath;
+    }
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
 }
