@@ -51,7 +51,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordExplorerActivity;
@@ -61,11 +61,11 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RegisteredDeviceAdapter;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
-import com.cmtech.android.bledeviceapp.model.BleDeviceType;
-import com.cmtech.android.bledeviceapp.model.BleFactory;
-import com.cmtech.android.bledeviceapp.model.BleFragTabManager;
-import com.cmtech.android.bledeviceapp.model.BleNotifyService;
+import com.cmtech.android.bledeviceapp.model.DeviceFragTabManager;
+import com.cmtech.android.bledeviceapp.model.DeviceManager;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
+import com.cmtech.android.bledeviceapp.model.DeviceFactory;
+import com.cmtech.android.bledeviceapp.model.NotifyService;
 import com.cmtech.android.bledeviceapp.model.FragTabManager;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
@@ -100,11 +100,11 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     private static final int MSG_OBTAIN_BROADCAST_ID_LIST = 0;
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-    private BleNotifyService bleNotifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
-    public BleNotifyService getBleNotifyService() {
-        return bleNotifyService;
+    private NotifyService notifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
+    public NotifyService getNotifyService() {
+        return notifyService;
     }
-    private BleFragTabManager fragTabManager; // BleFragment和TabLayout管理器
+    private DeviceFragTabManager fragTabManager; // BleFragment和TabLayout管理器
     private MainToolbarManager toolbarManager; // 工具条管理器
 
     private RegisteredDeviceAdapter registeredDeviceAdapter; // 已注册设备Adapter
@@ -127,8 +127,8 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
                     ViseLog.e(broadcastIdList);
                     if(!broadcastIdList.isEmpty()) {
                         for(String str : broadcastIdList) {
-                            BleDeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(str, "ab40");
-                            if(BleDeviceManager.findDevice(registerInfo) == null) {
+                            DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(str, "ab40");
+                            if(DeviceManager.findDevice(registerInfo) == null) {
                                 Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
                                 intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
                                 startActivityForResult(intent, 1);
@@ -143,9 +143,9 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            bleNotifyService = ((BleNotifyService.BleNotifyServiceBinder)iBinder).getService();
+            notifyService = ((NotifyService.BleNotifyServiceBinder)iBinder).getService();
             // 成功绑定后初始化，否则请求退出
-            if(bleNotifyService != null) {
+            if(notifyService != null) {
                 initialize();
             } else {
                 requestFinish();
@@ -154,10 +154,10 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            if(bleNotifyService != null) {
-                Intent stopServiceIntent = new Intent(MainActivity.this, BleNotifyService.class);
+            if(notifyService != null) {
+                Intent stopServiceIntent = new Intent(MainActivity.this, NotifyService.class);
                 stopService(stopServiceIntent);
-                bleNotifyService = null;
+                notifyService = null;
             }
             finish();
         }
@@ -217,7 +217,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
         }
 
         // 启动并绑定通知服务
-        Intent serviceIntent = new Intent(this, BleNotifyService.class);
+        Intent serviceIntent = new Intent(this, NotifyService.class);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(serviceIntent);
         } else {
@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDevices.setLayoutManager(layoutManager);
         rvDevices.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        registeredDeviceAdapter = new RegisteredDeviceAdapter(BleDeviceManager.getDeviceList(), this);
+        registeredDeviceAdapter = new RegisteredDeviceAdapter(DeviceManager.getDeviceList(), this);
         rvDevices.setAdapter(registeredDeviceAdapter);
 
         // 初始化导航视图
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
         fabConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                BleFragment fragment = (BleFragment) fragTabManager.getCurrentFragment();
+                DeviceFragment fragment = (DeviceFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.switchState();
                 }
@@ -294,14 +294,14 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
 
         // 初始化BleFragTabManager
         TabLayout tabLayout = findViewById(R.id.tablayout_device);
-        fragTabManager = new BleFragTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
+        fragTabManager = new DeviceFragTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
         fragTabManager.setOnFragmentUpdatedListener(this);
 
         // 初始化主界面
         initMainLayout();
 
         // 为已经打开的设备创建并打开Fragment
-        for(AbstractDevice device : BleDeviceManager.getDeviceList()) {
+        for(AbstractDevice device : DeviceManager.getDeviceList()) {
             if(device.getState() != BleDeviceState.CLOSED) {
                 createAndOpenFragment(device);
             }
@@ -334,7 +334,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_scan_device: // 扫描设备
-                        List<String> registeredMacList = BleDeviceManager.getDeviceMacList();
+                        List<String> registeredMacList = DeviceManager.getDeviceMacList();
                         Intent scanIntent = new Intent(MainActivity.this, ScanActivity.class);
                         scanIntent.putExtra(REGISTERED_DEVICE_MAC_LIST, (Serializable) registeredMacList);
                         startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
                     case R.id.nav_query_record: // 查阅记录
                         PopupMenu popupMenu = new PopupMenu(MainActivity.this, item.getActionView());
                         popupMenu.inflate(R.menu.menu_query_record);
-                        List<BleDeviceType> types = BleDeviceType.getSupportedDeviceTypes();
+                        List<DeviceType> types = DeviceType.getSupportedDeviceTypes();
                         popupMenu.getMenu().findItem(R.id.nav_ecg_record).setVisible(types.contains(ECGMONITOR_DEVICE_TYPE));
                         popupMenu.getMenu().findItem(R.id.nav_temphumid_record).setVisible(types.contains(TEMPHUMID_DEVICE_TYPE));
                         popupMenu.getMenu().findItem(R.id.nav_thermo_record).setVisible(types.contains(THERMO_DEVICE_TYPE));
@@ -406,22 +406,22 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
         switch (requestCode) {
             case RC_REGISTER_DEVICE: // 注册设备返回
                 if(resultCode == RESULT_OK) {
-                    BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
+                    DeviceRegisterInfo registerInfo = (DeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     registerDevice(registerInfo);
                 }
                 break;
 
             case RC_MODIFY_REGISTER_INFO: // 修改注册信息返回
                 if ( resultCode == RESULT_OK) {
-                    BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
-                    AbstractDevice device = BleDeviceManager.findDevice(registerInfo);
+                    DeviceRegisterInfo registerInfo = (DeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
+                    AbstractDevice device = DeviceManager.findDevice(registerInfo);
                     if(device != null && registerInfo.saveToPref(pref)) {
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
                         device.updateRegisterInfo(registerInfo);
                         if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
                         Drawable drawable;
                         if(TextUtils.isEmpty(device.getImagePath())) {
-                            BleDeviceType deviceType = BleDeviceType.getFromUuid(device.getUuidString());
+                            DeviceType deviceType = DeviceType.getFromUuid(device.getUuidString());
                             if(deviceType == null) {
                                 throw new IllegalStateException("The device type is not supported.");
                             }
@@ -454,17 +454,17 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
         }
     }
 
-    private void registerDevice(BleDeviceRegisterInfo registerInfo) {
+    private void registerDevice(DeviceRegisterInfo registerInfo) {
         if(registerInfo != null) {
-            AbstractDevice device = BleDeviceManager.createDeviceIfNotExist(registerInfo);
+            AbstractDevice device = DeviceManager.createDeviceIfNotExist(registerInfo);
             if(device != null) {
                 if(registerInfo.saveToPref(pref)) {
                     Toast.makeText(MainActivity.this, "设备注册成功", Toast.LENGTH_SHORT).show();
                     if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
-                    device.addListener(bleNotifyService);
+                    device.addListener(notifyService);
                 } else {
                     Toast.makeText(MainActivity.this, "设备注册失败", Toast.LENGTH_SHORT).show();
-                    BleDeviceManager.deleteDevice(device);
+                    DeviceManager.deleteDevice(device);
                 }
             }
         }
@@ -493,21 +493,21 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        BleFragment fragment;
+        DeviceFragment fragment;
         switch (item.getItemId()) {
             case android.R.id.home:
                 openDrawer(true);
                 break;
 
             case R.id.toolbar_config:
-                fragment = (BleFragment) fragTabManager.getCurrentFragment();
+                fragment = (DeviceFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
                     fragment.openConfigureActivity();
                 }
                 break;
 
             case R.id.toolbar_close:
-                fragment = (BleFragment) fragTabManager.getCurrentFragment();
+                fragment = (DeviceFragment) fragTabManager.getCurrentFragment();
                 if(fragment != null) {
                     closeFragment(fragment);
                 } else {
@@ -523,13 +523,13 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
         ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
 
-        for(AbstractDevice device : BleDeviceManager.getDeviceList()) {
+        for(AbstractDevice device : DeviceManager.getDeviceList()) {
             device.removeListener(this);
         }
 
         unbindService(serviceConnection);
         if(stopNotifyService) {
-            Intent stopIntent = new Intent(MainActivity.this, BleNotifyService.class);
+            Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);
             stopService(stopIntent);
         }
 
@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     }
 
     private void requestFinish() {
-        if(BleDeviceManager.hasOpenedDevice()) {
+        if(DeviceManager.hasOpenedDevice()) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("退出应用");
             builder.setMessage("有设备打开，退出将关闭这些设备。");
@@ -575,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
         // 更新设备列表Adapter
         if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
         // 更新设备的Fragment界面
-        BleFragment deviceFrag = fragTabManager.findFragment(device);
+        DeviceFragment deviceFrag = fragTabManager.findFragment(device);
         if(deviceFrag != null) deviceFrag.updateState();
         if(fragTabManager.isFragmentSelected(device)) {
             BleDeviceState state = device.getState();
@@ -598,7 +598,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         isWarningBleInnerError = false;
-                        bleNotifyService.stopWarningBleInnerError();
+                        notifyService.stopWarningBleInnerError();
                     }
                 }).setCancelable(false).show();
                 isWarningBleInnerError = true;
@@ -619,7 +619,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     // Fragment更新
     @Override
     public void onFragmentUpdated() {
-        BleFragment fragment = (BleFragment)fragTabManager.getCurrentFragment();
+        DeviceFragment fragment = (DeviceFragment)fragTabManager.getCurrentFragment();
         AbstractDevice device = (fragment == null) ? null : fragment.getDevice();
         updateMainLayout(device);
     }
@@ -628,7 +628,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     public void openDevice(AbstractDevice device) {
         if(device == null || device.getState() != BleDeviceState.CLOSED) return;
 
-        BleFragment fragment = fragTabManager.findFragment(device);
+        DeviceFragment fragment = fragTabManager.findFragment(device);
         if(fragment != null) {
             openDrawer(false);
             fragTabManager.showFragment(fragment);
@@ -640,12 +640,12 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     private void createAndOpenFragment(AbstractDevice device) {
         if(device == null) return;
 
-        BleFactory factory = BleFactory.getFactory(device.getRegisterInfo());
+        DeviceFactory factory = DeviceFactory.getFactory(device.getRegisterInfo());
         if(factory != null) {
             openDrawer(false);
             Drawable drawable;
             if(TextUtils.isEmpty(device.getImagePath())) {
-                BleDeviceType deviceType = BleDeviceType.getFromUuid(device.getUuidString());
+                DeviceType deviceType = DeviceType.getFromUuid(device.getUuidString());
                 if(deviceType == null) {
                     throw new IllegalStateException("The device type is not supported.");
                 }
@@ -654,7 +654,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
                 drawable = new BitmapDrawable(getResources(), device.getImagePath());
             }
             if(drawable == null) {
-                BleDeviceType deviceType = BleDeviceType.getFromUuid(device.getUuidString());
+                DeviceType deviceType = DeviceType.getFromUuid(device.getUuidString());
                 if(deviceType == null) {
                     throw new IllegalStateException("The device type is not supported.");
                 }
@@ -666,7 +666,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     }
 
     // 关闭Fragment
-    private void closeFragment(final BleFragment fragment) {
+    private void closeFragment(final DeviceFragment fragment) {
         if(fragment == null || fragment.getDevice() == null) return;
 
         AbstractDevice device = fragment.getDevice();
@@ -678,7 +678,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     }
 
     // 移除Fragment
-    public void removeFragment(BleFragment fragment) {
+    public void removeFragment(DeviceFragment fragment) {
         fragTabManager.removeFragment(fragment);
     }
 
@@ -697,7 +697,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(device.getRegisterInfo().deleteFromPref(pref)) {
-                    BleDeviceManager.deleteDevice(device);
+                    DeviceManager.deleteDevice(device);
                     if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(MainActivity.this, "无法删除设备。", Toast.LENGTH_SHORT).show();
@@ -712,7 +712,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
     }
 
     // 修改设备注册信息 
-    public void modifyRegisterInfo(final BleDeviceRegisterInfo registerInfo) {
+    public void modifyRegisterInfo(final DeviceRegisterInfo registerInfo) {
         Intent intent = new Intent(this, RegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, RC_MODIFY_REGISTER_INFO);
@@ -735,7 +735,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDevice.On
 
     // 退出登录
     private void logoutAccount() {
-        if(BleDeviceManager.hasOpenedDevice()) {
+        if(DeviceManager.hasOpenedDevice()) {
             Toast.makeText(this, "有设备打开，请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
         }

@@ -28,7 +28,7 @@ import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
 import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.BleFragment;
+import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +49,7 @@ import static android.app.Activity.RESULT_OK;
   * Version:        1.0
  */
 
-public class WebEcgMonitorFragment extends BleFragment implements OnEcgMonitorListener, ScanWaveView.OnScanWaveViewListener{
+public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonitorListener, ScanWaveView.OnScanWaveViewListener{
     private static final String TAG = "EcgMonitorFragment";
     public static final double ZERO_LOCATION_IN_ECG_VIEW = 0.5;
 

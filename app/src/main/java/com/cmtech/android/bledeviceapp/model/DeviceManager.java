@@ -3,7 +3,7 @@ package com.cmtech.android.bledeviceapp.model;
 import android.text.TextUtils;
 
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.vise.log.ViseLog;
 
@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  *
- * ClassName:      BleDeviceManager
+ * ClassName:      DeviceManager
  * Description:    设备管理器
  * Author:         chenm
  * CreateDate:     2018-12-08 07:02
@@ -24,11 +24,11 @@ import java.util.List;
  * Version:        1.0
  */
 
-public class BleDeviceManager {
-    private static final List<AbstractDevice> DEVICE_LIST = new ArrayList<>(); // 所有注册的设备列表
+public class DeviceManager {
+    private static final List<AbstractDevice> DEVICE_LIST = new ArrayList<>(); // 所有已注册设备列表
 
     // 如果设备不存在，用注册信息创建一个设备
-    public static AbstractDevice createDeviceIfNotExist(BleDeviceRegisterInfo registerInfo) {
+    public static AbstractDevice createDeviceIfNotExist(DeviceRegisterInfo registerInfo) {
         AbstractDevice device = findDevice(registerInfo);
         if(device != null) {
             ViseLog.e("The device has existed.");
@@ -49,7 +49,7 @@ public class BleDeviceManager {
     }
 
     // 用注册信息寻找设备
-    public static AbstractDevice findDevice(BleDeviceRegisterInfo registerInfo) {
+    public static AbstractDevice findDevice(DeviceRegisterInfo registerInfo) {
         return (registerInfo == null) ? null : findDevice(registerInfo.getMacAddress());
     }
 
@@ -64,8 +64,8 @@ public class BleDeviceManager {
         return null;
     }
 
-    private static AbstractDevice createDevice(BleDeviceRegisterInfo registerInfo) {
-        BleFactory factory = BleFactory.getFactory(registerInfo); // 获取相应的工厂
+    private static AbstractDevice createDevice(DeviceRegisterInfo registerInfo) {
+        DeviceFactory factory = DeviceFactory.getFactory(registerInfo); // 获取相应的工厂
         return (factory == null) ? null : factory.createDevice();
     }
 

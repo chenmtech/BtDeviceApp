@@ -97,9 +97,9 @@ public class FragTabManager {
 
         innerFragManager.addFragment(fragment, "");
 
-        View view = LayoutInflater.from(MyApplication.getContext()).inflate(R.layout.tablayout_device, null);
-        ((ImageView)view.findViewById(R.id.iv_device_image)).setImageDrawable(drawable);
-        ((TextView)view.findViewById(R.id.tv_device_text)).setText((isShowTabText) ? tabText : "");
+        View view = LayoutInflater.from(MyApplication.getContext()).inflate(R.layout.tab_view, null);
+        ((ImageView)view.findViewById(R.id.iv_tab_image)).setImageDrawable(drawable);
+        ((TextView)view.findViewById(R.id.tv_tab_text)).setText((isShowTabText) ? tabText : "");
 
         TabLayout.Tab tab = tabLayout.newTab();
         tab.setCustomView(view);
@@ -124,10 +124,10 @@ public class FragTabManager {
             View view = tab.getCustomView();
             if(view != null) {
                 if(isShowTabText) {
-                    TextView tv = view.findViewById(R.id.tv_device_text);
+                    TextView tv = view.findViewById(R.id.tv_tab_text);
                     tv.setText(tabText);
                 }
-                ImageView imageView = view.findViewById(R.id.iv_device_image);
+                ImageView imageView = view.findViewById(R.id.iv_tab_image);
                 imageView.setImageDrawable(drawable);
                 tab.setCustomView(view);
             }

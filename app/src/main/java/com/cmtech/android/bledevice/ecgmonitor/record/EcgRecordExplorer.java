@@ -27,7 +27,7 @@ import cn.sharesdk.wechat.friends.Wechat;
 
 import static cn.sharesdk.framework.Platform.SHARE_FILE;
 import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_WECHAT_DOWNLOAD;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_CACHE;
+import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 
 /**
   *

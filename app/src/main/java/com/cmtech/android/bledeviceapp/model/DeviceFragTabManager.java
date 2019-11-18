@@ -5,14 +5,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.bledeviceapp.activity.BleFragment;
+import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 
 import java.util.List;
 
 /**
  *
- * ClassName:      BleFragTabManager
- * Description:    BleFragment和TabLayout管理器
+ * ClassName:      DeviceFragTabManager
+ * Description:    设备的Fragment和TabLayout管理器
  * Author:         chenm
  * CreateDate:     2018-12-08 07:02
  * UpdateUser:     chenm
@@ -21,23 +21,23 @@ import java.util.List;
  * Version:        1.0
  */
 
-public class BleFragTabManager extends FragTabManager {
+public class DeviceFragTabManager extends FragTabManager {
 
-    public BleFragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
+    public DeviceFragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
         this(fragmentManager, tabLayout, containerId, false);
     }
 
-    public BleFragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
+    public DeviceFragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
         super(fragmentManager, tabLayout, containerId, isShowTabText);
     }
 
     // 寻找设备的Fragment
-    public BleFragment findFragment(AbstractDevice device) {
+    public DeviceFragment findFragment(AbstractDevice device) {
         if(device != null) {
             List<Fragment> fragments = getFragmentList();
             for (Fragment fragment : fragments) {
-                if (device.equals(((BleFragment) fragment).getDevice())) {
-                    return (BleFragment) fragment;
+                if (device.equals(((DeviceFragment) fragment).getDevice())) {
+                    return (DeviceFragment) fragment;
                 }
             }
         }

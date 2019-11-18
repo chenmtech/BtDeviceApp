@@ -21,7 +21,7 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -39,7 +39,7 @@ import static com.cmtech.android.ble.core.BleDevice.MSG_BT_CLOSED;
 
 /**
  *
- * ClassName:      BleNotifyService
+ * ClassName:      NotifyService
  * Description:    通知服务
  * Author:         chenm
  * CreateDate:     2018-12-09 07:02
@@ -49,8 +49,8 @@ import static com.cmtech.android.ble.core.BleDevice.MSG_BT_CLOSED;
  * Version:        1.0
  */
 
-public class BleNotifyService extends Service implements AbstractDevice.OnBleDeviceListener {
-    private static final String TAG = "BleNotifyService";
+public class NotifyService extends Service implements AbstractDevice.OnBleDeviceListener {
+    private static final String TAG = "NotifyService";
     private static final int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
     private String notifyTitle; // 通知栏标题
     private String strWhenNoDeviceOpened; // 无设备打开时的通知串
@@ -64,8 +64,8 @@ public class BleNotifyService extends Service implements AbstractDevice.OnBleDev
     private final BleNotifyServiceBinder binder = new BleNotifyServiceBinder();
 
     public class BleNotifyServiceBinder extends Binder {
-        public BleNotifyService getService() {
-            return BleNotifyService.this;
+        public NotifyService getService() {
+            return NotifyService.this;
         }
     }
 
@@ -84,10 +84,10 @@ public class BleNotifyService extends Service implements AbstractDevice.OnBleDev
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
     private void initDeviceManager(SharedPreferences pref) {
-        List<BleDeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.readAllFromPref(pref);
+        List<DeviceRegisterInfo> registerInfoList = DeviceRegisterInfo.readAllFromPref(pref);
         if(registerInfoList == null || registerInfoList.isEmpty()) return;
-        for(BleDeviceRegisterInfo registerInfo : registerInfoList) {
-            AbstractDevice device = BleDeviceManager.createDeviceIfNotExist(registerInfo);
+        for(DeviceRegisterInfo registerInfo : registerInfoList) {
+            AbstractDevice device = DeviceManager.createDeviceIfNotExist(registerInfo);
            if(device != null) {
                device.addListener(this);
            }
@@ -117,7 +117,7 @@ public class BleNotifyService extends Service implements AbstractDevice.OnBleDev
 
     private void sendNotification() {
         List<String> notifyContents = new ArrayList<>();
-        for(AbstractDevice device : BleDeviceManager.getDeviceList()) {
+        for(AbstractDevice device : DeviceManager.getDeviceList()) {
             if(device.getState() != BleDeviceState.CLOSED) {
                 notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
             }
@@ -135,12 +135,12 @@ public class BleNotifyService extends Service implements AbstractDevice.OnBleDev
 
     @Override
     public void onDestroy() {
-        ViseLog.e("BleNotifyService.onDestroy()");
+        ViseLog.e("NotifyService.onDestroy()");
         super.onDestroy();
 
-        for(final AbstractDevice device : BleDeviceManager.getDeviceList()) {
+        for(final AbstractDevice device : DeviceManager.getDeviceList()) {
             device.clear();
-            device.removeListener(BleNotifyService.this);
+            device.removeListener(NotifyService.this);
             //device.close();
         }
 

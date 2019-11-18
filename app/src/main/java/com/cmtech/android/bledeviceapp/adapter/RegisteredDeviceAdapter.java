@@ -18,7 +18,7 @@ import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
-import com.cmtech.android.bledeviceapp.model.BleDeviceType;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
         ViewHolder(View itemView) {
             super(itemView);
             deviceView = itemView;
-            deviceImage = deviceView.findViewById(R.id.iv_device_image);
+            deviceImage = deviceView.findViewById(R.id.iv_tab_image);
             deviceName = deviceView.findViewById(R.id.tv_device_nickname);
             deviceAddress = deviceView.findViewById(R.id.tv_device_macaddress);
             deviceStatus = deviceView.findViewById(R.id.tv_device_status);
@@ -112,7 +112,7 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             holder.deviceImage.setImageDrawable(drawable);
         } else {
-            BleDeviceType type = BleDeviceType.getFromUuid(device.getUuidString());
+            DeviceType type = DeviceType.getFromUuid(device.getUuidString());
             if(type == null) return;
             Glide.with(MyApplication.getContext()).load(type.getDefaultImageId()).into(holder.deviceImage);
         }

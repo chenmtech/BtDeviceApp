@@ -5,20 +5,18 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpBroadcastReceiver;
 import com.vise.log.ViseLog;
 
-import java.util.List;
-
 import static com.cmtech.android.ble.core.BleDeviceState.CLOSED;
+import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
 import static com.cmtech.android.ble.core.BleDeviceState.CONNECTING;
 import static com.cmtech.android.ble.core.BleDeviceState.DISCONNECT;
-import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
 
 public abstract class WebDevice extends AbstractDevice {
-    public WebDevice(BleDeviceRegisterInfo registerInfo) {
+    public WebDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
     }
 
@@ -43,10 +41,10 @@ public abstract class WebDevice extends AbstractDevice {
     private void connect() {
         setState(CONNECTING);
 
-        EcgHttpBroadcastReceiver.retrieveBroadcastIdList("", new EcgHttpBroadcastReceiver.IEcgBroadcastIdListCallback() {
+        EcgHttpBroadcastReceiver.retrieveBroadcastInfo(getAddress(), new EcgHttpBroadcastReceiver.IEcgBroadcastInfoCallback() {
             @Override
-            public void onReceived(List<String> broadcastIdList) {
-                if(broadcastIdList == null) {
+            public void onReceived(String broadcastId, String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
+                if(broadcastId == null) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {

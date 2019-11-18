@@ -75,7 +75,7 @@
         <activity android:name=".activity.AccountActivity" />
 
         <service
-            android:name=".model.BleNotifyService"
+            android:name=".model.NotifyService"
             android:enabled="true"
             android:exported="false" />
     </application>

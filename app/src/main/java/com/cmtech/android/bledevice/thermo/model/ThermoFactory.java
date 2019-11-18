@@ -1,22 +1,22 @@
 package com.cmtech.android.bledevice.thermo.model;
 
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.bledevice.thermo.view.ThermoFragment;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.BleFragment;
-import com.cmtech.android.bledeviceapp.model.BleDeviceType;
-import com.cmtech.android.bledeviceapp.model.BleFactory;
+import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
+import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 
-public class ThermoFactory extends BleFactory {
+public class ThermoFactory extends DeviceFactory {
     private static final String THERMOMETER_UUID = "aa30"; // 体温计
     private static final String THERMOMETER_DEFAULT_NAME = "体温计";
     private static final int THERMOMETER_DEFAULT_IMAGE_ID = R.drawable.ic_thermo_defaultimage;
     private static final String THERMOMETER_FACTORY = "com.cmtech.android.bledevice.thermo.model.ThermoFactory";
 
-    public static final BleDeviceType THERMO_DEVICE_TYPE = new BleDeviceType(THERMOMETER_UUID, THERMOMETER_DEFAULT_IMAGE_ID, THERMOMETER_DEFAULT_NAME, THERMOMETER_FACTORY);
+    public static final DeviceType THERMO_DEVICE_TYPE = new DeviceType(THERMOMETER_UUID, THERMOMETER_DEFAULT_IMAGE_ID, THERMOMETER_DEFAULT_NAME, THERMOMETER_FACTORY);
 
-    private ThermoFactory(BleDeviceRegisterInfo registerInfo) {
+    private ThermoFactory(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
     }
 
@@ -26,7 +26,7 @@ public class ThermoFactory extends BleFactory {
     }
 
     @Override
-    public BleFragment createFragment() {
-        return BleFragment.create(registerInfo.getMacAddress(), ThermoFragment.class);
+    public DeviceFragment createFragment() {
+        return DeviceFragment.create(registerInfo.getMacAddress(), ThermoFragment.class);
     }
 }

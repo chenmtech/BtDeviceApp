@@ -33,7 +33,7 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
+import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 
 /**
  *  AccountActivity: 账户设置Activity

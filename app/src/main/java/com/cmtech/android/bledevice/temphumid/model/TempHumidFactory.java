@@ -1,23 +1,23 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.bledevice.temphumid.view.TempHumidFragment;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.BleFragment;
-import com.cmtech.android.bledeviceapp.model.BleDeviceType;
-import com.cmtech.android.bledeviceapp.model.BleFactory;
+import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
+import com.cmtech.android.bledeviceapp.model.DeviceFactory;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 // 会根据设备类型BleDeviceType，通过反射创建工厂类实例
-public class TempHumidFactory extends BleFactory {
+public class TempHumidFactory extends DeviceFactory {
     private static final String TEMPHUMID_UUID = "aa60"; // 温湿度计
     private static final String TEMPHUMID_DEFAULT_NAME = "温湿度计";
     private static final int TEMPHUMID_DEFAULT_IMAGE_ID = R.drawable.ic_temphumid_defaultimage;
     private static final String TEMPHUMID_FACTORY = "com.cmtech.android.bledevice.temphumid.model.TempHumidFactory";
 
-    public static final BleDeviceType TEMPHUMID_DEVICE_TYPE = new BleDeviceType(TEMPHUMID_UUID, TEMPHUMID_DEFAULT_IMAGE_ID, TEMPHUMID_DEFAULT_NAME, TEMPHUMID_FACTORY);
+    public static final DeviceType TEMPHUMID_DEVICE_TYPE = new DeviceType(TEMPHUMID_UUID, TEMPHUMID_DEFAULT_IMAGE_ID, TEMPHUMID_DEFAULT_NAME, TEMPHUMID_FACTORY);
 
-    private TempHumidFactory(BleDeviceRegisterInfo registerInfo) {
+    private TempHumidFactory(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
     }
 
@@ -27,8 +27,8 @@ public class TempHumidFactory extends BleFactory {
     }
 
     @Override
-    public BleFragment createFragment() {
-        return BleFragment.create(registerInfo.getMacAddress(), TempHumidFragment.class);
+    public DeviceFragment createFragment() {
+        return DeviceFragment.create(registerInfo.getMacAddress(), TempHumidFragment.class);
     }
 
 

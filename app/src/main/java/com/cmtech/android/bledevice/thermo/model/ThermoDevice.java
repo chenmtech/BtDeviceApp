@@ -5,7 +5,7 @@ import android.os.Looper;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.BleDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static com.cmtech.android.ble.BleConfig.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
 
 /**
  * ThermoDevice: 体温计设备类
@@ -68,7 +68,7 @@ public class ThermoDevice extends BleDevice {
         updateThermoData();
     }
 
-    public ThermoDevice(BleDeviceRegisterInfo registerInfo) {
+    public ThermoDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
         initializeAfterConstruction();
     }

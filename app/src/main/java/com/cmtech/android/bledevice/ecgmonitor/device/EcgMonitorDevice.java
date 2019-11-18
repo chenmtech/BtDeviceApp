@@ -6,7 +6,7 @@ import android.os.Looper;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.BleDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
@@ -39,7 +39,7 @@ import static com.cmtech.android.bledevice.ecgmonitor.fragment.EcgMonitorFragmen
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.PIXEL_PER_GRID;
 import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.SECOND_PER_GRID;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
 
 
 /**
@@ -111,7 +111,7 @@ public class EcgMonitorDevice extends BleDevice implements IEcgDevice, HrStatist
     private EcgHttpBroadcast webBroadcaster;
 
     // 构造器
-    public EcgMonitorDevice(BleDeviceRegisterInfo registerInfo) {
+    public EcgMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
 
         // 从数据库获取设备的配置信息

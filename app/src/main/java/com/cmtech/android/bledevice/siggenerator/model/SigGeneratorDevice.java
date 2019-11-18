@@ -1,11 +1,11 @@
 package com.cmtech.android.bledevice.siggenerator.model;
 
 import com.cmtech.android.ble.core.BleDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.vise.log.ViseLog;
 
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
 
 public class SigGeneratorDevice extends BleDevice {
     // 信号发生器Service UUID常量
@@ -33,7 +33,7 @@ public class SigGeneratorDevice extends BleDevice {
     private static final byte SIGGENERATOR_CTRL_START =             (byte) 0x01;        // 启动信号
 
     // 构造器
-    public SigGeneratorDevice(BleDeviceRegisterInfo registerInfo) {
+    public SigGeneratorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
 
     }

@@ -6,25 +6,25 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.bledeviceapp.model.BleDeviceManager;
+import com.cmtech.android.bledeviceapp.model.DeviceManager;
 
 /**
- * BleFragment：设备的Fragment
+ * DeviceFragment：设备Fragment
  * Created by bme on 2018/2/27.
  */
 
-public abstract class BleFragment extends Fragment{
-    private static final String TAG = "BleFragment";
+public abstract class DeviceFragment extends Fragment{
+    private static final String TAG = "DeviceFragment";
     private static final String ARG_DEVICE_MAC = "device_mac";
 
     private AbstractDevice device; // 设备
 
-    protected BleFragment() {
+    protected DeviceFragment() {
     }
 
-    public static BleFragment create(String macAddress, Class<? extends BleFragment> fragClass) {
+    public static DeviceFragment create(String macAddress, Class<? extends DeviceFragment> fragClass) {
         try {
-            BleFragment fragment = fragClass.newInstance();
+            DeviceFragment fragment = fragClass.newInstance();
             Bundle bundle = new Bundle();
             bundle.putString(ARG_DEVICE_MAC, macAddress);
             fragment.setArguments(bundle);
@@ -56,7 +56,7 @@ public abstract class BleFragment extends Fragment{
         Bundle bundle = getArguments();
         if(bundle == null) throw new IllegalStateException();
         String deviceMac = bundle.getString(ARG_DEVICE_MAC);
-        device = BleDeviceManager.findDevice(deviceMac);
+        device = DeviceManager.findDevice(deviceMac);
         if(device == null) throw new IllegalStateException("The device of the fragment doesn't exist.");
 
         // 更新状态
@@ -69,7 +69,7 @@ public abstract class BleFragment extends Fragment{
             device.updateState();
 
             // 打开设备
-            device.open(activity.getBleNotifyService());
+            device.open(activity.getNotifyService());
         }
     }
 

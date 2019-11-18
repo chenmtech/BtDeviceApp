@@ -20,8 +20,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.bledeviceapp.model.BleDeviceType;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.file.FileUtil;
@@ -30,10 +30,10 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_AUTO_CONNECT;
-import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_DEVICE_IMAGE_PATH;
-import static com.cmtech.android.ble.core.BleDeviceRegisterInfo.DEFAULT_WARN_BLE_INNER_ERROR;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
+import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_DEVICE_AUTO_CONNECT;
+import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_DEVICE_IMAGE_PATH;
+import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_WARN_BLE_INNER_ERROR;
+import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 
 /**
  *  RegisterActivity: 注册Activity，用于设置修改BleDeviceRegisterInfo字段
@@ -43,7 +43,7 @@ import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DIR_IMAGE;
 public class RegisterActivity extends AppCompatActivity {
     public static final String DEVICE_REGISTER_INFO = "device_register_info";
 
-    private BleDeviceRegisterInfo registerInfo; // 设备基本信息
+    private DeviceRegisterInfo registerInfo; // 设备基本信息
     private EditText etName; // 设备名
     private ImageView ivImage; // 设备图像
     private CheckBox cbIsAutoconnect; // 设备是否自动连接
@@ -57,7 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent != null) {
-            registerInfo = (BleDeviceRegisterInfo) intent.getSerializableExtra(DEVICE_REGISTER_INFO);
+            registerInfo = (DeviceRegisterInfo) intent.getSerializableExtra(DEVICE_REGISTER_INFO);
             if(registerInfo == null) {
                 Toast.makeText(this, "设备注册信息无效", Toast.LENGTH_SHORT).show();
                 finish();
@@ -69,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
             finish();
             return;
         }
-        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidStr());
+        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuidStr());
         if(type == null) {
             Toast.makeText(this, "设备类型未知，无法注册。", Toast.LENGTH_SHORT).show();
             finish();
@@ -88,7 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
         etName.setText(deviceName);
 
         // 设置设备图像
-        ivImage = findViewById(R.id.iv_device_image);
+        ivImage = findViewById(R.id.iv_tab_image);
         cacheImagePath = registerInfo.getImagePath();
         if("".equals(cacheImagePath)) {
             int defaultImageId = type.getDefaultImageId();
@@ -251,7 +251,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     // 恢复缺省设置
     private void restoreDefaultSetup() {
-        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidStr());
+        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuidStr());
         if(type != null) {
             etName.setText(type.getDefaultNickname());
             cacheImagePath = DEFAULT_DEVICE_IMAGE_PATH;

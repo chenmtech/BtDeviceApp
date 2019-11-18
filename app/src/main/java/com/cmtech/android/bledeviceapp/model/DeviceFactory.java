@@ -1,16 +1,16 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.bledeviceapp.activity.BleFragment;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.vise.log.ViseLog;
 
 import java.lang.reflect.Constructor;
 
 /**
  *
- * ClassName:      BleFactory
- * Description:    Ble工厂抽象类
+ * ClassName:      DeviceFactory
+ * Description:    设备工厂抽象类
  * Author:         chenm
  * CreateDate:     2018-10-13 07:02
  * UpdateUser:     chenm
@@ -20,18 +20,18 @@ import java.lang.reflect.Constructor;
  */
 
 
-public abstract class BleFactory {
-    protected final BleDeviceRegisterInfo registerInfo; // 设备注册信息
+public abstract class DeviceFactory {
+    protected final DeviceRegisterInfo registerInfo; // 设备注册信息
 
-    protected BleFactory(BleDeviceRegisterInfo registerInfo) {
+    protected DeviceFactory(DeviceRegisterInfo registerInfo) {
         this.registerInfo = registerInfo;
     }
 
     // 获取注册信息对应的工厂
-    public static BleFactory getFactory(BleDeviceRegisterInfo registerInfo) {
+    public static DeviceFactory getFactory(DeviceRegisterInfo registerInfo) {
         if(registerInfo == null) return null;
 
-        BleDeviceType type = BleDeviceType.getFromUuid(registerInfo.getUuidStr());
+        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuidStr());
         if(type == null) {
             ViseLog.e("The device type is not supported.");
             return null;
@@ -43,11 +43,11 @@ public abstract class BleFactory {
             return null;
         }
 
-        BleFactory factory;
+        DeviceFactory factory;
         try {
-            Constructor constructor = Class.forName(factoryClassName).getDeclaredConstructor(BleDeviceRegisterInfo.class);
+            Constructor constructor = Class.forName(factoryClassName).getDeclaredConstructor(DeviceRegisterInfo.class);
             constructor.setAccessible(true);
-            factory = (BleFactory) constructor.newInstance(registerInfo);
+            factory = (DeviceFactory) constructor.newInstance(registerInfo);
         } catch (Exception e) {
             ViseLog.e("The device factory can't be found.");
             factory = null;
@@ -56,5 +56,5 @@ public abstract class BleFactory {
     }
 
     public abstract AbstractDevice createDevice(); // 创建Device
-    public abstract BleFragment createFragment(); // 创建Fragment
+    public abstract DeviceFragment createFragment(); // 创建Fragment
 }

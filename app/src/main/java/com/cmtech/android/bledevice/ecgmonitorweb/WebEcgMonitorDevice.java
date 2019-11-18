@@ -6,7 +6,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
@@ -102,7 +102,7 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
     };
 
     // 构造器
-    WebEcgMonitorDevice(BleDeviceRegisterInfo registerInfo) {
+    WebEcgMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
 
         // 从数据库获取设备的配置信息

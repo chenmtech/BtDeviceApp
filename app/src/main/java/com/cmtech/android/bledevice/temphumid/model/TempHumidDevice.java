@@ -5,7 +5,7 @@ import android.os.Looper;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.BleDevice;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.exception.BleException;
 import com.vise.log.ViseLog;
@@ -21,7 +21,7 @@ import java.util.List;
 
 import static com.cmtech.android.ble.BleConfig.CCC_UUID;
 import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
 
 /**
  * TempHumidDevice: 温湿度计设备类
@@ -121,7 +121,7 @@ public class TempHumidDevice extends BleDevice {
 
 
     // 构造器
-    public TempHumidDevice(BleDeviceRegisterInfo registerInfo) {
+    public TempHumidDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
         initializeAfterConstruction();
 

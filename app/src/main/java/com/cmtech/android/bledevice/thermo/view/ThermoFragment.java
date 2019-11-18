@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.cmtech.android.bledeviceapp.activity.BleFragment;
+import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledevice.thermo.model.IThermoDataObserver;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
@@ -21,7 +21,7 @@ import java.util.Locale;
  * Created by bme on 2018/2/27.
  */
 
-public class ThermoFragment extends BleFragment implements IThermoDataObserver {
+public class ThermoFragment extends DeviceFragment implements IThermoDataObserver {
     private static final String LESSTHAN34 = "低于34.0";
 
     private TextView tvThermoCurrentTemp;

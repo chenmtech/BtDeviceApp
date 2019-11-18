@@ -5,11 +5,11 @@ import android.os.Environment;
 import java.io.File;
 
 /**
- * BleDeviceConstant: 设备相关的常数
+ * AppConstant: App常数
  * Created by bme on 2018/3/1.
  */
 
-public class BleDeviceConstant {
+public class AppConstant {
     public static final String MY_BASE_UUID = "0a20XXXX-cce5-4025-a156-38ea833f6ef8"; // 我的基础UUID
     public static final int CONNECT_TIMEOUT = 60000; // 连接超时时间
     public static final int DATA_OPERATE_TIMEOUT = 3000; // 数据操作超时时间

@@ -15,7 +15,7 @@ import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.ScanActivity;
-import com.cmtech.android.bledeviceapp.model.BleDeviceType;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
             deviceName = deviceView.findViewById(R.id.tv_scandevice_name);
             deviceAddress = deviceView.findViewById(R.id.tv_scandevice_macaddress);
             deviceTypeName = deviceView.findViewById(R.id.tv_scandevice_type);
-            deviceStatus = deviceView.findViewById(R.id.tv_device_text);
+            deviceStatus = deviceView.findViewById(R.id.tv_tab_text);
         }
     }
 
@@ -81,7 +81,7 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
         BleDeviceDetailInfo detailInfo = scannedDeviceDetailInfoList.get(position);
         AdRecord recordUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         String supportedUUID = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(recordUUID.getData()).toString());
-        BleDeviceType type = BleDeviceType.getFromUuid(supportedUUID);
+        DeviceType type = DeviceType.getFromUuid(supportedUUID);
         holder.deviceTypeName.setText(String.format("设备类型：%s", (type == null) ? "未知" : type.getDefaultNickname()));
         holder.deviceAddress.setText(String.format("设备地址：%s", detailInfo.getAddress()));
         holder.deviceName.setText(String.format("设备名：%s", detailInfo.getName()));

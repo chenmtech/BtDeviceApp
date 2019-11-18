@@ -18,9 +18,9 @@ import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.AUTO_SCAN_INTERVAL;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.CONNECT_TIMEOUT;
-import static com.cmtech.android.bledeviceapp.BleDeviceConstant.DATA_OPERATE_TIMEOUT;
+import static com.cmtech.android.bledeviceapp.AppConstant.AUTO_SCAN_INTERVAL;
+import static com.cmtech.android.bledeviceapp.AppConstant.CONNECT_TIMEOUT;
+import static com.cmtech.android.bledeviceapp.AppConstant.DATA_OPERATE_TIMEOUT;
 
 /**
  * MyApplication
@@ -43,11 +43,11 @@ public class MyApplication extends Application {
         BleConfig.getInstance().setDataOperateTimeout(DATA_OPERATE_TIMEOUT);
         BleConfig.getInstance().setAutoScanInterval(AUTO_SCAN_INTERVAL);
         // 配置支持的设备类型
-        BleDeviceConfig.addSupportedDeviceType(EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE);
-        BleDeviceConfig.addSupportedDeviceType(TempHumidFactory.TEMPHUMID_DEVICE_TYPE);
-        BleDeviceConfig.addSupportedDeviceType(ThermoFactory.THERMO_DEVICE_TYPE);
-        BleDeviceConfig.addSupportedDeviceType(SigGeneratorFactory.SIGGENERATOR_DEVICE_TYPE);
-        BleDeviceConfig.addSupportedDeviceType(WebEcgMonitorFactory.ECGWEBMONITOR_DEVICE_TYPE);
+        DeviceConfig.addSupportedDeviceType(EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE);
+        DeviceConfig.addSupportedDeviceType(TempHumidFactory.TEMPHUMID_DEVICE_TYPE);
+        DeviceConfig.addSupportedDeviceType(ThermoFactory.THERMO_DEVICE_TYPE);
+        DeviceConfig.addSupportedDeviceType(SigGeneratorFactory.SIGGENERATOR_DEVICE_TYPE);
+        DeviceConfig.addSupportedDeviceType(WebEcgMonitorFactory.ECGWEBMONITOR_DEVICE_TYPE);
         // 初始化MobSDK
         MobSDK.init(getApplicationContext(), "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");
         // 初始化ViseLog

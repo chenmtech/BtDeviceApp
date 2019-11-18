@@ -32,7 +32,7 @@
             android:layout_gravity="center_vertical"
             android:text="设备图像："/>
         <com.cmtech.android.bledevice.view.RoundImageView
-            android:id="@+id/iv_device_image"
+            android:id="@+id/iv_tab_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@mipmap/ic_unknown_device"

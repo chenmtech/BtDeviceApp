@@ -6,8 +6,8 @@ import java.util.List;
 
 /**
   *
-  * ClassName:      BleDeviceType
-  * Description:    Ble设备类型类
+  * ClassName:      DeviceType
+  * Description:    设备类型
   * Author:         chenm
   * CreateDate:     2018-10-13 08:55
   * UpdateUser:     chenm
@@ -16,34 +16,34 @@ import java.util.List;
   * Version:        1.0
  */
 
-public class BleDeviceType {
-    private static final List<BleDeviceType> SUPPORTED_DEVICE_TYPES = new ArrayList<>(); // 支持的设备类型数组
+public class DeviceType {
+    private static final List<DeviceType> SUPPORTED_DEVICE_TYPES = new ArrayList<>(); // 支持的设备类型数组
 
     private final String uuid; // 设备16位UUID字符串
     private final int defaultImageId; // 缺省图标ID
     private final String defaultNickname; // 缺省设备名
     private final String factoryClassName; // 设备工厂类名
 
-    public BleDeviceType(String uuid, int defaultImageId, String defaultNickname, String factoryClassName) {
+    public DeviceType(String uuid, int defaultImageId, String defaultNickname, String factoryClassName) {
         this.uuid = uuid;
         this.defaultImageId = defaultImageId;
         this.defaultNickname = defaultNickname;
         this.factoryClassName = factoryClassName;
     }
 
-    public static List<BleDeviceType> getSupportedDeviceTypes() {
+    public static List<DeviceType> getSupportedDeviceTypes() {
         return SUPPORTED_DEVICE_TYPES;
     }
 
-    public static void addSupportedType(BleDeviceType deviceType) {
+    public static void addSupportedType(DeviceType deviceType) {
         if(!SUPPORTED_DEVICE_TYPES.contains(deviceType)) {
             SUPPORTED_DEVICE_TYPES.add(deviceType);
         }
     }
 
     // 通过UUID获取对应的设备类型
-    public static BleDeviceType getFromUuid(String uuid) {
-        for(BleDeviceType type : SUPPORTED_DEVICE_TYPES) {
+    public static DeviceType getFromUuid(String uuid) {
+        for(DeviceType type : SUPPORTED_DEVICE_TYPES) {
             if(type.uuid.equalsIgnoreCase(uuid)) {
                 return type;
             }
