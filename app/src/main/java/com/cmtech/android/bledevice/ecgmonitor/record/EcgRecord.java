@@ -269,9 +269,7 @@ public class EcgRecord extends LitePalSupport {
     }
     public User getCreator() {
         if(creator == null) {
-            List<User> users = LitePal.where("ecgrecord_id=?", String.valueOf(id)).find(User.class);
-            if(!users.isEmpty())
-                creator = users.get(0);
+            creator = LitePal.where("ecgrecord_id=?", String.valueOf(id)).findFirst(User.class);
         }
         return creator;
     }

@@ -1,11 +1,9 @@
 package com.cmtech.android.bledevice.ecgmonitor.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,9 +16,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCommentAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
-import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgHrHistogramChart;
 import com.cmtech.android.bledevice.ecgmonitor.view.EcgHrLineChart;
 import com.cmtech.android.bledevice.ecgmonitor.view.RollEcgRecordWaveView;
@@ -56,7 +54,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private TextView tvTotalTime; // 总时长
     private TextView tvCurrentTime; // 当前播放信号的时刻
     private SeekBar sbReplay; // 播放条
-    private ImageButton btnReplayCtrl; // 转换回放状态
+    private ImageButton btnReplayCtrl; // 转换播放状态
     private EcgCommentAdapter commentAdapter; // 留言Adapter
     private RecyclerView rvComments; // 留言RecycleView
 
@@ -251,7 +249,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     @Override
     public void onCommentDeleted(EcgNormalComment comment) {
-        signalView.stopShow();
+        /*signalView.stopShow();
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("删除留言").setMessage("确定删除该留言吗？");
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -264,7 +262,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             public void onClick(DialogInterface dialogInterface, int i) {
 
             }
-        }).show();
+        }).show();*/
     }
 
     @Override

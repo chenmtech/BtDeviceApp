@@ -106,6 +106,18 @@ public class EcgRecordExplorer {
     public EcgRecord getSelectedRecord() {
         return selectedRecord;
     }
+    public void reloadSelectedRecord() {
+        if(selectedRecord == null) {
+            return;
+        }
+        int index = allRecordList.indexOf(selectedRecord);
+        if(index == -1) return;
+        EcgRecord record = LitePal.find(EcgRecord.class, selectedRecord.getId());
+        if(record != null) {
+            selectedRecord = record;
+            allRecordList.set(index, selectedRecord);
+        }
+    }
 
     // 选中文件
     public void selectRecord(EcgRecord record) {
