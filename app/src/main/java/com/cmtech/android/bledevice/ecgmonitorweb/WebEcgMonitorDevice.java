@@ -6,13 +6,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.bledevice.ecgmonitor.device.AbstractEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
-import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
-import com.cmtech.android.bledevice.ecgmonitor.interfac.OnEcgMonitorListener;
-import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.WebDevice;
@@ -25,6 +23,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
@@ -41,7 +40,7 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
   * Version:        1.0
  */
 
-public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
+public class WebEcgMonitorDevice extends AbstractEcgDevice {
     private static final String TAG = "WebEcgMonitorDevice";
     private static final int DEFAULT_VALUE_1MV = 65535; // 缺省定标1mV值
     private static final int DEFAULT_SAMPLE_RATE = 125; // 缺省ECG信号采样率,Hz
@@ -49,16 +48,10 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
 
     private static final int MSG_READ_DATA_PACKET = 0;
 
-    private OnEcgMonitorListener listener;
-    private int sampleRate = DEFAULT_SAMPLE_RATE; // 采样率
-    private int value1mV = DEFAULT_VALUE_1MV; // 定标1mV值
-    private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // 导联类型
-    private final EcgMonitorConfiguration config; // 心电监护仪的配置信息
-
-    private EcgRecord ecgRecord; // 心电记录，可记录心电信号数据、用户留言和心率信息
-
     private Timer showTimer; // 定时器
     private final LinkedBlockingQueue<Integer> showCache = new LinkedBlockingQueue<>();	//要显示的信号数据缓存
+
+    private WebDevice deviceProxy;
 
     private class ShowTask extends TimerTask {
         @Override
@@ -90,7 +83,7 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
                                 //updateSignalValue(data.get(i));
                                 //Log.e(TAG, "data = " + data.get(i));
                             }
-                            if (state == BleDeviceState.CONNECT)
+                            if (getState() == BleDeviceState.CONNECT)
                                 handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
                         }
                     }
@@ -100,35 +93,46 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
     };
 
     // 构造器
-    WebEcgMonitorDevice(DeviceRegisterInfo registerInfo) {
-        super(registerInfo);
+    private WebEcgMonitorDevice(WebDevice deviceProxy) {
+        super(deviceProxy);
 
-        // 从数据库获取设备的配置信息
-        List<EcgMonitorConfiguration> configs = LitePal.where("macAddress = ?", registerInfo.getMacAddress()).find(EcgMonitorConfiguration.class);
-        if(configs == null || configs.isEmpty()) {
+        this.deviceProxy = deviceProxy;
+
+        /// 从数据库获取设备的配置信息
+        EcgMonitorConfiguration config = LitePal.where("macAddress = ?", getAddress()).findFirst(EcgMonitorConfiguration.class);
+        if(config == null) {
             config = new EcgMonitorConfiguration();
-            config.setMacAddress(registerInfo.getMacAddress());
+            config.setMacAddress(getAddress());
             config.save();
-        } else {
-            config = configs.get(0);
         }
+        this.config = config;
+    }
+
+    public static WebEcgMonitorDevice create(DeviceRegisterInfo registerInfo) {
+        WebDevice webDevice = new WebDevice(registerInfo);
+        WebEcgMonitorDevice device = new WebEcgMonitorDevice(webDevice);
+        device.deviceProxy = webDevice;
+        return device;
     }
 
     @Override
-    public int getSampleRate() { return sampleRate; }
-    @Override
-    public EcgLeadType getLeadType() {
-        return leadType;
+    public void switchState() {
+        deviceProxy.switchState();
     }
+
     @Override
-    public int getValue1mV() { return value1mV; }
+    public boolean isStopped() {
+        return deviceProxy.isStopped();
+    }
+
+    @Override
+    public void clear() {
+        deviceProxy.clear();
+    }
+
     @Override
     public void setValue1mV(int value1mV) {
         this.value1mV = value1mV;
-    }
-    @Override
-    public EcgMonitorConfiguration getConfig() {
-        return config;
     }
 
     public int getRecordSecond() {
@@ -213,13 +217,13 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
     public void open(Context context) {
         ViseLog.e("EcgMonitorDevice.open()");
 
-        super.open(context);
+        deviceProxy.open(context);
     }
 
     // 关闭设备
     @Override
     public void close() {
-        super.close();
+        deviceProxy.close();
     }
 
     @Override
@@ -228,24 +232,7 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
             showTimer.cancel();
             showCache.clear();
         }
-        super.callDisconnect(stopAutoScan);
-    }
-
-    // 登记心电监护仪设备监听器
-    public void setListener(OnEcgMonitorListener listener) {
-        this.listener = listener;
-    }
-
-    // 删除心电监护仪设备监听器
-    public void removeListener() {
-        listener = null;
-    }
-
-    @Override
-    public void notifyHrAbnormal() {
-        if(listener != null) {
-            listener.onHrAbnormalNotified();
-        }
+        deviceProxy.callDisconnect(stopAutoScan);
     }
 
     public void updateRecordSecond(final int second) {
@@ -302,13 +289,6 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
         // 显示
         if(listener != null) {
             listener.onHrUpdated(hr);
-        }
-    }
-
-    @Override
-    public void onHrStatisticInfoUpdated(HrStatisticsInfo hrInfoObject) {
-        if(listener != null) {
-            listener.onHrStatisticsInfoUpdated(hrInfoObject);
         }
     }
 }

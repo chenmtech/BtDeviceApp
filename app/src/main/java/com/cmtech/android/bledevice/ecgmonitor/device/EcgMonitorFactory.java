@@ -1,12 +1,12 @@
 package com.cmtech.android.bledevice.ecgmonitor.device;
 
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
-import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
-import com.cmtech.android.bledeviceapp.model.DeviceFactory;
-import com.cmtech.android.ble.core.BleDevice;
-import com.cmtech.android.bledeviceapp.model.DeviceType;
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecgmonitor.fragment.EcgMonitorFragment;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
+import com.cmtech.android.bledeviceapp.model.DeviceFactory;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 // 根据设备类型BleDeviceType，通过反射创建工厂类实例
 public class EcgMonitorFactory extends DeviceFactory {
@@ -22,8 +22,8 @@ public class EcgMonitorFactory extends DeviceFactory {
     }
 
     @Override
-    public BleDevice createDevice() {
-        return new EcgMonitorDevice(registerInfo);
+    public IDevice createDevice() {
+        return EcgMonitorDevice.create(registerInfo);
     }
 
     @Override

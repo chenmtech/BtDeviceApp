@@ -15,7 +15,7 @@ import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
 import static com.cmtech.android.ble.core.BleDeviceState.CONNECTING;
 import static com.cmtech.android.ble.core.BleDeviceState.DISCONNECT;
 
-public abstract class WebDevice extends AbstractDevice {
+public class WebDevice extends AbstractDevice {
     public WebDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
     }

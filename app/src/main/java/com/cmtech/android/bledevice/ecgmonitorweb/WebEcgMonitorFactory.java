@@ -22,7 +22,7 @@ public class WebEcgMonitorFactory extends DeviceFactory {
 
     @Override
     public IDevice createDevice() {
-        return new WebEcgMonitorDevice(registerInfo);
+        return WebEcgMonitorDevice.create(registerInfo);
     }
 
     @Override
