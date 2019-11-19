@@ -107,7 +107,7 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
         layout.setupWithViewPager(pager);
         updateDeviceState(device.getEcgMonitorState());
 
-        device.setListener(this);
+        device.setEcgMonitorListener(this);
         ecgView.setListener(this);
     }
 
@@ -177,7 +177,7 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
         super.onDestroy();
 
         if(device != null)
-            device.removeListener();
+            device.removeEcgMonitorListener();
 
         if(hrAbnormalWarnAudio != null)
             hrAbnormalWarnAudio.stop();

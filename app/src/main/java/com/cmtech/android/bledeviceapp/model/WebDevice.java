@@ -102,4 +102,9 @@ public class WebDevice extends AbstractDevice {
     public void clear() {
 
     }
+
+    @Override
+    public void disconnect() {
+
+    }
 }

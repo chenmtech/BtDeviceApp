@@ -11,8 +11,8 @@ public interface IEcgDevice extends IDevice, HrStatisticProcessor.OnHrStatisticI
     void setValue1mV(int value1mV);
     int getValue1mV();
     EcgMonitorConfiguration getConfig();
-    void setListener(OnEcgMonitorListener listener);
-    void removeListener();
+    void setEcgMonitorListener(OnEcgMonitorListener listener);
+    void removeEcgMonitorListener();
     void updateSignalValue(int ecgSignal);
     void updateHrValue(short hr);
     void notifyHrAbnormal();

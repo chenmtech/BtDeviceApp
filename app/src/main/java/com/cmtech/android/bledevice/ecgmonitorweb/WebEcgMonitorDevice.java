@@ -8,15 +8,13 @@ import android.text.TextUtils;
 
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecgmonitor.device.AbstractEcgDevice;
-import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.WebDevice;
 import com.vise.log.ViseLog;
-
-import org.litepal.LitePal;
 
 import java.io.IOException;
 import java.util.List;
@@ -50,8 +48,6 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
 
     private Timer showTimer; // 定时器
     private final LinkedBlockingQueue<Integer> showCache = new LinkedBlockingQueue<>();	//要显示的信号数据缓存
-
-    private WebDevice deviceProxy;
 
     private class ShowTask extends TimerTask {
         @Override
@@ -95,39 +91,26 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     // 构造器
     private WebEcgMonitorDevice(WebDevice deviceProxy) {
         super(deviceProxy);
-
-        this.deviceProxy = deviceProxy;
-
-        /// 从数据库获取设备的配置信息
-        EcgMonitorConfiguration config = LitePal.where("macAddress = ?", getAddress()).findFirst(EcgMonitorConfiguration.class);
-        if(config == null) {
-            config = new EcgMonitorConfiguration();
-            config.setMacAddress(getAddress());
-            config.save();
-        }
-        this.config = config;
     }
 
-    public static WebEcgMonitorDevice create(DeviceRegisterInfo registerInfo) {
+    public static IDevice create(DeviceRegisterInfo registerInfo) {
         WebDevice webDevice = new WebDevice(registerInfo);
-        WebEcgMonitorDevice device = new WebEcgMonitorDevice(webDevice);
-        device.deviceProxy = webDevice;
-        return device;
+        return new WebEcgMonitorDevice(webDevice);
     }
 
     @Override
     public void switchState() {
-        deviceProxy.switchState();
+        super.switchState();
     }
 
     @Override
     public boolean isStopped() {
-        return deviceProxy.isStopped();
+        return super.isStopped();
     }
 
     @Override
     public void clear() {
-        deviceProxy.clear();
+        super.clear();
     }
 
     @Override
@@ -217,13 +200,13 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     public void open(Context context) {
         ViseLog.e("EcgMonitorDevice.open()");
 
-        deviceProxy.open(context);
+        super.open(context);
     }
 
     // 关闭设备
     @Override
     public void close() {
-        deviceProxy.close();
+        super.close();
     }
 
     @Override
@@ -232,10 +215,10 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
             showTimer.cancel();
             showCache.clear();
         }
-        deviceProxy.callDisconnect(stopAutoScan);
+        super.callDisconnect(stopAutoScan);
     }
 
-    public void updateRecordSecond(final int second) {
+    private void updateRecordSecond(final int second) {
         if(listener != null) {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
