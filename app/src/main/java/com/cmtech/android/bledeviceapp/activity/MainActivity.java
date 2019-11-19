@@ -572,6 +572,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     // 设备状态更新
     @Override
     public void onStateUpdated(IDevice device) {
+        ViseLog.e("hi1");
         // 更新设备列表Adapter
         if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
         // 更新设备的Fragment界面
@@ -579,12 +580,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(deviceFrag != null) deviceFrag.updateState();
         if(fragTabManager.isFragmentSelected(device)) {
             BleDeviceState state = device.getState();
+            ViseLog.e(state);
             if(state == BleDeviceState.SCANNING || state == BleDeviceState.CONNECTING || state == BleDeviceState.DISCONNECTING)
                 updateConnectFloatingActionButton(state.getIcon(), true);
             else
                 updateConnectFloatingActionButton(state.getIcon(), false);
             updateCloseMenuItemVisible(device.isStopped());
-        }
+        } else
+            ViseLog.e("h2");
     }
 
     // 提示信息产生

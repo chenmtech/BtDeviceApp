@@ -23,7 +23,7 @@ import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.fragment.EcgHrStatisticsFragment;
-import com.cmtech.android.bledevice.ecgmonitor.interfac.OnEcgMonitorListener;
+import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
@@ -50,7 +50,7 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
   * Version:        1.0
  */
 
-public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonitorListener, OnWaveViewListener {
+public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.OnEcgMonitorListener, OnWaveViewListener {
     private static final String TAG = "WebEcgMonitorFragment";
 
     private TextView tvSampleRate; // 采样率

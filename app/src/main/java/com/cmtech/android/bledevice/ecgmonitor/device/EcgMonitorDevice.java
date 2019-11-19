@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.ecgmonitor.device;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -32,7 +31,6 @@ import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.PIXEL_PER_GRID;
 import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.SECOND_PER_GRID;
-import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
 
 
@@ -86,13 +84,11 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
     private static final byte ECGMONITOR_CTRL_START_1MV = (byte) 0x02; // 启动采集1mV值
 
     private int[] wave1mV; // 1mV波形数据，数据长度与采样率有关，幅度变化恒定，在读取采样率之后初始化
-    private boolean isSaveRecord = false; // 是否保存心电记录
     private boolean containBatteryService = false; // 是否包含电池电量测量服务
     private volatile EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
     private final EcgDataProcessor dataProcessor; // 心电数据处理器, 在其内部的单线程池中执行数据处理
     private ScheduledExecutorService batteryService; // 电池电量测量Service
     private EcgNormalComment creatorComment; // 创建人留言；
-    private boolean isRecord = false; // 是否在记录信号
     private boolean isBroadcast = false; // 是否在广播信号
     private EcgHttpBroadcast broadcaster; // 网络广播器
 
@@ -117,28 +113,6 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
     }
 
     @Override
-    public void switchState() {
-        super.switchState();
-    }
-
-    @Override
-    public void callDisconnect(boolean stopAutoScan) {
-        super.callDisconnect(stopAutoScan);
-    }
-
-    @Override
-    public boolean isStopped() {
-        return super.isStopped();
-    }
-
-    @Override
-    public void clear() {
-        super.clear();
-    }
-
-    public boolean isRecord() {
-        return ((ecgRecord != null) && isRecord);
-    }
     public synchronized void setRecord(boolean record) {
         if(ecgRecord != null && this.isRecord != record) {
             // 当前isRecord与要设置的isRecord不同，意味着要改变当前的isRecord状态
@@ -163,9 +137,6 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
             updateBroadcastStatus(isBroadcast);
         }
     }
-    public void setSaveRecord(boolean isSaveRecord) {
-        this.isSaveRecord = isSaveRecord;
-    }
     public EcgMonitorState getEcgMonitorState() {
         return state;
     }
@@ -175,16 +146,12 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
             updateEcgMonitorState();
         }
     }
-
+    @Override
     public void updateConfig(EcgMonitorConfiguration config) {
-        this.config.copyFrom(config);
-        this.config.save();
+        super.updateConfig(config);
         dataProcessor.resetHrAbnormalProcessor();
     }
-    public int getRecordSecond() {
-        return (ecgRecord == null) ? 0 : ecgRecord.getRecordSecond();
-    }
-    public long getRecordDataNum() { return (ecgRecord == null) ? 0 : ecgRecord.getDataNum(); }
+
     private int[] getWave1mV() {
         return wave1mV;
     }
@@ -246,13 +213,6 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         }
     }
 
-    @Override
-    public void open(Context context) {
-        ViseLog.e("EcgMonitorDevice.open()");
-
-        super.open(context);
-    }
-
     // 关闭设备
     @Override
     public void close() {
@@ -269,7 +229,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         if(ecgRecord != null) {
             try {
                 ecgRecord.closeSigFile();
-                if(isSaveRecord) {
+                if(isSaveRecord()) {
                     saveEcgRecord();
                 }
             } catch (IOException e) {
@@ -338,8 +298,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
                 sampleRate = (data[0] & 0xff) | ((data[1] << 8) & 0xff00);
                 updateSampleRate(sampleRate);
                 dataProcessor.resetValue1mVDetector();
-                // 初始化信号显示设置
-                initSignalShowSetup(sampleRate);
+                updateSignalShowSetup(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
                 if(listener != null) {
                     listener.onEcgSignalShowStateUpdated(true);
                 }
@@ -548,17 +507,6 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         }
     }
 
-    private void updateRecordSecond(final int second) {
-        if(listener != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.onEcgSignalRecordSecondUpdated(second);
-                }
-            });
-        }
-    }
-
     @Override
     public void setValue1mV(final int value1mV) {
         ViseLog.e("定标前1mV值为: " + value1mV);
@@ -606,45 +554,14 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         startEcgSignalSampling();
     }
 
-    // 初始化信号显示设置
-    private void initSignalShowSetup(int sampleRate) {
-        // 更新信号显示设置
-        updateSignalShowSetup(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
-    }
-
     private void updateEcgMonitorState() {
         if(listener != null)
             listener.onStateUpdated(state);
     }
 
-    private void updateSampleRate(final int sampleRate) {
-        if(listener != null)
-            listener.onSampleRateUpdated(sampleRate);
-    }
-
-    private void updateLeadType(final EcgLeadType leadType) {
-        if(listener != null)
-            listener.onLeadTypeUpdated(leadType);
-    }
-
-    private void updateValue1mV(final int value1mV) {
-        if(listener != null)
-            listener.onValue1mVUpdated(value1mV, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
-    }
-
-    private void updateRecordStatus(final boolean isRecord) {
-        if(listener != null)
-            listener.onRecordStateUpdated(isRecord);
-    }
-
     private void updateBroadcastStatus(final boolean isBroadcast) {
         if(listener != null)
             listener.onBroadcastStateUpdated(isBroadcast);
-    }
-
-    private void updateSignalShowSetup(int sampleRate, int value1mV) {
-        if(listener != null)
-            listener.onShowSetupUpdated(sampleRate, value1mV, DEFAULT_ZERO_LOCATION);
     }
 
     private void updateBattery(final int bat) {
