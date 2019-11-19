@@ -61,7 +61,6 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
     private final LinkedBlockingQueue<Integer> showCache = new LinkedBlockingQueue<>();	//要显示的信号数据缓存
 
     private class ShowTask extends TimerTask {
-
         @Override
         public void run() {
             try {
@@ -123,12 +122,10 @@ public class WebEcgMonitorDevice extends WebDevice implements IEcgDevice {
     }
     @Override
     public int getValue1mV() { return value1mV; }
-
     @Override
     public void setValue1mV(int value1mV) {
         this.value1mV = value1mV;
     }
-
     @Override
     public EcgMonitorConfiguration getConfig() {
         return config;

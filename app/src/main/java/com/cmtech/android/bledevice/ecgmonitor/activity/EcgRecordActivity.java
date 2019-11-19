@@ -38,7 +38,6 @@ import java.util.List;
 
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalProcessor.HR_FILTER_SECOND;
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalProcessor.HR_HISTOGRAM_BAR_NUM;
-import static com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord.INVALID_SAMPLE_RATE;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener, EcgCommentAdapter.OnEcgCommentListener{
     private EcgRecord record;
@@ -94,7 +93,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvHrNum = findViewById(R.id.tv_hr_num);
 
         signalLayout = findViewById(R.id.layout_signal_part);
-        signalView = findViewById(R.id.rwv_signal_view);
+        signalView = findViewById(R.id.scan_ecg_view);
         signalView.setListener(this);
         rvComments = findViewById(R.id.rv_comment_list);
         LinearLayoutManager commentLayoutManager = new LinearLayoutManager(this);

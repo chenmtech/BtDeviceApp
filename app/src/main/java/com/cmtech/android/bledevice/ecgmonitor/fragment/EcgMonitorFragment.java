@@ -27,7 +27,6 @@ import com.cmtech.android.bledevice.ecgmonitor.interfac.OnEcgMonitorListener;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
-import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 
@@ -59,7 +58,7 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
     private TextView tvLeadType; // 导联类型
     private TextView tvCaliValue1mV; // 1mV标定值
     private TextView tvHeartRate; // 心率值
-    private TextView tvPauseShow; // 暂停显示
+    private TextView tvPauseMessage; // 暂停显示消息
     private ScanEcgView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgRecordFragment recordFragment = new EcgRecordFragment(); // 信号记录Fragment
@@ -91,8 +90,8 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
         tvLeadType = view.findViewById(R.id.tv_ecg_lead_type);
         tvCaliValue1mV = view.findViewById(R.id.tv_ecg_1mv_cali_value);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
-        tvPauseShow = view.findViewById(R.id.tv_pause_showing);
-        ecgView = view.findViewById(R.id.rwv_signal_view);
+        tvPauseMessage = view.findViewById(R.id.tv_pause_message);
+        ecgView = view.findViewById(R.id.scan_ecg_view);
 
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
@@ -151,8 +150,8 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
     @Override
     public void openConfigureActivity() {
         Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
-        intent.putExtra("configuration", device.getConfig());
-        intent.putExtra("nickname", device.getName());
+        intent.putExtra("device_configuration", device.getConfig());
+        intent.putExtra("device_name", device.getName());
         startActivityForResult(intent, 1);
     }
 
@@ -310,9 +309,9 @@ public class EcgMonitorFragment extends DeviceFragment implements OnEcgMonitorLi
     @Override
     public void onShowStateUpdated(boolean isShow) {
         if(isShow) {
-            tvPauseShow.setVisibility(View.GONE);
+            tvPauseMessage.setVisibility(View.GONE);
         } else {
-            tvPauseShow.setVisibility(View.VISIBLE);
+            tvPauseMessage.setVisibility(View.VISIBLE);
         }
     }
 }

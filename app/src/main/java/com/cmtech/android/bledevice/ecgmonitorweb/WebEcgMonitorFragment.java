@@ -27,7 +27,6 @@ import com.cmtech.android.bledevice.ecgmonitor.interfac.OnEcgMonitorListener;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
-import com.cmtech.android.bledevice.view.ScanWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 
@@ -56,9 +55,9 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
 
     private TextView tvSampleRate; // 采样率
     private TextView tvLeadType; // 导联类型
-    private TextView tvValue1mV; // 1mV值
+    private TextView tvCaliValue1mV; // 1mV值
     private TextView tvHeartRate; // 心率值
-    private TextView tvPauseShowing; // 暂停显示
+    private TextView tvPauseMessage; // 暂停显示消息
     private ScanEcgView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
@@ -71,6 +70,9 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        if(!(getDevice() instanceof WebEcgMonitorDevice)) {
+            throw new IllegalStateException("The device type is wrong.");
+        }
         device = (WebEcgMonitorDevice) getDevice();
         return inflater.inflate(R.layout.fragment_ecg_monitor, container, false);
     }
@@ -81,27 +83,30 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
 
         tvSampleRate = view.findViewById(R.id.tv_ecg_sample_rate);
         tvLeadType = view.findViewById(R.id.tv_ecg_lead_type);
-        tvValue1mV = view.findViewById(R.id.tv_ecg_1mv_cali_value);
+        tvCaliValue1mV = view.findViewById(R.id.tv_ecg_1mv_cali_value);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
-        tvPauseShowing = view.findViewById(R.id.tv_pause_showing);
-        ecgView = view.findViewById(R.id.rwv_signal_view);
+        tvPauseMessage = view.findViewById(R.id.tv_pause_message);
+        ecgView = view.findViewById(R.id.scan_ecg_view);
+
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
-        tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), device.getValue1mV()));
+        tvCaliValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), device.getValue1mV()));
         tvHeartRate.setText("");
-        initialEcgView();
-        ViewPager fragViewPager = view.findViewById(R.id.vp_ecg_control_panel);
-        TabLayout fragTabLayout = view.findViewById(R.id.tl_ecg_control_panel);
+
+        initEcgView();
+        ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
+        TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(hrStatisticsFragment));
         List<String> titleList = new ArrayList<>(Arrays.asList(EcgHrStatisticsFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
-        fragViewPager.setAdapter(fragAdapter);
-        fragTabLayout.setupWithViewPager(fragViewPager);
+        pager.setAdapter(fragAdapter);
+        layout.setupWithViewPager(pager);
+
         device.setListener(this);
         ecgView.setListener(this);
     }
 
-    private void initialEcgView() {
+    private void initEcgView() {
         ecgView.updateShowSetup(device.getSampleRate(), device.getValue1mV(), DEFAULT_ZERO_LOCATION);
     }
 
@@ -140,8 +145,8 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
     @Override
     public void openConfigureActivity() {
         Intent intent = new Intent(getActivity(), EcgMonitorConfigureActivity.class);
-        intent.putExtra("configuration", device.getConfig());
-        intent.putExtra("nickname", device.getName());
+        intent.putExtra("device_configuration", device.getConfig());
+        intent.putExtra("device_name", device.getName());
         startActivityForResult(intent, 1);
     }
 
@@ -195,7 +200,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
 
     @Override
     public void onValue1mVUpdated(final int value1mV, final int value1mVAfterCalibration) {
-        tvValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", value1mV, value1mVAfterCalibration));
+        tvCaliValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", value1mV, value1mVAfterCalibration));
     }
 
     @Override
@@ -298,9 +303,9 @@ public class WebEcgMonitorFragment extends DeviceFragment implements OnEcgMonito
     @Override
     public void onShowStateUpdated(boolean isShow) {
         if(isShow) {
-            tvPauseShowing.setVisibility(View.GONE);
+            tvPauseMessage.setVisibility(View.GONE);
         } else {
-            tvPauseShowing.setVisibility(View.VISIBLE);
+            tvPauseMessage.setVisibility(View.VISIBLE);
         }
     }
 }
