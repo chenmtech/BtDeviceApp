@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitorweb;
 
-import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
@@ -21,7 +21,7 @@ public class WebEcgMonitorFactory extends DeviceFactory {
     }
 
     @Override
-    public AbstractDevice createDevice() {
+    public IDevice createDevice() {
         return new WebEcgMonitorDevice(registerInfo);
     }
 

@@ -1,12 +1,12 @@
 package com.cmtech.android.bledevice.siggenerator.model;
 
-import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.siggenerator.view.SigGeneratorFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
-import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 public class SigGeneratorFactory extends DeviceFactory {
     private static final String SIGGENERATOR_UUID = "aa50"; // 设备支持的服务UUID短串
@@ -21,7 +21,7 @@ public class SigGeneratorFactory extends DeviceFactory {
     }
 
     @Override
-    public AbstractDevice createDevice() {
+    public IDevice createDevice() {
         return new SigGeneratorDevice(registerInfo);
     }
 

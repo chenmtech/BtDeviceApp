@@ -1,12 +1,12 @@
 package com.cmtech.android.bledevice.thermo.model;
 
-import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.thermo.view.ThermoFragment;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
-import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 public class ThermoFactory extends DeviceFactory {
     private static final String THERMOMETER_UUID = "aa30"; // 体温计
@@ -21,7 +21,7 @@ public class ThermoFactory extends DeviceFactory {
     }
 
     @Override
-    public AbstractDevice createDevice() {
+    public IDevice createDevice() {
         return new ThermoDevice(registerInfo);
     }
 

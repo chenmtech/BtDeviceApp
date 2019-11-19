@@ -20,9 +20,9 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
-import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -49,7 +49,7 @@ import static com.cmtech.android.ble.core.BleDevice.MSG_BT_CLOSED;
  * Version:        1.0
  */
 
-public class NotifyService extends Service implements AbstractDevice.OnBleDeviceListener {
+public class NotifyService extends Service implements IDevice.OnDeviceListener {
     private static final String TAG = "NotifyService";
     private static final int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
     private String notifyTitle; // 通知栏标题
@@ -87,7 +87,7 @@ public class NotifyService extends Service implements AbstractDevice.OnBleDevice
         List<DeviceRegisterInfo> registerInfoList = DeviceRegisterInfo.readAllFromPref(pref);
         if(registerInfoList == null || registerInfoList.isEmpty()) return;
         for(DeviceRegisterInfo registerInfo : registerInfoList) {
-            AbstractDevice device = DeviceManager.createDeviceIfNotExist(registerInfo);
+            IDevice device = DeviceManager.createDeviceIfNotExist(registerInfo);
            if(device != null) {
                device.addListener(this);
            }
@@ -117,7 +117,7 @@ public class NotifyService extends Service implements AbstractDevice.OnBleDevice
 
     private void sendNotification() {
         List<String> notifyContents = new ArrayList<>();
-        for(AbstractDevice device : DeviceManager.getDeviceList()) {
+        for(IDevice device : DeviceManager.getDeviceList()) {
             if(device.getState() != BleDeviceState.CLOSED) {
                 notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
             }
@@ -138,7 +138,7 @@ public class NotifyService extends Service implements AbstractDevice.OnBleDevice
         ViseLog.e("NotifyService.onDestroy()");
         super.onDestroy();
 
-        for(final AbstractDevice device : DeviceManager.getDeviceList()) {
+        for(final IDevice device : DeviceManager.getDeviceList()) {
             device.clear();
             device.removeListener(NotifyService.this);
             //device.close();
@@ -159,12 +159,12 @@ public class NotifyService extends Service implements AbstractDevice.OnBleDevice
     }
 
     @Override
-    public void onStateUpdated(final AbstractDevice device) {
+    public void onStateUpdated(final IDevice device) {
         sendNotification();
     }
 
     @Override
-    public void onExceptionMsgNotified(AbstractDevice device, int msgId) {
+    public void onExceptionMsgNotified(IDevice device, int msgId) {
         if(msgId == MSG_BLE_INNER_ERROR) {
             startWarningBleInnerError();
         } else if(msgId == MSG_BT_CLOSED) {
@@ -175,7 +175,7 @@ public class NotifyService extends Service implements AbstractDevice.OnBleDevice
     }
 
     @Override
-    public void onBatteryUpdated(AbstractDevice device) {
+    public void onBatteryUpdated(IDevice device) {
     }
 
     // 启动蓝牙内部错误报警

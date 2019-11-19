@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.cmtech.android.ble.core.AbstractDevice;
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 
 public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDeviceAdapter.ViewHolder> {
-    private List<AbstractDevice> deviceList; // 设备列表
+    private List<IDevice> deviceList; // 设备列表
     private MainActivity activity; // MainActivity
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -47,7 +47,7 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
         }
     }
 
-    public RegisteredDeviceAdapter(List<AbstractDevice> deviceList, MainActivity activity) {
+    public RegisteredDeviceAdapter(List<IDevice> deviceList, MainActivity activity) {
         this.deviceList = deviceList;
         this.activity = activity;
     }
@@ -62,7 +62,7 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AbstractDevice device = deviceList.get(holder.getAdapterPosition());
+                IDevice device = deviceList.get(holder.getAdapterPosition());
                 activity.openDevice(device);
             }
         });
@@ -71,7 +71,7 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
             final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
-                    AbstractDevice device = deviceList.get(holder.getAdapterPosition());
+                    IDevice device = deviceList.get(holder.getAdapterPosition());
                     switch (item.getItemId()){
                         case 1:
                             activity.modifyRegisterInfo(device.getRegisterInfo());
@@ -105,7 +105,7 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        AbstractDevice device = deviceList.get(position);
+        IDevice device = deviceList.get(position);
 
         String imagePath = device.getImagePath();
         if(!TextUtils.isEmpty(imagePath)) {
