@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 
-import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
@@ -33,19 +32,19 @@ public abstract class AbstractEcgDevice implements IEcgDevice {
     public AbstractEcgDevice(IDevice deviceProxy) {
         this.deviceProxy = deviceProxy;
 
-        this.deviceProxy.setCallback(new AbstractDevice.MyCallback() {
+        this.deviceProxy.setCallback(new IConnectCallback() {
             @Override
-            public boolean executeAfterConnectSuccess() {
+            public boolean onConnectSuccess() {
                 return true;
             }
 
             @Override
-            public void executeAfterConnectFailure() {
+            public void onConnectFailure() {
 
             }
 
             @Override
-            public void executeAfterDisconnect() {
+            public void onDisconnect() {
 
             }
         });

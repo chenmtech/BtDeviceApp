@@ -56,7 +56,10 @@ public class WebDevice extends AbstractDevice {
                         @Override
                         public void run() {
                             setState(CONNECT);
-                            myCallback.executeAfterConnectSuccess();
+                            if(callback != null) {
+                                if(!callback.onConnectSuccess())
+                                    callDisconnect(true);
+                            }
                         }
                     });
                 }
