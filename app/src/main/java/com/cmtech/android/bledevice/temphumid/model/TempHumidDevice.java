@@ -124,7 +124,6 @@ public class TempHumidDevice extends BleDevice {
     public TempHumidDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
         initializeAfterConstruction();
-
     }
 
     private void initializeAfterConstruction() {
@@ -142,8 +141,7 @@ public class TempHumidDevice extends BleDevice {
         readHistoryDataFromDb();
     }
 
-    @Override
-    public boolean executeAfterConnectSuccess() {
+    private boolean executeAfterConnectSuccess() {
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
 
@@ -171,13 +169,11 @@ public class TempHumidDevice extends BleDevice {
         return true;
     }
 
-    @Override
-    public void executeAfterDisconnect() {
+    private void executeAfterDisconnect() {
 
     }
 
-    @Override
-    public void executeAfterConnectFailure() {
+    private void executeAfterConnectFailure() {
 
     }
 

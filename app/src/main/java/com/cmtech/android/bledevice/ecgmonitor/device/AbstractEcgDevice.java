@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 
+import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
@@ -27,27 +28,10 @@ public abstract class AbstractEcgDevice implements IEcgDevice {
     protected final EcgMonitorConfiguration config; // 心电监护仪的配置信息
     protected boolean isRecord = false; // 是否在记录信号
     private boolean isSaveRecord = false; // 是否保存心电记录
-    private final IDevice deviceProxy;
+    private final AbstractDevice deviceProxy;
 
-    public AbstractEcgDevice(IDevice deviceProxy) {
+    public AbstractEcgDevice(AbstractDevice deviceProxy) {
         this.deviceProxy = deviceProxy;
-
-        this.deviceProxy.setCallback(new IConnectCallback() {
-            @Override
-            public boolean onConnectSuccess() {
-                return true;
-            }
-
-            @Override
-            public void onConnectFailure() {
-
-            }
-
-            @Override
-            public void onDisconnect() {
-
-            }
-        });
 
         // 从数据库获取设备的配置信息
         EcgMonitorConfiguration config = LitePal.where("macAddress = ?", getAddress()).findFirst(EcgMonitorConfiguration.class);

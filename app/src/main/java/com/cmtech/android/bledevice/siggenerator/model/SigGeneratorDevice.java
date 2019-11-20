@@ -3,6 +3,8 @@ package com.cmtech.android.bledevice.siggenerator.model;
 import com.cmtech.android.ble.core.BleDevice;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
+import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorDevice;
 import com.vise.log.ViseLog;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
@@ -36,10 +38,11 @@ public class SigGeneratorDevice extends BleDevice {
     public SigGeneratorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
 
+
+
     }
 
-    @Override
-    public boolean executeAfterConnectSuccess() {
+    private boolean executeAfterConnectSuccess() {
         BleGattElement[] elements = new BleGattElement[]{SIGGENERATOR_CTRL, SIGGENERATOR_TYPE, SIGGENERATOR_MAG, SIGGENERATOR_FREQ, SIGGENERATOR_BASELINE};
 
         if(!containGattElements(elements)) {
@@ -53,13 +56,11 @@ public class SigGeneratorDevice extends BleDevice {
         return true;
     }
 
-    @Override
-    public void executeAfterConnectFailure() {
+    private void executeAfterConnectFailure() {
 
     }
 
-    @Override
-    public void executeAfterDisconnect() {
+    private void executeAfterDisconnect() {
 
     }
 

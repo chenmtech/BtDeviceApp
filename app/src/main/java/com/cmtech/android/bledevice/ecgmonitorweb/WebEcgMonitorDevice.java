@@ -97,7 +97,24 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
 
     public static IDevice create(DeviceRegisterInfo registerInfo) {
         WebDevice webDevice = new WebDevice(registerInfo);
-        return new WebEcgMonitorDevice(webDevice);
+        final WebEcgMonitorDevice device = new WebEcgMonitorDevice(webDevice);
+        webDevice.setCallback(new IConnectCallback() {
+            @Override
+            public boolean onConnectSuccess() {
+                return device.executeAfterConnectSuccess();
+            }
+
+            @Override
+            public void onConnectFailure() {
+                device.executeAfterConnectFailure();
+            }
+
+            @Override
+            public void onDisconnect() {
+                device.executeAfterDisconnect();
+            }
+        });
+        return device;
     }
 
     @Override
@@ -105,8 +122,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         this.value1mV = value1mV;
     }
 
-    @Override
-    public boolean executeAfterConnectSuccess() {
+    private boolean executeAfterConnectSuccess() {
         EcgHttpBroadcastReceiver.retrieveBroadcastInfo("", new EcgHttpBroadcastReceiver.IEcgBroadcastInfoCallback() {
             @Override
             public void onReceived(String broadcastId, String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
@@ -156,15 +172,13 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         return true;
     }
 
-    @Override
-    public void executeAfterDisconnect() {
+    private void executeAfterDisconnect() {
         if(listener != null) {
             listener.onEcgSignalShowStateUpdated(false);
         }
     }
 
-    @Override
-    public void executeAfterConnectFailure() {
+    private void executeAfterConnectFailure() {
         if(listener != null) {
             listener.onEcgSignalShowStateUpdated(false);
         }

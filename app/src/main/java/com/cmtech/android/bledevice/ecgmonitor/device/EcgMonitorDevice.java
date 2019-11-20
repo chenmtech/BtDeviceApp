@@ -109,7 +109,24 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
 
     public static IDevice create(DeviceRegisterInfo registerInfo) {
         BleDevice bleDevice = new BleDevice(registerInfo);
-        return new EcgMonitorDevice(bleDevice);
+        final EcgMonitorDevice device = new EcgMonitorDevice(bleDevice);
+        bleDevice.setCallback(new IConnectCallback() {
+            @Override
+            public boolean onConnectSuccess() {
+                return device.executeAfterConnectSuccess();
+            }
+
+            @Override
+            public void onConnectFailure() {
+                device.executeAfterConnectFailure();
+            }
+
+            @Override
+            public void onDisconnect() {
+                device.executeAfterDisconnect();
+            }
+        });
+        return device;
     }
 
     @Override
@@ -156,8 +173,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         return wave1mV;
     }
 
-    @Override
-    public boolean executeAfterConnectSuccess() {
+    private boolean executeAfterConnectSuccess() {
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLE_RATE, ECGMONITOR_LEAD_TYPE};
 
         if(!deviceProxy.containGattElements(elements)) {
@@ -187,8 +203,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         return true;
     }
 
-    @Override
-    public void executeAfterDisconnect() {
+    private void executeAfterDisconnect() {
         dataProcessor.stop();
 
         if(listener != null) {
@@ -200,8 +215,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         }
     }
 
-    @Override
-    public void executeAfterConnectFailure() {
+    private void executeAfterConnectFailure() {
         dataProcessor.stop();
 
         if(listener != null) {

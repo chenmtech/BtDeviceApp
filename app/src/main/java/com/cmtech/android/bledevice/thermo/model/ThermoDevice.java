@@ -76,8 +76,7 @@ public class ThermoDevice extends BleDevice {
     private void initializeAfterConstruction() {
     }
 
-    @Override
-    public boolean executeAfterConnectSuccess() {
+    private boolean executeAfterConnectSuccess() {
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
@@ -97,13 +96,11 @@ public class ThermoDevice extends BleDevice {
         return true;
     }
 
-    @Override
-    public void executeAfterDisconnect() {
+    private void executeAfterDisconnect() {
 
     }
 
-    @Override
-    public void executeAfterConnectFailure() {
+    private void executeAfterConnectFailure() {
 
     }
 
