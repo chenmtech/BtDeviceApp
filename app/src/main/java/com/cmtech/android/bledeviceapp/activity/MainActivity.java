@@ -211,10 +211,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
         // 确定账户已经登录
         if(!AccountManager.getInstance().isSignIn()) {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
+            //Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            //startActivity(intent);
             finish();
         }
+        //ViseLog.e(AccountManager.getInstance().getAccount() + "len=" + AccountManager.getInstance().getAccount().getHuaweiId().length());
 
         // 启动并绑定通知服务
         Intent serviceIntent = new Intent(this, NotifyService.class);

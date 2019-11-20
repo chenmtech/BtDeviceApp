@@ -240,7 +240,7 @@ public class LoginActivity extends AppCompatActivity {
             if(isSaveLoginInfo)
                 saveLoginInfo(pref, phone, System.currentTimeMillis());
 
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            Intent intent = new Intent(LoginActivity.this, HuaweiLoginActivity.class);
             startActivity(intent);
             finish();
         } else {

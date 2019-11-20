@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import org.litepal.annotation.Column;
+
 /**
  *
  * ClassName:      Account
@@ -14,11 +16,28 @@ package com.cmtech.android.bledeviceapp.model;
 
 public class Account extends User {
     private String imagePath = ""; // 头像文件路径
+    @Column(ignore = true)
+    private String huaweiId = "";
 
     public String getImagePath() {
         return imagePath;
     }
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+    public String getHuaweiId() {
+        return huaweiId;
+    }
+    public void setHuaweiId(String huaweiId) {
+        this.huaweiId = huaweiId;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() +
+                "Account{" +
+                "imagePath='" + imagePath + '\'' +
+                ", huaweiId='" + huaweiId + '\'' +
+                '}';
     }
 }

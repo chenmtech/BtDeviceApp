@@ -55,9 +55,9 @@ public class AccountManager {
 
     // 注册新账户
     public boolean signUp(String phone) {
-        List<User> find = LitePal.where("phone = ?", phone).find(User.class);
+        Account find = LitePal.where("phone = ?", phone).findFirst(Account.class);
 
-        if(find != null && find.size() > 0) {
+        if(find != null) {
             ViseLog.e("The account exists.");
             return false;
         } else {
@@ -70,14 +70,12 @@ public class AccountManager {
 
     // 登录
     public boolean signIn(String phone) {
-        List<Account> accounts = LitePal.where("phone = ?", phone).find(Account.class);
-        if(accounts != null && accounts.size() == 1) {
-            account = accounts.get(0);
-            account.save();
+        Account account = LitePal.where("phone = ?", phone).findFirst(Account.class);
+        if(account != null) {
+            this.account = account;
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
 }
