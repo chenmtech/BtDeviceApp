@@ -1,5 +1,7 @@
 package com.cmtech.android.bledeviceapp.util;
 
+import android.util.Log;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -96,7 +98,7 @@ public class HttpUtils {
             builder.append(entry.getKey()).append("=").append(entry.getValue());
         }
         String rlt = builder.toString();
-        //   Log.e("EcgHttpBroadcast", "DataUrlString = " + rlt);
+        Log.e("EcgHttpBroadcast", "DataUrlString = " + rlt);
         return rlt;
     }
 

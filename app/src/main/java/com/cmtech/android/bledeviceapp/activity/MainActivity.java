@@ -215,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             //startActivity(intent);
             finish();
         }
-        //ViseLog.e(AccountManager.getInstance().getAccount() + "len=" + AccountManager.getInstance().getAccount().getHuaweiId().length());
+        ViseLog.e(AccountManager.getInstance().getAccount() + "len=" + AccountManager.getInstance().getAccount().getHuaweiId().length());
 
         // 启动并绑定通知服务
         Intent serviceIntent = new Intent(this, NotifyService.class);

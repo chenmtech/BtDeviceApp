@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.ecgmonitor.device;
 
+
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
@@ -15,6 +17,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+
 /**
  *
  * ClassName:      EcgHttpBroadcast
@@ -27,14 +30,10 @@ import okhttp3.Response;
  * Version:        1.0
  */
 
-public class EcgHttpBroadcast {
+class EcgHttpBroadcast {
     private static final String TAG = "EcgHttpBroadcast";
-    public static final  String  upload_url = "http://huawei.tighoo.com/home/upload?";
 
-    private static final String TYPE_START_CMD = "START"; // 启动命令
-    private static final String TYPE_STOP_CMD = "STOP"; // 停止命令
-    private static final String TYPE_BROADCAST_ID = "BRID"; // 广播ID
-    private static final String TYPE_DEVICE_ID = "DEID"; // 设备ID
+    private static final String TYPE_DEVICE_ID = "deviceId"; // 设备ID
     private static final String TYPE_CREATOR_ID = "CRID"; // 创建者ID
     private static final String TYPE_SAMPLE_RATE = "SR"; // 采样率
     private static final String TYPE_CALI_VALUE = "CALI"; // 标定值
@@ -45,10 +44,7 @@ public class EcgHttpBroadcast {
     private static final String TYPE_COMMENT_CONTENT = "CONT"; // 留言内容
     private static final String TYPE_RECEIVER_ID = "REID"; // 接收者ID
 
-    private static final int TYPE_CODE_DATA = 0;
-    private static final String INVALID_BROADCAST_ID = ""; // 无效广播ID
-
-    private String broadcastId; // 广播ID, 在调用start后，由服务器返回。现在暂时用deviceId代替。
+    private boolean isStopped;
     private final String deviceId; // 设备ID
     private final String creatorId; // 创建人ID
     private final int sampleRate; // 采样率
@@ -59,7 +55,7 @@ public class EcgHttpBroadcast {
     private volatile boolean waitingDataResponse; // 是否在等待数据响应
 
     public EcgHttpBroadcast(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
-        this.broadcastId = INVALID_BROADCAST_ID;
+        isStopped = true;
         this.deviceId = deviceId;
         this.creatorId = creatorId;
         this.sampleRate = sampleRate;
@@ -75,7 +71,7 @@ public class EcgHttpBroadcast {
      * @return
      */
     private boolean isStop() {
-        return broadcastId.equals(INVALID_BROADCAST_ID);
+        return isStopped;
     }
 
     /**
@@ -85,27 +81,23 @@ public class EcgHttpBroadcast {
         if(!isStop()) return; // 不能重复启动
 
         Map<String, String> data = new HashMap<>();
-        data.put(TYPE_START_CMD, "");
         data.put(TYPE_DEVICE_ID, deviceId);
-        data.put(TYPE_CREATOR_ID, creatorId);
         data.put(TYPE_SAMPLE_RATE, String.valueOf(sampleRate));
         data.put(TYPE_CALI_VALUE, String.valueOf(caliValue));
         data.put(TYPE_LEAD_TYPE, String.valueOf(leadTypeCode));
-        String urlData = createDataUrlString(data);
-        HttpUtils.upload(upload_url + urlData, new Callback() {
+        HttpUtils.upload(data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "broadcast start fail.");
-                broadcastId = INVALID_BROADCAST_ID;
+                isStopped = true;
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
+                //  String responseStr = response.body().string();
 
-                // 这里解析出broadcastId，暂时用deviceId代替
-                broadcastId = deviceId;
-                Log.e(TAG, "broadcast started: " + broadcastId);
+                isStopped = false;
+                Log.e(TAG, "broadcast started.");
             }
         });
     }
@@ -116,22 +108,7 @@ public class EcgHttpBroadcast {
     public void stop() {
         if(isStop()) return;
 
-        Map<String, String> data = new HashMap<>();
-        data.put(TYPE_STOP_CMD, "");
-        data.put(TYPE_BROADCAST_ID, broadcastId);
-        String dataUrl = createDataUrlString(data);
-        HttpUtils.upload(upload_url + dataUrl, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.e(TAG, "broadcast stop fail.");
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.e(TAG, "broadcast stopped.");
-                broadcastId = INVALID_BROADCAST_ID;
-            }
-        });
+        isStopped = true;
     }
 
     /**
@@ -140,7 +117,6 @@ public class EcgHttpBroadcast {
      */
     public void sendEcgSignal(int ecgSignal) {
         if(isStop()) return;
-
         ecgBuffer.add(ecgSignal);
         send();
     }
@@ -151,7 +127,6 @@ public class EcgHttpBroadcast {
      */
     public void sendHrValue(short hr) {
         if(isStop()) return;
-
         hrBuffer.add(hr);
         send();
     }
@@ -159,20 +134,18 @@ public class EcgHttpBroadcast {
     private void send() {
         if(ecgBuffer.size() >= sampleRate && !waitingDataResponse) {
             waitingDataResponse = true;
-            String ecgStr = ConvertString(ecgBuffer);
-            String hrStr = ConvertString(hrBuffer);
-            String sendData = "type=" + TYPE_CODE_DATA + "&deviceId=" + broadcastId +
-                    "&data="+hrStr+";"+ecgStr;
-            HttpUtils.upload(upload_url + sendData, new Callback() {
+            Map<String, String> data = new HashMap<>();
+            data.put(TYPE_DEVICE_ID,deviceId);
+            data.put("data", HttpUtils.ConvertString(hrBuffer)+ ";"+ HttpUtils.ConvertString(ecgBuffer));
+            HttpUtils.upload(data, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    ViseLog.e(TAG, "Send data fail.");
                     waitingDataResponse = false;
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    ViseLog.e("Send data success.");
+                    Log.e(TAG, "send data success.");
                     waitingDataResponse = false;
                     ecgBuffer.clear();
                     hrBuffer.clear();
@@ -190,11 +163,10 @@ public class EcgHttpBroadcast {
         if(isStop()) return;
 
         Map<String, String> data = new HashMap<>();
-        data.put(TYPE_BROADCAST_ID, broadcastId);
+        data.put(TYPE_DEVICE_ID, deviceId);
         data.put(TYPE_COMMENTER_ID, commenterId);
         data.put(TYPE_COMMENT_CONTENT, content);
-        String dataUrl = createDataUrlString(data);
-        HttpUtils.upload(upload_url + dataUrl);
+        HttpUtils.upload(data);
     }
 
     /**
@@ -205,41 +177,11 @@ public class EcgHttpBroadcast {
         if(isStop()) return;
 
         Map<String, String> data = new HashMap<>();
-        data.put(TYPE_BROADCAST_ID, broadcastId);
+        data.put(TYPE_DEVICE_ID, deviceId);
         data.put(TYPE_RECEIVER_ID, receiverId);
-        String dataUrl = createDataUrlString(data);
-        HttpUtils.upload(upload_url + dataUrl);
+
+        HttpUtils.upload(data);
     }
 
-    private static String createDataUrlString(Map<String, String> data) {
-        if(data == null || data.isEmpty()) return "";
 
-        StringBuilder builder = new StringBuilder();
-        boolean isFirst = true;
-        for(Map.Entry entry : data.entrySet()) {
-            if(!isFirst) {
-                builder.append("&");
-            } else {
-                isFirst = false;
-            }
-            builder.append(entry.getKey()).append("=").append(entry.getValue());
-        }
-        String rlt = builder.toString();
-        Log.e("EcgHttpBroadcast", "DataUrlString = " + rlt);
-        return rlt;
-    }
-
-    private  static String ConvertString(List list)
-    {
-        if(list == null || list.isEmpty())
-        {
-            return null;
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i=0;i<list.size();i++)
-        {
-            sb.append(list.get(i)+",");
-        }
-        return sb.toString();
-    }
 }
