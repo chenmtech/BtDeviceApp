@@ -148,10 +148,10 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
     public boolean isBroadcast() {
         return broadcaster != null && isBroadcast;
     }
-    public synchronized void setBroadcast(boolean broadcast) {
-        if(broadcaster != null && this.isBroadcast != broadcast) {
-            isBroadcast = broadcast;
-            updateBroadcastStatus(isBroadcast);
+    public synchronized void setBroadcast(boolean isBroadcast) {
+        if(broadcaster != null && this.isBroadcast != isBroadcast) {
+            this.isBroadcast = isBroadcast;
+            updateBroadcastStatus(this.isBroadcast);
         }
     }
     public EcgMonitorState getEcgMonitorState() {

@@ -57,8 +57,7 @@ public class EcgBroadcastFragment extends Fragment {
             @Override
             public void onReceiverChanged(User receiver, boolean isChecked) {
                 ViseLog.e(receiver + " Check: " + isChecked);
-                //if(device != null)
-                //    device.addCommentContent(DateTimeUtil.secToTimeInChinese((int)(device.getRecordDataNum() / device.getSampleRate())) + '，' + marker.getDescription() + '；');
+
             }
         });
         rvReceiver.setAdapter(receiverAdapter);
