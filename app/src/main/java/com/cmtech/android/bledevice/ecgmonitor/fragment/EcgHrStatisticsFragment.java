@@ -44,14 +44,16 @@ public class EcgHrStatisticsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        tvMaxHr = view.findViewById(R.id.tv_hr_max_value);
+        tvMaxHr.setText("0");
         tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
-        tvMaxHr = view.findViewById(R.id.tv_max_hr_value);
+        tvAverageHr.setText("0");
         hrLineChart = view.findViewById(R.id.linechart_hr);
     }
 
     public void updateHrInfo(HrStatisticsInfo hrInfoObject) {
-        tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
         tvAverageHr.setText(String.valueOf(hrInfoObject.getAverageHr()));
+        tvMaxHr.setText(String.valueOf(hrInfoObject.getMaxHr()));
         hrLineChart.showLineChart(hrInfoObject.getFilteredHrList(), "心率变化图", Color.BLUE);
     }
 }

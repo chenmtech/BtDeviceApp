@@ -247,11 +247,11 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
     }
 
     @Override
-    public void onHrStatisticsInfoUpdated(final HrStatisticsInfo hrStaticsInfoAnalyzer) {
+    public void onHrStatisticsInfoUpdated(final HrStatisticsInfo hrStaticsInfo) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                hrStatisticsFragment.updateHrInfo(hrStaticsInfoAnalyzer);
+                hrStatisticsFragment.updateHrInfo(hrStaticsInfo);
             }
         });
     }

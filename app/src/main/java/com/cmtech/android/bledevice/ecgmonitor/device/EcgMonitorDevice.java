@@ -164,7 +164,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         }
     }
     @Override
-    public void updateConfig(EcgMonitorConfiguration config) {
+    public synchronized void updateConfig(EcgMonitorConfiguration config) {
         super.updateConfig(config);
         dataProcessor.resetHrAbnormalProcessor();
     }
@@ -523,7 +523,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
 
     @Override
     public void setValue1mV(final int value1mV) {
-        ViseLog.e("定标前1mV值为: " + value1mV);
+        ViseLog.e("Calculated 1mV value before calibration: " + value1mV);
         stopSampling();
 
         this.value1mV = value1mV;
