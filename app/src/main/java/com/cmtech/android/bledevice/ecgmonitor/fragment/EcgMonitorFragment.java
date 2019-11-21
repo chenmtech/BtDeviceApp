@@ -104,6 +104,7 @@ public class EcgMonitorFragment extends DeviceFragment implements IEcgDevice.OnE
         List<String> titleList = new ArrayList<>(Arrays.asList(EcgRecordFragment.TITLE, EcgBroadcastFragment.TITLE, EcgHrStatisticsFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
+        pager.setOffscreenPageLimit(3);
         layout.setupWithViewPager(pager);
         updateDeviceState(device.getEcgMonitorState());
 
