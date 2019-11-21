@@ -7,7 +7,7 @@ import android.os.Looper;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
-import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpBroadcastReceiver;
+import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpReceiver;
 import com.vise.log.ViseLog;
 
 import static com.cmtech.android.ble.core.BleDeviceState.CLOSED;
@@ -41,10 +41,10 @@ public class WebDevice extends AbstractDevice {
     private void connect() {
         setState(CONNECTING);
 
-        EcgHttpBroadcastReceiver.retrieveBroadcastInfo(getAddress(), new EcgHttpBroadcastReceiver.IEcgBroadcastInfoCallback() {
+        EcgHttpReceiver.retrieveDeviceInfo(getAddress(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
-            public void onReceived(String broadcastId, String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
-                if(broadcastId == null) {
+            public void onReceived(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
+                if(deviceId == null) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
                         public void run() {

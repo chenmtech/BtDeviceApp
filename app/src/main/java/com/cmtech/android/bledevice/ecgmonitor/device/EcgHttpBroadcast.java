@@ -1,11 +1,9 @@
 package com.cmtech.android.bledevice.ecgmonitor.device;
 
 
-import android.os.Vibrator;
 import android.util.Log;
 
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
-import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +31,8 @@ import okhttp3.Response;
 class EcgHttpBroadcast {
     private static final String TAG = "EcgHttpBroadcast";
 
+    private static final String upload_url = "http://huawei.tighoo.com/home/upload?";
+
     private static final String TYPE_DEVICE_ID = "deviceId"; // 设备ID
     private static final String TYPE_CREATOR_ID = "CRID"; // 创建者ID
     private static final String TYPE_SAMPLE_RATE = "SR"; // 采样率
@@ -40,9 +40,8 @@ class EcgHttpBroadcast {
     private static final String TYPE_LEAD_TYPE = "LEAD"; // 导联类型
     private static final String TYPE_ECG_SIGNAL = "ECG"; // 心电信号
     private static final String TYPE_HR_VALUE = "HR"; // 心率值
-    private static final String TYPE_COMMENTER_ID = "COID"; // 留言人ID
-    private static final String TYPE_COMMENT_CONTENT = "CONT"; // 留言内容
     private static final String TYPE_RECEIVER_ID = "REID"; // 接收者ID
+    private static final String TYPE_RECEIVER_CMD = "RECMD"; // 添加或删除接收者命令
 
     private boolean isStopped;
     private final String deviceId; // 设备ID
@@ -68,7 +67,7 @@ class EcgHttpBroadcast {
 
     /**
      * 广播是否已停止
-     * @return
+     * @return : 是否已停止
      */
     private boolean isStop() {
         return isStopped;
@@ -85,7 +84,7 @@ class EcgHttpBroadcast {
         data.put(TYPE_SAMPLE_RATE, String.valueOf(sampleRate));
         data.put(TYPE_CALI_VALUE, String.valueOf(caliValue));
         data.put(TYPE_LEAD_TYPE, String.valueOf(leadTypeCode));
-        HttpUtils.upload(data, new Callback() {
+        HttpUtils.upload(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "broadcast start fail.");
@@ -107,13 +106,12 @@ class EcgHttpBroadcast {
      */
     public void stop() {
         if(isStop()) return;
-
         isStopped = true;
     }
 
     /**
      * 发送心电信号
-     * @param ecgSignal
+     * @param ecgSignal ：心电数据
      */
     public void sendEcgSignal(int ecgSignal) {
         if(isStop()) return;
@@ -123,7 +121,7 @@ class EcgHttpBroadcast {
 
     /**
      * 发送心率值
-     * @param hr
+     * @param hr ：心率值
      */
     public void sendHrValue(short hr) {
         if(isStop()) return;
@@ -137,7 +135,7 @@ class EcgHttpBroadcast {
             Map<String, String> data = new HashMap<>();
             data.put(TYPE_DEVICE_ID,deviceId);
             data.put("data", HttpUtils.ConvertString(hrBuffer)+ ";"+ HttpUtils.ConvertString(ecgBuffer));
-            HttpUtils.upload(data, new Callback() {
+            HttpUtils.upload(upload_url, data, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     waitingDataResponse = false;
@@ -155,33 +153,31 @@ class EcgHttpBroadcast {
     }
 
     /**
-     * 发送一条留言
-     * @param commenterId : 留言人ID
-     * @param content : 留言内容
-     */
-    public void sendComment(String commenterId, String content) {
-        if(isStop()) return;
-
-        Map<String, String> data = new HashMap<>();
-        data.put(TYPE_DEVICE_ID, deviceId);
-        data.put(TYPE_COMMENTER_ID, commenterId);
-        data.put(TYPE_COMMENT_CONTENT, content);
-        HttpUtils.upload(data);
-    }
-
-    /**
      * 添加一个可接收该广播的接收者
      * @param receiverId ：接收者ID
      */
     public void addReceiver(String receiverId) {
         if(isStop()) return;
+        Map<String, String> data = new HashMap<>();
+        data.put(TYPE_DEVICE_ID, deviceId);
+        data.put(TYPE_RECEIVER_CMD, "add");
+        data.put(TYPE_RECEIVER_ID, receiverId);
+
+        HttpUtils.upload(upload_url, data);
+    }
+
+    /**
+     * 删除一个可接收该广播的接收者
+     * @param receiverId ：接收者ID
+     */
+    public void deleteReceiver(String receiverId) {
+        if(isStop()) return;
 
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_DEVICE_ID, deviceId);
+        data.put(TYPE_RECEIVER_CMD, "delete");
         data.put(TYPE_RECEIVER_ID, receiverId);
 
-        HttpUtils.upload(data);
+        HttpUtils.upload(upload_url, data);
     }
-
-
 }

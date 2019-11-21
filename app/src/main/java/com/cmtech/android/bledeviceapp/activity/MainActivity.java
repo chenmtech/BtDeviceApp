@@ -55,7 +55,7 @@ import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordExplorerActivity;
-import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpBroadcastReceiver;
+import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpReceiver;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RegisteredDeviceAdapter;
@@ -243,14 +243,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
 
         // 获取网络广播设备列表
-        EcgHttpBroadcastReceiver.retrieveBroadcastIdList(AccountManager.getInstance().getAccount().getPhone(), new EcgHttpBroadcastReceiver.IEcgBroadcastIdListCallback() {
+        EcgHttpReceiver.retrieveDeviceList(new EcgHttpReceiver.IEcgDeviceListCallback() {
             @Override
-            public void onReceived(List<String> broadcastIdList) {
-                broadcastIdList.add("00:00:00:00:00:00");
-                broadcastIdList.add("00:00:00:00:00:01");
+            public void onReceived(List<String> deviceIdList) {
+                deviceIdList.add("00:00:00:00:00:00");
+                deviceIdList.add("00:00:00:00:00:01");
                 Message msg = new Message();
                 msg.what = MSG_OBTAIN_BROADCAST_ID_LIST;
-                msg.obj = broadcastIdList;
+                msg.obj = deviceIdList;
                 handler.sendMessage(msg);
             }
         });

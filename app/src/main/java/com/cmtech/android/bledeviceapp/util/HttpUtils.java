@@ -18,8 +18,6 @@ import okhttp3.Response;
 public class HttpUtils {
 
     public static String open_id = "";
-    public static final String upload_url = "http://huawei.tighoo.com/home/upload?";
-
 
     public static void Get(String url, Callback callback) {
         OkHttpClient client = new OkHttpClient();
@@ -31,8 +29,8 @@ public class HttpUtils {
         client.newCall(request).enqueue(callback);
     }
 
-    public static void upload(Map<String, String> data) {
-        upload(data, new Callback() {
+    public static void upload(String baseUrl, Map<String, String> data) {
+        upload(baseUrl, data, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
@@ -46,13 +44,13 @@ public class HttpUtils {
 
     }
 
-    public static void upload(Map<String, String> data, Callback callback) {
+    public static void upload(String baseUrl, Map<String, String> data, Callback callback) {
         data.put("open_id", open_id);
         String dataUrlString = createDataUrlString(data);
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .get() //请求参数
-                .url(upload_url + dataUrlString)
+                .url(baseUrl + dataUrlString)
                 .build();
 
         client.newCall(request).enqueue(callback);

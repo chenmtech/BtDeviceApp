@@ -16,6 +16,7 @@ import com.cmtech.android.bledeviceapp.model.WebDevice;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -63,11 +64,11 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_READ_DATA_PACKET) {
-                EcgHttpBroadcastReceiver.readDataPackets("", "-1", new EcgHttpBroadcastReceiver.IEcgBroadcastDataPacketCallback() {
+                EcgHttpReceiver.readDataPackets("", new Date().getTime(), new EcgHttpReceiver.IEcgDataPacketCallback() {
                     @Override
-                    public void onReceived(List<EcgHttpBroadcastReceiver.EcgDataPacket> dataList) {
-                        if(dataList != null) {
-                            List<Integer> data = dataList.get(0).getData();
+                    public void onReceived(List<EcgHttpReceiver.EcgDataPacket> dataPacketList) {
+                        if(dataPacketList != null) {
+                            List<Integer> data = dataPacketList.get(0).getData();
                             for (int i = 0; i < data.size(); i++) {
                                 try {
                                     showCache.put(data.get(i));
@@ -123,14 +124,14 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     }
 
     private boolean executeAfterConnectSuccess() {
-        EcgHttpBroadcastReceiver.retrieveBroadcastInfo("", new EcgHttpBroadcastReceiver.IEcgBroadcastInfoCallback() {
+        EcgHttpReceiver.retrieveDeviceInfo("", new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
-            public void onReceived(String broadcastId, String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
-                broadcastId = "test";
+            public void onReceived(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
+                //broadcastId = "test";
                 sampleRate = 250;
                 caliValue = 65535;
                 leadTypeCode = 1;
-                if(!TextUtils.isEmpty(broadcastId)) {
+                if(!TextUtils.isEmpty(deviceId)) {
                     WebEcgMonitorDevice.this.sampleRate = sampleRate;
                     updateSampleRate(sampleRate);
                     updateSignalShowSetup(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
