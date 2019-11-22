@@ -39,32 +39,11 @@ public class WebDevice extends AbstractDevice {
     }
 
     private void connect() {
-        setState(CONNECTING);
-
-        EcgHttpReceiver.retrieveDeviceInfo(getAddress(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
-            @Override
-            public void onReceived(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
-                if(deviceId == null) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            setState(DISCONNECT);
-                        }
-                    });
-                } else {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            setState(CONNECT);
-                            if(callback != null) {
-                                if(!callback.onConnectSuccess())
-                                    callDisconnect(true);
-                            }
-                        }
-                    });
-                }
-            }
-        });
+        setState(CONNECT);
+        if(callback != null) {
+            if(!callback.onConnectSuccess())
+                callDisconnect(true);
+        }
     }
 
     @Override

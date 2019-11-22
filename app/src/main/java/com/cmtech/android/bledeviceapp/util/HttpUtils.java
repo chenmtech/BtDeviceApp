@@ -124,7 +124,6 @@ public class HttpUtils {
         if (url.equals("")) {
             return entity;
         }
-        ViseLog.e(url);
         String[] urlParts = url.split("\\?");
         //  entity.baseUrl = urlParts[0];
         //没有参数
@@ -132,10 +131,7 @@ public class HttpUtils {
             return entity;
         }
         //有参数
-        ViseLog.e(urlParts[0]);
-        ViseLog.e(urlParts[1]);
         String[] params = urlParts[1].split("&");
-        ViseLog.e(params);
         for (String param : params) {
             String[] keyValue = param.split("=");
             if(keyValue.length == 1)

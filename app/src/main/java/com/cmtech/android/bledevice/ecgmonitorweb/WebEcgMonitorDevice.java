@@ -124,13 +124,26 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     }
 
     private boolean executeAfterConnectSuccess() {
-        EcgHttpReceiver.retrieveDeviceInfo("", new EcgHttpReceiver.IEcgDeviceInfoCallback() {
+        EcgHttpReceiver.retrieveDeviceInfo(new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
-            public void onReceived(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
-                sampleRate = 250;
-                caliValue = 65535;
-                leadTypeCode = 1;
-                if(!TextUtils.isEmpty(deviceId)) {
+            public void onReceived(List<WebEcgMonitorDevice> deviceList) {
+                if(deviceList == null || deviceList.isEmpty()) return;
+
+                int sampleRate = 250;
+                int caliValue = 65535;
+                int leadTypeCode = 1;
+                boolean find = false;
+                for(WebEcgMonitorDevice device : deviceList) {
+                    if(device.getAddress().equals(getAddress())) {
+                        sampleRate = device.getSampleRate();
+                        caliValue = device.getValue1mV();
+                        leadTypeCode = device.getLeadType().getCode();
+                        find = true;
+                        break;
+                    }
+                }
+
+                if(find) {
                     WebEcgMonitorDevice.this.sampleRate = sampleRate;
                     updateSampleRate(sampleRate);
                     updateSignalShowSetup(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION);

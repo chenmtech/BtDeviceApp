@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private final static int RC_MODIFY_REGISTER_INFO = 2;       // 修改设备注册信息返回码
     private final static int RC_MODIFY_ACCOUNT_INFO = 3;     // 修改账户信息返回码
 
-    private static final int MSG_OBTAIN_WEB_ECG_DEVICE_LIST = 0;
+    private static final int MSG_OBTAIN_WEB_ECG_DEVICE = 0;
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
     private NotifyService notifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
@@ -123,18 +123,13 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_OBTAIN_WEB_ECG_DEVICE_LIST:
-                    final List<String> broadcastIdList = (List<String>) msg.obj;
-                    ViseLog.e(broadcastIdList);
-                    if(!broadcastIdList.isEmpty()) {
-                        for(String str : broadcastIdList) {
-                            DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(str, "ab40");
-                            if(DeviceManager.findDevice(registerInfo) == null) {
-                                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-                                intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
-                                startActivityForResult(intent, 1);
-                            }
-                        }
+                case MSG_OBTAIN_WEB_ECG_DEVICE:
+                    final WebEcgMonitorDevice device = (WebEcgMonitorDevice) msg.obj;
+                    DeviceRegisterInfo registerInfo = device.getRegisterInfo();
+                    if(DeviceManager.findDevice(registerInfo) == null) {
+                        Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+                        intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
+                        startActivityForResult(intent, 1);
                     }
                     break;
             }
@@ -246,12 +241,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         EcgHttpReceiver.retrieveDeviceInfo(new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
             public void onReceived(List<WebEcgMonitorDevice> deviceList) {
-                deviceIdList.add("00:00:00:00:00:00");
-                deviceIdList.add("00:00:00:00:00:01");
-                Message msg = new Message();
-                msg.what = MSG_OBTAIN_WEB_ECG_DEVICE_LIST;
-                msg.obj = deviceIdList;
-                handler.sendMessage(msg);
+                if(deviceList != null && !deviceList.isEmpty()) {
+                    for(WebEcgMonitorDevice device : deviceList) {
+                        Message msg = new Message();
+                        msg.what = MSG_OBTAIN_WEB_ECG_DEVICE;
+                        msg.obj = device;
+                        handler.sendMessage(msg);
+                    }
+                }
             }
         });
     }
@@ -701,6 +698,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 if(device.getRegisterInfo().deleteFromPref(pref)) {
                     DeviceManager.deleteDevice(device);
                     if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
+                    Toast.makeText(MainActivity.this, "设备已删除。", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "无法删除设备。", Toast.LENGTH_SHORT).show();
                 }

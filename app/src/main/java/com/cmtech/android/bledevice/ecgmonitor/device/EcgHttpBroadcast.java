@@ -244,14 +244,14 @@ public class EcgHttpBroadcast {
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
                 if(callback != null) {
-                    callback.onReceived(parseJSONWithJSONObject(responseStr));
+                    callback.onReceived(parseReceiversWithJSONObject(responseStr));
                 }
             }
         });
     }
 
-    private List<Account> parseJSONWithJSONObject(String jsonData) {
-        List<Account> accounts = new ArrayList<>();
+    private static List<Account> parseReceiversWithJSONObject(String jsonData) {
+        List<Account> receivers = new ArrayList<>();
         try {
             JSONArray jsonArray = new JSONArray(jsonData);
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -261,11 +261,11 @@ public class EcgHttpBroadcast {
                 Account account = new Account();
                 account.setName(name);
                 account.setHuaweiId(huaweiId);
-                accounts.add(account);
+                receivers.add(account);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return accounts;
+        return receivers;
     }
 }

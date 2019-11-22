@@ -3,8 +3,16 @@ package com.cmtech.android.bledevice.ecgmonitorweb;
 
 import android.util.Log;
 
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
+import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
+import com.vise.log.ViseLog;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,8 +76,9 @@ public class EcgHttpReceiver {
     public static void retrieveDeviceInfo(final IEcgDeviceInfoCallback callback) {
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_RECEIVER_ID, HttpUtils.open_id);
-        String dataStr = HttpUtils.createDataUrlString(data);
-        HttpUtils.upload(device_info_url + dataStr, new Callback() {
+        String urlStr = device_info_url + HttpUtils.createDataUrlString(data);
+        ViseLog.e(urlStr);
+        HttpUtils.upload(urlStr, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, e.getMessage());
@@ -81,9 +90,10 @@ public class EcgHttpReceiver {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-                // 这里用responseStr解析出IDevice列表
-                List<WebEcgMonitorDevice> deviceList = new ArrayList<>();
 
+
+                // 这里用responseStr解析出IDevice列表
+                List<WebEcgMonitorDevice> deviceList = parseDevicesWithJSONObject(responseStr);
                 if (callback != null) {
                     callback.onReceived(deviceList);
                 }
@@ -135,6 +145,33 @@ public class EcgHttpReceiver {
                 }
             }
         });
+    }
+
+    private static List<WebEcgMonitorDevice> parseDevicesWithJSONObject(String jsonData) {
+        ViseLog.e(jsonData);
+        List<WebEcgMonitorDevice> devices = new ArrayList<>();
+        try {
+            JSONArray jsonArray = new JSONArray(jsonData);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                ViseLog.e("hi");
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String deviceId = jsonObject.getString("deviceID");
+                int sampleRate = Integer.parseInt(jsonObject.getString("sample_Rate"));
+                int caliValue = Integer.parseInt(jsonObject.getString("cali_Value"));
+                int leadTypeCode = Integer.parseInt(jsonObject.getString("lead_Type"));
+                EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
+                DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(deviceId, "ab40");
+                ViseLog.e(registerInfo);
+                WebEcgMonitorDevice device = (WebEcgMonitorDevice) DeviceFactory.getFactory(registerInfo).createDevice();
+                device.setSampleRate(sampleRate);
+                device.setValue1mV(caliValue);
+                device.setLeadType(leadType);
+                devices.add(device);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return devices;
     }
 
 }

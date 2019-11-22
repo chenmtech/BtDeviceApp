@@ -45,9 +45,15 @@ public abstract class AbstractEcgDevice implements IEcgDevice {
 
     @Override
     public final int getSampleRate() { return sampleRate; }
+    public final void setSampleRate(int sampleRate) {
+        this.sampleRate = sampleRate;
+    }
     @Override
     public final EcgLeadType getLeadType() {
         return leadType;
+    }
+    public final void setLeadType(EcgLeadType leadType) {
+        this.leadType = leadType;
     }
     @Override
     public final int getValue1mV() { return value1mV; }
@@ -247,13 +253,13 @@ public abstract class AbstractEcgDevice implements IEcgDevice {
 
     @Override
     public int hashCode() {
-        return deviceProxy.hashCode();
+        return getAddress().hashCode();
     }
 
     @Override
     public boolean equals(@Nullable Object obj) {
         if(obj instanceof IDevice)
-            return deviceProxy.equals(obj);
+            return getAddress().equals(((IDevice) obj).getAddress());
         else
             return false;
     }

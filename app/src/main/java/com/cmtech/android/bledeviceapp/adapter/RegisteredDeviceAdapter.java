@@ -78,6 +78,7 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
                             break;
                         case 2:
                             activity.removeRegisteredDevice(device);
+                            notifyDataSetChanged();
                             break;
                         default:
                             break;
