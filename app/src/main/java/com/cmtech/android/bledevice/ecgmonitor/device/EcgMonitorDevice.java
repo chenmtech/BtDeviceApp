@@ -16,6 +16,7 @@ import com.cmtech.android.bledevice.ecgmonitor.process.EcgDataProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.util.EcgMonitorUtil;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
@@ -148,10 +149,13 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
     public boolean isBroadcast() {
         return broadcaster != null && isBroadcast;
     }
-    public synchronized void setBroadcast(boolean isBroadcast) {
+    public synchronized void setBroadcast(boolean isBroadcast, EcgHttpBroadcast.IGetReceiversCallback callback) {
         if(broadcaster != null && this.isBroadcast != isBroadcast) {
             this.isBroadcast = isBroadcast;
             updateBroadcastStatus(this.isBroadcast);
+            if(isBroadcast) {
+                broadcaster.getUsers(callback);
+            }
         }
     }
     public EcgMonitorState getEcgMonitorState() {
@@ -259,7 +263,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
             dataProcessor.reset();
 
         // 停止广播
-        setBroadcast(false);
+        setBroadcast(false, null);
         if(broadcaster != null) {
             broadcaster.stop();
             broadcaster = null;
@@ -583,5 +587,11 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
 
         if(listener != null)
             listener.onBatteryUpdated(bat);
+    }
+
+    public void addBroadcastReceiver(Account receiver, EcgHttpBroadcast.IAddReceiverCallback callback) {
+        if(broadcaster != null) {
+            broadcaster.addReceiver(receiver.getHuaweiId(), callback);
+        }
     }
 }

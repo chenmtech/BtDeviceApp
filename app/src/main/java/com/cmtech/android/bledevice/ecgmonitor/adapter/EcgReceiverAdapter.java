@@ -8,18 +8,18 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.Account;
 
 import java.util.List;
 
 public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.ViewHolder> {
-    private final List<User> receivers;
+    private final List<Account> receivers;
     private boolean enable = false;
 
-    public interface OnReceiverChangeListener {
-        void onReceiverChanged(User receiver, boolean isChecked);
+    public interface OnReceiverChangedListener {
+        void onReceiverChanged(Account receiver, boolean isChecked);
     }
-    private final OnReceiverChangeListener listener;
+    private final OnReceiverChangedListener listener;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CheckBox cbReceiver;
@@ -30,7 +30,7 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
         }
     }
 
-    public EcgReceiverAdapter(List<User> receivers, OnReceiverChangeListener listener) {
+    public EcgReceiverAdapter(List<Account> receivers, OnReceiverChangedListener listener) {
         this.receivers = receivers;
         this.listener = listener;
     }
@@ -56,7 +56,7 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
 
     @Override
     public void onBindViewHolder(EcgReceiverAdapter.ViewHolder holder, final int position) {
-        User receiver = receivers.get(position);
+        Account receiver = receivers.get(position);
         holder.cbReceiver.setText(receiver.getName());
         holder.cbReceiver.setEnabled(enable);
     }

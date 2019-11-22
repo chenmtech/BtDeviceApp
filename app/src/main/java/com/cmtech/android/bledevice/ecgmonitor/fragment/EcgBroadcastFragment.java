@@ -14,10 +14,11 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgReceiverAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.device.EcgHttpBroadcast;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class EcgBroadcastFragment extends Fragment {
     private ImageButton ibBroadcast; // 切换记录广播状态
     private RecyclerView rvReceiver; // 接收者recycleview
     private EcgReceiverAdapter receiverAdapter; // 接收者adapter
-    private List<User> receivers;
+    private List<Account> receivers;
     private EcgMonitorDevice device;
 
     @Nullable
@@ -52,12 +53,22 @@ public class EcgBroadcastFragment extends Fragment {
         rvReceiver.setLayoutManager(layoutManager);
         if(getContext() != null)
             rvReceiver.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        initReceivers();
-        receiverAdapter = new EcgReceiverAdapter(receivers, new EcgReceiverAdapter.OnReceiverChangeListener() {
+        receivers = new ArrayList<>();
+        receiverAdapter = new EcgReceiverAdapter(receivers, new EcgReceiverAdapter.OnReceiverChangedListener() {
             @Override
-            public void onReceiverChanged(User receiver, boolean isChecked) {
+            public void onReceiverChanged(Account receiver, boolean isChecked) {
                 ViseLog.e(receiver + " Check: " + isChecked);
+                device.addBroadcastReceiver(receiver, new EcgHttpBroadcast.IAddReceiverCallback() {
+                    @Override
+                    public void onFailure() {
 
+                    }
+
+                    @Override
+                    public void onReceived(List<Account> accounts) {
+
+                    }
+                });
             }
         });
         rvReceiver.setAdapter(receiverAdapter);
@@ -68,29 +79,20 @@ public class EcgBroadcastFragment extends Fragment {
         ibBroadcast.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                device.setBroadcast(!device.isBroadcast());
+                device.setBroadcast(!device.isBroadcast(), new EcgHttpBroadcast.IGetReceiversCallback() {
+                    @Override
+                    public void onReceived(List<Account> accounts) {
+                        receivers.addAll(accounts);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                receiverAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                });
             }
         });
-    }
-
-    private void initReceivers() {
-        receivers = new ArrayList<>();
-        User user = new User();
-        user.setPhone("101");
-        user.setName("陈医生");
-        receivers.add(user);
-        user = new User();
-        user.setPhone("102");
-        user.setName("方医生");
-        receivers.add(user);
-        user = new User();
-        user.setPhone("103");
-        user.setName("范医生");
-        receivers.add(user);
-        user = new User();
-        user.setPhone("104");
-        user.setName("林医生");
-        receivers.add(user);
     }
 
     public void setDevice(EcgMonitorDevice device) {
