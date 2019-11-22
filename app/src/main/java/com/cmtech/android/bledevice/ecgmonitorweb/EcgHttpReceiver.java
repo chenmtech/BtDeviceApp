@@ -8,6 +8,7 @@ import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
+import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
@@ -148,12 +149,10 @@ public class EcgHttpReceiver {
     }
 
     private static List<WebEcgMonitorDevice> parseDevicesWithJSONObject(String jsonData) {
-        ViseLog.e(jsonData);
         List<WebEcgMonitorDevice> devices = new ArrayList<>();
         try {
             JSONArray jsonArray = new JSONArray(jsonData);
             for (int i = 0; i < jsonArray.length(); i++) {
-                ViseLog.e("hi");
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 String deviceId = jsonObject.getString("deviceID");
                 int sampleRate = Integer.parseInt(jsonObject.getString("sample_Rate"));
@@ -162,11 +161,14 @@ public class EcgHttpReceiver {
                 EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
                 DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(deviceId, "ab40");
                 ViseLog.e(registerInfo);
-                WebEcgMonitorDevice device = (WebEcgMonitorDevice) DeviceFactory.getFactory(registerInfo).createDevice();
-                device.setSampleRate(sampleRate);
-                device.setValue1mV(caliValue);
-                device.setLeadType(leadType);
-                devices.add(device);
+                WebEcgMonitorDevice device = (WebEcgMonitorDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
+                if(device != null) {
+                    device.getRegisterInfo().setName("心电广播");
+                    device.setSampleRate(sampleRate);
+                    device.setValue1mV(caliValue);
+                    device.setLeadType(leadType);
+                    devices.add(device);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -124,13 +124,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_OBTAIN_WEB_ECG_DEVICE:
-                    final WebEcgMonitorDevice device = (WebEcgMonitorDevice) msg.obj;
-                    DeviceRegisterInfo registerInfo = device.getRegisterInfo();
-                    if(DeviceManager.findDevice(registerInfo) == null) {
-                        Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-                        intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
-                        startActivityForResult(intent, 1);
-                    }
+                    registeredDeviceAdapter.notifyDataSetChanged();
                     break;
             }
         }
@@ -236,21 +230,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(intent);
         }
-
-        // 获取网络广播设备列表
-        EcgHttpReceiver.retrieveDeviceInfo(new EcgHttpReceiver.IEcgDeviceInfoCallback() {
-            @Override
-            public void onReceived(List<WebEcgMonitorDevice> deviceList) {
-                if(deviceList != null && !deviceList.isEmpty()) {
-                    for(WebEcgMonitorDevice device : deviceList) {
-                        Message msg = new Message();
-                        msg.what = MSG_OBTAIN_WEB_ECG_DEVICE;
-                        msg.obj = device;
-                        handler.sendMessage(msg);
-                    }
-                }
-            }
-        });
     }
 
     // 主界面初始化
@@ -269,6 +248,21 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         rvDevices.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         registeredDeviceAdapter = new RegisteredDeviceAdapter(DeviceManager.getDeviceList(), this);
         rvDevices.setAdapter(registeredDeviceAdapter);
+
+        // 获取网络广播设备列表
+        EcgHttpReceiver.retrieveDeviceInfo(new EcgHttpReceiver.IEcgDeviceInfoCallback() {
+            @Override
+            public void onReceived(List<WebEcgMonitorDevice> deviceList) {
+                if(deviceList != null && !deviceList.isEmpty()) {
+                    for(WebEcgMonitorDevice device : deviceList) {
+                        Message msg = new Message();
+                        msg.what = MSG_OBTAIN_WEB_ECG_DEVICE;
+                        msg.obj = device;
+                        handler.sendMessage(msg);
+                    }
+                }
+            }
+        });
 
         // 初始化导航视图
         initNavigation();
@@ -698,7 +692,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 if(device.getRegisterInfo().deleteFromPref(pref)) {
                     DeviceManager.deleteDevice(device);
                     if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
-                    Toast.makeText(MainActivity.this, "设备已删除。", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(MainActivity.this, "无法删除设备。", Toast.LENGTH_SHORT).show();
                 }
