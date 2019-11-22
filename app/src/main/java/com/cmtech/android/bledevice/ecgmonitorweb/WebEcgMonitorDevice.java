@@ -127,7 +127,6 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         EcgHttpReceiver.retrieveDeviceInfo("", new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
             public void onReceived(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
-                //broadcastId = "test";
                 sampleRate = 250;
                 caliValue = 65535;
                 leadTypeCode = 1;

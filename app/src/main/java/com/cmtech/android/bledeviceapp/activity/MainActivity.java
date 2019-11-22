@@ -56,6 +56,7 @@ import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordExplorerActivity;
 import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpReceiver;
+import com.cmtech.android.bledevice.ecgmonitorweb.WebEcgMonitorDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RegisteredDeviceAdapter;
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private final static int RC_MODIFY_REGISTER_INFO = 2;       // 修改设备注册信息返回码
     private final static int RC_MODIFY_ACCOUNT_INFO = 3;     // 修改账户信息返回码
 
-    private static final int MSG_OBTAIN_BROADCAST_ID_LIST = 0;
+    private static final int MSG_OBTAIN_WEB_ECG_DEVICE_LIST = 0;
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
     private NotifyService notifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
@@ -122,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_OBTAIN_BROADCAST_ID_LIST:
+                case MSG_OBTAIN_WEB_ECG_DEVICE_LIST:
                     final List<String> broadcastIdList = (List<String>) msg.obj;
                     ViseLog.e(broadcastIdList);
                     if(!broadcastIdList.isEmpty()) {
@@ -211,8 +212,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
         // 确定账户已经登录
         if(!AccountManager.getInstance().isSignIn()) {
-            //Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            //startActivity(intent);
+            Toast.makeText(this, "account sign in fail.", Toast.LENGTH_SHORT).show();
             finish();
         }
         ViseLog.e(AccountManager.getInstance().getAccount() + "len=" + AccountManager.getInstance().getAccount().getHuaweiId().length());
@@ -243,13 +243,13 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
 
         // 获取网络广播设备列表
-        EcgHttpReceiver.retrieveDeviceList(new EcgHttpReceiver.IEcgDeviceListCallback() {
+        EcgHttpReceiver.retrieveDeviceInfo(new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
-            public void onReceived(List<String> deviceIdList) {
+            public void onReceived(List<WebEcgMonitorDevice> deviceList) {
                 deviceIdList.add("00:00:00:00:00:00");
                 deviceIdList.add("00:00:00:00:00:01");
                 Message msg = new Message();
-                msg.what = MSG_OBTAIN_BROADCAST_ID_LIST;
+                msg.what = MSG_OBTAIN_WEB_ECG_DEVICE_LIST;
                 msg.obj = deviceIdList;
                 handler.sendMessage(msg);
             }

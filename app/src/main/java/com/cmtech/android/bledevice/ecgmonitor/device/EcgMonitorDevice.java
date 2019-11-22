@@ -158,6 +158,16 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
             }
         }
     }
+    public void addBroadcastReceiver(Account receiver, EcgHttpBroadcast.IAddReceiverCallback callback) {
+        if(broadcaster != null) {
+            broadcaster.addReceiver(receiver.getHuaweiId(), callback);
+        }
+    }
+    public void deleteBroadcastReceiver(Account receiver, EcgHttpBroadcast.IDeleteReceiverCallback callback) {
+        if(broadcaster != null) {
+            broadcaster.deleteReceiver(receiver.getHuaweiId(), callback);
+        }
+    }
     public EcgMonitorState getEcgMonitorState() {
         return state;
     }
@@ -587,11 +597,5 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
 
         if(listener != null)
             listener.onBatteryUpdated(bat);
-    }
-
-    public void addBroadcastReceiver(Account receiver, EcgHttpBroadcast.IAddReceiverCallback callback) {
-        if(broadcaster != null) {
-            broadcaster.addReceiver(receiver.getHuaweiId(), callback);
-        }
     }
 }

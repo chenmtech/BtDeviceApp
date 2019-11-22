@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.ecgmonitorweb;
 
 import android.util.Log;
 
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 
 import java.io.IOException;
@@ -19,18 +20,16 @@ public class EcgHttpReceiver {
     private static final String TAG = "EcgHttpReceiver";
 
     private static final String download_url = "http://huawei.tighoo.com/home/download?";
+    private static final String device_info_url = "http://huawei.tighoo.com/home/GeReceivedDeviceInfo?";
 
     private static final String TYPE_DEVICE_ID = "deviceId"; // 设备ID
+    private static final String TYPE_RECEIVER_ID = "receiverId";
     private static final String TYPE_LAST_PACKET_TIME_STAMP = "LPTS"; // 最后接收的数据包时间戳
 
-    // 获取可接收的广播设备列表回调
-    public interface IEcgDeviceListCallback {
-        void onReceived(List<String> deviceIdList);
-    }
 
-    // 获取某广播设备信息回调
+    // 获取广播设备信息回调
     public interface IEcgDeviceInfoCallback {
-        void onReceived(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode);
+        void onReceived(List<WebEcgMonitorDevice> deviceList);
     }
 
     // 读取广播设备数据包回调
@@ -66,9 +65,11 @@ public class EcgHttpReceiver {
      * 注意：接收者ID就是HttpUtils中的open_id, 并在调用HttpUtils.upload时自动加入，所以这里就不用添加了。下同
      * @param callback : 回调
      */
-    public static void retrieveDeviceList(final IEcgDeviceListCallback callback) {
+    public static void retrieveDeviceInfo(final IEcgDeviceInfoCallback callback) {
         Map<String, String> data = new HashMap<>();
-        HttpUtils.upload(download_url, data, new Callback() {
+        data.put(TYPE_RECEIVER_ID, HttpUtils.open_id);
+        String dataStr = HttpUtils.createDataUrlString(data);
+        HttpUtils.upload(device_info_url + dataStr, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, e.getMessage());
@@ -80,41 +81,11 @@ public class EcgHttpReceiver {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-                // 这里用responseStr解析出deviceId列表
-                List<String> deviceIdList = new ArrayList<>();
+                // 这里用responseStr解析出IDevice列表
+                List<WebEcgMonitorDevice> deviceList = new ArrayList<>();
 
                 if (callback != null) {
-                    callback.onReceived(deviceIdList);
-                }
-            }
-        });
-    }
-
-    /**
-     * 获取某广播设备的相关信息参数
-     * 服务器端应该按照deviceId, creatorId, sampleRate, caliValue和leadTypeCode的顺序返回相应的信息
-     * @param deviceId ： 广播设备ID
-     * @param callback : 回调
-     */
-    public static void retrieveDeviceInfo(String deviceId, final IEcgDeviceInfoCallback callback) {
-        Map<String, String> data = new HashMap<String, String>();
-        data.put(TYPE_DEVICE_ID, deviceId);
-        HttpUtils.upload(download_url, data, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                Log.e(TAG, e.getMessage());
-                if (callback != null) {
-                    callback.onReceived(null, null, 0, 0, 0);
-                }
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                // 这里用responseStr解析出广播的相关信息
-
-                if (callback != null) {
-                    callback.onReceived(null, null, 0, 0, 0);
+                    callback.onReceived(deviceList);
                 }
             }
         });

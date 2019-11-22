@@ -58,17 +58,21 @@ public class EcgBroadcastFragment extends Fragment {
             @Override
             public void onReceiverChanged(Account receiver, boolean isChecked) {
                 ViseLog.e(receiver + " Check: " + isChecked);
-                device.addBroadcastReceiver(receiver, new EcgHttpBroadcast.IAddReceiverCallback() {
-                    @Override
-                    public void onFailure() {
+                if(isChecked) {
+                    device.addBroadcastReceiver(receiver, new EcgHttpBroadcast.IAddReceiverCallback() {
+                        @Override
+                        public void onReceived(String responseStr) {
 
-                    }
+                        }
+                    });
+                } else {
+                    device.deleteBroadcastReceiver(receiver, new EcgHttpBroadcast.IDeleteReceiverCallback() {
+                        @Override
+                        public void onReceived(String responseStr) {
 
-                    @Override
-                    public void onReceived(List<Account> accounts) {
-
-                    }
-                });
+                        }
+                    });
+                }
             }
         });
         rvReceiver.setAdapter(receiverAdapter);

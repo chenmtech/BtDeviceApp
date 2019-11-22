@@ -40,12 +40,10 @@ public class EcgHttpBroadcast {
     private static final String getuser_url = "http://huawei.tighoo.com/home/GetUsers?";
 
     private static final String TYPE_DEVICE_ID = "deviceId"; // 设备ID
-    private static final String TYPE_CREATOR_ID = "CRID"; // 创建者ID
     private static final String TYPE_SAMPLE_RATE = "SR"; // 采样率
     private static final String TYPE_CALI_VALUE = "CALI"; // 标定值
     private static final String TYPE_LEAD_TYPE = "LEAD"; // 导联类型
-    private static final String TYPE_ECG_SIGNAL = "ECG"; // 心电信号
-    private static final String TYPE_HR_VALUE = "HR"; // 心率值
+    private static final String TYPE_DATA = "data"; // 数据
     private static final String TYPE_RECEIVER_ID = "receiverId"; // 接收者ID
     private static final String TYPE_RECEIVER_CMD = "RECMD"; // 添加或删除接收者命令
 
@@ -64,8 +62,11 @@ public class EcgHttpBroadcast {
     }
 
     public interface IAddReceiverCallback {
-        void onFailure();
-        void onReceived(List<Account> accounts);
+        void onReceived(String responseStr);
+    }
+
+    public interface IDeleteReceiverCallback {
+        void onReceived(String responseStr);
     }
 
     public EcgHttpBroadcast(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
@@ -181,7 +182,7 @@ public class EcgHttpBroadcast {
             @Override
             public void onFailure(Call call, IOException e) {
                 if(callback != null) {
-                    callback.onFailure();
+                    callback.onReceived(null);
                 }
             }
 
@@ -189,6 +190,7 @@ public class EcgHttpBroadcast {
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
                 ViseLog.e(responseStr);
+                callback.onReceived(responseStr);
             }
         });
     }
@@ -197,7 +199,7 @@ public class EcgHttpBroadcast {
      * 删除一个可接收该广播的接收者
      * @param receiverId ：接收者ID
      */
-    public void deleteReceiver(String receiverId) {
+    public void deleteReceiver(String receiverId, final IDeleteReceiverCallback callback) {
         if(isStop()) return;
 
         Map<String, String> data = new HashMap<>();
@@ -205,18 +207,34 @@ public class EcgHttpBroadcast {
         data.put(TYPE_RECEIVER_CMD, "delete");
         data.put(TYPE_RECEIVER_ID, receiverId);
 
-        HttpUtils.upload(upload_url, data);
+        HttpUtils.upload(upload_url, data, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                if(callback != null) {
+                    callback.onReceived(null);
+                }
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseStr = response.body().string();
+
+                if(callback != null) {
+                    callback.onReceived(responseStr);
+                }
+            }
+        });
     }
 
     public void getUsers(final IGetReceiversCallback callback) {
-        //if(isStop()) return;
+        if(isStop()) return;
 
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_DEVICE_ID, deviceId);
         HttpUtils.upload(getuser_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.e(TAG, "getusers fail.");
+                Log.e(TAG, "get users fail.");
                 if(callback != null) {
                     callback.onReceived(null);
                 }
