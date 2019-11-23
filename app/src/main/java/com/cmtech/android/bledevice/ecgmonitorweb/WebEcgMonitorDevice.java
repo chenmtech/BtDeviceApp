@@ -47,6 +47,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
 
     private Timer showTimer; // 定时器
     private final LinkedBlockingQueue<Integer> showCache = new LinkedBlockingQueue<>();	//要显示的信号数据缓存
+    private long lastDataPackTime = 0;
 
     private class ShowTask extends TimerTask {
         @Override
@@ -64,10 +65,12 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_READ_DATA_PACKET) {
-                EcgHttpReceiver.readDataPackets("", new Date().getTime(), new EcgHttpReceiver.IEcgDataPacketCallback() {
+                lastDataPackTime = new Date().getTime();
+
+                EcgHttpReceiver.readDataPackets(getAddress(), lastDataPackTime, new EcgHttpReceiver.IEcgDataPacketCallback() {
                     @Override
                     public void onReceived(List<EcgHttpReceiver.EcgDataPacket> dataPacketList) {
-                        if(dataPacketList != null) {
+                        if(dataPacketList != null && !dataPacketList.isEmpty()) {
                             List<Integer> data = dataPacketList.get(0).getData();
                             for (int i = 0; i < data.size(); i++) {
                                 try {
@@ -78,9 +81,9 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
                                 //updateSignalValue(data.get(i));
                                 //Log.e(TAG, "data = " + data.get(i));
                             }
-                            if (getState() == BleDeviceState.CONNECT)
-                                handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
                         }
+                        if (getState() == BleDeviceState.CONNECT)
+                            handler.sendEmptyMessageDelayed(MSG_READ_DATA_PACKET, 1000);
                     }
                 });
             }
@@ -124,63 +127,37 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     }
 
     private boolean executeAfterConnectSuccess() {
-        EcgHttpReceiver.retrieveDeviceInfo(new EcgHttpReceiver.IEcgDeviceInfoCallback() {
-            @Override
-            public void onReceived(List<WebEcgMonitorDevice> deviceList) {
-                if(deviceList == null || deviceList.isEmpty()) return;
+        updateSampleRate(sampleRate);
+        updateSignalShowSetup(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+        if(listener != null) {
+            listener.onEcgSignalShowStateUpdated(true);
+        }
 
-                int sampleRate = 250;
-                int caliValue = 65535;
-                int leadTypeCode = 1;
-                boolean find = false;
-                for(WebEcgMonitorDevice device : deviceList) {
-                    if(device.getAddress().equals(getAddress())) {
-                        sampleRate = device.getSampleRate();
-                        caliValue = device.getValue1mV();
-                        leadTypeCode = device.getLeadType().getCode();
-                        find = true;
-                        break;
-                    }
-                }
+        if(showTimer != null) {
+            showTimer.cancel();
+        }
+        // 初始化显示定时器
+        showTimer = new Timer();
+        int sampleInterval = 1000/getSampleRate();
+        showTimer.scheduleAtFixedRate(new ShowTask(), sampleInterval, sampleInterval);
 
-                if(find) {
-                    WebEcgMonitorDevice.this.sampleRate = sampleRate;
-                    updateSampleRate(sampleRate);
-                    updateSignalShowSetup(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
-                    if(listener != null) {
-                        listener.onEcgSignalShowStateUpdated(true);
-                    }
+        updateValue1mV(value1mV);
+        updateLeadType(leadType);
 
-                    if(showTimer != null) {
-                        showTimer.cancel();
-                    }
-                    // 初始化定时器
-                    showTimer = new Timer();
-                    int sampleInterval = 1000/getSampleRate();
-                    showTimer.scheduleAtFixedRate(new ShowTask(), sampleInterval, sampleInterval);
-
-                    WebEcgMonitorDevice.this.value1mV = caliValue;
-                    updateValue1mV(caliValue);
-                    WebEcgMonitorDevice.this.leadType = EcgLeadType.getFromCode(leadTypeCode);
-                    updateLeadType(leadType);
-
-                    // 创建心电记录
-                    if(ecgRecord == null) {
-                        ecgRecord = EcgRecord.create(AccountManager.getInstance().getAccount(), sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), leadType);
-                        if(ecgRecord != null) {
-                            ViseLog.e("ecgRecord: " + ecgRecord);
-                            try {
-                                ecgRecord.openSigFile();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
-                    handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
+        // 创建心电记录
+        if(ecgRecord == null) {
+            ecgRecord = EcgRecord.create(AccountManager.getInstance().getAccount(), sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), leadType);
+            if(ecgRecord != null) {
+                ViseLog.e("ecgRecord: " + ecgRecord);
+                try {
+                    ecgRecord.openSigFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        });
+        }
+
+        handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
 
         return true;
     }

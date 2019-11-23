@@ -109,7 +109,9 @@ public class EcgHttpBroadcast {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                //  String responseStr = response.body().string();
+                String responseStr = response.body().string();
+
+                ViseLog.e("start: " + responseStr);
 
                 isStopped = false;
                 Log.e(TAG, "broadcast started.");
@@ -132,7 +134,7 @@ public class EcgHttpBroadcast {
     public void sendEcgSignal(int ecgSignal) {
         if(isStop()) return;
         ecgBuffer.add(ecgSignal);
-        send();
+        sendData();
     }
 
     /**
@@ -142,10 +144,10 @@ public class EcgHttpBroadcast {
     public void sendHrValue(short hr) {
         if(isStop()) return;
         hrBuffer.add(hr);
-        send();
+        sendData();
     }
 
-    private void send() {
+    private void sendData() {
         if(ecgBuffer.size() >= sampleRate && !waitingDataResponse) {
             waitingDataResponse = true;
             Map<String, String> data = new HashMap<>();
@@ -159,7 +161,10 @@ public class EcgHttpBroadcast {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    Log.e(TAG, "send data success.");
+                    String responseStr = response.body().string();
+
+                    ViseLog.e("sendData: " + responseStr);
+
                     waitingDataResponse = false;
                     ecgBuffer.clear();
                     hrBuffer.clear();
@@ -189,8 +194,10 @@ public class EcgHttpBroadcast {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-                ViseLog.e(responseStr);
-                callback.onReceived(responseStr);
+                ViseLog.e("addReceiver: " + responseStr);
+
+                if(callback != null)
+                    callback.onReceived(responseStr);
             }
         });
     }
@@ -218,6 +225,7 @@ public class EcgHttpBroadcast {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
+                ViseLog.e("deleteReceiver: " + responseStr);
 
                 if(callback != null) {
                     callback.onReceived(responseStr);
@@ -243,6 +251,8 @@ public class EcgHttpBroadcast {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
+                ViseLog.e("getUsers: " + responseStr);
+
                 if(callback != null) {
                     callback.onReceived(parseReceiversWithJSONObject(responseStr));
                 }

@@ -530,7 +530,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         }
 
         // 广播
-        if(broadcaster != null) {
+        if(isBroadcast()) {
             broadcaster.sendHrValue(hr);
         }
     }

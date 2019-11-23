@@ -48,13 +48,14 @@ public class HttpUtils {
     public static void upload(String baseUrl, Map<String, String> data, Callback callback) {
         data.put("open_id", open_id);
         String dataUrlString = createDataUrlString(data);
+
+        ViseLog.e(baseUrl + dataUrlString);
+
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .get() //请求参数
                 .url(baseUrl + dataUrlString)
                 .build();
-
-        ViseLog.e(baseUrl + dataUrlString);
 
         client.newCall(request).enqueue(callback);
     }
@@ -62,6 +63,9 @@ public class HttpUtils {
     public static String upload(String data, Callback callback) {
         String result = "OK";
         String url = data;
+
+        ViseLog.e(url);
+
         try {
             Get(url, callback);
             return result;
@@ -99,7 +103,6 @@ public class HttpUtils {
             builder.append(entry.getKey()).append("=").append(entry.getValue());
         }
         String rlt = builder.toString();
-        Log.e("EcgHttpBroadcast", "DataUrlString = " + rlt);
         return rlt;
     }
 
