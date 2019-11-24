@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -131,12 +132,9 @@ public class EcgHttpReceiver {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-                // 这里用responseStr解析出数据包List<EcgDataPacket>
-
                 ViseLog.e("readDataPackets: " + responseStr);
 
-                List<EcgDataPacket> dataPackets = new ArrayList<>();
-                //dataPackets.add(new EcgDataPacket(0, new ArrayList<Integer>()));
+                List<EcgDataPacket> dataPackets = parseDataPacketsWithJSONObject(responseStr);
 
                 if (callback != null) {
                     callback.onReceived(dataPackets);
@@ -174,7 +172,40 @@ public class EcgHttpReceiver {
     }
 
 
-    public static String timeToString(long timeInMillis) {
+    private static String timeToString(long timeInMillis) {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date(timeInMillis));
+    }
+
+    private static long stringToTime(String timeStr) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.CHINA).parse(timeStr).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private static List<EcgDataPacket> parseDataPacketsWithJSONObject(String jsonData) {
+        List<EcgDataPacket> packets = new ArrayList<>();
+        try {
+            JSONArray jsonArray = new JSONArray(jsonData);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String dataStr = jsonObject.getString("value");
+                String[] dataStrs = dataStr.split(",");
+                List<Integer> data = new ArrayList<>();
+                for(String str : dataStrs) {
+                    data.add(Integer.valueOf(str));
+                }
+                String dateStr = jsonObject.getString("creationDate");
+                long time = stringToTime(dataStr);
+                if(time != 0) {
+                    packets.add(new EcgDataPacket(time, data));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return packets;
     }
 }

@@ -65,21 +65,18 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_READ_DATA_PACKET) {
-                lastDataPackTime = new Date().getTime();
-
                 EcgHttpReceiver.readDataPackets(getAddress(), lastDataPackTime, new EcgHttpReceiver.IEcgDataPacketCallback() {
                     @Override
                     public void onReceived(List<EcgHttpReceiver.EcgDataPacket> dataPacketList) {
                         if(dataPacketList != null && !dataPacketList.isEmpty()) {
-                            List<Integer> data = dataPacketList.get(0).getData();
+                            List<Integer> data = dataPacketList.get(dataPacketList.size()-1).getData();
+                            lastDataPackTime = dataPacketList.get(dataPacketList.size()-1).getTimeStamp();
                             for (int i = 0; i < data.size(); i++) {
                                 try {
                                     showCache.put(data.get(i));
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-                                //updateSignalValue(data.get(i));
-                                //Log.e(TAG, "data = " + data.get(i));
                             }
                         }
                         if (getState() == BleDeviceState.CONNECT)
@@ -157,6 +154,10 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
             }
         }
 
+        // 需要启动EcgView
+        a
+
+        lastDataPackTime = new Date().getTime();
         handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
 
         return true;
