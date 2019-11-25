@@ -89,4 +89,9 @@ public class WebDevice extends AbstractDevice {
     public void disconnect() {
 
     }
+
+    @Override
+    public boolean isLocal() {
+        return false;
+    }
 }

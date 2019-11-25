@@ -252,6 +252,11 @@ public abstract class AbstractEcgDevice implements IEcgDevice {
     }
 
     @Override
+    public boolean isLocal() {
+        return deviceProxy.isLocal();
+    }
+
+    @Override
     public int hashCode() {
         return getAddress().hashCode();
     }

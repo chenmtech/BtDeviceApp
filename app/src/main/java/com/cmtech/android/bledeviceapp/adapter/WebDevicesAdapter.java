@@ -18,16 +18,18 @@ import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by bme on 2018/2/8.
  */
 
-public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDeviceAdapter.ViewHolder> {
-    private List<IDevice> deviceList; // 设备列表
+public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.ViewHolder> {
+    private List<IDevice> deviceList = new ArrayList<>(); // 设备列表
     private MainActivity activity; // MainActivity
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -47,14 +49,18 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
         }
     }
 
-    public RegisteredDeviceAdapter(List<IDevice> deviceList, MainActivity activity) {
-        this.deviceList = deviceList;
+    public WebDevicesAdapter(MainActivity activity) {
+        for(IDevice device : DeviceManager.getDeviceList()) {
+            if(!device.isLocal()) {
+                this.deviceList.add(device);
+            }
+        }
         this.activity = activity;
     }
 
 
     @Override
-    public RegisteredDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public WebDevicesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_registed_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
@@ -125,5 +131,15 @@ public class RegisteredDeviceAdapter extends RecyclerView.Adapter<RegisteredDevi
     @Override
     public int getItemCount() {
         return deviceList.size();
+    }
+
+    public void update() {
+        this.deviceList.clear();
+        for(IDevice device : DeviceManager.getDeviceList()) {
+            if(!device.isLocal()) {
+                this.deviceList.add(device);
+            }
+        }
+        notifyDataSetChanged();
     }
 }

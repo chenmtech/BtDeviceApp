@@ -107,6 +107,7 @@ public class EcgMonitorFragment extends DeviceFragment implements IEcgDevice.OnE
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(3);
         layout.setupWithViewPager(pager);
+
         updateDeviceState(device.getEcgMonitorState());
 
         device.setEcgMonitorListener(this);

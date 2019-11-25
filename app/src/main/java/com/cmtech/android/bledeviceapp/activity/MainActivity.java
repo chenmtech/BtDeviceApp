@@ -17,26 +17,22 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.view.menu.MenuPopupHelper;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -55,11 +51,9 @@ import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordExplorerActivity;
-import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpReceiver;
-import com.cmtech.android.bledevice.ecgmonitorweb.WebEcgMonitorDevice;
+import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.RegisteredDeviceAdapter;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
@@ -73,6 +67,8 @@ import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.vise.log.ViseLog;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
@@ -98,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private final static int RC_MODIFY_REGISTER_INFO = 2;       // 修改设备注册信息返回码
     private final static int RC_MODIFY_ACCOUNT_INFO = 3;     // 修改账户信息返回码
 
-    private static final int MSG_OBTAIN_WEB_ECG_DEVICE = 0;
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
     private NotifyService notifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
@@ -108,7 +103,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private DeviceFragTabManager fragTabManager; // BleFragment和TabLayout管理器
     private MainToolbarManager toolbarManager; // 工具条管理器
 
-    private RegisteredDeviceAdapter registeredDeviceAdapter; // 已注册设备Adapter
+    LocalDevicesFragment localDevicesFragment;
+    WebDevicesFragment webDevicesFragment;
+
     private DrawerLayout drawerLayout; // 侧滑界面
     private LinearLayout noDeviceOpenedLayout; // 无设备打开时的界面
     private RelativeLayout hasDeviceOpenedLayout; // 有设备打开时的界面，即包含设备Fragment和Tablayout的主界面
@@ -119,16 +116,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private boolean stopNotifyService = false; // 是否停止通知服务
 
 
-    private Handler handler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_OBTAIN_WEB_ECG_DEVICE:
-                    registeredDeviceAdapter.notifyDataSetChanged();
-                    break;
-            }
-        }
-    };
+
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -241,28 +229,17 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         toolbarManager = new MainToolbarManager(this, toolbar, tvDeviceBattery);
         toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
 
-        // 初始化已注册设备列表
-        RecyclerView rvDevices = findViewById(R.id.rv_registered_device);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        rvDevices.setLayoutManager(layoutManager);
-        rvDevices.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        registeredDeviceAdapter = new RegisteredDeviceAdapter(DeviceManager.getDeviceList(), this);
-        rvDevices.setAdapter(registeredDeviceAdapter);
+        ViewPager pager = findViewById(R.id.vp_device_panel);
+        TabLayout layout = findViewById(R.id.tl_device_panel);
+        localDevicesFragment = new LocalDevicesFragment();
+        webDevicesFragment = new WebDevicesFragment();
+        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(localDevicesFragment, webDevicesFragment));
+        List<String> titleList = new ArrayList<>(Arrays.asList("本地设备", "网络设备"));
+        EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getSupportFragmentManager(), fragmentList, titleList);
+        pager.setAdapter(fragAdapter);
+        pager.setOffscreenPageLimit(2);
+        layout.setupWithViewPager(pager);
 
-        // 获取网络广播设备列表
-        EcgHttpReceiver.retrieveDeviceInfo(new EcgHttpReceiver.IEcgDeviceInfoCallback() {
-            @Override
-            public void onReceived(List<WebEcgMonitorDevice> deviceList) {
-                if(deviceList != null && !deviceList.isEmpty()) {
-                    for(WebEcgMonitorDevice device : deviceList) {
-                        Message msg = new Message();
-                        msg.what = MSG_OBTAIN_WEB_ECG_DEVICE;
-                        msg.obj = device;
-                        handler.sendMessage(msg);
-                    }
-                }
-            }
-        });
 
         // 初始化导航视图
         initNavigation();
@@ -410,7 +387,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                     if(device != null && registerInfo.saveToPref(pref)) {
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
                         device.updateRegisterInfo(registerInfo);
-                        if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
+                        updateDeviceList();
                         Drawable drawable;
                         if(TextUtils.isEmpty(device.getImagePath())) {
                             DeviceType deviceType = DeviceType.getFromUuid(device.getUuidString());
@@ -452,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             if(device != null) {
                 if(registerInfo.saveToPref(pref)) {
                     Toast.makeText(MainActivity.this, "设备注册成功", Toast.LENGTH_SHORT).show();
-                    if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
+                    updateDeviceList();
                     device.addListener(notifyService);
                 } else {
                     Toast.makeText(MainActivity.this, "设备注册失败", Toast.LENGTH_SHORT).show();
@@ -460,6 +437,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 }
             }
         }
+    }
+
+    private void updateDeviceList() {
+        localDevicesFragment.update();
+        webDevicesFragment.update();
     }
 
     @Override
@@ -565,7 +547,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     @Override
     public void onStateUpdated(IDevice device) {
         // 更新设备列表Adapter
-        if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
+        updateDeviceList();
         // 更新设备的Fragment界面
         DeviceFragment deviceFrag = fragTabManager.findFragment(device);
         if(deviceFrag != null) deviceFrag.updateState();
@@ -691,7 +673,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             public void onClick(DialogInterface dialogInterface, int i) {
                 if(device.getRegisterInfo().deleteFromPref(pref)) {
                     DeviceManager.deleteDevice(device);
-                    if(registeredDeviceAdapter != null) registeredDeviceAdapter.notifyDataSetChanged();
+                    updateDeviceList();
                 } else {
                     Toast.makeText(MainActivity.this, "无法删除设备。", Toast.LENGTH_SHORT).show();
                 }

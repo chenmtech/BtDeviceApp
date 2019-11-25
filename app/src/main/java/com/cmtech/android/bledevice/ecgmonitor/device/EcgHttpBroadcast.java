@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -53,9 +54,10 @@ public class EcgHttpBroadcast {
     private final int sampleRate; // 采样率
     private final int caliValue; // 标定值
     private final int leadTypeCode; // 导联类型码
-    private final List<Integer> ecgBuffer; // 心电缓存
+    //private final List<Integer> ecgBuffer; // 心电缓存
+    private final LinkedBlockingQueue<Integer> ecgBuffer;
     private final List<Short> hrBuffer; // 心率缓存
-    private volatile boolean waitingDataResponse; // 是否在等待数据响应
+    private volatile boolean waiting; // 是否在等待数据响应
 
     public interface IGetReceiversCallback {
         void onReceived(List<Account> accounts);
@@ -76,9 +78,9 @@ public class EcgHttpBroadcast {
         this.sampleRate = sampleRate;
         this.caliValue = caliValue;
         this.leadTypeCode = leadTypeCode;
-        this.ecgBuffer = new ArrayList<>();
+        this.ecgBuffer = new LinkedBlockingQueue<>();
         this.hrBuffer = new ArrayList<>();
-        waitingDataResponse = false;
+        this.waiting = false;
     }
 
     /**
@@ -131,46 +133,57 @@ public class EcgHttpBroadcast {
      * 发送心电信号
      * @param ecgSignal ：心电数据
      */
-    public void sendEcgSignal(int ecgSignal) {
+    public synchronized void sendEcgSignal(int ecgSignal) {
         if(isStop()) return;
         ecgBuffer.add(ecgSignal);
-        sendData();
+        if(!waiting && ecgBuffer.size() >= sampleRate) {
+            waiting = true;
+            sendData();
+        }
     }
 
     /**
      * 发送心率值
      * @param hr ：心率值
      */
-    public void sendHrValue(short hr) {
+    public synchronized void sendHrValue(short hr) {
         if(isStop()) return;
         hrBuffer.add(hr);
-        sendData();
     }
 
     private void sendData() {
-        if(ecgBuffer.size() >= sampleRate && !waitingDataResponse) {
-            waitingDataResponse = true;
-            Map<String, String> data = new HashMap<>();
-            data.put(TYPE_DEVICE_ID,deviceId);
-            data.put("data", HttpUtils.ConvertString(hrBuffer)+ ";"+ HttpUtils.ConvertString(ecgBuffer));
-            HttpUtils.upload(upload_url, data, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    waitingDataResponse = false;
-                }
+        Map<String, String> data = new HashMap<>();
+        data.put(TYPE_DEVICE_ID,deviceId);
 
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    String responseStr = response.body().string();
-
-                    ViseLog.e("sendData: " + responseStr);
-
-                    waitingDataResponse = false;
-                    ecgBuffer.clear();
-                    hrBuffer.clear();
-                }
-            });
+        StringBuilder sb = new StringBuilder();
+        while (sb.length() < 1600) {
+            Integer n = ecgBuffer.poll();
+            if(n == null) break;
+            sb.append(n).append(",");
         }
+        String ecgStr = sb.toString();
+
+        data.put("data", HttpUtils.ConvertString(hrBuffer)+ ";"+ ecgStr);
+        hrBuffer.clear();
+        ViseLog.e(ecgBuffer.size());
+        HttpUtils.upload(upload_url, data, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                ViseLog.e(e.getMessage());
+                synchronized (EcgHttpBroadcast.this) {
+                    waiting = false;
+                }
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseStr = response.body().string();
+                ViseLog.e("send data: " + responseStr);
+                synchronized (EcgHttpBroadcast.this) {
+                    waiting = false;
+                }
+            }
+        });
     }
 
     /**
