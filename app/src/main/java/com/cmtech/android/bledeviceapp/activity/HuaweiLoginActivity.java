@@ -11,6 +11,7 @@ import android.widget.Toast;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
+import com.vise.log.ViseLog;
 
 public class HuaweiLoginActivity extends AppCompatActivity {
 
@@ -26,8 +27,6 @@ public class HuaweiLoginActivity extends AppCompatActivity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.contains("open_id=")) {
                     HttpUtils.open_id = HttpUtils.parseUrl(url).get("open_id");
-                    //Toast.makeText(HuaweiLoginActivity.this, "login success:" + HttpUtils.open_id, Toast.LENGTH_LONG).show();
-                    //webView.setVisibility(View.INVISIBLE);
                     AccountManager.getInstance().getAccount().setHuaweiId(HttpUtils.open_id);
                     Intent intent = new Intent(HuaweiLoginActivity.this, MainActivity.class);
                     startActivity(intent);

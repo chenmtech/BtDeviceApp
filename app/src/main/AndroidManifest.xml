@@ -30,7 +30,9 @@
         android:roundIcon="@mipmap/ic_kang"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
         tools:replace="android:name">
+
         <activity android:name=".activity.HuaweiLoginActivity"></activity>
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordActivity" />
         <activity

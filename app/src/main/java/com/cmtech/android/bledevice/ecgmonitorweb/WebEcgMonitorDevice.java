@@ -53,6 +53,8 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         @Override
         public void run() {
             try {
+                int i = showCache.take();
+                ViseLog.e("show data: " + i);
                 updateSignalValue(showCache.take());
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -153,9 +155,6 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
                 }
             }
         }
-
-        // 需要启动EcgView
-        a
 
         lastDataPackTime = new Date().getTime();
         handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
