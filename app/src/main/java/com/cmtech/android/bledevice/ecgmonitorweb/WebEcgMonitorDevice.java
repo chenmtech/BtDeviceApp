@@ -71,7 +71,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
                     public void onReceived(List<EcgHttpReceiver.EcgDataPacket> dataPacketList) {
                         if(dataPacketList != null && !dataPacketList.isEmpty()) {
                             List<Integer> data = dataPacketList.get(dataPacketList.size()-1).getData();
-                            lastDataPackTime = dataPacketList.get(dataPacketList.size()-1).getTimeStamp() + 10;
+                            lastDataPackTime = dataPacketList.get(dataPacketList.size()-1).getTimeStamp();
                             for (int i = 0; i < data.size(); i++) {
                                 try {
                                     showCache.put(data.get(i));
