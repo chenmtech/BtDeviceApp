@@ -68,7 +68,7 @@
             app:menu="@menu/menu_navigation">
         </android.support.design.widget.NavigationView>
 
-        <include layout="@layout/activity_registered_device"
+        <include layout="@layout/layout_device_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"

@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
 
         // 初始化已注册设备列表
-        RecyclerView rvDevices = findViewById(R.id.rv_registed_device);
+        RecyclerView rvDevices = findViewById(R.id.rv_registered_device);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvDevices.setLayoutManager(layoutManager);
         rvDevices.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
