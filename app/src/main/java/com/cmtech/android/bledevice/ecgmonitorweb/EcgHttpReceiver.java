@@ -34,7 +34,7 @@ public class EcgHttpReceiver {
 
     private static final String TYPE_DEVICE_ID = "deviceId"; // 设备ID
     private static final String TYPE_RECEIVER_ID = "receiverId";
-    private static final String TYPE_LAST_PACKET_TIME = "time"; // 最后接收的数据包时间戳
+    private static final String TYPE_LAST_PACKET_TIME = "timestamp"; // 最后接收的数据包时间戳
     private static final String TYPE_DATA_TYPE = "dataType";
 
 
@@ -69,7 +69,7 @@ public class EcgHttpReceiver {
         @Override
         public String toString() {
             return "EcgDataPacket{" +
-                    "timeStamp=" + timeToString(timeStamp) +
+                    "timeStamp=" + timeStamp +
                     ", data=" + data +
                     '}';
         }
@@ -125,7 +125,7 @@ public class EcgHttpReceiver {
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_DEVICE_ID, deviceId);
         data.put(TYPE_RECEIVER_ID, HttpUtils.open_id);
-        data.put(TYPE_LAST_PACKET_TIME, timeToString(lastPackTime));
+        data.put(TYPE_LAST_PACKET_TIME, String.valueOf(lastPackTime));
         data.put(TYPE_DATA_TYPE, String.valueOf(1));
 
         HttpUtils.upload(download_url, data, new Callback() {
@@ -180,9 +180,9 @@ public class EcgHttpReceiver {
     }
 
 
-    private static String timeToString(long timeInMillis) {
+    /*private static String timeToString(long timeInMillis) {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date(timeInMillis));
-    }
+    }*/
 
     private static long stringToTime(String timeStr) {
         try {
