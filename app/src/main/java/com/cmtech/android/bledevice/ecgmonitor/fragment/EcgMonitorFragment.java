@@ -29,6 +29,7 @@ import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,6 +111,10 @@ public class EcgMonitorFragment extends DeviceFragment implements IEcgDevice.OnE
 
         device.setEcgMonitorListener(this);
         ecgView.setListener(this);
+
+        // 打开设备
+        MainActivity activity = (MainActivity) getActivity();
+        device.open(activity.getNotifyService());
     }
 
     private void initialEcgView() {

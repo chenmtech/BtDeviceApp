@@ -29,6 +29,8 @@ import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,6 +106,10 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
 
         device.setEcgMonitorListener(this);
         ecgView.setListener(this);
+
+        // 打开设备
+        MainActivity activity = (MainActivity) getActivity();
+        device.open(activity.getNotifyService());
     }
 
     private void initEcgView() {
@@ -225,10 +231,11 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
 
     @Override
     public void onEcgSignalShowStateUpdated(boolean isStart) {
-        if(isStart)
+        if(isStart) {
             ecgView.start();
-        else
+        } else {
             ecgView.stop();
+        }
     }
 
     @Override

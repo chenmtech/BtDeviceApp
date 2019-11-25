@@ -65,6 +65,14 @@ public class EcgHttpReceiver {
         public List<Integer> getData() {
             return data;
         }
+
+        @Override
+        public String toString() {
+            return "EcgDataPacket{" +
+                    "timeStamp=" + timeToString(timeStamp) +
+                    ", data=" + data +
+                    '}';
+        }
     }
 
     private EcgHttpReceiver() {
@@ -198,8 +206,10 @@ public class EcgHttpReceiver {
                     data.add(Integer.valueOf(str));
                 }
                 String dateStr = jsonObject.getString("creationDate");
-                long time = stringToTime(dataStr);
+                long time = stringToTime(dateStr);
                 if(time != 0) {
+                    EcgDataPacket packet = new EcgDataPacket(time, data);
+                    ViseLog.e(packet);
                     packets.add(new EcgDataPacket(time, data));
                 }
             }

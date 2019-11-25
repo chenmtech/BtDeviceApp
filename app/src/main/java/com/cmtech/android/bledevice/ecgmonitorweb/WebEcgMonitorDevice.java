@@ -54,8 +54,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         public void run() {
             try {
                 int i = showCache.take();
-                ViseLog.e("show data: " + i);
-                updateSignalValue(showCache.take());
+                updateSignalValue(i);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -72,7 +71,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
                     public void onReceived(List<EcgHttpReceiver.EcgDataPacket> dataPacketList) {
                         if(dataPacketList != null && !dataPacketList.isEmpty()) {
                             List<Integer> data = dataPacketList.get(dataPacketList.size()-1).getData();
-                            lastDataPackTime = dataPacketList.get(dataPacketList.size()-1).getTimeStamp();
+                            lastDataPackTime = dataPacketList.get(dataPacketList.size()-1).getTimeStamp() + 1000;
                             for (int i = 0; i < data.size(); i++) {
                                 try {
                                     showCache.put(data.get(i));
@@ -127,21 +126,21 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
 
     private boolean executeAfterConnectSuccess() {
         updateSampleRate(sampleRate);
+        updateValue1mV(value1mV);
+        updateLeadType(leadType);
+
         updateSignalShowSetup(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         if(listener != null) {
             listener.onEcgSignalShowStateUpdated(true);
         }
 
+        // 初始化显示定时器
         if(showTimer != null) {
             showTimer.cancel();
         }
-        // 初始化显示定时器
         showTimer = new Timer();
         int sampleInterval = 1000/getSampleRate();
         showTimer.scheduleAtFixedRate(new ShowTask(), sampleInterval, sampleInterval);
-
-        updateValue1mV(value1mV);
-        updateLeadType(leadType);
 
         // 创建心电记录
         if(ecgRecord == null) {

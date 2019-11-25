@@ -67,9 +67,6 @@ public abstract class DeviceFragment extends Fragment{
         if(activity != null) {
             device.addListener(activity);
             device.updateState();
-
-            // 打开设备
-            device.open(activity.getNotifyService());
         }
     }
 
