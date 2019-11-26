@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.ViewHolder> {
@@ -30,8 +31,8 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
         }
     }
 
-    public EcgReceiverAdapter(List<Account> receivers, OnReceiverChangedListener listener) {
-        this.receivers = receivers;
+    public EcgReceiverAdapter(OnReceiverChangedListener listener) {
+        this.receivers = new ArrayList<>();
         this.listener = listener;
     }
 
@@ -68,6 +69,14 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
 
     public void setEnabled(boolean enable) {
         this.enable = enable;
+        notifyDataSetChanged();
+    }
+
+    public void addReceivers(List<Account> accounts) {
+        for(Account account : accounts) {
+            if(receivers.contains(account)) continue;
+            receivers.add(account);
+        }
         notifyDataSetChanged();
     }
 }

@@ -40,4 +40,18 @@ public class Account extends User {
                 ", huaweiId='" + huaweiId + '\'' +
                 '}';
     }
+
+    @Override
+    public int hashCode() {
+        return huaweiId.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object otherObject) {
+        if(this == otherObject) return true;
+        if(otherObject == null) return false;
+        if(!(otherObject instanceof Account)) return false;
+        Account other = (Account) otherObject;
+        return huaweiId.equals(other.huaweiId);
+    }
 }

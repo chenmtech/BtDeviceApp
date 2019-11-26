@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -127,8 +126,8 @@ public class EcgHttpReceiver {
         data.put(TYPE_RECEIVER_ID, HttpUtils.open_id);
         data.put(TYPE_LAST_PACKET_TIME, String.valueOf(lastPackTime));
         data.put(TYPE_DATA_TYPE, String.valueOf(1));
-
-        HttpUtils.upload(download_url, data, new Callback() {
+        String urlStr = download_url + HttpUtils.createDataUrlString(data);
+        HttpUtils.upload(urlStr, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, e.getMessage());

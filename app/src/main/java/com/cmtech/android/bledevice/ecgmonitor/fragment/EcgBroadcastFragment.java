@@ -54,7 +54,7 @@ public class EcgBroadcastFragment extends Fragment {
         if(getContext() != null)
             rvReceiver.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         receivers = new ArrayList<>();
-        receiverAdapter = new EcgReceiverAdapter(receivers, new EcgReceiverAdapter.OnReceiverChangedListener() {
+        receiverAdapter = new EcgReceiverAdapter(new EcgReceiverAdapter.OnReceiverChangedListener() {
             @Override
             public void onReceiverChanged(Account receiver, boolean isChecked) {
                 ViseLog.e(receiver + " Check: " + isChecked);
@@ -85,12 +85,13 @@ public class EcgBroadcastFragment extends Fragment {
             public void onClick(View view) {
                 device.setBroadcast(!device.isBroadcast(), new EcgHttpBroadcast.IGetReceiversCallback() {
                     @Override
-                    public void onReceived(List<Account> accounts) {
-                        receivers.addAll(accounts);
+                    public void onReceived(final List<Account> accounts) {
+                        if(accounts == null || accounts.isEmpty()) return;
+
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                receiverAdapter.notifyDataSetChanged();
+                                receiverAdapter.addReceivers(accounts);
                             }
                         });
                     }

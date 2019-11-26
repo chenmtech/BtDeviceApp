@@ -224,7 +224,6 @@ public class EcgHttpBroadcast {
 
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_DEVICE_ID, deviceId);
-        data.put(TYPE_RECEIVER_CMD, "delete");
         data.put(TYPE_RECEIVER_ID, receiverId);
 
         HttpUtils.upload(upload_url, data, new Callback() {
@@ -239,7 +238,6 @@ public class EcgHttpBroadcast {
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
                 ViseLog.e("deleteReceiver: " + responseStr);
-
                 if(callback != null) {
                     callback.onReceived(responseStr);
                 }
