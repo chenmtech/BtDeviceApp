@@ -50,10 +50,14 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     private class ShowTask extends TimerTask {
         @Override
         public void run() {
-            for(int i = 0; i < 3; i++) {
-                Integer data = showCache.poll();
-                if (data != null)
-                    updateSignalValue(data);
+            Integer data = showCache.poll();
+            if (data != null) {
+                updateSignalValue(data);
+                if (showCache.size() > sampleRate) {
+                    data = showCache.poll();
+                    if (data != null)
+                        updateSignalValue(data);
+                }
             }
         }
     }
@@ -141,7 +145,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         }
         showTimer = new Timer();
         int sampleInterval = 1000/getSampleRate();
-        showTimer.scheduleAtFixedRate(new ShowTask(), 3*sampleInterval, 3*sampleInterval);
+        showTimer.scheduleAtFixedRate(new ShowTask(), sampleInterval, sampleInterval);
 
         // 创建心电记录
         if(ecgRecord == null) {
