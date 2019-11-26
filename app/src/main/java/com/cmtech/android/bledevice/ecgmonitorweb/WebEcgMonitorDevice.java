@@ -15,6 +15,7 @@ import com.cmtech.android.bledeviceapp.model.WebDevice;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,18 +47,24 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     private Timer showTimer; // 定时器
     private final LinkedBlockingQueue<Integer> showCache = new LinkedBlockingQueue<>();	//要显示的信号数据缓存
     private int lastDataPackId = 0;
+    //private long lastDataPlayTime = 0;
+    private int sampleInterval = 0;
+    private int interval = 0;
 
     private class ShowTask extends TimerTask {
         @Override
         public void run() {
-            Integer data = showCache.poll();
+            /*Integer data = showCache.poll();
             if (data != null) {
                 updateSignalValue(data);
-                if (showCache.size() > sampleRate) {
-                    data = showCache.poll();
-                    if (data != null)
-                        updateSignalValue(data);
-                }
+            }*/
+
+            int data = 0;
+            try {
+                data = showCache.take();
+                updateSignalValue(data);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -84,6 +91,19 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
                             lastDataPackId = dataPacketList.get(dataPacketList.size()-1).getId();
                             if (getState() == BleDeviceState.CONNECT)
                                 handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
+
+                            if(showCache.size() > 2*sampleRate && interval != sampleInterval-1) {
+                                showTimer.cancel();
+                                showTimer = new Timer();
+                                interval = sampleInterval-1;
+                                showTimer.schedule(new ShowTask(), 0, interval);
+                            } else if(showCache.size() < sampleRate && interval != sampleInterval) {
+                                showTimer.cancel();
+                                showTimer = new Timer();
+                                interval = sampleInterval;
+                                showTimer.schedule(new ShowTask(), 0, interval);
+                            }
+                            ViseLog.e("interval" + interval + "sampleInterval" + sampleInterval);
                         } else {
                             handler.sendEmptyMessageDelayed(MSG_READ_DATA_PACKET, 1000);
                         }
@@ -144,8 +164,9 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
             showTimer.cancel();
         }
         showTimer = new Timer();
-        int sampleInterval = 1000/getSampleRate();
-        showTimer.scheduleAtFixedRate(new ShowTask(), sampleInterval, sampleInterval);
+        sampleInterval = 1000/getSampleRate();
+        interval = sampleInterval;
+        showTimer.schedule(new ShowTask(), interval, interval);
 
         // 创建心电记录
         if(ecgRecord == null) {
@@ -161,6 +182,9 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         }
 
         lastDataPackId = 0;
+        //lastDataPlayTime = new Date().getTime();
+        //showTimer.schedule(new ShowTask(), 2000);
+
         handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
 
         return true;
@@ -184,6 +208,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
             showTimer.cancel();
             showCache.clear();
         }
+        handler.removeCallbacksAndMessages(null);
         super.callDisconnect(stopAutoScan);
     }
 
