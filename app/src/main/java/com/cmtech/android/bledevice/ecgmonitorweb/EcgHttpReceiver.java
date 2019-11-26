@@ -33,7 +33,7 @@ public class EcgHttpReceiver {
 
     private static final String TYPE_DEVICE_ID = "deviceId"; // 设备ID
     private static final String TYPE_RECEIVER_ID = "receiverId";
-    private static final String TYPE_LAST_PACKET_TIME = "timestamp"; // 最后接收的数据包时间戳
+    private static final String TYPE_LAST_PACKET_ID = "id"; // 最后接收的数据包时间戳
     private static final String TYPE_DATA_TYPE = "dataType";
 
 
@@ -49,12 +49,18 @@ public class EcgHttpReceiver {
 
     // 心电数据包
     public static class EcgDataPacket {
+        private int id;
         private long timeStamp; // 数据包的时间戳
         private List<Integer> data; // 数据
 
-        EcgDataPacket(long timeStamp, List<Integer> data) {
+        EcgDataPacket(int id, long timeStamp, List<Integer> data) {
+            this.id = id;
             this.timeStamp = timeStamp;
             this.data = data;
+        }
+
+        public int getId() {
+            return id;
         }
 
         public long getTimeStamp() {
@@ -68,7 +74,8 @@ public class EcgHttpReceiver {
         @Override
         public String toString() {
             return "EcgDataPacket{" +
-                    "timeStamp=" + timeStamp +
+                    "id=" + id +
+                    ", timeStamp=" + timeStamp +
                     ", data=" + data +
                     '}';
         }
@@ -117,14 +124,14 @@ public class EcgHttpReceiver {
      * 服务器端应该找到比lastPackTimeStamp更晚出现的数据包，以List<EcgDataPacket>的格式返回数据包
      * 如果满足条件的数据包太多，则最多返回两个最晚出现的数据包
      * @param deviceId          : 广播设备ID
-     * @param lastPackTime : 最后接收到的数据包时间戳
+     * @param id : 最后接收到的数据包时间戳
      * @param callback          : 回调
      */
-    public static void readDataPackets(String deviceId, long lastPackTime, final IEcgDataPacketCallback callback) {
+    public static void readDataPackets(String deviceId, int id, final IEcgDataPacketCallback callback) {
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_DEVICE_ID, deviceId);
         data.put(TYPE_RECEIVER_ID, HttpUtils.open_id);
-        data.put(TYPE_LAST_PACKET_TIME, String.valueOf(lastPackTime));
+        data.put(TYPE_LAST_PACKET_ID, String.valueOf(id));
         data.put(TYPE_DATA_TYPE, String.valueOf(1));
         String urlStr = download_url + HttpUtils.createDataUrlString(data);
         HttpUtils.upload(urlStr, new Callback() {
@@ -204,12 +211,13 @@ public class EcgHttpReceiver {
                 for(String str : dataStrs) {
                     data.add(Integer.valueOf(str));
                 }
-                String dateStr = jsonObject.getString("creationDate");
-                long time = stringToTime(dateStr);
-                if(time != 0) {
-                    EcgDataPacket packet = new EcgDataPacket(time, data);
+                //String dateStr = jsonObject.getString("creationDate");
+                //long time = stringToTime(dateStr);
+                int id = Integer.parseInt(jsonObject.getString("id"));
+                if(id != 0) {
+                    EcgDataPacket packet = new EcgDataPacket(id, 0, data);
                     ViseLog.e(packet);
-                    packets.add(new EcgDataPacket(time, data));
+                    packets.add(packet);
                 }
             }
         } catch (Exception e) {

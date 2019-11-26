@@ -3,7 +3,6 @@ package com.cmtech.android.bledevice.ecgmonitorweb;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.text.TextUtils;
 
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
@@ -16,7 +15,6 @@ import com.cmtech.android.bledeviceapp.model.WebDevice;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -47,17 +45,14 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
 
     private Timer showTimer; // 定时器
     private final LinkedBlockingQueue<Integer> showCache = new LinkedBlockingQueue<>();	//要显示的信号数据缓存
-    private long lastDataPackTime = 0;
+    private int lastDataPackId = 0;
 
     private class ShowTask extends TimerTask {
         @Override
         public void run() {
-            try {
-                int i = showCache.take();
+            Integer i = showCache.poll();
+            if(i != null)
                 updateSignalValue(i);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -66,22 +61,26 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_READ_DATA_PACKET) {
-                EcgHttpReceiver.readDataPackets(getAddress(), lastDataPackTime, new EcgHttpReceiver.IEcgDataPacketCallback() {
+                EcgHttpReceiver.readDataPackets(getAddress(), lastDataPackId, new EcgHttpReceiver.IEcgDataPacketCallback() {
                     @Override
                     public void onReceived(List<EcgHttpReceiver.EcgDataPacket> dataPacketList) {
                         if(dataPacketList != null && !dataPacketList.isEmpty()) {
-                            List<Integer> data = dataPacketList.get(dataPacketList.size()-1).getData();
-                            lastDataPackTime = dataPacketList.get(dataPacketList.size()-1).getTimeStamp();
-                            for (int i = 0; i < data.size(); i++) {
-                                try {
-                                    showCache.put(data.get(i));
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                            for(EcgHttpReceiver.EcgDataPacket packet : dataPacketList) {
+                                List<Integer> data = packet.getData();
+                                for (int i = 0; i < data.size(); i++) {
+                                    try {
+                                        showCache.put(data.get(i));
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
+                            lastDataPackId = dataPacketList.get(dataPacketList.size()-1).getId();
+                            if (getState() == BleDeviceState.CONNECT)
+                                handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
+                        } else {
+                            handler.sendEmptyMessageDelayed(MSG_READ_DATA_PACKET, 50);
                         }
-                        if (getState() == BleDeviceState.CONNECT)
-                            handler.sendEmptyMessageDelayed(MSG_READ_DATA_PACKET, 1000);
                     }
                 });
             }
@@ -155,7 +154,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
             }
         }
 
-        lastDataPackTime = new Date().getTime();
+        lastDataPackId = 0;
         handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
 
         return true;
