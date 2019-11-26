@@ -20,9 +20,14 @@ import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 public abstract class AbstractEcgDevice implements IEcgDevice {
-    protected int sampleRate; // 采样率
-    protected EcgLeadType leadType; // 导联类型
-    protected int value1mV; // 定标之前1mV值
+    public static final int DEFAULT_VALUE_1MV = 164; // 缺省定标前1mV值
+    public static final int DEFAULT_SAMPLE_RATE = 125; // 缺省ECG信号采样率,Hz
+    public static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // 缺省导联为LI
+
+    private int sampleRate; // 采样率
+    private EcgLeadType leadType; // 导联类型
+    private int value1mV; // 定标之前1mV值
+
     protected OnEcgMonitorListener listener; // 心电监护仪监听器
     protected EcgRecord ecgRecord; // 心电记录，可记录心电信号数据、用户留言和心率信息
     protected final EcgMonitorConfiguration config; // 心电监护仪的配置信息
@@ -41,6 +46,10 @@ public abstract class AbstractEcgDevice implements IEcgDevice {
             config.save();
         }
         this.config = config;
+
+        sampleRate = DEFAULT_SAMPLE_RATE;
+        leadType = DEFAULT_LEAD_TYPE;
+        value1mV = DEFAULT_VALUE_1MV;
     }
 
     @Override
@@ -57,6 +66,10 @@ public abstract class AbstractEcgDevice implements IEcgDevice {
     }
     @Override
     public final int getValue1mV() { return value1mV; }
+    @Override
+    public void setValue1mV(int value1mV) {
+        this.value1mV = value1mV;
+    }
     @Override
     public final EcgMonitorConfiguration getConfig() {
         return config;
@@ -98,20 +111,30 @@ public abstract class AbstractEcgDevice implements IEcgDevice {
             listener.onHrAbnormalNotified();
         }
     }
-    protected void updateSignalShowSetup(int sampleRate, int value1mV) {
-        if(listener != null)
-            listener.onShowSetupUpdated(sampleRate, value1mV, DEFAULT_ZERO_LOCATION);
+    @Override
+    public void updateSignalValue(int ecgSignal) {
+        if(listener != null) {
+            listener.onEcgSignalUpdated(ecgSignal);
+        }
     }
-
-    protected void updateSampleRate(final int sampleRate) {
+    protected void updateSignalShowSetup() {
+        if(listener != null)
+            listener.onShowSetupUpdated(sampleRate, STANDARD_VALUE_1MV_AFTER_CALIBRATION, DEFAULT_ZERO_LOCATION);
+    }
+    protected void updateSignalShowState(boolean isStart) {
+        if(listener != null) {
+            listener.onEcgSignalShowStateUpdated(isStart);
+        }
+    }
+    protected void updateSampleRate() {
         if(listener != null)
             listener.onSampleRateUpdated(sampleRate);
     }
-    protected void updateLeadType(final EcgLeadType leadType) {
+    protected void updateLeadType() {
         if(listener != null)
             listener.onLeadTypeUpdated(leadType);
     }
-    protected void updateValue1mV(final int value1mV) {
+    protected void updateValue1mV() {
         if(listener != null)
             listener.onValue1mVUpdated(value1mV, STANDARD_VALUE_1MV_AFTER_CALIBRATION);
     }

@@ -50,21 +50,15 @@ public class EcgHttpReceiver {
     // 心电数据包
     public static class EcgDataPacket {
         private int id;
-        private long timeStamp; // 数据包的时间戳
         private List<Integer> data; // 数据
 
-        EcgDataPacket(int id, long timeStamp, List<Integer> data) {
+        EcgDataPacket(int id, List<Integer> data) {
             this.id = id;
-            this.timeStamp = timeStamp;
             this.data = data;
         }
 
         public int getId() {
             return id;
-        }
-
-        public long getTimeStamp() {
-            return timeStamp;
         }
 
         public List<Integer> getData() {
@@ -75,7 +69,6 @@ public class EcgHttpReceiver {
         public String toString() {
             return "EcgDataPacket{" +
                     "id=" + id +
-                    ", timeStamp=" + timeStamp +
                     ", data=" + data +
                     '}';
         }
@@ -211,11 +204,9 @@ public class EcgHttpReceiver {
                 for(String str : dataStrs) {
                     data.add(Integer.valueOf(str));
                 }
-                //String dateStr = jsonObject.getString("creationDate");
-                //long time = stringToTime(dateStr);
                 int id = Integer.parseInt(jsonObject.getString("id"));
                 if(id != 0) {
-                    EcgDataPacket packet = new EcgDataPacket(id, 0, data);
+                    EcgDataPacket packet = new EcgDataPacket(id, data);
                     ViseLog.e(packet);
                     packets.add(packet);
                 }
