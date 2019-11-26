@@ -79,7 +79,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
                             if (getState() == BleDeviceState.CONNECT)
                                 handler.sendEmptyMessage(MSG_READ_DATA_PACKET);
                         } else {
-                            handler.sendEmptyMessageDelayed(MSG_READ_DATA_PACKET, 50);
+                            handler.sendEmptyMessageDelayed(MSG_READ_DATA_PACKET, 1000);
                         }
                     }
                 });
