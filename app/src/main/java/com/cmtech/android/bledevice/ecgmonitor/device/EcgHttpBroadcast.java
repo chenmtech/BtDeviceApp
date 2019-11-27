@@ -40,21 +40,20 @@ public class EcgHttpBroadcast {
     private static final String upload_url = "http://huawei.tighoo.com/home/upload?";
     private static final String getuser_url = "http://huawei.tighoo.com/home/GetUsers?";
 
+    private static final String TYPE_USER_ID = "open_id"; // 用户ID
     private static final String TYPE_DEVICE_ID = "deviceId"; // 设备ID
     private static final String TYPE_SAMPLE_RATE = "SR"; // 采样率
     private static final String TYPE_CALI_VALUE = "CALI"; // 标定值
     private static final String TYPE_LEAD_TYPE = "LEAD"; // 导联类型
     private static final String TYPE_DATA = "data"; // 数据
     private static final String TYPE_RECEIVER_ID = "receiverId"; // 接收者ID
-    private static final String TYPE_RECEIVER_CMD = "RECMD"; // 添加或删除接收者命令
 
     private boolean isStopped;
+    private final String userId; // 用户ID
     private final String deviceId; // 设备ID
-    private final String creatorId; // 创建人ID
     private final int sampleRate; // 采样率
     private final int caliValue; // 标定值
     private final int leadTypeCode; // 导联类型码
-    //private final List<Integer> ecgBuffer; // 心电缓存
     private final LinkedBlockingQueue<Integer> ecgBuffer;
     private final List<Short> hrBuffer; // 心率缓存
     private volatile boolean waiting; // 是否在等待数据响应
@@ -71,10 +70,10 @@ public class EcgHttpBroadcast {
         void onReceived(String responseStr);
     }
 
-    public EcgHttpBroadcast(String deviceId, String creatorId, int sampleRate, int caliValue, int leadTypeCode) {
+    public EcgHttpBroadcast(String userId, String deviceId, int sampleRate, int caliValue, int leadTypeCode) {
         isStopped = true;
+        this.userId = userId;
         this.deviceId = deviceId;
-        this.creatorId = creatorId;
         this.sampleRate = sampleRate;
         this.caliValue = caliValue;
         this.leadTypeCode = leadTypeCode;
@@ -98,6 +97,7 @@ public class EcgHttpBroadcast {
         if(!isStop()) return; // 不能重复启动
 
         Map<String, String> data = new HashMap<>();
+        data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
         data.put(TYPE_SAMPLE_RATE, String.valueOf(sampleRate));
         data.put(TYPE_CALI_VALUE, String.valueOf(caliValue));
@@ -153,6 +153,7 @@ public class EcgHttpBroadcast {
 
     private void sendData() {
         Map<String, String> data = new HashMap<>();
+        data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID,deviceId);
 
         StringBuilder sb = new StringBuilder();
@@ -163,9 +164,8 @@ public class EcgHttpBroadcast {
         }
         String ecgStr = sb.toString();
 
-        data.put("data", HttpUtils.ConvertString(hrBuffer)+ ";"+ ecgStr);
+        data.put(TYPE_DATA, HttpUtils.ConvertString(hrBuffer)+ ";"+ ecgStr);
         hrBuffer.clear();
-        ViseLog.e(ecgBuffer.size());
         HttpUtils.upload(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -193,6 +193,7 @@ public class EcgHttpBroadcast {
     public void addReceiver(String receiverId, final IAddReceiverCallback callback) {
         if(isStop()) return;
         Map<String, String> data = new HashMap<>();
+        data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
         data.put(TYPE_RECEIVER_ID, receiverId);
 
@@ -223,6 +224,7 @@ public class EcgHttpBroadcast {
         if(isStop()) return;
 
         Map<String, String> data = new HashMap<>();
+        data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
         data.put(TYPE_RECEIVER_ID, receiverId);
 
@@ -249,6 +251,7 @@ public class EcgHttpBroadcast {
         if(isStop()) return;
 
         Map<String, String> data = new HashMap<>();
+        data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
         HttpUtils.upload(getuser_url, data, new Callback() {
             @Override

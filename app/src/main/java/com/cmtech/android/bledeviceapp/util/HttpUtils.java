@@ -1,10 +1,6 @@
 package com.cmtech.android.bledeviceapp.util;
 
-import android.util.Log;
-
 import com.vise.log.ViseLog;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,54 +14,15 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class HttpUtils {
-
-    public static String open_id = "";
-
-    public static void Get(String url, Callback callback) {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .get() //请求参数
-                .url(url)
-                .build();
-
-        client.newCall(request).enqueue(callback);
-    }
-
-    public static void upload(String baseUrl, Map<String, String> data) {
-        upload(baseUrl, data, new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-
-            }
-        });
-    }
-
     public static void upload(String baseUrl, Map<String, String> data, Callback callback) {
-        data.put("open_id", open_id);
-        String dataUrlString = createDataUrlString(data);
-
-        ViseLog.e(baseUrl + dataUrlString);
-
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .get() //请求参数
-                .url(baseUrl + dataUrlString)
-                .build();
-
-        client.newCall(request).enqueue(callback);
+        String url = baseUrl + ConvertString(data);
+        Get(url, callback);
+        ViseLog.e(url);
     }
 
-    public static String upload(String data, Callback callback) {
-        String result = "OK";
-        String url = data;
-
+    public static String upload(String url, Callback callback) {
         ViseLog.e(url);
-
+        String result = "OK";
         try {
             Get(url, callback);
             return result;
@@ -74,8 +31,8 @@ public class HttpUtils {
         }
     }
 
-    public static String upload(String data) {
-        String result = upload(data, new Callback() {
+    public static String upload(String url) {
+        return upload(url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
 
@@ -86,24 +43,32 @@ public class HttpUtils {
 
             }
         });
-        return result;
     }
 
-    public static String createDataUrlString(Map<String, String> data) {
+    private static void Get(String url, Callback callback) {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .get() //请求参数
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(callback);
+    }
+
+    private static String ConvertString(Map<String, String> data) {
         if (data == null || data.isEmpty()) return "";
 
         StringBuilder builder = new StringBuilder();
         boolean isFirst = true;
         for (Map.Entry entry : data.entrySet()) {
-            if (!isFirst) {
-                builder.append("&");
-            } else {
+            if (isFirst) {
                 isFirst = false;
+            } else {
+                builder.append("&");
             }
             builder.append(entry.getKey()).append("=").append(entry.getValue());
         }
-        String rlt = builder.toString();
-        return rlt;
+        return builder.toString();
     }
 
     public static String ConvertString(List list) {
@@ -112,7 +77,7 @@ public class HttpUtils {
         }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
-            sb.append(list.get(i) + ",");
+            sb.append(list.get(i)).append(",");
         }
         return sb.toString();
     }

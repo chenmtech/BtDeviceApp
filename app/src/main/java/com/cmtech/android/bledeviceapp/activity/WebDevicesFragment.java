@@ -19,6 +19,7 @@ import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpReceiver;
 import com.cmtech.android.bledevice.ecgmonitorweb.WebEcgMonitorDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.WebDevicesAdapter;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 
 import java.util.List;
 
@@ -83,7 +84,7 @@ public class WebDevicesFragment extends Fragment {
 
     private void updateWebDeviceList() {
         // 获取网络广播设备列表
-        EcgHttpReceiver.retrieveDeviceInfo(new EcgHttpReceiver.IEcgDeviceInfoCallback() {
+        EcgHttpReceiver.retrieveDeviceInfo(AccountManager.getInstance().getAccount().getHuaweiId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
             public void onReceived(List<WebEcgMonitorDevice> deviceList) {
                 if(deviceList != null && !deviceList.isEmpty()) {

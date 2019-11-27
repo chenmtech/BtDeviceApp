@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
@@ -79,16 +80,13 @@ public class EcgHttpReceiver {
 
     /**
      * 获取可接收的广播设备列表
-     * 服务器端应该将该接收者可接收的广播设备ID以List<String>格式返回
-     * 注意：接收者ID就是HttpUtils中的open_id, 并在调用HttpUtils.upload时自动加入，所以这里就不用添加了。下同
      * @param callback : 回调
      */
-    public static void retrieveDeviceInfo(final IEcgDeviceInfoCallback callback) {
+    public static void retrieveDeviceInfo(String receiverId, final IEcgDeviceInfoCallback callback) {
         Map<String, String> data = new HashMap<>();
-        data.put(TYPE_RECEIVER_ID, HttpUtils.open_id);
-        String urlStr = device_info_url + HttpUtils.createDataUrlString(data);
+        data.put(TYPE_RECEIVER_ID, receiverId);
 
-        HttpUtils.upload(urlStr, new Callback() {
+        HttpUtils.upload(device_info_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, e.getMessage());
@@ -120,14 +118,13 @@ public class EcgHttpReceiver {
      * @param id : 最后接收到的数据包时间戳
      * @param callback          : 回调
      */
-    public static void readDataPackets(String deviceId, int id, final IEcgDataPacketCallback callback) {
+    public static void readDataPackets(String receiverId, String deviceId, int id, final IEcgDataPacketCallback callback) {
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_DEVICE_ID, deviceId);
-        data.put(TYPE_RECEIVER_ID, HttpUtils.open_id);
+        data.put(TYPE_RECEIVER_ID, receiverId);
         data.put(TYPE_LAST_PACKET_ID, String.valueOf(id));
         data.put(TYPE_DATA_TYPE, String.valueOf(1));
-        String urlStr = download_url + HttpUtils.createDataUrlString(data);
-        HttpUtils.upload(urlStr, new Callback() {
+        HttpUtils.upload(download_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, e.getMessage());

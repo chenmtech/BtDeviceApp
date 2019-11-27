@@ -552,8 +552,8 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         }
 
         if(broadcaster == null) {
-            broadcaster = new EcgHttpBroadcast(EcgMonitorUtil.deleteColon(getAddress()),
-                    AccountManager.getInstance().getAccount().getPhone(),
+            broadcaster = new EcgHttpBroadcast(AccountManager.getInstance().getAccount().getHuaweiId(),
+                    EcgMonitorUtil.deleteColon(getAddress()),
                     getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getLeadType().getCode());
             broadcaster.start();
         }
