@@ -26,6 +26,7 @@ public class HuaweiLoginActivity extends AppCompatActivity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.contains("open_id=")) {
+                    ViseLog.e("Huawei login response: " + url);
                     String userId = HttpUtils.parseUrl(url).get("open_id");
                     AccountManager.getInstance().getAccount().setHuaweiId(userId);
                     Intent intent = new Intent(HuaweiLoginActivity.this, MainActivity.class);
