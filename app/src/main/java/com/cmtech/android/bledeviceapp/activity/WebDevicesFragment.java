@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpReceiver;
 import com.cmtech.android.bledevice.ecgmonitorweb.WebEcgMonitorDevice;
@@ -35,7 +36,7 @@ import java.util.List;
  */
 public class WebDevicesFragment extends Fragment {
 
-    private static final int MSG_OBTAIN_WEB_ECG_DEVICE = 0;
+    private static final int MSG_UPDATE_WEB_DEVICES = 0;
 
     private WebDevicesAdapter webDevicesAdapter;
 
@@ -43,7 +44,7 @@ public class WebDevicesFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_OBTAIN_WEB_ECG_DEVICE:
+                case MSG_UPDATE_WEB_DEVICES:
                     update();
                     break;
             }
@@ -69,17 +70,24 @@ public class WebDevicesFragment extends Fragment {
         webDevicesAdapter = new WebDevicesAdapter((MainActivity) getActivity());
         rvDevices.setAdapter(webDevicesAdapter);
 
+        Button btnUpdate = view.findViewById(R.id.bt_update_web_devices);
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateWebDeviceList();
+            }
+        });
+
+        updateWebDeviceList();
+    }
+
+    private void updateWebDeviceList() {
         // 获取网络广播设备列表
         EcgHttpReceiver.retrieveDeviceInfo(new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
             public void onReceived(List<WebEcgMonitorDevice> deviceList) {
                 if(deviceList != null && !deviceList.isEmpty()) {
-                    for(WebEcgMonitorDevice device : deviceList) {
-                        Message msg = new Message();
-                        msg.what = MSG_OBTAIN_WEB_ECG_DEVICE;
-                        msg.obj = device;
-                        handler.sendMessage(msg);
-                    }
+                    handler.sendEmptyMessage(MSG_UPDATE_WEB_DEVICES);
                 }
             }
         });
