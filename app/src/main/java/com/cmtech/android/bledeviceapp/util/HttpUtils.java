@@ -15,7 +15,7 @@ import okhttp3.Response;
 
 public class HttpUtils {
     public static void upload(String baseUrl, Map<String, String> data, Callback callback) {
-        String url = baseUrl + ConvertString(data);
+        String url = baseUrl + convertString(data);
         Get(url, callback);
         ViseLog.e(url);
     }
@@ -55,7 +55,7 @@ public class HttpUtils {
         client.newCall(request).enqueue(callback);
     }
 
-    private static String ConvertString(Map<String, String> data) {
+    public static String convertString(Map<String, String> data) {
         if (data == null || data.isEmpty()) return "";
 
         StringBuilder builder = new StringBuilder();
@@ -71,7 +71,7 @@ public class HttpUtils {
         return builder.toString();
     }
 
-    public static String ConvertString(List list) {
+    public static String convertString(List list) {
         if (list == null || list.isEmpty()) {
             return null;
         }

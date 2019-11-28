@@ -111,7 +111,7 @@ public class AccountActivity extends AppCompatActivity {
                         imageFile.delete();
                     }
 
-                    // 把当前图像保存到DIR_IMAGE，以手机号为文件名
+                    // 把当前图像保存到DIR_IMAGE，以ID号为文件名
                     if(TextUtils.isEmpty(cacheImagePath)) {
                         account.setImagePath("");
                     } else {

@@ -164,7 +164,7 @@ public class EcgHttpBroadcast {
         }
         String ecgStr = sb.toString();
 
-        data.put(TYPE_DATA, HttpUtils.ConvertString(hrBuffer)+ ";"+ ecgStr);
+        data.put(TYPE_DATA, HttpUtils.convertString(hrBuffer)+ ";"+ ecgStr);
         hrBuffer.clear();
         HttpUtils.upload(upload_url, data, new Callback() {
             @Override
@@ -268,13 +268,13 @@ public class EcgHttpBroadcast {
                 ViseLog.e("getUsers: " + responseStr);
 
                 if(callback != null) {
-                    callback.onReceived(parseReceiversWithJSONObject(responseStr));
+                    callback.onReceived(parseReceivers(responseStr));
                 }
             }
         });
     }
 
-    private static List<Account> parseReceiversWithJSONObject(String jsonData) {
+    private static List<Account> parseReceivers(String jsonData) {
         List<Account> receivers = new ArrayList<>();
         try {
             JSONArray jsonArray = new JSONArray(jsonData);
