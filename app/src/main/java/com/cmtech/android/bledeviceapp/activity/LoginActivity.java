@@ -134,7 +134,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initialize() {
         // 注册一个事件回调，用于处理SMSSDK接口请求的结果
-        SMSSDK.registerEventHandler(eventHandler);
+        //SMSSDK.registerEventHandler(eventHandler);
 
         TextView tvWelcome = findViewById(R.id.tv_welcometext);
         String welcomeText = String.format(getResources().getString(R.string.welcome_text_format), getResources().getString(R.string.app_name));
@@ -181,9 +181,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        Intent intent = new Intent(LoginActivity.this, HuaweiLoginActivity.class);
-        startActivity(intent);
-        finish();
+        new Handler(getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(LoginActivity.this, HuaweiLoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }, 3000);
     }
 
     // 检查权限
@@ -230,7 +235,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        SMSSDK.unregisterEventHandler(eventHandler);
+        //SMSSDK.unregisterEventHandler(eventHandler);
         try {
             stopCountDown();
         } catch (InterruptedException ignored) {
@@ -246,7 +251,7 @@ public class LoginActivity extends AppCompatActivity {
 
             Intent intent = new Intent(LoginActivity.this, HuaweiLoginActivity.class);
             startActivity(intent);
-            finish();
+            //finish();
         } else {
             Toast.makeText(LoginActivity.this, "登录错误。", Toast.LENGTH_SHORT).show();
         }

@@ -59,10 +59,12 @@ public class AccountActivity extends AppCompatActivity {
 
         Account account = AccountManager.getInstance().getAccount();
 
-        TextView tvPhone = findViewById(R.id.et_account_phone);
-        String phoneNum = String.format("00000000000%s", account.getHuaweiId());
-        phoneNum = phoneNum.substring(phoneNum.length()-11);
-        tvPhone.setText(String.format("%s****%s", phoneNum.substring(0,3), phoneNum.substring(7)));
+        TextView tvId = findViewById(R.id.et_account_id);
+        String idStr = account.getHuaweiId();
+        if(idStr.length() > 3) {
+            tvId.setText(String.format("%s****%s", idStr.substring(0, 3), idStr.substring(idStr.length() - 3)));
+        } else
+            tvId.setText(idStr);
 
         etName = findViewById(R.id.et_account_name);
         etName.setText(account.getName());
