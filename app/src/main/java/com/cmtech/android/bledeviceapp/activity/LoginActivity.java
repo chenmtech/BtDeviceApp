@@ -180,6 +180,10 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+
+        Intent intent = new Intent(LoginActivity.this, HuaweiLoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     // 检查权限

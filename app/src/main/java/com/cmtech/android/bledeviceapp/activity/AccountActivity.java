@@ -60,7 +60,7 @@ public class AccountActivity extends AppCompatActivity {
         Account account = AccountManager.getInstance().getAccount();
 
         TextView tvPhone = findViewById(R.id.et_account_phone);
-        String phoneNum = String.format("00000000000%s", account.getPhone());
+        String phoneNum = String.format("00000000000%s", account.getHuaweiId());
         phoneNum = phoneNum.substring(phoneNum.length()-11);
         tvPhone.setText(String.format("%s****%s", phoneNum.substring(0,3), phoneNum.substring(7)));
 
@@ -116,7 +116,7 @@ public class AccountActivity extends AppCompatActivity {
                         try {
                             ivImage.setDrawingCacheEnabled(true);
                             Bitmap bitmap = ivImage.getDrawingCache();
-                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getPhone() + ".jpg");
+                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getHuaweiId() + ".jpg");
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivImage.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();

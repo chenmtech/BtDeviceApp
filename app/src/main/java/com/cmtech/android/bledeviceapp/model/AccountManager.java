@@ -5,8 +5,6 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
-import java.util.List;
-
 
 /**
   *
@@ -54,23 +52,28 @@ public class AccountManager {
     }
 
     // 注册新账户
-    public boolean signUp(String phone) {
-        Account find = LitePal.where("phone = ?", phone).findFirst(Account.class);
+    public boolean signUp(String huaweiId, String name) {
+        Account account = LitePal.where("huaweiId = ?", huaweiId).findFirst(Account.class);
 
-        if(find != null) {
+        if(account != null) {
             ViseLog.e("The account exists.");
             return false;
         } else {
-            account = new Account();
-            account.setPhone(phone);
-            account.save();
+            this.account = new Account();
+            this.account.setHuaweiId(huaweiId);
+            this.account.setName(name);
+            this.account.save();
             return true;
         }
     }
 
+    public boolean signUp(String phone) {
+        return signUp(phone, "");
+    }
+
     // 登录
-    public boolean signIn(String phone) {
-        Account account = LitePal.where("phone = ?", phone).findFirst(Account.class);
+    public boolean signIn(String huaweiId) {
+        Account account = LitePal.where("huaweiId = ?", huaweiId).findFirst(Account.class);
         if(account != null) {
             this.account = account;
             return true;

@@ -5,7 +5,7 @@ import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgComment;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgCommentFactory;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecgmonitor.util.EcgMonitorUtil;
-import com.cmtech.android.bledeviceapp.model.User;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
@@ -33,7 +33,7 @@ public class EcgRecord extends LitePalSupport {
     private int id;
     private String deviceAddress; // 设备地址
     private long createTime; // 创建时间
-    private User creator; // 创建人
+    private Account creator; // 创建人
     private long modifyTime; // 修改时间
     private int sampleRate; // 采样频率
     private int caliValue; // 标定值
@@ -64,7 +64,7 @@ public class EcgRecord extends LitePalSupport {
     }
 
     // 创建新记录
-    public static EcgRecord create(User creator, int sampleRate, int caliValue, String deviceAddress, EcgLeadType leadType) {
+    public static EcgRecord create(Account creator, int sampleRate, int caliValue, String deviceAddress, EcgLeadType leadType) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
@@ -74,7 +74,7 @@ public class EcgRecord extends LitePalSupport {
         EcgRecord record = new EcgRecord();
         record.deviceAddress = EcgMonitorUtil.deleteColon(deviceAddress);
         record.createTime = new Date().getTime();
-        record.creator = (User) creator.clone();
+        record.creator = (Account) creator.clone();
         record.modifyTime = record.createTime;
         record.sampleRate = sampleRate;
         record.caliValue = caliValue;
@@ -109,7 +109,7 @@ public class EcgRecord extends LitePalSupport {
                 }
                 record.deviceAddress = DataIOUtil.readFixedString(raf, DEVICE_ADDRESS_CHAR_NUM);
                 record.createTime = raf.readLong();
-                record.creator = new User();
+                record.creator = new Account();
                 record.creator.readFromStream(raf);
                 record.modifyTime = raf.readLong();
                 record.sampleRate = raf.readInt();
@@ -267,9 +267,9 @@ public class EcgRecord extends LitePalSupport {
     public int getSampleRate() {
         return sampleRate;
     }
-    public User getCreator() {
+    public Account getCreator() {
         if(creator == null) {
-            creator = LitePal.where("ecgrecord_id=?", String.valueOf(id)).findFirst(User.class);
+            creator = LitePal.where("ecgrecord_id=?", String.valueOf(id)).findFirst(Account.class);
         }
         return creator;
     }

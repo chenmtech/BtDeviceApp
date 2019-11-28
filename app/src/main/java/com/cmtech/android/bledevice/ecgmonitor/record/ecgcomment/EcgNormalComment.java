@@ -1,8 +1,8 @@
 package com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment;
 
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgCommentType;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
@@ -25,15 +25,15 @@ public class EcgNormalComment extends EcgComment {
     private static final int CONTENT_CHAR_NUM = 500; // 内容字符数
 
     private int id;
-    private User creator; // 创建人
+    private Account creator; // 创建人
     private long modifyTime = -1; // 修改时间
     private String content = ""; // 内容
 
     private EcgNormalComment() {
     }
 
-    private EcgNormalComment(User creator, long modifyTime) {
-        this.creator = (User) creator.clone();
+    private EcgNormalComment(Account creator, long modifyTime) {
+        this.creator = (Account) creator.clone();
         this.modifyTime = modifyTime;
     }
 
@@ -42,18 +42,18 @@ public class EcgNormalComment extends EcgComment {
      * @return 默认留言对象
      */
     public static EcgNormalComment create() {
-        User creator = AccountManager.getInstance().getAccount();
+        Account creator = AccountManager.getInstance().getAccount();
         long modifyTime = new Date().getTime();
         return new EcgNormalComment(creator, modifyTime);
     }
 
-    public User getCreator() {
+    public Account getCreator() {
         if(creator == null) {
-            List<User> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(User.class);
+            List<Account> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(Account.class);
             if (!creators.isEmpty())
                 creator = creators.get(0);
             else
-                creator = new User();
+                creator = new Account();
         }
         return creator;
     }

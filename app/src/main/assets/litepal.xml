@@ -3,10 +3,9 @@
 <litepal>
     <dbname value = "BtDeviceApp"/>
 
-    <version value="14"/>
+    <version value="15"/>
 
     <list>
-        <mapping class="com.cmtech.android.bledeviceapp.model.User"/>
         <mapping class="com.cmtech.android.bledeviceapp.model.Account"/>
         <mapping class="com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration"/>
         <mapping class="com.cmtech.android.bledevice.temphumid.model.TempHumidHistoryData"/>
