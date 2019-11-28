@@ -1,11 +1,14 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
@@ -27,6 +30,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.util.UserUtil;
 import com.vise.utils.file.FileUtil;
 import com.vise.utils.view.BitmapUtil;
 
@@ -46,6 +50,34 @@ public class AccountActivity extends AppCompatActivity {
     private EditText etDescription;
     private String cacheImagePath = ""; // 头像文件路径缓存
 
+    private class AccountSycTask extends AsyncTask<String, Void, Boolean> {
+        private ProgressDialog dialog;
+
+        @Override
+        protected void onPreExecute() {
+            dialog = ProgressDialog.show(AccountActivity.this, "同步账户信息", "同步中，请稍等...");
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            String accountId = params[0];
+
+            UserUtil.getUserInfo(accountId, new UserUtil.IGetUserInfoCallback() {
+                @Override
+                public void onReceived(String userId, String name, String description, String image) {
+
+                }
+            });
+
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isUpdated) {
+            dialog.dismiss();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,11 +92,7 @@ public class AccountActivity extends AppCompatActivity {
         Account account = AccountManager.getInstance().getAccount();
 
         TextView tvId = findViewById(R.id.et_account_id);
-        String idStr = account.getHuaweiId();
-        if(idStr.length() > 3) {
-            tvId.setText(String.format("%s****%s", idStr.substring(0, 3), idStr.substring(idStr.length() - 3)));
-        } else
-            tvId.setText(idStr);
+        tvId.setText(account.getShortHuaweiId());
 
         etName = findViewById(R.id.et_account_name);
         etName.setText(account.getName());
@@ -148,6 +176,8 @@ public class AccountActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        new AccountSycTask().execute(account.getHuaweiId());
 
     }
 

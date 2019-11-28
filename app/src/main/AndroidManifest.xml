@@ -36,7 +36,7 @@
         <activity android:name=".activity.HuaweiLoginActivity"></activity>
         <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordActivity" />
         <activity
-            android:name=".activity.LoginActivity"
+            android:name=".activity.SplashActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait">
             <intent-filter>

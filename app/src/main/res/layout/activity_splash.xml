@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/secondary">
+
+    <TextView
+        android:id="@+id/tv_count_down_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="10dp"/>
+
+    <ImageView
+        android:id="@+id/iv_kang"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:src="@mipmap/ic_kang"
+        android:contentDescription="@null"/>
+
+    <TextView
+        android:id="@+id/tv_welcometext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/iv_kang"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:text=""
+        android:textColor="@color/accent"
+        android:textSize="30sp" />
+
+
+</RelativeLayout>

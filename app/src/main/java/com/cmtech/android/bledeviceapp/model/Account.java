@@ -30,7 +30,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     private String huaweiId = ""; // 华为ID
     private String name = ""; // 名称
     private String imagePath = ""; // 头像文件路径
-    private String description = ""; // 个人描述信息
+    private String description = ""; // 个人信息
 
     public Account() {
     }
@@ -43,6 +43,12 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     }
     public String getHuaweiId() {
         return huaweiId;
+    }
+    public String getShortHuaweiId() {
+        if(huaweiId.length() > 3) {
+            return String.format("%s****%s", huaweiId.substring(0, 3), huaweiId.substring(huaweiId.length() - 3));
+        } else
+            return huaweiId;
     }
     public void setHuaweiId(String huaweiId) {
         this.huaweiId = huaweiId;
@@ -86,7 +92,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
 
     @Override
     public String toString() {
-        return "HuaweiId: " + huaweiId + " Name：" + name + ' ' + " Personal Info：" + description;
+        return "HuaweiId: " + getShortHuaweiId() + " Name：" + name + ' ' + " Personal Info：" + description;
     }
 
     @Override

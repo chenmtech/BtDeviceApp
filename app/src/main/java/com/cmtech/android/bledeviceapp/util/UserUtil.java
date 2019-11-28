@@ -19,11 +19,11 @@ import okhttp3.Response;
 public class UserUtil {
     private static final String getuser_url = "http://huawei.tighoo.com/home/GetUsers?";
 
-    interface IGetUserInfoCallback {
-        void onReceived(String userId, String name, String description, String imageUrl);
+    public interface IGetUserInfoCallback {
+        void onReceived(String userId, String name, String description, String image);
     }
 
-    interface ISaveUserInfoCallback {
+    public interface ISaveUserInfoCallback {
         void onReceived(boolean success);
     }
 
@@ -31,7 +31,7 @@ public class UserUtil {
         private String id; // 用户的华为Id
         private String name; // 用户名
         private String description; // 用户简介
-        private String imageUrl; // 用户头像URL
+        private String imageBase64Str; // 用户头像URL
     }
 
     public static void getUserInfo(final String userId, final IGetUserInfoCallback callback) {
@@ -52,7 +52,7 @@ public class UserUtil {
                 User user = parseUser(responseStr);
                 if(callback != null) {
                     if(user != null) {
-                        callback.onReceived(user.id, user.name, user.description, user.imageUrl);
+                        callback.onReceived(user.id, user.name, user.description, user.imageBase64Str);
                     }else {
                         callback.onReceived(null, null, null, null);
                     }
@@ -94,7 +94,7 @@ public class UserUtil {
             user.id = jsonObject.getString("user_id");
             user.name = jsonObject.getString("user_name");
             user.description = jsonObject.getString("user_description");
-            user.imageUrl = jsonObject.getString("user_imageurl");
+            user.imageBase64Str = jsonObject.getString("user_image");
         } catch (Exception e) {
             e.printStackTrace();
             user = null;

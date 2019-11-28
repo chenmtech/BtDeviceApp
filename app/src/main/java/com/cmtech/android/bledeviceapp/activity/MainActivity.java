@@ -710,18 +710,18 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     // 退出登录
     private void logoutAccount() {
-        if(DeviceManager.hasOpenedDevice()) {
+        /*if(DeviceManager.hasOpenedDevice()) {
             Toast.makeText(this, "有设备打开，请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
         }
 
         AccountManager.getInstance().signOut();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        LoginActivity.saveLoginInfo(pref, "", -1);
+        SplashActivity.saveLoginInfo(pref, "", -1);
 
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        Intent intent = new Intent(MainActivity.this, SplashActivity.class);
         startActivity(intent);
-        finish();
+        finish();*/
     }
 
     private void updateNavigation() {
