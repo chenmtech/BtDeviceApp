@@ -234,12 +234,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         localDevicesFragment = new LocalDevicesFragment();
         webDevicesFragment = new WebDevicesFragment();
         List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(localDevicesFragment, webDevicesFragment));
-        List<String> titleList = new ArrayList<>(Arrays.asList("本地设备", "网络设备"));
+        List<String> titleList = new ArrayList<>(Arrays.asList("本地", "网络"));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getSupportFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(2);
         layout.setupWithViewPager(pager);
-
 
         // 初始化导航视图
         initNavigation();

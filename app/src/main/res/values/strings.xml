@@ -4,7 +4,7 @@
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>
     <string name="some_devices_opened">有%d设备打开</string>
-    <string name="scan_device">扫描设备</string>
+    <string name="scan_device">搜寻设备</string>
     <string name="query_record">查阅记录</string>
     <string name="open_news">康明新闻</string>
     <string name="update">更新</string>

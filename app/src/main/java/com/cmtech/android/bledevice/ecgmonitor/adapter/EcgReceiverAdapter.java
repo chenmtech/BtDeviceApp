@@ -2,10 +2,12 @@ package com.cmtech.android.bledevice.ecgmonitor.adapter;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
@@ -24,10 +26,12 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         CheckBox cbReceiver;
+        TextView tvReceiverDescription;
 
         ViewHolder(View itemView) {
             super(itemView);
             cbReceiver = itemView.findViewById(R.id.cb_ecg_signal_receiver);
+            tvReceiverDescription = itemView.findViewById(R.id.tv_ecg_signal_receiver_description);
         }
     }
 
@@ -58,7 +62,18 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
     @Override
     public void onBindViewHolder(EcgReceiverAdapter.ViewHolder holder, final int position) {
         Account receiver = receivers.get(position);
-        holder.cbReceiver.setText(receiver.getName());
+        if(TextUtils.isEmpty(receiver.getName())) {
+            holder.cbReceiver.setText("匿名");
+        }
+        else {
+            holder.cbReceiver.setText(receiver.getName());
+        }
+
+        if(TextUtils.isEmpty(receiver.getDescription())) {
+            holder.tvReceiverDescription.setText("无个人信息");
+        } else {
+            holder.tvReceiverDescription.setText(receiver.getDescription());
+        }
         holder.cbReceiver.setEnabled(enable);
     }
 
@@ -77,6 +92,12 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
             if(receivers.contains(account)) continue;
             receivers.add(account);
         }
+        notifyDataSetChanged();
+    }
+
+    public void addReceiver(Account account) {
+        if(receivers.contains(account)) return;
+        receivers.add(account);
         notifyDataSetChanged();
     }
 }

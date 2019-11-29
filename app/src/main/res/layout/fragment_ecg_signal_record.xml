@@ -48,7 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:text="标记：" />
+        android:text="用户事件：" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_ecg_marker"

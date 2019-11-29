@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecgmonitor.fragment;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +21,7 @@ import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.util.UserUtil;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -49,10 +52,10 @@ public class EcgBroadcastFragment extends Fragment {
 
         rvReceiver = view.findViewById(R.id.rv_ecg_signal_receiver);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvReceiver.setLayoutManager(layoutManager);
         if(getContext() != null)
-            rvReceiver.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+            rvReceiver.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL));
         receivers = new ArrayList<>();
         receiverAdapter = new EcgReceiverAdapter(new EcgReceiverAdapter.OnReceiverChangedListener() {
             @Override
@@ -88,12 +91,22 @@ public class EcgBroadcastFragment extends Fragment {
                     public void onReceived(final List<Account> accounts) {
                         if(accounts == null || accounts.isEmpty()) return;
 
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                receiverAdapter.addReceivers(accounts);
-                            }
-                        });
+                        for(final Account account : accounts) {
+                            UserUtil.getUserInfo(account.getHuaweiId(), new UserUtil.IGetUserInfoCallback() {
+                                @Override
+                                public void onReceived(String userId, String name, String description, Bitmap image) {
+                                    if(!TextUtils.isEmpty(name))
+                                        account.setName(name);
+                                    account.setDescription(description);
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            receiverAdapter.addReceiver(account);
+                                        }
+                                    });
+                                }
+                            });
+                        }
                     }
                 });
             }
