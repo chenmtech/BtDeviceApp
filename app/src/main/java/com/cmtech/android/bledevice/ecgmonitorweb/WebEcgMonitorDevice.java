@@ -9,6 +9,7 @@ import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecgmonitor.device.AbstractEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
+import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.WebDevice;
 import com.vise.log.ViseLog;
@@ -19,7 +20,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static com.cmtech.android.bledevice.ecgmonitor.EcgMonitorConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledevice.ecgmonitor.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.PIXEL_PER_GRID;
+import static com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView.SECOND_PER_GRID;
 
 
 /**
@@ -44,6 +48,8 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     private int sampleInterval = 0; // 采样间隔
     private Timer signalProcessTimer; // 信号处理定时器
     private int timerPeriod = 0; // 定时器周期
+    private int[] wave1mV; // 1mV波形数据，数据长度与采样率有关，幅度变化恒定，在读取采样率之后初始化
+    private EcgNormalComment creatorComment; // 创建人留言；
 
     // 单个信号数据处理任务
     private class SignalProcessTask extends TimerTask {
@@ -147,6 +153,20 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                creatorComment = EcgNormalComment.create();
+                ecgRecord.addComment(creatorComment);
+            }
+        }
+
+        // 生成1mV波形数据
+        int pixelPerData = Math.round(PIXEL_PER_GRID / (SECOND_PER_GRID * getSampleRate()));
+        int N = 15 * PIXEL_PER_GRID/pixelPerData; // 15个栅格所需数据个数
+        wave1mV = new int[N];
+        for(int i = 0; i < N; i++) {
+            if(i > N/3 && i < N*2/3) {
+                wave1mV[i] = STANDARD_VALUE_1MV_AFTER_CALIBRATION;
+            } else {
+                wave1mV[i] = 0;
             }
         }
 
@@ -216,8 +236,71 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     public synchronized void setRecord(boolean record) {
         if(ecgRecord != null && this.isRecord != record) {
             // 当前isRecord与要设置的isRecord不同，意味着要改变当前的isRecord状态
-            isRecord = record;
-            updateRecordStatus(isRecord);
+            try {
+                if(record) {
+                    ecgRecord.writeData(getWave1mV());
+                    updateRecordSecond(ecgRecord.getRecordSecond());
+                }
+                isRecord = record;
+                updateRecordStatus(isRecord);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private int[] getWave1mV() {
+        return wave1mV;
+    }
+
+    // 添加留言内容
+    public synchronized void addCommentContent(String content) {
+        if(creatorComment != null)
+            creatorComment.appendContent(content);
+    }
+
+    // 关闭设备
+    @Override
+    public void close() {
+        if(!isStopped()) {
+            ViseLog.e("The device can't be closed currently.");
+            return;
+        }
+
+        ViseLog.e("EcgMonitorDevice.close()");
+
+        // 停止信号记录
+        setRecord(false);
+        // 关闭记录
+        if(ecgRecord != null) {
+            try {
+                ecgRecord.closeSigFile();
+                if(isSaveRecord()) {
+                    saveEcgRecord();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                ecgRecord = null;
+                ViseLog.e("关闭Ecg记录。");
+            }
+        }
+
+        // 重置数据处理器
+        /*if(dataProcessor != null)
+            dataProcessor.reset();*/
+
+        super.close();
+    }
+
+    private void saveEcgRecord() {
+        try {
+            ecgRecord.moveSigFileTo(DIR_ECG_SIGNAL);
+            if(!ecgRecord.save()) {
+                ViseLog.e("Ecg record save fail.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -23,6 +23,7 @@ import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.fragment.EcgHrStatisticsFragment;
+import com.cmtech.android.bledevice.ecgmonitor.fragment.EcgRecordFragment;
 import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView;
@@ -62,6 +63,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
     private TextView tvPauseMessage; // 暂停显示消息
     private ScanEcgView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
+    private final EcgRecordFragment recordFragment = new EcgRecordFragment(); // 信号记录Fragment
     private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
     private WebEcgMonitorDevice device; // 设备
 
@@ -98,8 +100,8 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
         initEcgView();
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
-        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(hrStatisticsFragment));
-        List<String> titleList = new ArrayList<>(Arrays.asList(EcgHrStatisticsFragment.TITLE));
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(recordFragment, hrStatisticsFragment));
+        List<String> titleList = new ArrayList<>(Arrays.asList(EcgRecordFragment.TITLE, EcgHrStatisticsFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         layout.setupWithViewPager(pager);
@@ -211,7 +213,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
 
     @Override
     public void onRecordStateUpdated(final boolean isRecord) {
-
+        recordFragment.setRecordStatus(isRecord);
     }
 
     @Override
@@ -240,7 +242,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
 
     @Override
     public void onEcgSignalRecordSecondUpdated(final int second) {
-
+        recordFragment.setSignalSecNum(second);
     }
 
     @Override
