@@ -10,7 +10,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 public class WebEcgMonitorFactory extends DeviceFactory {
     private static final String UUID = "ab40"; // 设备支持的服务UUID短串
-    private static final String DEFAULT_NAME = "心电广播"; // 缺省设备名
+    private static final String DEFAULT_NAME = "网络心电"; // 缺省设备名
     private static final int DEFAULT_IMAGE_ID = R.drawable.ic_ecgmonitor_default_image; // 缺省图标ID
     private static final String FACTORY = WebEcgMonitorFactory.class.getName(); // 工厂类名
 

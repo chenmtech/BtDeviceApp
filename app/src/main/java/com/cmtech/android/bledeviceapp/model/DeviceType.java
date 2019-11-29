@@ -51,6 +51,9 @@ public class DeviceType {
         return null;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
     public int getDefaultImageId() {
         return defaultImageId;
     }

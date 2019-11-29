@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
@@ -25,6 +24,8 @@ import java.util.Map;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+
+import static com.cmtech.android.bledevice.ecgmonitorweb.WebEcgMonitorFactory.ECGWEBMONITOR_DEVICE_TYPE;
 
 public class EcgHttpReceiver {
     private static final String TAG = "EcgHttpReceiver";
@@ -158,11 +159,11 @@ public class EcgHttpReceiver {
                 int caliValue = Integer.parseInt(jsonObject.getString("cali_Value"));
                 int leadTypeCode = Integer.parseInt(jsonObject.getString("lead_Type"));
                 EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
-                DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(deviceId, "ab40");
+                DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid());
                 ViseLog.e(registerInfo);
                 WebEcgMonitorDevice device = (WebEcgMonitorDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
                 if(device != null) {
-                    device.getRegisterInfo().setName("心电广播");
+                    device.getRegisterInfo().setName(ECGWEBMONITOR_DEVICE_TYPE.getDefaultNickname());
                     device.setSampleRate(sampleRate);
                     device.setValue1mV(caliValue);
                     device.setLeadType(leadType);
