@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
 
+import com.vise.log.ViseLog;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -20,7 +22,7 @@ public class UserUtil {
     private static final String getuser_url = "http://huawei.tighoo.com/home/GetUsers?";
 
     public interface IGetUserInfoCallback {
-        void onReceived(String userId, String name, String description, String image);
+        void onReceived(String userId, String name, String description, Bitmap image);
     }
 
     public interface ISaveUserInfoCallback {
@@ -31,7 +33,7 @@ public class UserUtil {
         private String id; // 用户的华为Id
         private String name; // 用户名
         private String description; // 用户简介
-        private String imageBase64Str; // 用户头像URL
+        private Bitmap image; // 用户头像
     }
 
     public static void getUserInfo(final String userId, final IGetUserInfoCallback callback) {
@@ -52,7 +54,7 @@ public class UserUtil {
                 User user = parseUser(responseStr);
                 if(callback != null) {
                     if(user != null) {
-                        callback.onReceived(user.id, user.name, user.description, user.imageBase64Str);
+                        callback.onReceived(user.id, user.name, user.description, user.image);
                     }else {
                         callback.onReceived(null, null, null, null);
                     }
@@ -66,7 +68,7 @@ public class UserUtil {
         data.put("user_id", id);
         data.put("user_name", name);
         data.put("user_description", description);
-        data.put("user_image", bitmapToString(image));
+        //data.put("user_image", bitmapToString(image));
         String url = getuser_url + convertString(data);
         HttpUtils.upload(url, new Callback() {
             @Override
@@ -79,6 +81,8 @@ public class UserUtil {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
+                ViseLog.e("saveUserInfo success");
+
                 if(callback != null) {
                     callback.onReceived(true);
                 }
@@ -94,7 +98,7 @@ public class UserUtil {
             user.id = jsonObject.getString("user_id");
             user.name = jsonObject.getString("user_name");
             user.description = jsonObject.getString("user_description");
-            user.imageBase64Str = jsonObject.getString("user_image");
+            //user.image = stringToBitmap(jsonObject.getString("user_image"));
         } catch (Exception e) {
             e.printStackTrace();
             user = null;
@@ -118,10 +122,14 @@ public class UserUtil {
         return o.toByteArray();
     }
 
+    private static Bitmap stringToBitmap(String imageStr) {
+        return byteToBitmap(Base64.decode(imageStr, Base64.DEFAULT));
+    }
+
     /**
      * convert byte array to Bitmap
      */
-    public static Bitmap byteToBitmap(byte[] b) {
+    private static Bitmap byteToBitmap(byte[] b) {
         return (b == null || b.length == 0) ? null : BitmapFactory.decodeByteArray(b, 0, b.length);
     }
 

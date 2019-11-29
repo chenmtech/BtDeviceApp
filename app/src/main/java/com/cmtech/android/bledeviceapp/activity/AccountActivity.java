@@ -3,7 +3,6 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -23,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -50,31 +50,117 @@ public class AccountActivity extends AppCompatActivity {
     private EditText etDescription;
     private String cacheImagePath = ""; // 头像文件路径缓存
 
-    private class AccountSycTask extends AsyncTask<String, Void, Boolean> {
-        private ProgressDialog dialog;
+    private final Account account = AccountManager.getInstance().getAccount();
 
-        @Override
-        protected void onPreExecute() {
-            dialog = ProgressDialog.show(AccountActivity.this, "同步账户信息", "同步中，请稍等...");
+    private class GetAccountFromWebTask extends AsyncTask<Void, Void, Boolean> {
+        private ProgressDialog dialog;
+        private boolean isUpdated = false;
+        private String userId = "";
+        private String name = "";
+        private String description = "";
+        private Bitmap image = null;
+        private boolean isReturn = false;
+
+        private GetAccountFromWebTask(String userId) {
+            this.userId = userId;
         }
 
         @Override
-        protected Boolean doInBackground(String... params) {
-            String accountId = params[0];
+        protected void onPreExecute() {
+            dialog = ProgressDialog.show(AccountActivity.this, "从网络获取", "获取中，请稍等...");
+            dialog.show();
+        }
 
-            UserUtil.getUserInfo(accountId, new UserUtil.IGetUserInfoCallback() {
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            isReturn = false;
+            UserUtil.getUserInfo(userId, new UserUtil.IGetUserInfoCallback() {
                 @Override
-                public void onReceived(String userId, String name, String description, String image) {
-
+                public void onReceived(String userId, String name, String description, Bitmap image) {
+                    if(userId != null) {
+                        GetAccountFromWebTask.this.isUpdated = true;
+                        GetAccountFromWebTask.this.name = name;
+                        GetAccountFromWebTask.this.description = description;
+                        GetAccountFromWebTask.this.image = image;
+                    } else {
+                        GetAccountFromWebTask.this.isUpdated = false;
+                    }
+                    isReturn = true;
                 }
             });
 
-            return true;
+            int waitSecond = 0;
+            while (!isReturn && (waitSecond < 5)) {
+                try {
+                    Thread.sleep(1000);
+                    waitSecond++;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return isReturn && GetAccountFromWebTask.this.isUpdated;
         }
 
         @Override
         protected void onPostExecute(Boolean isUpdated) {
             dialog.dismiss();
+            if(isUpdated) {
+                etName.setText(name);
+                etDescription.setText(description);
+            }
+            etName.setText(name);
+            etDescription.setText(description);
+        }
+    }
+
+    private class SaveAccountToWebTask extends AsyncTask<Void, Void, Boolean> {
+        private ProgressDialog dialog;
+        private boolean isSaved = false;
+        private boolean isReturn = false;
+
+        @Override
+        protected void onPreExecute() {
+            dialog = ProgressDialog.show(AccountActivity.this, "保存至网络", "保存中，请稍等...");
+            dialog.show();
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            isReturn = false;
+
+            UserUtil.saveUserInfo(account.getHuaweiId(), account.getName(), account.getDescription(), null, new UserUtil.ISaveUserInfoCallback() {
+                @Override
+                public void onReceived(boolean success) {
+                    isSaved = success;
+                    isReturn = true;
+                }
+            });
+
+            int waitSecond = 0;
+            while (!isReturn && (waitSecond < 5)) {
+                try {
+                    Thread.sleep(1000);
+                    waitSecond++;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return isReturn && isSaved;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isSaved) {
+            dialog.dismiss();
+            if(isSaved) {
+                Toast.makeText(AccountActivity.this, "保存成功", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent();
+                setResult(RESULT_OK, intent);
+                finish();
+            } else {
+                Toast.makeText(AccountActivity.this, "保存失败", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -88,8 +174,6 @@ public class AccountActivity extends AppCompatActivity {
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_set_account_info);
         setSupportActionBar(toolbar);
-
-        Account account = AccountManager.getInstance().getAccount();
 
         TextView tvId = findViewById(R.id.et_account_id);
         tvId.setText(account.getShortHuaweiId());
@@ -114,14 +198,11 @@ public class AccountActivity extends AppCompatActivity {
         etDescription = findViewById(R.id.et_account_description);
         etDescription.setText(account.getDescription());
 
-        ImageButton ibLogout = findViewById(R.id.ib_logout);
-        ibLogout.setOnClickListener(new View.OnClickListener() {
+        ImageButton ibUpdateFromWeb = findViewById(R.id.ib_update_from_web);
+        ibUpdateFromWeb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.putExtra("logout", true);
-                setResult(RESULT_CANCELED, intent);
-                finish();
+                new GetAccountFromWebTask(account.getHuaweiId()).execute();
             }
         });
 
@@ -160,9 +241,8 @@ public class AccountActivity extends AppCompatActivity {
 
                 account.setDescription(etDescription.getText().toString());
                 account.save();
-                Intent intent = new Intent();
-                setResult(RESULT_OK, intent);
-                finish();
+
+                new SaveAccountToWebTask().execute();
             }
         });
 
@@ -177,7 +257,7 @@ public class AccountActivity extends AppCompatActivity {
             }
         });
 
-        new AccountSycTask().execute(account.getHuaweiId());
+
 
     }
 

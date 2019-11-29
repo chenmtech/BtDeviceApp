@@ -47,7 +47,7 @@
                 android:textSize="18sp"/>
 
             <ImageButton
-                android:id="@+id/ib_logout"
+                android:id="@+id/ib_update_from_web"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
