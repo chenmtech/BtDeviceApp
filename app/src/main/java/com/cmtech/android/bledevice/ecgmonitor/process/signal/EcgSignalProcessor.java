@@ -42,15 +42,21 @@ public class EcgSignalProcessor {
     private QrsDetector qrsDetector; // QRS波检测器，可求心率值
     private final Map<String, IHrProcessor> hrProcessorMap; // 心率处理相关操作Map
 
-    public EcgSignalProcessor(IEcgDevice device) {
+    public EcgSignalProcessor(IEcgDevice device, boolean needFilter) {
         if(device == null) {
             throw new IllegalArgumentException("EcgMonitorDevice is null");
         }
 
         this.device = device;
-        ecgCalibrator = new EcgCalibrator65536(this.device.getValue1mV());
-        ecgFilter = new EcgPreFilterWith35HzNotch(this.device.getSampleRate());
+        if(needFilter) {
+            ecgCalibrator = new EcgCalibrator65536(this.device.getValue1mV());
+            ecgFilter = new EcgPreFilterWith35HzNotch(this.device.getSampleRate());
+        } else {
+            ecgCalibrator = null;
+            ecgFilter = null;
+        }
         qrsDetector = new QrsDetector(this.device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+
         hrProcessorMap = new ConcurrentHashMap<>();
         HrStatisticProcessor hrStatisticProcessor = new HrStatisticProcessor(HR_FILTER_SECOND, this.device);
         hrProcessorMap.put(HR_STATISTICS_PROCESSOR_KEY, hrStatisticProcessor);
@@ -62,8 +68,10 @@ public class EcgSignalProcessor {
 
     // 重置，不会重置心率统计处理器
     public void reset() {
-        ecgCalibrator.reset(device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
-        ecgFilter.reset(device.getSampleRate());
+        if(ecgCalibrator != null)
+            ecgCalibrator.reset(device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
+        if(ecgFilter != null)
+            ecgFilter.reset(device.getSampleRate());
         qrsDetector = new QrsDetector(device.getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION);
         resetHrAbnormalProcessor();
     }
@@ -85,7 +93,8 @@ public class EcgSignalProcessor {
 
     // 处理Ecg信号
     public void process(int ecgSignal) {
-        ecgSignal = (int) ecgFilter.filter(ecgCalibrator.calibrate(ecgSignal)); // 标定,滤波
+        if(ecgFilter != null && ecgCalibrator != null)
+            ecgSignal = (int) ecgFilter.filter(ecgCalibrator.calibrate(ecgSignal)); // 标定,滤波
         device.updateSignalValue(ecgSignal); // 更新信号
         short currentHr = (short) qrsDetector.outputHR(ecgSignal); // 检测Qrs波，获取心率
         // 心率值更新处理

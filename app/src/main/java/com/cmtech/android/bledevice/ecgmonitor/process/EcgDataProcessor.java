@@ -42,7 +42,7 @@ public class EcgDataProcessor {
 
         this.device = device;
         value1mVDetector = new Value1mVDetector((IEcgDevice)device);
-        signalProcessor = new EcgSignalProcessor((IEcgDevice)device);
+        signalProcessor = new EcgSignalProcessor((IEcgDevice)device, true);
     }
 
     public void reset() {

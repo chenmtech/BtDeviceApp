@@ -167,7 +167,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
             case 1: // 修改设备配置返回码
                 if(resultCode == RESULT_OK) {
                     EcgMonitorConfiguration config = (EcgMonitorConfiguration) data.getSerializableExtra("configuration");
-                    //device.updateConfig(config);
+                    device.updateConfig(config);
                 }
                 break;
 

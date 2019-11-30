@@ -8,6 +8,9 @@ import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecgmonitor.device.AbstractEcgDevice;
+import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
+import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
+import com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
@@ -49,14 +52,16 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     private Timer signalProcessTimer; // 信号处理定时器
     private int timerPeriod = 0; // 定时器周期
     private int[] wave1mV; // 1mV波形数据，数据长度与采样率有关，幅度变化恒定，在读取采样率之后初始化
-    //private EcgNormalComment creatorComment; // 创建人留言；
+    private final EcgSignalProcessor signalProcessor; // 心电信号处理器
 
     // 单个信号数据处理任务
     private class SignalProcessTask extends TimerTask {
         @Override
         public void run() {
             try {
-                updateSignalValue(dataCache.take());
+                int ecgSignal = dataCache.take();
+                //updateSignalValue(ecgSignal);
+                signalProcessor.process(ecgSignal);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -109,6 +114,8 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     // 构造器
     private WebEcgMonitorDevice(WebDevice deviceProxy) {
         super(deviceProxy);
+
+        signalProcessor = new EcgSignalProcessor(this, false);
     }
 
     public static IDevice create(DeviceRegisterInfo registerInfo) {
@@ -142,6 +149,8 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
 
         updateSignalShowSetup();
         updateSignalShowState(true);
+
+        signalProcessor.reset();
 
         // 创建心电记录
         if(ecgRecord == null) {
@@ -193,6 +202,11 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         updateSignalShowState(false);
     }
 
+    @Override
+    public synchronized void updateConfig(EcgMonitorConfiguration config) {
+        super.updateConfig(config);
+        signalProcessor.resetHrAbnormalProcessor();
+    }
     @Override
     public void callDisconnect(boolean stopAutoScan) {
         if(signalProcessTimer != null) {
@@ -287,8 +301,8 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         }
 
         // 重置数据处理器
-        /*if(dataProcessor != null)
-            dataProcessor.reset();*/
+        if(signalProcessor != null)
+            signalProcessor.reset();
 
         super.close();
     }
