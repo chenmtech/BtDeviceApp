@@ -60,8 +60,10 @@ public class HrStatisticsInfo {
 
     public HrStatisticsInfo(List<Short> hrList, int secondInHrFilter) {
         this(secondInHrFilter);
-        for(Short hr : hrList)
-            process(hr);
+        if(hrList != null) {
+            for (Short hr : hrList)
+                process(hr);
+        }
     }
 
     // 返回值：对hr滤波后，是否更新了filteredHrList

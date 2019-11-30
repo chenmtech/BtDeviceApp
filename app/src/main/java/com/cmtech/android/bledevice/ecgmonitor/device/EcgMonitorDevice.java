@@ -86,7 +86,6 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
     private volatile EcgMonitorState state = EcgMonitorState.INIT; // 设备状态
     private final EcgDataProcessor dataProcessor; // 心电数据处理器, 在其内部的单线程池中执行数据处理
     private ScheduledExecutorService batteryService; // 电池电量测量Service
-    private EcgNormalComment creatorComment; // 创建人留言；
     private boolean isBroadcast = false; // 是否在广播信号
     private EcgHttpBroadcast broadcaster; // 网络广播器
 
@@ -299,12 +298,6 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
             e.printStackTrace();
         }
         super.disconnect();
-    }
-
-    // 添加留言内容
-    public synchronized void addCommentContent(String content) {
-        if(creatorComment != null)
-            creatorComment.appendContent(content);
     }
 
     // 读采样率

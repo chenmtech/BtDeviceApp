@@ -28,7 +28,7 @@
             android:text="请设置"
             android:textColor="@color/secondary_text"
             android:textSize="20sp"
-            android:maxLength="10"/>
+            android:maxLength="12"/>
 
     </RelativeLayout>
 

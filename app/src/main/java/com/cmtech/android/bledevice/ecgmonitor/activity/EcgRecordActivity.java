@@ -164,8 +164,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             tvLength.setText(timeLength);
         }
 
-        int hrNum = record.getHrList().size();
-        tvHrNum.setText(String.valueOf(hrNum));
+        if(record.getHrList() == null)
+            tvHrNum.setText(String.valueOf(0));
+        else
+            tvHrNum.setText(String.valueOf(record.getHrList().size()));
 
         initEcgView(record);
 
@@ -191,7 +193,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             signalView.startShow();
         }
 
-        if(record.getHrList().isEmpty()) {
+        if(record.getHrList() == null || record.getHrList().isEmpty()) {
             hrLayout.setVisibility(View.GONE);
         } else {
             hrLayout.setVisibility(View.VISIBLE);

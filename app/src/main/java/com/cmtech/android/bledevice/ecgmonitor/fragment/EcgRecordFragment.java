@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecgmonitor.adapter.EcgMarkerAdapter;
+import com.cmtech.android.bledevice.ecgmonitor.device.AbstractEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorDevice;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgAbnormal;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -43,7 +44,7 @@ public class EcgRecordFragment extends Fragment{
     private TextView tvRecordTime; // 已记录信号时长
     private RecyclerView rvMarker; // 标记recycleview
     private EcgMarkerAdapter markerAdapter; // 标记adapter
-    private EcgMonitorDevice device;
+    private AbstractEcgDevice device;
 
     @Nullable
     @Override
@@ -90,7 +91,7 @@ public class EcgRecordFragment extends Fragment{
         });
     }
 
-    public void setDevice(EcgMonitorDevice device) {
+    public void setDevice(AbstractEcgDevice device) {
         this.device = device;
     }
 

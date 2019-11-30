@@ -49,7 +49,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     private Timer signalProcessTimer; // 信号处理定时器
     private int timerPeriod = 0; // 定时器周期
     private int[] wave1mV; // 1mV波形数据，数据长度与采样率有关，幅度变化恒定，在读取采样率之后初始化
-    private EcgNormalComment creatorComment; // 创建人留言；
+    //private EcgNormalComment creatorComment; // 创建人留言；
 
     // 单个信号数据处理任务
     private class SignalProcessTask extends TimerTask {

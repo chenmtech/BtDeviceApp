@@ -78,6 +78,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
             throw new IllegalStateException("The device type is wrong.");
         }
         device = (WebEcgMonitorDevice) getDevice();
+        recordFragment.setDevice(device);
         return inflater.inflate(R.layout.fragment_ecg_monitor, container, false);
     }
 
@@ -127,7 +128,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (device != null) {
-                            //device.setSaveRecord(true);
+                            device.setSaveRecord(true);
                         }
                         WebEcgMonitorFragment.super.close();
                     }
@@ -140,7 +141,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (device != null) {
-                            //device.setSaveRecord(false);
+                            device.setSaveRecord(false);
                         }
                         WebEcgMonitorFragment.super.close();
                     }

@@ -120,8 +120,10 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
             holder.tvLength.setText(dataTimeLength);
         }
 
-        int hrNum = record.getHrList().size();
-        holder.tvHrNum.setText(String.valueOf(hrNum));
+        if(record.getHrList() == null)
+            holder.tvHrNum.setText(String.valueOf(0));
+        else
+            holder.tvHrNum.setText(String.valueOf(record.getHrList().size()));
 
         if (updatedRecordList.contains(record)) {
             holder.tvModifyTime.setTextColor(Color.RED);

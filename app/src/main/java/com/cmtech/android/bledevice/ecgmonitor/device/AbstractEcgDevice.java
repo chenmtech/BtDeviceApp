@@ -13,6 +13,7 @@ import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
+import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
 
 import org.litepal.LitePal;
 
@@ -33,6 +34,7 @@ public abstract class AbstractEcgDevice implements IEcgDevice {
     protected final EcgMonitorConfiguration config; // 心电监护仪的配置信息
     protected boolean isRecord = false; // 是否在记录信号
     private boolean isSaveRecord = false; // 是否保存心电记录
+    protected EcgNormalComment creatorComment; // 创建人留言；
     private final AbstractDevice deviceProxy;
 
     public AbstractEcgDevice(AbstractDevice deviceProxy) {
@@ -116,6 +118,11 @@ public abstract class AbstractEcgDevice implements IEcgDevice {
         if(listener != null) {
             listener.onEcgSignalUpdated(ecgSignal);
         }
+    }
+    // 添加留言内容
+    public synchronized void addCommentContent(String content) {
+        if(creatorComment != null)
+            creatorComment.appendContent(content);
     }
     protected void updateSignalShowSetup() {
         if(listener != null)
