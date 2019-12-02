@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context = "com.cmtech.android.bledevice.ecgmonitor.fragment.EcgMonitorFragment">
+    tools:context = "com.cmtech.android.bledevice.ecg.fragment.EcgFragment">
 
     <!--采样率，导联和标定值显示，暂时不要-->
     <LinearLayout
@@ -67,7 +67,7 @@
         android:layout_height="0dp"
         android:layout_weight="2">
 
-        <com.cmtech.android.bledevice.ecgmonitor.view.ScanEcgView
+        <com.cmtech.android.bledevice.ecg.view.ScanEcgView
             android:id="@+id/scan_ecg_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

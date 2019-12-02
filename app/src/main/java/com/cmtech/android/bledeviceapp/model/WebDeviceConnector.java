@@ -15,7 +15,7 @@ import static com.cmtech.android.ble.core.BleDeviceState.FAILURE;
 import static com.cmtech.android.ble.core.IDevice.MSG_INVALID_OPERATION;
 
 public class WebDeviceConnector implements IDeviceConnector {
-    private final IDevice device;
+    private final IDevice device; // 设备
     private volatile BleDeviceState state = CLOSED; // 实时状态
 
     public WebDeviceConnector(IDevice device) {

@@ -13,7 +13,7 @@ public class TempHumidFactory extends DeviceFactory {
     private static final String TEMPHUMID_UUID = "aa60"; // 温湿度计
     private static final String TEMPHUMID_DEFAULT_NAME = "温湿度计";
     private static final int TEMPHUMID_DEFAULT_IMAGE_ID = R.drawable.ic_temphumid_defaultimage;
-    private static final String TEMPHUMID_FACTORY = "com.cmtech.android.bledevice.temphumid.model.TempHumidFactory";
+    private static final String TEMPHUMID_FACTORY = TempHumidFactory.class.getName();
 
     public static final DeviceType TEMPHUMID_DEVICE_TYPE = new DeviceType(TEMPHUMID_UUID, TEMPHUMID_DEFAULT_IMAGE_ID, TEMPHUMID_DEFAULT_NAME, TEMPHUMID_FACTORY);
 

@@ -34,7 +34,7 @@
         tools:replace="android:name">
 
         <activity android:name=".activity.HuaweiLoginActivity"></activity>
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordActivity" />
+        <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity" />
         <activity
             android:name=".activity.SplashActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -69,12 +69,12 @@
             android:label="设置设备注册信息"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity
-            android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgMonitorConfigureActivity"
+            android:name="com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity"
             android:label="配置心电带设备"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity android:name="com.cmtech.android.bledevice.temphumid.view.TempHumidConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoConfigureActivity" />
-        <activity android:name="com.cmtech.android.bledevice.ecgmonitor.activity.EcgRecordExplorerActivity" />
+        <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity" />
         <activity android:name=".activity.AccountActivity" />
 
         <service

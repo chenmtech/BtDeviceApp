@@ -138,6 +138,7 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
         for(IDevice device : DeviceManager.getDeviceList()) {
             if(!device.isLocal()) {
                 this.deviceList.add(device);
+                device.addListener(activity.getNotifyService());
             }
         }
         notifyDataSetChanged();
