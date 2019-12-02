@@ -197,13 +197,13 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         signalProcessor.resetHrAbnormalProcessor();
     }
     @Override
-    public void callDisconnect(boolean stopAutoScan) {
+    public void forceDisconnect(boolean forever) {
         if(signalProcessTimer != null) {
             signalProcessTimer.cancel();
             dataCache.clear();
         }
         handler.removeCallbacksAndMessages(null);
-        super.callDisconnect(stopAutoScan);
+        super.forceDisconnect(forever);
     }
 
     @Override
@@ -265,7 +265,7 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     // 关闭设备
     @Override
     public void close() {
-        if(!isStopped()) {
+        if(!isDisconnectedForever()) {
             ViseLog.e("The device can't be closed currently.");
             return;
         }

@@ -15,6 +15,7 @@ import static com.cmtech.android.ble.core.IDevice.MSG_INVALID_OPERATION;
 
 public class WebDeviceConnector implements IDeviceConnector {
     private final AbstractDevice device;
+    private volatile BleDeviceState state = CLOSED; // 实时状态
 
     public WebDeviceConnector(AbstractDevice device) {
         this.device = device;
@@ -33,7 +34,7 @@ public class WebDeviceConnector implements IDeviceConnector {
         ViseLog.e("WebDeviceConnector.open()");
 
         device.setState(DISCONNECT);
-        if(device.getRegisterInfo().autoConnect()) {
+        if(device.autoConnect()) {
             connect();
         }
     }
@@ -41,7 +42,7 @@ public class WebDeviceConnector implements IDeviceConnector {
     private void connect() {
         device.setState(CONNECT);
         if(!device.onConnectSuccess())
-            callDisconnect(true);
+            forceDisconnect(true);
     }
 
     @Override
@@ -50,34 +51,25 @@ public class WebDeviceConnector implements IDeviceConnector {
         if(isDisconnected()) {
             connect();
         } else if(isConnected()) {
-            callDisconnect(true);
+            forceDisconnect(true);
         } else { // 无效操作
             device.notifyExceptionMessage(MSG_INVALID_OPERATION);
         }
     }
 
     @Override
-    public void callDisconnect(boolean stopAutoScan) {
+    public void forceDisconnect(boolean forever) {
         device.setState(DISCONNECT);
     }
 
     @Override
-    public boolean isStopped() {
+    public boolean isDisconnectedForever() {
         return isDisconnected();
     }
 
     @Override
-    public boolean isConnected() {
-        return device.getState() == CONNECT;
-    }
-    @Override
-    public boolean isDisconnected() {
-        return device.getState() == FAILURE || device.getState() == DISCONNECT;
-    }
-
-    @Override
     public void close() {
-        if(!isStopped()) {
+        if(!isDisconnectedForever()) {
             ViseLog.e("The device can't be closed currently.");
             return;
         }
@@ -92,8 +84,27 @@ public class WebDeviceConnector implements IDeviceConnector {
 
     }
 
-    public void disconnect() {
+    @Override
+    public BleDeviceState getState() {
+        return state;
+    }
 
+    @Override
+    public void setState(BleDeviceState state) {
+        if(this.state != state) {
+            ViseLog.e("The state of device " + device.getAddress() + " is " + state);
+            this.state = state;
+            device.updateState();
+        }
+    }
+
+    @Override
+    public boolean isConnected() {
+        return device.getState() == CONNECT;
+    }
+    @Override
+    public boolean isDisconnected() {
+        return device.getState() == FAILURE || device.getState() == DISCONNECT;
     }
 
     @Override

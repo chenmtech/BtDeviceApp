@@ -217,7 +217,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
     // 关闭设备
     @Override
     public void close() {
-        if(!isStopped()) {
+        if(!isDisconnectedForever()) {
             ViseLog.e("The device can't be closed currently.");
             return;
         }
@@ -267,7 +267,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
     }
 
     @Override
-    public void callDisconnect(boolean stopAutoScan) {
+    public void forceDisconnect(boolean forever) {
         ViseLog.e("EcgMonitorDevice.disconnect()");
 
         if(containBatteryService) {
@@ -282,7 +282,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        super.callDisconnect(stopAutoScan);
+        super.forceDisconnect(forever);
     }
 
     // 读采样率

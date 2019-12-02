@@ -54,7 +54,7 @@ public class SigGeneratorDevice extends AbstractDevice {
         if(!((BleDeviceConnector)connector).containGattElements(elements)) {
             ViseLog.e("Signal Generator Elements are wrong.");
 
-            //callDisconnect();
+            //forceDisconnect();
 
             return false;
         }

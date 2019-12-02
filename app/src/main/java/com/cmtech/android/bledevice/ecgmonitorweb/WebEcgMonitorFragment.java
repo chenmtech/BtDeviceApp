@@ -31,7 +31,6 @@ import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -121,7 +120,7 @@ public class WebEcgMonitorFragment extends DeviceFragment implements IEcgDevice.
 
     @Override
     public void close() {
-        if(device != null && device.isStopped()) {
+        if(device != null && device.isDisconnectedForever()) {
             if (getContext() != null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext()).setTitle("保存记录").setMessage("是否保存记录？");
                 builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {

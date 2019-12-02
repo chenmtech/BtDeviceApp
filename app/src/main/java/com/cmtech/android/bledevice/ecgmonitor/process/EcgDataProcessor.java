@@ -99,7 +99,7 @@ public class EcgDataProcessor {
                         if(nextPackageNum != INVALID_PACKAGE_NUM) {
                             ViseLog.e("数据包丢失！！！");
                             nextPackageNum = INVALID_PACKAGE_NUM;
-                            device.callDisconnect(false);
+                            device.forceDisconnect(false);
                         }
                     }
                 }

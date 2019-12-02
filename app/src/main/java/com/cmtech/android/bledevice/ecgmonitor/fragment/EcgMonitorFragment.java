@@ -124,7 +124,7 @@ public class EcgMonitorFragment extends DeviceFragment implements IEcgDevice.OnE
 
     @Override
     public void close() {
-        if(device != null && device.isStopped()) {
+        if(device != null && device.isDisconnectedForever()) {
             if (getContext() != null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext()).setTitle("保存记录").setMessage("是否保存记录？");
                 builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
