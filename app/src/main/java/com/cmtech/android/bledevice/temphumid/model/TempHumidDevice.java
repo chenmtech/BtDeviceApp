@@ -132,7 +132,6 @@ public class TempHumidDevice extends AbstractDevice {
     public static IDevice create(DeviceRegisterInfo registerInfo) {
         final TempHumidDevice device = new TempHumidDevice(registerInfo);
         IDeviceConnector connector = new BleDeviceConnector(device);
-        device.setDeviceConnector(connector);
         return device;
     }
 

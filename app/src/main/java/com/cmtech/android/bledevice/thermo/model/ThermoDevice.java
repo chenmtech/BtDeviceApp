@@ -79,7 +79,6 @@ public class ThermoDevice extends AbstractDevice {
     public static IDevice create(DeviceRegisterInfo registerInfo) {
         final ThermoDevice device = new ThermoDevice(registerInfo);
         IDeviceConnector connector = new BleDeviceConnector(device);
-        device.setDeviceConnector(connector);
         return device;
     }
 
@@ -92,8 +91,6 @@ public class ThermoDevice extends AbstractDevice {
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
         if(!((BleDeviceConnector)connector).containGattElements(elements)) {
-            //forceDisconnect();
-
             return false;
         }
 

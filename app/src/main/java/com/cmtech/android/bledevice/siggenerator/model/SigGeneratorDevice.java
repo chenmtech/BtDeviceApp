@@ -43,7 +43,6 @@ public class SigGeneratorDevice extends AbstractDevice {
     public static IDevice create(DeviceRegisterInfo registerInfo) {
         final SigGeneratorDevice device = new SigGeneratorDevice(registerInfo);
         IDeviceConnector connector = new BleDeviceConnector(device);
-        device.setDeviceConnector(connector);
         return device;
     }
 

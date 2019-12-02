@@ -121,8 +121,6 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     public static IDevice create(DeviceRegisterInfo registerInfo) {
         final WebEcgMonitorDevice device = new WebEcgMonitorDevice(registerInfo);
         IDeviceConnector connector = new WebDeviceConnector(device);
-        device.setDeviceConnector(connector);
-
         return device;
     }
 
