@@ -7,7 +7,6 @@ import android.os.Message;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.core.IDeviceConnector;
 import com.cmtech.android.bledevice.ecgmonitor.device.AbstractEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalProcessor;
@@ -114,13 +113,12 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     // 构造器
     private WebEcgMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
-
         signalProcessor = new EcgSignalProcessor(this, false);
     }
 
     public static IDevice create(DeviceRegisterInfo registerInfo) {
         final WebEcgMonitorDevice device = new WebEcgMonitorDevice(registerInfo);
-        IDeviceConnector connector = new WebDeviceConnector(device);
+        device.setDeviceConnector(new WebDeviceConnector(device));
         return device;
     }
 

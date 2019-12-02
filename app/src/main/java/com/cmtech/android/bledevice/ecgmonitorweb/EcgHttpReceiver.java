@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
+import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
@@ -160,8 +161,7 @@ public class EcgHttpReceiver {
                 EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
                 DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid());
                 ViseLog.e(registerInfo);
-                //WebEcgMonitorDevice device = (WebEcgMonitorDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
-                WebEcgMonitorDevice device = null;
+                WebEcgMonitorDevice device = (WebEcgMonitorDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
                 if(device != null) {
                     device.getRegisterInfo().setName(ECGWEBMONITOR_DEVICE_TYPE.getDefaultNickname());
                     device.setSampleRate(sampleRate);

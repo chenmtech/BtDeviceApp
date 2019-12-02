@@ -14,15 +14,14 @@ import android.media.AudioAttributes;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -81,12 +80,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
         initNotificationBuilder();
 
-        new Handler(getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                sendNotification();
-            }
-        }, 1000);
+        sendNotification();
     }
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
@@ -124,9 +118,9 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     private void sendNotification() {
         List<String> notifyContents = new ArrayList<>();
-        ViseLog.e(DeviceManager.getDeviceList());
+        //ViseLog.e(DeviceManager.getDeviceList());
         for(IDevice device : DeviceManager.getDeviceList()) {
-            ViseLog.e(device);
+            //ViseLog.e(device);
             if(device.getState() != BleDeviceState.CLOSED) {
                 notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
             }

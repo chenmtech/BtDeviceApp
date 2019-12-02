@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.IDeviceConnector;
 import com.vise.log.ViseLog;
 
@@ -14,11 +15,12 @@ import static com.cmtech.android.ble.core.BleDeviceState.FAILURE;
 import static com.cmtech.android.ble.core.IDevice.MSG_INVALID_OPERATION;
 
 public class WebDeviceConnector implements IDeviceConnector {
-    private final AbstractDevice device;
+    private final IDevice device;
     private volatile BleDeviceState state = CLOSED; // 实时状态
 
     public WebDeviceConnector(AbstractDevice device) {
         this.device = device;
+        device.setDeviceConnector(this);
     }
 
     @Override
