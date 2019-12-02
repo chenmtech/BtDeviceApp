@@ -28,7 +28,7 @@ public class DeviceManager {
     private static final List<IDevice> DEVICE_LIST = new ArrayList<>(); // 所有已注册设备列表
 
     // 如果设备不存在，用注册信息创建一个设备
-    public static IDevice createDeviceIfNotExist(DeviceRegisterInfo registerInfo) {
+    public synchronized static IDevice createDeviceIfNotExist(DeviceRegisterInfo registerInfo) {
         IDevice device = findDevice(registerInfo);
         if(device != null) {
             ViseLog.e("The device has existed.");
@@ -49,12 +49,12 @@ public class DeviceManager {
     }
 
     // 用注册信息寻找设备
-    public static IDevice findDevice(DeviceRegisterInfo registerInfo) {
+    public synchronized static IDevice findDevice(DeviceRegisterInfo registerInfo) {
         return (registerInfo == null) ? null : findDevice(registerInfo.getMacAddress());
     }
 
     // 用设备mac地址寻找设备
-    public static IDevice findDevice(String macAddress) {
+    public synchronized static IDevice findDevice(String macAddress) {
         if(TextUtils.isEmpty(macAddress)) return null;
         for(IDevice device : DEVICE_LIST) {
             if(macAddress.equalsIgnoreCase(device.getAddress())) {
@@ -70,17 +70,17 @@ public class DeviceManager {
     }
 
     // 删除一个设备
-    public static void deleteDevice(IDevice device) {
+    public synchronized static void deleteDevice(IDevice device) {
         DEVICE_LIST.remove(device);
     }
 
     // 获取设备清单
-    public static List<IDevice> getDeviceList() {
+    public synchronized static List<IDevice> getDeviceList() {
         return DEVICE_LIST;
     }
 
     // 获取所有设备的Mac列表
-    public static List<String> getDeviceMacList() {
+    public synchronized static List<String> getDeviceMacList() {
         List<String> deviceMacList = new ArrayList<>();
         for(IDevice device : DEVICE_LIST) {
             deviceMacList.add(device.getAddress());
@@ -89,7 +89,7 @@ public class DeviceManager {
     }
 
     // 是否有打开的设备
-    public static boolean hasOpenedDevice() {
+    public synchronized static boolean hasOpenedDevice() {
         for(IDevice device : DEVICE_LIST) {
             if(device.getState() != BleDeviceState.CLOSED) {
                 return true;

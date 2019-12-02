@@ -19,7 +19,6 @@ public class WebDeviceConnector implements IDeviceConnector {
 
     public WebDeviceConnector(AbstractDevice device) {
         this.device = device;
-        this.device.setDeviceConnector(this);
     }
 
     @Override

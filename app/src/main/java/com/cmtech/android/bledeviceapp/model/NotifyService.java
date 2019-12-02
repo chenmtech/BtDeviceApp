@@ -14,6 +14,7 @@ import android.media.AudioAttributes;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -79,7 +80,13 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         initDeviceManager(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
 
         initNotificationBuilder();
-        sendNotification();
+
+        new Handler(getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                sendNotification();
+            }
+        }, 1000);
     }
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
@@ -117,7 +124,9 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     private void sendNotification() {
         List<String> notifyContents = new ArrayList<>();
+        ViseLog.e(DeviceManager.getDeviceList());
         for(IDevice device : DeviceManager.getDeviceList()) {
+            ViseLog.e(device);
             if(device.getState() != BleDeviceState.CLOSED) {
                 notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
             }

@@ -111,7 +111,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // 设置BLE内部错误是否报警
         cbWarnBleInnerError = findViewById(R.id.cb_device_warn_when_ble_error);
-        cbWarnBleInnerError.setChecked(registerInfo.isWarnBleInnerError());
+        cbWarnBleInnerError.setChecked(registerInfo.warnBleInnerError());
 
         Button btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
