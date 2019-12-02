@@ -8,6 +8,7 @@ import com.cmtech.android.ble.core.BleDeviceConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.IDeviceConnector;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
@@ -90,16 +91,10 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
     private EcgHttpBroadcast broadcaster; // 网络广播器
 
     // 构造器
-    private EcgMonitorDevice(DeviceRegisterInfo registerInfo) {
+    public EcgMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
+        this.connector = new BleDeviceConnector(this);
         dataProcessor = new EcgDataProcessor(this);
-    }
-
-    public static IDevice create(DeviceRegisterInfo registerInfo) {
-        final EcgMonitorDevice device = new EcgMonitorDevice(registerInfo);
-        new BleDeviceConnector(device);
-        //device.setDeviceConnector(connector);
-        return device;
     }
 
     @Override

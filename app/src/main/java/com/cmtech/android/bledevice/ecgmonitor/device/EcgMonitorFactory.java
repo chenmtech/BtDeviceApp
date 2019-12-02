@@ -23,7 +23,7 @@ public class EcgMonitorFactory extends DeviceFactory {
 
     @Override
     public IDevice createDevice() {
-        return EcgMonitorDevice.create(registerInfo);
+        return new EcgMonitorDevice(registerInfo);
     }
 
     @Override

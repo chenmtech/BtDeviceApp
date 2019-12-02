@@ -36,14 +36,9 @@ public class SigGeneratorDevice extends AbstractDevice {
     private static final byte SIGGENERATOR_CTRL_START =             (byte) 0x01;        // 启动信号
 
     // 构造器
-    private SigGeneratorDevice(DeviceRegisterInfo registerInfo) {
+    public SigGeneratorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
-    }
-
-    public static IDevice create(DeviceRegisterInfo registerInfo) {
-        final SigGeneratorDevice device = new SigGeneratorDevice(registerInfo);
-        IDeviceConnector connector = new BleDeviceConnector(device);
-        return device;
+        this.connector = new BleDeviceConnector(this);
     }
 
     @Override

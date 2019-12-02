@@ -118,9 +118,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     private void sendNotification() {
         List<String> notifyContents = new ArrayList<>();
-        //ViseLog.e(DeviceManager.getDeviceList());
         for(IDevice device : DeviceManager.getDeviceList()) {
-            //ViseLog.e(device);
             if(device.getState() != BleDeviceState.CLOSED) {
                 notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
             }

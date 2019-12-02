@@ -18,9 +18,8 @@ public class WebDeviceConnector implements IDeviceConnector {
     private final IDevice device;
     private volatile BleDeviceState state = CLOSED; // 实时状态
 
-    public WebDeviceConnector(AbstractDevice device) {
+    public WebDeviceConnector(IDevice device) {
         this.device = device;
-        device.setDeviceConnector(this);
     }
 
     @Override
