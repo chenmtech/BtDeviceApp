@@ -4,9 +4,12 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
-import com.cmtech.android.ble.core.BleDevice;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.AbstractDevice;
+import com.cmtech.android.ble.core.BleDeviceConnector;
 import com.cmtech.android.ble.core.BleGattElement;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.IDeviceConnector;
 import com.cmtech.android.ble.exception.BleException;
 import com.vise.log.ViseLog;
 
@@ -28,7 +31,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
  * Created by bme on 2018/9/20.
  */
 
-public class TempHumidDevice extends BleDevice {
+public class TempHumidDevice extends AbstractDevice {
     private static final String TAG = "TempHumidDevice";
 
     /**
@@ -121,9 +124,16 @@ public class TempHumidDevice extends BleDevice {
 
 
     // 构造器
-    public TempHumidDevice(DeviceRegisterInfo registerInfo) {
+    private TempHumidDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
         initializeAfterConstruction();
+    }
+
+    public static IDevice create(DeviceRegisterInfo registerInfo) {
+        final TempHumidDevice device = new TempHumidDevice(registerInfo);
+        IDeviceConnector connector = new BleDeviceConnector(device);
+        device.setDeviceConnector(connector);
+        return device;
     }
 
     private void initializeAfterConstruction() {
@@ -141,11 +151,12 @@ public class TempHumidDevice extends BleDevice {
         readHistoryDataFromDb();
     }
 
-    private boolean executeAfterConnectSuccess() {
+    @Override
+    public boolean onConnectSuccess() {
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDCTRL, TEMPHUMIDPERIOD, TEMPHUMIDDATACCC};
 
-        if(!containGattElements(elements)) {
+        if(!((BleDeviceConnector)connector).containGattElements(elements)) {
             ViseLog.e("temphumid element wrong.");
 
             return false;
@@ -153,7 +164,7 @@ public class TempHumidDevice extends BleDevice {
 
         // 检查是否有温湿度历史数据服务和特征值
         elements = new BleGattElement[]{TIMERVALUE, TEMPHUMIDHISTORYTIME, TEMPHUMIDHISTORYDATA};
-        hasTimerService = containGattElements(elements);
+        hasTimerService = ((BleDeviceConnector)connector).containGattElements(elements);
 
         // 先读取一次当前温湿度值
         readCurrentTempHumid();
@@ -169,11 +180,13 @@ public class TempHumidDevice extends BleDevice {
         return true;
     }
 
-    private void executeAfterDisconnect() {
+    @Override
+    public  void onDisconnect() {
 
     }
 
-    private void executeAfterConnectFailure() {
+    @Override
+    public  void onConnectFailure() {
 
     }
 
@@ -191,7 +204,7 @@ public class TempHumidDevice extends BleDevice {
 
     // 读取当前温湿度值
     private void readCurrentTempHumid() {
-        read(TEMPHUMIDDATA, new IBleDataCallback() {
+        ((BleDeviceConnector)connector).read(TEMPHUMIDDATA, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 curTempHumid = new TempHumidData(Calendar.getInstance(), data);
@@ -208,10 +221,10 @@ public class TempHumidDevice extends BleDevice {
 
     // 启动温湿度采集服务
     private void startTempHumidService(int period) {
-        write(TEMPHUMIDPERIOD, (byte) (period / 100), null);
+        ((BleDeviceConnector)connector).write(TEMPHUMIDPERIOD, (byte) (period / 100), null);
 
         // 启动温湿度采集
-        write(TEMPHUMIDCTRL, (byte)0x01, null);
+        ((BleDeviceConnector)connector).write(TEMPHUMIDCTRL, (byte)0x01, null);
 
         // enable 温湿度采集的notification
         IBleDataCallback notifyCallback = new IBleDataCallback() {
@@ -227,12 +240,12 @@ public class TempHumidDevice extends BleDevice {
                 ViseLog.i("onFailure");
             }
         };
-        notify(TEMPHUMIDDATACCC, true, notifyCallback);
+        ((BleDeviceConnector)connector).notify(TEMPHUMIDDATACCC, true, notifyCallback);
     }
 
     // 读取定时器服务特征值
     private void readTimerServiceValue() {
-        read(TIMERVALUE, new IBleDataCallback() {
+        ((BleDeviceConnector)connector).read(TIMERVALUE, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 processTimerServiceValue(data);
@@ -251,10 +264,10 @@ public class TempHumidDevice extends BleDevice {
         byte[] hourminute = {(byte)backuptime.get(Calendar.HOUR_OF_DAY), (byte)backuptime.get(Calendar.MINUTE)};
 
         // 写历史数据时间
-        write(TEMPHUMIDHISTORYTIME, hourminute, null);
+        ((BleDeviceConnector)connector).write(TEMPHUMIDHISTORYTIME, hourminute, null);
 
         // 读取历史数据
-        read(TEMPHUMIDHISTORYDATA, new IBleDataCallback() {
+        ((BleDeviceConnector)connector).read(TEMPHUMIDHISTORYDATA, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 TempHumidData thData =  new TempHumidData(backuptime, data);
@@ -280,7 +293,7 @@ public class TempHumidDevice extends BleDevice {
         Calendar time = Calendar.getInstance();
         byte[] value = {(byte)time.get(Calendar.HOUR_OF_DAY), (byte)time.get(Calendar.MINUTE), getDeviceTimerPeriod(), 0x01};
 
-        write(TIMERVALUE, value, null);
+        ((BleDeviceConnector)connector).write(TIMERVALUE, value, null);
     }
 
     // 将一个数据保存到数据库中
@@ -332,7 +345,7 @@ public class TempHumidDevice extends BleDevice {
         }
 
         // 添加更新历史数据完毕的命令
-        runInstantly(new IBleDataCallback() {
+        ((BleDeviceConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 isUpdatingHistoryData = false;

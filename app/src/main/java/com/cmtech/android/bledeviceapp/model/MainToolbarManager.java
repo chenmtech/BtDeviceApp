@@ -5,15 +5,15 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.support.v7.widget.Toolbar;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.view.BitmapUtil;
 
-import static com.cmtech.android.ble.core.BleDevice.INVALID_BATTERY;
+import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 
 /**
  * ProjectName:    BtDeviceApp

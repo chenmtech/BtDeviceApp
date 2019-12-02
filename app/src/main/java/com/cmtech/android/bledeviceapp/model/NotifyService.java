@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.cmtech.android.ble.core.BleDevice.MSG_BLE_INNER_ERROR;
-import static com.cmtech.android.ble.core.BleDevice.MSG_BT_CLOSED;
+import static com.cmtech.android.ble.core.BleDeviceConnector.MSG_BLE_INNER_ERROR;
+import static com.cmtech.android.ble.core.BleDeviceConnector.MSG_BT_CLOSED;
 
 
 /**

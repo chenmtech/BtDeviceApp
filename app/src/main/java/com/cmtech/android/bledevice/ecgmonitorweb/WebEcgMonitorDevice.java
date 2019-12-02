@@ -7,14 +7,14 @@ import android.os.Message;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.IDeviceConnector;
 import com.cmtech.android.bledevice.ecgmonitor.device.AbstractEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
-import com.cmtech.android.bledevice.ecgmonitor.interfac.IEcgDevice;
 import com.cmtech.android.bledevice.ecgmonitor.process.signal.EcgSignalProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.record.EcgRecord;
 import com.cmtech.android.bledevice.ecgmonitor.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.WebDevice;
+import com.cmtech.android.bledeviceapp.model.WebDeviceConnector;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
@@ -112,35 +112,22 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
     };
 
     // 构造器
-    private WebEcgMonitorDevice(WebDevice deviceProxy) {
-        super(deviceProxy);
+    private WebEcgMonitorDevice(DeviceRegisterInfo registerInfo) {
+        super(registerInfo);
 
         signalProcessor = new EcgSignalProcessor(this, false);
     }
 
     public static IDevice create(DeviceRegisterInfo registerInfo) {
-        WebDevice webDevice = new WebDevice(registerInfo);
-        final WebEcgMonitorDevice device = new WebEcgMonitorDevice(webDevice);
-        webDevice.setCallback(new IConnectCallback() {
-            @Override
-            public boolean onConnectSuccess() {
-                return device.executeAfterConnectSuccess();
-            }
+        final WebEcgMonitorDevice device = new WebEcgMonitorDevice(registerInfo);
+        IDeviceConnector connector = new WebDeviceConnector(device);
+        device.setDeviceConnector(connector);
 
-            @Override
-            public void onConnectFailure() {
-                device.executeAfterConnectFailure();
-            }
-
-            @Override
-            public void onDisconnect() {
-                device.executeAfterDisconnect();
-            }
-        });
         return device;
     }
 
-    private boolean executeAfterConnectSuccess() {
+    @Override
+    public boolean onConnectSuccess() {
         if(getValue1mV() != STANDARD_VALUE_1MV_AFTER_CALIBRATION) return false;
 
         updateSampleRate();
@@ -194,11 +181,13 @@ public class WebEcgMonitorDevice extends AbstractEcgDevice {
         return true;
     }
 
-    private void executeAfterDisconnect() {
+    @Override
+    public void onDisconnect() {
         updateSignalShowState(false);
     }
 
-    private void executeAfterConnectFailure() {
+    @Override
+    public void onConnectFailure() {
         updateSignalShowState(false);
     }
 

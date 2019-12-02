@@ -1,13 +1,12 @@
 package com.cmtech.android.bledevice.ecgmonitor.interfac;
 
-import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorConfiguration;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgMonitorState;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecgmonitor.process.hr.HrStatisticsInfo;
 
-public interface IEcgDevice extends IDevice, HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
+public interface IEcgDevice extends HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
     interface OnEcgMonitorListener {
         void onStateUpdated(EcgMonitorState state); // 状态更新
         void onSampleRateUpdated(int sampleRate); // 采样率更新

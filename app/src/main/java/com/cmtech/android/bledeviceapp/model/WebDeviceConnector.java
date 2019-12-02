@@ -1,28 +1,28 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceState;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
-import com.cmtech.android.bledevice.ecgmonitorweb.EcgHttpReceiver;
+import com.cmtech.android.ble.core.IDeviceConnector;
 import com.vise.log.ViseLog;
 
 import static com.cmtech.android.ble.core.BleDeviceState.CLOSED;
 import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
-import static com.cmtech.android.ble.core.BleDeviceState.CONNECTING;
 import static com.cmtech.android.ble.core.BleDeviceState.DISCONNECT;
+import static com.cmtech.android.ble.core.BleDeviceState.FAILURE;
+import static com.cmtech.android.ble.core.IDevice.MSG_INVALID_OPERATION;
 
-public class WebDevice extends AbstractDevice {
-    public WebDevice(DeviceRegisterInfo registerInfo) {
-        super(registerInfo);
+public class WebDeviceConnector implements IDeviceConnector {
+    private final AbstractDevice device;
+
+    public WebDeviceConnector(AbstractDevice device) {
+        this.device = device;
     }
 
     @Override
     public void open(Context context) {
-        if(state != CLOSED) {
+        if(device.getState() != CLOSED) {
             ViseLog.e("The device is opened.");
             return;
         }
@@ -30,42 +30,49 @@ public class WebDevice extends AbstractDevice {
             throw new NullPointerException("The context is null.");
         }
 
-        ViseLog.e("WebDevice.open()");
+        ViseLog.e("WebDeviceConnector.open()");
 
-        setState(DISCONNECT);
-        if(registerInfo.autoConnect()) {
+        device.setState(DISCONNECT);
+        if(device.getRegisterInfo().autoConnect()) {
             connect();
         }
     }
 
     private void connect() {
-        setState(CONNECT);
-        if(callback != null) {
-            if(!callback.onConnectSuccess())
-                callDisconnect(true);
-        }
+        device.setState(CONNECT);
+        if(!device.onConnectSuccess())
+            callDisconnect(true);
     }
 
     @Override
     public void switchState() {
-        ViseLog.e("WebDevice.switchState()");
+        ViseLog.e("WebDeviceConnector.switchState()");
         if(isDisconnected()) {
             connect();
         } else if(isConnected()) {
             callDisconnect(true);
         } else { // 无效操作
-            notifyExceptionMessage(MSG_INVALID_OPERATION);
+            device.notifyExceptionMessage(MSG_INVALID_OPERATION);
         }
     }
 
     @Override
     public void callDisconnect(boolean stopAutoScan) {
-        setState(DISCONNECT);
+        device.setState(DISCONNECT);
     }
 
     @Override
     public boolean isStopped() {
         return isDisconnected();
+    }
+
+    @Override
+    public boolean isConnected() {
+        return device.getState() == CONNECT;
+    }
+    @Override
+    public boolean isDisconnected() {
+        return device.getState() == FAILURE || device.getState() == DISCONNECT;
     }
 
     @Override
@@ -75,9 +82,9 @@ public class WebDevice extends AbstractDevice {
             return;
         }
 
-        ViseLog.e("WebDevice.close()");
+        ViseLog.e("WebDeviceConnector.close()");
 
-        setState(BleDeviceState.CLOSED);
+        device.setState(BleDeviceState.CLOSED);
     }
 
     @Override
@@ -85,7 +92,6 @@ public class WebDevice extends AbstractDevice {
 
     }
 
-    @Override
     public void disconnect() {
 
     }

@@ -73,8 +73,8 @@ import java.util.List;
 
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
-import static com.cmtech.android.ble.core.BleDevice.INVALID_BATTERY;
-import static com.cmtech.android.ble.core.BleDevice.MSG_BLE_INNER_ERROR;
+import static com.cmtech.android.ble.core.BleDeviceConnector.MSG_BLE_INNER_ERROR;
+import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledevice.ecgmonitor.device.EcgMonitorFactory.ECGMONITOR_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;

@@ -4,7 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
-import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.AbstractDevice;
+import com.cmtech.android.ble.core.BleDeviceConnector;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.exception.BleException;
@@ -22,7 +23,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
  */
 
 
-public class ThermoDevice extends BleDevice {
+public class ThermoDevice extends AbstractDevice {
     ///////////////// 体温计Service相关的常量////////////////
     private static final String thermoServiceUuid       = "aa30";           // 体温计服务UUID:aa30
     private static final String thermoDataUuid          = "aa31";           // 体温数据特征UUID:aa31
@@ -76,11 +77,12 @@ public class ThermoDevice extends BleDevice {
     private void initializeAfterConstruction() {
     }
 
-    private boolean executeAfterConnectSuccess() {
+    @Override
+    public boolean onConnectSuccess() {
 
         // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
-        if(!containGattElements(elements)) {
+        if(!((BleDeviceConnector)connector).containGattElements(elements)) {
             //callDisconnect();
 
             return false;
@@ -96,11 +98,13 @@ public class ThermoDevice extends BleDevice {
         return true;
     }
 
-    private void executeAfterDisconnect() {
+    @Override
+    public void onDisconnect() {
 
     }
 
-    private void executeAfterConnectFailure() {
+    @Override
+    public void onConnectFailure() {
 
     }
 
@@ -135,7 +139,7 @@ public class ThermoDevice extends BleDevice {
 
     private void readThermoData() {
         // 读温度数据
-        read(THERMODATA, new IBleDataCallback() {
+        ((BleDeviceConnector)connector).read(THERMODATA, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 double temp = ByteUtil.getShort(data)/100.0;
@@ -161,7 +165,7 @@ public class ThermoDevice extends BleDevice {
      */
     private void startThermometer(byte period) {
         // 设置采样周期
-        write(THERMOPERIOD, period, null);
+        ((BleDeviceConnector)connector).write(THERMOPERIOD, period, null);
 
         IBleDataCallback notifyCallback = new IBleDataCallback() {
             @Override
@@ -184,10 +188,10 @@ public class ThermoDevice extends BleDevice {
         };
 
         // enable温度数据notify
-        notify(THERMODATACCC, true, notifyCallback);
+        ((BleDeviceConnector)connector).notify(THERMODATACCC, true, notifyCallback);
 
         // 启动温度采集
-        write(THERMOCONTROL, (byte)0x03, null);
+        ((BleDeviceConnector)connector).write(THERMOCONTROL, (byte)0x03, null);
     }
 
 }

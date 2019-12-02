@@ -22,7 +22,7 @@ public class SigGeneratorFactory extends DeviceFactory {
 
     @Override
     public IDevice createDevice() {
-        return new SigGeneratorDevice(registerInfo);
+        return SigGeneratorDevice.create(registerInfo);
     }
 
     @Override

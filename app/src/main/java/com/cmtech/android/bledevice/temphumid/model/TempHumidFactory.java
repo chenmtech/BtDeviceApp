@@ -23,7 +23,7 @@ public class TempHumidFactory extends DeviceFactory {
 
     @Override
     public IDevice createDevice() {
-        return new TempHumidDevice(registerInfo);
+        return TempHumidDevice.create(registerInfo);
     }
 
     @Override

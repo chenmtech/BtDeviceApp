@@ -4,10 +4,11 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
-import com.cmtech.android.ble.core.BleDevice;
+import com.cmtech.android.ble.core.BleDeviceConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.IDeviceConnector;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecgmonitor.enumeration.EcgLeadType;
@@ -89,36 +90,17 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
     private boolean isBroadcast = false; // 是否在广播信号
     private EcgHttpBroadcast broadcaster; // 网络广播器
 
-    private BleDevice deviceProxy;
-
     // 构造器
-    private EcgMonitorDevice(BleDevice deviceProxy) {
-        super(deviceProxy);
-
-        this.deviceProxy = deviceProxy;
+    private EcgMonitorDevice(DeviceRegisterInfo registerInfo) {
+        super(registerInfo);
 
         dataProcessor = new EcgDataProcessor(this);
     }
 
     public static IDevice create(DeviceRegisterInfo registerInfo) {
-        BleDevice bleDevice = new BleDevice(registerInfo);
-        final EcgMonitorDevice device = new EcgMonitorDevice(bleDevice);
-        bleDevice.setCallback(new IConnectCallback() {
-            @Override
-            public boolean onConnectSuccess() {
-                return device.executeAfterConnectSuccess();
-            }
-
-            @Override
-            public void onConnectFailure() {
-                device.executeAfterConnectFailure();
-            }
-
-            @Override
-            public void onDisconnect() {
-                device.executeAfterDisconnect();
-            }
-        });
+        final EcgMonitorDevice device = new EcgMonitorDevice(registerInfo);
+        IDeviceConnector connector = new BleDeviceConnector(device);
+        device.setDeviceConnector(connector);
         return device;
     }
 
@@ -179,10 +161,11 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         return wave1mV;
     }
 
-    private boolean executeAfterConnectSuccess() {
+    @Override
+    public boolean onConnectSuccess() {
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLE_RATE, ECGMONITOR_LEAD_TYPE};
 
-        if(!deviceProxy.containGattElements(elements)) {
+        if(!((BleDeviceConnector)connector).containGattElements(elements)) {
             ViseLog.e("EcgMonitor Elements wrong.");
             return false;
         }
@@ -192,7 +175,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         updateValue1mV();
 
         // 启动电池电量测量
-        containBatteryService = deviceProxy.containGattElement(BATTERY_DATA);
+        containBatteryService = ((BleDeviceConnector)connector).containGattElement(BATTERY_DATA);
         if(containBatteryService) {
             startBatteryMeasure();
         }
@@ -209,7 +192,8 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         return true;
     }
 
-    private void executeAfterDisconnect() {
+    @Override
+    public void onDisconnect() {
         dataProcessor.stop();
 
         updateSignalShowState(false);
@@ -219,7 +203,8 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         }
     }
 
-    private void executeAfterConnectFailure() {
+    @Override
+    public void onConnectFailure() {
         dataProcessor.stop();
 
         updateSignalShowState(false);
@@ -282,14 +267,14 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
     }
 
     @Override
-    public void disconnect() {
+    public void callDisconnect(boolean stopAutoScan) {
         ViseLog.e("EcgMonitorDevice.disconnect()");
 
         if(containBatteryService) {
             stopBatteryMeasure();
             containBatteryService = false;
         }
-        if(super.getState() == CONNECT && deviceProxy.isGattExecutorAlive()) {
+        if(super.getState() == CONNECT && ((BleDeviceConnector)connector).isGattExecutorAlive()) {
             stopSampling();
         }
         try {
@@ -297,12 +282,12 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        super.disconnect();
+        super.callDisconnect(stopAutoScan);
     }
 
     // 读采样率
     private void readSampleRate() {
-        deviceProxy.read(ECGMONITOR_SAMPLE_RATE, new IBleDataCallback() {
+        ((BleDeviceConnector)connector).read(ECGMONITOR_SAMPLE_RATE, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setSampleRate((data[0] & 0xff) | ((data[1] << 8) & 0xff00));
@@ -332,7 +317,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
 
     // 读导联类型
     private void readLeadType() {
-        deviceProxy.read(ECGMONITOR_LEAD_TYPE, new IBleDataCallback() {
+        ((BleDeviceConnector)connector).read(ECGMONITOR_LEAD_TYPE, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setLeadType(EcgLeadType.getFromCode(data[0]));
@@ -361,9 +346,9 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         };
 
         // enable ECG data notification
-        deviceProxy.notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
+        ((BleDeviceConnector)connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
 
-        deviceProxy.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_SIGNAL, new IBleDataCallback() {
+        ((BleDeviceConnector)connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_SIGNAL, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setEcgMonitorState(EcgMonitorState.SAMPLING);
@@ -393,9 +378,9 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
             }
         };
 
-        deviceProxy.notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
+        ((BleDeviceConnector)connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
 
-        deviceProxy.runInstantly(new IBleDataCallback() {
+        ((BleDeviceConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setEcgMonitorState(EcgMonitorState.CALIBRATING);
@@ -408,7 +393,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
         });
 
         // start 1mv sampling
-        deviceProxy.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_1MV, new IBleDataCallback() {
+        ((BleDeviceConnector)connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_1MV, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 ViseLog.e("1mV cali value sampling started.");
@@ -422,8 +407,8 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
 
     // 停止数据采集
     private void stopSampling() {
-        deviceProxy.notify(ECGMONITOR_DATA_CCC, false, null);
-        deviceProxy.write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleDataCallback() {
+        ((BleDeviceConnector)connector).notify(ECGMONITOR_DATA_CCC, false, null);
+        ((BleDeviceConnector)connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 ViseLog.e("Sampling stopped.");
@@ -451,7 +436,7 @@ public class EcgMonitorDevice extends AbstractEcgDevice {
             batteryService.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    deviceProxy.read(BATTERY_DATA, new IBleDataCallback() {
+                    ((BleDeviceConnector)connector).read(BATTERY_DATA, new IBleDataCallback() {
                         @Override
                         public void onSuccess(byte[] data, BleGattElement element) {
                             updateBattery(data[0]);
