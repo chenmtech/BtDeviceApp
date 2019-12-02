@@ -6,8 +6,10 @@ import android.os.Looper;
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceConnector;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleGattElement;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.IDeviceConnector;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
@@ -69,9 +71,16 @@ public class ThermoDevice extends AbstractDevice {
         updateThermoData();
     }
 
-    public ThermoDevice(DeviceRegisterInfo registerInfo) {
+    private ThermoDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
         initializeAfterConstruction();
+    }
+
+    public static IDevice create(DeviceRegisterInfo registerInfo) {
+        final ThermoDevice device = new ThermoDevice(registerInfo);
+        IDeviceConnector connector = new BleDeviceConnector(device);
+        device.setDeviceConnector(connector);
+        return device;
     }
 
     private void initializeAfterConstruction() {

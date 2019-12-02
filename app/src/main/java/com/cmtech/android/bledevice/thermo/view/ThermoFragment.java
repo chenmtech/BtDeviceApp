@@ -13,6 +13,7 @@ import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledevice.thermo.model.IThermoDataObserver;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 
 import java.util.Locale;
 
@@ -62,6 +63,10 @@ public class ThermoFragment extends DeviceFragment implements IThermoDataObserve
                 resetHighestTemp();
             }
         });
+
+        // 打开设备
+        MainActivity activity = (MainActivity) getActivity();
+        device.open(activity.getNotifyService());
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.MainActivity;
 
 import java.util.Locale;
 
@@ -87,11 +88,14 @@ public class TempHumidFragment extends DeviceFragment implements ITempHumidDataO
             }
         });
 
-
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
                 historyDataAdapter.notifyDataSetChanged();
+
+                // 打开设备
+                MainActivity activity = (MainActivity) getActivity();
+                device.open(activity.getNotifyService());
             }
         });
     }

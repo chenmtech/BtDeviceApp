@@ -22,7 +22,7 @@ public class ThermoFactory extends DeviceFactory {
 
     @Override
     public IDevice createDevice() {
-        return new ThermoDevice(registerInfo);
+        return ThermoDevice.create(registerInfo);
     }
 
     @Override

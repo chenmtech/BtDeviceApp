@@ -23,7 +23,7 @@ public class WebDeviceConnector implements IDeviceConnector {
 
     @Override
     public void open(Context context) {
-        if(device.getState() != CLOSED) {
+        if(state != CLOSED) {
             ViseLog.e("The device is opened.");
             return;
         }
@@ -33,14 +33,14 @@ public class WebDeviceConnector implements IDeviceConnector {
 
         ViseLog.e("WebDeviceConnector.open()");
 
-        device.setState(DISCONNECT);
+        setState(DISCONNECT);
         if(device.autoConnect()) {
             connect();
         }
     }
 
     private void connect() {
-        device.setState(CONNECT);
+        setState(CONNECT);
         if(!device.onConnectSuccess())
             forceDisconnect(true);
     }
@@ -59,7 +59,7 @@ public class WebDeviceConnector implements IDeviceConnector {
 
     @Override
     public void forceDisconnect(boolean forever) {
-        device.setState(DISCONNECT);
+        setState(DISCONNECT);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class WebDeviceConnector implements IDeviceConnector {
 
         ViseLog.e("WebDeviceConnector.close()");
 
-        device.setState(BleDeviceState.CLOSED);
+        setState(BleDeviceState.CLOSED);
     }
 
     @Override
@@ -100,11 +100,11 @@ public class WebDeviceConnector implements IDeviceConnector {
 
     @Override
     public boolean isConnected() {
-        return device.getState() == CONNECT;
+        return state == CONNECT;
     }
     @Override
     public boolean isDisconnected() {
-        return device.getState() == FAILURE || device.getState() == DISCONNECT;
+        return state == FAILURE || state == DISCONNECT;
     }
 
     @Override
