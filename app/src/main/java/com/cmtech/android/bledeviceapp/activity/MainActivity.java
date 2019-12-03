@@ -552,7 +552,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(deviceFrag != null) deviceFrag.updateState();
         if(fragTabManager.isFragmentSelected(device)) {
             BleDeviceState state = device.getState();
-            ViseLog.e(state);
             if(state == BleDeviceState.SCANNING || state == BleDeviceState.CONNECTING || state == BleDeviceState.DISCONNECTING)
                 updateConnectFloatingActionButton(state.getIcon(), true);
             else

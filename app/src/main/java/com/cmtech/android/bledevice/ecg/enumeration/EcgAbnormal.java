@@ -9,7 +9,12 @@ public enum EcgAbnormal {
     COMMENT_BUSHUFU(0, "不舒服"),
     COMMENT_XIONGMEN(1, "胸闷"),
     COMMENT_XINTIAOKUAI(2, "心跳快"),
-    COMMENT_HUXIKUNNAN(3, "呼吸困难");
+    COMMENT_HUXIKUNNAN(3, "标记"),
+
+    COMMENT_MARK1(4, "窦性早搏"),
+    COMMENT_MARK2(5, "室性早搏"),
+    COMMENT_MARK3(6, "房颤"),
+    COMMENT_MARK4(7, "标记");
 
     EcgAbnormal(int code, String description) {
         this.code = code;

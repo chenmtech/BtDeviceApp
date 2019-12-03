@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EcgBroadcastFragment extends Fragment {
-    public static final String TITLE = "信号广播";
+    public static final String TITLE = "心电广播";
     private ImageButton ibBroadcast; // 切换记录广播状态
     private RecyclerView rvReceiver; // 接收者recycleview
     private EcgReceiverAdapter receiverAdapter; // 接收者adapter
@@ -59,20 +59,24 @@ public class EcgBroadcastFragment extends Fragment {
         receivers = new ArrayList<>();
         receiverAdapter = new EcgReceiverAdapter(new EcgReceiverAdapter.OnReceiverChangedListener() {
             @Override
-            public void onReceiverChanged(Account receiver, boolean isChecked) {
+            public void onReceiverChanged(final Account receiver, boolean isChecked) {
                 ViseLog.e(receiver + " Check: " + isChecked);
                 if(isChecked) {
                     device.addBroadcastReceiver(receiver, new EcgHttpBroadcast.IAddReceiverCallback() {
                         @Override
                         public void onReceived(String responseStr) {
-
+                            if(responseStr != null) {
+                                receivers.add(receiver);
+                            }
                         }
                     });
                 } else {
                     device.deleteBroadcastReceiver(receiver, new EcgHttpBroadcast.IDeleteReceiverCallback() {
                         @Override
                         public void onReceived(String responseStr) {
-
+                            if(responseStr != null) {
+                                receivers.remove(receiver);
+                            }
                         }
                     });
                 }
@@ -121,5 +125,19 @@ public class EcgBroadcastFragment extends Fragment {
         int imageId = (isBroadcast) ? R.mipmap.ic_start_48px : R.mipmap.ic_stop_48px;
         ibBroadcast.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
         receiverAdapter.setEnabled(isBroadcast);
+    }
+
+    @Override
+    public void onDestroy() {
+        for(final Account receiver : receivers) {
+            device.deleteBroadcastReceiver(receiver, new EcgHttpBroadcast.IDeleteReceiverCallback() {
+                @Override
+                public void onReceived(String responseStr) {
+                    ViseLog.e("delete receiver: " + receiver);
+                }
+            });
+        }
+
+        super.onDestroy();
     }
 }

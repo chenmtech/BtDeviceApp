@@ -22,7 +22,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,7 +37,7 @@ import java.util.List;
  * Version:        1.0
  */
 public class EcgRecordFragment extends Fragment{
-    public static final String TITLE = "信号记录";
+    public static final String TITLE = "心电记录";
     private ImageButton ibRecord; // 切换信号记录状态
     private TextView tvRecordTime; // 已记录信号时长
     private RecyclerView rvMarker; // 标记recycleview
@@ -69,7 +68,15 @@ public class EcgRecordFragment extends Fragment{
         rvMarker.setLayoutManager(markerLayoutManager);
         if(getContext() != null)
             rvMarker.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        List<EcgAbnormal> ecgAbnormals = new ArrayList<>(Arrays.asList(EcgAbnormal.values()));
+        List<EcgAbnormal> ecgAbnormals = new ArrayList<>();
+        if(device.isLocal()) {
+            for(int i = 0; i < 4; i++)
+                ecgAbnormals.add(EcgAbnormal.getFromCode(i));
+        } else {
+            for(int i = 4; i < 8; i++)
+                ecgAbnormals.add(EcgAbnormal.getFromCode(i));
+        }
+        //List<EcgAbnormal> ecgAbnormals = new ArrayList<>(Arrays.asList(EcgAbnormal.values()));
         markerAdapter = new EcgMarkerAdapter(ecgAbnormals, new EcgMarkerAdapter.OnMarkerClickListener() {
             @Override
             public void onMarkerClicked(EcgAbnormal marker) {

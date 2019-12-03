@@ -191,7 +191,6 @@ public class EcgHttpBroadcast {
      * @param receiverId ：接收者ID
      */
     public void addReceiver(String receiverId, final IAddReceiverCallback callback) {
-        if(isStop()) return;
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
@@ -221,8 +220,6 @@ public class EcgHttpBroadcast {
      * @param receiverId ：接收者ID
      */
     public void deleteReceiver(String receiverId, final IDeleteReceiverCallback callback) {
-        if(isStop()) return;
-
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);

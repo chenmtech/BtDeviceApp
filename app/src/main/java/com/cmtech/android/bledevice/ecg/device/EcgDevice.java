@@ -140,6 +140,8 @@ public class EcgDevice extends AbstractEcgDevice {
             return false;
         }
 
+        broadcaster = null;
+
         updateSampleRate();
         updateLeadType();
         updateValue1mV();
@@ -219,7 +221,7 @@ public class EcgDevice extends AbstractEcgDevice {
         setBroadcast(false, null);
         if(broadcaster != null) {
             broadcaster.stop();
-            broadcaster = null;
+            //broadcaster = null;
         }
 
         super.close();
