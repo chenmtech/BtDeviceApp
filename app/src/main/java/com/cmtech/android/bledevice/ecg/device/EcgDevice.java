@@ -88,11 +88,7 @@ public class EcgDevice extends AbstractEcgDevice {
     private boolean isBroadcast = false; // 是否在广播信号
     private EcgHttpBroadcast broadcaster; // 网络广播器
 
-    public void setBroadcastListener(EcgHttpBroadcast.OnEcgHttpBroadcastListener listener) {
-        if(broadcaster != null) {
-            broadcaster.setListener(listener);
-        }
-    }
+
 
     // 构造器
     public EcgDevice(DeviceRegisterInfo registerInfo) {
@@ -110,9 +106,15 @@ public class EcgDevice extends AbstractEcgDevice {
             updateBroadcastStatus(this.isBroadcast);
         }
     }
-    public List<EcgHttpBroadcast.Receiver> getBroadcastReceivers() {
-        if(broadcaster != null) return broadcaster.getReceiverList();
-        else return null;
+    public void setBroadcastListener(EcgHttpBroadcast.OnEcgHttpBroadcastListener listener) {
+        if(broadcaster != null) {
+            broadcaster.setListener(listener);
+        }
+    }
+    public void removeBroadcastListener() {
+        if(broadcaster != null) {
+            broadcaster.removeListener();
+        }
     }
     public void addBroadcastReceiver(Account receiver) {
         if(broadcaster != null) {

@@ -93,6 +93,7 @@ public class EcgBroadcastFragment extends Fragment implements EcgHttpBroadcast.O
 
     @Override
     public void onDestroy() {
+        device.removeBroadcastListener();
         super.onDestroy();
     }
 
