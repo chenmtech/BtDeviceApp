@@ -27,12 +27,11 @@ import com.vise.log.ViseLog;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EcgBroadcastFragment extends Fragment {
+public class EcgBroadcastFragment extends Fragment implements EcgHttpBroadcast.OnEcgHttpBroadcastListener {
     public static final String TITLE = "心电广播";
     private ImageButton ibBroadcast; // 切换记录广播状态
     private RecyclerView rvReceiver; // 接收者recycleview
     private EcgReceiverAdapter receiverAdapter; // 接收者adapter
-    private List<Account> receivers;
     private EcgDevice device;
 
     @Nullable
@@ -56,29 +55,14 @@ public class EcgBroadcastFragment extends Fragment {
         rvReceiver.setLayoutManager(layoutManager);
         if(getContext() != null)
             rvReceiver.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.HORIZONTAL));
-        receivers = new ArrayList<>();
         receiverAdapter = new EcgReceiverAdapter(new EcgReceiverAdapter.OnReceiverChangedListener() {
             @Override
-            public void onReceiverChanged(final Account receiver, boolean isChecked) {
+            public void onReceiverChanged(final EcgHttpBroadcast.Receiver receiver, boolean isChecked) {
                 ViseLog.e(receiver + " Check: " + isChecked);
                 if(isChecked) {
-                    device.addBroadcastReceiver(receiver, new EcgHttpBroadcast.IAddReceiverCallback() {
-                        @Override
-                        public void onReceived(String responseStr) {
-                            if(responseStr != null) {
-                                receivers.add(receiver);
-                            }
-                        }
-                    });
+                    device.addBroadcastReceiver(receiver);
                 } else {
-                    device.deleteBroadcastReceiver(receiver, new EcgHttpBroadcast.IDeleteReceiverCallback() {
-                        @Override
-                        public void onReceived(String responseStr) {
-                            if(responseStr != null) {
-                                receivers.remove(receiver);
-                            }
-                        }
-                    });
+                    device.deleteBroadcastReceiver(receiver);
                 }
             }
         });
@@ -90,31 +74,11 @@ public class EcgBroadcastFragment extends Fragment {
         ibBroadcast.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                device.setBroadcast(!device.isBroadcast(), new EcgHttpBroadcast.IGetReceiversCallback() {
-                    @Override
-                    public void onReceived(final List<Account> accounts) {
-                        if(accounts == null || accounts.isEmpty()) return;
-
-                        for(final Account account : accounts) {
-                            UserUtil.getUserInfo(account.getHuaweiId(), new UserUtil.IGetUserInfoCallback() {
-                                @Override
-                                public void onReceived(String userId, String name, String description, Bitmap image) {
-                                    if(!TextUtils.isEmpty(name))
-                                        account.setName(name);
-                                    account.setDescription(description);
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            receiverAdapter.addReceiver(account);
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    }
-                });
+                device.setBroadcast(!device.isBroadcast());
             }
         });
+
+        device.setBroadcastListener(this);
     }
 
     public void setDevice(EcgDevice device) {
@@ -129,15 +93,16 @@ public class EcgBroadcastFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        for(final Account receiver : receivers) {
-            device.deleteBroadcastReceiver(receiver, new EcgHttpBroadcast.IDeleteReceiverCallback() {
-                @Override
-                public void onReceived(String responseStr) {
-                    ViseLog.e("delete receiver: " + receiver);
-                }
-            });
-        }
-
         super.onDestroy();
+    }
+
+    @Override
+    public void onStarted(List<EcgHttpBroadcast.Receiver> receivers) {
+        receiverAdapter.setReceivers(receivers);
+    }
+
+    @Override
+    public void onReceiverUpdated() {
+        receiverAdapter.notifyDataSetChanged();
     }
 }

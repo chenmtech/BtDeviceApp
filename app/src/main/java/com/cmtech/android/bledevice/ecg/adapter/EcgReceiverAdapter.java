@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.ecg.device.EcgHttpBroadcast;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
@@ -17,11 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.ViewHolder> {
-    private final List<Account> receivers;
+    private List<EcgHttpBroadcast.Receiver> receivers;
     private boolean enable = false;
 
     public interface OnReceiverChangedListener {
-        void onReceiverChanged(Account receiver, boolean isChecked);
+        void onReceiverChanged(EcgHttpBroadcast.Receiver receiver, boolean isChecked);
     }
     private final OnReceiverChangedListener listener;
 
@@ -62,7 +63,7 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
 
     @Override
     public void onBindViewHolder(EcgReceiverAdapter.ViewHolder holder, final int position) {
-        Account receiver = receivers.get(position);
+        EcgHttpBroadcast.Receiver receiver = receivers.get(position);
         if(TextUtils.isEmpty(receiver.getName())) {
             holder.cbReceiver.setText("匿名");
         }
@@ -75,6 +76,9 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
         } else {
             holder.tvReceiverDescription.setText(receiver.getDescription());
         }
+
+        holder.cbReceiver.setChecked(receiver.isReceiving());
+
         holder.cbReceiver.setEnabled(enable);
     }
 
@@ -88,17 +92,7 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
         notifyDataSetChanged();
     }
 
-    public void addReceivers(List<Account> accounts) {
-        for(Account account : accounts) {
-            if(receivers.contains(account)) continue;
-            receivers.add(account);
-        }
-        notifyDataSetChanged();
-    }
-
-    public void addReceiver(Account account) {
-        if(receivers.contains(account)) return;
-        receivers.add(account);
-        notifyDataSetChanged();
+    public void setReceivers(List<EcgHttpBroadcast.Receiver> receivers) {
+        this.receivers = receivers;
     }
 }

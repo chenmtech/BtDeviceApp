@@ -20,6 +20,7 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -87,6 +88,12 @@ public class EcgDevice extends AbstractEcgDevice {
     private boolean isBroadcast = false; // 是否在广播信号
     private EcgHttpBroadcast broadcaster; // 网络广播器
 
+    public void setBroadcastListener(EcgHttpBroadcast.OnEcgHttpBroadcastListener listener) {
+        if(broadcaster != null) {
+            broadcaster.setListener(listener);
+        }
+    }
+
     // 构造器
     public EcgDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
@@ -97,23 +104,24 @@ public class EcgDevice extends AbstractEcgDevice {
     public boolean isBroadcast() {
         return broadcaster != null && isBroadcast;
     }
-    public synchronized void setBroadcast(boolean isBroadcast, EcgHttpBroadcast.IGetReceiversCallback callback) {
+    public synchronized void setBroadcast(boolean isBroadcast) {
         if(broadcaster != null && this.isBroadcast != isBroadcast) {
             this.isBroadcast = isBroadcast;
             updateBroadcastStatus(this.isBroadcast);
-            if(isBroadcast) {
-                broadcaster.getUsers(callback);
-            }
         }
     }
-    public void addBroadcastReceiver(Account receiver, EcgHttpBroadcast.IAddReceiverCallback callback) {
+    public List<EcgHttpBroadcast.Receiver> getBroadcastReceivers() {
+        if(broadcaster != null) return broadcaster.getReceiverList();
+        else return null;
+    }
+    public void addBroadcastReceiver(Account receiver) {
         if(broadcaster != null) {
-            broadcaster.addReceiver(receiver.getHuaweiId(), callback);
+            broadcaster.checkReceiver(receiver.getHuaweiId());
         }
     }
-    public void deleteBroadcastReceiver(Account receiver, EcgHttpBroadcast.IDeleteReceiverCallback callback) {
+    public void deleteBroadcastReceiver(Account receiver) {
         if(broadcaster != null) {
-            broadcaster.deleteReceiver(receiver.getHuaweiId(), callback);
+            broadcaster.uncheckReceiver(receiver.getHuaweiId());
         }
     }
     public EcgMonitorState getEcgMonitorState() {
@@ -139,8 +147,6 @@ public class EcgDevice extends AbstractEcgDevice {
             ViseLog.e("EcgMonitor Elements wrong.");
             return false;
         }
-
-        broadcaster = null;
 
         updateSampleRate();
         updateLeadType();
@@ -218,10 +224,10 @@ public class EcgDevice extends AbstractEcgDevice {
             dataProcessor.reset();
 
         // 停止广播
-        setBroadcast(false, null);
+        setBroadcast(false);
         if(broadcaster != null) {
             broadcaster.stop();
-            //broadcaster = null;
+            broadcaster = null;
         }
 
         super.close();

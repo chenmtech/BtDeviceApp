@@ -57,17 +57,28 @@ public class EcgHttpBroadcast {
     private final LinkedBlockingQueue<Integer> ecgBuffer;
     private final List<Short> hrBuffer; // 心率缓存
     private volatile boolean waiting; // 是否在等待数据响应
+    private List<Receiver> receivers; // 广播接收者列表
+    private OnEcgHttpBroadcastListener listener;
 
-    public interface IGetReceiversCallback {
-        void onReceived(List<Account> accounts);
+    public static class Receiver extends Account {
+        private boolean isReceiving;
+
+        Receiver() {
+            isReceiving = false;
+        }
+
+        public boolean isReceiving() {
+            return isReceiving;
+        }
+
+        public void setReceiving(boolean receiving) {
+            isReceiving = receiving;
+        }
     }
 
-    public interface IAddReceiverCallback {
-        void onReceived(String responseStr);
-    }
-
-    public interface IDeleteReceiverCallback {
-        void onReceived(String responseStr);
+    public interface OnEcgHttpBroadcastListener {
+        void onStarted(List<Receiver> receivers);
+        void onReceiverUpdated();
     }
 
     public EcgHttpBroadcast(String userId, String deviceId, int sampleRate, int caliValue, int leadTypeCode) {
@@ -80,6 +91,19 @@ public class EcgHttpBroadcast {
         this.ecgBuffer = new LinkedBlockingQueue<>();
         this.hrBuffer = new ArrayList<>();
         this.waiting = false;
+        receivers = new ArrayList<>();
+    }
+
+    public void removeListener() {
+        listener = null;
+    }
+
+    public void setListener(OnEcgHttpBroadcastListener listener) {
+        this.listener = listener;
+    }
+
+    public List<Receiver> getReceiverList() {
+        return receivers;
     }
 
     /**
@@ -95,7 +119,6 @@ public class EcgHttpBroadcast {
      */
     public void start() {
         if(!isStop()) return; // 不能重复启动
-
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
@@ -117,6 +140,10 @@ public class EcgHttpBroadcast {
 
                 isStopped = false;
                 Log.e(TAG, "broadcast started.");
+
+                receivers.clear();
+                if(listener != null) listener.onStarted(receivers);
+                getReceivers();
             }
         });
     }
@@ -126,6 +153,13 @@ public class EcgHttpBroadcast {
      */
     public void stop() {
         if(isStop()) return;
+
+        for(Receiver receiver : receivers) {
+            if(receiver.isReceiving()) {
+                uncheckReceiver(receiver.getHuaweiId());
+            }
+        }
+
         isStopped = true;
     }
 
@@ -190,7 +224,11 @@ public class EcgHttpBroadcast {
      * 添加一个可接收该广播的接收者
      * @param receiverId ：接收者ID
      */
-    public void addReceiver(String receiverId, final IAddReceiverCallback callback) {
+    public void checkReceiver(String receiverId) {
+        if(isStop()) return;
+        final Receiver receiver = findReceiver(receiverId);
+        if(receiver == null || receiver.isReceiving()) return;
+
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
@@ -199,27 +237,43 @@ public class EcgHttpBroadcast {
         HttpUtils.upload(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                if(callback != null) {
-                    callback.onReceived(null);
-                }
+                updateReceivers();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-                ViseLog.e("addReceiver: " + responseStr);
-
-                if(callback != null)
-                    callback.onReceived(responseStr);
+                ViseLog.e("checkReceiver: " + responseStr);
+                receiver.setReceiving(true);
+                updateReceivers();
             }
         });
+    }
+
+    private Receiver findReceiver(String huaweiId) {
+        for(Receiver receiver : receivers) {
+            if(receiver.getHuaweiId().equals(huaweiId)) {
+                return receiver;
+            }
+        }
+        return null;
+    }
+
+    private void updateReceivers() {
+        if(listener != null) {
+            listener.onReceiverUpdated();
+        }
     }
 
     /**
      * 删除一个可接收该广播的接收者
      * @param receiverId ：接收者ID
      */
-    public void deleteReceiver(String receiverId, final IDeleteReceiverCallback callback) {
+    public void uncheckReceiver(String receiverId) {
+        if(isStop()) return;
+        final Receiver receiver = findReceiver(receiverId);
+        if(receiver == null || !receiver.isReceiving()) return;
+
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
@@ -228,23 +282,20 @@ public class EcgHttpBroadcast {
         HttpUtils.upload(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                if(callback != null) {
-                    callback.onReceived(null);
-                }
+                updateReceivers();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-                ViseLog.e("deleteReceiver: " + responseStr);
-                if(callback != null) {
-                    callback.onReceived(responseStr);
-                }
+                ViseLog.e("uncheckReceiver: " + responseStr);
+                receiver.setReceiving(false);
+                updateReceivers();
             }
         });
     }
 
-    public void getUsers(final IGetReceiversCallback callback) {
+    private void getReceivers() {
         if(isStop()) return;
 
         Map<String, String> data = new HashMap<>();
@@ -253,36 +304,33 @@ public class EcgHttpBroadcast {
         HttpUtils.upload(getuser_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.e(TAG, "get users fail.");
-                if(callback != null) {
-                    callback.onReceived(null);
-                }
+                Log.e(TAG, "getReceivers failure.");
+                receivers.clear();
+                updateReceivers();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-                ViseLog.e("getUsers: " + responseStr);
-
-                if(callback != null) {
-                    callback.onReceived(parseReceivers(responseStr));
-                }
+                ViseLog.e("getReceivers success: " + responseStr);
+                receivers = parseReceivers(responseStr);
+                updateReceivers();
             }
         });
     }
 
-    private static List<Account> parseReceivers(String jsonData) {
-        List<Account> receivers = new ArrayList<>();
+    private static List<Receiver> parseReceivers(String jsonData) {
+        List<Receiver> receivers = new ArrayList<>();
         try {
             JSONArray jsonArray = new JSONArray(jsonData);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 String huaweiId = jsonObject.getString("open_id");
                 String name = jsonObject.getString("displayName");
-                Account account = new Account();
-                account.setName(name);
-                account.setHuaweiId(huaweiId);
-                receivers.add(account);
+                Receiver receiver = new Receiver();
+                receiver.setName(name);
+                receiver.setHuaweiId(huaweiId);
+                receivers.add(receiver);
             }
         } catch (Exception e) {
             e.printStackTrace();

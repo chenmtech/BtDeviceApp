@@ -35,6 +35,13 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     public Account() {
     }
 
+    public Account(Account account) {
+        this.huaweiId = account.huaweiId;
+        this.name = account.name;
+        this.imagePath = account.imagePath;
+        this.description = account.description;
+    }
+
     public int getId() {
         return id;
     }
