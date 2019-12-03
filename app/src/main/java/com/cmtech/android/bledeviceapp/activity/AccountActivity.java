@@ -129,7 +129,7 @@ public class AccountActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
             isReturn = false;
 
-            UserUtil.saveUserInfo(account.getHuaweiId(), account.getName(), account.getDescription(), null, new UserUtil.ISaveUserInfoCallback() {
+            UserUtil.saveUser(account.getHuaweiId(), account.getName(), account.getDescription(), null, new UserUtil.ISaveUserInfoCallback() {
                 @Override
                 public void onReceived(boolean success) {
                     isSaved = success;

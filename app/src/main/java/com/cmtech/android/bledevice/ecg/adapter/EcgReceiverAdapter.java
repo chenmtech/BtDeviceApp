@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;

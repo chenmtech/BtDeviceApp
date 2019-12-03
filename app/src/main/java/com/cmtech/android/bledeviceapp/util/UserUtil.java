@@ -6,7 +6,6 @@ import android.util.Base64;
 
 import com.vise.log.ViseLog;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -19,7 +18,8 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class UserUtil {
-    private static final String getuser_url = "http://huawei.tighoo.com/home/GetUsers?";
+    private static final String getuser_url = "http://huawei.tighoo.com/home/GetUser?";
+    private static final String saveuser_url = "http://huawei.tighoo.com/home/SaveUser?";
 
     public interface IGetUserInfoCallback {
         void onReceived(String userId, String name, String description, Bitmap image);
@@ -38,7 +38,7 @@ public class UserUtil {
 
     public static void getUserInfo(final String userId, final IGetUserInfoCallback callback) {
         Map<String, String> data = new HashMap<>();
-        data.put("user_id", userId);
+        data.put("open_id", userId);
         String url = getuser_url + convertString(data);
         HttpUtils.upload(url, new Callback() {
             @Override
@@ -63,13 +63,13 @@ public class UserUtil {
         });
     }
 
-    public static void saveUserInfo(final String id, String name, String description, Bitmap image, final ISaveUserInfoCallback callback) {
+    public static void saveUser(final String id, String name, String description, Bitmap image, final ISaveUserInfoCallback callback) {
         Map<String, String> data = new HashMap<>();
-        data.put("user_id", id);
+        data.put("open_id", id);
         data.put("user_name", name);
         data.put("user_description", description);
         //data.put("user_image", bitmapToString(image));
-        String url = getuser_url + convertString(data);
+        String url = saveuser_url + convertString(data);
         HttpUtils.upload(url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -81,7 +81,7 @@ public class UserUtil {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-                ViseLog.e("saveUserInfo success");
+                ViseLog.e("saveUser success");
 
                 if(callback != null) {
                     callback.onReceived(true);
@@ -93,11 +93,12 @@ public class UserUtil {
     private static User parseUser(String jsonData) {
         User user = new User();
         try {
-            JSONArray jsonArray = new JSONArray(jsonData);
-            JSONObject jsonObject = jsonArray.getJSONObject(0);
-            user.id = jsonObject.getString("user_id");
-            user.name = jsonObject.getString("user_name");
-            user.description = jsonObject.getString("user_description");
+            JSONObject jsonObject = new JSONObject(jsonData);
+            user.id = jsonObject.getString("open_id");
+            user.name = jsonObject.getString("name");
+            if(user.name.equals("null")) user.name = "";
+            user.description = jsonObject.getString("description");
+            if(user.description.equals("null")) user.description = "";
             //user.image = stringToBitmap(jsonObject.getString("user_image"));
         } catch (Exception e) {
             e.printStackTrace();
