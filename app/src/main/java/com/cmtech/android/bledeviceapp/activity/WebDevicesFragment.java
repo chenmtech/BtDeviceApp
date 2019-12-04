@@ -15,12 +15,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecg.webecg.EcgHttpReceiver;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.WebDevicesAdapter;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.DeviceManager;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -83,11 +86,19 @@ public class WebDevicesFragment extends Fragment {
     }
 
     private void updateWebDeviceList() {
+        Iterator<IDevice> iterator = DeviceManager.getDeviceList().iterator();
+        while (iterator.hasNext()) {
+           IDevice device = iterator.next();
+           if (!device.isLocal()) {
+               iterator.remove();
+           }
+        }
+
         // 获取网络广播设备列表
         EcgHttpReceiver.retrieveDeviceInfo(AccountManager.getInstance().getAccount().getHuaweiId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
             public void onReceived(List<WebEcgDevice> deviceList) {
-                if(deviceList != null && !deviceList.isEmpty()) {
+                if(deviceList != null) {
                     handler.sendEmptyMessage(MSG_UPDATE_WEB_DEVICES);
                 }
             }

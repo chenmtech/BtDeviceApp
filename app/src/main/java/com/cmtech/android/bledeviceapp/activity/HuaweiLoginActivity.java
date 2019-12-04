@@ -36,7 +36,8 @@ public class HuaweiLoginActivity extends AppCompatActivity {
             @Deprecated
             public void onReceivedError(WebView view, int errorCode,
                                         String description, String failingUrl) {
-                Toast.makeText(HuaweiLoginActivity.this, view.getUrl() + "----" + description, Toast.LENGTH_LONG).show();
+                ViseLog.e(view.getUrl() + "----" + description);
+                Toast.makeText(HuaweiLoginActivity.this, "登录失败，请检查您的手机网络是否打开。", Toast.LENGTH_LONG).show();
                 finish();
             }
         });
