@@ -31,8 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
-import static com.cmtech.android.bledeviceapp.MyApplication.showLongToastMessage;
-import static com.cmtech.android.bledeviceapp.MyApplication.showShortToastMessage;
+import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingLongToast;
+import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
 
 /**
@@ -70,11 +70,11 @@ public class ScanActivity extends AppCompatActivity {
         public void onScanFailed(int errorCode) {
             switch (errorCode) {
                 case CODE_ALREADY_STARTED:
-                    showLongToastMessage("扫描进行中，不能重复扫描。");
+                    showMessageUsingLongToast("扫描进行中，不能重复扫描。");
                     break;
 
                 case CODE_BLE_CLOSED:
-                    showLongToastMessage("蓝牙已关闭，无法扫描，请打开蓝牙。");
+                    showMessageUsingLongToast("蓝牙已关闭，无法扫描，请打开蓝牙。");
                     srlScanDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -84,7 +84,7 @@ public class ScanActivity extends AppCompatActivity {
                 case CODE_BLE_INNER_ERROR:
                     srlScanDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
-                    showLongToastMessage("蓝牙内部错误，必须重启蓝牙。");
+                    showMessageUsingLongToast("蓝牙内部错误，必须重启蓝牙。");
                     break;
             }
         }
@@ -203,7 +203,7 @@ public class ScanActivity extends AppCompatActivity {
         // 获取设备广播数据中的UUID的短串
         AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(record == null) {
-            showShortToastMessage("获取设备UUID信息错误，无法注册。");
+            showMessageUsingShortToast("获取设备UUID信息错误，无法注册。");
             return;
         }
 

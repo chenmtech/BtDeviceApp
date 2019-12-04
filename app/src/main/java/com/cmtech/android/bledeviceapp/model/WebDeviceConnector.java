@@ -2,17 +2,19 @@ package com.cmtech.android.bledeviceapp.model;
 
 import android.content.Context;
 
-import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.IDeviceConnector;
+import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.exception.OtherException;
+import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
 import static com.cmtech.android.ble.core.BleDeviceState.CLOSED;
 import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
 import static com.cmtech.android.ble.core.BleDeviceState.DISCONNECT;
 import static com.cmtech.android.ble.core.BleDeviceState.FAILURE;
-import static com.cmtech.android.ble.core.IDevice.MSG_INVALID_OPERATION;
 
 public class WebDeviceConnector implements IDeviceConnector {
     private final IDevice device; // 设备
@@ -54,7 +56,7 @@ public class WebDeviceConnector implements IDeviceConnector {
         } else if(isConnected()) {
             forceDisconnect(true);
         } else { // 无效操作
-            device.notifyExceptionMessage(MSG_INVALID_OPERATION);
+            device.notifyException(new OtherException(MyApplication.getContext().getString(R.string.invalid_operation)));
         }
     }
 

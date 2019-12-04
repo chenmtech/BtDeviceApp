@@ -23,6 +23,8 @@ import android.support.v4.app.NotificationCompat;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.exception.ScanException;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -165,13 +167,15 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     }
 
     @Override
-    public void onExceptionMsgNotified(IDevice device, int msgId) {
-        if(msgId == MSG_BLE_INNER_ERROR) {
-            startWarningBleInnerError();
-        } else if(msgId == MSG_BT_CLOSED) {
-            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+    public void onExceptionNotified(IDevice device, BleException ex) {
+        if(ex instanceof ScanException) {
+            if(((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BLE_INNER_ERROR) {
+                startWarningBleInnerError();
+            } else if(((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BT_CLOSED) {
+                Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
         }
     }
 

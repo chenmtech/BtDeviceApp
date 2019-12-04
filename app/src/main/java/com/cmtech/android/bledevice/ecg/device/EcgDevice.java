@@ -8,6 +8,7 @@ import com.cmtech.android.ble.core.BleDeviceConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.exception.OtherException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgMonitorState;
@@ -84,7 +85,7 @@ public class EcgDevice extends AbstractEcgDevice {
     private final EcgDataProcessor dataProcessor; // 心电数据处理器, 在其内部的单线程池中执行数据处理
     private ScheduledExecutorService batteryService; // 电池电量测量Service
     private boolean isBroadcast = false; // 是否在广播信号
-    private EcgHttpBroadcast broadcaster; // 网络广播器
+    private EcgHttpBroadcast broadcast; // 网络广播
 
 
 
@@ -96,27 +97,27 @@ public class EcgDevice extends AbstractEcgDevice {
     }
 
     public boolean isBroadcast() {
-        return broadcaster != null && isBroadcast;
+        return broadcast != null && isBroadcast;
     }
     public synchronized void setBroadcast(boolean isBroadcast) {
-        if(broadcaster != null && this.isBroadcast != isBroadcast) {
+        if(broadcast != null && this.isBroadcast != isBroadcast) {
             this.isBroadcast = isBroadcast;
             updateBroadcastStatus(this.isBroadcast);
         }
     }
     public void addBroadcastReceiver(EcgHttpBroadcast.Receiver receiver) {
-        if(broadcaster != null) {
-            broadcaster.checkReceiver(receiver);
+        if(broadcast != null) {
+            broadcast.checkReceiver(receiver);
         }
     }
     public void deleteBroadcastReceiver(EcgHttpBroadcast.Receiver receiver) {
-        if(broadcaster != null) {
-            broadcaster.uncheckReceiver(receiver);
+        if(broadcast != null) {
+            broadcast.uncheckReceiver(receiver);
         }
     }
     public void updateBroadcastReceiver() {
-        if(broadcaster != null) {
-            broadcaster.updateReceivers();
+        if(broadcast != null) {
+            broadcast.updateReceivers();
         }
     }
     public EcgMonitorState getEcgMonitorState() {
@@ -220,9 +221,9 @@ public class EcgDevice extends AbstractEcgDevice {
 
         // 停止广播
         setBroadcast(false);
-        if(broadcaster != null) {
-            broadcaster.stop();
-            broadcaster = null;
+        if(broadcast != null) {
+            broadcast.stop();
+            broadcast = null;
         }
 
         super.close();
@@ -332,7 +333,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
             @Override
             public void onFailure(BleException exception) {
-
+                notifyException(new OtherException("start ecg sampling failure---" + exception.getDescription()));
             }
         });
     }
@@ -364,7 +365,7 @@ public class EcgDevice extends AbstractEcgDevice {
             }
             @Override
             public void onFailure(BleException exception) {
-
+                notifyException(new OtherException("start 1mV sampling failure---" + exception.getDescription()));
             }
         });
     }
@@ -429,7 +430,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
         // 广播
         if(isBroadcast()) {
-            broadcaster.sendEcgSignal(ecgSignal);
+            broadcast.sendEcgSignal(ecgSignal);
         }
     }
 
@@ -439,7 +440,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
         // 广播
         if(isBroadcast()) {
-            broadcaster.sendHrValue(hr);
+            broadcast.sendHrValue(hr);
         }
     }
 
@@ -474,12 +475,12 @@ public class EcgDevice extends AbstractEcgDevice {
             }
         }
 
-        if(broadcaster == null) {
-            broadcaster = new EcgHttpBroadcast(AccountManager.getInstance().getAccount().getHuaweiId(),
+        if(broadcast == null) {
+            broadcast = new EcgHttpBroadcast(AccountManager.getInstance().getAccount().getHuaweiId(),
                     EcgMonitorUtil.deleteColon(getAddress()),
                     getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getLeadType().getCode());
-            broadcaster.setListener(listener);
-            broadcaster.start();
+            broadcast.setListener(listener);
+            broadcast.start();
         }
 
         // 输出1mV定标信号

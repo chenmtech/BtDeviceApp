@@ -68,13 +68,13 @@ public class MyApplication extends Application {
         return instance.getApplicationContext();
     }
 
-    public static void showShortToastMessage(String msg) {
+    public static void showMessageUsingShortToast(String msg) {
         Toast toast = Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
 
-    public static void showLongToastMessage(String msg) {
+    public static void showMessageUsingLongToast(String msg) {
         Toast toast = Toast.makeText(getContext(), msg, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();

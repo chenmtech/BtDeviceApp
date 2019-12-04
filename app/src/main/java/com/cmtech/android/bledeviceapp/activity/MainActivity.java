@@ -50,6 +50,8 @@ import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.exception.ScanException;
 import com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity;
 import com.cmtech.android.bledevice.ecg.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -73,13 +75,12 @@ import java.util.List;
 
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
-import static com.cmtech.android.ble.core.BleDeviceConnector.MSG_BLE_INNER_ERROR;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledevice.ecg.device.EcgFactory.ECGMONITOR_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;
-import static com.cmtech.android.bledeviceapp.MyApplication.showLongToastMessage;
-import static com.cmtech.android.bledeviceapp.MyApplication.showShortToastMessage;
+import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingLongToast;
+import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
 import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_DEVICE_MAC_LIST;
 
@@ -403,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                             toolbarManager.setBattery(device.getBattery());
                         }
                     } else {
-                        showShortToastMessage("设备信息修改失败");
+                        showMessageUsingShortToast("设备信息修改失败");
                     }
                 }
                 break;
@@ -562,8 +563,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     // 提示信息产生
     @Override
-    public void onExceptionMsgNotified(IDevice device, int msgId) {
-        if(msgId == MSG_BLE_INNER_ERROR) {
+    public void onExceptionNotified(IDevice device, BleException ex) {
+        if(ex instanceof ScanException && ((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BLE_INNER_ERROR) {
             if(!isWarningBleInnerError) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("蓝牙内部错误").setMessage(device.getName() + "无法连接，需要重启蓝牙。");
@@ -577,7 +578,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 isWarningBleInnerError = true;
             }
         } else {
-            showShortToastMessage(device.getName() + "-" + getString(msgId));
+            showMessageUsingShortToast(device.getAddress() + "-" + ex.getDescription());
         }
     }
 
@@ -646,7 +647,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(device.isDisconnectedForever()) {
             fragment.close();
         } else {
-            showLongToastMessage("当前无法关闭设备。");
+            showMessageUsingLongToast("当前无法关闭设备。");
         }
     }
 
@@ -660,7 +661,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(device == null) return;
 
         if(fragTabManager.isFragmentOpened(device)) {
-            showShortToastMessage("请先关闭该设备。");
+            showMessageUsingShortToast("请先关闭该设备。");
             return;
         }
 
