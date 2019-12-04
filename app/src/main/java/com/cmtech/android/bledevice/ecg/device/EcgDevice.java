@@ -353,23 +353,14 @@ public class EcgDevice extends AbstractEcgDevice {
 
         ((BleDeviceConnector)connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
 
-        ((BleDeviceConnector)connector).runInstantly(new IBleDataCallback() {
-            @Override
-            public void onSuccess(byte[] data, BleGattElement element) {
-                setEcgMonitorState(EcgMonitorState.CALIBRATING);
-                dataProcessor.start();
-            }
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        });
-
         // start 1mv sampling
         ((BleDeviceConnector)connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_1MV, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                ViseLog.e("1mV cali value sampling started.");
+                setEcgMonitorState(EcgMonitorState.CALIBRATING);
+                dataProcessor.start();
+
+                ViseLog.e("1mV calibration value sampling started.");
             }
             @Override
             public void onFailure(BleException exception) {
