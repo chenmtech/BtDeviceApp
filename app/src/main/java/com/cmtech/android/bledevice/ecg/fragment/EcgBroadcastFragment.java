@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.ecg.fragment;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,7 +8,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,14 +18,11 @@ import com.cmtech.android.bledevice.ecg.device.EcgDevice;
 import com.cmtech.android.bledevice.ecg.device.EcgHttpBroadcast;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.util.UserUtil;
 import com.vise.log.ViseLog;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class EcgBroadcastFragment extends Fragment implements EcgHttpBroadcast.OnEcgHttpBroadcastListener {
+public class EcgBroadcastFragment extends Fragment {
     public static final String TITLE = "心电广播";
     private ImageButton ibBroadcast; // 切换记录广播状态
     private RecyclerView rvReceiver; // 接收者recycleview
@@ -77,8 +72,6 @@ public class EcgBroadcastFragment extends Fragment implements EcgHttpBroadcast.O
                 device.setBroadcast(!device.isBroadcast());
             }
         });
-
-        device.setBroadcastListener(this);
     }
 
     public void setDevice(EcgDevice device) {
@@ -91,19 +84,26 @@ public class EcgBroadcastFragment extends Fragment implements EcgHttpBroadcast.O
         receiverAdapter.setEnabled(isBroadcast);
     }
 
+    public void setBroadcastReceiver(final List<EcgHttpBroadcast.Receiver> receivers) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                receiverAdapter.setReceivers(receivers);
+            }
+        });
+    }
+
+    public void updateBroadcastReceiver() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                receiverAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
     @Override
     public void onDestroy() {
-        device.removeBroadcastListener();
         super.onDestroy();
-    }
-
-    @Override
-    public void onStarted(List<EcgHttpBroadcast.Receiver> receivers) {
-        receiverAdapter.setReceivers(receivers);
-    }
-
-    @Override
-    public void onReceiverUpdated() {
-        receiverAdapter.notifyDataSetChanged();
     }
 }

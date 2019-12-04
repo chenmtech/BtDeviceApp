@@ -1,13 +1,14 @@
 package com.cmtech.android.bledevice.ecg.interfac;
 
 import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
+import com.cmtech.android.bledevice.ecg.device.EcgHttpBroadcast;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgMonitorState;
 import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticProcessor;
 import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo;
 
 public interface IEcgDevice extends HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
-    interface OnEcgMonitorListener {
+    interface OnEcgDeviceListener extends EcgHttpBroadcast.OnEcgHttpBroadcastListener {
         void onStateUpdated(EcgMonitorState state); // 状态更新
         void onSampleRateUpdated(int sampleRate); // 采样率更新
         void onLeadTypeUpdated(EcgLeadType leadType); // 导联类型更新
@@ -30,7 +31,7 @@ public interface IEcgDevice extends HrStatisticProcessor.OnHrStatisticInfoUpdate
     int getValue1mV();
     EcgConfiguration getConfig();
     void updateConfig(EcgConfiguration config);
-    void setEcgMonitorListener(OnEcgMonitorListener listener);
+    void setEcgMonitorListener(OnEcgDeviceListener listener);
     void removeEcgMonitorListener();
     int getRecordSecond();
     long getRecordDataNum();

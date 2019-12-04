@@ -57,8 +57,8 @@ public class EcgHttpBroadcast {
     private final LinkedBlockingQueue<Integer> ecgBuffer;
     private final List<Short> hrBuffer; // 心率缓存
     private volatile boolean waiting; // 是否在等待数据响应
-    private List<Receiver> receivers; // 广播接收者列表
-    private OnEcgHttpBroadcastListener listener;
+    private final List<Receiver> receivers; // 接收者列表
+    private OnEcgHttpBroadcastListener listener; // 广播监听器
 
     public static class Receiver extends Account {
         private boolean isReceiving;
@@ -66,19 +66,17 @@ public class EcgHttpBroadcast {
         Receiver() {
             isReceiving = false;
         }
-
         public boolean isReceiving() {
             return isReceiving;
         }
-
         public void setReceiving(boolean receiving) {
             isReceiving = receiving;
         }
     }
 
     public interface OnEcgHttpBroadcastListener {
-        void onStarted(List<Receiver> receivers);
-        void onReceiverUpdated();
+        void onBroadcastInitialized(List<Receiver> receivers); // 启动
+        void onReceiverUpdated(); // 接收者更新
     }
 
     public EcgHttpBroadcast(String userId, String deviceId, int sampleRate, int caliValue, int leadTypeCode) {
@@ -97,13 +95,8 @@ public class EcgHttpBroadcast {
     public void removeListener() {
         listener = null;
     }
-
     public void setListener(OnEcgHttpBroadcastListener listener) {
         this.listener = listener;
-    }
-
-    public List<Receiver> getReceiverList() {
-        return receivers;
     }
 
     /**
@@ -119,6 +112,7 @@ public class EcgHttpBroadcast {
      */
     public void start() {
         if(!isStop()) return; // 不能重复启动
+        receivers.clear();
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
@@ -135,14 +129,9 @@ public class EcgHttpBroadcast {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-
-                ViseLog.e("start: " + responseStr);
-
+                ViseLog.e("broadcast start: " + responseStr);
                 isStopped = false;
-                Log.e(TAG, "broadcast started.");
-
-                receivers.clear();
-                if(listener != null) listener.onStarted(receivers);
+                if(listener != null) listener.onBroadcastInitialized(receivers);
                 getReceivers();
             }
         });
@@ -297,7 +286,6 @@ public class EcgHttpBroadcast {
 
     private void getReceivers() {
         if(isStop()) return;
-
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
@@ -305,15 +293,13 @@ public class EcgHttpBroadcast {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "getReceivers failure.");
-                receivers.clear();
-                updateReceivers();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
                 ViseLog.e("getReceivers success: " + responseStr);
-                receivers = parseReceivers(responseStr);
+                receivers.addAll(parseReceivers(responseStr));
                 updateReceivers();
             }
         });
@@ -324,12 +310,15 @@ public class EcgHttpBroadcast {
         try {
             JSONArray jsonArray = new JSONArray(jsonData);
             for (int i = 0; i < jsonArray.length(); i++) {
+                Receiver receiver = new Receiver();
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 String huaweiId = jsonObject.getString("open_id");
-                String name = jsonObject.getString("displayName");
-                Receiver receiver = new Receiver();
-                receiver.setName(name);
+                String name = jsonObject.getString("name");
+                String displayName = jsonObject.getString("displayName");
+                String description = jsonObject.getString("description");
                 receiver.setHuaweiId(huaweiId);
+                if(name.equals("null")) receiver.setName(displayName); else receiver.setName(name);
+                if(description.equals("null")) receiver.setDescription(""); else receiver.setDescription(description);
                 receivers.add(receiver);
             }
         } catch (Exception e) {

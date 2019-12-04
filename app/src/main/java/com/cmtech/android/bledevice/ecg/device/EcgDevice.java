@@ -20,7 +20,6 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -104,16 +103,6 @@ public class EcgDevice extends AbstractEcgDevice {
         if(broadcaster != null && this.isBroadcast != isBroadcast) {
             this.isBroadcast = isBroadcast;
             updateBroadcastStatus(this.isBroadcast);
-        }
-    }
-    public void setBroadcastListener(EcgHttpBroadcast.OnEcgHttpBroadcastListener listener) {
-        if(broadcaster != null) {
-            broadcaster.setListener(listener);
-        }
-    }
-    public void removeBroadcastListener() {
-        if(broadcaster != null) {
-            broadcaster.removeListener();
         }
     }
     public void addBroadcastReceiver(Account receiver) {
@@ -494,6 +483,7 @@ public class EcgDevice extends AbstractEcgDevice {
             broadcaster = new EcgHttpBroadcast(AccountManager.getInstance().getAccount().getHuaweiId(),
                     EcgMonitorUtil.deleteColon(getAddress()),
                     getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getLeadType().getCode());
+            broadcaster.setListener(listener);
             broadcaster.start();
         }
 

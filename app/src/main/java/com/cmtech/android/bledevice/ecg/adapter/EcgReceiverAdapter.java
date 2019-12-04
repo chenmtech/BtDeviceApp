@@ -11,8 +11,6 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecg.device.EcgHttpBroadcast;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.Account;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +76,6 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
         }
 
         holder.cbReceiver.setChecked(receiver.isReceiving());
-
         holder.cbReceiver.setEnabled(enable);
     }
 
@@ -94,5 +91,6 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
 
     public void setReceivers(List<EcgHttpBroadcast.Receiver> receivers) {
         this.receivers = receivers;
+        notifyDataSetChanged();
     }
 }

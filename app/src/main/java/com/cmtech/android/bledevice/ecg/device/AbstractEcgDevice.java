@@ -29,7 +29,7 @@ public abstract class AbstractEcgDevice extends AbstractDevice implements IEcgDe
     private EcgLeadType leadType; // 导联类型
     private int value1mV; // 定标之前1mV值
 
-    protected OnEcgMonitorListener listener; // 心电监护仪监听器
+    protected OnEcgDeviceListener listener; // 心电监护仪监听器
     protected EcgRecord ecgRecord; // 心电记录，可记录心电信号数据、用户留言和心率信息
     protected final EcgConfiguration config; // 心电监护仪的配置信息
     protected boolean isRecord = false; // 是否在记录信号
@@ -82,7 +82,7 @@ public abstract class AbstractEcgDevice extends AbstractDevice implements IEcgDe
         this.config.save();
     }
     @Override
-    public final void setEcgMonitorListener(OnEcgMonitorListener listener) {
+    public final void setEcgMonitorListener(OnEcgDeviceListener listener) {
         this.listener = listener;
     }
     @Override

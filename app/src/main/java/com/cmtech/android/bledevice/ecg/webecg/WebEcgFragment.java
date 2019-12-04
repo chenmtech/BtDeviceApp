@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity;
 import com.cmtech.android.bledevice.ecg.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
+import com.cmtech.android.bledevice.ecg.device.EcgHttpBroadcast;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgMonitorState;
 import com.cmtech.android.bledevice.ecg.fragment.EcgHrStatisticsFragment;
@@ -52,7 +53,7 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
   * Version:        1.0
  */
 
-public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgMonitorListener, OnWaveViewListener {
+public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDeviceListener, OnWaveViewListener {
     private static final String TAG = "WebEcgFragment";
 
     private TextView tvSampleRate; // 采样率
@@ -267,6 +268,16 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgMo
 
     @Override
     public void onBatteryUpdated(final int bat) {
+
+    }
+
+    @Override
+    public void onBroadcastInitialized(List<EcgHttpBroadcast.Receiver> receivers) {
+
+    }
+
+    @Override
+    public void onReceiverUpdated() {
 
     }
 
