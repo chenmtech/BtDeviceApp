@@ -85,21 +85,25 @@ public class EcgBroadcastFragment extends Fragment {
     }
 
     public void setBroadcastReceiver(final List<EcgHttpBroadcast.Receiver> receivers) {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                receiverAdapter.setReceivers(receivers);
-            }
-        });
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    receiverAdapter.setReceivers(receivers);
+                }
+            });
+        }
     }
 
     public void updateBroadcastReceiver() {
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                receiverAdapter.notifyDataSetChanged();
-            }
-        });
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    receiverAdapter.notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     @Override

@@ -145,7 +145,7 @@ public class EcgHttpBroadcast {
 
         for(Receiver receiver : receivers) {
             if(receiver.isReceiving()) {
-                uncheckReceiver(receiver.getHuaweiId());
+                uncheckReceiver(receiver);
             }
         }
 
@@ -211,17 +211,16 @@ public class EcgHttpBroadcast {
 
     /**
      * 添加一个可接收该广播的接收者
-     * @param receiverId ：接收者ID
+     * @param receiver ：接收者
      */
-    public void checkReceiver(String receiverId) {
+    public void checkReceiver(final Receiver receiver) {
         if(isStop()) return;
-        final Receiver receiver = findReceiver(receiverId);
         if(receiver == null || receiver.isReceiving()) return;
 
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
-        data.put(TYPE_RECEIVER_ID, receiverId);
+        data.put(TYPE_RECEIVER_ID, receiver.getHuaweiId());
 
         HttpUtils.upload(upload_url, data, new Callback() {
             @Override
@@ -239,15 +238,6 @@ public class EcgHttpBroadcast {
         });
     }
 
-    private Receiver findReceiver(String huaweiId) {
-        for(Receiver receiver : receivers) {
-            if(receiver.getHuaweiId().equals(huaweiId)) {
-                return receiver;
-            }
-        }
-        return null;
-    }
-
     private void updateReceivers() {
         if(listener != null) {
             listener.onReceiverUpdated();
@@ -256,17 +246,16 @@ public class EcgHttpBroadcast {
 
     /**
      * 删除一个可接收该广播的接收者
-     * @param receiverId ：接收者ID
+     * @param receiver ：接收者
      */
-    public void uncheckReceiver(String receiverId) {
+    public void uncheckReceiver(final Receiver receiver) {
         if(isStop()) return;
-        final Receiver receiver = findReceiver(receiverId);
         if(receiver == null || !receiver.isReceiving()) return;
 
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
-        data.put(TYPE_RECEIVER_ID, receiverId);
+        data.put(TYPE_RECEIVER_ID, receiver.getHuaweiId());
 
         HttpUtils.upload(upload_url, data, new Callback() {
             @Override

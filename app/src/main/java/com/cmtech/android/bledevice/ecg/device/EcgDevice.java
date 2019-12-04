@@ -15,7 +15,6 @@ import com.cmtech.android.bledevice.ecg.process.EcgDataProcessor;
 import com.cmtech.android.bledevice.ecg.record.EcgRecord;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecg.util.EcgMonitorUtil;
-import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
@@ -105,14 +104,14 @@ public class EcgDevice extends AbstractEcgDevice {
             updateBroadcastStatus(this.isBroadcast);
         }
     }
-    public void addBroadcastReceiver(Account receiver) {
+    public void addBroadcastReceiver(EcgHttpBroadcast.Receiver receiver) {
         if(broadcaster != null) {
-            broadcaster.checkReceiver(receiver.getHuaweiId());
+            broadcaster.checkReceiver(receiver);
         }
     }
-    public void deleteBroadcastReceiver(Account receiver) {
+    public void deleteBroadcastReceiver(EcgHttpBroadcast.Receiver receiver) {
         if(broadcaster != null) {
-            broadcaster.uncheckReceiver(receiver.getHuaweiId());
+            broadcaster.uncheckReceiver(receiver);
         }
     }
     public EcgMonitorState getEcgMonitorState() {
