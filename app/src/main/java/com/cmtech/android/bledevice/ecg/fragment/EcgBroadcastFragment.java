@@ -25,6 +25,7 @@ import java.util.List;
 public class EcgBroadcastFragment extends Fragment {
     public static final String TITLE = "心电广播";
     private ImageButton ibBroadcast; // 切换记录广播状态
+    private ImageButton ibUpdateReceivers;
     private RecyclerView rvReceiver; // 接收者recycleview
     private EcgReceiverAdapter receiverAdapter; // 接收者adapter
     private EcgDevice device;
@@ -64,14 +65,23 @@ public class EcgBroadcastFragment extends Fragment {
         rvReceiver.setAdapter(receiverAdapter);
 
         ibBroadcast = view.findViewById(R.id.ib_ecg_broadcast);
-        // 根据设备的isBroadcast初始化Broadcast按钮
-        setBroadcastStatus(device.isBroadcast());
         ibBroadcast.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 device.setBroadcast(!device.isBroadcast());
             }
         });
+
+        ibUpdateReceivers = view.findViewById(R.id.ib_update_receivers);
+        ibUpdateReceivers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                device.updateBroadcastReceiver();
+            }
+        });
+
+        // 根据设备的isBroadcast初始化Broadcast按钮
+        setBroadcastStatus(device.isBroadcast());
     }
 
     public void setDevice(EcgDevice device) {
@@ -81,6 +91,7 @@ public class EcgBroadcastFragment extends Fragment {
     public void setBroadcastStatus(final boolean isBroadcast) {
         int imageId = (isBroadcast) ? R.mipmap.ic_start_48px : R.mipmap.ic_stop_48px;
         ibBroadcast.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
+        ibUpdateReceivers.setEnabled(isBroadcast);
         receiverAdapter.setEnabled(isBroadcast);
     }
 

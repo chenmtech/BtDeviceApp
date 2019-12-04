@@ -143,13 +143,17 @@ public class EcgHttpBroadcast {
     public void stop() {
         if(isStop()) return;
 
+        uncheckAllReceivers();
+
+        isStopped = true;
+    }
+
+    private void uncheckAllReceivers() {
         for(Receiver receiver : receivers) {
             if(receiver.isReceiving()) {
                 uncheckReceiver(receiver);
             }
         }
-
-        isStopped = true;
     }
 
     /**
@@ -225,7 +229,7 @@ public class EcgHttpBroadcast {
         HttpUtils.upload(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                updateReceivers();
+                notifyReceiverUpdated();
             }
 
             @Override
@@ -233,12 +237,12 @@ public class EcgHttpBroadcast {
                 String responseStr = response.body().string();
                 ViseLog.e("checkReceiver: " + responseStr);
                 receiver.setReceiving(true);
-                updateReceivers();
+                notifyReceiverUpdated();
             }
         });
     }
 
-    private void updateReceivers() {
+    private void notifyReceiverUpdated() {
         if(listener != null) {
             listener.onReceiverUpdated();
         }
@@ -260,7 +264,7 @@ public class EcgHttpBroadcast {
         HttpUtils.upload(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                updateReceivers();
+                notifyReceiverUpdated();
             }
 
             @Override
@@ -268,9 +272,13 @@ public class EcgHttpBroadcast {
                 String responseStr = response.body().string();
                 ViseLog.e("uncheckReceiver: " + responseStr);
                 receiver.setReceiving(false);
-                updateReceivers();
+                notifyReceiverUpdated();
             }
         });
+    }
+
+    public void updateReceivers() {
+        updateNewReceivers();
     }
 
     private void getReceivers() {
@@ -289,7 +297,42 @@ public class EcgHttpBroadcast {
                 String responseStr = response.body().string();
                 ViseLog.e("getReceivers success: " + responseStr);
                 receivers.addAll(parseReceivers(responseStr));
-                updateReceivers();
+                notifyReceiverUpdated();
+            }
+        });
+    }
+
+    private void updateNewReceivers() {
+        if(isStop()) return;
+        Map<String, String> data = new HashMap<>();
+        data.put(TYPE_USER_ID, userId);
+        data.put(TYPE_DEVICE_ID, deviceId);
+        HttpUtils.upload(getuser_url, data, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "getReceivers failure.");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseStr = response.body().string();
+                ViseLog.e("getReceivers success: " + responseStr);
+                List<Receiver> newReceiver = parseReceivers(responseStr);
+                List<Receiver> tmpReceivers = new ArrayList<>();
+                for(Receiver receiver : receivers) {
+                    if(!receiver.isReceiving && !newReceiver.contains(receiver))
+                        tmpReceivers.add(receiver);
+                }
+                for(Receiver receiver : tmpReceivers) {
+                    receivers.remove(receiver);
+                }
+                tmpReceivers.clear();
+                for(Receiver receiver : newReceiver) {
+                    if(!receivers.contains(receiver)) {
+                        receivers.add(receiver);
+                    }
+                }
+                notifyReceiverUpdated();
             }
         });
     }

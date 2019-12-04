@@ -114,6 +114,11 @@ public class EcgDevice extends AbstractEcgDevice {
             broadcaster.uncheckReceiver(receiver);
         }
     }
+    public void updateBroadcastReceiver() {
+        if(broadcaster != null) {
+            broadcaster.updateReceivers();
+        }
+    }
     public EcgMonitorState getEcgMonitorState() {
         return state;
     }
