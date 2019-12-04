@@ -35,9 +35,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.cmtech.android.ble.core.BleDeviceConnector.MSG_BLE_INNER_ERROR;
-import static com.cmtech.android.ble.core.BleDeviceConnector.MSG_BT_CLOSED;
-
 
 /**
  *
@@ -54,22 +51,15 @@ import static com.cmtech.android.ble.core.BleDeviceConnector.MSG_BT_CLOSED;
 public class NotifyService extends Service implements IDevice.OnDeviceListener {
     private static final String TAG = "NotifyService";
     private static final int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
-    private String notifyTitle; // 通知栏标题
-    private String strWhenNoDeviceOpened; // 无设备打开时的通知串
     private static final Ringtone WARN_RINGTONE = RingtoneManager.getRingtone(MyApplication.getContext(), Settings.System.DEFAULT_ALARM_ALERT_URI); // 报警铃声
     private static final Vibrator WARN_VIBRATOR = (Vibrator) MyApplication.getContext().getSystemService(VIBRATOR_SERVICE); // 报警震动
     private static final int WARN_INTERVAL = 5000; // 报警间隔时间，单位：ms
     private static final int WARN_TIMES = 5; // 报警次数
-
+    private final BleNotifyServiceBinder binder = new BleNotifyServiceBinder();
+    private String notifyTitle; // 通知栏标题
+    private String strWhenNoDeviceOpened; // 无设备打开时的通知串
     private Timer warnTimer; // 报警定时器
     private NotificationCompat.Builder notifyBuilder;
-    private final BleNotifyServiceBinder binder = new BleNotifyServiceBinder();
-
-    public class BleNotifyServiceBinder extends Binder {
-        public NotifyService getService() {
-            return NotifyService.this;
-        }
-    }
 
     @Override
     public void onCreate() {
@@ -167,7 +157,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     }
 
     @Override
-    public void onExceptionNotified(IDevice device, BleException ex) {
+    public void onExceptionHandled(IDevice device, BleException ex) {
         if(ex instanceof ScanException) {
             if(((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BLE_INNER_ERROR) {
                 startWarningBleInnerError();
@@ -236,6 +226,12 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         notification.flags |= Notification.FLAG_FOREGROUND_SERVICE;
         //创建通知
         return notification;
+    }
+
+    public class BleNotifyServiceBinder extends Binder {
+        public NotifyService getService() {
+            return NotifyService.this;
+        }
     }
 
 }

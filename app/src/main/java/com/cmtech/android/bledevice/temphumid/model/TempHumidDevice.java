@@ -126,7 +126,6 @@ public class TempHumidDevice extends AbstractDevice {
     // 构造器
     public TempHumidDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
-        this.connector = new BleDeviceConnector(this);
         initializeAfterConstruction();
     }
 

@@ -73,7 +73,6 @@ public class ThermoDevice extends AbstractDevice {
 
     public ThermoDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
-        this.connector = new BleDeviceConnector(this);
         initializeAfterConstruction();
     }
 

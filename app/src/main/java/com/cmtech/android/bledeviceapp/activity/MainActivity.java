@@ -97,51 +97,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
-    private NotifyService notifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
-    public NotifyService getNotifyService() {
-        return notifyService;
-    }
-    private DeviceFragTabManager fragTabManager; // BleFragment和TabLayout管理器
-    private MainToolbarManager toolbarManager; // 工具条管理器
-
-    LocalDevicesFragment localDevicesFragment;
-    WebDevicesFragment webDevicesFragment;
-
-    private DrawerLayout drawerLayout; // 侧滑界面
-    private LinearLayout noDeviceOpenedLayout; // 无设备打开时的界面
-    private RelativeLayout hasDeviceOpenedLayout; // 有设备打开时的界面，即包含设备Fragment和Tablayout的主界面
-    private FloatingActionButton fabConnect; // 切换连接状态的FAB
-    private TextView tvAccountName; // 账户名称控件
-    private ImageView ivAccountImage; // 头像头像控件
-    private boolean isWarningBleInnerError = false;
-    private boolean stopNotifyService = false; // 是否停止通知服务
-
-
-
-
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            notifyService = ((NotifyService.BleNotifyServiceBinder)iBinder).getService();
-            // 成功绑定后初始化，否则请求退出
-            if(notifyService != null) {
-                initialize();
-            } else {
-                requestFinish();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            if(notifyService != null) {
-                Intent stopServiceIntent = new Intent(MainActivity.this, NotifyService.class);
-                stopService(stopServiceIntent);
-                notifyService = null;
-            }
-            finish();
-        }
-    };
-
     // 蓝牙状态改变广播接收器
     private final BroadcastReceiver btStateChangedReceiver = new BroadcastReceiver() {
         @Override
@@ -158,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             }
         }
     };
-
     // 绑定状态广播接收器
     private final BroadcastReceiver bondStateReceiver = new BroadcastReceiver() {
         @Override
@@ -182,6 +136,45 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             }
         }
     };
+    LocalDevicesFragment localDevicesFragment;
+    WebDevicesFragment webDevicesFragment;
+    private NotifyService notifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
+    private DeviceFragTabManager fragTabManager; // BleFragment和TabLayout管理器
+    private MainToolbarManager toolbarManager; // 工具条管理器
+    private DrawerLayout drawerLayout; // 侧滑界面
+    private LinearLayout noDeviceOpenedLayout; // 无设备打开时的界面
+    private RelativeLayout hasDeviceOpenedLayout; // 有设备打开时的界面，即包含设备Fragment和Tablayout的主界面
+    private FloatingActionButton fabConnect; // 切换连接状态的FAB
+    private TextView tvAccountName; // 账户名称控件
+    private ImageView ivAccountImage; // 头像头像控件
+    private boolean isWarningBleInnerError = false;
+    private boolean stopNotifyService = false; // 是否停止通知服务
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            notifyService = ((NotifyService.BleNotifyServiceBinder)iBinder).getService();
+            // 成功绑定后初始化，否则请求退出
+            if(notifyService != null) {
+                initialize();
+            } else {
+                requestFinish();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            if(notifyService != null) {
+                Intent stopServiceIntent = new Intent(MainActivity.this, NotifyService.class);
+                stopService(stopServiceIntent);
+                notifyService = null;
+            }
+            finish();
+        }
+    };
+
+    public NotifyService getNotifyService() {
+        return notifyService;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -561,9 +554,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
     }
 
-    // 提示信息产生
+    // 异常通知
     @Override
-    public void onExceptionNotified(IDevice device, BleException ex) {
+    public void onExceptionHandled(IDevice device, BleException ex) {
         if(ex instanceof ScanException && ((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BLE_INNER_ERROR) {
             if(!isWarningBleInnerError) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);

@@ -36,30 +36,8 @@ import java.util.List;
  */
 
 public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.ViewHolder> {
-    private List<EcgNormalComment> commentList; // 留言列表
     private final OnEcgCommentListener listener; // 留言监听器
-
-    public interface OnEcgCommentListener {
-        void onCommentSaved(EcgNormalComment comment); // 保存留言
-        void onCommentDeleted(EcgNormalComment comment); // 删除留言
-    }
-
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        View appendixView;
-        TextView tvCreatorName;
-        TextView tvModifyTime;
-        EditText etContent;
-        ImageButton ibSave;
-
-        private ViewHolder(View itemView) {
-            super(itemView);
-            appendixView = itemView;
-            etContent = appendixView.findViewById(R.id.et_comment_content);
-            tvCreatorName = appendixView.findViewById(R.id.tv_comment_creator);
-            tvModifyTime = appendixView.findViewById(R.id.tv_comment_modify_time);
-            ibSave = appendixView.findViewById(R.id.ib_save_comment);
-        }
-    }
+    private List<EcgNormalComment> commentList; // 留言列表
 
     public EcgCommentAdapter(List<EcgNormalComment> commentList, OnEcgCommentListener listener) {
         this.commentList = commentList;
@@ -144,5 +122,27 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
         if(commentList == null) this.commentList = new ArrayList<>();
         else this.commentList = commentList;
         notifyDataSetChanged();
+    }
+
+    public interface OnEcgCommentListener {
+        void onCommentSaved(EcgNormalComment comment); // 保存留言
+        void onCommentDeleted(EcgNormalComment comment); // 删除留言
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        View appendixView;
+        TextView tvCreatorName;
+        TextView tvModifyTime;
+        EditText etContent;
+        ImageButton ibSave;
+
+        private ViewHolder(View itemView) {
+            super(itemView);
+            appendixView = itemView;
+            etContent = appendixView.findViewById(R.id.et_comment_content);
+            tvCreatorName = appendixView.findViewById(R.id.tv_comment_creator);
+            tvModifyTime = appendixView.findViewById(R.id.tv_comment_modify_time);
+            ibSave = appendixView.findViewById(R.id.ib_save_comment);
+        }
     }
 }

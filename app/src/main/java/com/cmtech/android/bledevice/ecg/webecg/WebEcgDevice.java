@@ -12,7 +12,7 @@ import com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor;
 import com.cmtech.android.bledevice.ecg.record.EcgRecord;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.WebDeviceConnector;
+import com.cmtech.android.ble.core.WebDeviceConnector;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
@@ -111,7 +111,6 @@ public class WebEcgDevice extends AbstractEcgDevice {
     // 构造器
     public WebEcgDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
-        this.connector = new WebDeviceConnector(this);
         signalProcessor = new EcgSignalProcessor(this, false);
     }
 

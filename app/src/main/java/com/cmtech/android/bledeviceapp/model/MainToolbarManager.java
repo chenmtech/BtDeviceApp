@@ -84,7 +84,15 @@ public class MainToolbarManager {
                 tvBattery.setVisibility(View.GONE);
                 return;
             }
-            drawable.setLevel(battery % 4);
+            int level;
+            if(battery < 90) {
+                level = 0;
+            } else if(battery >= 110) {
+                level = 3;
+            } else {
+                level = (battery-90)/5;
+            }
+            drawable.setLevel(level);
             drawable.setBounds(0,0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
             tvBattery.setCompoundDrawables(drawable, null, null, null);
         }

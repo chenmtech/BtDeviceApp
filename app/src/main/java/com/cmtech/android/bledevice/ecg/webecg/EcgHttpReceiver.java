@@ -159,7 +159,7 @@ public class EcgHttpReceiver {
                 int caliValue = Integer.parseInt(jsonObject.getString("cali_Value"));
                 int leadTypeCode = Integer.parseInt(jsonObject.getString("lead_Type"));
                 EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
-                DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid());
+                DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(false, deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid());
                 ViseLog.e(registerInfo);
                 WebEcgDevice device = (WebEcgDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
                 if(device != null) {

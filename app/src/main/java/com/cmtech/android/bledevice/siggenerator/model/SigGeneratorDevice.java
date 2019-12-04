@@ -38,7 +38,6 @@ public class SigGeneratorDevice extends AbstractDevice {
     // 构造器
     public SigGeneratorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
-        this.connector = new BleDeviceConnector(this);
     }
 
     @Override

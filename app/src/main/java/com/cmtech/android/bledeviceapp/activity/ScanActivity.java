@@ -208,7 +208,7 @@ public class ScanActivity extends AppCompatActivity {
         }
 
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
-        DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(device.getAddress(), uuidShortString);
+        DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(true, device.getAddress(), uuidShortString);
         Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, 1);
