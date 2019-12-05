@@ -81,7 +81,7 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
         device = (EcgDevice) getDevice();
         recordFragment.setDevice(device);
         broadcastFragment.setDevice(device);
-        return inflater.inflate(R.layout.fragment_ecg_monitor, container, false);
+        return inflater.inflate(R.layout.fragment_ecg, container, false);
     }
 
     @Override
@@ -102,8 +102,8 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
         initialEcgView();
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
-        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(recordFragment, broadcastFragment, hrFragment));
-        List<String> titleList = new ArrayList<>(Arrays.asList(EcgRecordFragment.TITLE, EcgBroadcastFragment.TITLE, EcgHrStatisticsFragment.TITLE));
+        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(hrFragment, recordFragment, broadcastFragment));
+        List<String> titleList = new ArrayList<>(Arrays.asList(EcgHrStatisticsFragment.TITLE, EcgRecordFragment.TITLE, EcgBroadcastFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(3);

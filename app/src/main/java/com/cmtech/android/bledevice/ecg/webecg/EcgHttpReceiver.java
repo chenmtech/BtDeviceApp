@@ -34,53 +34,17 @@ public class EcgHttpReceiver {
     private static final String device_info_url = "http://huawei.tighoo.com/home/GeReceivedDeviceInfo?";
 
     private static final String TYPE_DEVICE_ID = "deviceId"; // 设备ID
-    private static final String TYPE_RECEIVER_ID = "receiverId";
-    private static final String TYPE_LAST_PACKET_ID = "id"; // 最后接收的数据包时间戳
-    private static final String TYPE_DATA_TYPE = "dataType";
+    private static final String TYPE_RECEIVER_ID = "receiverId"; // 接收者id
+    private static final String TYPE_LAST_PACKET_ID = "id"; // 最后接收的数据包id
+    private static final String TYPE_DATA_TYPE = "dataType"; // 接收的数据类型
 
-
-    // 获取广播设备信息回调
-    public interface IEcgDeviceInfoCallback {
-        void onReceived(List<WebEcgDevice> deviceList);
-    }
-
-    // 读取广播设备数据包回调
-    public interface IEcgDataPacketCallback {
-        void onReceived(List<EcgDataPacket> dataPacketList);
-    }
-
-    // 心电数据包
-    public static class EcgDataPacket {
-        private int id;
-        private List<Integer> data; // 数据
-
-        EcgDataPacket(int id, List<Integer> data) {
-            this.id = id;
-            this.data = data;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public List<Integer> getData() {
-            return data;
-        }
-
-        @Override
-        public String toString() {
-            return "EcgDataPacket{" +
-                    "id=" + id +
-                    ", data=" + data +
-                    '}';
-        }
-    }
 
     private EcgHttpReceiver() {
     }
 
     /**
      * 获取可接收的广播设备列表
+     *
      * @param callback : 回调
      */
     public static void retrieveDeviceInfo(String receiverId, final IEcgDeviceInfoCallback callback) {
@@ -102,7 +66,6 @@ public class EcgHttpReceiver {
 
                 ViseLog.e("retrieveDeviceInfo: " + responseStr);
 
-                // 这里用responseStr解析出IDevice列表
                 List<WebEcgDevice> deviceList = parseDevicesWithJSONObject(responseStr);
                 if (callback != null) {
                     callback.onReceived(deviceList);
@@ -115,9 +78,10 @@ public class EcgHttpReceiver {
      * 读取广播数据包
      * 服务器端应该找到比lastPackTimeStamp更晚出现的数据包，以List<EcgDataPacket>的格式返回数据包
      * 如果满足条件的数据包太多，则最多返回两个最晚出现的数据包
-     * @param deviceId          : 广播设备ID
-     * @param id : 最后接收到的数据包时间戳
-     * @param callback          : 回调
+     *
+     * @param deviceId : 广播设备ID
+     * @param id       : 最后接收到的数据包时间戳
+     * @param callback : 回调
      */
     public static void readDataPackets(String receiverId, String deviceId, int id, final IEcgDataPacketCallback callback) {
         Map<String, String> data = new HashMap<>();
@@ -162,7 +126,7 @@ public class EcgHttpReceiver {
                 DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(false, deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid());
                 ViseLog.e(registerInfo);
                 WebEcgDevice device = (WebEcgDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
-                if(device != null) {
+                if (device != null) {
                     device.getRegisterInfo().setName(ECGWEBMONITOR_DEVICE_TYPE.getDefaultNickname());
                     device.setSampleRate(sampleRate);
                     device.setValue1mV(caliValue);
@@ -175,11 +139,6 @@ public class EcgHttpReceiver {
         }
         return devices;
     }
-
-
-    /*private static String timeToString(long timeInMillis) {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date(timeInMillis));
-    }*/
 
     private static long stringToTime(String timeStr) {
         try {
@@ -199,11 +158,11 @@ public class EcgHttpReceiver {
                 String dataStr = jsonObject.getString("value");
                 String[] dataStrs = dataStr.split(",");
                 List<Integer> data = new ArrayList<>();
-                for(String str : dataStrs) {
+                for (String str : dataStrs) {
                     data.add(Integer.valueOf(str));
                 }
                 int id = Integer.parseInt(jsonObject.getString("id"));
-                if(id != 0) {
+                if (id != 0) {
                     EcgDataPacket packet = new EcgDataPacket(id, data);
                     ViseLog.e(packet);
                     packets.add(packet);
@@ -213,5 +172,47 @@ public class EcgHttpReceiver {
             e.printStackTrace();
         }
         return packets;
+    }
+
+    // 获取广播设备信息回调
+    public interface IEcgDeviceInfoCallback {
+        void onReceived(List<WebEcgDevice> deviceList);
+    }
+
+
+    /*private static String timeToString(long timeInMillis) {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date(timeInMillis));
+    }*/
+
+    // 读取广播设备数据包回调
+    public interface IEcgDataPacketCallback {
+        void onReceived(List<EcgDataPacket> dataPacketList);
+    }
+
+    // 心电数据包
+    public static class EcgDataPacket {
+        private int id;
+        private List<Integer> data; // 数据
+
+        EcgDataPacket(int id, List<Integer> data) {
+            this.id = id;
+            this.data = data;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public List<Integer> getData() {
+            return data;
+        }
+
+        @Override
+        public String toString() {
+            return "EcgDataPacket{" +
+                    "id=" + id +
+                    ", data=" + data +
+                    '}';
+        }
     }
 }

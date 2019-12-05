@@ -64,7 +64,7 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
     private ScanEcgView ecgView; // 心电波形View
     private AudioTrack hrAbnormalWarnAudio; // 心率异常报警声音
     private final EcgRecordFragment recordFragment = new EcgRecordFragment(); // 信号记录Fragment
-    private final EcgHrStatisticsFragment hrStatisticsFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
+    private final EcgHrStatisticsFragment hrFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
     private WebEcgDevice device; // 设备
 
     public WebEcgFragment() {
@@ -79,7 +79,7 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
         }
         device = (WebEcgDevice) getDevice();
         recordFragment.setDevice(device);
-        return inflater.inflate(R.layout.fragment_ecg_monitor, container, false);
+        return inflater.inflate(R.layout.fragment_ecg, container, false);
     }
 
     @Override
@@ -101,8 +101,8 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
         initEcgView();
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
-        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(recordFragment, hrStatisticsFragment));
-        List<String> titleList = new ArrayList<>(Arrays.asList(EcgRecordFragment.TITLE, EcgHrStatisticsFragment.TITLE));
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(hrFragment, recordFragment));
+        List<String> titleList = new ArrayList<>(Arrays.asList(EcgHrStatisticsFragment.TITLE, EcgRecordFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         layout.setupWithViewPager(pager);
@@ -261,7 +261,7 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                hrStatisticsFragment.updateHrInfo(hrStaticsInfo);
+                hrFragment.updateHrInfo(hrStaticsInfo);
             }
         });
     }
