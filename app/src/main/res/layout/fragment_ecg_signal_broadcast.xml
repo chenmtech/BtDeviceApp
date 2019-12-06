@@ -46,7 +46,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="4dp"
                 android:text="接收者："
-                android:textSize="20dp"/>
+                android:textSize="20sp"/>
 
             <ImageButton
                 android:id="@+id/ib_update_receivers"
