@@ -19,8 +19,9 @@ import android.view.MenuItem;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
 import com.cmtech.android.ble.core.BleDeviceDetailInfo;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleScanner;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.AppConstant;
@@ -208,7 +209,7 @@ public class ScanActivity extends AppCompatActivity {
         }
 
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
-        DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(true, device.getAddress(), uuidShortString);
+        DeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(device.getAddress(), uuidShortString);
         Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, 1);

@@ -4,6 +4,7 @@ package com.cmtech.android.bledevice.ecg.webecg;
 import android.util.Log;
 
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
@@ -123,7 +124,7 @@ public class EcgHttpReceiver {
                 int caliValue = Integer.parseInt(jsonObject.getString("cali_Value"));
                 int leadTypeCode = Integer.parseInt(jsonObject.getString("lead_Type"));
                 EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
-                DeviceRegisterInfo registerInfo = new DeviceRegisterInfo(false, deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid());
+                DeviceRegisterInfo registerInfo = new WebDeviceRegisterInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid(), "chenm");
                 ViseLog.e(registerInfo);
                 WebEcgDevice device = (WebEcgDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
                 if (device != null) {

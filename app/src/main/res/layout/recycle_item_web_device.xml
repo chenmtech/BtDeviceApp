@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:layout_margin="5dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_margin="5dp"
+        android:orientation="vertical">
+        <com.cmtech.android.bledevice.view.RoundImageView
+            android:id="@+id/iv_tab_image"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:layout_gravity="center_horizontal"
+            android:src="@mipmap/ic_unknown_device"
+            android:contentDescription="登记的设备图片"/>
+
+        <TextView
+            android:id="@+id/tv_broadcast_name"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            android:text="匿名"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:layout_marginEnd="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_device_nickname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:textColor="@color/primary_text"
+            android:textSize="20sp"
+            android:text="未知设备名"/>
+
+        <TextView
+            android:id="@+id/tv_device_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:text="关闭"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/tv_device_macaddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:text="设备Mac地址"
+            android:textSize="12sp"/>
+    </LinearLayout>
+</LinearLayout>

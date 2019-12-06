@@ -46,6 +46,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
@@ -368,14 +369,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         switch (requestCode) {
             case RC_REGISTER_DEVICE: // 注册设备返回
                 if(resultCode == RESULT_OK) {
-                    DeviceRegisterInfo registerInfo = (DeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
+                    BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     registerDevice(registerInfo);
                 }
                 break;
 
             case RC_MODIFY_REGISTER_INFO: // 修改注册信息返回
                 if ( resultCode == RESULT_OK) {
-                    DeviceRegisterInfo registerInfo = (DeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
+                    BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     IDevice device = DeviceManager.findDevice(registerInfo);
                     if(device != null && registerInfo.saveToPref(pref)) {
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
@@ -416,7 +417,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
     }
 
-    private void registerDevice(DeviceRegisterInfo registerInfo) {
+    private void registerDevice(BleDeviceRegisterInfo registerInfo) {
         if(registerInfo != null) {
             IDevice device = DeviceManager.createDeviceIfNotExist(registerInfo);
             if(device != null) {
@@ -663,7 +664,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(device.getRegisterInfo().deleteFromPref(pref)) {
+                DeviceRegisterInfo registerInfo = device.getRegisterInfo();
+                if(registerInfo instanceof BleDeviceRegisterInfo && ((BleDeviceRegisterInfo)registerInfo).deleteFromPref(pref)) {
                     DeviceManager.deleteDevice(device);
                     updateDeviceList();
                 } else {

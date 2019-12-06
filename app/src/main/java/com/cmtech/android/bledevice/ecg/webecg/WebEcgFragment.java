@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity;
 import com.cmtech.android.bledevice.ecg.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
@@ -97,6 +98,10 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
         tvLeadType.setText(String.format("L%s", device.getLeadType().getDescription()));
         tvCaliValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), device.getValue1mV()));
         tvHeartRate.setText("");
+
+        TextView tvBroadcastName = view.findViewById(R.id.tv_broadcast_name);
+        tvBroadcastName.setVisibility(View.VISIBLE);
+        tvBroadcastName.setText(((WebDeviceRegisterInfo)device.getRegisterInfo()).getBroadcastId());
 
         initEcgView();
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);

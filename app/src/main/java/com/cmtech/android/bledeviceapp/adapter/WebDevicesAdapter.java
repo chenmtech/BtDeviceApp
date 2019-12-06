@@ -4,17 +4,16 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -38,6 +37,7 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
         TextView deviceName;
         TextView deviceAddress;
         TextView deviceStatus;
+        TextView broadcastName;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -46,6 +46,7 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
             deviceName = deviceView.findViewById(R.id.tv_device_nickname);
             deviceAddress = deviceView.findViewById(R.id.tv_device_macaddress);
             deviceStatus = deviceView.findViewById(R.id.tv_device_status);
+            broadcastName = deviceView.findViewById(R.id.tv_broadcast_name);
         }
     }
 
@@ -58,11 +59,10 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
         this.activity = activity;
     }
 
-
     @Override
     public WebDevicesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_registed_device, parent, false);
+                .inflate(R.layout.recycle_item_web_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
 
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
@@ -73,39 +73,6 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
             }
         });
 
-        holder.deviceView.setOnLongClickListener(new View.OnLongClickListener() {
-            final MenuItem.OnMenuItemClickListener listener = new MenuItem.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {         //设置每个菜单的点击动作
-                    IDevice device = deviceList.get(holder.getAdapterPosition());
-                    switch (item.getItemId()){
-                        case 1:
-                            activity.modifyRegisterInfo(device.getRegisterInfo());
-                            break;
-                        case 2:
-                            activity.removeRegisteredDevice(device);
-                            break;
-                        default:
-                            break;
-                    }
-                    return true;
-                }
-            };
-
-            @Override
-            public boolean onLongClick(View view) {
-                view.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-                    @Override
-                    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-                        MenuItem config = menu.add(Menu.NONE, 1, 0, "修改");
-                        MenuItem delete = menu.add(Menu.NONE, 2, 0, "删除");
-                        config.setOnMenuItemClickListener(listener);            //响应点击事件
-                        delete.setOnMenuItemClickListener(listener);
-                    }
-                });
-                return false;
-            }
-        });
         return holder;
     }
 
@@ -126,6 +93,11 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
         holder.deviceName.setText(device.getName());
         holder.deviceAddress.setText(device.getAddress());
         holder.deviceStatus.setText(device.getState().getDescription());
+
+        DeviceRegisterInfo registerInfo = device.getRegisterInfo();
+        if(registerInfo instanceof WebDeviceRegisterInfo) {
+            holder.broadcastName.setText(((WebDeviceRegisterInfo)registerInfo).getBroadcastId());
+        }
     }
 
     @Override
