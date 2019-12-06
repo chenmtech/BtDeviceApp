@@ -99,7 +99,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
 
     @Override
     public String toString() {
-        return "HuaweiId: " + getShortHuaweiId() + " Name：" + name + ' ' + " Personal Info：" + description;
+        return "Id: " + getShortHuaweiId() + " 姓名：" + name + ' ' + " 个人信息：" + description;
     }
 
     @Override
