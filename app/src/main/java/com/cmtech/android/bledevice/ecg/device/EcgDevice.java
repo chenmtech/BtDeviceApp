@@ -310,7 +310,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
     // 启动ECG信号采集
     private void startEcgSignalSampling() {
-        IBleDataCallback receiveCallback = new IBleDataCallback() {
+        final IBleDataCallback receiveCallback = new IBleDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BleGattElement element) {
                 dataProcessor.processData(data, false);
@@ -377,6 +377,7 @@ public class EcgDevice extends AbstractEcgDevice {
     // 停止数据采集
     private void stopSampling() {
         ((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, false, null);
+
         ((BleDeviceConnector) connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
