@@ -51,6 +51,7 @@ import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.ScanException;
 import com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity;
@@ -351,7 +352,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             invalidateOptionsMenu();
             updateMainLayoutVisibility(false);
         } else {
-            toolbarManager.setTitle(device.getName(), device.getAddress());
+            String title = device.getName();
+            DeviceRegisterInfo registerInfo = device.getRegisterInfo();
+            if(!device.isLocal()) {
+                title += ("-" + ((WebDeviceRegisterInfo) registerInfo).getBroadcastName());
+            }
+            toolbarManager.setTitle(title, device.getAddress());
             toolbarManager.setBattery(device.getBattery());
             BleDeviceState state = device.getState();
             if(state == BleDeviceState.SCANNING || state == BleDeviceState.CONNECTING || state == BleDeviceState.DISCONNECTING)

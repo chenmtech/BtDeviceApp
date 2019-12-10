@@ -99,10 +99,6 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
         tvCaliValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), device.getValue1mV()));
         tvHeartRate.setText("");
 
-        TextView tvBroadcastName = view.findViewById(R.id.tv_broadcast_name);
-        tvBroadcastName.setVisibility(View.VISIBLE);
-        tvBroadcastName.setText(((WebDeviceRegisterInfo)device.getRegisterInfo()).getBroadcastId());
-
         initEcgView();
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);

@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,12 +17,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecg.webecg.EcgHttpReceiver;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.WebDevicesAdapter;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
+import com.cmtech.android.bledeviceapp.util.UserUtil;
 
 import java.util.Iterator;
 import java.util.List;
@@ -39,9 +42,7 @@ import java.util.List;
  * Version:        1.0
  */
 public class WebDevicesFragment extends Fragment {
-
     private static final int MSG_UPDATE_WEB_DEVICES = 0;
-
     private WebDevicesAdapter webDevicesAdapter;
 
     private Handler handler = new Handler(Looper.getMainLooper()) {
@@ -70,7 +71,8 @@ public class WebDevicesFragment extends Fragment {
         RecyclerView rvDevices = view.findViewById(R.id.rv_local_device);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvDevices.setLayoutManager(layoutManager);
-        rvDevices.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        if(getContext() != null)
+            rvDevices.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         webDevicesAdapter = new WebDevicesAdapter((MainActivity) getActivity());
         rvDevices.setAdapter(webDevicesAdapter);
 
@@ -88,18 +90,30 @@ public class WebDevicesFragment extends Fragment {
     private void updateWebDeviceList() {
         Iterator<IDevice> iterator = DeviceManager.getDeviceList().iterator();
         while (iterator.hasNext()) {
-           IDevice device = iterator.next();
-           if (!device.isLocal()) {
-               iterator.remove();
-           }
+            IDevice device = iterator.next();
+            if (!device.isLocal()) {
+                iterator.remove();
+            }
         }
 
         // 获取网络广播设备列表
         EcgHttpReceiver.retrieveDeviceInfo(AccountManager.getInstance().getAccount().getHuaweiId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
             public void onReceived(List<WebEcgDevice> deviceList) {
-                if(deviceList != null) {
-                    handler.sendEmptyMessage(MSG_UPDATE_WEB_DEVICES);
+                if(deviceList == null || deviceList.isEmpty()) return;
+
+                for(WebEcgDevice device : deviceList) {
+                    device.addListener(((MainActivity) getActivity()).getNotifyService());
+
+                    final WebDeviceRegisterInfo registerInfo = (WebDeviceRegisterInfo)device.getRegisterInfo();
+                    UserUtil.getUserInfo(registerInfo.getBroadcastId(), new UserUtil.IGetUserInfoCallback() {
+                        @Override
+                        public void onReceived(String userId, final String name, String description, Bitmap image) {
+                            registerInfo.setBroadcastName(name);
+
+                            handler.sendEmptyMessage(MSG_UPDATE_WEB_DEVICES);
+                        }
+                    });
                 }
             }
         });

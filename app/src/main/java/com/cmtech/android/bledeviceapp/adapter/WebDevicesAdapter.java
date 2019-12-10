@@ -1,7 +1,10 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -19,6 +22,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
+import com.cmtech.android.bledeviceapp.util.UserUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +81,7 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         IDevice device = deviceList.get(position);
 
         String imagePath = device.getImagePath();
@@ -93,11 +97,7 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
         holder.deviceName.setText(device.getName());
         holder.deviceAddress.setText(device.getAddress());
         holder.deviceStatus.setText(device.getState().getDescription());
-
-        DeviceRegisterInfo registerInfo = device.getRegisterInfo();
-        if(registerInfo instanceof WebDeviceRegisterInfo) {
-            holder.broadcastName.setText(((WebDeviceRegisterInfo)registerInfo).getBroadcastId());
-        }
+        holder.broadcastName.setText(((WebDeviceRegisterInfo)device.getRegisterInfo()).getBroadcastName());
     }
 
     @Override
@@ -110,7 +110,6 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
         for(IDevice device : DeviceManager.getDeviceList()) {
             if(!device.isLocal()) {
                 this.deviceList.add(device);
-                device.addListener(activity.getNotifyService());
             }
         }
         notifyDataSetChanged();

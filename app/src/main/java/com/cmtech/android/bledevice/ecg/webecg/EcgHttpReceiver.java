@@ -6,6 +6,7 @@ import android.util.Log;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
@@ -64,9 +65,7 @@ public class EcgHttpReceiver {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
-
                 ViseLog.e("retrieveDeviceInfo: " + responseStr);
-
                 List<WebEcgDevice> deviceList = parseDevicesWithJSONObject(responseStr);
                 if (callback != null) {
                     callback.onReceived(deviceList);
@@ -124,11 +123,11 @@ public class EcgHttpReceiver {
                 int caliValue = Integer.parseInt(jsonObject.getString("cali_Value"));
                 int leadTypeCode = Integer.parseInt(jsonObject.getString("lead_Type"));
                 EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
-                DeviceRegisterInfo registerInfo = new WebDeviceRegisterInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid(), "chenm");
+                DeviceRegisterInfo registerInfo = new WebDeviceRegisterInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid(), AccountManager.getInstance().getAccount().getHuaweiId());
                 ViseLog.e(registerInfo);
                 WebEcgDevice device = (WebEcgDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
                 if (device != null) {
-                    device.getRegisterInfo().setName(ECGWEBMONITOR_DEVICE_TYPE.getDefaultNickname());
+                    device.setName(ECGWEBMONITOR_DEVICE_TYPE.getDefaultNickname());
                     device.setSampleRate(sampleRate);
                     device.setValue1mV(caliValue);
                     device.setLeadType(leadType);
@@ -149,6 +148,10 @@ public class EcgHttpReceiver {
         }
         return 0;
     }
+
+    /*private static String timeToString(long timeInMillis) {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date(timeInMillis));
+    }*/
 
     private static List<EcgDataPacket> parseDataPacketsWithJSONObject(String jsonData) {
         List<EcgDataPacket> packets = new ArrayList<>();
@@ -179,11 +182,6 @@ public class EcgHttpReceiver {
     public interface IEcgDeviceInfoCallback {
         void onReceived(List<WebEcgDevice> deviceList);
     }
-
-
-    /*private static String timeToString(long timeInMillis) {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA).format(new Date(timeInMillis));
-    }*/
 
     // 读取广播设备数据包回调
     public interface IEcgDataPacketCallback {

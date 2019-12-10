@@ -38,7 +38,6 @@ import java.util.TimerTask;
 
 
 /**
- *
  * ClassName:      NotifyService
  * Description:    通知服务
  * Author:         chenm
@@ -79,19 +78,19 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
     private void initDeviceManager(SharedPreferences pref) {
         List<DeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.readAllFromPref(pref);
-        if(registerInfoList == null || registerInfoList.isEmpty()) return;
-        for(DeviceRegisterInfo registerInfo : registerInfoList) {
+        if (registerInfoList == null || registerInfoList.isEmpty()) return;
+        for (DeviceRegisterInfo registerInfo : registerInfoList) {
             IDevice device = DeviceManager.createDeviceIfNotExist(registerInfo);
-           if(device != null) {
-               device.addListener(this);
-           }
+            if (device != null) {
+                device.addListener(this);
+            }
         }
     }
 
     private void initNotificationBuilder() {
         notifyBuilder = new NotificationCompat.Builder(this, "default");
         notifyBuilder.setSmallIcon(R.mipmap.ic_kang); //设置状态栏的通知图标
-        notifyBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.mipmap.ic_kang)); //设置通知栏横条的图标
+        notifyBuilder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_kang)); //设置通知栏横条的图标
         notifyBuilder.setAutoCancel(false); //禁止用户点击删除按钮删除
         notifyBuilder.setOngoing(true); //禁止滑动删除
         notifyBuilder.setShowWhen(true); //右上角的时间显示
@@ -111,13 +110,13 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     private void sendNotification() {
         List<String> notifyContents = new ArrayList<>();
-        for(IDevice device : DeviceManager.getDeviceList()) {
-            if(device.getState() != BleDeviceState.CLOSED) {
+        for (IDevice device : DeviceManager.getDeviceList()) {
+            if (device.getState() != BleDeviceState.CLOSED) {
                 notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
             }
         }
         Notification notification = createNotification(notifyContents);
-        if(notification != null) {
+        if (notification != null) {
             startForeground(NOTIFY_ID, notification);
         }
     }
@@ -132,7 +131,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         ViseLog.e("NotifyService.onDestroy()");
         super.onDestroy();
 
-        for(final IDevice device : DeviceManager.getDeviceList()) {
+        for (final IDevice device : DeviceManager.getDeviceList()) {
             device.clear();
             device.removeListener(NotifyService.this);
             //device.close();
@@ -159,10 +158,10 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     @Override
     public void onExceptionHandled(IDevice device, BleException ex) {
-        if(ex instanceof ScanException) {
-            if(((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BLE_INNER_ERROR) {
+        if (ex instanceof ScanException) {
+            if (((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BLE_INNER_ERROR) {
                 startWarningBleInnerError();
-            } else if(((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BT_CLOSED) {
+            } else if (((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BT_CLOSED) {
                 Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -176,12 +175,12 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     // 启动蓝牙内部错误报警
     private void startWarningBleInnerError() {
-        if(warnTimer == null) {
+        if (warnTimer == null) {
             warnTimer = new Timer();
             warnTimer.scheduleAtFixedRate(new TimerTask() {
                 @Override
                 public void run() {
-                    if(!WARN_RINGTONE.isPlaying()) {
+                    if (!WARN_RINGTONE.isPlaying()) {
                         WARN_RINGTONE.play();
                     }
                     WARN_VIBRATOR.vibrate(1000, new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build());
@@ -198,20 +197,20 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     }
 
     public void stopWarningBleInnerError() {
-        if(warnTimer != null) {
+        if (warnTimer != null) {
             warnTimer.cancel();
             warnTimer = null;
-            if(WARN_RINGTONE.isPlaying()) {
+            if (WARN_RINGTONE.isPlaying()) {
                 WARN_RINGTONE.stop();
             }
             WARN_VIBRATOR.cancel();
         }
     }
 
-    private Notification createNotification(List<String> notifyContents){
+    private Notification createNotification(List<String> notifyContents) {
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         inboxStyle.setBigContentTitle(notifyTitle);
-        if(notifyContents == null || notifyContents.isEmpty()) {
+        if (notifyContents == null || notifyContents.isEmpty()) {
             notifyBuilder.setContentText(strWhenNoDeviceOpened);
             inboxStyle.addLine(strWhenNoDeviceOpened);
         } else {
