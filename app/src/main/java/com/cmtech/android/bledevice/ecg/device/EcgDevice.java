@@ -20,6 +20,7 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -162,9 +163,33 @@ public class EcgDevice extends AbstractEcgDevice {
         // 读导联类型
         readLeadType();
         // 停止采样
-        stopSampling();
+        //stopSampling();
         // 启动1mV值采样
-        startValue1mVSampling();
+        //startValue1mVSampling();
+        final IBleDataCallback receiveCallback = new IBleDataCallback() {
+            @Override
+            public void onSuccess(final byte[] data, BleGattElement element) {
+                dataProcessor.processData(data, false);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+                ViseLog.e(exception);
+            }
+        };
+        ((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
+
+        ((BleDeviceConnector)connector).runInstantly(new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                setValue1mV(164);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
 
         return true;
     }
@@ -252,6 +277,7 @@ public class EcgDevice extends AbstractEcgDevice {
             containBatteryService = false;
         }
         if (super.getState() == CONNECT && ((BleDeviceConnector) connector).isGattExecutorAlive()) {
+            ((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, false, null);
             stopSampling();
         }
         try {
@@ -310,7 +336,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
     // 启动ECG信号采集
     private void startEcgSignalSampling() {
-        final IBleDataCallback receiveCallback = new IBleDataCallback() {
+        /*final IBleDataCallback receiveCallback = new IBleDataCallback() {
             @Override
             public void onSuccess(final byte[] data, BleGattElement element) {
                 dataProcessor.processData(data, false);
@@ -323,7 +349,7 @@ public class EcgDevice extends AbstractEcgDevice {
         };
 
         // enable ECG data notification
-        ((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
+        ((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);*/
 
         ((BleDeviceConnector) connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_SIGNAL, new IBleDataCallback() {
             @Override
@@ -376,7 +402,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
     // 停止数据采集
     private void stopSampling() {
-        ((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, false, null);
+        //((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, false, null);
 
         ((BleDeviceConnector) connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleDataCallback() {
             @Override
@@ -452,7 +478,6 @@ public class EcgDevice extends AbstractEcgDevice {
     @Override
     public void setValue1mV(final int value1mV) {
         ViseLog.e("Calculated 1mV value before calibration: " + value1mV);
-        stopSampling();
 
         super.setValue1mV(value1mV);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -489,6 +514,7 @@ public class EcgDevice extends AbstractEcgDevice {
         }
 
         // 输出1mV定标信号
+        ViseLog.e("wave1mV: " + Arrays.toString(wave1mV));
         for (int data : wave1mV) {
             updateSignalValue(data);
         }
