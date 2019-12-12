@@ -6,7 +6,6 @@ import android.util.Log;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
@@ -119,12 +118,15 @@ public class EcgHttpReceiver {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 String deviceId = jsonObject.getString("deviceID");
-                int sampleRate = Integer.parseInt(jsonObject.getString("sample_Rate"));
-                int caliValue = Integer.parseInt(jsonObject.getString("cali_Value"));
-                int leadTypeCode = Integer.parseInt(jsonObject.getString("lead_Type"));
+                String creatorId = jsonObject.getString("open_id");
+                String setting = jsonObject.getString("setting");
+                JSONObject settingObj = new JSONObject(setting);
+                int sampleRate = Integer.parseInt(settingObj.getString("sample_Rate"));
+                int caliValue = Integer.parseInt(settingObj.getString("cali_Value"));
+                int leadTypeCode = Integer.parseInt(settingObj.getString("lead_Type"));
                 EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
-                DeviceRegisterInfo registerInfo = new WebDeviceRegisterInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid(), AccountManager.getInstance().getAccount().getHuaweiId());
-                ViseLog.e(registerInfo);
+                DeviceRegisterInfo registerInfo = new WebDeviceRegisterInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid(), creatorId);
+                ViseLog.e(registerInfo + " sr=" + sampleRate + " cali=" + caliValue + " lead=" + leadType);
                 WebEcgDevice device = (WebEcgDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
                 if (device != null) {
                     device.setName(ECGWEBMONITOR_DEVICE_TYPE.getDefaultNickname());

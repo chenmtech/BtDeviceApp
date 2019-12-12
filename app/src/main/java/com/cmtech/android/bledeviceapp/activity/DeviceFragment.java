@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
@@ -57,7 +58,10 @@ public abstract class DeviceFragment extends Fragment{
         if(bundle == null) throw new IllegalStateException();
         String deviceMac = bundle.getString(ARG_DEVICE_MAC);
         device = DeviceManager.findDevice(deviceMac);
-        if(device == null) throw new IllegalStateException("The device of the fragment doesn't exist.");
+        if(device == null) {
+            Toast.makeText(getContext(), "设备已不存在。", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // 更新状态
         updateState();

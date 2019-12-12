@@ -29,6 +29,8 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScannedDeviceAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
@@ -196,20 +198,20 @@ public class ScanActivity extends AppCompatActivity {
         BleScanner.stopScan(bleScanCallback);
     }
 
-    public void registerDevice(final BleDeviceDetailInfo device) {
+    public void registerDevice(final BleDeviceDetailInfo detailInfo) {
         // 先停止扫描
         BleScanner.stopScan(bleScanCallback);
         srlScanDevice.setRefreshing(false);
 
         // 获取设备广播数据中的UUID的短串
-        AdRecord record = device.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
+        AdRecord record = detailInfo.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         if(record == null) {
             showMessageUsingShortToast("获取设备UUID信息错误，无法注册。");
             return;
         }
 
         String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
-        DeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(device.getAddress(), uuidShortString);
+        DeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(detailInfo.getAddress(), uuidShortString);
         Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, 1);
@@ -227,6 +229,12 @@ public class ScanActivity extends AppCompatActivity {
 
         if(isNewDevice) {
             scannedDeviceDetailInfoList.add(device);
+            Collections.sort(scannedDeviceDetailInfoList, new Comparator<BleDeviceDetailInfo>() {
+                @Override
+                public int compare(BleDeviceDetailInfo o1, BleDeviceDetailInfo o2) {
+                    return o2.getRssi() - o1.getRssi();
+                }
+            });
             scannedDeviceAdapter.notifyDataSetChanged();
             rvScanDevice.scrollToPosition(scannedDeviceDetailInfoList.size()-1);
         }

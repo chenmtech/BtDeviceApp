@@ -257,6 +257,15 @@ public class EcgDevice extends AbstractEcgDevice {
         super.close();
     }
 
+    @Override
+    public void clear() {
+        if (broadcast != null) {
+            broadcast.stop();
+            broadcast = null;
+        }
+        super.clear();
+    }
+
     private void saveEcgRecord() {
         try {
             ecgRecord.moveSigFileTo(DIR_ECG_SIGNAL);
