@@ -600,14 +600,15 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     // 打开设备
     public void openDevice(IDevice device) {
-        if(device == null || device.getState() != BleDeviceState.CLOSED) return;
+        if(device == null) return;
 
         DeviceFragment fragment = fragTabManager.findFragment(device);
         if(fragment != null) {
             openDrawer(false);
             fragTabManager.showFragment(fragment);
         } else {
-            createAndOpenFragment(device);
+            if(device.getState() == BleDeviceState.CLOSED)
+                createAndOpenFragment(device);
         }
     }
 
