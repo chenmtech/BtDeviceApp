@@ -1,6 +1,8 @@
 package com.cmtech.android.bledeviceapp.activity;
 
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
@@ -95,6 +98,8 @@ public class WebDevicesFragment extends Fragment {
                 iterator.remove();
             }
         }
+
+        handler.sendEmptyMessage(MSG_UPDATE_WEB_DEVICES);
 
         // 获取网络广播设备列表
         EcgHttpReceiver.retrieveDeviceInfo(AccountManager.getInstance().getAccount().getHuaweiId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
