@@ -1,8 +1,5 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import android.app.ProgressDialog;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,20 +14,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
-import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
-import com.cmtech.android.bledevice.ecg.webecg.EcgHttpReceiver;
-import com.cmtech.android.bledevice.ecg.webecg.WebEcgDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.WebDevicesAdapter;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
-import com.cmtech.android.bledeviceapp.util.UserUtil;
-
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -91,37 +78,9 @@ public class WebDevicesFragment extends Fragment {
     }
 
     private void updateWebDeviceList() {
-        Iterator<IDevice> iterator = DeviceManager.getDeviceList().iterator();
-        while (iterator.hasNext()) {
-            IDevice device = iterator.next();
-            if (!device.isLocal()) {
-                iterator.remove();
-            }
-        }
-
+        DeviceManager.updateWebDevices();
+        DeviceManager.addDeviceListener(((MainActivity)getActivity()).getNotifyService());
         handler.sendEmptyMessage(MSG_UPDATE_WEB_DEVICES);
-
-        // 获取网络广播设备列表
-        EcgHttpReceiver.retrieveDeviceInfo(AccountManager.getInstance().getAccount().getHuaweiId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
-            @Override
-            public void onReceived(List<WebEcgDevice> deviceList) {
-                if(deviceList == null || deviceList.isEmpty()) return;
-
-                for(WebEcgDevice device : deviceList) {
-                    device.addListener(((MainActivity) getActivity()).getNotifyService());
-
-                    final WebDeviceRegisterInfo registerInfo = (WebDeviceRegisterInfo)device.getRegisterInfo();
-                    UserUtil.getUserInfo(registerInfo.getBroadcastId(), new UserUtil.IGetUserInfoCallback() {
-                        @Override
-                        public void onReceived(String userId, final String name, String description, Bitmap image) {
-                            registerInfo.setBroadcastName(name);
-
-                            handler.sendEmptyMessage(MSG_UPDATE_WEB_DEVICES);
-                        }
-                    });
-                }
-            }
-        });
     }
 
     public void update() {

@@ -265,7 +265,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         initMainLayout();
 
         // 为已经打开的设备创建并打开Fragment
-        for(IDevice device : DeviceManager.getDeviceList()) {
+        List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
+        for(IDevice device : openedDevices) {
             if(device.getState() != BleDeviceState.CLOSED) {
                 createAndOpenFragment(device);
             }
@@ -497,9 +498,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
 
-        for(IDevice device : DeviceManager.getDeviceList()) {
-            device.removeListener(this);
-        }
+        DeviceManager.removeDeviceListener(this);
 
         unbindService(serviceConnection);
         if(stopNotifyService) {

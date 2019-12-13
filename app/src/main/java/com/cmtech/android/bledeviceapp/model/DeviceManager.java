@@ -1,10 +1,15 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 
 import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
+import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
+import com.cmtech.android.bledevice.ecg.webecg.EcgHttpReceiver;
+import com.cmtech.android.bledevice.ecg.webecg.WebEcgDevice;
+import com.cmtech.android.bledeviceapp.util.UserUtil;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -79,6 +84,26 @@ public class DeviceManager {
         return DEVICE_LIST;
     }
 
+    public static List<IDevice> getBleDeviceList() {
+        List<IDevice> devices = new ArrayList<>();
+        for(IDevice device : DEVICE_LIST) {
+            if(device.isLocal()) {
+                devices.add(device);
+            }
+        }
+        return devices;
+    }
+
+    public static List<IDevice> getWebDeviceList() {
+        List<IDevice> devices = new ArrayList<>();
+        for(IDevice device : DEVICE_LIST) {
+            if(!device.isLocal()) {
+                devices.add(device);
+            }
+        }
+        return devices;
+    }
+
     // 获取所有设备的Mac列表
     public static List<String> getDeviceMacList() {
         List<String> deviceMacList = new ArrayList<>();
@@ -86,6 +111,35 @@ public class DeviceManager {
             deviceMacList.add(device.getAddress());
         }
         return deviceMacList;
+    }
+
+    public static List<IDevice> getOpenedDevice() {
+        List<IDevice> devices = new ArrayList<>();
+
+        for(IDevice device : DEVICE_LIST) {
+            if(device.getState() != BleDeviceState.CLOSED) {
+                devices.add(device);
+            }
+        }
+        return devices;
+    }
+
+    public static void removeDeviceListener(IDevice.OnDeviceListener listener) {
+        for(IDevice device : DEVICE_LIST) {
+            device.removeListener(listener);
+        }
+    }
+
+    public static void addDeviceListener(IDevice.OnDeviceListener listener) {
+        for(IDevice device : DEVICE_LIST) {
+            device.addListener(listener);
+        }
+    }
+
+    public static void clearDevices() {
+        for(IDevice device : DEVICE_LIST) {
+            device.clear();
+        }
     }
 
     // 是否有打开的设备
@@ -96,5 +150,59 @@ public class DeviceManager {
             }
         }
         return false;
+    }
+
+    public static void updateWebDevices() {
+        // 获取网络广播设备列表
+        final List<IDevice> currentWebDevices = getWebDeviceList();
+
+        for(IDevice device : currentWebDevices) {
+            if(device.getState() == BleDeviceState.CLOSED) {
+                DEVICE_LIST.remove(device);
+            }
+        }
+
+        final boolean[] finish = new boolean[1];
+
+        EcgHttpReceiver.retrieveDeviceInfo(AccountManager.getInstance().getAccount().getHuaweiId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
+            @Override
+            public void onReceived(List<WebEcgDevice> deviceList) {
+                if(deviceList == null || deviceList.isEmpty()) {
+                    finish[0] = true;
+                    return;
+                }
+
+                final int[] update = new int[]{deviceList.size()};
+                for(WebEcgDevice device : deviceList) {
+                    final WebDeviceRegisterInfo registerInfo = (WebDeviceRegisterInfo)device.getRegisterInfo();
+                    UserUtil.getUserInfo(registerInfo.getBroadcastId(), new UserUtil.IGetUserInfoCallback() {
+                        @Override
+                        public void onReceived(String userId, final String name, String description, Bitmap image) {
+                            if(!TextUtils.isEmpty(name))
+                                registerInfo.setBroadcastName(name);
+                            update[0]--;
+                        }
+                    });
+                }
+
+                while(update[0] > 0) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                finish[0] = true;
+            }
+        });
+
+        while (!finish[0]) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

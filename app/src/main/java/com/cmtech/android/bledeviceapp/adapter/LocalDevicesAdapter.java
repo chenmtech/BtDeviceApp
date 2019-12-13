@@ -50,11 +50,7 @@ public class LocalDevicesAdapter extends RecyclerView.Adapter<LocalDevicesAdapte
     }
 
     public LocalDevicesAdapter(MainActivity activity) {
-        for(IDevice device : DeviceManager.getDeviceList()) {
-            if(device.isLocal()) {
-                this.deviceList.add(device);
-            }
-        }
+        this.deviceList = DeviceManager.getBleDeviceList();
         this.activity = activity;
     }
 
@@ -134,12 +130,7 @@ public class LocalDevicesAdapter extends RecyclerView.Adapter<LocalDevicesAdapte
     }
 
     public void update() {
-        this.deviceList.clear();
-        for(IDevice device : DeviceManager.getDeviceList()) {
-            if(device.isLocal()) {
-                this.deviceList.add(device);
-            }
-        }
+        this.deviceList = DeviceManager.getBleDeviceList();
         notifyDataSetChanged();
     }
 }

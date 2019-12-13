@@ -21,7 +21,6 @@ import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.exception.BleException;
@@ -110,10 +109,9 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     private void sendNotification() {
         List<String> notifyContents = new ArrayList<>();
-        for (IDevice device : DeviceManager.getDeviceList()) {
-            if (device.getState() != BleDeviceState.CLOSED) {
-                notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
-            }
+        List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
+        for (IDevice device : openedDevices) {
+            notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
         }
         Notification notification = createNotification(notifyContents);
         if (notification != null) {
@@ -131,11 +129,8 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         ViseLog.e("NotifyService.onDestroy()");
         super.onDestroy();
 
-        for (final IDevice device : DeviceManager.getDeviceList()) {
-            device.clear();
-            device.removeListener(NotifyService.this);
-            //device.close();
-        }
+        DeviceManager.removeDeviceListener(this);
+        DeviceManager.clearDevices();
 
         stopForeground(true);
         stopWarningBleInnerError();

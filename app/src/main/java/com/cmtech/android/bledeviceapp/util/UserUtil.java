@@ -51,6 +51,7 @@ public class UserUtil {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseStr = response.body().string();
+                ViseLog.e(responseStr);
                 User user = parseUser(responseStr);
                 if(callback != null) {
                     if(user != null) {
@@ -95,8 +96,9 @@ public class UserUtil {
         try {
             JSONObject jsonObject = new JSONObject(jsonData);
             user.id = jsonObject.getString("open_id");
+            String displayName = jsonObject.getString("displayName");
             user.name = jsonObject.getString("name");
-            if(user.name.equals("null")) user.name = "";
+            if(user.name.equals("null")) user.name = displayName;
             user.description = jsonObject.getString("description");
             if(user.description.equals("null")) user.description = "";
             //user.image = stringToBitmap(jsonObject.getString("user_image"));

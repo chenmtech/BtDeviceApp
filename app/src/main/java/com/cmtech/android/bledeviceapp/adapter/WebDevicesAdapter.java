@@ -1,10 +1,7 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -14,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -22,7 +18,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
-import com.cmtech.android.bledeviceapp.util.UserUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,11 +50,7 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
     }
 
     public WebDevicesAdapter(MainActivity activity) {
-        for(IDevice device : DeviceManager.getDeviceList()) {
-            if(!device.isLocal()) {
-                this.deviceList.add(device);
-            }
-        }
+        this.deviceList = DeviceManager.getWebDeviceList();
         this.activity = activity;
     }
 
@@ -106,12 +97,7 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
     }
 
     public void update() {
-        this.deviceList.clear();
-        for(IDevice device : DeviceManager.getDeviceList()) {
-            if(!device.isLocal()) {
-                this.deviceList.add(device);
-            }
-        }
+        this.deviceList = DeviceManager.getWebDeviceList();
         notifyDataSetChanged();
     }
 }
