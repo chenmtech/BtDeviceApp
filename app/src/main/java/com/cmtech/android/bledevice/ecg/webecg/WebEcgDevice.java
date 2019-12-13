@@ -176,6 +176,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
             dataCache.clear();
         }
         handler.removeCallbacksAndMessages(null);
+        updateSignalShowState(false);
         super.forceDisconnect(forever);
     }
 
