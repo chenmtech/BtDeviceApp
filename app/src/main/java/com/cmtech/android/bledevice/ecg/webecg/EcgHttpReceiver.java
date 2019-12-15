@@ -25,6 +25,7 @@ import java.util.Map;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import static com.cmtech.android.bledevice.ecg.webecg.WebEcgFactory.ECGWEBMONITOR_DEVICE_TYPE;
 
@@ -63,12 +64,15 @@ public class EcgHttpReceiver {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                ViseLog.e("retrieveDeviceInfo: " + responseStr);
-                List<WebEcgDevice> deviceList = parseDevicesWithJSONObject(responseStr);
-                if (callback != null) {
-                    callback.onReceived(deviceList);
+                try(ResponseBody responseBody = response.body()) {
+                    String responseStr = responseBody.string();
+                    ViseLog.e("retrieveDeviceInfo: " + responseStr);
+                    List<WebEcgDevice> deviceList = parseDevicesWithJSONObject(responseStr);
+                    if (callback != null) {
+                        callback.onReceived(deviceList);
+                    }
                 }
+
             }
         });
     }
@@ -99,14 +103,17 @@ public class EcgHttpReceiver {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                ViseLog.e("readDataPackets: " + responseStr);
+                try(ResponseBody responseBody = response.body()) {
+                    String responseStr = responseBody.string();
+                    ViseLog.e("readDataPackets: " + responseStr);
 
-                List<EcgDataPacket> dataPackets = parseDataPacketsWithJSONObject(responseStr);
+                    List<EcgDataPacket> dataPackets = parseDataPacketsWithJSONObject(responseStr);
 
-                if (callback != null) {
-                    callback.onReceived(dataPackets);
+                    if (callback != null) {
+                        callback.onReceived(dataPackets);
+                    }
                 }
+
             }
         });
     }

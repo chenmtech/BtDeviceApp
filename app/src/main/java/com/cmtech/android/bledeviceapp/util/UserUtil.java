@@ -16,6 +16,7 @@ import java.util.Map;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class UserUtil {
     private static final String getuser_url = "http://huawei.tighoo.com/home/GetUser?";
@@ -50,16 +51,19 @@ public class UserUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                ViseLog.e(responseStr);
-                User user = parseUser(responseStr);
-                if(callback != null) {
-                    if(user != null) {
-                        callback.onReceived(user.id, user.name, user.description, user.image);
-                    }else {
-                        callback.onReceived(null, null, null, null);
+                try(ResponseBody responseBody = response.body()) {
+                    String responseStr = responseBody.string();
+                    ViseLog.e(responseStr);
+                    User user = parseUser(responseStr);
+                    if(callback != null) {
+                        if(user != null) {
+                            callback.onReceived(user.id, user.name, user.description, user.image);
+                        }else {
+                            callback.onReceived(null, null, null, null);
+                        }
                     }
                 }
+
             }
         });
     }
@@ -81,12 +85,15 @@ public class UserUtil {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                ViseLog.e("saveUser success");
+                try(ResponseBody responseBody = response.body()) {
+                    String responseStr = responseBody.string();
+                    ViseLog.e("saveUser success");
 
-                if(callback != null) {
-                    callback.onReceived(true);
+                    if(callback != null) {
+                        callback.onReceived(true);
+                    }
                 }
+
             }
         });
     }

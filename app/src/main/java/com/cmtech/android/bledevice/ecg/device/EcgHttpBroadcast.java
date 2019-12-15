@@ -20,6 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 
 /**
@@ -128,11 +129,14 @@ public class EcgHttpBroadcast {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                ViseLog.e("broadcast start: " + responseStr);
-                isStopped = false;
-                if(listener != null) listener.onBroadcastInitialized(receivers);
-                getReceivers();
+                try(ResponseBody responseBody = response.body()) {
+                    String responseStr = responseBody.string();
+                    ViseLog.e("broadcast start: " + responseStr);
+                    isStopped = false;
+                    if(listener != null) listener.onBroadcastInitialized(receivers);
+                    getReceivers();
+                }
+
             }
         });
     }
@@ -204,11 +208,14 @@ public class EcgHttpBroadcast {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                ViseLog.e("send data: " + responseStr);
-                synchronized (EcgHttpBroadcast.this) {
-                    waiting = false;
+                try(ResponseBody responseBody = response.body()) {
+                    String responseStr = responseBody.string();
+                    ViseLog.e("send data: " + responseStr);
+                    synchronized (EcgHttpBroadcast.this) {
+                        waiting = false;
+                    }
                 }
+
             }
         });
     }
@@ -234,10 +241,13 @@ public class EcgHttpBroadcast {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                ViseLog.e("checkReceiver: " + responseStr);
-                receiver.setReceiving(true);
-                notifyReceiverUpdated();
+                try(ResponseBody responseBody = response.body()) {
+                    String responseStr = responseBody.string();
+                    ViseLog.e("checkReceiver: " + responseStr);
+                    receiver.setReceiving(true);
+                    notifyReceiverUpdated();
+                }
+
             }
         });
     }
@@ -269,10 +279,13 @@ public class EcgHttpBroadcast {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                ViseLog.e("uncheckReceiver: " + responseStr);
-                receiver.setReceiving(false);
-                notifyReceiverUpdated();
+                try(ResponseBody responseBody = response.body()) {
+                    String responseStr = responseBody.string();
+                    ViseLog.e("uncheckReceiver: " + responseStr);
+                    receiver.setReceiving(false);
+                    notifyReceiverUpdated();
+                }
+
             }
         });
     }
@@ -294,10 +307,13 @@ public class EcgHttpBroadcast {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                ViseLog.e("getReceivers success: " + responseStr);
-                receivers.addAll(parseReceivers(responseStr));
-                notifyReceiverUpdated();
+                try(ResponseBody responseBody = response.body()) {
+                    String responseStr = responseBody.string();
+                    ViseLog.e("getReceivers success: " + responseStr);
+                    receivers.addAll(parseReceivers(responseStr));
+                    notifyReceiverUpdated();
+                }
+
             }
         });
     }
@@ -315,24 +331,27 @@ public class EcgHttpBroadcast {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String responseStr = response.body().string();
-                ViseLog.e("getReceivers success: " + responseStr);
-                List<Receiver> newReceiver = parseReceivers(responseStr);
-                List<Receiver> tmpReceivers = new ArrayList<>();
-                for(Receiver receiver : receivers) {
-                    if(!receiver.isReceiving && !newReceiver.contains(receiver))
-                        tmpReceivers.add(receiver);
-                }
-                for(Receiver receiver : tmpReceivers) {
-                    receivers.remove(receiver);
-                }
-                tmpReceivers.clear();
-                for(Receiver receiver : newReceiver) {
-                    if(!receivers.contains(receiver)) {
-                        receivers.add(receiver);
+                try(ResponseBody responseBody = response.body()) {
+                    String responseStr = responseBody.string();
+                    ViseLog.e("getReceivers success: " + responseStr);
+                    List<Receiver> newReceiver = parseReceivers(responseStr);
+                    List<Receiver> tmpReceivers = new ArrayList<>();
+                    for(Receiver receiver : receivers) {
+                        if(!receiver.isReceiving && !newReceiver.contains(receiver))
+                            tmpReceivers.add(receiver);
                     }
+                    for(Receiver receiver : tmpReceivers) {
+                        receivers.remove(receiver);
+                    }
+                    tmpReceivers.clear();
+                    for(Receiver receiver : newReceiver) {
+                        if(!receivers.contains(receiver)) {
+                            receivers.add(receiver);
+                        }
+                    }
+                    notifyReceiverUpdated();
                 }
-                notifyReceiverUpdated();
+
             }
         });
     }
