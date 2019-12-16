@@ -31,20 +31,6 @@ public class HttpUtils {
         }
     }
 
-    public static String upload(String url) {
-        return upload(url, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
-            }
-        });
-    }
-
     private static void Get(String url, Callback callback) {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -55,7 +41,7 @@ public class HttpUtils {
         client.newCall(request).enqueue(callback);
     }
 
-    public static String convertString(Map<String, String> data) {
+    private static String convertString(Map<String, String> data) {
         if (data == null || data.isEmpty()) return "";
 
         StringBuilder builder = new StringBuilder();

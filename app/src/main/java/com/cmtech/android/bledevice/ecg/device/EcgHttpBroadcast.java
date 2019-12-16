@@ -49,7 +49,7 @@ public class EcgHttpBroadcast {
     private static final String TYPE_DATA = "data"; // 数据
     private static final String TYPE_RECEIVER_ID = "receiverId"; // 接收者ID
 
-    private boolean isStopped;
+    private boolean stopped; // 是否已经停止广播
     private final String userId; // 用户ID
     private final String deviceId; // 设备ID
     private final int sampleRate; // 采样率
@@ -76,12 +76,12 @@ public class EcgHttpBroadcast {
     }
 
     public interface OnEcgHttpBroadcastListener {
-        void onBroadcastInitialized(List<Receiver> receivers); // 启动
+        void onBroadcastInitialized(List<Receiver> receivers); // 初始化
         void onReceiverUpdated(); // 接收者更新
     }
 
     public EcgHttpBroadcast(String userId, String deviceId, int sampleRate, int caliValue, int leadTypeCode) {
-        isStopped = true;
+        stopped = true;
         this.userId = userId;
         this.deviceId = deviceId;
         this.sampleRate = sampleRate;
@@ -101,18 +101,10 @@ public class EcgHttpBroadcast {
     }
 
     /**
-     * 广播是否已停止
-     * @return : 是否已停止
-     */
-    private boolean isStop() {
-        return isStopped;
-    }
-
-    /**
      * 启动广播，这里上传广播相关参数。服务器端接收后，如果允许广播，应该在Response中返回广播ID
      */
     public void start() {
-        if(!isStop()) return; // 不能重复启动
+        if(!stopped) return; // 不能重复启动
         receivers.clear();
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
@@ -124,7 +116,7 @@ public class EcgHttpBroadcast {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "broadcast start fail.");
-                isStopped = true;
+                stopped = true;
             }
 
             @Override
@@ -132,11 +124,10 @@ public class EcgHttpBroadcast {
                 try(ResponseBody responseBody = response.body()) {
                     String responseStr = responseBody.string();
                     ViseLog.e("broadcast start: " + responseStr);
-                    isStopped = false;
+                    stopped = false;
                     if(listener != null) listener.onBroadcastInitialized(receivers);
                     getReceivers();
                 }
-
             }
         });
     }
@@ -145,11 +136,11 @@ public class EcgHttpBroadcast {
      * 停止广播
      */
     public void stop() {
-        if(isStop()) return;
+        if(stopped) return;
 
         uncheckAllReceivers();
 
-        isStopped = true;
+        stopped = true;
     }
 
     private void uncheckAllReceivers() {
@@ -165,7 +156,7 @@ public class EcgHttpBroadcast {
      * @param ecgSignal ：心电数据
      */
     public synchronized void sendEcgSignal(int ecgSignal) {
-        if(isStop()) return;
+        if(stopped) return;
         ecgBuffer.add(ecgSignal);
         if(!waiting && ecgBuffer.size() >= sampleRate) {
             waiting = true;
@@ -178,7 +169,7 @@ public class EcgHttpBroadcast {
      * @param hr ：心率值
      */
     public synchronized void sendHrValue(short hr) {
-        if(isStop()) return;
+        if(stopped) return;
         hrBuffer.add(hr);
     }
 
@@ -225,7 +216,7 @@ public class EcgHttpBroadcast {
      * @param receiver ：接收者
      */
     public void checkReceiver(final Receiver receiver) {
-        if(isStop()) return;
+        if(stopped) return;
         if(receiver == null || receiver.isReceiving()) return;
 
         Map<String, String> data = new HashMap<>();
@@ -247,7 +238,6 @@ public class EcgHttpBroadcast {
                     receiver.setReceiving(true);
                     notifyReceiverUpdated();
                 }
-
             }
         });
     }
@@ -263,7 +253,7 @@ public class EcgHttpBroadcast {
      * @param receiver ：接收者
      */
     public void uncheckReceiver(final Receiver receiver) {
-        if(isStop()) return;
+        if(stopped) return;
         if(receiver == null || !receiver.isReceiving()) return;
 
         Map<String, String> data = new HashMap<>();
@@ -295,7 +285,7 @@ public class EcgHttpBroadcast {
     }
 
     private void getReceivers() {
-        if(isStop()) return;
+        if(stopped) return;
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
@@ -319,7 +309,7 @@ public class EcgHttpBroadcast {
     }
 
     private void updateNewReceivers() {
-        if(isStop()) return;
+        if(stopped) return;
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
