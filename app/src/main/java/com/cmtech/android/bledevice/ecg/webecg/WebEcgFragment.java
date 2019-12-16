@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity;
 import com.cmtech.android.bledevice.ecg.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
@@ -106,7 +105,7 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
         List<String> titleList = new ArrayList<>(Arrays.asList(EcgHrStatisticsFragment.TITLE, EcgRecordFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
-        pager.setOffscreenPageLimit(2);
+        pager.setOffscreenPageLimit(1);
         layout.setupWithViewPager(pager);
 
         device.setEcgMonitorListener(this);

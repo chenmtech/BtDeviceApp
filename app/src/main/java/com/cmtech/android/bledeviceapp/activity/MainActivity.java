@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         List<String> titleList = new ArrayList<>(Arrays.asList("本地设备", "网络设备"));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getSupportFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
-        pager.setOffscreenPageLimit(2);
+        pager.setOffscreenPageLimit(1);
         layout.setupWithViewPager(pager);
 
         // 初始化导航视图
