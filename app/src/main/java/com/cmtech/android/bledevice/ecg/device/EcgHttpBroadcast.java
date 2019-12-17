@@ -49,7 +49,7 @@ public class EcgHttpBroadcast {
     private static final String TYPE_DATA = "data"; // 数据
     private static final String TYPE_RECEIVER_ID = "receiverId"; // 接收者ID
 
-    private boolean stopped; // 是否已经停止广播
+    private volatile boolean stopped; // 是否已经停止广播
     private final String userId; // 用户ID
     private final String deviceId; // 设备ID
     private final int sampleRate; // 采样率
@@ -137,9 +137,7 @@ public class EcgHttpBroadcast {
      */
     public void stop() {
         if(stopped) return;
-
         uncheckAllReceivers();
-
         stopped = true;
     }
 
@@ -155,12 +153,14 @@ public class EcgHttpBroadcast {
      * 发送心电信号
      * @param ecgSignal ：心电数据
      */
-    public synchronized void sendEcgSignal(int ecgSignal) {
+    public void sendEcgSignal(int ecgSignal) {
         if(stopped) return;
         ecgBuffer.add(ecgSignal);
-        if(!waiting && ecgBuffer.size() >= sampleRate) {
-            waiting = true;
-            sendData();
+        synchronized ((Boolean)waiting) {
+            if(!waiting && ecgBuffer.size() >= sampleRate) {
+                waiting = true;
+                sendData();
+            }
         }
     }
 
@@ -168,7 +168,7 @@ public class EcgHttpBroadcast {
      * 发送心率值
      * @param hr ：心率值
      */
-    public synchronized void sendHrValue(short hr) {
+    public void sendHrValue(short hr) {
         if(stopped) return;
         hrBuffer.add(hr);
     }
@@ -192,7 +192,7 @@ public class EcgHttpBroadcast {
             @Override
             public void onFailure(Call call, IOException e) {
                 ViseLog.e(e.getMessage());
-                synchronized (EcgHttpBroadcast.this) {
+                synchronized ((Boolean)waiting) {
                     waiting = false;
                 }
             }
@@ -202,11 +202,10 @@ public class EcgHttpBroadcast {
                 try(ResponseBody responseBody = response.body()) {
                     String responseStr = responseBody.string();
                     ViseLog.e("send data: " + responseStr);
-                    synchronized (EcgHttpBroadcast.this) {
+                    synchronized ((Boolean)waiting) {
                         waiting = false;
                     }
                 }
-
             }
         });
     }
@@ -303,7 +302,6 @@ public class EcgHttpBroadcast {
                     receivers.addAll(parseReceivers(responseStr));
                     notifyReceiverUpdated();
                 }
-
             }
         });
     }
@@ -325,15 +323,15 @@ public class EcgHttpBroadcast {
                     String responseStr = responseBody.string();
                     ViseLog.e("getReceivers success: " + responseStr);
                     List<Receiver> newReceiver = parseReceivers(responseStr);
-                    List<Receiver> tmpReceivers = new ArrayList<>();
+                    List<Receiver> deleteReceivers = new ArrayList<>();
                     for(Receiver receiver : receivers) {
                         if(!receiver.isReceiving && !newReceiver.contains(receiver))
-                            tmpReceivers.add(receiver);
+                            deleteReceivers.add(receiver);
                     }
-                    for(Receiver receiver : tmpReceivers) {
+                    for(Receiver receiver : deleteReceivers) {
                         receivers.remove(receiver);
                     }
-                    tmpReceivers.clear();
+                    deleteReceivers.clear();
                     for(Receiver receiver : newReceiver) {
                         if(!receivers.contains(receiver)) {
                             receivers.add(receiver);
@@ -341,7 +339,6 @@ public class EcgHttpBroadcast {
                     }
                     notifyReceiverUpdated();
                 }
-
             }
         });
     }
