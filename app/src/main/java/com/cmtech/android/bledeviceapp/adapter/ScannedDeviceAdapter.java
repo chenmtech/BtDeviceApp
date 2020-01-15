@@ -12,10 +12,13 @@ import android.widget.Toast;
 
 import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
+import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.ScanActivity;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
+import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.vise.log.ViseLog;
 
 import java.util.List;
 
@@ -79,9 +82,21 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
     @Override
     public void onBindViewHolder(@NonNull ScannedDeviceAdapter.ViewHolder holder, final int position) {
         BleDeviceDetailInfo detailInfo = scannedDeviceDetailInfoList.get(position);
+        DeviceType type = null;
         AdRecord recordUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
-        String supportedUUID = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(recordUUID.getData()).toString());
-        DeviceType type = DeviceType.getFromUuid(supportedUUID);
+        if(recordUUID != null) {
+            String supportedUUID = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(recordUUID.getData()).toString());
+            type = DeviceType.getFromUuid(supportedUUID);
+        } else {
+            recordUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
+            if(recordUUID != null) {
+                byte[] data = recordUUID.getData();
+                ByteUtil.reverse(data);
+                String supportedUUID = HexUtil.encodeHexStr(data);
+                ViseLog.e(supportedUUID);
+                type = DeviceType.getFromUuid(supportedUUID);
+            }
+        }
         holder.deviceTypeName.setText(String.format("设备类型：%s", (type == null) ? "未知" : type.getDefaultNickname()));
         holder.deviceAddress.setText(String.format("设备地址：%s", detailInfo.getAddress()));
         holder.deviceName.setText(String.format("设备名：%s", detailInfo.getName()));

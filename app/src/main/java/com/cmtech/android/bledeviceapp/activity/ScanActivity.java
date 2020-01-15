@@ -24,7 +24,6 @@ import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.UuidUtil;
-import com.cmtech.android.bledeviceapp.AppConstant;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScannedDeviceAdapter;
 
@@ -52,7 +51,7 @@ import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_R
 
 public class ScanActivity extends AppCompatActivity {
     private static final String TAG = "ScanActivity";
-    private static final ScanFilter SCAN_FILTER_WITH_DEVICE_NAME = new ScanFilter.Builder().setDeviceName(AppConstant.SCAN_DEVICE_NAME).build();
+    private static final ScanFilter SCAN_FILTER_WITH_DEVICE_NAME = null; //new ScanFilter.Builder().setDeviceName(AppConstant.SCAN_DEVICE_NAME).build();
     public static final String REGISTERED_DEVICE_MAC_LIST = "registered_device_mac_list";
 
     private final List<BleDeviceDetailInfo> scannedDeviceDetailInfoList = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表

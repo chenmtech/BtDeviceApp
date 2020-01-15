@@ -11,7 +11,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
 // 会根据设备类型BleDeviceType，通过反射创建工厂类实例
 public class TempHumidFactory extends DeviceFactory {
     private static final String TEMPHUMID_UUID = "aa60"; // 温湿度计
-    private static final String TEMPHUMID_DEFAULT_NAME = "温湿度计";
+    private static final String TEMPHUMID_DEFAULT_NAME = "康明温湿度计";
     private static final int TEMPHUMID_DEFAULT_IMAGE_ID = R.drawable.ic_temphumid_defaultimage;
     private static final String TEMPHUMID_FACTORY = TempHumidFactory.class.getName();
 
