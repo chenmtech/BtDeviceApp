@@ -21,6 +21,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 
@@ -68,7 +69,7 @@ public class TempHumidFragment extends DeviceFragment implements ITempHumidDataO
         LinearLayoutManager layoutManager = new LinearLayoutManager(MyApplication.getContext());
         rvHistoryData.setLayoutManager(layoutManager);
         rvHistoryData.addItemDecoration(new DividerItemDecoration(MyApplication.getContext(), DividerItemDecoration.VERTICAL));
-        historyDataAdapter = new TempHumidHistoryDataAdapter(device.getHistoryDataList());
+        historyDataAdapter = new TempHumidHistoryDataAdapter(new ArrayList<TempHumidData>());
         rvHistoryData.setAdapter(historyDataAdapter);
         rvHistoryData.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -77,7 +78,7 @@ public class TempHumidFragment extends DeviceFragment implements ITempHumidDataO
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     int lastVisiblePosition = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
                     if(lastVisiblePosition == recyclerView.getLayoutManager().getItemCount()-1) {
-                        device.updateHistoryData();
+                        //device.updateHistoryData();
                     }
                 }
             }

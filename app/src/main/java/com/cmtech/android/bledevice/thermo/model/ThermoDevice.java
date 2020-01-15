@@ -8,15 +8,15 @@ import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleDeviceConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
-import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.core.IDeviceConnector;
 import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
-import static com.cmtech.android.ble.BleConfig.CCC_UUID;
+import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
 
 /**
@@ -32,14 +32,19 @@ public class ThermoDevice extends AbstractDevice {
     private static final String thermoControlUuid       = "aa32";           // 体温测量控制UUID:aa32
     private static final String thermoPeriodUuid        = "aa33";           // 体温采样周期UUID:aa33
 
+    private static final UUID thermoServiceUUID       = UuidUtil.stringToUuid(thermoServiceUuid, MY_BASE_UUID);
+    private static final UUID thermoDataUUID          = UuidUtil.stringToUuid(thermoDataUuid, MY_BASE_UUID);
+    private static final UUID thermoControlUUID       = UuidUtil.stringToUuid(thermoControlUuid, MY_BASE_UUID);
+    private static final UUID thermoPeriodUUID        = UuidUtil.stringToUuid(thermoPeriodUuid, MY_BASE_UUID);
+
     private static final BleGattElement THERMODATA =
-            new BleGattElement(thermoServiceUuid, thermoDataUuid, null, MY_BASE_UUID, "体温值");
+            new BleGattElement(thermoServiceUUID, thermoDataUUID, null, "体温值");
     private static final BleGattElement THERMOCONTROL =
-            new BleGattElement(thermoServiceUuid, thermoControlUuid, null, MY_BASE_UUID, "体温Ctrl");
+            new BleGattElement(thermoServiceUUID, thermoControlUUID, null, "体温Ctrl");
     private static final BleGattElement THERMOPERIOD =
-            new BleGattElement(thermoServiceUuid, thermoPeriodUuid, null, MY_BASE_UUID, "采集周期(s)");
+            new BleGattElement(thermoServiceUUID, thermoPeriodUUID, null, "采集周期(s)");
     private static final BleGattElement THERMODATACCC =
-            new BleGattElement(thermoServiceUuid, thermoDataUuid, CCC_UUID, MY_BASE_UUID, "体温CCC");
+            new BleGattElement(thermoServiceUUID, thermoDataUUID, CCC_UUID, "体温CCC");
 
     private static final byte DEFAULT_SAMPLE_PERIOD = (byte)0x01;
     ///////////////////////////////////////////////////////

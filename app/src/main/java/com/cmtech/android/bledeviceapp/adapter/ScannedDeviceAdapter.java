@@ -82,20 +82,22 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
     @Override
     public void onBindViewHolder(@NonNull ScannedDeviceAdapter.ViewHolder holder, final int position) {
         BleDeviceDetailInfo detailInfo = scannedDeviceDetailInfoList.get(position);
-        DeviceType type = null;
-        AdRecord recordUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
-        if(recordUUID != null) {
-            String supportedUUID = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(recordUUID.getData()).toString());
-            type = DeviceType.getFromUuid(supportedUUID);
+
+        AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
+        byte[] uuidBytes = null;
+        if(serviceUUID != null) {
+            uuidBytes = new byte[]{serviceUUID.getData()[13], serviceUUID.getData()[12]};
         } else {
-            recordUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
-            if(recordUUID != null) {
-                byte[] data = recordUUID.getData();
-                ByteUtil.reverse(data);
-                String supportedUUID = HexUtil.encodeHexStr(data);
-                ViseLog.e(supportedUUID);
-                type = DeviceType.getFromUuid(supportedUUID);
+            serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
+            if(serviceUUID != null) {
+                uuidBytes = new byte[]{serviceUUID.getData()[1], serviceUUID.getData()[0]};
             }
+        }
+
+        DeviceType type = null;
+        if(uuidBytes != null) {
+            String supportedUUID = HexUtil.encodeHexStr(uuidBytes);
+            type = DeviceType.getFromUuid(supportedUUID);
         }
         holder.deviceTypeName.setText(String.format("设备类型：%s", (type == null) ? "未知" : type.getDefaultNickname()));
         holder.deviceAddress.setText(String.format("设备地址：%s", detailInfo.getAddress()));

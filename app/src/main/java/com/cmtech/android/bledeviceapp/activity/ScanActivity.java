@@ -23,9 +23,11 @@ import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
+import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScannedDeviceAdapter;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,7 +53,7 @@ import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_R
 
 public class ScanActivity extends AppCompatActivity {
     private static final String TAG = "ScanActivity";
-    private static final ScanFilter SCAN_FILTER_WITH_DEVICE_NAME = null; //new ScanFilter.Builder().setDeviceName(AppConstant.SCAN_DEVICE_NAME).build();
+    private static final ScanFilter SCAN_FILTER = null; //new ScanFilter.Builder().setDeviceName(AppConstant.SCAN_DEVICE_NAME).build();
     public static final String REGISTERED_DEVICE_MAC_LIST = "registered_device_mac_list";
 
     private final List<BleDeviceDetailInfo> scannedDeviceDetailInfoList = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
@@ -64,8 +66,13 @@ public class ScanActivity extends AppCompatActivity {
     // 扫描回调
     private final IBleScanCallback bleScanCallback = new IBleScanCallback() {
         @Override
-        public void onDeviceFound(BleDeviceDetailInfo bleDeviceDetailInfo) {
-            addDeviceDetailInfoToList(bleDeviceDetailInfo);
+        public void onDeviceFound(final BleDeviceDetailInfo bleDeviceDetailInfo) {
+            mHandle.post(new Runnable() {
+                @Override
+                public void run() {
+                    addDevice(bleDeviceDetailInfo);
+                }
+            });
         }
 
         @Override
@@ -84,9 +91,9 @@ public class ScanActivity extends AppCompatActivity {
                     break;
 
                 case CODE_BLE_INNER_ERROR:
+                    showMessageUsingLongToast("蓝牙内部错误，必须重启蓝牙。");
                     srlScanDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
-                    showMessageUsingLongToast("蓝牙内部错误，必须重启蓝牙。");
                     break;
             }
         }
@@ -138,7 +145,7 @@ public class ScanActivity extends AppCompatActivity {
         scannedDeviceAdapter.notifyDataSetChanged();
         BleScanner.stopScan(bleScanCallback);
         srlScanDevice.setRefreshing(true);
-        BleScanner.startScan(SCAN_FILTER_WITH_DEVICE_NAME, bleScanCallback);
+        BleScanner.startScan(SCAN_FILTER, bleScanCallback);
 
         mHandle.postDelayed(new Runnable() {
             @Override
@@ -203,21 +210,31 @@ public class ScanActivity extends AppCompatActivity {
         srlScanDevice.setRefreshing(false);
 
         // 获取设备广播数据中的UUID的短串
-        AdRecord record = detailInfo.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
-        if(record == null) {
-            showMessageUsingShortToast("获取设备UUID信息错误，无法注册。");
+        AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
+        byte[] uuidBytes = null;
+        if(serviceUUID != null) {
+            uuidBytes = new byte[]{serviceUUID.getData()[13], serviceUUID.getData()[12]};
+        } else {
+            serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
+            if(serviceUUID != null) {
+                uuidBytes = new byte[]{serviceUUID.getData()[1], serviceUUID.getData()[0]};
+            }
+        }
+        if(uuidBytes == null) {
+            showMessageUsingShortToast("不支持的设备类型，无法注册。");
             return;
         }
 
-        String uuidShortString = UuidUtil.longToShortString(UuidUtil.byteArrayToUuid(record.getData()).toString());
+        String uuidShortString = HexUtil.encodeHexStr(uuidBytes);
         DeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(detailInfo.getAddress(), uuidShortString);
         Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, 1);
     }
 
-    private void addDeviceDetailInfoToList(final BleDeviceDetailInfo device) {
+    private void addDevice(final BleDeviceDetailInfo device) {
         if(device == null) return;
+
         boolean isNewDevice = true;
         for(BleDeviceDetailInfo dv : scannedDeviceDetailInfoList) {
             if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
@@ -234,6 +251,7 @@ public class ScanActivity extends AppCompatActivity {
                     return o2.getRssi() - o1.getRssi();
                 }
             });
+
             scannedDeviceAdapter.notifyDataSetChanged();
             rvScanDevice.scrollToPosition(scannedDeviceDetailInfoList.size()-1);
         }

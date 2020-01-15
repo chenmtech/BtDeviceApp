@@ -10,6 +10,7 @@ import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.OtherException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
+import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgMonitorState;
 import com.cmtech.android.bledevice.ecg.process.EcgDataProcessor;
@@ -21,17 +22,18 @@ import com.vise.log.ViseLog;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import static com.cmtech.android.ble.BleConfig.CCC_UUID;
 import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
 import static com.cmtech.android.bledevice.ecg.EcgConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.ecg.view.ScanEcgView.PIXEL_PER_GRID;
 import static com.cmtech.android.bledevice.ecg.view.ScanEcgView.SECOND_PER_GRID;
+import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
 
 
@@ -61,19 +63,27 @@ public class EcgDevice extends AbstractEcgDevice {
     private static final String batteryServiceUuid = "aa90";           // 电池电量服务UUID:aa90
     private static final String batteryDataUuid = "aa91";           // 电池电量数据特征UUID:aa91
 
+    private static final UUID ecgMonitorServiceUUID = UuidUtil.stringToUuid(ecgMonitorServiceUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorDataUUID = UuidUtil.stringToUuid(ecgMonitorDataUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorCtrlUUID = UuidUtil.stringToUuid(ecgMonitorCtrlUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorSampleRateUUID = UuidUtil.stringToUuid(ecgMonitorSampleRateUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorLeadTypeUUID = UuidUtil.stringToUuid(ecgMonitorLeadTypeUuid, MY_BASE_UUID);
+    private static final UUID batteryServiceUUID = UuidUtil.stringToUuid(batteryServiceUuid, MY_BASE_UUID);
+    private static final UUID batteryDataUUID = UuidUtil.stringToUuid(batteryDataUuid, MY_BASE_UUID);
+
     // Gatt Element常量
     private static final BleGattElement ECGMONITOR_DATA =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, null, MY_BASE_UUID, "心电数据");
+            new BleGattElement(ecgMonitorServiceUUID, ecgMonitorDataUUID, null, "心电数据");
     private static final BleGattElement ECGMONITOR_DATA_CCC =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorDataUuid, CCC_UUID, MY_BASE_UUID, "心电数据CCC");
+            new BleGattElement(ecgMonitorServiceUUID, ecgMonitorDataUUID, CCC_UUID, "心电数据CCC");
     private static final BleGattElement ECGMONITOR_CTRL =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorCtrlUuid, null, MY_BASE_UUID, "心电Ctrl");
+            new BleGattElement(ecgMonitorServiceUUID, ecgMonitorCtrlUUID, null, "心电Ctrl");
     private static final BleGattElement ECGMONITOR_SAMPLE_RATE =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorSampleRateUuid, null, MY_BASE_UUID, "采样率");
+            new BleGattElement(ecgMonitorServiceUUID, ecgMonitorSampleRateUUID, null, "采样率");
     private static final BleGattElement ECGMONITOR_LEAD_TYPE =
-            new BleGattElement(ecgMonitorServiceUuid, ecgMonitorLeadTypeUuid, null, MY_BASE_UUID, "导联类型");
+            new BleGattElement(ecgMonitorServiceUUID, ecgMonitorLeadTypeUUID, null, "导联类型");
     private static final BleGattElement BATTERY_DATA =
-            new BleGattElement(batteryServiceUuid, batteryDataUuid, null, MY_BASE_UUID, "电池电量数据");
+            new BleGattElement(batteryServiceUUID, batteryDataUUID, null, "电池电量数据");
 
     // ECGMONITOR_CTRL Element的控制常量
     private static final byte ECGMONITOR_CTRL_STOP = (byte) 0x00; // 停止采集
