@@ -30,9 +30,6 @@ import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
 public class TempHumidDevice extends AbstractDevice {
     private static final String TAG = "TempHumidDevice";
 
-    /**
-     * 一般常量
-     */
     private static final short DEFAULT_TEMPHUMID_INTERVAL  = 15; // 默认温湿度测量间隔，单位：秒
 
     ///////////////// 温湿度计Service相关的常量////////////////
@@ -46,9 +43,6 @@ public class TempHumidDevice extends AbstractDevice {
     private static final UUID tempHumidIntervalUUID   = UuidUtil.stringToUuid(tempHumidIntervalUuid, STANDARD_BLE_UUID);
     private static final UUID tempHumidIRangeUUID     = UuidUtil.stringToUuid(tempHumidIRangeUuid, STANDARD_BLE_UUID);
 
-    /**
-     * Gatt Element常量
-     */
     private static final BleGattElement TEMPHUMIDDATA =
             new BleGattElement(tempHumidServiceUUID, tempHumidDataUUID, null, "温湿度数据");
     private static final BleGattElement TEMPHUMIDINTERVAL =

@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.cmtech.android.ble.BleConfig;
 import com.cmtech.android.bledevice.ecg.device.EcgFactory;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgFactory;
+import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorFactory;
 import com.cmtech.android.bledevice.siggenerator.model.SigGeneratorFactory;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
@@ -48,6 +49,7 @@ public class MyApplication extends Application {
         DeviceConfig.addSupportedDeviceType(ThermoFactory.THERMO_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(SigGeneratorFactory.SIGGENERATOR_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(WebEcgFactory.ECGWEBMONITOR_DEVICE_TYPE);
+        DeviceConfig.addSupportedDeviceType(HRMonitorFactory.HRMONITOR_DEVICE_TYPE);
         // 初始化MobSDK
         MobSDK.init(getApplicationContext(), "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");
         // 初始化ViseLog
