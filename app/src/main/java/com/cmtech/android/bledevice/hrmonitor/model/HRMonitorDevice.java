@@ -1,9 +1,13 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
+import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
+import com.cmtech.android.ble.core.BleDeviceConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledeviceapp.util.ByteUtil;
 
 import java.util.UUID;
 
@@ -35,13 +39,15 @@ public class HRMonitorDevice extends AbstractDevice {
     private static final UUID hrMonitorCtrlPtUUID     = UuidUtil.stringToUuid(hrMonitorCtrlPtUuid, STANDARD_BLE_UUID);
 
     private static final BleGattElement HRMONITORMEAS =
-            new BleGattElement(hrMonitorServiceUUID, hrMonitorMeasurementUUID, null, "心率计测量值");
+            new BleGattElement(hrMonitorServiceUUID, hrMonitorMeasurementUUID, null, "心率测量值");
     private static final BleGattElement HRMONITORMEASCCC =
-            new BleGattElement(hrMonitorServiceUUID, hrMonitorMeasurementUUID, CCC_UUID, "心率计测量CCC");
+            new BleGattElement(hrMonitorServiceUUID, hrMonitorMeasurementUUID, CCC_UUID, "心率测量CCC");
     private static final BleGattElement HRMONITORSENSLOC =
             new BleGattElement(hrMonitorServiceUUID, hrMonitorSensLocUUID, null, "测量位置");
     private static final BleGattElement HRMONITORCTRLPT =
             new BleGattElement(hrMonitorServiceUUID, hrMonitorCtrlPtUUID, null, "控制点");
+
+    private IHRMonitorDeviceListener listener;
 
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
@@ -49,7 +55,16 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public boolean onConnectSuccess() {
-        return false;
+        BleGattElement[] elements = new BleGattElement[]{HRMONITORMEAS, HRMONITORMEASCCC, HRMONITORSENSLOC};
+        if(!((BleDeviceConnector)connector).containGattElements(elements)) {
+            return false;
+        }
+
+        readSensorLocation();
+
+        startHRMeasure();
+
+        return true;
     }
 
     @Override
@@ -60,5 +75,44 @@ public class HRMonitorDevice extends AbstractDevice {
     @Override
     public void onDisconnect() {
 
+    }
+
+    public void setListener(IHRMonitorDeviceListener listener) {
+        this.listener = listener;
+    }
+
+    private void readSensorLocation() {
+        ((BleDeviceConnector)connector).read(HRMONITORSENSLOC, new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                int sensLoc = data[0];
+
+                if(listener != null) {
+                    listener.onHRSensLocUpdated(sensLoc);
+                }
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+            }
+        });
+    }
+
+    private void startHRMeasure() {
+        IBleDataCallback notifyCallback = new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                if(listener != null) {
+                    listener.onHRMeasureUpdated(data);
+                }
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        };
+
+        ((BleDeviceConnector)connector).notify(HRMONITORMEASCCC, true, notifyCallback);
     }
 }
