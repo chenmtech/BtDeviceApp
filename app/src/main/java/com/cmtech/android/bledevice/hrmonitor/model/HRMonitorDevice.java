@@ -99,6 +99,8 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     private void startHRMeasure() {
+
+
         IBleDataCallback notifyCallback = new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
@@ -112,7 +114,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
             }
         };
-
+        ((BleDeviceConnector)connector).notify(HRMONITORMEASCCC, false, null);
         ((BleDeviceConnector)connector).notify(HRMONITORMEASCCC, true, notifyCallback);
     }
 }
