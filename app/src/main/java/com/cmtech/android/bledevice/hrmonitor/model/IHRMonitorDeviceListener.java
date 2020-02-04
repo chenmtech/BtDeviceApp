@@ -13,7 +13,7 @@ package com.cmtech.android.bledevice.hrmonitor.model;
  * Version:        1.0
  */
 public interface IHRMonitorDeviceListener {
-    void onHRMeasureUpdated(byte[] hrData);
+    void onHRMeasureUpdated(BleHeartRateData hrData);
     void onHRSensLocUpdated(int loc);
     void onHRCtrlPtUpdated(int ctrl);
 }

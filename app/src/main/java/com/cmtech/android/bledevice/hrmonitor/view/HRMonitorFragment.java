@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledevice.hrmonitor.model.IHRMonitorDeviceListener;
 import com.cmtech.android.bledevice.temphumid.adapter.TempHumidHistoryDataAdapter;
@@ -79,16 +80,14 @@ public class HRMonitorFragment extends DeviceFragment implements IHRMonitorDevic
     }
 
     @Override
-    public void onHRMeasureUpdated(final byte[] hrData) {
-        if(hrData != null) {
-            if(getActivity() != null) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        etHRMeas.setText(Arrays.toString(hrData));
-                    }
-                });
-            }
+    public void onHRMeasureUpdated(final BleHeartRateData hrData) {
+        if(hrData != null && getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    etHRMeas.setText(String.valueOf(hrData.getBpm()));
+                }
+            });
         }
     }
 
@@ -114,5 +113,14 @@ public class HRMonitorFragment extends DeviceFragment implements IHRMonitorDevic
                 }
             });
         }
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if(device != null)
+            device.removeListener();
     }
 }
