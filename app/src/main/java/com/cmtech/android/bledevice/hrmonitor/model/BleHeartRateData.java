@@ -18,10 +18,10 @@ import java.util.ArrayList;
  * Version:        1.0
  */
 public class BleHeartRateData {
-    private byte flag;
-    private int bpm;
-    private int energy;
-    private ArrayList<Integer> rrIntervals;
+    private final byte flag;
+    private final int bpm;
+    private final int energy;
+    private final ArrayList<Integer> RRIntervals = new ArrayList<>();
 
     public BleHeartRateData(byte[] data) {
         if(data == null || data.length < 2) {
@@ -30,17 +30,47 @@ public class BleHeartRateData {
 
         flag = data[0];
 
+        int next = 1;
+
         if((flag & 0x01) == 0) {
-            bpm = UnsignedUtil.getUnsignedByte(data[1]);
+            bpm = UnsignedUtil.getUnsignedByte(data[next]);
+            next++;
         } else {
-            if(data.length < 3) {
-                throw new IllegalArgumentException();
+            bpm = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(new byte[] {data[next], data[next+1]}));
+            next += 2;
+        }
+
+        if((flag & 0x08) != 0) {
+            energy = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(new byte[] {data[next], data[next+1]}));
+            next += 2;
+        } else {
+            energy = -1;
+        }
+
+        if((flag & 0x10) != 0) {
+            int RRNum = (data.length - next)/2;
+            for(int i = 0; i < RRNum; i++) {
+                RRIntervals.add(UnsignedUtil.getUnsignedShort(ByteUtil.getShort(new byte[] {data[next], data[next+1]})));
+                next += 2;
             }
-            bpm = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(new byte[] {data[1], data[2]}));
         }
     }
 
     public int getBpm() {
         return bpm;
+    }
+
+    public int getEnergy() {
+        return energy;
+    }
+
+    @Override
+    public String toString() {
+        return "BleHeartRateData{" +
+                "flag=" + flag +
+                ", bpm=" + bpm +
+                ", energy=" + energy +
+                ", RRIntervals=" + RRIntervals +
+                '}';
     }
 }

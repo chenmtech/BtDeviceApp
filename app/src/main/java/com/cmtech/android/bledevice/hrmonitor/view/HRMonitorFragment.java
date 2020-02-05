@@ -85,7 +85,7 @@ public class HRMonitorFragment extends DeviceFragment implements IHRMonitorDevic
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    etHRMeas.setText(String.valueOf(hrData.getBpm()));
+                    etHRMeas.setText(hrData.toString());
                 }
             });
         }
