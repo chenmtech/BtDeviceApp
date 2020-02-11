@@ -10,6 +10,7 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.cmtech.bmefile.ByteUtil;
 import com.vise.log.ViseLog;
 
@@ -23,16 +24,15 @@ import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
 
 /**
- * TempHumidDevice: 温湿度计设备类
+ * TempHumidDevice
  * Created by bme on 2018/9/20.
  */
 
 public class TempHumidDevice extends AbstractDevice {
     private static final String TAG = "TempHumidDevice";
 
-    private static final short DEFAULT_TEMPHUMID_INTERVAL  = 15; // 默认温湿度测量间隔，单位：秒
+    private static final short DEFAULT_TEMPHUMID_INTERVAL  = 15; // default measurement interval, unit: second
 
-    ///////////////// 温湿度计Service相关的常量////////////////
     private static final String tempHumidServiceUuid    = "aa60";           // 温湿度计服务UUID:aa60
     private static final String tempHumidDataUuid       = "aa61";           // 温湿度数据特征UUID:aa61
     private static final String tempHumidIntervalUuid   = "2a21";           // 测量间隔UUID:aa63
@@ -52,24 +52,25 @@ public class TempHumidDevice extends AbstractDevice {
     private static final BleGattElement TEMPHUMIDIRANGE =
             new BleGattElement(tempHumidServiceUUID, tempHumidIntervalUUID, tempHumidIRangeUUID, "温湿度CCC");
 
+    // current Temp&Humid data
+    private BleTempHumidData tempHumidData;
 
-    // 当前温湿度
-    private BleTempHumidData curTempHumid;
+    private short interval = DEFAULT_TEMPHUMID_INTERVAL;
 
-    // 当前温湿度数据观察者列表
-    private final List<ITempHumidDataObserver> tempHumidDataObserverList = new LinkedList<>();
+    private short intMin;
+    private short intMax;
 
+    // device listeners
+    private final List<OnTempHumidDeviceListener> listeners = new LinkedList<>();
 
-    // 获取当前温湿度值
-    public BleTempHumidData getCurTempHumid() {
-        return curTempHumid;
+    // get T&H data
+    public BleTempHumidData getTempHumidData() {
+        return tempHumidData;
     }
-
 
     // 构造器
     public TempHumidDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
-        curTempHumid = null;
     }
 
     @Override
@@ -78,13 +79,16 @@ public class TempHumidDevice extends AbstractDevice {
 
         if(!((BleDeviceConnector)connector).containGattElements(elements)) {
             ViseLog.e("temphumid element wrong.");
-
             return false;
         }
 
-        ((BleDeviceConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(DEFAULT_TEMPHUMID_INTERVAL), null);
+        // read interval range
+        readIRange();
 
-        // 启动温湿度采集服务
+        // set measurement interval
+        ((BleDeviceConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(interval), null);
+
+        // start measurement
         startTempHumidMeasure();
 
         return true;
@@ -100,19 +104,17 @@ public class TempHumidDevice extends AbstractDevice {
 
     }
 
-
-    // 启动温湿度采集服务
+    // start measurement
     private void startTempHumidMeasure() {
         // enable temphumid indication
         IBleDataCallback indicateCallback = new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                ViseLog.e("hi");
                 int temp = ByteUtil.getShort(new byte[]{data[0], data[1]});
-                int humid = ByteUtil.getShort(new byte[]{data[2], data[3]});
-                curTempHumid = new BleTempHumidData(new Date().getTime(), temp, humid);
+                int humid = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(new byte[]{data[2], data[3]}));
+                tempHumidData = new BleTempHumidData(new Date().getTime(), temp, humid);
 
-                updateCurrentData();
+                notifyTempHumidData();
             }
 
             @Override
@@ -125,31 +127,52 @@ public class TempHumidDevice extends AbstractDevice {
         ((BleDeviceConnector)connector).indicate(TEMPHUMIDDATACCC, true, indicateCallback);
     }
 
+    private void readIRange() {
+        ((BleDeviceConnector)connector).read(TEMPHUMIDIRANGE, new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                intMin = ByteUtil.getShort(new byte[]{data[0], data[1]});
+                intMax = ByteUtil.getShort(new byte[]{data[2], data[3]});
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
+    }
+
+    public void setInterval(short interval) {
+        if(this.interval != interval) {
+            this.interval = interval;
+            ((BleDeviceConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(interval), null);
+        }
+    }
+
+    public short getInterval() {
+        return interval;
+    }
+
     // 登记温湿度数据观察者
-    public void registerTempHumidDataObserver(ITempHumidDataObserver observer) {
-        if(!tempHumidDataObserverList.contains(observer)) {
-            tempHumidDataObserverList.add(observer);
+    public void registerListener(OnTempHumidDeviceListener listener) {
+        if(!listeners.contains(listener)) {
+            listeners.add(listener);
         }
     }
 
     // 删除连接状态观察者
-    public void removeTempHumidDataObserver(ITempHumidDataObserver observer) {
-        int index = tempHumidDataObserverList.indexOf(observer);
+    public void removeListener(OnTempHumidDeviceListener listener) {
+        int index = listeners.indexOf(listener);
         if(index >= 0) {
-            tempHumidDataObserverList.remove(index);
+            listeners.remove(index);
         }
     }
 
-    // 通知连接状态观察者
-    private void updateCurrentData() {
-        for(final ITempHumidDataObserver observer : tempHumidDataObserverList) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    if(observer != null)
-                        observer.updateCurrentData();
-                }
-            });
+    //
+    private void notifyTempHumidData() {
+        for(final OnTempHumidDeviceListener listener : listeners) {
+            if(listener != null)
+                listener.onTempHumidDataUpdated(tempHumidData);
         }
     }
 }

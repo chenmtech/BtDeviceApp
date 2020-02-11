@@ -38,9 +38,9 @@ public class BleTempHumidData implements Comparable{
         return humid;
     }
 
-    public float computeHeatIndex() {
-        float t = getTemp();
-        float rh = getHumid();
+    public float calculateHeatIndex() {
+        float t = getTemp()/100.0f;
+        float rh = getHumid()/100.0f;
         t = t*1.8f+32.0f;
         float index = (float)((16.923 + (0.185212 * t) + (5.37941 * rh) - (0.100254 * t * rh) +
                 (0.00941695 * (t * t)) + (0.00728898 * (rh * rh)) +

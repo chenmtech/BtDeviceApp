@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:cmtech="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/secondary"
     tools:context="com.cmtech.android.bledevice.temphumid.view.TempHumidFragment">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@color/secondary"
-        android:baselineAligned="false">
+    <LinearLayout
+        android:id="@+id/layout_temphumid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_centerInParent="true">
 
         <LinearLayout
-            android:id="@+id/layout_temphumid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true">
-
+            android:orientation="horizontal">
             <TextView
                 android:id="@+id/tv_temp_data"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="00.0"
+                android:text="00.00"
                 android:textColor="#ff0000"
                 android:textSize="60sp" />
 
@@ -34,19 +32,17 @@
                 android:text="℃"
                 android:textColor="#ff0000"
                 android:textSize="30sp" />
+        </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="/"
-                android:textColor="#ff0000"
-                android:textSize="60sp" />
-
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
             <TextView
                 android:id="@+id/tv_humid_data"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="00"
+                android:text="00.00"
                 android:textColor="#ff0000"
                 android:textSize="60sp" />
 
@@ -58,69 +54,74 @@
                 android:textSize="30sp" />
         </LinearLayout>
 
+    </LinearLayout>
 
-        <ImageView
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/layout_temphumid"
+        android:layout_centerHorizontal="true"
+        android:src="@mipmap/ic_temphumid"
+        android:contentDescription="temp and humid"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_temphumid"
+        android:background="@color/secondary">
+        <TextView
+            android:id="@+id/tv_heat_index"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@id/layout_temphumid"
-            android:layout_centerHorizontal="true"
-            android:src="@mipmap/ic_temphumid"
-            android:contentDescription="temp and humid"/>
+            android:layout_centerInParent="true"
+            android:textSize="30sp"
+            android:textColor="@color/secondary_text"
+            android:text="00.0"/>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/tv_feelingtemp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/layout_temphumid"
-            android:background="@color/secondary">
-            <TextView
-                android:id="@+id/tv_heat_index"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:textSize="30sp"
-                android:textColor="@color/secondary_text"
-                android:text="00.0"/>
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="-3dp"
+            android:layout_toStartOf="@id/tv_heat_index"
+            android:text="体感："
+            android:textColor="@color/secondary_text"
+            android:textSize="24sp" />
 
-            <TextView
-                android:id="@+id/tv_feelingtemp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="-3dp"
-                android:layout_toStartOf="@id/tv_heat_index"
-                android:text="体感："
-                android:textColor="@color/secondary_text"
-                android:textSize="24sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/tv_heat_index"
+            android:textSize="30sp"
+            android:textColor="@color/secondary_text"
+            android:text="℃"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/tv_heat_index"
-                android:textSize="30sp"
-                android:textColor="@color/secondary_text"
-                android:text="℃"/>
-
-        </RelativeLayout>
     </RelativeLayout>
 
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/divider"/>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-        <android.support.v7.widget.RecyclerView
-            android:id = "@+id/rv_history_temphumid"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="visible"/>
-    </FrameLayout>
-
-
-
-
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="测量间隔："/>
+        <EditText
+            android:id="@+id/et_measure_interval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="秒"/>
+        <Button
+            android:id="@+id/btn_set_interval"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="设置"/>
+    </LinearLayout>
+</RelativeLayout>
