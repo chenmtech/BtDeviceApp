@@ -13,6 +13,8 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.view.BitmapUtil;
 
+import java.util.logging.Handler;
+
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 
 /**
@@ -74,19 +76,14 @@ public class MainToolbarManager {
     }
 
     public void setBattery(int battery) {
-        if(battery == INVALID_BATTERY) {
+        Drawable drawable = ContextCompat.getDrawable(context, R.drawable.battery_list_drawable);
+        if(battery == INVALID_BATTERY || drawable == null) {
             tvBattery.setVisibility(View.GONE);
         } else {
             tvBattery.setVisibility(View.VISIBLE);
             tvBattery.setText(String.valueOf(battery));
-            Drawable drawable = ContextCompat.getDrawable(context, R.drawable.battery_list_drawable);
-            if(drawable == null) {
-                tvBattery.setVisibility(View.GONE);
-                return;
-            }
-            int level = (battery-85)/6;
-            if(level < 0) level = 0;
-            else if(level > 3) level = 3;
+            int level = (int)(battery/25.0);
+            if(level > 3) level = 3;
             drawable.setLevel(level);
             drawable.setBounds(0,0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
             tvBattery.setCompoundDrawables(drawable, null, null, null);

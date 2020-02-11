@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
@@ -41,9 +42,10 @@ import java.util.Arrays;
 public class HRMonitorFragment extends DeviceFragment implements IHRMonitorDeviceListener {
     private HRMonitorDevice device;
 
+    private TextView tvHeartRate;
+    private TextView tvHRStatus;
     private EditText etSensLoc;
     private EditText etHRMeas;
-    private EditText etCtrlPt;
 
     public HRMonitorFragment() {
         super();
@@ -63,9 +65,10 @@ public class HRMonitorFragment extends DeviceFragment implements IHRMonitorDevic
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        tvHeartRate = view.findViewById(R.id.tv_heart_rate);
+        tvHRStatus = view.findViewById(R.id.tv_heart_rate_status);
         etHRMeas = view.findViewById(R.id.et_hr_meas);
         etSensLoc = view.findViewById(R.id.et_sens_loc);
-        etCtrlPt = view.findViewById(R.id.et_ctrl_pt);
 
         device.setListener(this);
 
@@ -86,6 +89,15 @@ public class HRMonitorFragment extends DeviceFragment implements IHRMonitorDevic
                 @Override
                 public void run() {
                     etHRMeas.setText(hrData.toString());
+                    int bpm = hrData.getBpm();
+                    tvHeartRate.setText(""+bpm);
+                    if(bpm <= 30) {
+                        tvHRStatus.setText("心率过低");
+                    } else if(bpm >= 190) {
+                        tvHRStatus.setText("心率过快");
+                    } else {
+                        tvHRStatus.setText("心率正常");
+                    }
                 }
             });
         }
@@ -105,14 +117,7 @@ public class HRMonitorFragment extends DeviceFragment implements IHRMonitorDevic
 
     @Override
     public void onHRCtrlPtUpdated(final int ctrl) {
-        if(getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    etCtrlPt.setText(String.valueOf(ctrl));
-                }
-            });
-        }
+
     }
 
 

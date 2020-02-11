@@ -7,6 +7,7 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.vise.log.ViseLog;
 
 import java.util.UUID;
 
@@ -75,7 +76,9 @@ public class HRMonitorDevice extends AbstractDevice {
 
         elements = new BleGattElement[]{BATTLEVEL, BATTLEVELCCC};
         if(connector.containGattElements(elements)) {
+            readBatteryLevel();
 
+            startBatteryMeasure();
         }
 
         return true;
@@ -138,5 +141,33 @@ public class HRMonitorDevice extends AbstractDevice {
         ((BleDeviceConnector)connector).notify(HRMONITORMEASCCC, true, notifyCallback);
     }
 
+    private void startBatteryMeasure() {
+        IBleDataCallback notifyCallback = new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                setBattery(data[0]);
+            }
 
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        };
+        ((BleDeviceConnector)connector).notify(BATTLEVELCCC, false, null);
+
+        ((BleDeviceConnector)connector).notify(BATTLEVELCCC, true, notifyCallback);
+    }
+
+    private void readBatteryLevel() {
+        ((BleDeviceConnector)connector).read(BATTLEVEL, new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                setBattery(data[0]);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+            }
+        });
+    }
 }

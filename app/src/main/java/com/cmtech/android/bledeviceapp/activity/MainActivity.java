@@ -585,7 +585,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     @Override
     public void onBatteryUpdated(final IDevice device) {
         if(fragTabManager.isFragmentSelected(device)) {
-            toolbarManager.setBattery(device.getBattery());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    toolbarManager.setBattery(device.getBattery());
+                }
+            });
         }
     }
 
