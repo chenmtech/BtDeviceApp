@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
+import com.cmtech.android.bledevice.temphumid.model.BleTempHumidData;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class TempHumidHistoryDataAdapter extends RecyclerView.Adapter<TempHumidHistoryDataAdapter.ViewHolder> {
-    private List<TempHumidData> dataList;
+    private List<BleTempHumidData> dataList;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView historyTime;
@@ -31,7 +31,7 @@ public class TempHumidHistoryDataAdapter extends RecyclerView.Adapter<TempHumidH
         }
     }
 
-    public TempHumidHistoryDataAdapter(List<TempHumidData> dataList) {
+    public TempHumidHistoryDataAdapter(List<BleTempHumidData> dataList) {
         this.dataList = dataList;
     }
 
@@ -47,9 +47,9 @@ public class TempHumidHistoryDataAdapter extends RecyclerView.Adapter<TempHumidH
 
     @Override
     public void onBindViewHolder(TempHumidHistoryDataAdapter.ViewHolder holder, final int position) {
-        TempHumidData data = dataList.get(position);
+        BleTempHumidData data = dataList.get(position);
 
-        holder.historyTime.setText(DateTimeUtil.timeToShortString(data.getTime().getTimeInMillis()));
+        holder.historyTime.setText(DateTimeUtil.timeToShortString(data.getTime()));
         holder.historyTemp.setText(String.format(Locale.getDefault(),"%.3f", data.getTemp()));
         holder.historyHumid.setText(String.valueOf(data.getHumid()));
     }

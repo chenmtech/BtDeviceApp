@@ -15,7 +15,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledevice.temphumid.adapter.TempHumidHistoryDataAdapter;
 import com.cmtech.android.bledevice.temphumid.model.ITempHumidDataObserver;
-import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
+import com.cmtech.android.bledevice.temphumid.model.BleTempHumidData;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -69,7 +69,7 @@ public class TempHumidFragment extends DeviceFragment implements ITempHumidDataO
         LinearLayoutManager layoutManager = new LinearLayoutManager(MyApplication.getContext());
         rvHistoryData.setLayoutManager(layoutManager);
         rvHistoryData.addItemDecoration(new DividerItemDecoration(MyApplication.getContext(), DividerItemDecoration.VERTICAL));
-        historyDataAdapter = new TempHumidHistoryDataAdapter(new ArrayList<TempHumidData>());
+        historyDataAdapter = new TempHumidHistoryDataAdapter(new ArrayList<BleTempHumidData>());
         rvHistoryData.setAdapter(historyDataAdapter);
         rvHistoryData.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -116,7 +116,7 @@ public class TempHumidFragment extends DeviceFragment implements ITempHumidDataO
 
     @Override
     public void updateCurrentData() {
-        TempHumidData data = device.getCurTempHumid();
+        BleTempHumidData data = device.getCurTempHumid();
 
         tvHumidData.setText(String.valueOf(data.getHumid()));
 
@@ -127,7 +127,7 @@ public class TempHumidFragment extends DeviceFragment implements ITempHumidDataO
     }
 
     @Override
-    public void addHistoryData(TempHumidData data) {
+    public void addHistoryData(BleTempHumidData data) {
         historyDataAdapter.notifyDataSetChanged();
     }
 

@@ -3,59 +3,39 @@ package com.cmtech.android.bledevice.temphumid.model;
 import android.support.annotation.NonNull;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.text.DateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 
-public class TempHumidData implements Comparable{
-    private Calendar time;
-    private float temp;
+public class BleTempHumidData implements Comparable{
+    private long time;
+    private int temp;
     private int humid;
 
-    public TempHumidData(Calendar time, float temp, int humid) {
-        this.time = (Calendar)time.clone();
+    public BleTempHumidData(long time, int temp, int humid) {
+        this.time = time;
         this.temp = temp;
         this.humid = humid;
     }
 
-    public TempHumidData(Calendar time, byte[] data) {
-        this.time = (Calendar)time.clone();
-        byte[] buf = Arrays.copyOfRange(data, 0, 4);
-        humid = (int) ByteUtil.getFloat(buf);
-        buf = Arrays.copyOfRange(data, 4, 8);
-        temp = ByteUtil.getFloat(buf);
-    }
-
-    public TempHumidData(TempHumidHistoryData data) {
-        time = Calendar.getInstance();
-        time.setTimeInMillis(data.getTimeInMillis());
-        temp = data.getTemp();
+    public BleTempHumidData(TempHumidHistoryData data) {
+        time = data.getTimeInMillis();
+        temp = (int)data.getTemp();
         humid = data.getHumid();
     }
 
-    public Calendar getTime() {
+    public long getTime() {
         return time;
     }
 
-    public void setTime(Calendar time) {
-        this.time = (Calendar)time.clone();
-    }
-
-    public float getTemp() {
+    public int getTemp() {
         return temp;
-    }
-
-    public void setTemp(float temp) {
-        this.temp = temp;
     }
 
     public int getHumid() {
         return humid;
-    }
-
-    public void setHumid(int humid) {
-        this.humid = humid;
     }
 
     public float computeHeatIndex() {
@@ -76,26 +56,26 @@ public class TempHumidData implements Comparable{
 
     @Override
     public String toString() {
-        return DateFormat.getDateTimeInstance().format(time.getTime()) +
+        return "Time=" + DateTimeUtil.timeToShortString(time) +
                 ": temp=" + temp +
                 ", humid=" + humid;
     }
 
     @Override
     public int compareTo(@NonNull Object o) {
-        return time.compareTo(((TempHumidData)o).time);
+        return (int)(time - ((BleTempHumidData)o).time);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TempHumidData that = (TempHumidData) o;
-        return time.equals(that.time);
+        BleTempHumidData that = (BleTempHumidData) o;
+        return time == that.time;
     }
 
     @Override
     public int hashCode() {
-        return time.hashCode();
+        return Long.valueOf(time).hashCode();
     }
 }

@@ -1,12 +1,7 @@
 package com.cmtech.android.bledevice.hrmonitor.view;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,16 +11,9 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledevice.hrmonitor.model.IHRMonitorDeviceListener;
-import com.cmtech.android.bledevice.temphumid.adapter.TempHumidHistoryDataAdapter;
-import com.cmtech.android.bledevice.temphumid.model.TempHumidData;
-import com.cmtech.android.bledevice.temphumid.model.TempHumidDevice;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * ProjectName:    BtDeviceApp

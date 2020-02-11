@@ -13,7 +13,7 @@ import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.bmefile.ByteUtil;
 import com.vise.log.ViseLog;
 
-import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -54,14 +54,14 @@ public class TempHumidDevice extends AbstractDevice {
 
 
     // 当前温湿度
-    private TempHumidData curTempHumid;
+    private BleTempHumidData curTempHumid;
 
     // 当前温湿度数据观察者列表
     private final List<ITempHumidDataObserver> tempHumidDataObserverList = new LinkedList<>();
 
 
     // 获取当前温湿度值
-    public TempHumidData getCurTempHumid() {
+    public BleTempHumidData getCurTempHumid() {
         return curTempHumid;
     }
 
@@ -74,7 +74,6 @@ public class TempHumidDevice extends AbstractDevice {
 
     @Override
     public boolean onConnectSuccess() {
-        // 检查是否有正常的温湿度服务和特征值
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDINTERVAL, TEMPHUMIDDATACCC, TEMPHUMIDIRANGE};
 
         if(!((BleDeviceConnector)connector).containGattElements(elements)) {
@@ -83,8 +82,10 @@ public class TempHumidDevice extends AbstractDevice {
             return false;
         }
 
+        ((BleDeviceConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(DEFAULT_TEMPHUMID_INTERVAL), null);
+
         // 启动温湿度采集服务
-        startTempHumidService(DEFAULT_TEMPHUMID_INTERVAL);
+        startTempHumidMeasure();
 
         return true;
     }
@@ -101,27 +102,15 @@ public class TempHumidDevice extends AbstractDevice {
 
 
     // 启动温湿度采集服务
-    private void startTempHumidService(short period) {
-        ((BleDeviceConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(period), null);
-
-        ((BleDeviceConnector)connector).read(TEMPHUMIDINTERVAL, new IBleDataCallback() {
-            @Override
-            public void onSuccess(byte[] data, BleGattElement element) {
-                ViseLog.e(data);
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        });
-
-        // enable温湿度测量Indication
+    private void startTempHumidMeasure() {
+        // enable temphumid indication
         IBleDataCallback indicateCallback = new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 ViseLog.e("hi");
-                curTempHumid = new TempHumidData(Calendar.getInstance(), data);
+                int temp = ByteUtil.getShort(new byte[]{data[0], data[1]});
+                int humid = ByteUtil.getShort(new byte[]{data[2], data[3]});
+                curTempHumid = new BleTempHumidData(new Date().getTime(), temp, humid);
 
                 updateCurrentData();
             }
@@ -131,6 +120,8 @@ public class TempHumidDevice extends AbstractDevice {
                 ViseLog.i("onFailure");
             }
         };
+        ((BleDeviceConnector)connector).indicate(TEMPHUMIDDATACCC, false, null);
+
         ((BleDeviceConnector)connector).indicate(TEMPHUMIDDATACCC, true, indicateCallback);
     }
 
