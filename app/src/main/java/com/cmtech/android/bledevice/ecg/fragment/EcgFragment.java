@@ -271,11 +271,6 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
     }
 
     @Override
-    public void onBatteryUpdated(final int bat) {
-
-    }
-
-    @Override
     public void onBroadcastInitialized(List<EcgHttpBroadcast.Receiver> receivers) {
         broadcastFragment.setBroadcastReceiver(receivers);
     }

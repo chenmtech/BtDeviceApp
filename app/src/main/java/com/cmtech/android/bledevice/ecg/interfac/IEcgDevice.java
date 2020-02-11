@@ -22,7 +22,6 @@ public interface IEcgDevice extends HrStatisticProcessor.OnHrStatisticInfoUpdate
         void onHrUpdated(int hr); // 心率值更新，单位bpm
         void onHrStatisticsInfoUpdated(HrStatisticsInfo hrStatisticsInfo); // 心率统计信息更新
         void onAbnormalHrNotified(); // 异常心率通知
-        void onBatteryUpdated(int bat); // 电池电量更新
     }
 
     int getSampleRate();

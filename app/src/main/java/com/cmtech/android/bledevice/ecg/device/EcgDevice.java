@@ -454,7 +454,7 @@ public class EcgDevice extends AbstractEcgDevice {
                     ((BleDeviceConnector) connector).read(BATTERY_DATA, new IBleDataCallback() {
                         @Override
                         public void onSuccess(byte[] data, BleGattElement element) {
-                            updateBattery(data[0]);
+                            setBattery(data[0]);
                         }
 
                         @Override
@@ -550,12 +550,5 @@ public class EcgDevice extends AbstractEcgDevice {
     private void updateBroadcastStatus(final boolean isBroadcast) {
         if (listener != null)
             listener.onBroadcastStateUpdated(isBroadcast);
-    }
-
-    private void updateBattery(final int bat) {
-        setBattery(bat);
-
-        if (listener != null)
-            listener.onBatteryUpdated(bat);
     }
 }

@@ -45,6 +45,13 @@ public class HRMonitorDevice extends AbstractDevice {
     private static final BleGattElement HRMONITORCTRLPT =
             new BleGattElement(hrMonitorServiceUUID, hrMonitorCtrlPtUUID, null, "控制点");
 
+    private static final String battServiceUuid = "180F";
+    private static final String battLevelUuid = "2A19";
+    private static final UUID battServiceUUID = UuidUtil.stringToUuid(battServiceUuid, STANDARD_BLE_UUID);
+    private static final UUID battLevelUUID = UuidUtil.stringToUuid(battLevelUuid, STANDARD_BLE_UUID);
+    private static final BleGattElement BATTLEVEL = new BleGattElement(battServiceUUID, battLevelUUID, null, "电池电量百分比");
+    private static final BleGattElement BATTLEVELCCC = new BleGattElement(battServiceUUID, battLevelUUID, CCC_UUID, "电池电量CCC");
+
     private IHRMonitorDeviceListener listener;
 
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
@@ -65,6 +72,11 @@ public class HRMonitorDevice extends AbstractDevice {
         }
 
         startHRMeasure();
+
+        elements = new BleGattElement[]{BATTLEVEL, BATTLEVELCCC};
+        if(connector.containGattElements(elements)) {
+
+        }
 
         return true;
     }

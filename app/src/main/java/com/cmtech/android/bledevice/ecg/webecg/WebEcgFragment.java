@@ -268,11 +268,6 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
     }
 
     @Override
-    public void onBatteryUpdated(final int bat) {
-
-    }
-
-    @Override
     public void onBroadcastInitialized(List<EcgHttpBroadcast.Receiver> receivers) {
 
     }
