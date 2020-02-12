@@ -145,6 +145,7 @@ public class TempHumidDevice extends AbstractDevice {
     public void setInterval(short interval) {
         if(this.interval != interval) {
             this.interval = interval;
+            //((BleDeviceConnector)connector).indicate(TEMPHUMIDDATACCC, false, null);
             ((BleDeviceConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(interval), null);
         }
     }

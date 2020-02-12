@@ -86,11 +86,18 @@ public class TempHumidFragment extends DeviceFragment implements OnTempHumidDevi
     }
 
     @Override
-    public void onTempHumidDataUpdated(BleTempHumidData tempHumidData) {
-        tvHumidData.setText(String.format(Locale.getDefault(), "%.2f", tempHumidData.getHumid()/100.0));
-        tvTempData.setText(String.format(Locale.getDefault(), "%.2f", tempHumidData.getTemp()/100.0));
-        float heatindex = tempHumidData.calculateHeatIndex();
-        tvHeadIndex.setText(String.format(Locale.getDefault(),"%.2f", heatindex));
+    public void onTempHumidDataUpdated(final BleTempHumidData tempHumidData) {
+        if(tempHumidData != null && getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tvHumidData.setText(String.format(Locale.getDefault(), "%.2f", tempHumidData.getHumid()/100.0));
+                    tvTempData.setText(String.format(Locale.getDefault(), "%.2f", tempHumidData.getTemp()/100.0));
+                    float heatindex = tempHumidData.calculateHeatIndex();
+                    tvHeadIndex.setText(String.format(Locale.getDefault(),"%.2f", heatindex));
+                }
+            });
+        }
     }
 
 }
