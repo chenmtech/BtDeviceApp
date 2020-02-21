@@ -50,7 +50,7 @@ public class TempHumidDevice extends AbstractDevice {
     private static final BleGattElement TEMPHUMIDDATACCC =
             new BleGattElement(tempHumidServiceUUID, tempHumidDataUUID, CCC_UUID, "温湿度CCC");
     private static final BleGattElement TEMPHUMIDIRANGE =
-            new BleGattElement(tempHumidServiceUUID, tempHumidIntervalUUID, tempHumidIRangeUUID, "温湿度CCC");
+            new BleGattElement(tempHumidServiceUUID, tempHumidIntervalUUID, tempHumidIRangeUUID, "测量间隔范围");
 
     // current Temp&Humid data
     private BleTempHumidData tempHumidData;

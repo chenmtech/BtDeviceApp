@@ -9,8 +9,8 @@ import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 public class ThermoFactory extends DeviceFactory {
-    private static final String THERMOMETER_UUID = "aa30"; // 体温计
-    private static final String THERMOMETER_DEFAULT_NAME = "体温计";
+    private static final String THERMOMETER_UUID = "1809"; // thermometer
+    private static final String THERMOMETER_DEFAULT_NAME = "标准体温计";
     private static final int THERMOMETER_DEFAULT_IMAGE_ID = R.drawable.ic_thermo_defaultimage;
     private static final String THERMOMETER_FACTORY = ThermoFactory.class.getName();
 

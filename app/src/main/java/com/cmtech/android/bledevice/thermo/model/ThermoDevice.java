@@ -11,94 +11,90 @@ import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.vise.log.ViseLog;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
-import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
+import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
 
 /**
- * ThermoDevice: 体温计设备类
+ * ThermoDevice: Thermometer device
  * Created by bme on 2018/9/20.
  */
 
 
 public class ThermoDevice extends AbstractDevice {
-    ///////////////// 体温计Service相关的常量////////////////
-    private static final String thermoServiceUuid       = "aa30";           // 体温计服务UUID:aa30
-    private static final String thermoDataUuid          = "aa31";           // 体温数据特征UUID:aa31
-    private static final String thermoControlUuid       = "aa32";           // 体温测量控制UUID:aa32
-    private static final String thermoPeriodUuid        = "aa33";           // 体温采样周期UUID:aa33
+    private static final String thermoServiceUuid = "1809"; // thermometer service UUID
+    private static final String thermoTempUuid = "2A1C"; // temperature measurement UUID
+    private static final String thermoTypeUuid = "2A1D"; // temperature type UUID
+    private static final String thermoIntervalUuid = "2A21"; // measurement interval UUID
+    private static final String thermoIRangeUuid = "2906"; // measurement interval range UUID
 
-    private static final UUID thermoServiceUUID       = UuidUtil.stringToUuid(thermoServiceUuid, MY_BASE_UUID);
-    private static final UUID thermoDataUUID          = UuidUtil.stringToUuid(thermoDataUuid, MY_BASE_UUID);
-    private static final UUID thermoControlUUID       = UuidUtil.stringToUuid(thermoControlUuid, MY_BASE_UUID);
-    private static final UUID thermoPeriodUUID        = UuidUtil.stringToUuid(thermoPeriodUuid, MY_BASE_UUID);
+    private static final UUID thermoServiceUUID       = UuidUtil.stringToUuid(thermoServiceUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoTempUUID          = UuidUtil.stringToUuid(thermoTempUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoTypeUUID       = UuidUtil.stringToUuid(thermoTypeUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoIntervalUUID        = UuidUtil.stringToUuid(thermoIntervalUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoIRangeUUID        = UuidUtil.stringToUuid(thermoIRangeUuid, STANDARD_BLE_UUID);
 
-    private static final BleGattElement THERMODATA =
-            new BleGattElement(thermoServiceUUID, thermoDataUUID, null, "体温值");
-    private static final BleGattElement THERMOCONTROL =
-            new BleGattElement(thermoServiceUUID, thermoControlUUID, null, "体温Ctrl");
-    private static final BleGattElement THERMOPERIOD =
-            new BleGattElement(thermoServiceUUID, thermoPeriodUUID, null, "采集周期(s)");
-    private static final BleGattElement THERMODATACCC =
-            new BleGattElement(thermoServiceUUID, thermoDataUUID, CCC_UUID, "体温CCC");
+    private static final BleGattElement THERMOTEMP =
+            new BleGattElement(thermoServiceUUID, thermoTempUUID, null, "体温值");
+    private static final BleGattElement THERMOTEMPCCC =
+            new BleGattElement(thermoServiceUUID, thermoTempUUID, CCC_UUID, "体温CCC");
+    private static final BleGattElement THERMOTYPE =
+            new BleGattElement(thermoServiceUUID, thermoTypeUUID, null, "体温类型");
+    private static final BleGattElement THERMOINTERVAL =
+            new BleGattElement(thermoServiceUUID, thermoIntervalUUID, null, "测量间隔(s)");
+    private static final BleGattElement THERMOIRANGE =
+            new BleGattElement(thermoServiceUUID, thermoIntervalUUID, thermoIRangeUUID, "测量间隔范围");
 
-    private static final byte DEFAULT_SAMPLE_PERIOD = (byte)0x01;
-    ///////////////////////////////////////////////////////
+    private static final short DEFAULT_MEAS_INTERVAL = 2;
 
-    // 当前体温数据观察者列表
-    private final List<IThermoDataObserver> thermoDataObserverList = new LinkedList<>();
-
-
-    private double curTemp = 0.0;
-
-    public double getCurTemp() {
-        return curTemp;
-    }
-
-    public void setCurTemp(double curTemp) {
-        this.curTemp = curTemp;
-    }
-
-    private double highestTemp = 0.0;
-
-    public double getHighestTemp() { return highestTemp; }
-
-    public void setHighestTemp(double highestTemp) {
-        this.highestTemp = highestTemp;
-    }
-
-    public void resetHighestTemp() {
-        highestTemp = curTemp;
-        updateThermoData();
-    }
+    private final List<OnThermoDeviceListener> thermoListeners = new LinkedList<>();
 
     public ThermoDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
-        initializeAfterConstruction();
-    }
-
-    private void initializeAfterConstruction() {
     }
 
     @Override
     public boolean onConnectSuccess() {
-
-        // 检查是否有正常的温湿度服务和特征值
-        BleGattElement[] elements = new BleGattElement[]{THERMODATA, THERMOCONTROL, THERMOPERIOD, THERMODATACCC};
+        BleGattElement[] elements = new BleGattElement[]{THERMOTEMP, THERMOTEMPCCC};
         if(!((BleDeviceConnector)connector).containGattElements(elements)) {
             return false;
         }
 
-        resetHighestTemp();
+        if(((BleDeviceConnector) connector).containGattElement(THERMOTYPE)) {
+            ((BleDeviceConnector) connector).read(THERMOTYPE, new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    ViseLog.e("The temperature type is " + data[0]);
+                }
 
-        // 读温度数据
-        readThermoData();
+                @Override
+                public void onFailure(BleException exception) {
 
-        startThermometer(DEFAULT_SAMPLE_PERIOD);
+                }
+            });
+        }
+
+        if(((BleDeviceConnector) connector).containGattElement(THERMOINTERVAL)) {
+            ((BleDeviceConnector) connector).read(THERMOINTERVAL, new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    short interval = ByteUtil.getShort(data);
+                    ViseLog.e("The measurement interval is " + interval);
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+
+                }
+            });
+        }
+
+        startTempMeasurement();
 
         return true;
     }
@@ -113,77 +109,28 @@ public class ThermoDevice extends AbstractDevice {
 
     }
 
-
     // 登记体温数据观察者
-    public void registerThermoDataObserver(IThermoDataObserver observer) {
-        if(!thermoDataObserverList.contains(observer)) {
-            thermoDataObserverList.add(observer);
+    public void registerListener(OnThermoDeviceListener listener) {
+        if(!thermoListeners.contains(listener)) {
+            thermoListeners.add(listener);
         }
     }
 
     // 删除体温数据观察者
-    public void removeThermoDataObserver(IThermoDataObserver observer) {
-        int index = thermoDataObserverList.indexOf(observer);
+    public void removeListener(OnThermoDeviceListener listener) {
+        int index = thermoListeners.indexOf(listener);
         if(index >= 0) {
-            thermoDataObserverList.remove(index);
+            thermoListeners.remove(index);
         }
     }
 
-    // 通知体温数据观察者
-    private void updateThermoData() {
-        for(final IThermoDataObserver observer : thermoDataObserverList) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    if(observer != null)
-                        observer.updateThermoData();
-                }
-            });
-        }
-    }
-
-    private void readThermoData() {
-        // 读温度数据
-        ((BleDeviceConnector)connector).read(THERMODATA, new IBleDataCallback() {
+    private void startTempMeasurement() {
+        IBleDataCallback indicateCallback = new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                double temp = ByteUtil.getShort(data)/100.0;
+                float temp = ByteUtil.getShort(data)/100.0f;
 
-                setCurTemp(temp);
-
-                if(temp > highestTemp) {
-                    setHighestTemp(temp);
-                }
-
-                updateThermoData();
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-            }
-        });
-    }
-
-    /*
-    启动体温计，设置采样周期
-    period: 采样周期，单位：秒
-     */
-    private void startThermometer(byte period) {
-        // 设置采样周期
-        ((BleDeviceConnector)connector).write(THERMOPERIOD, period, null);
-
-        IBleDataCallback notifyCallback = new IBleDataCallback() {
-            @Override
-            public void onSuccess(byte[] data, BleGattElement element) {
-                double temp = ByteUtil.getShort(data)/100.0;
-
-                setCurTemp(temp);
-
-                if(temp > highestTemp) {
-                    setHighestTemp(temp);
-                }
-
-                updateThermoData();
+                updateTemperature(temp);
             }
 
             @Override
@@ -191,12 +138,19 @@ public class ThermoDevice extends AbstractDevice {
 
             }
         };
-
-        // enable温度数据notify
-        ((BleDeviceConnector)connector).notify(THERMODATACCC, true, notifyCallback);
-
-        // 启动温度采集
-        ((BleDeviceConnector)connector).write(THERMOCONTROL, (byte)0x03, null);
+        ((BleDeviceConnector)connector).indicate(THERMOTEMPCCC, true, indicateCallback);
     }
 
+    //
+    private void updateTemperature(final float temp) {
+        for(final OnThermoDeviceListener listener : thermoListeners) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if(listener != null)
+                        listener.onTemperatureUpdated(temp);
+                }
+            });
+        }
+    }
 }

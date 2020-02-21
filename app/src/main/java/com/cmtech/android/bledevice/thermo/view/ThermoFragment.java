@@ -10,7 +10,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
-import com.cmtech.android.bledevice.thermo.model.IThermoDataObserver;
+import com.cmtech.android.bledevice.thermo.model.OnThermoDeviceListener;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -22,7 +22,7 @@ import java.util.Locale;
  * Created by bme on 2018/2/27.
  */
 
-public class ThermoFragment extends DeviceFragment implements IThermoDataObserver {
+public class ThermoFragment extends DeviceFragment implements OnThermoDeviceListener {
     private static final String LESSTHAN34 = "低于34.0";
 
     private TextView tvThermoCurrentTemp;
@@ -32,8 +32,9 @@ public class ThermoFragment extends DeviceFragment implements IThermoDataObserve
 
     private ThermoDevice device;
 
-    public ThermoFragment() {
+    private float highestTemp = 0.0f;
 
+    public ThermoFragment() {
         super();
     }
 
@@ -43,7 +44,7 @@ public class ThermoFragment extends DeviceFragment implements IThermoDataObserve
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (ThermoDevice)getDevice();
-        device.registerThermoDataObserver(this);
+        device.registerListener(this);
 
         return inflater.inflate(R.layout.fragment_thermometer, container, false);
     }
@@ -79,26 +80,27 @@ public class ThermoFragment extends DeviceFragment implements IThermoDataObserve
         super.onDestroy();
 
         if(device != null) {
-            device.removeThermoDataObserver(this);
+            device.removeListener(this);
         }
     }
 
     private synchronized void resetHighestTemp() {
-        device.resetHighestTemp();
+
     }
 
 
     @Override
-    public void updateThermoData() {
-        final double curTemp = ((ThermoDevice)getDevice()).getCurTemp();
-        final double highestTemp = ((ThermoDevice)getDevice()).getHighestTemp();
-
-        if(curTemp < 34.00) {
+    public void onTemperatureUpdated(final float temp) {
+        if(temp < 34.00) {
             tvThermoCurrentTemp.setText(LESSTHAN34);
         }
         else {
-            String str = String.format(Locale.getDefault(), "%.2f", curTemp);
+            String str = String.format(Locale.getDefault(), "%.2f", temp);
             tvThermoCurrentTemp.setText(str);
+        }
+
+        if(highestTemp < temp) {
+            highestTemp = temp;
         }
 
         if(highestTemp < 34.00) {
