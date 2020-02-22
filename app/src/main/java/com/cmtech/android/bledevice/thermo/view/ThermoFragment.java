@@ -6,8 +6,8 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
@@ -15,6 +15,7 @@ import com.cmtech.android.bledevice.thermo.model.OnThermoDeviceListener;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.vise.log.ViseLog;
 
 import java.util.Locale;
 
@@ -29,7 +30,7 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
     private TextView tvCurrentTemp;
     private TextView tvHightestTemp;
     private TextView tvStatus;
-    private ImageButton ibReset;
+    private Button btnReset;
     private EditText etSensLoc;
     private EditText etInterval;
 
@@ -58,14 +59,15 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
         tvCurrentTemp = view.findViewById(R.id.tv_current_temp);
         tvHightestTemp = view.findViewById(R.id.tv_highest_temp);
         tvStatus = view.findViewById(R.id.tv_thermo_status);
-        ibReset = view.findViewById(R.id.ib_thermo_reset);
+        btnReset = view.findViewById(R.id.btn_thermo_reset);
         etSensLoc = view.findViewById(R.id.et_sens_loc);
         etInterval = view.findViewById(R.id.et_meas_interval);
 
-        ibReset.setOnClickListener(new View.OnClickListener() {
+        btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                reset();
+                ViseLog.e("重新开始" + highestTemp);
+                updateHighestTemp(0.0f);
             }
         });
 
@@ -90,10 +92,6 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
         }
     }
 
-    private synchronized void reset() {
-        setHighestTemp(0.0f);
-    }
-
     @Override
     public void onTemperatureUpdated(final float temp) {
         if(getActivity() == null) return;
@@ -109,7 +107,8 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
                     tvCurrentTemp.setText(str);
                 }
 
-                setHighestTemp(temp);
+                if(highestTemp <= temp)
+                    updateHighestTemp(temp);
             }
         });
     }
@@ -138,9 +137,7 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
         });
     }
 
-    private void setHighestTemp(float temp) {
-        if(highestTemp >= temp) return;
-
+    private void updateHighestTemp(float temp) {
         highestTemp = temp;
 
         if(highestTemp < 33.00) {
@@ -152,7 +149,7 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
         }
 
         if(highestTemp < 37.0) {
-            tvStatus.setText("正常");
+            tvStatus.setText("体温正常");
         } else if(highestTemp < 38.0) {
             tvStatus.setText("低烧，请注意休息！");
         } else if(highestTemp < 38.5) {

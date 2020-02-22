@@ -13,6 +13,7 @@ import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.vise.log.ViseLog;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -90,7 +91,7 @@ public class ThermoDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     int interval = ByteUtil.getShort(data);
-                    ViseLog.e("The measurement interval data is " + data);
+                    ViseLog.e("The measurement interval data is " + data[0] + " " + data[1] + Arrays.toString(data));
                     for(final OnThermoDeviceListener listener : thermoListeners) {
                         if(listener != null)
                             listener.onMeasIntervalUpdated(interval);
@@ -138,8 +139,9 @@ public class ThermoDevice extends AbstractDevice {
         IBleDataCallback indicateCallback = new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                float temp = ByteUtil.getShort(data)/100.0f;
-                ViseLog.e("The temperature data is " + data);
+                byte[] tempArr = new byte[]{data[1],data[2],data[3],data[4]};
+                float temp = ByteUtil.getFloat(tempArr);
+                ViseLog.e("The temperature data is " + Arrays.toString(data) + "temp = " + temp);
                 for(final OnThermoDeviceListener listener : thermoListeners) {
                     if(listener != null)
                         listener.onTemperatureUpdated(temp);
