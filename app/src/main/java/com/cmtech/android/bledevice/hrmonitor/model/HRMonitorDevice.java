@@ -7,7 +7,6 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
-import com.vise.log.ViseLog;
 
 import java.util.UUID;
 
@@ -53,7 +52,7 @@ public class HRMonitorDevice extends AbstractDevice {
     private static final BleGattElement BATTLEVEL = new BleGattElement(battServiceUUID, battLevelUUID, null, "电池电量百分比");
     private static final BleGattElement BATTLEVELCCC = new BleGattElement(battServiceUUID, battLevelUUID, CCC_UUID, "电池电量CCC");
 
-    private IHRMonitorDeviceListener listener;
+    private OnHRMonitorDeviceListener listener;
 
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
@@ -94,7 +93,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
     }
 
-    public void setListener(IHRMonitorDeviceListener listener) {
+    public void setListener(OnHRMonitorDeviceListener listener) {
         this.listener = listener;
     }
 

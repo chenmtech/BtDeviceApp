@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -23,12 +24,14 @@ import java.util.Locale;
  */
 
 public class ThermoFragment extends DeviceFragment implements OnThermoDeviceListener {
-    private static final String LESSTHAN34 = "低于34.0";
+    private static final String LOW_33 = "低于33.0";
 
-    private TextView tvThermoCurrentTemp;
-    private TextView tvThermoHightestTemp;
-    private TextView tvThermoStatus;
-    private ImageButton ibThermoResetHighestTemp;
+    private TextView tvCurrentTemp;
+    private TextView tvHightestTemp;
+    private TextView tvStatus;
+    private ImageButton ibReset;
+    private EditText etSensLoc;
+    private EditText etInterval;
 
     private ThermoDevice device;
 
@@ -44,7 +47,6 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (ThermoDevice)getDevice();
-        device.registerListener(this);
 
         return inflater.inflate(R.layout.fragment_thermometer, container, false);
     }
@@ -53,17 +55,21 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvThermoCurrentTemp = view.findViewById(R.id.tv_thermo_currenttempvalue);
-        tvThermoHightestTemp = view.findViewById(R.id.tv_thermo_highesttempvalue);
-        tvThermoStatus = view.findViewById(R.id.tv_thermo_status);
-        ibThermoResetHighestTemp = view.findViewById(R.id.ib_thermo_resethighesttemp);
+        tvCurrentTemp = view.findViewById(R.id.tv_current_temp);
+        tvHightestTemp = view.findViewById(R.id.tv_highest_temp);
+        tvStatus = view.findViewById(R.id.tv_thermo_status);
+        ibReset = view.findViewById(R.id.ib_thermo_reset);
+        etSensLoc = view.findViewById(R.id.et_sens_loc);
+        etInterval = view.findViewById(R.id.et_meas_interval);
 
-        ibThermoResetHighestTemp.setOnClickListener(new View.OnClickListener() {
+        ibReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                resetHighestTemp();
+                reset();
             }
         });
+
+        device.registerListener(this);
 
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
@@ -84,41 +90,75 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
         }
     }
 
-    private synchronized void resetHighestTemp() {
-
+    private synchronized void reset() {
+        setHighestTemp(0.0f);
     }
-
 
     @Override
     public void onTemperatureUpdated(final float temp) {
-        if(temp < 34.00) {
-            tvThermoCurrentTemp.setText(LESSTHAN34);
-        }
-        else {
-            String str = String.format(Locale.getDefault(), "%.2f", temp);
-            tvThermoCurrentTemp.setText(str);
-        }
+        if(getActivity() == null) return;
 
-        if(highestTemp < temp) {
-            highestTemp = temp;
-        }
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(temp < 33.00) {
+                    tvCurrentTemp.setText(LOW_33);
+                }
+                else {
+                    String str = String.format(Locale.getDefault(), "%.2f", temp);
+                    tvCurrentTemp.setText(str);
+                }
 
-        if(highestTemp < 34.00) {
-            tvThermoHightestTemp.setText(LESSTHAN34);
+                setHighestTemp(temp);
+            }
+        });
+    }
+
+    @Override
+    public void onTemperatureTypeUpdated(final byte type) {
+        if(getActivity() == null) return;
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                etSensLoc.setText(""+type);
+            }
+        });
+    }
+
+    @Override
+    public void onMeasIntervalUpdated(final int interval) {
+        if(getActivity() == null) return;
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                etInterval.setText(""+interval);
+            }
+        });
+    }
+
+    private void setHighestTemp(float temp) {
+        if(highestTemp >= temp) return;
+
+        highestTemp = temp;
+
+        if(highestTemp < 33.00) {
+            tvHightestTemp.setText(LOW_33);
         }
         else {
             String str = String.format(Locale.getDefault(),"%.2f", highestTemp);
-            tvThermoHightestTemp.setText(str);
+            tvHightestTemp.setText(str);
         }
 
         if(highestTemp < 37.0) {
-            tvThermoStatus.setText("正常");
+            tvStatus.setText("正常");
         } else if(highestTemp < 38.0) {
-            tvThermoStatus.setText("低烧，请注意休息！");
+            tvStatus.setText("低烧，请注意休息！");
         } else if(highestTemp < 38.5) {
-            tvThermoStatus.setText("体温异常，请注意降温！");
+            tvStatus.setText("体温异常，请注意降温！");
         } else {
-            tvThermoStatus.setText("高烧，请及时就医！");
+            tvStatus.setText("高烧，请及时就医！");
         }
     }
 }

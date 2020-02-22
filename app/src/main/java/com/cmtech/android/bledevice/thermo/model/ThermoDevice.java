@@ -33,11 +33,11 @@ public class ThermoDevice extends AbstractDevice {
     private static final String thermoIntervalUuid = "2A21"; // measurement interval UUID
     private static final String thermoIRangeUuid = "2906"; // measurement interval range UUID
 
-    private static final UUID thermoServiceUUID       = UuidUtil.stringToUuid(thermoServiceUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoTempUUID          = UuidUtil.stringToUuid(thermoTempUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoTypeUUID       = UuidUtil.stringToUuid(thermoTypeUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoIntervalUUID        = UuidUtil.stringToUuid(thermoIntervalUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoIRangeUUID        = UuidUtil.stringToUuid(thermoIRangeUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoServiceUUID = UuidUtil.stringToUuid(thermoServiceUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoTempUUID = UuidUtil.stringToUuid(thermoTempUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoTypeUUID = UuidUtil.stringToUuid(thermoTypeUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoIntervalUUID = UuidUtil.stringToUuid(thermoIntervalUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoIRangeUUID = UuidUtil.stringToUuid(thermoIRangeUuid, STANDARD_BLE_UUID);
 
     private static final BleGattElement THERMOTEMP =
             new BleGattElement(thermoServiceUUID, thermoTempUUID, null, "体温值");
@@ -65,11 +65,16 @@ public class ThermoDevice extends AbstractDevice {
             return false;
         }
 
+        // read temp type, which means the location of the thermometer on the body
         if(((BleDeviceConnector) connector).containGattElement(THERMOTYPE)) {
             ((BleDeviceConnector) connector).read(THERMOTYPE, new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     ViseLog.e("The temperature type is " + data[0]);
+                    for(final OnThermoDeviceListener listener : thermoListeners) {
+                        if(listener != null)
+                            listener.onTemperatureTypeUpdated(data[0]);
+                    }
                 }
 
                 @Override
@@ -79,12 +84,17 @@ public class ThermoDevice extends AbstractDevice {
             });
         }
 
+        // read measure interval
         if(((BleDeviceConnector) connector).containGattElement(THERMOINTERVAL)) {
             ((BleDeviceConnector) connector).read(THERMOINTERVAL, new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    short interval = ByteUtil.getShort(data);
-                    ViseLog.e("The measurement interval is " + interval);
+                    int interval = ByteUtil.getShort(data);
+                    ViseLog.e("The measurement interval data is " + data);
+                    for(final OnThermoDeviceListener listener : thermoListeners) {
+                        if(listener != null)
+                            listener.onMeasIntervalUpdated(interval);
+                    }
                 }
 
                 @Override
@@ -129,8 +139,11 @@ public class ThermoDevice extends AbstractDevice {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 float temp = ByteUtil.getShort(data)/100.0f;
-
-                updateTemperature(temp);
+                ViseLog.e("The temperature data is " + data);
+                for(final OnThermoDeviceListener listener : thermoListeners) {
+                    if(listener != null)
+                        listener.onTemperatureUpdated(temp);
+                }
             }
 
             @Override
@@ -141,16 +154,4 @@ public class ThermoDevice extends AbstractDevice {
         ((BleDeviceConnector)connector).indicate(THERMOTEMPCCC, true, indicateCallback);
     }
 
-    //
-    private void updateTemperature(final float temp) {
-        for(final OnThermoDeviceListener listener : thermoListeners) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    if(listener != null)
-                        listener.onTemperatureUpdated(temp);
-                }
-            });
-        }
-    }
 }

@@ -8,12 +8,12 @@
 
 
     <RelativeLayout
-        android:id="@+id/layout_highesttemp"
+        android:id="@+id/layout_highest_temp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true">
         <TextView
-            android:id="@+id/tv_thermo_highesttempvalue"
+            android:id="@+id/tv_highest_temp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -24,7 +24,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/tv_thermo_highesttempvalue"
+            android:layout_toEndOf="@id/tv_highest_temp"
             android:layout_centerVertical="true"
             android:src="@mipmap/ic_temperature_unit"
             android:contentDescription="temp unit"/>
@@ -34,17 +34,17 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/layout_highesttemp"
+        android:layout_above="@id/layout_highest_temp"
         android:layout_centerHorizontal="true"
-        android:src="@mipmap/ic_thermotemp"
-        android:contentDescription="highest temp"/>
+        android:src="@mipmap/ic_thermometer"
+        android:contentDescription="thermometer"/>
 
 
     <TextView
         android:id="@+id/tv_thermo_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/layout_highesttemp"
+        android:layout_below="@id/layout_highest_temp"
         android:layout_centerHorizontal="true"
         android:gravity="center_vertical"
         android:textSize="30sp"
@@ -53,25 +53,25 @@
 
 
     <RelativeLayout
-        android:id="@+id/layout_realtimetemp"
+        android:id="@+id/layout_current_temp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tv_thermo_status"
         android:layout_centerHorizontal="true">
 
         <ImageView
-            android:id="@+id/iv_realtimetemp"
+            android:id="@+id/iv_current_temp"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_centerVertical="true"
-            android:src="@mipmap/ic_realtimetemp"
-            android:contentDescription="realtime temp"/>
+            android:src="@mipmap/ic_realtime_temp"
+            android:contentDescription="current temp"/>
 
         <TextView
-            android:id="@+id/tv_thermo_currenttempvalue"
+            android:id="@+id/tv_current_temp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/iv_realtimetemp"
+            android:layout_toEndOf="@id/iv_current_temp"
             android:text="00.00"
             android:textColor="@color/secondary_text"
             android:textSize="30sp" />
@@ -79,8 +79,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/tv_thermo_currenttempvalue"
-            android:layout_toEndOf="@id/tv_thermo_currenttempvalue"
+            android:layout_alignTop="@+id/tv_current_temp"
+            android:layout_toEndOf="@id/tv_current_temp"
             android:text="℃"
             android:textColor="@color/secondary_text"
             android:textSize="30sp" />
@@ -89,13 +89,48 @@
 
 
     <ImageButton
-        android:id="@+id/ib_thermo_resethighesttemp"
+        android:id="@+id/ib_thermo_reset"
         android:layout_width="49dp"
         android:layout_height="44dp"
-        android:layout_below="@id/layout_realtimetemp"
+        android:layout_below="@id/layout_current_temp"
         android:layout_centerHorizontal="true"
         android:background="@color/secondary"
-        android:src="@mipmap/ic_reset_highesttemp"
-        android:contentDescription="reset highest temp"/>
+        android:src="@mipmap/ic_reset"
+        android:contentDescription="reset"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="测量位置："/>
+            <EditText
+                android:id="@+id/et_sens_loc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="测量间隔："/>
+            <EditText
+                android:id="@+id/et_meas_interval"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>

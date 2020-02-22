@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
-import com.cmtech.android.bledevice.hrmonitor.model.IHRMonitorDeviceListener;
+import com.cmtech.android.bledevice.hrmonitor.model.OnHRMonitorDeviceListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -27,7 +27,7 @@ import com.cmtech.android.bledeviceapp.activity.MainActivity;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class HRMonitorFragment extends DeviceFragment implements IHRMonitorDeviceListener {
+public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDeviceListener {
     private HRMonitorDevice device;
 
     private TextView tvHeartRate;
