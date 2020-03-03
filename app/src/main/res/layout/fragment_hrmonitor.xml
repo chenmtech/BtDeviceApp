@@ -27,7 +27,7 @@
             android:id="@+id/tv_heart_rate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
+            android:layout_gravity="bottom|center_horizontal"
             android:layout_margin="2dp"
             android:drawableStart="@mipmap/ic_heart_48px"
             android:text=""
@@ -38,12 +38,21 @@
             android:id="@+id/tv_pause_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
+            android:layout_gravity="bottom|start"
             android:layout_margin="2dp"
             android:text="暂停显示"
             android:textSize="20sp"
             android:textColor="@color/primary"
             android:visibility="gone"/>
+
+        <Switch
+            android:id="@+id/sw_ecg_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:textColor="@color/white"
+            android:checked="false"
+            android:text="ECG Signal " />
 
     </FrameLayout>
 

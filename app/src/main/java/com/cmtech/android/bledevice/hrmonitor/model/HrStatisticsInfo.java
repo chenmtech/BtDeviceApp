@@ -68,6 +68,7 @@ public class HrStatisticsInfo {
 
     // 返回值：对hr滤波后，是否更新了filteredHrList
     public boolean process(short hr) {
+        if(maxHr < hr) maxHr = hr;
         boolean updated = false;
         sumTmp += hr;
         numTmp++;
@@ -75,7 +76,6 @@ public class HrStatisticsInfo {
         if(periodTmp >= secondInHrFilter) {
             short average = (short)(sumTmp / numTmp);
             filteredHrList.add(average);
-            if(maxHr < average) maxHr = average;
             sumHr += average;
             periodTmp -= secondInHrFilter;
             sumTmp = 0;

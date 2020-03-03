@@ -8,7 +8,9 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
@@ -39,8 +41,6 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
  * Version:        1.0
  */
 public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDeviceListener, OnWaveViewListener {
-    private static final int STANDARD_VALUE_1MV_AFTER_CALIBRATION = 65535; // 定标后标准的1mV值
-
     private HRMonitorDevice device;
     private HrStatisticsInfo hrInfo = new HrStatisticsInfo(10);
     private ScanEcgView ecgView; // 心电波形View
@@ -49,6 +49,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private final EcgHrStatisticsFragment hrFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
     private EditText etSensLoc;
     private EditText etHRMeas;
+    private Switch swEcgOn;
 
     public HRMonitorFragment() {
         super();
@@ -73,7 +74,14 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         ecgView = view.findViewById(R.id.scanview_ecg);
         etHRMeas = view.findViewById(R.id.et_hr_meas);
         etSensLoc = view.findViewById(R.id.et_sens_loc);
-
+        swEcgOn = view.findViewById(R.id.sw_ecg_on);
+        swEcgOn.setVisibility(View.GONE);
+        swEcgOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                device.switchEcgSignal(isChecked);
+            }
+        });
 
         initialEcgView();
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
@@ -110,7 +118,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                 public void run() {
                     etHRMeas.setText(hrData.toString());
                     int bpm = hrData.getBpm();
-                    tvHeartRate.setText(""+bpm);
+                    tvHeartRate.setText(String.valueOf(bpm));
                     if(hrInfo.process((short) bpm)) {
                         hrFragment.updateHrInfo(hrInfo);
                     }
@@ -139,6 +147,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     @Override
     public void onEcgViewUpdated(int sampleRate, int value1mV, double zeroLocation) {
         ecgView.setup(sampleRate, value1mV, zeroLocation);
+        swEcgOn.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -146,6 +155,14 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         ecgView.showData(ecgSignal);
     }
 
+    @Override
+    public void onShowStateUpdated(boolean isShow) {
+        if(isShow) {
+            tvPauseMessage.setVisibility(View.GONE);
+        } else {
+            tvPauseMessage.setVisibility(View.VISIBLE);
+        }
+    }
 
     @Override
     public void onDestroy() {
@@ -157,12 +174,5 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         ecgView.stop();
     }
 
-    @Override
-    public void onShowStateUpdated(boolean isShow) {
-        if(isShow) {
-            tvPauseMessage.setVisibility(View.GONE);
-        } else {
-            tvPauseMessage.setVisibility(View.VISIBLE);
-        }
-    }
+
 }

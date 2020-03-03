@@ -7,29 +7,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="平均心率："
-        android:textSize="12sp"
-        android:textColor="@color/primary_text"/>
-
-    <TextView
-        android:id="@+id/tv_average_hr_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=" "
-        android:textSize="12sp"
-        android:textColor="@color/primary_text"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="bpm"
-        android:textSize="12sp"
-        android:textColor="@color/primary_text"
-        android:layout_marginEnd="10dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="最高心率："
         android:textSize="12sp"
         android:textColor="@color/primary_text"/>
@@ -45,8 +22,31 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="bpm"
+        android:text="次/分"
         android:textSize="12sp"
         android:textColor="@color/primary_text"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="平均心率："
+        android:textSize="12sp"
+        android:textColor="@color/primary_text"/>
+
+    <TextView
+        android:id="@+id/tv_average_hr_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=" "
+        android:textSize="12sp"
+        android:textColor="@color/primary_text"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="次/分"
+        android:textSize="12sp"
+        android:textColor="@color/primary_text"
+        android:layout_marginEnd="10dp"/>
 
 </LinearLayout>

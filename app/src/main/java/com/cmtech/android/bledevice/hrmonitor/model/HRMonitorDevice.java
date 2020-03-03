@@ -9,7 +9,9 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
+import com.vise.log.ViseLog;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
@@ -257,5 +259,39 @@ public class HRMonitorDevice extends AbstractDevice {
             public void onFailure(BleException exception) {
             }
         });
+    }
+
+    private void readLeadType() {
+        ((BleDeviceConnector)connector).read(ECGLEADTYPE, new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                leadType = EcgLeadType.getFromCode(UnsignedUtil.getUnsignedByte(data[0]));
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+            }
+        });
+    }
+
+    public void switchEcgSignal(boolean isMeasure) {
+        if(!hasEcgService) return;
+
+        if(!isMeasure) {
+            ((BleDeviceConnector)connector).notify(BATTLEVELCCC, false, null);
+        } else {
+            IBleDataCallback notifyCallback = new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    ViseLog.e("ecg data: " + Arrays.toString(data));
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+
+                }
+            };
+            ((BleDeviceConnector)connector).notify(BATTLEVELCCC, true, notifyCallback);
+        }
     }
 }
