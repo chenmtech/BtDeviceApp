@@ -21,7 +21,7 @@ import static com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCal
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 public abstract class AbstractEcgDevice extends AbstractDevice implements IEcgDevice {
-    private static final int DEFAULT_VALUE_1MV = 164; // 缺省定标前1mV值
+    protected static final int DEFAULT_VALUE_1MV = 164; // 缺省定标前1mV值
     private static final int DEFAULT_SAMPLE_RATE = 125; // 缺省ECG信号采样率,Hz
     private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // 缺省导联为LI
     protected final EcgConfiguration config; // 心电监护仪的配置信息

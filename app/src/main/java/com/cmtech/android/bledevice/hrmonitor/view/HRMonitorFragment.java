@@ -42,7 +42,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private static final int STANDARD_VALUE_1MV_AFTER_CALIBRATION = 65535; // 定标后标准的1mV值
 
     private HRMonitorDevice device;
-
+    private HrStatisticsInfo hrInfo = new HrStatisticsInfo(10);
     private ScanEcgView ecgView; // 心电波形View
     private TextView tvHeartRate;
     private TextView tvPauseMessage; // 暂停显示消息
@@ -94,7 +94,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     private void initialEcgView() {
-        ecgView.setup(125, STANDARD_VALUE_1MV_AFTER_CALIBRATION, DEFAULT_ZERO_LOCATION);
+        ecgView.setup(device.getSampleRate(), device.getCali1mV(), DEFAULT_ZERO_LOCATION);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void onHRMeasureUpdated(final BleHeartRateData hrData) {
+    public void onHRUpdated(final BleHeartRateData hrData) {
         if(hrData != null && getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
@@ -111,6 +111,9 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                     etHRMeas.setText(hrData.toString());
                     int bpm = hrData.getBpm();
                     tvHeartRate.setText(""+bpm);
+                    if(hrInfo.process((short) bpm)) {
+                        hrFragment.updateHrInfo(hrInfo);
+                    }
                 }
             });
         }
@@ -134,25 +137,13 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void onEcgViewSetup(int sampleRate, int value1mV, double zeroLocation) {
+    public void onEcgViewUpdated(int sampleRate, int value1mV, double zeroLocation) {
         ecgView.setup(sampleRate, value1mV, zeroLocation);
     }
 
     @Override
     public void onEcgSignalUpdated(final int ecgSignal) {
         ecgView.showData(ecgSignal);
-    }
-
-    @Override
-    public void onHrStatisticsInfoUpdated(final HrStatisticsInfo hrStatisticsInfo) {
-        if(getActivity() != null) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    hrFragment.updateHrInfo(hrStatisticsInfo);
-                }
-            });
-        }
     }
 
 

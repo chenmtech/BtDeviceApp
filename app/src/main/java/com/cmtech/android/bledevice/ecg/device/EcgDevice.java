@@ -192,7 +192,7 @@ public class EcgDevice extends AbstractEcgDevice {
         ((BleDeviceConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                setValue1mV(164);
+                setValue1mV(DEFAULT_VALUE_1MV);
             }
 
             @Override
