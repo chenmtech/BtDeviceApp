@@ -88,6 +88,7 @@ public class HRMonitorDevice extends AbstractDevice {
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // 导联类型
     private int cali1mV = DEFAULT_CALI_1MV; // 定标之前1mV值
     private boolean hasEcgService = false;
+    private EcgDataProcessor ecgProcessor;
 
 
     private OnHRMonitorDeviceListener listener;
@@ -125,9 +126,11 @@ public class HRMonitorDevice extends AbstractDevice {
             connector.runInstantly(new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    if (listener != null)
-                        listener.onEcgViewUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION);
                     hasEcgService = true;
+                    ecgProcessor = new EcgDataProcessor(HRMonitorDevice.this);
+                    ecgProcessor.start();
+                    if (listener != null)
+                        listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, hasEcgService);
                 }
 
                 @Override
@@ -142,12 +145,16 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public void onConnectFailure() {
-
+        if(hasEcgService) {
+            ecgProcessor.stop();
+        }
     }
 
     @Override
     public void onDisconnect() {
-
+        if(hasEcgService) {
+            ecgProcessor.stop();
+        }
     }
 
     public final int getSampleRate() {
@@ -284,6 +291,7 @@ public class HRMonitorDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     ViseLog.e("ecg data: " + Arrays.toString(data));
+                    ecgProcessor.processData(data);
                 }
 
                 @Override
@@ -292,6 +300,12 @@ public class HRMonitorDevice extends AbstractDevice {
                 }
             };
             ((BleDeviceConnector)connector).notify(BATTLEVELCCC, true, notifyCallback);
+        }
+    }
+
+    public void updateEcgSignal(int ecgSignal) {
+        if (listener != null) {
+            listener.onEcgSignalUpdated(ecgSignal);
         }
     }
 }

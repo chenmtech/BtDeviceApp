@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -44,12 +45,15 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private HRMonitorDevice device;
     private HrStatisticsInfo hrInfo = new HrStatisticsInfo(10);
     private ScanEcgView ecgView; // 心电波形View
-    private TextView tvHeartRate;
+    private TextView tvHrNoEcg;
+    private TextView tvHrWithEcg;
     private TextView tvPauseMessage; // 暂停显示消息
     private final EcgHrStatisticsFragment hrFragment = new EcgHrStatisticsFragment(); // 心率统计Fragment
     private EditText etSensLoc;
     private EditText etHRMeas;
     private Switch swEcgOn;
+    private FrameLayout flNoEcg;
+    private FrameLayout flWithEcg;
 
     public HRMonitorFragment() {
         super();
@@ -69,7 +73,8 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvHeartRate = view.findViewById(R.id.tv_heart_rate);
+        tvHrNoEcg = view.findViewById(R.id.tv_hr_no_ecg);
+        tvHrWithEcg = view.findViewById(R.id.tv_hr_with_ecg);
         tvPauseMessage = view.findViewById(R.id.tv_pause_message);
         ecgView = view.findViewById(R.id.scanview_ecg);
         etHRMeas = view.findViewById(R.id.et_hr_meas);
@@ -79,9 +84,20 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         swEcgOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    flNoEcg.setVisibility(View.GONE);
+                    flWithEcg.setVisibility(View.VISIBLE);
+                } else {
+                    flNoEcg.setVisibility(View.VISIBLE);
+                    flWithEcg.setVisibility(View.GONE);
+                }
                 device.switchEcgSignal(isChecked);
             }
         });
+        flNoEcg = view.findViewById(R.id.fl_no_ecg);
+        flNoEcg.setVisibility(View.VISIBLE);
+        flWithEcg = view.findViewById(R.id.fl_with_ecg);
+        flWithEcg.setVisibility(View.GONE);
 
         initialEcgView();
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
@@ -118,7 +134,8 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                 public void run() {
                     etHRMeas.setText(hrData.toString());
                     int bpm = hrData.getBpm();
-                    tvHeartRate.setText(String.valueOf(bpm));
+                    tvHrNoEcg.setText(String.valueOf(bpm));
+                    tvHrWithEcg.setText(String.valueOf(bpm));
                     if(hrInfo.process((short) bpm)) {
                         hrFragment.updateHrInfo(hrInfo);
                     }
@@ -145,9 +162,12 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void onEcgViewUpdated(int sampleRate, int value1mV, double zeroLocation) {
+    public void onFragmentUpdated(int sampleRate, int value1mV, double zeroLocation, boolean withEcg) {
         ecgView.setup(sampleRate, value1mV, zeroLocation);
-        swEcgOn.setVisibility(View.VISIBLE);
+        if(withEcg)
+            swEcgOn.setVisibility(View.VISIBLE);
+        else
+            swEcgOn.setVisibility(View.GONE);
     }
 
     @Override
