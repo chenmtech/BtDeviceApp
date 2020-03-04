@@ -291,7 +291,7 @@ public class HRMonitorDevice extends AbstractDevice {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    ViseLog.e("ecg data: " + Arrays.toString(data));
+                    //ViseLog.i("ecg data: " + Arrays.toString(data));
                     ecgProcessor.processData(data);
                 }
 

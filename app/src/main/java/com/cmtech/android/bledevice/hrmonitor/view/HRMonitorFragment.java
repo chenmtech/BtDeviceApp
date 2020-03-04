@@ -97,6 +97,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                 device.switchEcgSignal(isChecked);
             }
         });
+
         flNoEcg = view.findViewById(R.id.fl_no_ecg);
         flNoEcg.setVisibility(View.VISIBLE);
         flWithEcg = view.findViewById(R.id.fl_with_ecg);
@@ -173,9 +174,9 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                     ecgView.setup(sampleRate, value1mV, zeroLocation);
                     if(withEcg) {
                         swEcgOn.setVisibility(View.VISIBLE);
-                        swEcgOn.setChecked(false);
-                    }
-                    else
+                        if(swEcgOn.isChecked())
+                            swEcgOn.setChecked(false);
+                    } else
                         swEcgOn.setVisibility(View.GONE);
                 }
             });

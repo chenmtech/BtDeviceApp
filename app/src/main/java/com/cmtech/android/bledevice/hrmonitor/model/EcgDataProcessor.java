@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.hrmonitor.model;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.vise.log.ViseLog;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -20,7 +21,7 @@ import java.util.concurrent.ThreadFactory;
  */
 
 public class EcgDataProcessor {
-    private static final int MAX_PACKET_NUM = 65536;
+    private static final int MAX_PACKET_NUM = 256;
     private static final int INVALID_PACKET_NUM = -1;
 
     private final HRMonitorDevice device;
@@ -69,6 +70,7 @@ public class EcgDataProcessor {
                     int packageNum = (short)((0xff & data[0]) | (0xff00 & (data[1] << 8)));
                     if(packageNum == nextPackNum) {
                         int[] pack = resolveDataToPackage(data);
+                        ViseLog.i("packet no. " + packageNum + ": " + Arrays.toString(pack));
                         for (int ele : pack) {
                             device.updateEcgSignal((int) ecgFilter.filter(ele));
                         }
