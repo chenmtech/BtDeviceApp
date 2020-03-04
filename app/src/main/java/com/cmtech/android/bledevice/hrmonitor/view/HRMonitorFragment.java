@@ -81,15 +81,18 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         etSensLoc = view.findViewById(R.id.et_sens_loc);
         swEcgOn = view.findViewById(R.id.sw_ecg_on);
         swEcgOn.setVisibility(View.GONE);
+        swEcgOn.setChecked(false);
         swEcgOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
                     flNoEcg.setVisibility(View.GONE);
                     flWithEcg.setVisibility(View.VISIBLE);
+                    ecgView.start();
                 } else {
                     flNoEcg.setVisibility(View.VISIBLE);
                     flWithEcg.setVisibility(View.GONE);
+                    ecgView.stop();
                 }
                 device.switchEcgSignal(isChecked);
             }
@@ -162,12 +165,21 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void onFragmentUpdated(int sampleRate, int value1mV, double zeroLocation, boolean withEcg) {
-        ecgView.setup(sampleRate, value1mV, zeroLocation);
-        if(withEcg)
-            swEcgOn.setVisibility(View.VISIBLE);
-        else
-            swEcgOn.setVisibility(View.GONE);
+    public void onFragmentUpdated(final int sampleRate, final int value1mV, final double zeroLocation, final boolean withEcg) {
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ecgView.setup(sampleRate, value1mV, zeroLocation);
+                    if(withEcg) {
+                        swEcgOn.setVisibility(View.VISIBLE);
+                        swEcgOn.setChecked(false);
+                    }
+                    else
+                        swEcgOn.setVisibility(View.GONE);
+                }
+            });
+        }
     }
 
     @Override

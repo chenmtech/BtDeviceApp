@@ -128,7 +128,6 @@ public class HRMonitorDevice extends AbstractDevice {
                 public void onSuccess(byte[] data, BleGattElement element) {
                     hasEcgService = true;
                     ecgProcessor = new EcgDataProcessor(HRMonitorDevice.this);
-                    ecgProcessor.start();
                     if (listener != null)
                         listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, hasEcgService);
                 }
@@ -285,8 +284,10 @@ public class HRMonitorDevice extends AbstractDevice {
         if(!hasEcgService) return;
 
         if(!isMeasure) {
-            ((BleDeviceConnector)connector).notify(BATTLEVELCCC, false, null);
+            ecgProcessor.stop();
+            ((BleDeviceConnector)connector).notify(ECGMEASCCC, false, null);
         } else {
+            ecgProcessor.start();
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
@@ -299,7 +300,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
                 }
             };
-            ((BleDeviceConnector)connector).notify(BATTLEVELCCC, true, notifyCallback);
+            ((BleDeviceConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
         }
     }
 
