@@ -1,9 +1,11 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -18,6 +20,7 @@ import java.util.ArrayList;
  * Version:        1.0
  */
 public class BleHeartRateData {
+    private final long time;
     private final byte flag;
     private final int bpm;
     private final int energy;
@@ -27,6 +30,8 @@ public class BleHeartRateData {
         if(data == null || data.length < 2) {
             throw new IllegalArgumentException();
         }
+
+        time = new Date().getTime();
 
         flag = data[0];
 
@@ -64,9 +69,12 @@ public class BleHeartRateData {
         return energy;
     }
 
+    public long getTime() { return time;}
+
     @Override
     public String toString() {
         return "BleHeartRateData{" +
+                "time=" + DateTimeUtil.timeToString(time) +
                 "flag=" + flag +
                 ", bpm=" + bpm +
                 ", energy=" + energy +

@@ -70,7 +70,7 @@ public class EcgDataProcessor {
                 public void run() {
                     int packageNum = UnsignedUtil.getUnsignedByte(data[0]);
                     if(packageNum == nextPackNum) { // good packet
-                        int[] pack = resolveData(data);
+                        int[] pack = resolveData(data, 1);
                         ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
                         nextPackNum = (nextPackNum == MAX_PACKET_NUM) ? 0 : nextPackNum+1;
                     } else if(nextPackNum != INVALID_PACKET_NUM){ // bad packet, force disconnect
@@ -84,10 +84,10 @@ public class EcgDataProcessor {
         }
     }
 
-    private int[] resolveData(byte[] data) {
-        int[] pack = new int[(data.length-1) / 2];
+    private int[] resolveData(byte[] data, int begin) {
+        int[] pack = new int[(data.length-begin) / 2];
         int j = 0;
-        for (int i = 1; i < data.length; i=i+2, j++) {
+        for (int i = begin; i < data.length; i=i+2, j++) {
             pack[j] = (short) ((0xff & data[i]) | (0xff00 & (data[i+1] << 8)));
             device.showEcgSignal((int) ecgFilter.filter(pack[j]));
         }

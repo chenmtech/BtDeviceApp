@@ -140,16 +140,12 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public void onConnectFailure() {
-        if(hasEcgService) {
-            ecgProcessor.stop();
-        }
+
     }
 
     @Override
     public void onDisconnect() {
-        if(hasEcgService) {
-            ecgProcessor.stop();
-        }
+
     }
 
     @Override

@@ -20,18 +20,18 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EcgHrLineChart extends LineChart {
-    public EcgHrLineChart(Context context) {
+public class HrLineChart extends LineChart {
+    public HrLineChart(Context context) {
         super(context);
         initialize();
     }
 
-    public EcgHrLineChart(Context context, AttributeSet attrs) {
+    public HrLineChart(Context context, AttributeSet attrs) {
         super(context, attrs);
         initialize();
     }
 
-    public EcgHrLineChart(Context context, AttributeSet attrs, int defStyle) {
+    public HrLineChart(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initialize();
     }

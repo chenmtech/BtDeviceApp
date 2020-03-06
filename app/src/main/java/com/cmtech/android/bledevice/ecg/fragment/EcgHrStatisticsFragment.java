@@ -17,7 +17,7 @@ import com.cmtech.android.bledeviceapp.R;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.ecgmonitor.activity
- * ClassName:      EcgHrStatisticsFragment
+ * ClassName:      HrSequenceFragment
  * Description:    Ecg心率统计Fragment
  * Author:         chenm
  * CreateDate:     2019/4/15 上午5:40
@@ -37,7 +37,7 @@ public class EcgHrStatisticsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        return inflater.inflate(R.layout.fragment_hr_statistics, container, false);
+        return inflater.inflate(R.layout.fragment_hr_sequence, container, false);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class EcgHrStatisticsFragment extends Fragment {
 
         tvMaxHr = view.findViewById(R.id.tv_hr_max_value);
         tvMaxHr.setText("0");
-        tvAverageHr = view.findViewById(R.id.tv_average_hr_value);
+        tvAverageHr = view.findViewById(R.id.tv_hr_ave_value);
         tvAverageHr.setText("0");
         hrLineChart = view.findViewById(R.id.linechart_hr);
     }

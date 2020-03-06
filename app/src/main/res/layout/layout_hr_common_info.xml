@@ -34,7 +34,7 @@
         android:textColor="@color/primary_text"/>
 
     <TextView
-        android:id="@+id/tv_average_hr_value"
+        android:id="@+id/tv_hr_ave_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=" "

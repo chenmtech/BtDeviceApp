@@ -90,7 +90,7 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
         tvLeadType = view.findViewById(R.id.tv_ecg_lead_type);
         tvCaliValue1mV = view.findViewById(R.id.tv_ecg_1mv_cali_value);
         tvHeartRate = view.findViewById(R.id.tv_ecg_hr);
-        tvPauseMessage = view.findViewById(R.id.tv_pause_message);
+        tvPauseMessage = view.findViewById(R.id.tv_message);
         ecgView = view.findViewById(R.id.scan_ecg_view);
 
         tvSampleRate.setText(String.valueOf(device.getSampleRate()));
