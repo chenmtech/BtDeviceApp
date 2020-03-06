@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
 /**
- * EcgLeadType: 心电导联类型
+ * EcgLeadType: enumeration of ecg lead type
  * Created by bme on 2018/4/21.
  */
 

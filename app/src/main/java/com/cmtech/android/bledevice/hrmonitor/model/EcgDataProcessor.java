@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
+import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
 
 import java.util.Arrays;
@@ -15,18 +16,18 @@ import java.util.concurrent.ThreadFactory;
   * Author:         chenm
   * CreateDate:     2019-06-25 05:17
   * UpdateUser:     chenm
-  * UpdateDate:     2019-06-30 05:17
+  * UpdateDate:     2020-03-06 05:17
   * UpdateRemark:   更新说明
   * Version:        1.0
  */
 
 public class EcgDataProcessor {
-    private static final int MAX_PACKET_NUM = 256;
-    private static final int INVALID_PACKET_NUM = -1;
+    private static final int MAX_PACKET_NUM = 255; // the max packet number
+    private static final int INVALID_PACKET_NUM = -1; // invalid packet number
 
     private final HRMonitorDevice device;
+    private int nextPackNum = INVALID_PACKET_NUM; // the next packet number wanted to received
     private final IEcgFilter ecgFilter; // ecg filter
-    private int nextPackNum = INVALID_PACKET_NUM; // the number of the next packet wanted to received
     private ExecutorService procService; // ecg data process Service
 
     public EcgDataProcessor(HRMonitorDevice device) {
@@ -39,12 +40,12 @@ public class EcgDataProcessor {
     }
 
     public void reset() {
-        ecgFilter.reset(device.getSampleRate());
+        ecgFilter.design(device.getSampleRate());
     }
 
     public synchronized void start() {
         nextPackNum = 0;
-        if(procService == null || procService.isTerminated()) {
+        if(ExecutorUtil.isDead(procService)) {
             procService = Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable runnable) {
@@ -63,32 +64,32 @@ public class EcgDataProcessor {
     }
 
     public synchronized void processData(final byte[] data) {
-        if(procService != null && !procService.isTerminated()) {
+        if(!ExecutorUtil.isDead(procService)) {
             procService.execute(new Runnable() {
                 @Override
                 public void run() {
-                    int packageNum = (short)((0xff & data[0]) | (0xff00 & (data[1] << 8)));
-                    if(packageNum == nextPackNum) {
-                        int[] pack = resolveDataToPackage(data);
-                        ViseLog.i("packet no. " + packageNum + ": " + Arrays.toString(pack));
-                        for (int ele : pack) {
-                            device.updateEcgSignal((int) ecgFilter.filter(ele));
-                        }
-                        if (++nextPackNum == MAX_PACKET_NUM) nextPackNum = 0;
-                    } else if(nextPackNum != INVALID_PACKET_NUM){
-                        ViseLog.e("The ecg data packet is gotten rid of.");
+                    int packageNum = UnsignedUtil.getUnsignedByte(data[0]);
+                    if(packageNum == nextPackNum) { // good packet
+                        int[] pack = resolveData(data);
+                        ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
+                        nextPackNum = (nextPackNum == MAX_PACKET_NUM) ? 0 : nextPackNum+1;
+                    } else if(nextPackNum != INVALID_PACKET_NUM){ // bad packet, force disconnect
+                        ViseLog.e("The ecg data packet is lost.");
                         nextPackNum = INVALID_PACKET_NUM;
                         device.forceDisconnect(false);
                     }
+                    // invalid packet
                 }
             });
         }
     }
 
-    private int[] resolveDataToPackage(byte[] data) {
-        int[] pack = new int[data.length / 2 - 1];
-        for (int i = 1; i <= pack.length; i++) {
-            pack[i - 1] = (short) ((0xff & data[i * 2]) | (0xff00 & (data[i * 2 + 1] << 8)));
+    private int[] resolveData(byte[] data) {
+        int[] pack = new int[(data.length-1) / 2];
+        int j = 0;
+        for (int i = 1; i < data.length; i=i+2, j++) {
+            pack[j] = (short) ((0xff & data[i]) | (0xff00 & (data[i+1] << 8)));
+            device.showEcgSignal((int) ecgFilter.filter(pack[j]));
         }
         return pack;
     }

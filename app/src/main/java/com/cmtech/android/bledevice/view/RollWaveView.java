@@ -187,7 +187,7 @@ public class RollWaveView extends View {
     public void initialize()
     {
         // 清除缓存区
-        //viewData.reset();
+        //viewData.design();
 
         //创建背景Bitmap
         createBackBitmap();

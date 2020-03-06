@@ -9,9 +9,7 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
-import com.vise.log.ViseLog;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
@@ -23,21 +21,21 @@ import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.hrmonitor.model
  * ClassName:      HRMonitorDevice
- * Description:    心率计设备
- * Author:         作者名
+ * Description:    BLE heart rate monitor device
+ * Author:         chenm
  * CreateDate:     2020-02-04 06:16
- * UpdateUser:     更新者
+ * UpdateUser:     chenm
  * UpdateDate:     2020-02-04 06:16
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
 public class HRMonitorDevice extends AbstractDevice {
-    private static final int DEFAULT_CALI_1MV = 164; // 缺省定标前1mV值
-    private static final int DEFAULT_SAMPLE_RATE = 125; // 缺省ECG信号采样率,Hz
-    private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // 缺省ECG信号采样率,Hz
+    private static final int DEFAULT_CALI_1MV = 164; // default 1mV calibration value
+    private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
+    private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // default lead type
 
     // heart rate measurement service
-    private static final String hrMonitorServiceUuid = "180D"; // 标准心率计服务UUID
+    private static final String hrMonitorServiceUuid = "180D"; // standart ble heart rate service UUID
     private static final String hrMonitorMeasUuid = "2A37"; // 心率测量特征UUID
     private static final String hrMonitorSensLocUuid = "2A38"; // 测量位置UUID
     private static final String hrMonitorCtrlPtUuid = "2A39"; // 控制点UUID
@@ -48,13 +46,13 @@ public class HRMonitorDevice extends AbstractDevice {
     private static final UUID hrMonitorCtrlPtUUID = UuidUtil.stringToUuid(hrMonitorCtrlPtUuid, STANDARD_BLE_UUID);
 
     private static final BleGattElement HRMONITORMEAS =
-            new BleGattElement(hrMonitorServiceUUID, hrMonitorMeasUUID, null, "心率测量值");
+            new BleGattElement(hrMonitorServiceUUID, hrMonitorMeasUUID, null, "heart rate measurement");
     private static final BleGattElement HRMONITORMEASCCC =
-            new BleGattElement(hrMonitorServiceUUID, hrMonitorMeasUUID, CCC_UUID, "心率测量CCC");
+            new BleGattElement(hrMonitorServiceUUID, hrMonitorMeasUUID, CCC_UUID, "heart rate measurement CCC");
     private static final BleGattElement HRMONITORSENSLOC =
-            new BleGattElement(hrMonitorServiceUUID, hrMonitorSensLocUUID, null, "测量位置");
+            new BleGattElement(hrMonitorServiceUUID, hrMonitorSensLocUUID, null, "sensor location");
     private static final BleGattElement HRMONITORCTRLPT =
-            new BleGattElement(hrMonitorServiceUUID, hrMonitorCtrlPtUUID, null, "控制点");
+            new BleGattElement(hrMonitorServiceUUID, hrMonitorCtrlPtUUID, null, "control point for energy expire");
 
     // battery service
     private static final String battServiceUuid = "180F";
@@ -83,15 +81,15 @@ public class HRMonitorDevice extends AbstractDevice {
     private static final BleGattElement ECGLEADTYPE = new BleGattElement(ecgServiceUUID, ecgLeadTypeUUID, null, "ECG Lead Type");
 
 
+    private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
+    private int cali1mV = DEFAULT_CALI_1MV; // 1mV calibration value
+    private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // lead type
 
-    private int sampleRate = DEFAULT_SAMPLE_RATE; // 采样率
-    private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // 导联类型
-    private int cali1mV = DEFAULT_CALI_1MV; // 定标之前1mV值
-    private boolean hasEcgService = false;
-    private EcgDataProcessor ecgProcessor;
+    private boolean hasBattService = false; // has battery service
+    private boolean hasEcgService = false; // has ecg service
+    private EcgDataProcessor ecgProcessor; // ecg processor
 
-
-    private OnHRMonitorDeviceListener listener;
+    private OnHRMonitorDeviceListener listener; // device listener
 
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
@@ -102,31 +100,29 @@ public class HRMonitorDevice extends AbstractDevice {
         BleDeviceConnector connector = (BleDeviceConnector)this.connector;
 
         BleGattElement[] elements = new BleGattElement[]{HRMONITORMEAS, HRMONITORMEASCCC};
-        if(!connector.containGattElements(elements)) {
+        if(connector.containGattElements(elements)) {
+            readSensorLocation();
+            switchHRMeasure(true);
+        } else {
             return false;
         }
 
-        if(connector.containGattElement(HRMONITORSENSLOC)) {
-            readSensorLocation();
-        }
-
-        startHRMeasure();
-
         elements = new BleGattElement[]{BATTLEVEL, BATTLEVELCCC};
         if(connector.containGattElements(elements)) {
+            hasBattService = true;
             readBatteryLevel();
-            startBatteryMeasure();
+            switchBatteryMeasure(true);
         }
 
         elements = new BleGattElement[]{ECGMEAS, ECGMEASCCC, ECG1MVCALI, ECGSAMPLERATE, ECGLEADTYPE};
         if(connector.containGattElements(elements)) {
+            hasEcgService = true;
             readSampleRate();
             read1mVCali();
             readLeadType();
             connector.runInstantly(new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    hasEcgService = true;
                     ecgProcessor = new EcgDataProcessor(HRMonitorDevice.this);
                     if (listener != null)
                         listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, hasEcgService);
@@ -154,6 +150,14 @@ public class HRMonitorDevice extends AbstractDevice {
         if(hasEcgService) {
             ecgProcessor.stop();
         }
+    }
+
+    @Override
+    public void forceDisconnect(boolean forever) {
+        switchHRMeasure(false);
+        switchBatteryMeasure(false);
+        switchEcgSignal(false);
+        super.forceDisconnect(forever);
     }
 
     public final int getSampleRate() {
@@ -187,45 +191,52 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
-    private void startHRMeasure() {
-        IBleDataCallback notifyCallback = new IBleDataCallback() {
-            @Override
-            public void onSuccess(byte[] data, BleGattElement element) {
-                try {
-                    BleHeartRateData heartRateData = new BleHeartRateData(data);
-                    if(listener != null) {
-                        listener.onHRUpdated(heartRateData);
+    private void switchHRMeasure(boolean isStart) {
+        if(isStart) {
+            IBleDataCallback notifyCallback = new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    try {
+                        BleHeartRateData heartRateData = new BleHeartRateData(data);
+                        if(listener != null) {
+                            listener.onHRUpdated(heartRateData);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            }
 
-            @Override
-            public void onFailure(BleException exception) {
+                @Override
+                public void onFailure(BleException exception) {
 
-            }
-        };
-        ((BleDeviceConnector)connector).notify(HRMONITORMEASCCC, false, null);
+                }
+            };
+            ((BleDeviceConnector)connector).notify(HRMONITORMEASCCC, true, notifyCallback);
+        } else {
+            ((BleDeviceConnector)connector).notify(HRMONITORMEASCCC, false, null);
+        }
 
-        ((BleDeviceConnector)connector).notify(HRMONITORMEASCCC, true, notifyCallback);
     }
 
-    private void startBatteryMeasure() {
-        IBleDataCallback notifyCallback = new IBleDataCallback() {
-            @Override
-            public void onSuccess(byte[] data, BleGattElement element) {
-                setBattery(data[0]);
-            }
+    private void switchBatteryMeasure(boolean isStart) {
+        if(!hasBattService) return;
 
-            @Override
-            public void onFailure(BleException exception) {
+        if(isStart) {
+            IBleDataCallback notifyCallback = new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    setBattery(data[0]);
+                }
 
-            }
-        };
-        ((BleDeviceConnector)connector).notify(BATTLEVELCCC, false, null);
+                @Override
+                public void onFailure(BleException exception) {
 
-        ((BleDeviceConnector)connector).notify(BATTLEVELCCC, true, notifyCallback);
+                }
+            };
+            ((BleDeviceConnector)connector).notify(BATTLEVELCCC, true, notifyCallback);
+        } else {
+            ((BleDeviceConnector)connector).notify(BATTLEVELCCC, false, null);
+        }
     }
 
     private void readBatteryLevel() {
@@ -280,13 +291,10 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
-    public void switchEcgSignal(boolean isMeasure) {
+    public void switchEcgSignal(boolean isStart) {
         if(!hasEcgService) return;
 
-        if(!isMeasure) {
-            ecgProcessor.stop();
-            ((BleDeviceConnector)connector).notify(ECGMEASCCC, false, null);
-        } else {
+        if(isStart) {
             ecgProcessor.start();
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
@@ -301,12 +309,15 @@ public class HRMonitorDevice extends AbstractDevice {
                 }
             };
             ((BleDeviceConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
+        } else {
+            ecgProcessor.stop();
+            ((BleDeviceConnector)connector).notify(ECGMEASCCC, false, null);
         }
     }
 
-    public void updateEcgSignal(int ecgSignal) {
+    public void showEcgSignal(int ecgSignal) {
         if (listener != null) {
-            listener.onEcgSignalUpdated(ecgSignal);
+            listener.onEcgSignalShowed(ecgSignal);
         }
     }
 }

@@ -184,7 +184,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void onEcgSignalUpdated(final int ecgSignal) {
+    public void onEcgSignalShowed(final int ecgSignal) {
         ecgView.showData(ecgSignal);
     }
 
