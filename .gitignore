@@ -60,3 +60,5 @@ freeline_project_description.json
 .idea/caches/gradle_models.ser
 *.ser
 *.ser
+.idea/caches/gradle_models.ser
+.idea/caches/build_file_checksums.ser
