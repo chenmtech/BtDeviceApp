@@ -16,6 +16,6 @@ public interface OnHRMonitorDeviceListener {
     void onHRUpdated(BleHeartRateData hrData); // heart rate updated
     void onHRSensLocUpdated(int loc); // sensor location updated
     void onHRCtrlPtUpdated(int ctrl); // control point updated
-    void onFragmentUpdated(int sampleRate, int value1mV, double zeroLocation, boolean withEcg); // fragment updated
+    void onFragmentUpdated(int sampleRate, int value1mV, double zeroLocation, boolean ecgSwitchOn); // fragment updated
     void onEcgSignalShowed(int ecgSignal); // ecg signal showed
 }

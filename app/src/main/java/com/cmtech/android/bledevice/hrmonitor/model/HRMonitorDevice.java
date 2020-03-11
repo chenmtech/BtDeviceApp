@@ -6,10 +6,13 @@ import com.cmtech.android.ble.core.BleDeviceConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.ble.exception.OtherException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledevice.ecg.enumeration.EcgMonitorState;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
+import com.vise.log.ViseLog;
 
 import java.util.UUID;
 
@@ -69,17 +72,20 @@ public class HRMonitorDevice extends AbstractDevice {
     private static final String ecg1mVCaliUuid = "AA42";
     private static final String ecgSampleRateUuid = "AA43";
     private static final String ecgLeadTypeUuid = "AA44";
+    private static final String ecgSwitchUuid = "AA45";
     private static final UUID ecgServiceUUID = UuidUtil.stringToUuid(ecgServiceUuid, MY_BASE_UUID);
     private static final UUID ecgMeasUUID = UuidUtil.stringToUuid(ecgMeasUuid, MY_BASE_UUID);
     private static final UUID ecg1mVCaliUUID = UuidUtil.stringToUuid(ecg1mVCaliUuid, MY_BASE_UUID);
     private static final UUID ecgSampleRateUUID = UuidUtil.stringToUuid(ecgSampleRateUuid, MY_BASE_UUID);
     private static final UUID ecgLeadTypeUUID = UuidUtil.stringToUuid(ecgLeadTypeUuid, MY_BASE_UUID);
+    private static final UUID ecgSwitchUUID = UuidUtil.stringToUuid(ecgSwitchUuid, MY_BASE_UUID);
 
     private static final BleGattElement ECGMEAS = new BleGattElement(ecgServiceUUID, ecgMeasUUID, null, "ECG Data Packet");
     private static final BleGattElement ECGMEASCCC = new BleGattElement(ecgServiceUUID, ecgMeasUUID, CCC_UUID, "ECG Data Packet CCC");
     private static final BleGattElement ECG1MVCALI = new BleGattElement(ecgServiceUUID, ecg1mVCaliUUID, null, "ECG 1mV Calibration");
     private static final BleGattElement ECGSAMPLERATE = new BleGattElement(ecgServiceUUID, ecgSampleRateUUID, null, "ECG Sample Rate");
     private static final BleGattElement ECGLEADTYPE = new BleGattElement(ecgServiceUUID, ecgLeadTypeUUID, null, "ECG Lead Type");
+    private static final BleGattElement ECGSWITCH = new BleGattElement(ecgServiceUUID, ecgSwitchUUID, null, "ECG Switch");
 
 
     private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
@@ -87,7 +93,7 @@ public class HRMonitorDevice extends AbstractDevice {
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // lead type
 
     private boolean hasBattService = false; // has battery service
-    private boolean hasEcgService = false; // has ecg service
+    private boolean ecgSwitchOn = false; // ecg switch on
     private EcgDataProcessor ecgProcessor; // ecg processor
 
     private OnHRMonitorDeviceListener listener; // device listener
@@ -115,18 +121,14 @@ public class HRMonitorDevice extends AbstractDevice {
             switchBatteryMeasure(true);
         }
 
-        elements = new BleGattElement[]{ECGMEAS, ECGMEASCCC, ECG1MVCALI, ECGSAMPLERATE, ECGLEADTYPE};
+        elements = new BleGattElement[]{ECGMEAS, ECGMEASCCC, ECG1MVCALI, ECGSAMPLERATE, ECGLEADTYPE, ECGSWITCH};
         if(connector.containGattElements(elements)) {
-            hasEcgService = true;
-            readSampleRate();
-            read1mVCali();
-            readLeadType();
+            readEcgSwitch();
             connector.runInstantly(new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    ecgProcessor = new EcgDataProcessor(HRMonitorDevice.this);
-                    if (listener != null)
-                        listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, hasEcgService);
+                    if(ecgSwitchOn)
+                        initEcgService();
                 }
 
                 @Override
@@ -167,6 +169,10 @@ public class HRMonitorDevice extends AbstractDevice {
 
     public final int getCali1mV() {
         return cali1mV;
+    }
+
+    public final boolean isEcgSwitchOn() {
+        return ecgSwitchOn;
     }
 
     public void setListener(OnHRMonitorDeviceListener listener) {
@@ -252,6 +258,42 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
+    private void readEcgSwitch() {
+        ((BleDeviceConnector)connector).read(ECGSWITCH, new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                if(data[0] == 0x00) {
+                    ecgSwitchOn = false;
+                } else {
+                    ecgSwitchOn = true;
+                }
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+            }
+        });
+    }
+
+    private void initEcgService() {
+        readSampleRate();
+        read1mVCali();
+        readLeadType();
+        ((BleDeviceConnector)connector).runInstantly(new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                ecgProcessor = new EcgDataProcessor(HRMonitorDevice.this);
+                if (listener != null)
+                    listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, ecgSwitchOn);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
+    }
+
     private void readSampleRate() {
         ((BleDeviceConnector)connector).read(ECGSAMPLERATE, new IBleDataCallback() {
             @Override
@@ -291,8 +333,25 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
+    public void switchEcgMode(final boolean ecgSwitchOn) {
+        if(this.ecgSwitchOn == ecgSwitchOn) return;
+
+        byte data = (byte)((ecgSwitchOn) ? 0x01 : 0x00);
+
+        ((BleDeviceConnector) connector).write(ECGSWITCH, data, new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                HRMonitorDevice.this.ecgSwitchOn = ecgSwitchOn;
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+            }
+        });
+    }
+
     public void switchEcgSignal(boolean isStart) {
-        if(!hasEcgService) return;
+        if(!ecgSwitchOn) return;
 
         if(ecgProcessor != null)
             ecgProcessor.stop();

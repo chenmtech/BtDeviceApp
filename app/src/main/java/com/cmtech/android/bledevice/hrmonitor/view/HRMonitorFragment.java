@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.hrmonitor.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -13,6 +14,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity;
+import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledevice.hrmonitor.model.HrStatisticsInfo;
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
@@ -122,8 +126,27 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void openConfigureActivity() {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        switch (requestCode) {
+            case 1: // switch ecg on/off
+                if(resultCode == RESULT_OK) {
+                    boolean ecgSwitch = data.getBooleanExtra("ecg_on", false);
+                    device.switchEcgMode(ecgSwitch);
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void openConfigureActivity() {
+        Intent intent = new Intent(getActivity(), HRMCfgActivity.class);
+        intent.putExtra("ecg_on", device.isEcgSwitchOn());
+        startActivityForResult(intent, 1);
     }
 
     @Override
@@ -164,13 +187,13 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int value1mV, final double zeroLocation, final boolean hasEcgService) {
+    public void onFragmentUpdated(final int sampleRate, final int value1mV, final double zeroLocation, final boolean ecgSwitchOn) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     ecgView.setup(sampleRate, value1mV, zeroLocation);
-                    if(hasEcgService) {
+                    if(ecgSwitchOn) {
                         btnEcg.setVisibility(View.VISIBLE);
                         if(btnEcg.isChecked())
                             btnEcg.setChecked(false);

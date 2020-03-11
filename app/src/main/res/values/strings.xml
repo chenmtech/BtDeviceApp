@@ -14,5 +14,6 @@
     <string name="no_record_currently">当前无记录</string>
     <drawable name="clr_normal">@color/accent</drawable>
     <drawable name="clr_pressed">@color/red</drawable>
+    <string name="title_activity_hrmcfg">心率计配置</string>
 
 </resources>
