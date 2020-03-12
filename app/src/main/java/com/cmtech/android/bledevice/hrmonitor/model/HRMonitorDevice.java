@@ -6,13 +6,9 @@ import com.cmtech.android.ble.core.BleDeviceConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.exception.OtherException;
-import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.ble.utils.UuidUtil;
-import com.cmtech.android.bledevice.ecg.enumeration.EcgMonitorState;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
-import com.vise.log.ViseLog;
 
 import java.util.UUID;
 
@@ -37,6 +33,9 @@ public class HRMonitorDevice extends AbstractDevice {
     private static final int DEFAULT_CALI_1MV = 164; // default 1mV calibration value
     private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
     private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // default lead type
+
+    private static final byte ECG_LOCKED = (byte)0x00;
+    private static final byte ECG_UNLOCKED = (byte)0x01;
 
     // heart rate measurement service
     private static final String hrMonitorServiceUuid = "180D"; // standart ble heart rate service UUID
@@ -72,20 +71,20 @@ public class HRMonitorDevice extends AbstractDevice {
     private static final String ecg1mVCaliUuid = "AA42";
     private static final String ecgSampleRateUuid = "AA43";
     private static final String ecgLeadTypeUuid = "AA44";
-    private static final String ecgSwitchUuid = "AA45";
+    private static final String ecgLockStatusUuid = "AA45";
     private static final UUID ecgServiceUUID = UuidUtil.stringToUuid(ecgServiceUuid, MY_BASE_UUID);
     private static final UUID ecgMeasUUID = UuidUtil.stringToUuid(ecgMeasUuid, MY_BASE_UUID);
     private static final UUID ecg1mVCaliUUID = UuidUtil.stringToUuid(ecg1mVCaliUuid, MY_BASE_UUID);
     private static final UUID ecgSampleRateUUID = UuidUtil.stringToUuid(ecgSampleRateUuid, MY_BASE_UUID);
     private static final UUID ecgLeadTypeUUID = UuidUtil.stringToUuid(ecgLeadTypeUuid, MY_BASE_UUID);
-    private static final UUID ecgSwitchUUID = UuidUtil.stringToUuid(ecgSwitchUuid, MY_BASE_UUID);
+    private static final UUID ecgLockStatusUUID = UuidUtil.stringToUuid(ecgLockStatusUuid, MY_BASE_UUID);
 
     private static final BleGattElement ECGMEAS = new BleGattElement(ecgServiceUUID, ecgMeasUUID, null, "ECG Data Packet");
     private static final BleGattElement ECGMEASCCC = new BleGattElement(ecgServiceUUID, ecgMeasUUID, CCC_UUID, "ECG Data Packet CCC");
     private static final BleGattElement ECG1MVCALI = new BleGattElement(ecgServiceUUID, ecg1mVCaliUUID, null, "ECG 1mV Calibration");
     private static final BleGattElement ECGSAMPLERATE = new BleGattElement(ecgServiceUUID, ecgSampleRateUUID, null, "ECG Sample Rate");
     private static final BleGattElement ECGLEADTYPE = new BleGattElement(ecgServiceUUID, ecgLeadTypeUUID, null, "ECG Lead Type");
-    private static final BleGattElement ECGSWITCH = new BleGattElement(ecgServiceUUID, ecgSwitchUUID, null, "ECG Switch");
+    private static final BleGattElement ECGLOCKSTATUS = new BleGattElement(ecgServiceUUID, ecgLockStatusUUID, null, "ECG Lock Status");
 
 
     private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
@@ -93,7 +92,7 @@ public class HRMonitorDevice extends AbstractDevice {
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // lead type
 
     private boolean hasBattService = false; // has battery service
-    private boolean ecgSwitchOn = false; // ecg switch on
+    private boolean ecgLock = true; // ecg lock status
     private EcgDataProcessor ecgProcessor; // ecg processor
 
     private OnHRMonitorDeviceListener listener; // device listener
@@ -121,17 +120,18 @@ public class HRMonitorDevice extends AbstractDevice {
             switchBatteryMeasure(true);
         }
 
-        elements = new BleGattElement[]{ECGMEAS, ECGMEASCCC, ECG1MVCALI, ECGSAMPLERATE, ECGLEADTYPE, ECGSWITCH};
+        elements = new BleGattElement[]{ECGMEAS, ECGMEASCCC, ECG1MVCALI, ECGSAMPLERATE, ECGLEADTYPE, ECGLOCKSTATUS};
         if(connector.containGattElements(elements)) {
-            readEcgSwitch();
+            readEcgLockStatus();
             connector.runInstantly(new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    if(ecgSwitchOn)
-                        initEcgService();
-                    else {
+                    if(ecgLock) {
                         if (listener != null)
-                            listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, ecgSwitchOn);
+                            listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, ecgLock);
+                    }
+                    else {
+                        initEcgService();
                     }
                 }
 
@@ -175,8 +175,8 @@ public class HRMonitorDevice extends AbstractDevice {
         return cali1mV;
     }
 
-    public final boolean isEcgSwitchOn() {
-        return ecgSwitchOn;
+    public final boolean isEcgLock() {
+        return ecgLock;
     }
 
     public void setListener(OnHRMonitorDeviceListener listener) {
@@ -262,15 +262,11 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
-    private void readEcgSwitch() {
-        ((BleDeviceConnector)connector).read(ECGSWITCH, new IBleDataCallback() {
+    private void readEcgLockStatus() {
+        ((BleDeviceConnector)connector).read(ECGLOCKSTATUS, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                if(data[0] == 0x00) {
-                    ecgSwitchOn = false;
-                } else {
-                    ecgSwitchOn = true;
-                }
+                ecgLock = (data[0] == ECG_LOCKED);
             }
 
             @Override
@@ -288,7 +284,7 @@ public class HRMonitorDevice extends AbstractDevice {
             public void onSuccess(byte[] data, BleGattElement element) {
                 ecgProcessor = new EcgDataProcessor(HRMonitorDevice.this);
                 if (listener != null)
-                    listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, ecgSwitchOn);
+                    listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, ecgLock);
             }
 
             @Override
@@ -337,15 +333,15 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
-    public void switchEcgMode(final boolean ecgSwitchOn) {
-        if(this.ecgSwitchOn == ecgSwitchOn) return;
+    public void lockEcg(final boolean ecgLock) {
+        if(this.ecgLock == ecgLock) return;
 
-        byte data = (byte)((ecgSwitchOn) ? 0x01 : 0x00);
+        byte data = (ecgLock) ? ECG_LOCKED : ECG_UNLOCKED;
 
-        ((BleDeviceConnector) connector).write(ECGSWITCH, data, new IBleDataCallback() {
+        ((BleDeviceConnector) connector).write(ECGLOCKSTATUS, data, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                HRMonitorDevice.this.ecgSwitchOn = ecgSwitchOn;
+                HRMonitorDevice.this.ecgLock = ecgLock;
             }
 
             @Override
@@ -355,7 +351,7 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     public void switchEcgSignal(boolean isStart) {
-        if(!ecgSwitchOn) return;
+        if(ecgLock) return;
 
         if(ecgProcessor != null)
             ecgProcessor.stop();

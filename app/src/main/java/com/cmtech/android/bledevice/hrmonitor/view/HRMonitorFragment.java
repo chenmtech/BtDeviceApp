@@ -14,8 +14,6 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity;
-import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledevice.hrmonitor.model.HrStatisticsInfo;
@@ -130,10 +128,10 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
-            case 1: // switch ecg on/off
+            case 1: // cfg return
                 if(resultCode == RESULT_OK) {
-                    boolean ecgSwitch = data.getBooleanExtra("ecg_on", false);
-                    device.switchEcgMode(ecgSwitch);
+                    boolean ecgLock = data.getBooleanExtra("ecg_lock", true);
+                    device.lockEcg(ecgLock);
                 }
                 break;
 
@@ -145,7 +143,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     @Override
     public void openConfigureActivity() {
         Intent intent = new Intent(getActivity(), HRMCfgActivity.class);
-        intent.putExtra("ecg_on", device.isEcgSwitchOn());
+        intent.putExtra("ecg_lock", device.isEcgLock());
         startActivityForResult(intent, 1);
     }
 
@@ -187,21 +185,21 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int value1mV, final double zeroLocation, final boolean ecgSwitchOn) {
+    public void onFragmentUpdated(final int sampleRate, final int value1mV, final double zeroLocation, final boolean ecgLock) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     ecgView.setup(sampleRate, value1mV, zeroLocation);
-                    if(ecgSwitchOn) {
-                        btnEcg.setVisibility(View.VISIBLE);
-                        if(btnEcg.isChecked())
-                            btnEcg.setChecked(false);
-                    } else {
+                    if(ecgLock) {
                         btnEcg.setVisibility(View.GONE);
                         flEcgOff.setVisibility(View.VISIBLE);
                         flEcgOn.setVisibility(View.GONE);
                         ecgView.stop();
+                    } else {
+                        btnEcg.setVisibility(View.VISIBLE);
+                        if(btnEcg.isChecked())
+                            btnEcg.setChecked(false);
                     }
                 }
             });
