@@ -129,6 +129,10 @@ public class HRMonitorDevice extends AbstractDevice {
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if(ecgSwitchOn)
                         initEcgService();
+                    else {
+                        if (listener != null)
+                            listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, ecgSwitchOn);
+                    }
                 }
 
                 @Override

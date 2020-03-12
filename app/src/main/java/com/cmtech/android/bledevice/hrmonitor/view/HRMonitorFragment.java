@@ -197,8 +197,12 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                         btnEcg.setVisibility(View.VISIBLE);
                         if(btnEcg.isChecked())
                             btnEcg.setChecked(false);
-                    } else
+                    } else {
                         btnEcg.setVisibility(View.GONE);
+                        flEcgOff.setVisibility(View.VISIBLE);
+                        flEcgOn.setVisibility(View.GONE);
+                        ecgView.stop();
+                    }
                 }
             });
         }
