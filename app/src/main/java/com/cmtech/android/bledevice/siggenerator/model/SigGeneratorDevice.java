@@ -1,11 +1,9 @@
 package com.cmtech.android.bledevice.siggenerator.model;
 
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceConnector;
+import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
-import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.core.IDeviceConnector;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.vise.log.ViseLog;
 
@@ -54,7 +52,7 @@ public class SigGeneratorDevice extends AbstractDevice {
     public boolean onConnectSuccess() {
         BleGattElement[] elements = new BleGattElement[]{SIGGENERATOR_CTRL, SIGGENERATOR_TYPE, SIGGENERATOR_MAG, SIGGENERATOR_FREQ, SIGGENERATOR_BASELINE};
 
-        if(!((BleDeviceConnector)connector).containGattElements(elements)) {
+        if(!((BleConnector)connector).containGattElements(elements)) {
             ViseLog.e("Signal Generator Elements are wrong.");
 
             //disconnect();
@@ -80,10 +78,10 @@ public class SigGeneratorDevice extends AbstractDevice {
     }
 
     private void startGeneratingSignal() {
-        ((BleDeviceConnector)connector).write(SIGGENERATOR_CTRL, SIGGENERATOR_CTRL_START, null);
+        ((BleConnector)connector).write(SIGGENERATOR_CTRL, SIGGENERATOR_CTRL_START, null);
     }
 
     private void stopGeneratingSignal() {
-        ((BleDeviceConnector)connector).write(SIGGENERATOR_CTRL, SIGGENERATOR_CTRL_STOP, null);
+        ((BleConnector)connector).write(SIGGENERATOR_CTRL, SIGGENERATOR_CTRL_STOP, null);
     }
 }

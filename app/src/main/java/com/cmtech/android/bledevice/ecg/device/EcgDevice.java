@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
-import com.cmtech.android.ble.core.BleDeviceConnector;
+import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
@@ -153,7 +153,7 @@ public class EcgDevice extends AbstractEcgDevice {
     public boolean onConnectSuccess() {
         BleGattElement[] elements = new BleGattElement[]{ECGMONITOR_DATA, ECGMONITOR_DATA_CCC, ECGMONITOR_CTRL, ECGMONITOR_SAMPLE_RATE, ECGMONITOR_LEAD_TYPE};
 
-        if (!((BleDeviceConnector) connector).containGattElements(elements)) {
+        if (!((BleConnector) connector).containGattElements(elements)) {
             ViseLog.e("EcgMonitor Elements wrong.");
             return false;
         }
@@ -163,7 +163,7 @@ public class EcgDevice extends AbstractEcgDevice {
         updateValue1mV();
 
         // 启动电池电量测量
-        containBatteryService = ((BleDeviceConnector) connector).containGattElement(BATTERY_DATA);
+        containBatteryService = ((BleConnector) connector).containGattElement(BATTERY_DATA);
         if (containBatteryService) {
             startBatteryMeasure();
         }
@@ -187,9 +187,9 @@ public class EcgDevice extends AbstractEcgDevice {
                 ViseLog.e(exception);
             }
         };
-        ((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
+        ((BleConnector) connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
 
-        ((BleDeviceConnector)connector).runInstantly(new IBleDataCallback() {
+        ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setValue1mV(DEFAULT_VALUE_1MV);
@@ -262,15 +262,6 @@ public class EcgDevice extends AbstractEcgDevice {
         }
     }
 
-    @Override
-    public void clear() {
-        if (broadcast != null) {
-            broadcast.stop();
-            broadcast = null;
-        }
-        super.clear();
-    }
-
     private void saveEcgRecord() {
         try {
             ecgRecord.moveSigFileTo(DIR_ECG_SIGNAL);
@@ -290,8 +281,8 @@ public class EcgDevice extends AbstractEcgDevice {
             stopBatteryMeasure();
             containBatteryService = false;
         }
-        if (super.getState() == CONNECT && ((BleDeviceConnector) connector).isGattExecutorAlive()) {
-            ((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, false, null);
+        if (super.getState() == CONNECT && ((BleConnector) connector).isGattExecutorAlive()) {
+            ((BleConnector) connector).notify(ECGMONITOR_DATA_CCC, false, null);
             stopSampling();
         }
         try {
@@ -304,7 +295,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
     // 读采样率
     private void readSampleRate() {
-        ((BleDeviceConnector) connector).read(ECGMONITOR_SAMPLE_RATE, new IBleDataCallback() {
+        ((BleConnector) connector).read(ECGMONITOR_SAMPLE_RATE, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setSampleRate((data[0] & 0xff) | ((data[1] << 8) & 0xff00));
@@ -334,7 +325,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
     // 读导联类型
     private void readLeadType() {
-        ((BleDeviceConnector) connector).read(ECGMONITOR_LEAD_TYPE, new IBleDataCallback() {
+        ((BleConnector) connector).read(ECGMONITOR_LEAD_TYPE, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setLeadType(EcgLeadType.getFromCode(data[0]));
@@ -363,9 +354,9 @@ public class EcgDevice extends AbstractEcgDevice {
         };
 
         // enable ECG data notification
-        ((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);*/
+        ((BleConnector) connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);*/
 
-        ((BleDeviceConnector) connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_SIGNAL, new IBleDataCallback() {
+        ((BleConnector) connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_SIGNAL, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setEcgMonitorState(EcgMonitorState.SAMPLING);
@@ -395,10 +386,10 @@ public class EcgDevice extends AbstractEcgDevice {
             }
         };
 
-        ((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
+        ((BleConnector) connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
 
         // start 1mv sampling
-        ((BleDeviceConnector) connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_1MV, new IBleDataCallback() {
+        ((BleConnector) connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_1MV, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setEcgMonitorState(EcgMonitorState.CALIBRATING);
@@ -416,9 +407,9 @@ public class EcgDevice extends AbstractEcgDevice {
 
     // 停止数据采集
     private void stopSampling() {
-        //((BleDeviceConnector) connector).notify(ECGMONITOR_DATA_CCC, false, null);
+        //((BleConnector) connector).notify(ECGMONITOR_DATA_CCC, false, null);
 
-        ((BleDeviceConnector) connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleDataCallback() {
+        ((BleConnector) connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_STOP, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 ViseLog.e("Sampling stopped.");
@@ -446,7 +437,7 @@ public class EcgDevice extends AbstractEcgDevice {
             batteryService.scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    ((BleDeviceConnector) connector).read(BATTERY_DATA, new IBleDataCallback() {
+                    ((BleConnector) connector).read(BATTERY_DATA, new IBleDataCallback() {
                         @Override
                         public void onSuccess(byte[] data, BleGattElement element) {
                             setBattery(data[0]);

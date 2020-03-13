@@ -152,7 +152,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     }
 
     @Override
-    public void onExceptionHandled(IDevice device, BleException ex) {
+    public void onExceptionNotified(IDevice device, BleException ex) {
         if (ex instanceof ScanException) {
             if (((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BLE_INNER_ERROR) {
                 startWarningBleInnerError();

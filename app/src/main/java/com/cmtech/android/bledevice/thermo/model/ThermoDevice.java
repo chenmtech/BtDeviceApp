@@ -1,11 +1,8 @@
 package com.cmtech.android.bledevice.thermo.model;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceConnector;
+import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
@@ -62,13 +59,13 @@ public class ThermoDevice extends AbstractDevice {
     @Override
     public boolean onConnectSuccess() {
         BleGattElement[] elements = new BleGattElement[]{THERMOTEMP, THERMOTEMPCCC};
-        if(!((BleDeviceConnector)connector).containGattElements(elements)) {
+        if(!((BleConnector)connector).containGattElements(elements)) {
             return false;
         }
 
         // read temp type, which means the location of the thermometer on the body
-        if(((BleDeviceConnector) connector).containGattElement(THERMOTYPE)) {
-            ((BleDeviceConnector) connector).read(THERMOTYPE, new IBleDataCallback() {
+        if(((BleConnector) connector).containGattElement(THERMOTYPE)) {
+            ((BleConnector) connector).read(THERMOTYPE, new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     ViseLog.e("The temperature type is " + data[0]);
@@ -86,8 +83,8 @@ public class ThermoDevice extends AbstractDevice {
         }
 
         // read measure interval
-        if(((BleDeviceConnector) connector).containGattElement(THERMOINTERVAL)) {
-            ((BleDeviceConnector) connector).read(THERMOINTERVAL, new IBleDataCallback() {
+        if(((BleConnector) connector).containGattElement(THERMOINTERVAL)) {
+            ((BleConnector) connector).read(THERMOINTERVAL, new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     int interval = ByteUtil.getShort(data);
@@ -153,7 +150,7 @@ public class ThermoDevice extends AbstractDevice {
 
             }
         };
-        ((BleDeviceConnector)connector).indicate(THERMOTEMPCCC, true, indicateCallback);
+        ((BleConnector)connector).indicate(THERMOTEMPCCC, true, indicateCallback);
     }
 
 }

@@ -107,7 +107,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // 设置设备打开后是否自动连接
         cbIsAutoconnect = findViewById(R.id.cb_device_isautoconnect);
-        cbIsAutoconnect.setChecked(registerInfo.autoConnect());
+        cbIsAutoconnect.setChecked(registerInfo.isAutoConnect());
 
         // 设置BLE内部错误是否报警
         cbWarnBleInnerError = findViewById(R.id.cb_device_warn_when_ble_error);

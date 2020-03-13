@@ -1,11 +1,8 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceConnector;
+import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
@@ -77,7 +74,7 @@ public class TempHumidDevice extends AbstractDevice {
     public boolean onConnectSuccess() {
         BleGattElement[] elements = new BleGattElement[]{TEMPHUMIDDATA, TEMPHUMIDINTERVAL, TEMPHUMIDDATACCC, TEMPHUMIDIRANGE};
 
-        if(!((BleDeviceConnector)connector).containGattElements(elements)) {
+        if(!((BleConnector)connector).containGattElements(elements)) {
             ViseLog.e("temphumid element wrong.");
             return false;
         }
@@ -86,7 +83,7 @@ public class TempHumidDevice extends AbstractDevice {
         readIRange();
 
         // set measurement interval
-        ((BleDeviceConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(interval), null);
+        ((BleConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(interval), null);
 
         // start measurement
         startTempHumidMeasure();
@@ -122,13 +119,13 @@ public class TempHumidDevice extends AbstractDevice {
                 ViseLog.i("onFailure");
             }
         };
-        ((BleDeviceConnector)connector).indicate(TEMPHUMIDDATACCC, false, null);
+        ((BleConnector)connector).indicate(TEMPHUMIDDATACCC, false, null);
 
-        ((BleDeviceConnector)connector).indicate(TEMPHUMIDDATACCC, true, indicateCallback);
+        ((BleConnector)connector).indicate(TEMPHUMIDDATACCC, true, indicateCallback);
     }
 
     private void readIRange() {
-        ((BleDeviceConnector)connector).read(TEMPHUMIDIRANGE, new IBleDataCallback() {
+        ((BleConnector)connector).read(TEMPHUMIDIRANGE, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 intMin = ByteUtil.getShort(new byte[]{data[0], data[1]});
@@ -145,8 +142,8 @@ public class TempHumidDevice extends AbstractDevice {
     public void setInterval(short interval) {
         if(this.interval != interval) {
             this.interval = interval;
-            //((BleDeviceConnector)connector).indicate(TEMPHUMIDDATACCC, false, null);
-            ((BleDeviceConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(interval), null);
+            //((BleConnector)connector).indicate(TEMPHUMIDDATACCC, false, null);
+            ((BleConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(interval), null);
         }
     }
 

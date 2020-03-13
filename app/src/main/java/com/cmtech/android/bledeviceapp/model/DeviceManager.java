@@ -138,7 +138,7 @@ public class DeviceManager {
 
     public static void clearDevices() {
         for(IDevice device : DEVICE_LIST) {
-            device.clear();
+            device.close();
         }
     }
 

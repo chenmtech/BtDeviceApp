@@ -2,7 +2,7 @@ package com.cmtech.android.bledevice.hrmonitor.model;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
-import com.cmtech.android.ble.core.BleDeviceConnector;
+import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
@@ -103,7 +103,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public boolean onConnectSuccess() {
-        BleDeviceConnector connector = (BleDeviceConnector)this.connector;
+        BleConnector connector = (BleConnector)this.connector;
 
         BleGattElement[] elements = new BleGattElement[]{HRMONITORMEAS, HRMONITORMEASCCC};
         if(connector.containGattElements(elements)) {
@@ -160,11 +160,21 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     @Override
-    public void disconnect(boolean forever) {
+    public void disconnect(final boolean forever) {
         switchHRMeasure(false);
         switchBatteryMeasure(false);
         switchEcgSignal(false);
-        super.disconnect(forever);
+        ((BleConnector)connector).runInstantly(new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                HRMonitorDevice.super.disconnect(forever);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
     }
 
     public final int getSampleRate() {
@@ -188,7 +198,7 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     private void readSensorLocation() {
-        ((BleDeviceConnector)connector).read(HRMONITORSENSLOC, new IBleDataCallback() {
+        ((BleConnector)connector).read(HRMONITORSENSLOC, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 if(listener != null) {
@@ -203,7 +213,7 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     private void switchHRMeasure(boolean isStart) {
-        ((BleDeviceConnector)connector).notify(HRMONITORMEASCCC, false, null);
+        ((BleConnector)connector).notify(HRMONITORMEASCCC, false, null);
 
         if(isStart) {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
@@ -224,7 +234,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
                 }
             };
-            ((BleDeviceConnector)connector).notify(HRMONITORMEASCCC, true, notifyCallback);
+            ((BleConnector)connector).notify(HRMONITORMEASCCC, true, notifyCallback);
         }
 
     }
@@ -232,7 +242,7 @@ public class HRMonitorDevice extends AbstractDevice {
     private void switchBatteryMeasure(boolean isStart) {
         if(!hasBattService) return;
 
-        ((BleDeviceConnector)connector).notify(BATTLEVELCCC, false, null);
+        ((BleConnector)connector).notify(BATTLEVELCCC, false, null);
         if(isStart) {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
@@ -245,12 +255,12 @@ public class HRMonitorDevice extends AbstractDevice {
 
                 }
             };
-            ((BleDeviceConnector)connector).notify(BATTLEVELCCC, true, notifyCallback);
+            ((BleConnector)connector).notify(BATTLEVELCCC, true, notifyCallback);
         }
     }
 
     private void readBatteryLevel() {
-        ((BleDeviceConnector)connector).read(BATTLEVEL, new IBleDataCallback() {
+        ((BleConnector)connector).read(BATTLEVEL, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 setBattery(data[0]);
@@ -263,7 +273,7 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     private void readEcgLockStatus() {
-        ((BleDeviceConnector)connector).read(ECGLOCKSTATUS, new IBleDataCallback() {
+        ((BleConnector)connector).read(ECGLOCKSTATUS, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 ecgLock = (data[0] == ECG_LOCKED);
@@ -279,7 +289,7 @@ public class HRMonitorDevice extends AbstractDevice {
         readSampleRate();
         read1mVCali();
         readLeadType();
-        ((BleDeviceConnector)connector).runInstantly(new IBleDataCallback() {
+        ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 ecgProcessor = new EcgDataProcessor(HRMonitorDevice.this);
@@ -295,7 +305,7 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     private void readSampleRate() {
-        ((BleDeviceConnector)connector).read(ECGSAMPLERATE, new IBleDataCallback() {
+        ((BleConnector)connector).read(ECGSAMPLERATE, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 sampleRate = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
@@ -308,7 +318,7 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     private void read1mVCali() {
-        ((BleDeviceConnector)connector).read(ECG1MVCALI, new IBleDataCallback() {
+        ((BleConnector)connector).read(ECG1MVCALI, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 cali1mV = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
@@ -321,7 +331,7 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     private void readLeadType() {
-        ((BleDeviceConnector)connector).read(ECGLEADTYPE, new IBleDataCallback() {
+        ((BleConnector)connector).read(ECGLEADTYPE, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 leadType = EcgLeadType.getFromCode(UnsignedUtil.getUnsignedByte(data[0]));
@@ -338,7 +348,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
         byte data = (ecgLock) ? ECG_LOCKED : ECG_UNLOCKED;
 
-        ((BleDeviceConnector) connector).write(ECGLOCKSTATUS, data, new IBleDataCallback() {
+        ((BleConnector) connector).write(ECGLOCKSTATUS, data, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 HRMonitorDevice.this.ecgLock = ecgLock;
@@ -355,7 +365,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
         if(ecgProcessor != null)
             ecgProcessor.stop();
-        ((BleDeviceConnector)connector).notify(ECGMEASCCC, false, null);
+        ((BleConnector)connector).notify(ECGMEASCCC, false, null);
 
         if(isStart) {
             ecgProcessor.start();
@@ -371,7 +381,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
                 }
             };
-            ((BleDeviceConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
+            ((BleConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
         }
     }
 

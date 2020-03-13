@@ -361,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             toolbarManager.setTitle(title, device.getAddress());
             toolbarManager.setBattery(device.getBattery());
             BleDeviceState state = device.getState();
-            if(state == BleDeviceState.SCANNING || state == BleDeviceState.CONNECTING || state == BleDeviceState.DISCONNECTING)
+            if(state == BleDeviceState.CONNECTING || state == BleDeviceState.DISCONNECTING)
                 updateConnectFloatingActionButton(state.getIcon(), true);
             else
                 updateConnectFloatingActionButton(state.getIcon(), false);
@@ -552,7 +552,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(deviceFrag != null) deviceFrag.updateState();
         if(fragTabManager.isFragmentSelected(device)) {
             BleDeviceState state = device.getState();
-            if(state == BleDeviceState.SCANNING || state == BleDeviceState.CONNECTING || state == BleDeviceState.DISCONNECTING)
+            if(state == BleDeviceState.CONNECTING || state == BleDeviceState.DISCONNECTING)
                 updateConnectFloatingActionButton(state.getIcon(), true);
             else
                 updateConnectFloatingActionButton(state.getIcon(), false);
@@ -562,7 +562,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     // 异常通知
     @Override
-    public void onExceptionHandled(IDevice device, BleException ex) {
+    public void onExceptionNotified(IDevice device, BleException ex) {
         if(ex instanceof ScanException && ((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BLE_INNER_ERROR) {
             if(!isWarningBleInnerError) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(this);
