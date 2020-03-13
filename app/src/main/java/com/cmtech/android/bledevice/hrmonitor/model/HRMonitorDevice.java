@@ -160,11 +160,11 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     @Override
-    public void forceDisconnect(boolean forever) {
+    public void disconnect(boolean forever) {
         switchHRMeasure(false);
         switchBatteryMeasure(false);
         switchEcgSignal(false);
-        super.forceDisconnect(forever);
+        super.disconnect(forever);
     }
 
     public final int getSampleRate() {

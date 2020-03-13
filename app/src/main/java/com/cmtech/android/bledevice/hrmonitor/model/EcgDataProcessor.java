@@ -76,7 +76,7 @@ public class EcgDataProcessor {
                     } else if(nextPackNum != INVALID_PACKET_NUM){ // bad packet, force disconnect
                         ViseLog.e("The ecg data packet is lost.");
                         nextPackNum = INVALID_PACKET_NUM;
-                        device.forceDisconnect(false);
+                        device.disconnect(false);
                     }
                     // invalid packet
                 }

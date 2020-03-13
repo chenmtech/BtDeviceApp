@@ -365,7 +365,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 updateConnectFloatingActionButton(state.getIcon(), true);
             else
                 updateConnectFloatingActionButton(state.getIcon(), false);
-            updateCloseMenuItemVisible(device.isDisconnectedForever());
+            updateCloseMenuItemVisible(true);
             updateMainLayoutVisibility(true);
         }
     }
@@ -556,7 +556,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 updateConnectFloatingActionButton(state.getIcon(), true);
             else
                 updateConnectFloatingActionButton(state.getIcon(), false);
-            updateCloseMenuItemVisible(device.isDisconnectedForever());
+            updateCloseMenuItemVisible(true);
         }
     }
 
@@ -646,14 +646,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     // 关闭Fragment
     private void closeFragment(final DeviceFragment fragment) {
-        if(fragment == null || fragment.getDevice() == null) return;
-
-        IDevice device = fragment.getDevice();
-        if(device.isDisconnectedForever()) {
+        if(fragment != null)
             fragment.close();
-        } else {
-            showMessageUsingLongToast("当前无法关闭设备。");
-        }
     }
 
     // 移除Fragment

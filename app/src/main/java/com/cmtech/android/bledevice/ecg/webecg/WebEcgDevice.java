@@ -170,14 +170,14 @@ public class WebEcgDevice extends AbstractEcgDevice {
     }
 
     @Override
-    public void forceDisconnect(boolean forever) {
+    public void disconnect(boolean forever) {
         if (signalProcessTimer != null) {
             signalProcessTimer.cancel();
             dataCache.clear();
         }
         handler.removeCallbacksAndMessages(null);
         updateSignalShowState(false);
-        super.forceDisconnect(forever);
+        super.disconnect(forever);
     }
 
     // 添加留言内容
@@ -189,10 +189,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
     // 关闭设备
     @Override
     public void close() {
-        if (!isDisconnectedForever()) {
-            ViseLog.e("The device can't be closed currently.");
-            return;
-        }
+        super.close();
 
         ViseLog.e("EcgDevice.close()");
 
@@ -217,7 +214,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
         if (signalProcessor != null)
             signalProcessor.reset();
 
-        super.close();
+
     }
 
     private void saveEcgRecord() {

@@ -94,7 +94,7 @@ public abstract class DeviceFragment extends Fragment{
 
     // 关闭
     public void close() {
-        if(device != null && device.isDisconnectedForever()) {
+        if(device != null) {
             device.close();
 
             if(getActivity() != null) {
