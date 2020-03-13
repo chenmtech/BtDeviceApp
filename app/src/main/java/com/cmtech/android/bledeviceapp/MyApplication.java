@@ -19,9 +19,7 @@ import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.AUTO_SCAN_INTERVAL;
-import static com.cmtech.android.bledeviceapp.AppConstant.CONNECT_TIMEOUT;
-import static com.cmtech.android.bledeviceapp.AppConstant.DATA_OPERATE_TIMEOUT;
+import static com.cmtech.android.bledeviceapp.AppConstant.CONNECT_INTERVAL;
 
 /**
  * MyApplication
@@ -40,9 +38,7 @@ public class MyApplication extends Application {
         LitePal.initialize(getApplicationContext());
         LitePal.getDatabase();
         // BLE包配置
-        BleConfig.getInstance().setConnectTimeout(CONNECT_TIMEOUT);
-        BleConfig.getInstance().setDataOperateTimeout(DATA_OPERATE_TIMEOUT);
-        BleConfig.getInstance().setAutoScanInterval(AUTO_SCAN_INTERVAL);
+        BleConfig.getInstance().setConnectInterval(CONNECT_INTERVAL);
         // 配置支持的设备类型
         DeviceConfig.addSupportedDeviceType(EcgFactory.ECGMONITOR_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(TempHumidFactory.TEMPHUMID_DEVICE_TYPE);
