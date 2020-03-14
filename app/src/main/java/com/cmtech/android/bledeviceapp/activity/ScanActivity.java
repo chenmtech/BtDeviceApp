@@ -155,7 +155,7 @@ public class ScanActivity extends AppCompatActivity {
 
                 BleScanner.stopScan(bleScanCallback);
             }
-        }, 10000);
+        }, 20000);
     }
 
     @Override
