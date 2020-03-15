@@ -46,6 +46,13 @@
         android:layout_gravity="center"
         android:text="打开设备后自动连接" />
 
+    <CheckBox
+        android:id="@+id/cb_device_warn_when_ble_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="蓝牙内部错误是否报警" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

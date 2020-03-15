@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.core.DeviceState;
+import com.cmtech.android.ble.core.BleDeviceState;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 
@@ -71,7 +71,7 @@ public abstract class DeviceFragment extends Fragment{
         MainActivity activity = (MainActivity) getActivity();
         if(activity != null) {
             device.addListener(activity);
-            device.setState(DeviceState.CLOSED);
+            device.setState(BleDeviceState.CLOSED);
         }
     }
 

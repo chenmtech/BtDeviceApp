@@ -7,8 +7,8 @@
 
     <list>
         <mapping class="com.cmtech.android.bledeviceapp.model.Account"/>
-        <mapping class="com.cmtech.android.bledevice.temphumid.model.TempHumidHistoryData"/>
         <mapping class="com.cmtech.android.bledevice.ecg.device.EcgConfiguration"/>
+        <mapping class="com.cmtech.android.bledevice.temphumid.model.TempHumidHistoryData"/>
         <mapping class="com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment"/>
         <mapping class="com.cmtech.android.bledevice.ecg.record.EcgRecord"/>
     </list>

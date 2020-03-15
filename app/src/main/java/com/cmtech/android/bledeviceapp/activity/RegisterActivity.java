@@ -32,6 +32,7 @@ import java.io.IOException;
 
 import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_DEVICE_AUTO_CONNECT;
 import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_DEVICE_IMAGE_PATH;
+import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_WARN_WHEN_BLE_INNER_ERROR;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 
 /**
@@ -46,6 +47,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText etName; // 设备名
     private ImageView ivImage; // 设备图像
     private CheckBox cbIsAutoconnect; // 设备是否自动连接
+    private CheckBox cbWarnBleInnerError; // 设备重连失败后是否报警
     private String cacheImagePath = ""; // 图像文件名缓存
 
     @Override
@@ -107,6 +109,10 @@ public class RegisterActivity extends AppCompatActivity {
         cbIsAutoconnect = findViewById(R.id.cb_device_isautoconnect);
         cbIsAutoconnect.setChecked(registerInfo.isAutoConnect());
 
+        // 设置BLE内部错误是否报警
+        cbWarnBleInnerError = findViewById(R.id.cb_device_warn_when_ble_error);
+        cbWarnBleInnerError.setChecked(registerInfo.isWarnWhenBleInnerError());
+
         Button btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,6 +147,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
 
                 registerInfo.setAutoConnect(cbIsAutoconnect.isChecked());
+                registerInfo.setWarnWhenBleInnerError(cbWarnBleInnerError.isChecked());
 
                 Intent intent = new Intent();
                 intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
@@ -250,6 +257,7 @@ public class RegisterActivity extends AppCompatActivity {
             cacheImagePath = DEFAULT_DEVICE_IMAGE_PATH;
             Glide.with(this).load(type.getDefaultImageId()).into(ivImage);
             cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTO_CONNECT);
+            cbWarnBleInnerError.setChecked(DEFAULT_WARN_WHEN_BLE_INNER_ERROR);
         }
     }
 }
