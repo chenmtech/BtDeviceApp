@@ -5,6 +5,7 @@ import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -142,11 +143,26 @@ public class HRMonitorDevice extends AbstractDevice {
             });
         }
 
+        connector.runInstantly(new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                HRMonitorDevice.super.onConnectSuccess();
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
+
+
         return true;
     }
 
     @Override
     public void onConnectFailure() {
+        super.onConnectFailure();
+
         if(ecgProcessor != null) {
             ecgProcessor.stop();
         }
@@ -154,6 +170,8 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public void onDisconnect() {
+        super.onDisconnect();
+
         if(ecgProcessor != null) {
             ecgProcessor.stop();
         }
@@ -161,7 +179,8 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public void disconnect(final boolean forever) {
-        switchHRMeasure(false);
+        setState(DeviceState.DISCONNECTING);
+/*        switchHRMeasure(false);
         switchBatteryMeasure(false);
         switchEcgSignal(false);
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
@@ -174,7 +193,8 @@ public class HRMonitorDevice extends AbstractDevice {
             public void onFailure(BleException exception) {
 
             }
-        });
+        });*/
+        super.disconnect(forever);
     }
 
     public final int getSampleRate() {

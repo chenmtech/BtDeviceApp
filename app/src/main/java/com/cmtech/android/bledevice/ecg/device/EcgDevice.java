@@ -274,7 +274,7 @@ public class EcgDevice extends AbstractEcgDevice {
     }
 
     @Override
-    public void disconnect(boolean forever) {
+    public void disconnect(final boolean forever) {
         ViseLog.e("EcgDevice.disconnect()");
 
         if (containBatteryService) {
@@ -285,12 +285,17 @@ public class EcgDevice extends AbstractEcgDevice {
             ((BleConnector) connector).notify(ECGMONITOR_DATA_CCC, false, null);
             stopSampling();
         }
-        try {
-            Thread.sleep(200);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        super.disconnect(forever);
+        ((BleConnector)connector).runInstantly(new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                EcgDevice.super.disconnect(forever);
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+
+            }
+        });
     }
 
     // 读采样率

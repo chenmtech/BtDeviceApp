@@ -72,7 +72,6 @@ public abstract class DeviceFragment extends Fragment{
         MainActivity activity = (MainActivity) getActivity();
         if(activity != null) {
             device.addListener(activity);
-            device.setState(CLOSED);
         }
     }
 

@@ -547,20 +547,26 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     // 设备状态更新
     @Override
-    public void onStateUpdated(IDevice device) {
-        // 更新设备列表Adapter
-        updateDeviceList();
-        // 更新设备的Fragment界面
-        DeviceFragment deviceFrag = fragTabManager.findFragment(device);
-        if(deviceFrag != null) deviceFrag.updateState();
-        if(fragTabManager.isFragmentSelected(device)) {
-            DeviceState state = device.getState();
-            if(state == CONNECTING || state == DISCONNECTING)
-                updateConnectFloatingActionButton(state.getIcon(), true);
-            else
-                updateConnectFloatingActionButton(state.getIcon(), false);
-            updateCloseMenuItemVisible(true);
-        }
+    public void onStateUpdated(final IDevice device) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // 更新设备列表Adapter
+                updateDeviceList();
+                // 更新设备的Fragment界面
+                DeviceFragment deviceFrag = fragTabManager.findFragment(device);
+                if(deviceFrag != null) deviceFrag.updateState();
+                if(fragTabManager.isFragmentSelected(device)) {
+                    DeviceState state = device.getState();
+                    if(state == CONNECTING || state == DISCONNECTING)
+                        updateConnectFloatingActionButton(state.getIcon(), true);
+                    else
+                        updateConnectFloatingActionButton(state.getIcon(), false);
+                    updateCloseMenuItemVisible(true);
+                }
+            }
+        });
+
     }
 
     // 异常通知
