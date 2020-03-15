@@ -143,26 +143,11 @@ public class HRMonitorDevice extends AbstractDevice {
             });
         }
 
-        connector.runInstantly(new IBleDataCallback() {
-            @Override
-            public void onSuccess(byte[] data, BleGattElement element) {
-                HRMonitorDevice.super.onConnectSuccess();
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
-            }
-        });
-
-
         return true;
     }
 
     @Override
     public void onConnectFailure() {
-        super.onConnectFailure();
-
         if(ecgProcessor != null) {
             ecgProcessor.stop();
         }
@@ -170,8 +155,6 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public void onDisconnect() {
-        super.onDisconnect();
-
         if(ecgProcessor != null) {
             ecgProcessor.stop();
         }
@@ -179,8 +162,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public void disconnect(final boolean forever) {
-        setState(DeviceState.DISCONNECTING);
-/*        switchHRMeasure(false);
+        switchHRMeasure(false);
         switchBatteryMeasure(false);
         switchEcgSignal(false);
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
@@ -193,7 +175,7 @@ public class HRMonitorDevice extends AbstractDevice {
             public void onFailure(BleException exception) {
 
             }
-        });*/
+        });
         super.disconnect(forever);
     }
 
@@ -233,7 +215,7 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     private void switchHRMeasure(boolean isStart) {
-        ((BleConnector)connector).notify(HRMONITORMEASCCC, false, null);
+        //((BleConnector)connector).notify(HRMONITORMEASCCC, false, null);
 
         if(isStart) {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
@@ -255,6 +237,8 @@ public class HRMonitorDevice extends AbstractDevice {
                 }
             };
             ((BleConnector)connector).notify(HRMONITORMEASCCC, true, notifyCallback);
+        } else {
+            ((BleConnector)connector).notify(HRMONITORMEASCCC, false, null);
         }
 
     }
@@ -262,7 +246,7 @@ public class HRMonitorDevice extends AbstractDevice {
     private void switchBatteryMeasure(boolean isStart) {
         if(!hasBattService) return;
 
-        ((BleConnector)connector).notify(BATTLEVELCCC, false, null);
+        //((BleConnector)connector).notify(BATTLEVELCCC, false, null);
         if(isStart) {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
@@ -276,6 +260,8 @@ public class HRMonitorDevice extends AbstractDevice {
                 }
             };
             ((BleConnector)connector).notify(BATTLEVELCCC, true, notifyCallback);
+        } else {
+            ((BleConnector)connector).notify(BATTLEVELCCC, false, null);
         }
     }
 
@@ -385,7 +371,8 @@ public class HRMonitorDevice extends AbstractDevice {
 
         if(ecgProcessor != null)
             ecgProcessor.stop();
-        ((BleConnector)connector).notify(ECGMEASCCC, false, null);
+
+        //((BleConnector)connector).notify(ECGMEASCCC, false, null);
 
         if(isStart) {
             ecgProcessor.start();
@@ -402,6 +389,8 @@ public class HRMonitorDevice extends AbstractDevice {
                 }
             };
             ((BleConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
+        } else {
+            ((BleConnector)connector).notify(ECGMEASCCC, false, null);
         }
     }
 
