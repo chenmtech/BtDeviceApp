@@ -115,7 +115,7 @@ public class EcgHttpBroadcast {
         HttpUtils.upload(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Log.e(TAG, "broadcast start fail.");
+                Log.e(TAG, "broadcast open fail.");
                 stopped = true;
             }
 
@@ -123,7 +123,7 @@ public class EcgHttpBroadcast {
             public void onResponse(Call call, Response response) throws IOException {
                 try(ResponseBody responseBody = response.body()) {
                     String responseStr = responseBody.string();
-                    ViseLog.e("broadcast start: " + responseStr);
+                    ViseLog.e("broadcast open: " + responseStr);
                     stopped = false;
                     if(listener != null) listener.onBroadcastInitialized(receivers);
                     getReceivers();

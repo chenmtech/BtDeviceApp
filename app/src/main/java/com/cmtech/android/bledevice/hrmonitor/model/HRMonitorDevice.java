@@ -5,6 +5,7 @@ import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -133,6 +134,8 @@ public class HRMonitorDevice extends AbstractDevice {
                     else {
                         initEcgService();
                     }
+
+                    HRMonitorDevice.super.onConnectSuccess();
                 }
 
                 @Override
@@ -147,6 +150,8 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public void onConnectFailure() {
+        super.onConnectFailure();
+
         if(ecgProcessor != null) {
             ecgProcessor.stop();
         }
@@ -154,6 +159,8 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public void onDisconnect() {
+        super.onDisconnect();
+
         if(ecgProcessor != null) {
             ecgProcessor.stop();
         }
@@ -161,6 +168,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
     @Override
     public void disconnect(final boolean forever) {
+        setState(DeviceState.DISCONNECTING);
         switchHRMeasure(false);
         switchBatteryMeasure(false);
         switchEcgSignal(false);

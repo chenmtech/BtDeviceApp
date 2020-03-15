@@ -85,7 +85,7 @@ public class TempHumidDevice extends AbstractDevice {
         // set measurement interval
         ((BleConnector)connector).write(TEMPHUMIDINTERVAL, ByteUtil.getBytes(interval), null);
 
-        // start measurement
+        // open measurement
         startTempHumidMeasure();
 
         return true;
@@ -101,7 +101,7 @@ public class TempHumidDevice extends AbstractDevice {
 
     }
 
-    // start measurement
+    // open measurement
     private void startTempHumidMeasure() {
         // enable temphumid indication
         IBleDataCallback indicateCallback = new IBleDataCallback() {

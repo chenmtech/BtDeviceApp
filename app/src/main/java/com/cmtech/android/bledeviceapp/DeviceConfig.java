@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp;
 
-import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 /**
@@ -15,12 +15,12 @@ public class DeviceConfig {
     }
 
     // 设置设备状态的文字描述
-    public static void setStateDescription(BleDeviceState deviceState, String description) {
+    public static void setStateDescription(DeviceState deviceState, String description) {
         deviceState.setDescription(description);
     }
 
     // 设置设备状态的显示图标
-    public static void setStateIcon(BleDeviceState deviceState, int icon) {
+    public static void setStateIcon(DeviceState deviceState, int icon) {
         deviceState.setIcon(icon);
     }
 

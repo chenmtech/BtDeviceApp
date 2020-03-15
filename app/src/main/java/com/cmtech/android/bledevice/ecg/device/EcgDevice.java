@@ -28,7 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
+import static com.cmtech.android.ble.core.DeviceState.CONNECT;
 import static com.cmtech.android.bledevice.ecg.EcgConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.ecg.view.ScanEcgView.PIXEL_PER_GRID;
@@ -367,7 +367,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
             @Override
             public void onFailure(BleException exception) {
-                handleException(new OtherException("start ecg sampling failure---" + exception.getDescription()));
+                handleException(new OtherException("open ecg sampling failure---" + exception.getDescription()));
             }
         });
     }
@@ -388,7 +388,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
         ((BleConnector) connector).notify(ECGMONITOR_DATA_CCC, true, receiveCallback);
 
-        // start 1mv sampling
+        // open 1mv sampling
         ((BleConnector) connector).write(ECGMONITOR_CTRL, ECGMONITOR_CTRL_START_1MV, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
@@ -400,7 +400,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
             @Override
             public void onFailure(BleException exception) {
-                handleException(new OtherException("start 1mV sampling failure---" + exception.getDescription()));
+                handleException(new OtherException("open 1mV sampling failure---" + exception.getDescription()));
             }
         });
     }

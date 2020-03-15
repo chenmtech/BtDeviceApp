@@ -3,7 +3,7 @@ package com.cmtech.android.bledeviceapp.model;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
-import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
@@ -117,7 +117,7 @@ public class DeviceManager {
         List<IDevice> devices = new ArrayList<>();
 
         for(IDevice device : DEVICE_LIST) {
-            if(device.getState() != BleDeviceState.CLOSED) {
+            if(device.getState() != DeviceState.CLOSED) {
                 devices.add(device);
             }
         }
@@ -145,7 +145,7 @@ public class DeviceManager {
     // 是否有打开的设备
     public static boolean hasOpenedDevice() {
         for(IDevice device : DEVICE_LIST) {
-            if(device.getState() != BleDeviceState.CLOSED) {
+            if(device.getState() != DeviceState.CLOSED) {
                 return true;
             }
         }
@@ -157,7 +157,7 @@ public class DeviceManager {
         final List<IDevice> currentWebDevices = getWebDeviceList();
 
         for(IDevice device : currentWebDevices) {
-            if(device.getState() == BleDeviceState.CLOSED) {
+            if(device.getState() == DeviceState.CLOSED) {
                 DEVICE_LIST.remove(device);
             }
         }

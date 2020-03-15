@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.bledevice.ecg.device.AbstractEcgDevice;
 import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
@@ -84,7 +84,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
                             }
                             ViseLog.e("timerPeriod=" + timerPeriod + "sampleInterval=" + sampleInterval + "lastDataPackId=" + lastDataPackId);
                         }
-                        if (getState() == BleDeviceState.CONNECT)
+                        if (getState() == DeviceState.CONNECT)
                             handler.sendEmptyMessageDelayed(MSG_READ_DATA_PACKET, 1000);
                     }
                 });
