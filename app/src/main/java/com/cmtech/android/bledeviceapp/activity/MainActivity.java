@@ -47,7 +47,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.core.BleDeviceState;
+import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
@@ -77,6 +77,9 @@ import java.util.List;
 
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
+import static com.cmtech.android.ble.core.DeviceState.CLOSED;
+import static com.cmtech.android.ble.core.DeviceState.CONNECTING;
+import static com.cmtech.android.ble.core.DeviceState.DISCONNECTING;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledevice.ecg.device.EcgFactory.ECGMONITOR_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
@@ -267,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         // 为已经打开的设备创建并打开Fragment
         List<IDevice> openedDevices = DeviceManager.getOpenedDevice();
         for(IDevice device : openedDevices) {
-            if(device.getState() != BleDeviceState.CLOSED) {
+            if(device.getState() != CLOSED) {
                 createAndOpenFragment(device);
             }
         }
@@ -349,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(device == null) {
             toolbarManager.setTitle(getString(R.string.app_name), "无设备打开");
             toolbarManager.setBattery(INVALID_BATTERY);
-            updateConnectFloatingActionButton(BleDeviceState.CLOSED.getIcon(), false);
+            updateConnectFloatingActionButton(CLOSED.getIcon(), false);
             invalidateOptionsMenu();
             updateMainLayoutVisibility(false);
         } else {
@@ -360,8 +363,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             }
             toolbarManager.setTitle(title, device.getAddress());
             toolbarManager.setBattery(device.getBattery());
-            BleDeviceState state = device.getState();
-            if(state == BleDeviceState.CONNECTING || state == BleDeviceState.DISCONNECTING)
+            DeviceState state = device.getState();
+            if(state == CONNECTING || state == DISCONNECTING)
                 updateConnectFloatingActionButton(state.getIcon(), true);
             else
                 updateConnectFloatingActionButton(state.getIcon(), false);
@@ -551,8 +554,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         DeviceFragment deviceFrag = fragTabManager.findFragment(device);
         if(deviceFrag != null) deviceFrag.updateState();
         if(fragTabManager.isFragmentSelected(device)) {
-            BleDeviceState state = device.getState();
-            if(state == BleDeviceState.CONNECTING || state == BleDeviceState.DISCONNECTING)
+            DeviceState state = device.getState();
+            if(state == CONNECTING || state == DISCONNECTING)
                 updateConnectFloatingActionButton(state.getIcon(), true);
             else
                 updateConnectFloatingActionButton(state.getIcon(), false);
@@ -611,7 +614,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             openDrawer(false);
             fragTabManager.showFragment(fragment);
         } else {
-            if(device.getState() == BleDeviceState.CLOSED)
+            if(device.getState() == CLOSED)
                 createAndOpenFragment(device);
         }
     }

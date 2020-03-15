@@ -28,7 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import static com.cmtech.android.ble.core.BleDeviceState.CONNECT;
+import static com.cmtech.android.ble.core.DeviceState.CONNECT;
 import static com.cmtech.android.bledevice.ecg.EcgConstant.DIR_ECG_SIGNAL;
 import static com.cmtech.android.bledevice.ecg.process.signal.calibrator.IEcgCalibrator.STANDARD_VALUE_1MV_AFTER_CALIBRATION;
 import static com.cmtech.android.bledevice.ecg.view.ScanEcgView.PIXEL_PER_GRID;
