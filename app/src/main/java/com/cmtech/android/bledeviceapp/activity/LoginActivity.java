@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.widget.ImageButton;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.vise.log.ViseLog;
 
 import java.util.HashMap;
 
@@ -17,6 +19,9 @@ import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.tencent.qq.QQ;
+import cn.smssdk.EventHandler;
+import cn.smssdk.SMSSDK;
+import cn.smssdk.gui.RegisterPage;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -52,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         phLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                sendCode(LoginActivity.this);
             }
         });
     }
@@ -99,5 +104,29 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    public void sendCode(Context context) {
+        RegisterPage page = new RegisterPage();
+        //如果使用我们的ui，没有申请模板编号的情况下需传null
+        page.setTempCode(null);
+        page.setRegisterCallback(new EventHandler() {
+            public void afterEvent(int event, int result, Object data) {
+                if (result == SMSSDK.RESULT_COMPLETE) {
+                    // 处理成功的结果
+                    HashMap<String,Object> phoneMap = (HashMap<String, Object>) data;
+                    // 国家代码，如“86”
+                    String country = (String) phoneMap.get("country");
+                    // 手机号码，如“13800138000”
+                    String phone = (String) phoneMap.get("phone");
+                    // TODO 利用国家代码和手机号码进行后续的操作
+                    ViseLog.e(country+phone);
+                    login(country+phone, phone);
+                } else{
+                    // TODO 处理错误的结果
+                }
+            }
+        });
+        page.show(context);
     }
 }
