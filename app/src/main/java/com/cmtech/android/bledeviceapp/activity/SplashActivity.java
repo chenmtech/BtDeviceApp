@@ -57,7 +57,7 @@ public class SplashActivity extends AppCompatActivity {
                 SplashActivity.this.tvCountDownTime.setText(String.valueOf(nSecond) + "秒");
 
                 if(nSecond == 0) {
-                    Intent intent = new Intent(SplashActivity.this, HuaweiLoginActivity.class);
+                    Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
                     startActivity(intent);
                     finish();
                 }

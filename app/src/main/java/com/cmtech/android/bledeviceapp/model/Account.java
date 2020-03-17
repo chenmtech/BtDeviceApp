@@ -27,7 +27,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     private static final int DESCRIPTION_CHAR_LEN = 50;
 
     private int id; // id
-    private String huaweiId = ""; // 华为ID
+    private String userId = ""; // 华为ID
     private String name = ""; // 名称
     private String imagePath = ""; // 头像文件路径
     private String description = ""; // 个人信息
@@ -36,7 +36,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     }
 
     public Account(Account account) {
-        this.huaweiId = account.huaweiId;
+        this.userId = account.userId;
         this.name = account.name;
         this.imagePath = account.imagePath;
         this.description = account.description;
@@ -48,17 +48,17 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     public void setId(int id) {
         this.id = id;
     }
-    public String getHuaweiId() {
-        return huaweiId;
+    public String getUserId() {
+        return userId;
     }
-    public String getShortHuaweiId() {
-        if(huaweiId.length() > 3) {
-            return String.format("%s****%s", huaweiId.substring(0, 3), huaweiId.substring(huaweiId.length() - 3));
+    public String getShortUserId() {
+        if(userId.length() > 3) {
+            return String.format("%s****%s", userId.substring(0, 3), userId.substring(userId.length() - 3));
         } else
-            return huaweiId;
+            return userId;
     }
-    public void setHuaweiId(String huaweiId) {
-        this.huaweiId = huaweiId;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
     public String getName() {
         return name;
@@ -80,14 +80,14 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     }
 
     public boolean readFromStream(DataInput in) throws IOException{
-        huaweiId = DataIOUtil.readFixedString(in, HUAWEI_ID_CHAR_LEN);
+        userId = DataIOUtil.readFixedString(in, HUAWEI_ID_CHAR_LEN);
         name = DataIOUtil.readFixedString(in, NAME_CHAR_LEN);
         description = DataIOUtil.readFixedString(in, DESCRIPTION_CHAR_LEN);
         return true;
     }
 
     public boolean writeToStream(DataOutput out) throws IOException{
-        DataIOUtil.writeFixedString(out, huaweiId, HUAWEI_ID_CHAR_LEN);
+        DataIOUtil.writeFixedString(out, userId, HUAWEI_ID_CHAR_LEN);
         DataIOUtil.writeFixedString(out, name, NAME_CHAR_LEN);
         DataIOUtil.writeFixedString(out, description, DESCRIPTION_CHAR_LEN);
         return true;
@@ -99,12 +99,12 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
 
     @Override
     public String toString() {
-        return "Id: " + getShortHuaweiId() + " 姓名：" + name + ' ' + " 个人信息：" + description;
+        return "Id: " + getShortUserId() + " 姓名：" + name + ' ' + " 个人信息：" + description;
     }
 
     @Override
     public int hashCode() {
-        return huaweiId.hashCode();
+        return userId.hashCode();
     }
 
     @Override
@@ -113,13 +113,13 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
         if(otherObject == null) return false;
         if(!(otherObject instanceof Account)) return false;
         Account other = (Account) otherObject;
-        return huaweiId.equals(other.huaweiId);
+        return userId.equals(other.userId);
     }
 
     @Override
     public Object clone() {
         Account account = new Account();
-        account.huaweiId = huaweiId;
+        account.userId = userId;
         account.name = name;
         account.imagePath = imagePath;
         account.description = description;

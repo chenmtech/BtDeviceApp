@@ -129,7 +129,7 @@ public class AccountActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
             isReturn = false;
 
-            UserUtil.saveUser(account.getHuaweiId(), account.getName(), account.getDescription(), null, new UserUtil.ISaveUserInfoCallback() {
+            UserUtil.saveUser(account.getUserId(), account.getName(), account.getDescription(), null, new UserUtil.ISaveUserInfoCallback() {
                 @Override
                 public void onReceived(boolean success) {
                     isSaved = success;
@@ -176,7 +176,7 @@ public class AccountActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         TextView tvId = findViewById(R.id.et_account_id);
-        tvId.setText(account.getShortHuaweiId());
+        tvId.setText(account.getShortUserId());
 
         etName = findViewById(R.id.et_account_name);
         etName.setText(account.getName());
@@ -202,7 +202,7 @@ public class AccountActivity extends AppCompatActivity {
         ibUpdateFromWeb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new GetAccountFromWebTask(account.getHuaweiId()).execute();
+                new GetAccountFromWebTask(account.getUserId()).execute();
             }
         });
 
@@ -227,7 +227,7 @@ public class AccountActivity extends AppCompatActivity {
                         try {
                             ivImage.setDrawingCacheEnabled(true);
                             Bitmap bitmap = ivImage.getDrawingCache();
-                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getHuaweiId() + ".jpg");
+                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getUserId() + ".jpg");
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivImage.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();

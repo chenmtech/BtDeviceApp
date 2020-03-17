@@ -32,16 +32,17 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:replace="android:name">
+        <activity android:name=".activity.LoginActivity"></activity>
         <activity
             android:name="com.cmtech.android.bledevice.hrmonitor.view.HRMCfgActivity"
             android:label="@string/title_activity_hrmcfg"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activity.HuaweiLoginActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity" />
         <activity
             android:name=".activity.SplashActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="portrait">
+            android:screenOrientation="fullSensor">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -62,11 +63,11 @@
         <activity
             android:name=".activity.NewsActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".activity.ScanActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="fullSensor" />
         <activity
             android:name=".activity.RegisterActivity"
             android:label="设置设备注册信息"

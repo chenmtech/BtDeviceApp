@@ -60,7 +60,7 @@ public class AccountManager {
             return false;
         } else {
             this.account = new Account();
-            this.account.setHuaweiId(huaweiId);
+            this.account.setUserId(huaweiId);
             this.account.setName(name);
             this.account.save();
             return true;

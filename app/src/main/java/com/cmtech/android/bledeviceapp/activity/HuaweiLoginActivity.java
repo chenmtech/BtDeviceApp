@@ -8,6 +8,7 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
@@ -26,8 +27,14 @@ public class HuaweiLoginActivity extends AppCompatActivity {
                 if (url.contains("open_id=")) {
                     ViseLog.e("Huawei login response: " + url);
                     String huaweiId = HttpUtils.parseUrl(url).get("open_id");
-                    String name = HttpUtils.parseUrl(url).get("displayName");
-                    signIn(huaweiId, name, false);
+                    String userName = HttpUtils.parseUrl(url).get("displayName");
+                    Account account = new Account();
+                    account.setUserId(huaweiId);
+                    account.setName(userName);
+                    AccountManager.getInstance().setAccount(account);
+                    Intent intent = new Intent(HuaweiLoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
                     return true;
                 }
                 return false;

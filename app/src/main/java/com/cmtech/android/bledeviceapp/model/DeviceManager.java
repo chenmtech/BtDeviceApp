@@ -3,7 +3,6 @@ package com.cmtech.android.bledeviceapp.model;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
-import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
@@ -166,7 +165,7 @@ public class DeviceManager {
 
         final boolean[] finish = new boolean[1];
 
-        EcgHttpReceiver.retrieveDeviceInfo(AccountManager.getInstance().getAccount().getHuaweiId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
+        EcgHttpReceiver.retrieveDeviceInfo(AccountManager.getInstance().getAccount().getUserId(), new EcgHttpReceiver.IEcgDeviceInfoCallback() {
             @Override
             public void onReceived(List<WebEcgDevice> deviceList) {
                 if(deviceList == null || deviceList.isEmpty()) {
