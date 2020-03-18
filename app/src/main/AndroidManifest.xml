@@ -35,8 +35,7 @@
         <activity android:name=".activity.LoginActivity"></activity>
         <activity
             android:name="com.cmtech.android.bledevice.hrmonitor.view.HRMCfgActivity"
-            android:label="@string/title_activity_hrmcfg"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="@string/title_activity_hrmcfg"/>
         <activity android:name=".activity.HuaweiLoginActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity" />
         <activity

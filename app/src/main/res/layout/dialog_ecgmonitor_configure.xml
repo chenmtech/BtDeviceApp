@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_margin="5dp">
     <CheckBox
-        android:id="@+id/cb_ecgmonitor_warnwhenhrabnormal"
+        android:id="@+id/cb_hr_warn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

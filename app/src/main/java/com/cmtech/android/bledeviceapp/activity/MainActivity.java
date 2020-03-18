@@ -15,6 +15,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -335,10 +336,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                         popupHelper.show();
                         return true;
                     case R.id.nav_open_store: // open KM store
+                        String storeAddress = "https://decathlon.tmall.com/shop/view_shop.htm?spm=a21bo.2017.201863-1.d2.6dd211d9AzJgBt&user_number_id=352469034&pvid=067004f4-d493-413a-a4f7-003e62637549&pos=2&brandId=44506&acm=03014.1003.1.765824&scm=1007.13143.56636.100200300000000";
+                        Intent storeIntent = new Intent(Intent.ACTION_VIEW);
+                        storeIntent.setData(Uri.parse(storeAddress));
+                        startActivity(storeIntent);
                         //Intent newsIntent = new Intent(MainActivity.this, NewsActivity.class);
                         //startActivity(newsIntent);
                         return true;
-                    case R.id.nav_exit: // 退出
+                    case R.id.nav_exit: // exit
                         requestFinish();
                         return true;
                 }
@@ -742,9 +747,25 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         } else {
             tvAccountName.setText(account.getName());
         }
+
+        // load icon by platform name
+        int resourceId = 0;
+        if(account.getPlatName().equals("Phone")) {
+            resourceId = R.mipmap.ic_phone;
+        } else if(account.getPlatName().equals("QQ")) {
+            resourceId = R.mipmap.ic_qq;
+        } else if(account.getPlatName().equals("Huawei")) {
+            resourceId = R.mipmap.ic_huawei;
+        } else if(account.getPlatName().equals("Wechat")){
+            resourceId = R.mipmap.ic_weixin;
+        }
+        ivAccountImage.setImageResource(resourceId);
+        //Glide.with(MyApplication.getContext()).load(R.id.ib_qq_login).into(ivAccountImage);
+
+        /* load icon from imagePath
         String imagePath = account.getImagePath();
         if(imagePath != null && !"".equals(imagePath))
-            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);*/
     }
 
     // 更新MainLayout的可视性

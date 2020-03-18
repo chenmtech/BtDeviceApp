@@ -29,9 +29,9 @@
                     android:src="@mipmap/ic_qq" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
                     android:text="QQ登录" />
             </LinearLayout>
 
@@ -43,13 +43,14 @@
                     android:id="@+id/ib_weixin_login"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
                     android:layout_margin="10dp"
                     android:background="@color/white"
                     android:src="@mipmap/ic_weixin"/>
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
                     android:text="微信登录"/>
             </LinearLayout>
         </LinearLayout>
@@ -71,10 +72,10 @@
                     android:background="@color/white"
                     android:src="@mipmap/ic_huawei"/>
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="华为登录"/>
+                    android:gravity="center_horizontal"
+                    android:text="华为账号登录"/>
             </LinearLayout>
 
             <LinearLayout
@@ -85,28 +86,44 @@
                     android:id="@+id/ib_phone_login"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
                     android:layout_margin="10dp"
                     android:background="@color/white"
                     android:src="@mipmap/ic_phone"/>
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="手机登录"/>
+                    android:gravity="center_horizontal"
+                    android:text="验证码登录"/>
             </LinearLayout>
 
         </LinearLayout>
     </LinearLayout>
 
-    <CheckBox
-        android:id="@+id/cb_privacy_grant"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
-        android:checked="true"
-        android:textColor="@color/blue"
-        android:text="为了实现分享和推送功能，我们使用了MobTech的ShareSDK产品，此产品的隐私策略条款，可以参考：http://www.mob.com/about/policy"/>
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_margin="10dp"
+            android:autoLink="all"
+            android:textSize="12dp"
+            android:text="为了实现分享和推送功能，我们使用了MobTech的ShareSDK产品，此产品的隐私策略条款，可以参考：http://www.mob.com/about/policy"/>
+
+        <CheckBox
+            android:id="@+id/cb_privacy_grant"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:checked="true"
+            android:textSize="15dp"
+            android:text="同意上述隐私条款。"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

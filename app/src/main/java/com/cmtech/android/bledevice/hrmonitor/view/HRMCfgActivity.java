@@ -3,6 +3,8 @@ package com.cmtech.android.bledevice.hrmonitor.view;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -19,6 +21,10 @@ public class HRMCfgActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hrm_cfg);
 
+        // 创建ToolBar
+        Toolbar toolbar = findViewById(R.id.tb_hrm_cfg);
+        setSupportActionBar(toolbar);
+
         tvStatus = findViewById(R.id.tv_ecg_switch_status);
         btnSwitch = findViewById(R.id.btn_ecg_switch);
 
@@ -28,9 +34,11 @@ public class HRMCfgActivity extends AppCompatActivity {
         }
 
         if(ecgLock) {
-            btnSwitch.setText("解锁心电");
+            btnSwitch.setText("解锁");
+            tvStatus.setText("已锁住");
         } else {
-            btnSwitch.setText("关闭心电");
+            btnSwitch.setText("加锁");
+            tvStatus.setText("已解锁");
         }
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,4 +51,21 @@ public class HRMCfgActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        setResult(RESULT_CANCELED, intent);
+        finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED, null);
+                finish();
+                break;
+        }
+        return true;
+    }
 }

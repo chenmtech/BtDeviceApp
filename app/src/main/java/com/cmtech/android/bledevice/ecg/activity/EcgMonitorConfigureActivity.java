@@ -53,7 +53,7 @@ public class EcgMonitorConfigureActivity extends AppCompatActivity {
         // 设置标题
         setTitle(deviceNickName + "：" + config.getMacAddress());
 
-        cbIsWarnWhenHrAbnormal = findViewById(R.id.cb_ecgmonitor_warnwhenhrabnormal);
+        cbIsWarnWhenHrAbnormal = findViewById(R.id.cb_hr_warn);
         cbIsWarnWhenHrAbnormal.setChecked(config.warnWhenHrAbnormal());
 
         etHrLowLimit = findViewById(R.id.et_hr_low_limit);

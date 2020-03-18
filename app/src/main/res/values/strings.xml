@@ -5,7 +5,7 @@
     <string name="no_device_opened">\u2190右滑打开</string>
     <string name="some_devices_opened">有%d设备打开</string>
     <string name="scan_device">添加设备</string>
-    <string name="query_record">设备记录</string>
+    <string name="query_record">用户记录</string>
     <string name="open_store">康明商城</string>
     <string name="update">更新</string>
     <string name="delete">删除</string>

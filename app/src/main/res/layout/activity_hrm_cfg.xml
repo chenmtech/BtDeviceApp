@@ -2,23 +2,166 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    xmlns:toolbar="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tb_hrm_cfg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        toolbar:title="配置心率设备"
+        toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="@color/primary_dark"/>
 
     <TextView
-        android:id="@+id/tv_ecg_switch_status"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="2"
-        android:layout_gravity="center_horizontal"
-        android:text="心电功能可为您提供实时心电信号显示，但也会引起设备耗电量增加。改变锁状态，设备将断开重连。"
-        android:textColor="@color/red"
-        android:textSize="20dp"/>
+        android:layout_margin="12dp"
+        android:text="心电配置"
+        android:textSize="18sp"
+        android:textColor="@color/black"/>
 
-    <Button
-        android:id="@+id/btn_ecg_switch"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="解锁心电"/>
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="当前状态："
+            android:textSize="20dp"/>
+
+        <TextView
+            android:id="@+id/tv_ecg_switch_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="10dp"
+            android:text="已锁住"
+            android:textColor="@color/black"
+            android:textSize="20dp"/>
+
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="*本设备为您提供实时心电信号显示功能，解锁此功能会增加设备功耗，缩短电池使用时间。"
+        android:textSize="15dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_ecg_switch"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            style="@style/minWidth0DpButtonStyle"
+            android:text="解锁"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/btn_ecg_switch"
+            android:layout_centerVertical="true"
+            android:text="*仅当设备连接时有效。"
+            android:textSize="15dp"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/primary_dark"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:text="心率配置"
+        android:textSize="18sp"
+        android:textColor="@color/black"/>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="异常下限："/>
+        <EditText
+            android:id="@+id/et_hr_low_limit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberDecimal"
+            android:hint="请输入数字"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="异常上限："/>
+        <EditText
+            android:id="@+id/et_hr_high_limit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:inputType="numberDecimal"
+            android:hint="请输入数字"/>
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/cb_hr_warn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="心率异常是否报警" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btn_ecgmonitor_config_cancel"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/minWidth0DpButtonStyle"
+            android:text="取消"/>
+        <Button
+            android:id="@+id/btn_ecgmonitor_config_default"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/minWidth0DpButtonStyle"
+            android:text="恢复默认"/>
+        <Button
+            android:id="@+id/btn_ecgmonitor_config_ok"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            style="@style/minWidth0DpButtonStyle"
+            android:text="确定"/>
+
+    </LinearLayout>
+
 
 </LinearLayout>

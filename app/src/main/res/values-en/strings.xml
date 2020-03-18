@@ -5,7 +5,7 @@
     <string name="no_device_opened">\u2190Swipe right to open</string>
     <string name="some_devices_opened">有%d设备打开</string>
     <string name="scan_device">Add Devices</string>
-    <string name="query_record">device record</string>
+    <string name="query_record">user record</string>
     <string name="open_store">KM Store</string>
     <string name="update">update</string>
     <string name="delete">delete</string>
