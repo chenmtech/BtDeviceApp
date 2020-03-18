@@ -72,7 +72,6 @@ import com.vise.log.ViseLog;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
@@ -84,7 +83,6 @@ import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledevice.ecg.device.EcgFactory.ECGMONITOR_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;
-import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingLongToast;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
 import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_DEVICE_MAC_LIST;
@@ -142,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
     };
     LocalDevicesFragment localDevicesFragment;
-    WebDevicesFragment webDevicesFragment;
+    //WebDevicesFragment webDevicesFragment;
     private NotifyService notifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
     private DeviceFragTabManager fragTabManager; // BleFragment和TabLayout管理器
     private MainToolbarManager toolbarManager; // 工具条管理器
@@ -231,9 +229,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         ViewPager pager = findViewById(R.id.vp_device_panel);
         TabLayout layout = findViewById(R.id.tl_device_panel);
         localDevicesFragment = new LocalDevicesFragment();
-        webDevicesFragment = new WebDevicesFragment();
-        List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(localDevicesFragment, webDevicesFragment));
-        List<String> titleList = new ArrayList<>(Arrays.asList("本地设备", "网络设备"));
+        //webDevicesFragment = new WebDevicesFragment();
+        List<Fragment> fragmentList = new ArrayList<>();fragmentList.add(localDevicesFragment);
+        List<String> titleList = new ArrayList<>();titleList.add("本地设备");
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getSupportFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(1);
@@ -277,8 +275,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
         Account account = AccountManager.getInstance().getAccount();
         if(TextUtils.isEmpty(account.getName())) {
-            Intent intent = new Intent(MainActivity.this, AccountActivity.class);
-            startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
+            //Intent intent = new Intent(MainActivity.this, AccountActivity.class);
+            //startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
+            return;
         }
     }
 
@@ -291,8 +290,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         headerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AccountActivity.class);
-                startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
+                //Intent intent = new Intent(MainActivity.this, AccountActivity.class);
+                //startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
             }
         });
 
@@ -335,9 +334,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                         });
                         popupHelper.show();
                         return true;
-                    case R.id.nav_open_news: // 打开新闻
-                        Intent newsIntent = new Intent(MainActivity.this, NewsActivity.class);
-                        startActivity(newsIntent);
+                    case R.id.nav_open_store: // open KM store
+                        //Intent newsIntent = new Intent(MainActivity.this, NewsActivity.class);
+                        //startActivity(newsIntent);
                         return true;
                     case R.id.nav_exit: // 退出
                         requestFinish();
@@ -350,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     private void updateMainLayout(IDevice device) {
         if(device == null) {
-            toolbarManager.setTitle(getString(R.string.app_name), "无设备打开");
+            toolbarManager.setTitle(getString(R.string.app_name), getString(R.string.no_device_opened));
             toolbarManager.setBattery(INVALID_BATTERY);
             updateConnectFloatingActionButton(CLOSED.getIcon(), false);
             invalidateOptionsMenu();
@@ -445,7 +444,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     private void updateDeviceList() {
         localDevicesFragment.update();
-        webDevicesFragment.update();
+        //webDevicesFragment.update();
     }
 
     @Override

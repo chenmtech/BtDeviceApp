@@ -16,9 +16,9 @@
             app:actionLayout="@layout/anchor"/>
 
         <item
-            android:id="@+id/nav_open_news"
-            android:title="@string/open_news"
-            android:icon="@mipmap/ic_open_news"/>
+            android:id="@+id/nav_open_store"
+            android:title="@string/open_store"
+            android:icon="@mipmap/ic_open_store"/>
 
         <item
             android:id="@+id/nav_exit"

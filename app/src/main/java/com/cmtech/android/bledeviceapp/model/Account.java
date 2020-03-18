@@ -22,11 +22,13 @@ import java.io.Serializable;
  */
 
 public class Account extends LitePalSupport implements Serializable, Cloneable{
-    private static final int HUAWEI_ID_CHAR_LEN = 255;
+    private static final int PLAT_NAME_CHAR_LEN = 10;
+    private static final int USER_ID_CHAR_LEN = 255;
     private static final int NAME_CHAR_LEN = 10;
     private static final int DESCRIPTION_CHAR_LEN = 50;
 
     private int id; // id
+    private String platName = "";
     private String userId = ""; // 华为ID
     private String name = ""; // 名称
     private String imagePath = ""; // 头像文件路径
@@ -36,6 +38,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     }
 
     public Account(Account account) {
+        this.platName = account.platName;
         this.userId = account.userId;
         this.name = account.name;
         this.imagePath = account.imagePath;
@@ -48,6 +51,8 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     public void setId(int id) {
         this.id = id;
     }
+    public String getPlatName() { return platName;}
+    public void setPlatName(String platName) { this.platName = platName;}
     public String getUserId() {
         return userId;
     }
@@ -80,31 +85,33 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     }
 
     public boolean readFromStream(DataInput in) throws IOException{
-        userId = DataIOUtil.readFixedString(in, HUAWEI_ID_CHAR_LEN);
+        platName = DataIOUtil.readFixedString(in, PLAT_NAME_CHAR_LEN);
+        userId = DataIOUtil.readFixedString(in, USER_ID_CHAR_LEN);
         name = DataIOUtil.readFixedString(in, NAME_CHAR_LEN);
         description = DataIOUtil.readFixedString(in, DESCRIPTION_CHAR_LEN);
         return true;
     }
 
     public boolean writeToStream(DataOutput out) throws IOException{
-        DataIOUtil.writeFixedString(out, userId, HUAWEI_ID_CHAR_LEN);
+        DataIOUtil.writeFixedString(out, platName, PLAT_NAME_CHAR_LEN);
+        DataIOUtil.writeFixedString(out, userId, USER_ID_CHAR_LEN);
         DataIOUtil.writeFixedString(out, name, NAME_CHAR_LEN);
         DataIOUtil.writeFixedString(out, description, DESCRIPTION_CHAR_LEN);
         return true;
     }
 
     public int length() {
-        return (HUAWEI_ID_CHAR_LEN + NAME_CHAR_LEN + DESCRIPTION_CHAR_LEN)*2;
+        return (PLAT_NAME_CHAR_LEN + USER_ID_CHAR_LEN + NAME_CHAR_LEN + DESCRIPTION_CHAR_LEN)*2;
     }
 
     @Override
     public String toString() {
-        return "Id: " + getShortUserId() + " 姓名：" + name + ' ' + " 个人信息：" + description;
+        return "Plat: " + getPlatName() + " Id: " + getShortUserId() + " 姓名：" + name + ' ' + " 个人信息：" + description;
     }
 
     @Override
     public int hashCode() {
-        return userId.hashCode();
+        return (platName+userId).hashCode();
     }
 
     @Override
@@ -113,12 +120,13 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
         if(otherObject == null) return false;
         if(!(otherObject instanceof Account)) return false;
         Account other = (Account) otherObject;
-        return userId.equals(other.userId);
+        return (platName+userId).equals(other.platName+other.userId);
     }
 
     @Override
     public Object clone() {
         Account account = new Account();
+        account.platName = platName;
         account.userId = userId;
         account.name = name;
         account.imagePath = imagePath;

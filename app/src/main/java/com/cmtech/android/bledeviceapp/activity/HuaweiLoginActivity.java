@@ -29,6 +29,7 @@ public class HuaweiLoginActivity extends AppCompatActivity {
                     String huaweiId = HttpUtils.parseUrl(url).get("open_id");
                     String userName = HttpUtils.parseUrl(url).get("displayName");
                     Account account = new Account();
+                    account.setPlatName("Huawei");
                     account.setUserId(huaweiId);
                     account.setName(userName);
                     AccountManager.getInstance().setAccount(account);

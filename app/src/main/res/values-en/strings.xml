@@ -2,11 +2,11 @@
 <resources>
     <string name="app_name">康明智联</string>
     <string name="welcome_text_format">欢迎使用%1$s</string>
-    <string name="no_device_opened">无设备打开</string>
+    <string name="no_device_opened">\u2190Swipe right to open</string>
     <string name="some_devices_opened">有%d设备打开</string>
     <string name="scan_device">Add Devices</string>
-    <string name="query_record">查阅记录</string>
-    <string name="open_news">康明新闻</string>
+    <string name="query_record">device record</string>
+    <string name="open_store">KM Store</string>
     <string name="update">update</string>
     <string name="delete">delete</string>
     <string name="share">share</string>
