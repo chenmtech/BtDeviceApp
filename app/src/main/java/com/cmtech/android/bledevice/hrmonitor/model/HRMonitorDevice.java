@@ -8,8 +8,11 @@ import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
+
+import org.litepal.LitePal;
 
 import java.util.UUID;
 
@@ -98,8 +101,17 @@ public class HRMonitorDevice extends AbstractDevice {
 
     private OnHRMonitorDeviceListener listener; // device listener
 
+    private final HrConfiguration config;
+
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
+        HrConfiguration config = LitePal.where("address = ?", getAddress()).findFirst(HrConfiguration.class);
+        if (config == null) {
+            config = new HrConfiguration();
+            config.setAddress(getAddress());
+            config.save();
+        }
+        this.config = config;
     }
 
     @Override
@@ -189,6 +201,15 @@ public class HRMonitorDevice extends AbstractDevice {
 
     public final boolean isEcgLock() {
         return ecgLock;
+    }
+
+    public final HrConfiguration getConfig() {
+        return config;
+    }
+
+    public void updateConfig(HrConfiguration config) {
+        this.config.copyFrom(config);
+        this.config.save();
     }
 
     public void setListener(OnHRMonitorDeviceListener listener) {

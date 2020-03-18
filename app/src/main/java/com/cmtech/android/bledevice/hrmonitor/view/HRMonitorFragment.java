@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
+import com.cmtech.android.bledevice.hrmonitor.model.HrConfiguration;
 import com.cmtech.android.bledevice.hrmonitor.model.HrStatisticsInfo;
 import com.cmtech.android.bledevice.hrmonitor.model.OnHRMonitorDeviceListener;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static android.app.Activity.RESULT_FIRST_USER;
 import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
@@ -122,9 +124,15 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
         switch (requestCode) {
             case 1: // cfg return
-                if(resultCode == RESULT_OK) {
+                if(resultCode == RESULT_FIRST_USER) {
                     boolean ecgLock = data.getBooleanExtra("ecg_lock", true);
                     device.lockEcg(ecgLock);
+                } else if(resultCode == RESULT_OK) {
+                    HrConfiguration cfg = new HrConfiguration();
+                    cfg.setHrLow(data.getIntExtra("hr_low", 50));
+                    cfg.setHrHigh(data.getIntExtra("hr_high", 180));
+                    cfg.setWarn(data.getBooleanExtra("is_warn", true));
+                    device.updateConfig(cfg);
                 }
                 break;
 
@@ -135,8 +143,13 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
     @Override
     public void openConfigureActivity() {
+        HrConfiguration cfg = device.getConfig();
+
         Intent intent = new Intent(getActivity(), HRMCfgActivity.class);
         intent.putExtra("ecg_lock", device.isEcgLock());
+        intent.putExtra("hr_low", cfg.getHrLow());
+        intent.putExtra("hr_high", cfg.getHrHigh());
+        intent.putExtra("is_warn", cfg.isWarn());
         startActivityForResult(intent, 1);
     }
 

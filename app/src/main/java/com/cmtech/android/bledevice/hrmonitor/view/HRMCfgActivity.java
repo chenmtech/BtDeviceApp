@@ -7,6 +7,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,12 +20,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Formatter, NumberPicker.OnScrollListener, NumberPicker.OnValueChangeListener {
+
     private boolean ecgLock = true;
+    private int hrLow;
+    private int hrHigh;
+    private boolean isWarn;
+
     private TextView tvStatus;
     private Button btnSwitch;
 
     private NumberPicker npHrLow;
     private NumberPicker npHrHigh;
+
+    private CheckBox cbWarn;
 
     private Button btnOk;
 
@@ -43,6 +51,9 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         Intent intent = getIntent();
         if(intent != null) {
             ecgLock = intent.getBooleanExtra("ecg_lock", true);
+            hrLow = intent.getIntExtra("hr_low", 50);
+            hrHigh = intent.getIntExtra("hr_high", 180);
+            isWarn = intent.getBooleanExtra("is_warn", true);
         }
 
         if(ecgLock) {
@@ -57,7 +68,7 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
             public void onClick(View view) {
                 Intent intent = new Intent();
                 intent.putExtra("ecg_lock", !ecgLock);
-                setResult(RESULT_OK, intent);
+                setResult(RESULT_FIRST_USER, intent);
                 finish();
             }
         });
@@ -73,7 +84,7 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         npHrLow.setOnValueChangedListener(this);
         npHrLow.setMinValue(0);
         npHrLow.setMaxValue(hrList.size()-1);
-        npHrLow.setValue(4);
+        npHrLow.setValue((hrLow-30)/5);
         npHrHigh = findViewById(R.id.np_hr_high);
         npHrHigh.setDisplayedValues(hrList.toArray(new String[0]));
         npHrHigh.setFormatter(this);
@@ -81,7 +92,10 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         npHrHigh.setOnValueChangedListener(this);
         npHrHigh.setMinValue(0);
         npHrHigh.setMaxValue(hrList.size()-1);
-        npHrHigh.setValue(30);
+        npHrHigh.setValue((hrHigh-30)/5);
+
+        cbWarn = findViewById(R.id.cb_hr_warn);
+        cbWarn.setChecked(isWarn);
 
         btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
@@ -94,14 +108,10 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
                     return;
                 }
 
-                ViseLog.e("low:" + low + "high:" + high);
-
-                /*config.setWarnWhenHrAbnormal(cbIsWarnWhenHrAbnormal.isChecked());
-                config.setHrLowLimit(lowLimit);
-                config.setHrHighLimit(highLimit);*/
-
                 Intent intent = new Intent();
-                //intent.putExtra("configuration", config);
+                intent.putExtra("hr_low", low);
+                intent.putExtra("hr_high", high);
+                intent.putExtra("is_warn", cbWarn.isChecked());
                 setResult(RESULT_OK, intent);
                 finish();
             }
