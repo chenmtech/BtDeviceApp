@@ -9,10 +9,9 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
@@ -50,12 +49,14 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private TextView tvHrEcgOff; // hr when ecg off
     private TextView tvHrEcgOn; // hr when ecg on
     private TextView tvMessage; // message
-    private ToggleButton btnEcg; // toggle ecg on/off
+    private ImageButton ibEcg; // ecg on/off
     private FrameLayout flEcgOff; // frame layout when ecg off
     private FrameLayout flEcgOn; // frame layout when ecg on
 
     private final HrSequenceFragment seqFragment = new HrSequenceFragment(); // heart rate timing-sequence Fragment
     private final HrDebugFragment debugFragment = new HrDebugFragment(); // debug fragment
+
+    private boolean isEcgChecked = false;
 
     public HRMonitorFragment() {
         super();
@@ -79,25 +80,6 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         tvHrEcgOn = view.findViewById(R.id.tv_hr_ecg_on);
         tvMessage = view.findViewById(R.id.tv_message);
 
-        btnEcg = view.findViewById(R.id.btn_ecg);
-        btnEcg.setChecked(false);
-        btnEcg.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
-                    flEcgOff.setVisibility(View.GONE);
-                    flEcgOn.setVisibility(View.VISIBLE);
-                    ecgView.start();
-                    ecgView.initialize();
-                } else {
-                    flEcgOff.setVisibility(View.VISIBLE);
-                    flEcgOn.setVisibility(View.GONE);
-                    ecgView.stop();
-                }
-                device.switchEcgSignal(isChecked);
-            }
-        });
-
         flEcgOff = view.findViewById(R.id.fl_no_ecg);
         flEcgOff.setVisibility(View.VISIBLE);
         flEcgOn = view.findViewById(R.id.fl_with_ecg);
@@ -105,6 +87,17 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
         ecgView = view.findViewById(R.id.scanview_ecg);
         ecgView.setup(device.getSampleRate(), device.getCali1mV(), DEFAULT_ZERO_LOCATION);
+
+        ibEcg = view.findViewById(R.id.ib_ecg);
+        setEcgStatus(false);
+        ibEcg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isEcgChecked = !isEcgChecked;
+                setEcgStatus(isEcgChecked);
+                device.switchEcgSignal(isEcgChecked);
+            }
+        });
 
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
@@ -192,14 +185,14 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                 public void run() {
                     ecgView.setup(sampleRate, value1mV, zeroLocation);
                     if(ecgLock) {
-                        btnEcg.setVisibility(View.GONE);
+                        ibEcg.setVisibility(View.GONE);
                         flEcgOff.setVisibility(View.VISIBLE);
                         flEcgOn.setVisibility(View.GONE);
                         ecgView.stop();
                     } else {
-                        btnEcg.setVisibility(View.VISIBLE);
-                        if(btnEcg.isChecked())
-                            btnEcg.setChecked(false);
+                        ibEcg.setVisibility(View.VISIBLE);
+                        isEcgChecked = false;
+                        setEcgStatus(false);
                     }
                 }
             });
@@ -230,5 +223,16 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         ecgView.stop();
     }
 
-
+    private void setEcgStatus(boolean isChecked) {
+        if(isChecked) {
+            flEcgOff.setVisibility(View.GONE);
+            flEcgOn.setVisibility(View.VISIBLE);
+            ecgView.start();
+            ecgView.initialize();
+        } else {
+            flEcgOff.setVisibility(View.VISIBLE);
+            flEcgOn.setVisibility(View.GONE);
+            ecgView.stop();
+        }
+    }
 }

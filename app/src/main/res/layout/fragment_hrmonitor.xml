@@ -71,15 +71,14 @@
 
         </FrameLayout>
 
-        <ToggleButton
-            android:id="@+id/btn_ecg"
+        <ImageButton
+            android:id="@+id/ib_ecg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|top"
-            android:text="Ecg"
-            android:textOff="Ecg Off"
-            android:textOn="Ecg On"
-            android:textAllCaps="false"
+            android:layout_margin="5dp"
+            android:src="@mipmap/ic_ecg_switch"
+            android:background="@android:color/transparent"
             android:visibility="gone"/>
 
     </FrameLayout>
