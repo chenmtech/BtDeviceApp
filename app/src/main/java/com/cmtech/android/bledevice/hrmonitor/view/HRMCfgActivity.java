@@ -58,10 +58,10 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
 
         if(ecgLock) {
             btnSwitch.setText("开启");
-            tvStatus.setText("已关闭");
+            tvStatus.setText("关闭");
         } else {
             btnSwitch.setText("关闭");
-            tvStatus.setText("已开启");
+            tvStatus.setText("开启");
         }
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override

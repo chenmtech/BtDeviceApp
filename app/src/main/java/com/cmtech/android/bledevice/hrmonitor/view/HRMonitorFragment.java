@@ -1,6 +1,9 @@
 package com.cmtech.android.bledevice.hrmonitor.view;
 
 import android.content.Intent;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -59,6 +62,8 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private final HrDebugFragment debugFragment = new HrDebugFragment(); // debug fragment
 
     private boolean isEcgChecked = false;
+
+    private AudioTrack warnAudio; // 心率异常报警声音
 
     public HRMonitorFragment() {
         super();
@@ -168,6 +173,11 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                     if(hrInfo.process((short) bpm, hrData.getTime())) {
                         seqFragment.updateHrInfo(hrInfo);
                     }
+
+                    HrConfiguration cfg = device.getConfig();
+                    if(cfg.isWarn() && (bpm > cfg.getHrHigh() || bpm < cfg.getHrLow())) {
+                        warn();
+                    }
                 }
             });
         }
@@ -247,5 +257,38 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
             flEcgOn.setVisibility(View.GONE);
             ecgView.stop();
         }
+    }
+
+    public void warn() {
+        if(warnAudio == null) {
+            initWarnAudio();
+        } else {
+            switch(warnAudio.getPlayState()) {
+                case AudioTrack.PLAYSTATE_PAUSED:
+                case AudioTrack.PLAYSTATE_PLAYING:
+                    warnAudio.stop();
+                    break;
+            }
+            warnAudio.reloadStaticData();
+        }
+        warnAudio.play();
+    }
+
+    private void initWarnAudio() {
+        int length = 4000;
+        int f = 1000;
+        int fs = 44100;
+        float mag = 127.0f;
+        double omega = 2 * Math.PI * f/fs;
+
+        byte[] wave = new byte[length];
+        for(int i = 0; i < length; i++) {
+            wave[i] = (byte) (mag * Math.sin(omega * i));
+        }
+
+        warnAudio = new AudioTrack(AudioManager.STREAM_MUSIC, fs,
+                AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, length, AudioTrack.MODE_STATIC);
+        warnAudio.write(wave, 0, wave.length);
+        warnAudio.write(wave, 0, wave.length);
     }
 }
