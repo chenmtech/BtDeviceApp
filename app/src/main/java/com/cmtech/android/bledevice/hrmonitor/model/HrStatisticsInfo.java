@@ -3,7 +3,6 @@ package com.cmtech.android.bledevice.hrmonitor.model;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -49,7 +48,7 @@ public class HrStatisticsInfo {
     }
 
     private final int filterWidth; // hr filter width, unit: second
-    private final List<Short> hrList = new ArrayList<>(); // filtered hr list
+    private final List<Short> hrAveList = new ArrayList<>(); // filtered hr list
     private final List<HrHistogramElement<Integer>> hrHist = new ArrayList<>();
     private short hrMax;
     private long hrSum;
@@ -80,8 +79,8 @@ public class HrStatisticsInfo {
         hrNum++;
         if(hrMax < hr) hrMax = hr;
 
-        long tmp = Math.round((time-preTime)/1000.0);
-        int interval = (tmp > filterWidth) ? filterWidth : (int)tmp; // ms to second
+        long tmp = Math.round((time-preTime)/1000.0); // ms to second
+        int interval = (tmp > filterWidth) ? filterWidth : (int)tmp;
         preTime = time;
         for(HrHistogramElement<Integer> ele : hrHist) {
             if(hr < ele.maxValue) {
@@ -96,7 +95,7 @@ public class HrStatisticsInfo {
         periodTmp += interval;
         if(periodTmp >= filterWidth) {
             short average = (short)(sumTmp / numTmp);
-            hrList.add(average);
+            hrAveList.add(average);
             periodTmp -= filterWidth;
             sumTmp = 0;
             numTmp = 0;
@@ -107,7 +106,7 @@ public class HrStatisticsInfo {
     }
 
     public void clear() {
-        hrList.clear();
+        hrAveList.clear();
         for(HrHistogramElement<Integer> ele : hrHist)
             ele.histValue = 0;
         hrMax = 0;
@@ -119,8 +118,8 @@ public class HrStatisticsInfo {
         periodTmp = 0;
     }
 
-    public List<Short> getHrList() {
-        return hrList;
+    public List<Short> getHrAveList() {
+        return hrAveList;
     }
 
     public short getHrMax() {

@@ -22,14 +22,14 @@ import java.io.Serializable;
  */
 
 public class Account extends LitePalSupport implements Serializable, Cloneable{
-    private static final int PLAT_NAME_CHAR_LEN = 10;
-    private static final int USER_ID_CHAR_LEN = 255;
-    private static final int NAME_CHAR_LEN = 10;
+    public static final int PLAT_NAME_CHAR_LEN = 10;
+    public static final int USER_ID_CHAR_LEN = 255;
+    public static final int NAME_CHAR_LEN = 10;
     private static final int DESCRIPTION_CHAR_LEN = 50;
 
     private int id; // id
-    private String platName = "";
-    private String userId = ""; // 华为ID
+    private String platName = ""; // registration platform name
+    private String userId = ""; // ID
     private String name = ""; // 名称
     private String imagePath = ""; // 头像文件路径
     private String description = ""; // 个人信息

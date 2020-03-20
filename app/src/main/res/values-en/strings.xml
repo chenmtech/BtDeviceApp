@@ -14,4 +14,6 @@
     <string name="no_record_currently">No Record Currently</string>
     <drawable name="clr_normal">@color/accent</drawable>
     <drawable name="clr_pressed">@color/red</drawable>
+    <string name="exit">exit</string>
+    <string name="title_activity_hrmcfg">Configuration of HR Monitor</string>
 </resources>

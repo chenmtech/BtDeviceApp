@@ -25,7 +25,7 @@ import com.cmtech.android.bledeviceapp.R;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class HrSequenceFragment extends Fragment {
+public class HrTimeFragment extends Fragment {
     public static final String TITLE = "心率变化";
     private TextView tvHrAve; // average heart rate value
     private TextView tvHrMax; // max heart rate value
@@ -53,6 +53,6 @@ public class HrSequenceFragment extends Fragment {
     public void updateHrInfo(HrStatisticsInfo hrInfoObject) {
         tvHrAve.setText(String.valueOf(hrInfoObject.getHrAve()));
         tvHrMax.setText(String.valueOf(hrInfoObject.getHrMax()));
-        hrLineChart.showLineChart(hrInfoObject.getHrList(), TITLE, Color.BLUE);
+        hrLineChart.showLineChart(hrInfoObject.getHrAveList(), TITLE, Color.BLUE);
     }
 }

@@ -47,8 +47,9 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
  * Version:        1.0
  */
 public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDeviceListener, OnWaveViewListener {
+    public static final int HR_MOVE_AVERAGE_WINDOW_WIDTH = 10;
     private HRMonitorDevice device; // device
-    private HrStatisticsInfo hrInfo = new HrStatisticsInfo(10);  // heart rate statistics info
+    private HrStatisticsInfo hrInfo = new HrStatisticsInfo(HR_MOVE_AVERAGE_WINDOW_WIDTH);  // heart rate statistics info
 
     private ScanEcgView ecgView; // EcgView
     private TextView tvHrEcgOff; // hr when ecg off
@@ -58,7 +59,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private FrameLayout flEcgOff; // frame layout when ecg off
     private FrameLayout flEcgOn; // frame layout when ecg on
 
-    private final HrSequenceFragment seqFragment = new HrSequenceFragment(); // heart rate timing-sequence Fragment
+    private final HrTimeFragment seqFragment = new HrTimeFragment(); // heart rate timing-sequence Fragment
     private final HrDebugFragment debugFragment = new HrDebugFragment(); // debug fragment
 
     private boolean isEcgChecked = false;
@@ -109,7 +110,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(debugFragment, seqFragment));
-        List<String> titleList = new ArrayList<>(Arrays.asList(HrDebugFragment.TITLE, HrSequenceFragment.TITLE));
+        List<String> titleList = new ArrayList<>(Arrays.asList(HrDebugFragment.TITLE, HrTimeFragment.TITLE));
         EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(2);
