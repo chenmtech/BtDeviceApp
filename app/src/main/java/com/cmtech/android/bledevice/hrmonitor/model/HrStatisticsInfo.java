@@ -48,8 +48,8 @@ public class HrStatisticsInfo {
     }
 
     private final int filterWidth; // hr filter width, unit: second
-    private final List<Short> hrAveList = new ArrayList<>(); // filtered hr list
-    private final List<HrHistogramElement<Integer>> hrHist = new ArrayList<>();
+    private short filteredHr = 0; // moving-average filtered hr value
+    private final List<HrHistogramElement<Integer>> hrHistogram = new ArrayList<>();
     private short hrMax;
     private long hrSum;
     private long hrNum;
@@ -61,12 +61,12 @@ public class HrStatisticsInfo {
 
     public HrStatisticsInfo(int filterWidth) {
         this.filterWidth = filterWidth;
-        hrHist.add(new HrHistogramElement<Integer>((short)0, (short)121, 0, "平静心率"));
-        hrHist.add(new HrHistogramElement<Integer>((short)122, (short)131, 0, "热身放松"));
-        hrHist.add(new HrHistogramElement<Integer>((short)132, (short)141, 0, "有氧燃脂"));
-        hrHist.add(new HrHistogramElement<Integer>((short)142, (short)152, 0, "有氧耐力"));
-        hrHist.add(new HrHistogramElement<Integer>((short)153, (short)162, 0, "无氧耐力"));
-        hrHist.add(new HrHistogramElement<Integer>((short)163, (short)1000, 0, "极限冲刺"));
+        hrHistogram.add(new HrHistogramElement<Integer>((short)0, (short)121, 0, "平静心率"));
+        hrHistogram.add(new HrHistogramElement<Integer>((short)122, (short)131, 0, "热身放松"));
+        hrHistogram.add(new HrHistogramElement<Integer>((short)132, (short)141, 0, "有氧燃脂"));
+        hrHistogram.add(new HrHistogramElement<Integer>((short)142, (short)152, 0, "有氧耐力"));
+        hrHistogram.add(new HrHistogramElement<Integer>((short)153, (short)162, 0, "无氧耐力"));
+        hrHistogram.add(new HrHistogramElement<Integer>((short)163, (short)1000, 0, "极限冲刺"));
     }
 
     /**
@@ -82,7 +82,7 @@ public class HrStatisticsInfo {
         long tmp = Math.round((time-preTime)/1000.0); // ms to second
         int interval = (tmp > filterWidth) ? filterWidth : (int)tmp;
         preTime = time;
-        for(HrHistogramElement<Integer> ele : hrHist) {
+        for(HrHistogramElement<Integer> ele : hrHistogram) {
             if(hr < ele.maxValue) {
                 ele.histValue += interval;
                 break;
@@ -94,8 +94,7 @@ public class HrStatisticsInfo {
         numTmp++;
         periodTmp += interval;
         if(periodTmp >= filterWidth) {
-            short average = (short)(sumTmp / numTmp);
-            hrAveList.add(average);
+            filteredHr = (short)(sumTmp / numTmp);
             periodTmp -= filterWidth;
             sumTmp = 0;
             numTmp = 0;
@@ -106,8 +105,8 @@ public class HrStatisticsInfo {
     }
 
     public void clear() {
-        hrAveList.clear();
-        for(HrHistogramElement<Integer> ele : hrHist)
+        filteredHr = 0;
+        for(HrHistogramElement<Integer> ele : hrHistogram)
             ele.histValue = 0;
         hrMax = 0;
         hrSum = 0;
@@ -118,8 +117,8 @@ public class HrStatisticsInfo {
         periodTmp = 0;
     }
 
-    public List<Short> getHrAveList() {
-        return hrAveList;
+    public short getFilteredHr() {
+        return filteredHr;
     }
 
     public short getHrMax() {
@@ -130,7 +129,7 @@ public class HrStatisticsInfo {
         return (hrNum == 0) ? 0 : (short) (hrSum / hrNum);
     }
 
-    public List<HrHistogramElement<Integer>> getHrHist() {
-        return hrHist;
+    public List<HrHistogramElement<Integer>> getHrHistogram() {
+        return hrHistogram;
     }
 }

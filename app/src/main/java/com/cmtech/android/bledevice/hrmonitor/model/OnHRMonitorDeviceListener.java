@@ -14,6 +14,7 @@ package com.cmtech.android.bledevice.hrmonitor.model;
  */
 public interface OnHRMonitorDeviceListener {
     void onHRUpdated(BleHeartRateData hrData); // heart rate updated
+    void onHRStatInfoUpdated();
     void onHRSensLocUpdated(int loc); // sensor location updated
     void onHRCtrlPtUpdated(int ctrl); // control point updated
     void onFragmentUpdated(int sampleRate, int value1mV, double zeroLocation, boolean ecgLock); // fragment updated

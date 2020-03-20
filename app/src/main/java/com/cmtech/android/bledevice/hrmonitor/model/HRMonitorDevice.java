@@ -1,21 +1,27 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
-import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
-import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
+import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
+import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
+import java.util.List;
 import java.util.UUID;
 
+import static com.cmtech.android.bledevice.hrmonitor.view.HRMonitorFragment.HR_MOVE_AVERAGE_WINDOW_WIDTH;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
@@ -101,7 +107,10 @@ public class HRMonitorDevice extends AbstractDevice {
 
     private OnHRMonitorDeviceListener listener; // device listener
 
-    private final HrConfiguration config;
+    private final HrConfiguration config; // hr device configuration
+
+    private BleHrRecord10 record;
+    private HrStatisticsInfo hrStatInfo;
 
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
@@ -112,6 +121,48 @@ public class HRMonitorDevice extends AbstractDevice {
             config.save();
         }
         this.config = config;
+    }
+
+    public List<Short> getHrList() {
+        if(record != null)
+            return record.getHrList();
+        else
+            return null;
+    }
+
+    public short getHrMax() {
+        return hrStatInfo.getHrMax();
+    }
+
+    public short getHrAve() {
+        return hrStatInfo.getHrAve();
+    }
+
+    @Override
+    public void open(Context context) {
+        super.open(context);
+
+        record = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
+        hrStatInfo = new HrStatisticsInfo(HR_MOVE_AVERAGE_WINDOW_WIDTH);
+    }
+
+    @Override
+    public void close() {
+        super.close();
+
+        if(record != null) {
+            if (record.getHrList().size() < 1) {
+                Toast.makeText(MyApplication.getContext(), "由于记录时间太短，记录不被保存。", Toast.LENGTH_SHORT).show();
+            } else {
+                record.save();
+                ViseLog.e(record.toString());
+            }
+            record = null;
+        }
+        if(hrStatInfo != null) {
+            hrStatInfo.clear();
+            hrStatInfo = null;
+        }
     }
 
     @Override
@@ -247,6 +298,12 @@ public class HRMonitorDevice extends AbstractDevice {
                         if(listener != null) {
                             listener.onHRUpdated(heartRateData);
                         }
+                        if(hrStatInfo.process((short) heartRateData.getBpm(), heartRateData.getTime())) {
+                            record.addHr(hrStatInfo.getFilteredHr());
+                            if(listener != null)
+                                listener.onHRStatInfoUpdated();
+                        }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

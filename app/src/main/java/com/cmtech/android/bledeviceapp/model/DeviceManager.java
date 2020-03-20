@@ -139,7 +139,8 @@ public class DeviceManager {
 
     public static void clearDevices() {
         for(IDevice device : DEVICE_LIST) {
-            device.close();
+            if(device.getState() != CLOSED)
+                device.close();
         }
     }
 

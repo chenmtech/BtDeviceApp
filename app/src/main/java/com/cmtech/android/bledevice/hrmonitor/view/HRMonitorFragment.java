@@ -53,7 +53,6 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
 public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDeviceListener, OnWaveViewListener {
     public static final int HR_MOVE_AVERAGE_WINDOW_WIDTH = 10;
     private HRMonitorDevice device; // device
-    private HrStatisticsInfo hrInfo = new HrStatisticsInfo(HR_MOVE_AVERAGE_WINDOW_WIDTH);  // heart rate statistics info
 
     private ScanEcgView ecgView; // EcgView
     private TextView tvHrEcgOff; // hr when ecg off
@@ -175,14 +174,22 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                     tvHrEcgOn.setText(String.valueOf(bpm));
                     tvHrEcgOff.setText(String.valueOf(bpm));
 
-                    if(hrInfo.process((short) bpm, hrData.getTime())) {
-                        seqFragment.updateHrInfo(hrInfo);
-                    }
-
                     HrConfiguration cfg = device.getConfig();
                     if(cfg.isWarn() && (bpm > cfg.getHrHigh() || bpm < cfg.getHrLow())) {
                         warn();
                     }
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onHRStatInfoUpdated() {
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    seqFragment.updateHrInfo(device.getHrList(), device.getHrMax(), device.getHrAve());
                 }
             });
         }
@@ -249,17 +256,6 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
             device.removeListener();
 
         ecgView.stop();
-
-        if(hrInfo.getHrAveList().size() < 10) {
-            Toast.makeText(getContext(), "由于时间太短，心率记录不被保存。", Toast.LENGTH_SHORT).show();
-        } else {
-            BleHrRecord10 hrRecord10 = BleHrRecord10.create(new byte[]{0x01,0x00}, device.getAddress(), AccountManager.getInstance().getAccount());
-            if(hrRecord10 != null) {
-                hrRecord10.setHrList(hrInfo.getHrAveList());
-                hrRecord10.save();
-                ViseLog.e(hrRecord10.toString());
-            }
-        }
     }
 
     private void setEcgStatus(boolean isChecked) {

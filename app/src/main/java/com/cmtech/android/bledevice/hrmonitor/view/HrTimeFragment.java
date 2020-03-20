@@ -13,6 +13,8 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.hrmonitor.model.HrStatisticsInfo;
 import com.cmtech.android.bledeviceapp.R;
 
+import java.util.List;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.ecgmonitor.activity
@@ -50,9 +52,9 @@ public class HrTimeFragment extends Fragment {
         hrLineChart = view.findViewById(R.id.linechart_hr);
     }
 
-    public void updateHrInfo(HrStatisticsInfo hrInfoObject) {
-        tvHrAve.setText(String.valueOf(hrInfoObject.getHrAve()));
-        tvHrMax.setText(String.valueOf(hrInfoObject.getHrMax()));
-        hrLineChart.showLineChart(hrInfoObject.getHrAveList(), TITLE, Color.BLUE);
+    public void updateHrInfo(List<Short> hrList, short hrMax, short hrAve) {
+        tvHrAve.setText(String.valueOf(hrAve));
+        tvHrMax.setText(String.valueOf(hrMax));
+        hrLineChart.showLineChart(hrList, TITLE, Color.BLUE);
     }
 }
