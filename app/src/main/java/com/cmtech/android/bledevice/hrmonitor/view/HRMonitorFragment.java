@@ -15,8 +15,10 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
+import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledevice.hrmonitor.model.HrConfiguration;
 import com.cmtech.android.bledevice.hrmonitor.model.HrStatisticsInfo;
@@ -25,6 +27,8 @@ import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -245,6 +249,17 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
             device.removeListener();
 
         ecgView.stop();
+
+        if(hrInfo.getHrAveList().size() < 10) {
+            Toast.makeText(getContext(), "由于时间太短，心率记录不被保存。", Toast.LENGTH_SHORT).show();
+        } else {
+            BleHrRecord10 hrRecord10 = BleHrRecord10.create(new byte[]{0x01,0x00}, device.getAddress(), AccountManager.getInstance().getAccount());
+            if(hrRecord10 != null) {
+                hrRecord10.setHrList(hrInfo.getHrAveList());
+                hrRecord10.save();
+                ViseLog.e(hrRecord10.toString());
+            }
+        }
     }
 
     private void setEcgStatus(boolean isChecked) {

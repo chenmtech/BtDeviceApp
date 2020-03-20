@@ -175,6 +175,9 @@ public class BleHrRecord10 extends LitePalSupport {
     public List<Short> getHrList() {
         return hrList;
     }
+    public void setHrList(List<Short> hrList) {
+        this.hrList = hrList;
+    }
 
     @Override
     public String toString() {
