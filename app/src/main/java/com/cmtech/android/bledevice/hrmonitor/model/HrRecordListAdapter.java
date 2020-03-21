@@ -9,6 +9,7 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +48,7 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         TextView tvCreateTime; // 创建时间
         TextView tvCreator; // 创建人
         TextView tvHrNum; // 心率次数
+        ImageButton ibDelete;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -54,6 +56,7 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
             tvCreateTime = fileView.findViewById(R.id.tv_create_time);
             tvCreator = fileView.findViewById(R.id.tv_creator);
             tvHrNum = fileView.findViewById(R.id.tv_hr_num);
+            ibDelete = fileView.findViewById(R.id.ib_delete);
         }
     }
 
@@ -76,12 +79,18 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
                 activity.selectRecord(allRecordList.get(holder.getAdapterPosition()));
             }
         });
+
+        holder.ibDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.deleteRecord(allRecordList.get(holder.getAdapterPosition()));
+            }
+        });
         return holder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull HrRecordListAdapter.ViewHolder holder, final int position) {
-        ViseLog.e("onBindViewHolder " + position);
         BleHrRecord10 record = allRecordList.get(position);
         if(record == null) return;
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());

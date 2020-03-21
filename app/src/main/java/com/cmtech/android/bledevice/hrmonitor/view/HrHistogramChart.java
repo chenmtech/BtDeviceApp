@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
+import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -122,11 +123,11 @@ public class HrHistogramChart extends BarChart {
         setTouchEnabled(false);
 
         setNoDataText("暂无有效统计信息");
-        setNoDataTextColor(Color.BLUE);
+        setNoDataTextColor(Color.GRAY);
 
         //updateHrBarData(null);
 
-        initBarDataSet("心率统计", Color.BLUE, Color.BLACK);
+        initBarDataSet("心率统计", Color.BLUE, Color.GRAY);
     }
 
     /**
@@ -141,12 +142,12 @@ public class HrHistogramChart extends BarChart {
         hrBarDateSet.setFormLineWidth(1f);
         hrBarDateSet.setFormSize(15.f);
         hrBarDateSet.setDrawValues(true);
-        hrBarDateSet.setValueTextSize(14f);
+        hrBarDateSet.setValueTextSize(10f);
         hrBarDateSet.setValueTextColor(dataColor);
         hrBarDateSet.setValueFormatter(new IValueFormatter() {
             @Override
             public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                return String.format(Locale.getDefault(), "%d", (int)value);
+                return DateTimeUtil.secToTime((int)value);//String.format(Locale.getDefault(), "%d", (int)value);
             }
         });
     }

@@ -21,14 +21,6 @@
                 android:layout_height="4dp"
                 android:background="@color/primary_dark"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:text="心率分析"
-                android:textSize="18sp"
-                android:textColor="@color/black"/>
-
             <include layout="@layout/layout_hr_common_info"/>
 
             <include layout="@layout/layout_hr_line_chart"
@@ -40,15 +32,6 @@
                 android:layout_height="1dp"
                 android:layout_margin="6dp"
                 android:background="@color/primary_dark"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_margin="6dp"
-                android:text="统计分布"
-                android:textSize="12sp"
-                android:textColor="@color/primary_text"/>
 
             <include layout="@layout/layout_hr_hist_chart"
                 android:layout_width="match_parent"

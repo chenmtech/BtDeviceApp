@@ -1,7 +1,9 @@
 package com.cmtech.android.bledevice.hrmonitor.view;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,6 +21,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
+import org.litepal.crud.LitePalSupport;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -106,16 +109,28 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
         updateRecordList();
     }
 
-    /*public void deleteSelectedRecord() {
-        BleHrRecord10 selectedRecord = explorer.getSelRecord();
-        if(selectedRecord != null) {
+
+
+    public void selectRecord(final BleHrRecord10 record) {
+        if(record != null) {
+            Intent intent = new Intent(this, HrRecordActivity.class);
+            intent.putExtra("record_id", record.getId());
+            startActivity(intent);
+        }
+    }
+
+    public void deleteRecord(final BleHrRecord10 record) {
+        if(record != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("删除心电记录").setMessage("确定删除该心电记录吗？");
+            builder.setTitle("删除心率记录").setMessage("确定删除该心率记录吗？");
 
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    explorer.deleteSelRecord();
+                    if(allRecords.remove(record)) {
+                        updateRecordList();
+                    }
+                    LitePal.delete(BleHrRecord10.class, record.getId());
                 }
             }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
                 @Override
@@ -123,14 +138,6 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
 
                 }
             }).show();
-        }
-    }*/
-
-    public void selectRecord(final BleHrRecord10 record) {
-        if(record != null) {
-            Intent intent = new Intent(this, HrRecordActivity.class);
-            intent.putExtra("record_id", record.getId());
-            startActivity(intent);
         }
     }
 
