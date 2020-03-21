@@ -57,6 +57,7 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.ScanException;
 import com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity;
 import com.cmtech.android.bledevice.ecg.adapter.EcgCtrlPanelAdapter;
+import com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
@@ -311,6 +312,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                         PopupMenu popupMenu = new PopupMenu(MainActivity.this, item.getActionView());
                         popupMenu.inflate(R.menu.menu_query_record);
                         List<DeviceType> types = DeviceType.getSupportedDeviceTypes();
+                        popupMenu.getMenu().findItem(R.id.nav_hr_record).setVisible(true);
                         popupMenu.getMenu().findItem(R.id.nav_ecg_record).setVisible(types.contains(ECGMONITOR_DEVICE_TYPE));
                         popupMenu.getMenu().findItem(R.id.nav_temphumid_record).setVisible(types.contains(TEMPHUMID_DEVICE_TYPE));
                         popupMenu.getMenu().findItem(R.id.nav_thermo_record).setVisible(types.contains(THERMO_DEVICE_TYPE));
@@ -321,6 +323,10 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                             @Override
                             public boolean onMenuItemClick(MenuItem menuItem) {
                                 switch (menuItem.getItemId()) {
+                                    case R.id.nav_hr_record:
+                                      Intent hrIntent = new Intent(MainActivity.this, HrRecordExplorerActivity.class);
+                                        startActivity(hrIntent);
+                                        return true;
                                     case R.id.nav_ecg_record:
                                         Intent recordIntent = new Intent(MainActivity.this, EcgRecordExplorerActivity.class);
                                         startActivity(recordIntent);

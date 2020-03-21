@@ -80,6 +80,9 @@
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity" />
         <activity android:name=".activity.AccountActivity" />
 
+
+        <activity android:name="com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity" />
+
         <service
             android:name=".model.NotifyService"
             android:enabled="true"
