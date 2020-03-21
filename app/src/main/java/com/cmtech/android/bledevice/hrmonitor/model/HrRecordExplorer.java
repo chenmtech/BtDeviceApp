@@ -33,6 +33,9 @@ public class HrRecordExplorer {
     public HrRecordExplorer(OnHrRecordsListener listener) {
         this.listener = listener;
         this.allRecords = LitePal.findAll(BleHrRecord10.class, true);
+        for(BleHrRecord10 record : allRecords) {
+            record.updateHrHistogram();
+        }
         ViseLog.e(allRecords);
         if(allRecords != null && allRecords.size() > 1) {
             Collections.sort(allRecords, new Comparator<BleHrRecord10>() {

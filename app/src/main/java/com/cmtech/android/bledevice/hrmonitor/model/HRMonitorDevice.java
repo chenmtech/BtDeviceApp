@@ -10,6 +10,7 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -110,7 +111,6 @@ public class HRMonitorDevice extends AbstractDevice {
     private final HrConfiguration config; // hr device configuration
 
     private BleHrRecord10 record;
-    private HrStatisticsInfo hrStatInfo;
 
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
@@ -123,27 +123,11 @@ public class HRMonitorDevice extends AbstractDevice {
         this.config = config;
     }
 
-    public List<Short> getHrList() {
-        if(record != null)
-            return record.getHrList();
-        else
-            return null;
-    }
-
-    public short getHrMax() {
-        return hrStatInfo.getHrMax();
-    }
-
-    public short getHrAve() {
-        return hrStatInfo.getHrAve();
-    }
-
     @Override
     public void open(Context context) {
         super.open(context);
 
         record = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
-        hrStatInfo = new HrStatisticsInfo(HR_MOVE_AVERAGE_WINDOW_WIDTH);
     }
 
     @Override
@@ -158,10 +142,6 @@ public class HRMonitorDevice extends AbstractDevice {
                 ViseLog.e(record.toString());
             }
             record = null;
-        }
-        if(hrStatInfo != null) {
-            hrStatInfo.clear();
-            hrStatInfo = null;
         }
     }
 
@@ -298,12 +278,10 @@ public class HRMonitorDevice extends AbstractDevice {
                         if(listener != null) {
                             listener.onHRUpdated(heartRateData);
                         }
-                        if(hrStatInfo.process((short) heartRateData.getBpm(), heartRateData.getTime())) {
-                            record.addHr(hrStatInfo.getFilteredHr());
+                        if(record.process((short) heartRateData.getBpm(), heartRateData.getTime())) {
                             if(listener != null)
-                                listener.onHRStatInfoUpdated();
+                                listener.onHRStatInfoUpdated(record.getHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
                         }
-
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

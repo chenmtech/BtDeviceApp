@@ -17,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
+import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledevice.hrmonitor.model.HrConfiguration;
 import com.cmtech.android.bledevice.hrmonitor.model.HrCtrlPanelAdapter;
@@ -180,12 +181,12 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void onHRStatInfoUpdated() {
+    public void onHRStatInfoUpdated(final List<Short> hrList, final short hrMax, final short hrAve, List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    seqFragment.updateHrInfo(device.getHrList(), device.getHrMax(), device.getHrAve());
+                    seqFragment.updateHrInfo(hrList, hrMax, hrAve);
                 }
             });
         }

@@ -4,6 +4,7 @@ import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
 
+import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import static com.cmtech.android.bledeviceapp.model.Account.USER_ID_CHAR_LEN;
 public class BleHrRecord10 extends LitePalSupport {
     private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // 设备地址字符数
+    private static final short INVALID_HEART_RATE = -1;
 
     private int id;
     private byte[] ver = new byte[2]; // hr record version
@@ -43,9 +45,13 @@ public class BleHrRecord10 extends LitePalSupport {
     private String creatorId;
     private List<Short> hrList; // 心率列表
     private short hrMax;
-    private short hrMin;
+    private short hrAve;
+    private List<Integer> hrHist;
 
-    private final HrStatisticsInfo hrStatInfo;
+    @Column(ignore = true)
+    private final HrMAFilter hrMAFilter;
+    @Column(ignore = true)
+    private final List<HrHistogramElement<Integer>> hrHistogram = new ArrayList<>();
 
     private BleHrRecord10() {
         createTime = 0;
@@ -54,8 +60,69 @@ public class BleHrRecord10 extends LitePalSupport {
         creatorId = "";
         hrList = null;
         hrMax = 0;
-        hrMin = 0;
-        hrStatInfo = new HrStatisticsInfo(HR_MOVE_AVERAGE_WINDOW_WIDTH);
+        hrAve = 0;
+        hrHist = null;
+        hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_WINDOW_WIDTH);
+        hrHistogram.add(new HrHistogramElement<>((short)0, (short)121, 0, "平静心率"));
+        hrHistogram.add(new HrHistogramElement<>((short)122, (short)131, 0, "热身放松"));
+        hrHistogram.add(new HrHistogramElement<>((short)132, (short)141, 0, "有氧燃脂"));
+        hrHistogram.add(new HrHistogramElement<>((short)142, (short)152, 0, "有氧耐力"));
+        hrHistogram.add(new HrHistogramElement<>((short)153, (short)162, 0, "无氧耐力"));
+        hrHistogram.add(new HrHistogramElement<>((short)163, (short)1000, 0, "极限冲刺"));
+    }
+
+    public String getRecordName() {
+        return devAddress + createTime;
+    }
+    public int getId() {
+        return id;
+    }
+    public long getCreateTime() {
+        return createTime;
+    }
+    public String getDevAddress() {
+        return devAddress;
+    }
+    public String getCreatorName() {
+        return creatorPlat+creatorId;
+    }
+    public List<Short> getHrList() {
+        return hrList;
+    }
+    public short getHrMax() {
+        return hrMax;
+    }
+    public short getHrAve() {
+        return hrAve;
+    }
+    public List<HrHistogramElement<Integer>> getHrHistogram() {
+        return hrHistogram;
+    }
+    public void updateHrHistogram() {
+        if(hrHist != null && hrHist.size() == hrHistogram.size()) {
+            for (int i = 0; i < hrHistogram.size(); i++) {
+                hrHistogram.get(i).setHistValue(hrHist.get(i));
+            }
+        }
+    }
+
+    public boolean process(short hr, long time) {
+        short fHr = hrMAFilter.process(hr, time);
+        if(fHr != INVALID_HEART_RATE) {
+            hrList.add(fHr);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean save() {
+        hrHist = new ArrayList<>();
+        for(HrHistogramElement<Integer> ele : hrHistogram) {
+            hrHist.add(ele.getHistValue());
+        }
+
+        return super.save();
     }
 
     // create new hr record
@@ -78,6 +145,7 @@ public class BleHrRecord10 extends LitePalSupport {
         record.creatorPlat = creator.getPlatName();
         record.creatorId = creator.getUserId();
         record.hrList = new ArrayList<>();
+        record.hrHist = new ArrayList<>();
         return record;
     }
 
@@ -166,31 +234,10 @@ public class BleHrRecord10 extends LitePalSupport {
         }
     }
 
-    public int getId() {
-        return id;
-    }
-    public String getRecordName() {
-        return devAddress + createTime;
-    }
-    public String getCreatorName() {
-        return creatorPlat+creatorId;
-    }
-    public long getCreateTime() {
-        return createTime;
-    }
-    public String getDevAddress() {
-        return devAddress;
-    }
-    public List<Short> getHrList() {
-        return hrList;
-    }
-    public void addHr(short hr) {
-        hrList.add(hr);
-    }
 
     @Override
     public String toString() {
-        return devAddress + "-" + createTime + "-" + creatorPlat + "-" + creatorId + "-" + hrList;
+        return devAddress + "-" + createTime + "-" + creatorPlat + "-" + creatorId + "-" + hrList + "-" + hrMax + "-" + hrAve + "-" + hrHist;
     }
 
     @Override
@@ -207,39 +254,8 @@ public class BleHrRecord10 extends LitePalSupport {
         return getRecordName().hashCode();
     }
 
-    public class HrStatisticsInfo {
-        // 心率直方图的Element类
-        public class HrHistogramElement<T> {
-            private final short minValue;
-            private final short maxValue;
-            private final String barTitle; // histogram bar title string
-            private T histValue; // 直方图值
-
-            HrHistogramElement(short minValue, short maxValue, T histValue, String barTitle) {
-                this.minValue = minValue;
-                this.maxValue = maxValue;
-                this.histValue = histValue;
-                this.barTitle = barTitle;
-            }
-
-            public String getBarTitle() {
-                return barTitle;
-            }
-            public T getHistValue() {
-                return histValue;
-            }
-            short getMinValue() {
-                return minValue;
-            }
-            short getMaxValue() {
-                return maxValue;
-            }
-        }
-
+    public class HrMAFilter {
         private final int filterWidth; // hr filter width, unit: second
-        private short filteredHr = 0; // moving-average filtered hr value
-        private final List<HrHistogramElement<Integer>> hrHistogram = new ArrayList<>();
-        //private short hrMax;
         private long hrSum;
         private long hrNum;
         private long preTime = 0;
@@ -248,25 +264,15 @@ public class BleHrRecord10 extends LitePalSupport {
         private int numTmp = 0;
         private int periodTmp = 0;
 
-        public HrStatisticsInfo(int filterWidth) {
+        HrMAFilter(int filterWidth) {
             this.filterWidth = filterWidth;
-            hrHistogram.add(new HrHistogramElement<>((short)0, (short)121, 0, "平静心率"));
-            hrHistogram.add(new HrHistogramElement<>((short)122, (short)131, 0, "热身放松"));
-            hrHistogram.add(new HrHistogramElement<>((short)132, (short)141, 0, "有氧燃脂"));
-            hrHistogram.add(new HrHistogramElement<>((short)142, (short)152, 0, "有氧耐力"));
-            hrHistogram.add(new HrHistogramElement<>((short)153, (short)162, 0, "无氧耐力"));
-            hrHistogram.add(new HrHistogramElement<>((short)163, (short)1000, 0, "极限冲刺"));
         }
 
-        /**
-         * process hr value
-         * @param hr heart rate value
-         * @return is the hrlist updated after processing hr value
-         */
-        public boolean process(short hr, long time) {
+        public short process(short hr, long time) {
             hrSum += hr;
             hrNum++;
             if(hrMax < hr) hrMax = hr;
+            hrAve = (short)(hrSum/hrNum);
 
             long tmp = Math.round((time-preTime)/1000.0); // ms to second
             int interval = (tmp > filterWidth) ? filterWidth : (int)tmp;
@@ -278,7 +284,7 @@ public class BleHrRecord10 extends LitePalSupport {
                 }
             }
 
-            boolean updated = false;
+            short filteredHr = INVALID_HEART_RATE;
             sumTmp += hr;
             numTmp++;
             periodTmp += interval;
@@ -287,40 +293,42 @@ public class BleHrRecord10 extends LitePalSupport {
                 periodTmp -= filterWidth;
                 sumTmp = 0;
                 numTmp = 0;
-                updated = true;
             }
-            ViseLog.e("" + interval + " " + periodTmp + " " + updated);
-            return updated;
-        }
-
-        public void clear() {
-            filteredHr = 0;
-            for(com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10.HrStatisticsInfo.HrHistogramElement<Integer> ele : hrHistogram)
-                ele.histValue = 0;
-            hrMax = 0;
-            hrSum = 0;
-            hrNum = 0;
-            preTime = 0;
-            sumTmp = 0;
-            numTmp = 0;
-            periodTmp = 0;
-        }
-
-        public short getFilteredHr() {
+            ViseLog.e("" + interval + " " + periodTmp + " " + filteredHr);
             return filteredHr;
         }
+    }
 
-        public short getHrMax() {
-            return hrMax;
+    // 心率直方图的Element类
+    public static class HrHistogramElement<T> {
+        private final short minValue;
+        private final short maxValue;
+        private final String barTitle; // histogram bar title string
+        private T histValue; // 直方图值
+
+        HrHistogramElement(short minValue, short maxValue, T histValue, String barTitle) {
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+            this.histValue = histValue; // unit: s
+            this.barTitle = barTitle;
         }
 
-        public short getHrAve() {
-            return (hrNum == 0) ? 0 : (short) (hrSum / hrNum);
+        public String getBarTitle() {
+            return barTitle;
+        }
+        public T getHistValue() {
+            return histValue;
+        }
+        public void setHistValue(T histValue) {
+            this.histValue = histValue;
+        }
+        short getMinValue() {
+            return minValue;
+        }
+        short getMaxValue() {
+            return maxValue;
         }
 
-        public List<HrHistogramElement<Integer>> getHrHistogram() {
-            return hrHistogram;
-        }
     }
 
 }
