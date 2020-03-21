@@ -1,9 +1,7 @@
 package com.cmtech.android.bledevice.hrmonitor.view;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,22 +11,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity;
-import com.cmtech.android.bledevice.ecg.adapter.EcgRecordListAdapter;
-import com.cmtech.android.bledevice.ecg.record.EcgRecord;
-import com.cmtech.android.bledevice.ecg.record.EcgRecordExplorer;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
-import com.cmtech.android.bledevice.hrmonitor.model.HrRecordExplorer;
 import com.cmtech.android.bledevice.hrmonitor.model.HrRecordListAdapter;
 import com.cmtech.android.bledeviceapp.R;
+import com.vise.log.ViseLog;
 
-import java.util.HashMap;
+import org.litepal.LitePal;
+
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-
-import cn.sharesdk.framework.Platform;
-import cn.sharesdk.framework.PlatformActionListener;
 
 /**
   *
@@ -42,11 +36,11 @@ import cn.sharesdk.framework.PlatformActionListener;
   * Version:        1.0
  */
 
-public class HrRecordExplorerActivity extends AppCompatActivity implements HrRecordExplorer.OnHrRecordsListener {
+public class HrRecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "EcgRecordExplorerActivity";
     private static final int DEFAULT_LOAD_RECORD_NUM_EACH_TIMES = 10; // 缺省每次加载的记录数
 
-    private HrRecordExplorer explorer;      // 记录浏览器实例
+    private List<BleHrRecord10> allRecords; // 所有心电记录列表
     private HrRecordListAdapter recordAdapter; // 记录Adapter
     private RecyclerView rvRecords; // 记录RecycleView
     private TextView tvPromptInfo; // 提示信息
@@ -60,14 +54,29 @@ public class HrRecordExplorerActivity extends AppCompatActivity implements HrRec
         Toolbar toolbar = findViewById(R.id.tb_hr_record_explorer);
         setSupportActionBar(toolbar);
 
-        explorer = new HrRecordExplorer(this);
+        this.allRecords = LitePal.findAll(BleHrRecord10.class, true);
+        for(BleHrRecord10 record : allRecords) {
+            record.updateHrHistogram();
+        }
+        ViseLog.e(allRecords);
+        if(allRecords != null && allRecords.size() > 1) {
+            Collections.sort(allRecords, new Comparator<BleHrRecord10>() {
+                @Override
+                public int compare(BleHrRecord10 o1, BleHrRecord10 o2) {
+                    long time1 = o1.getCreateTime();
+                    long time2 = o2.getCreateTime();
+                    if(time1 == time2) return 0;
+                    return (time2 > time1) ? 1 : -1;
+                }
+            });
+        }
 
         rvRecords = findViewById(R.id.rv_hr_record_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvRecords.setLayoutManager(fileLayoutManager);
         rvRecords.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        recordAdapter = new HrRecordListAdapter(this, explorer.getAllRecords(), explorer.getSelRecord());
+        recordAdapter = new HrRecordListAdapter(this, allRecords);
         rvRecords.setAdapter(recordAdapter);
         rvRecords.addOnScrollListener(new RecyclerView.OnScrollListener() {
             int lastVisibleItem;
@@ -94,32 +103,10 @@ public class HrRecordExplorerActivity extends AppCompatActivity implements HrRec
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
 
-        onRecordListChanged();
+        updateRecordList();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_ecg_record_explore, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                setResult(RESULT_CANCELED, null);
-                finish();
-                break;
-
-            case R.id.ecg_record_delete:
-                deleteSelectedRecord();
-                break;
-
-        }
-        return true;
-    }
-
-    public void deleteSelectedRecord() {
+    /*public void deleteSelectedRecord() {
         BleHrRecord10 selectedRecord = explorer.getSelRecord();
         if(selectedRecord != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -137,36 +124,21 @@ public class HrRecordExplorerActivity extends AppCompatActivity implements HrRec
                 }
             }).show();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        explorer.close();
-    }
+    }*/
 
     public void selectRecord(final BleHrRecord10 record) {
-        explorer.selectRecord(record);
-    }
-
-    @Override
-    public void onRecordSelected(final BleHrRecord10 selectedRecord) {
-        recordAdapter.updateSelectedFile(selectedRecord);
-        if(selectedRecord != null) {
-            Intent intent = new Intent(this, EcgRecordActivity.class);
-            intent.putExtra("record_id", selectedRecord.getId());
-            startActivityForResult(intent, 1);
+        if(record != null) {
+            Intent intent = new Intent(this, HrRecordActivity.class);
+            intent.putExtra("record_id", record.getId());
+            startActivity(intent);
         }
     }
 
-    @Override
-    public void onRecordListChanged() {
-        final List<BleHrRecord10> recordList = explorer.getAllRecords();
+    private void updateRecordList() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(recordList == null || recordList.isEmpty()) {
+                if(allRecords == null || allRecords.isEmpty()) {
                     rvRecords.setVisibility(View.INVISIBLE);
                     tvPromptInfo.setVisibility(View.VISIBLE);
                 }else {

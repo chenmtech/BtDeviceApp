@@ -82,6 +82,7 @@
 
 
         <activity android:name="com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity" />
+        <activity android:name="com.cmtech.android.bledevice.hrmonitor.view.HrRecordActivity"/>
 
         <service
             android:name=".model.NotifyService"

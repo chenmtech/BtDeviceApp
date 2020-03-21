@@ -58,7 +58,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private EcgCommentAdapter commentAdapter; // 留言Adapter
     private RecyclerView rvComments; // 留言RecycleView
 
-    private LinearLayout hrLayout;
     private TextView tvAverageHr; // 平均心率
     private TextView tvMaxHr; // 最大心率
     private EcgHrLineChart hrLineChart; // 心率折线图
@@ -133,7 +132,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             }
         });
 
-        hrLayout = findViewById(R.id.layout_hr_part);
         hrHistChart = findViewById(R.id.chart_hr_histogram);
         hrLineChart = findViewById(R.id.linechart_hr);
         tvAverageHr = findViewById(R.id.tv_hr_ave_value);
@@ -191,12 +189,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         } else {
             signalLayout.setVisibility(View.VISIBLE);
             signalView.startShow();
-        }
-
-        if(record.getHrList() == null || record.getHrList().isEmpty()) {
-            hrLayout.setVisibility(View.GONE);
-        } else {
-            hrLayout.setVisibility(View.VISIBLE);
         }
     }
 

@@ -40,8 +40,6 @@ import java.util.List;
 public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapter.ViewHolder>{
     private final HrRecordExplorerActivity activity;
     private final List<BleHrRecord10> allRecordList;
-    private BleHrRecord10 selectedRecord;
-    private Drawable defaultBackground; // 缺省背景
 
     class ViewHolder extends RecyclerView.ViewHolder {
         View fileView;
@@ -59,10 +57,9 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         }
     }
 
-    public HrRecordListAdapter(HrRecordExplorerActivity activity, List<BleHrRecord10> allRecordList, BleHrRecord10 selectedRecord) {
+    public HrRecordListAdapter(HrRecordExplorerActivity activity, List<BleHrRecord10> allRecordList) {
         this.activity = activity;
         this.allRecordList = allRecordList;
-        this.selectedRecord = selectedRecord;
     }
 
     @NonNull
@@ -73,7 +70,6 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
 
         final HrRecordListAdapter.ViewHolder holder = new HrRecordListAdapter.ViewHolder(view);
 
-        defaultBackground = holder.fileView.getBackground();
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,12 +93,6 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         else
             holder.tvHrNum.setText(String.valueOf(record.getHrList().size()));
 
-        if(record.equals(selectedRecord)) {
-            int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
-            holder.fileView.setBackgroundColor(bgdColor);
-        } else {
-            holder.fileView.setBackground(defaultBackground);
-        }
     }
     @Override
     public int getItemCount() {
@@ -111,19 +101,6 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
 
     public void updateRecordList() {
         notifyDataSetChanged();
-    }
-
-    public void updateSelectedFile(BleHrRecord10 selectFile) {
-        int beforePos = allRecordList.indexOf(this.selectedRecord);
-        int afterPos = allRecordList.indexOf(selectFile);
-
-        if(beforePos != afterPos) {
-            this.selectedRecord = selectFile;
-            notifyItemChanged(beforePos);
-            notifyItemChanged(afterPos);
-        } else {
-            notifyItemChanged(beforePos);
-        }
     }
 
     public void clear() {

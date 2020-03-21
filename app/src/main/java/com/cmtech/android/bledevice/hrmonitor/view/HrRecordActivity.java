@@ -18,8 +18,8 @@ public class HrRecordActivity extends AppCompatActivity {
     private TextView tvCreator; // 创建人
     private TextView tvHrNum; // 心率次数
 
-    private TextView tvAveHr; // 平均心率
     private TextView tvMaxHr; // 最大心率
+    private TextView tvAveHr; // 平均心率
     private HrLineChart hrLineChart; // 心率折线图
     private HrHistogramChart hrHistChart; // 心率直方图
 
@@ -35,6 +35,7 @@ public class HrRecordActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED);
             finish();
         }
+        record.updateHrHistogram();
 
         tvCreateTime = findViewById(R.id.tv_create_time);
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
@@ -56,76 +57,8 @@ public class HrRecordActivity extends AppCompatActivity {
         tvAveHr = findViewById(R.id.tv_hr_ave_value);
         tvMaxHr = findViewById(R.id.tv_hr_max_value);
 
-        /*HrStatisticsInfo hrStatisticsInfo = new HrStatisticsInfo(record.getHrList(), HR_MOVE_AVERAGE_WINDOW_WIDTH);
-        tvAveHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
-        tvMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
-        hrHistChart.update(hrStatisticsInfo.getNormHistogram(HR_HISTOGRAM_BAR_NUM));*/
-
+        tvAveHr.setText(String.valueOf(record.getHrAve()));
+        tvMaxHr.setText(String.valueOf(record.getHrMax()));
+        hrHistChart.update(record.getHrHistogram());
     }
-
-    /*private void initialize() {
-        tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime));
-
-        Account fileCreator = record.getCreator();
-        Account account = AccountManager.getInstance().getAccount();
-        if(fileCreator.equals(account)) {
-            tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
-        } else {
-            tvCreator.setText(Html.fromHtml("<u>" + record.getCreatorName() + "</u>"));
-        }
-
-        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
-        tvCreateTime.setText(createTime);
-
-        int second = record.getDataNum()/ record.getSampleRate();
-        if(record.getDataNum() == 0) {
-            tvLength.setText("无");
-        } else {
-            String timeLength = DateTimeUtil.secToTimeInChinese(second);
-            tvLength.setText(timeLength);
-        }
-
-        if(record.getHrList() == null)
-            tvHrNum.setText(String.valueOf(0));
-        else
-            tvHrNum.setText(String.valueOf(record.getHrList().size()));
-
-        initEcgView(record);
-
-        tvCurrentTime.setText(DateTimeUtil.secToTime(0));
-        tvTotalTime.setText(DateTimeUtil.secToTime(second));
-        sbReplay.setMax(second);
-
-        *//*List<EcgNormalComment> commentList = getCommentListInRecord(record);
-        commentAdapter.updateCommentList(commentList);
-        if(commentList.size() > 0)
-            rvComments.smoothScrollToPosition(0);*//*
-
-        HrStatisticsInfo hrStatisticsInfo = new HrStatisticsInfo(record.getHrList(), HR_FILTER_SECOND);
-        tvAveHr.setText(String.valueOf(hrStatisticsInfo.getAverageHr()));
-        tvMaxHr.setText(String.valueOf(hrStatisticsInfo.getMaxHr()));
-        hrLineChart.showLineChart(hrStatisticsInfo.getFilteredHrList(), "心率时序图", Color.BLUE);
-        hrHistChart.update(hrStatisticsInfo.getNormHistogram(HR_HISTOGRAM_BAR_NUM));
-
-        if(record.getDataNum() == 0) {
-            signalLayout.setVisibility(View.GONE);
-        } else {
-            signalLayout.setVisibility(View.VISIBLE);
-            signalView.startShow();
-        }
-
-        if(record.getHrList() == null || record.getHrList().isEmpty()) {
-            hrLayout.setVisibility(View.GONE);
-        } else {
-            hrLayout.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void initEcgView(EcgRecord ecgRecord) {
-        if(ecgRecord == null) return;
-        signalView.setEcgRecord(ecgRecord);
-        signalView.setZeroLocation(RollWaveView.DEFAULT_ZERO_LOCATION);
-    }*/
-
-
 }

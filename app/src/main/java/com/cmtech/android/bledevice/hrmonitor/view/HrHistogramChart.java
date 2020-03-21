@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 
+import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo.HrHistogramElement;
 
 /**
  * HrStatisticProcessor: 心率直方图
@@ -51,7 +51,7 @@ public class HrHistogramChart extends BarChart {
     }
 
     // 更新
-    public void update(List<HrHistogramElement<Float>> hrHistogram) {
+    public void update(List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram) {
         updateHrBarData(hrHistogram);
         hrBarDateSet.setValues(hrBarEntries);
         invalidate();
@@ -146,18 +146,18 @@ public class HrHistogramChart extends BarChart {
         hrBarDateSet.setValueFormatter(new IValueFormatter() {
             @Override
             public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
-                return String.format(Locale.getDefault(), "%d%%", (int)(value*100));
+                return String.format(Locale.getDefault(), "%d", (int)value);
             }
         });
     }
 
-    private void updateHrBarData(List<HrHistogramElement<Float>> normHistogram) {
+    private void updateHrBarData(List<BleHrRecord10.HrHistogramElement<Integer>> normHistogram) {
         hrBarXStrings.clear();
         hrBarEntries.clear();
         if(normHistogram != null && !normHistogram.isEmpty()) {
             int i = 0;
-            for(HrHistogramElement<Float> ele : normHistogram) {
-                hrBarXStrings.add(ele.getBarString());
+            for(BleHrRecord10.HrHistogramElement<Integer> ele : normHistogram) {
+                hrBarXStrings.add(ele.getBarTitle());
                 hrBarEntries.add(new BarEntry(i++, ele.getHistValue()));
             }
         }
