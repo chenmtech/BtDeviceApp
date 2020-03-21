@@ -5,7 +5,6 @@ import com.cmtech.android.bledevice.ecg.device.EcgHttpBroadcast;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgMonitorState;
 import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticProcessor;
-import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo;
 
 public interface IEcgDevice extends HrStatisticProcessor.OnHrStatisticInfoUpdatedListener {
     interface OnEcgDeviceListener extends EcgHttpBroadcast.OnEcgHttpBroadcastListener {

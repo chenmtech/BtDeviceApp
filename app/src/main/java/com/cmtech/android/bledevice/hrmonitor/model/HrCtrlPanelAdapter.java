@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.hrmonitor.view;
+package com.cmtech.android.bledevice.hrmonitor.model;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,11 +18,11 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class EcgCtrlPanelAdapter extends FragmentPagerAdapter {
+public class HrCtrlPanelAdapter extends FragmentPagerAdapter {
     private final List<Fragment> fragmentList;
     private final List<String> titleList;
 
-    public EcgCtrlPanelAdapter(FragmentManager fm, List<Fragment> fragmentList, List<String> titleList) {
+    public HrCtrlPanelAdapter(FragmentManager fm, List<Fragment> fragmentList, List<String> titleList) {
         super(fm);
         this.fragmentList = fragmentList;
         this.titleList = titleList;

@@ -30,22 +30,22 @@ import static com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo.HrHis
  * Created by bme on 2019/1/9.
  */
 
-public class EcgHrHistogramChart extends BarChart {
+public class HrHistogramChart extends BarChart {
     private BarDataSet hrBarDateSet;
     private List<BarEntry> hrBarEntries = new ArrayList<>();
     private List<String> hrBarXStrings = new ArrayList<>();
 
-    public EcgHrHistogramChart(Context context) {
+    public HrHistogramChart(Context context) {
         super(context);
         initialize();
     }
 
-    public EcgHrHistogramChart(Context context, AttributeSet attrs) {
+    public HrHistogramChart(Context context, AttributeSet attrs) {
         super(context, attrs);
         initialize();
     }
 
-    public EcgHrHistogramChart(Context context, AttributeSet attrs, int defStyle) {
+    public HrHistogramChart(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initialize();
     }

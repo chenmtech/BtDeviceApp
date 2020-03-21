@@ -16,7 +16,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecg.adapter.EcgCommentAdapter;
-import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecg.record.EcgRecord;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecg.view.EcgHrHistogramChart;

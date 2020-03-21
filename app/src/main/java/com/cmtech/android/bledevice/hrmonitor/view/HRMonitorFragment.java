@@ -17,10 +17,12 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledevice.ecg.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledevice.hrmonitor.model.HrConfiguration;
+import com.cmtech.android.bledevice.hrmonitor.model.HrCtrlPanelAdapter;
 import com.cmtech.android.bledevice.hrmonitor.model.HrStatisticsInfo;
 import com.cmtech.android.bledevice.hrmonitor.model.OnHRMonitorDeviceListener;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
@@ -114,7 +116,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(debugFragment, seqFragment));
         List<String> titleList = new ArrayList<>(Arrays.asList(HrDebugFragment.TITLE, HrTimeFragment.TITLE));
-        EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
+        HrCtrlPanelAdapter fragAdapter = new HrCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(2);
         layout.setupWithViewPager(pager);
