@@ -15,22 +15,16 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecg.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
-import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledevice.hrmonitor.model.HrConfiguration;
 import com.cmtech.android.bledevice.hrmonitor.model.HrCtrlPanelAdapter;
-import com.cmtech.android.bledevice.hrmonitor.model.HrStatisticsInfo;
 import com.cmtech.android.bledevice.hrmonitor.model.OnHRMonitorDeviceListener;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledevice.ecg.view.EcgHrLineChart;
 import com.cmtech.android.bledeviceapp.R;
 

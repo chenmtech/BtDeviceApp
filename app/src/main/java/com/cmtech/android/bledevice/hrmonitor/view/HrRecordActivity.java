@@ -5,16 +5,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.hrmonitor.model.HrStatisticsInfo;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
-
-import static com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor.HR_HISTOGRAM_BAR_NUM;
-import static com.cmtech.android.bledevice.hrmonitor.view.HRMonitorFragment.HR_MOVE_AVERAGE_WINDOW_WIDTH;
 
 public class HrRecordActivity extends AppCompatActivity {
     private BleHrRecord10 record;

@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.hrmonitor.model.HrStatisticsInfo;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.List;
