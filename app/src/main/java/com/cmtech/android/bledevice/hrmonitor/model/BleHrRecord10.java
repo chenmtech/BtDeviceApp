@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice.INVALID_HEART_RATE;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.model.Account.PLAT_NAME_CHAR_LEN;
 import static com.cmtech.android.bledeviceapp.model.Account.USER_ID_CHAR_LEN;
@@ -35,7 +36,6 @@ public class BleHrRecord10 extends LitePalSupport {
     public static final int HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH = 10; // unit: s
     private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // 设备地址字符数
-    private static final short INVALID_HEART_RATE = -1;
 
     private int id;
     private byte[] ver = new byte[2]; // hr record version
@@ -44,8 +44,8 @@ public class BleHrRecord10 extends LitePalSupport {
     private String creatorPlat;
     private String creatorId;
     private List<Short> hrList; // 心率列表
-    private short hrMax;
-    private short hrAve;
+    private short hrMax = INVALID_HEART_RATE;
+    private short hrAve = INVALID_HEART_RATE;
     private List<Integer> hrHist;
 
     @Column(ignore = true)

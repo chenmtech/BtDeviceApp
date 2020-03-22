@@ -38,6 +38,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
  * Version:        1.0
  */
 public class HRMonitorDevice extends AbstractDevice {
+    public static final short INVALID_HEART_RATE = -1;
     private static final int DEFAULT_CALI_1MV = 164; // default 1mV calibration value
     private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
     private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // default lead type
@@ -108,6 +109,7 @@ public class HRMonitorDevice extends AbstractDevice {
     private final HRMonitorConfiguration config; // hr device configuration
 
     private BleHrRecord10 record;
+    private boolean isRecord = false;
 
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
@@ -120,25 +122,37 @@ public class HRMonitorDevice extends AbstractDevice {
         this.config = config;
     }
 
+    public void switchRecord() {
+        isRecord = !isRecord;
+        if(isRecord) {
+            record = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
+            if(record != null && listener != null)
+                listener.onHRStatInfoUpdated(record.getHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
+        } else {
+            if(record != null) {
+                if (record.getHrList().size() < 6) {
+                    Toast.makeText(MyApplication.getContext(), "记录太短，未保存。", Toast.LENGTH_SHORT).show();
+                } else {
+                    record.save();
+                    Toast.makeText(MyApplication.getContext(), "记录已保存。", Toast.LENGTH_SHORT).show();
+                    ViseLog.e(record.toString());
+                }
+                record = null;
+            }
+        }
+    }
+
     @Override
     public void open(Context context) {
         super.open(context);
-
-        record = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
     }
 
     @Override
     public void close() {
         super.close();
 
-        if(record != null) {
-            if (record.getHrList().size() < 1) {
-                Toast.makeText(MyApplication.getContext(), "由于记录时间太短，记录不被保存。", Toast.LENGTH_SHORT).show();
-            } else {
-                record.save();
-                ViseLog.e(record.toString());
-            }
-            record = null;
+        if(isRecord) {
+            switchRecord();
         }
     }
 
@@ -231,6 +245,10 @@ public class HRMonitorDevice extends AbstractDevice {
         return ecgLock;
     }
 
+    public final boolean isRecord() {
+        return isRecord;
+    }
+
     public final HRMonitorConfiguration getConfig() {
         return config;
     }
@@ -275,7 +293,7 @@ public class HRMonitorDevice extends AbstractDevice {
                         if(listener != null) {
                             listener.onHRUpdated(heartRateData);
                         }
-                        if(record.process((short) heartRateData.getBpm(), heartRateData.getTime())) {
+                        if(isRecord && record.process((short) heartRateData.getBpm(), heartRateData.getTime())) {
                             if(listener != null)
                                 listener.onHRStatInfoUpdated(record.getHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
                         }

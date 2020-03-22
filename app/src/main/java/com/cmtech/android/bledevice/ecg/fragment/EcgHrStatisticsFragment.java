@@ -37,7 +37,7 @@ public class EcgHrStatisticsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        return inflater.inflate(R.layout.fragment_hr_sequence, container, false);
+        return inflater.inflate(R.layout.fragment_hr_record, container, false);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class EcgHrStatisticsFragment extends Fragment {
         tvMaxHr.setText("0");
         tvAverageHr = view.findViewById(R.id.tv_hr_ave_value);
         tvAverageHr.setText("0");
-        hrLineChart = view.findViewById(R.id.linechart_hr);
+        hrLineChart = view.findViewById(R.id.hr_line_chart);
     }
 
     public void updateHrInfo(HrStatisticsInfo hrInfoObject) {

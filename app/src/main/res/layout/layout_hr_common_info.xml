@@ -1,52 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center_horizontal">
-    <TextView
-        android:layout_width="wrap_content"
+    android:gravity="center_vertical"
+    android:baselineAligned="false">
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="最高心率："
-        android:textSize="12sp"
-        android:textColor="@color/primary_text"/>
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="最高心率："
+            android:textSize="12sp"/>
 
-    <TextView
-        android:id="@+id/tv_hr_max_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=" "
-        android:textSize="12sp"
-        android:textColor="@color/primary_text"/>
+        <TextView
+            android:id="@+id/tv_hr_max_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="__"
+            android:textSize="20sp"
+            android:textColor="@color/primary_text"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="次/分"
-        android:textSize="12sp"
-        android:textColor="@color/primary_text"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="次/分"
+            android:textSize="12sp"/>
+    </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="平均心率："
-        android:textSize="12sp"
-        android:textColor="@color/primary_text"/>
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="平均心率："
+            android:textSize="12sp"/>
 
-    <TextView
-        android:id="@+id/tv_hr_ave_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text=" "
-        android:textSize="12sp"
-        android:textColor="@color/primary_text"/>
+        <TextView
+            android:id="@+id/tv_hr_ave_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="__"
+            android:textSize="20sp"
+            android:textColor="@color/primary_text"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="次/分"
-        android:textSize="12sp"
-        android:textColor="@color/primary_text"
-        android:layout_marginEnd="10dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="次/分"
+            android:textSize="12sp"
+            android:layout_marginEnd="10dp"/>
+    </LinearLayout>
+
 
 </LinearLayout>

@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static android.app.Activity.RESULT_FIRST_USER;
 import static android.app.Activity.RESULT_OK;
 import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration.DEFAULT_HR_HIGH_LIMIT;
 import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration.DEFAULT_HR_LOW_LIMIT;
@@ -63,7 +62,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private FrameLayout flEcgOff; // frame layout when ecg off
     private FrameLayout flEcgOn; // frame layout when ecg on
 
-    private final HrTimeFragment seqFragment = new HrTimeFragment(); // heart rate timing-sequence Fragment
+    private final HrRecordFragment recordFragment = new HrRecordFragment(); // heart rate record Fragment
     private final HrDebugFragment debugFragment = new HrDebugFragment(); // debug fragment
 
     private boolean isEcgChecked = false;
@@ -80,7 +79,6 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (HRMonitorDevice) getDevice();
-
         return inflater.inflate(R.layout.fragment_hrmonitor, container, false);
     }
 
@@ -113,12 +111,14 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
-        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(debugFragment, seqFragment));
-        List<String> titleList = new ArrayList<>(Arrays.asList(HrDebugFragment.TITLE, HrTimeFragment.TITLE));
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(debugFragment, recordFragment));
+        List<String> titleList = new ArrayList<>(Arrays.asList(HrDebugFragment.TITLE, HrRecordFragment.TITLE));
         HrCtrlPanelAdapter fragAdapter = new HrCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(2);
         layout.setupWithViewPager(pager);
+
+        recordFragment.setDevice(device);
 
         device.setListener(this);
         ecgView.setListener(this);
@@ -185,7 +185,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    seqFragment.updateHrInfo(hrList, hrMax, hrAve);
+                    recordFragment.updateHrInfo(hrList, hrMax, hrAve);
                 }
             });
         }

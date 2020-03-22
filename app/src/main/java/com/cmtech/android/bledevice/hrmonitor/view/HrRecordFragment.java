@@ -5,11 +5,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.List;
@@ -26,18 +30,19 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class HrTimeFragment extends Fragment {
-    public static final String TITLE = "心率变化";
+public class HrRecordFragment extends Fragment {
+    public static final String TITLE = "心率记录";
     private TextView tvHrAve; // average heart rate value
     private TextView tvHrMax; // max heart rate value
     private HrLineChart hrLineChart; // heart rate line chart
+    private ImageButton ibRecord;
+    private HRMonitorDevice device;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-
-        return inflater.inflate(R.layout.fragment_hr_sequence, container, false);
+        return inflater.inflate(R.layout.fragment_hr_record, container, false);
     }
 
     @Override
@@ -45,10 +50,22 @@ public class HrTimeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         tvHrMax = view.findViewById(R.id.tv_hr_max_value);
-        tvHrMax.setText("0");
+        tvHrMax.setText("__");
         tvHrAve = view.findViewById(R.id.tv_hr_ave_value);
-        tvHrAve.setText("0");
-        hrLineChart = view.findViewById(R.id.linechart_hr);
+        tvHrAve.setText("__");
+        hrLineChart = view.findViewById(R.id.hr_line_chart);
+        ibRecord = view.findViewById(R.id.ib_record);
+        ibRecord.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(device != null) {
+                    boolean isRecord = !device.isRecord();
+                    int imageId = (isRecord) ? R.mipmap.ic_stop_48px : R.mipmap.ic_start_48px;
+                    ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
+                    device.switchRecord();
+                }
+            }
+        });
     }
 
     public void updateHrInfo(List<Short> hrList, short hrMax, short hrAve) {
@@ -56,4 +73,9 @@ public class HrTimeFragment extends Fragment {
         tvHrMax.setText(String.valueOf(hrMax));
         hrLineChart.showLineChart(hrList, TITLE, Color.BLUE);
     }
+
+    public void setDevice(HRMonitorDevice device) {
+        this.device = device;
+    }
+
 }

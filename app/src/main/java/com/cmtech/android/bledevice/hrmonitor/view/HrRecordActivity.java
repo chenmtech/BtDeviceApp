@@ -50,7 +50,7 @@ public class HrRecordActivity extends AppCompatActivity {
         else
             tvHrNum.setText(String.valueOf(record.getHrList().size()));
 
-        hrLineChart = findViewById(R.id.linechart_hr);
+        hrLineChart = findViewById(R.id.hr_line_chart);
         hrLineChart.showLineChart(record.getHrList(), "心率变化", Color.BLUE);
 
         hrHistChart = findViewById(R.id.chart_hr_histogram);
