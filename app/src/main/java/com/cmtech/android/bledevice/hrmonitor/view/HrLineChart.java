@@ -20,7 +20,8 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.hrmonitor.view.HRMonitorFragment.HR_MOVE_AVERAGE_WINDOW_WIDTH;
+import static com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
+
 
 public class HrLineChart extends LineChart {
     public HrLineChart(Context context) {
@@ -64,7 +65,7 @@ public class HrLineChart extends LineChart {
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return DateTimeUtil.secToTime((int)value*HR_MOVE_AVERAGE_WINDOW_WIDTH);
+                return DateTimeUtil.secToTime((int)value* HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
             }
         });
 

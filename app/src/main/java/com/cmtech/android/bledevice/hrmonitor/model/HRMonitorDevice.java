@@ -10,7 +10,6 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
-import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -19,10 +18,8 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
-import java.util.List;
 import java.util.UUID;
 
-import static com.cmtech.android.bledevice.hrmonitor.view.HRMonitorFragment.HR_MOVE_AVERAGE_WINDOW_WIDTH;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
@@ -108,15 +105,15 @@ public class HRMonitorDevice extends AbstractDevice {
 
     private OnHRMonitorDeviceListener listener; // device listener
 
-    private final HrConfiguration config; // hr device configuration
+    private final HRMonitorConfiguration config; // hr device configuration
 
     private BleHrRecord10 record;
 
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
-        HrConfiguration config = LitePal.where("address = ?", getAddress()).findFirst(HrConfiguration.class);
+        HRMonitorConfiguration config = LitePal.where("address = ?", getAddress()).findFirst(HRMonitorConfiguration.class);
         if (config == null) {
-            config = new HrConfiguration();
+            config = new HRMonitorConfiguration();
             config.setAddress(getAddress());
             config.save();
         }
@@ -234,11 +231,11 @@ public class HRMonitorDevice extends AbstractDevice {
         return ecgLock;
     }
 
-    public final HrConfiguration getConfig() {
+    public final HRMonitorConfiguration getConfig() {
         return config;
     }
 
-    public void updateConfig(HrConfiguration config) {
+    public void updateConfig(HRMonitorConfiguration config) {
         this.config.copyFrom(config);
         this.config.save();
     }

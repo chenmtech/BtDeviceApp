@@ -13,8 +13,9 @@
     <string name="share">分享</string>
     <string name="record_ecg_signal_failed">无法记录心电信号</string>
     <string name="no_record_currently">当前无记录</string>
+    <string name="hr_limit_wrong">心率上限必须大于下限。</string>
+    <string name="title_activity_hrmcfg">配置心率计</string>
     <drawable name="clr_normal">@color/accent</drawable>
     <drawable name="clr_pressed">@color/red</drawable>
-    <string name="title_activity_hrmcfg">心率计配置</string>
 
 </resources>

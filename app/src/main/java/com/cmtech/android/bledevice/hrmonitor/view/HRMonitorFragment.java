@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
-import com.cmtech.android.bledevice.hrmonitor.model.HrConfiguration;
+import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration;
 import com.cmtech.android.bledevice.hrmonitor.model.HrCtrlPanelAdapter;
 import com.cmtech.android.bledevice.hrmonitor.model.OnHRMonitorDeviceListener;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
@@ -33,6 +33,10 @@ import java.util.List;
 
 import static android.app.Activity.RESULT_FIRST_USER;
 import static android.app.Activity.RESULT_OK;
+import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration.DEFAULT_HR_HIGH_LIMIT;
+import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration.DEFAULT_HR_LOW_LIMIT;
+import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration.DEFAULT_HR_WARN;
+import static com.cmtech.android.bledevice.hrmonitor.view.HRMCfgActivity.RESULT_CHANGE_ECG_LOCK;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
@@ -48,7 +52,7 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
  * Version:        1.0
  */
 public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDeviceListener, OnWaveViewListener {
-    public static final int HR_MOVE_AVERAGE_WINDOW_WIDTH = 10;
+
     private HRMonitorDevice device; // device
 
     private ScanEcgView ecgView; // EcgView
@@ -128,28 +132,23 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch (requestCode) {
-            case 1: // cfg return
-                if(resultCode == RESULT_FIRST_USER) {
-                    boolean ecgLock = data.getBooleanExtra("ecg_lock", true);
-                    device.lockEcg(ecgLock);
-                } else if(resultCode == RESULT_OK) {
-                    HrConfiguration cfg = new HrConfiguration();
-                    cfg.setHrLow(data.getIntExtra("hr_low", 50));
-                    cfg.setHrHigh(data.getIntExtra("hr_high", 180));
-                    cfg.setWarn(data.getBooleanExtra("is_warn", true));
-                    device.updateConfig(cfg);
-                }
-                break;
-
-            default:
-                break;
+        if(requestCode == 1) { // cfg return
+            if(resultCode == RESULT_CHANGE_ECG_LOCK) {
+                boolean ecgLock = data.getBooleanExtra("ecg_lock", true);
+                device.lockEcg(ecgLock);
+            } else if(resultCode == RESULT_OK) {
+                HRMonitorConfiguration cfg = new HRMonitorConfiguration();
+                cfg.setHrLow(data.getIntExtra("hr_low", DEFAULT_HR_LOW_LIMIT));
+                cfg.setHrHigh(data.getIntExtra("hr_high", DEFAULT_HR_HIGH_LIMIT));
+                cfg.setWarn(data.getBooleanExtra("is_warn", DEFAULT_HR_WARN));
+                device.updateConfig(cfg);
+            }
         }
     }
 
     @Override
     public void openConfigureActivity() {
-        HrConfiguration cfg = device.getConfig();
+        HRMonitorConfiguration cfg = device.getConfig();
 
         Intent intent = new Intent(getActivity(), HRMCfgActivity.class);
         intent.putExtra("ecg_lock", device.isEcgLock());
@@ -171,7 +170,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                     tvHrEcgOn.setText(String.valueOf(bpm));
                     tvHrEcgOff.setText(String.valueOf(bpm));
 
-                    HrConfiguration cfg = device.getConfig();
+                    HRMonitorConfiguration cfg = device.getConfig();
                     if(cfg.isWarn() && (bpm > cfg.getHrHigh() || bpm < cfg.getHrLow())) {
                         warn();
                     }

@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.hrmonitor.view.HRMonitorFragment.HR_MOVE_AVERAGE_WINDOW_WIDTH;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.model.Account.PLAT_NAME_CHAR_LEN;
 import static com.cmtech.android.bledeviceapp.model.Account.USER_ID_CHAR_LEN;
@@ -33,6 +32,7 @@ import static com.cmtech.android.bledeviceapp.model.Account.USER_ID_CHAR_LEN;
  * Version:        1.0
  */
 public class BleHrRecord10 extends LitePalSupport {
+    public static final int HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH = 10; // unit: s
     private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // 设备地址字符数
     private static final short INVALID_HEART_RATE = -1;
@@ -62,7 +62,7 @@ public class BleHrRecord10 extends LitePalSupport {
         hrMax = 0;
         hrAve = 0;
         hrHist = null;
-        hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_WINDOW_WIDTH);
+        hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
         hrHistogram.add(new HrHistogramElement<>((short)0, (short)121, 0, "平静心率"));
         hrHistogram.add(new HrHistogramElement<>((short)122, (short)131, 0, "热身放松"));
         hrHistogram.add(new HrHistogramElement<>((short)132, (short)141, 0, "有氧燃脂"));

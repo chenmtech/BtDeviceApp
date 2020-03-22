@@ -8,22 +8,25 @@ import java.io.Serializable;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.hrmonitor.model
  * ClassName:      HrConfiguration
- * Description:    java类作用描述
- * Author:         作者名
+ * Description:    configuration of hr monitor device
+ * Author:         chenm
  * CreateDate:     2020/3/19 上午6:26
- * UpdateUser:     更新者
+ * UpdateUser:     chenm
  * UpdateDate:     2020/3/19 上午6:26
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class HrConfiguration extends LitePalSupport implements Serializable {
+public class HRMonitorConfiguration extends LitePalSupport implements Serializable {
     private final static long serialVersionUID = 1L;
+    public static final int DEFAULT_HR_LOW_LIMIT = 50;
+    public static final int DEFAULT_HR_HIGH_LIMIT = 180;
+    public static final boolean DEFAULT_HR_WARN = true;
 
     private int id; // id
-    private String address = ""; // mac地址
-    private boolean isWarn = true; // hr异常时是否报警
-    private int hrLow = 50; // hr异常的下限
-    private int hrHigh = 180; // hr异常的上限
+    private String address = ""; // mac address
+    private int hrLow = DEFAULT_HR_LOW_LIMIT; // hr exception low limit
+    private int hrHigh = DEFAULT_HR_HIGH_LIMIT; // hr exception high limit
+    private boolean isWarn = DEFAULT_HR_WARN; // is warn when hr exception occurred
 
     public int getId() {
         return id;
@@ -56,7 +59,7 @@ public class HrConfiguration extends LitePalSupport implements Serializable {
         this.hrHigh = hrHigh;
     }
 
-    public void copyFrom(HrConfiguration config) {
+    public void copyFrom(HRMonitorConfiguration config) {
         isWarn = config.isWarn;
         hrLow = config.hrLow;
         hrHigh = config.hrHigh;
