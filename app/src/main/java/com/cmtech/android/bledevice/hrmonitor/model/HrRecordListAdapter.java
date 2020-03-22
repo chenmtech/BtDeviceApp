@@ -41,6 +41,8 @@ import java.util.List;
 public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapter.ViewHolder>{
     private final HrRecordExplorerActivity activity;
     private final List<BleHrRecord10> allRecordList;
+    private int selPos = -1;
+    private Drawable defaultBackground; // 缺省背景
 
     class ViewHolder extends RecyclerView.ViewHolder {
         View fileView;
@@ -73,10 +75,18 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
 
         final HrRecordListAdapter.ViewHolder holder = new HrRecordListAdapter.ViewHolder(view);
 
+        defaultBackground = holder.fileView.getBackground();
+
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                activity.selectRecord(allRecordList.get(holder.getAdapterPosition()));
+                int before = selPos;
+                selPos = holder.getAdapterPosition();
+                if(before >= 0 && before < allRecordList.size()) {
+                    notifyItemChanged(before);
+                }
+                notifyItemChanged(selPos);
+                activity.selectRecord(allRecordList.get(selPos));
             }
         });
 
@@ -102,6 +112,12 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         else
             holder.tvHrNum.setText(String.valueOf(record.getHrList().size()));
 
+        if(position == selPos) {
+            int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
+            holder.fileView.setBackgroundColor(bgdColor);
+        } else {
+            holder.fileView.setBackground(defaultBackground);
+        }
     }
     @Override
     public int getItemCount() {
