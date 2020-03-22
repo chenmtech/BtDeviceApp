@@ -27,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="联系人：康明智联 陈先生"/>
+        android:text="联系人：康明物联 陈先生"/>
 
     <TextView
         android:layout_width="match_parent"

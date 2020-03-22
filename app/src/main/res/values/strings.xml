@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">康明智联</string>
+    <string name="app_name">康明物联</string>
     <string name="welcome_text_format">欢迎使用%1$s</string>
-    <string name="no_device_opened">\u2190右滑打开</string>
+    <string name="no_device_opened">无设备打开</string>
     <string name="some_devices_opened">有%d设备打开</string>
     <string name="scan_device">添加设备</string>
     <string name="query_record">用户记录</string>
