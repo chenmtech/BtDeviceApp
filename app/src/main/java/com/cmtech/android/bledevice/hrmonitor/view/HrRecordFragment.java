@@ -69,8 +69,14 @@ public class HrRecordFragment extends Fragment {
     }
 
     public void updateHrInfo(List<Short> hrList, short hrMax, short hrAve) {
-        tvHrAve.setText(String.valueOf(hrAve));
-        tvHrMax.setText(String.valueOf(hrMax));
+        if(hrMax <= 0)
+            tvHrMax.setText("__");
+        else
+            tvHrMax.setText(String.valueOf(hrMax));
+        if(hrAve <= 0)
+            tvHrAve.setText("__");
+        else
+            tvHrAve.setText(String.valueOf(hrAve));
         hrLineChart.showLineChart(hrList, TITLE, Color.BLUE);
     }
 

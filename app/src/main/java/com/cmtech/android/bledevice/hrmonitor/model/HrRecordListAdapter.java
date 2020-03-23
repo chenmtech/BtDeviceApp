@@ -1,27 +1,19 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity;
-import com.cmtech.android.bledevice.ecg.record.EcgRecord;
 import com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.vise.log.ViseLog;
 
 import java.util.List;
 
@@ -107,10 +99,10 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         holder.tvCreateTime.setText(createTime);
         holder.tvCreator.setText(record.getCreatorName());
 
-        if(record.getHrList() == null)
+        if(record.getFilterHrList() == null)
             holder.tvHrNum.setText(String.valueOf(0));
         else
-            holder.tvHrNum.setText(String.valueOf(record.getHrList().size()));
+            holder.tvHrNum.setText(String.valueOf(record.getFilterHrList().size()));
 
         if(position == selPos) {
             int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);

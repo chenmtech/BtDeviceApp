@@ -127,10 +127,10 @@ public class HRMonitorDevice extends AbstractDevice {
         if(isRecord) {
             record = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
             if(record != null && listener != null)
-                listener.onHRStatInfoUpdated(record.getHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
+                listener.onHRStatInfoUpdated(record.getFilterHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
         } else {
             if(record != null) {
-                if (record.getHrList().size() < 6) {
+                if (record.getFilterHrList().size() < 6) {
                     Toast.makeText(MyApplication.getContext(), "记录太短，未保存。", Toast.LENGTH_SHORT).show();
                 } else {
                     record.save();
@@ -295,7 +295,7 @@ public class HRMonitorDevice extends AbstractDevice {
                         }
                         if(isRecord && record.process((short) heartRateData.getBpm(), heartRateData.getTime())) {
                             if(listener != null)
-                                listener.onHRStatInfoUpdated(record.getHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
+                                listener.onHRStatInfoUpdated(record.getFilterHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

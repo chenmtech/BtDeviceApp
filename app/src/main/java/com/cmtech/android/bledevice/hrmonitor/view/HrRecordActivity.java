@@ -30,12 +30,12 @@ public class HrRecordActivity extends AppCompatActivity {
 
         int recordId = getIntent().getIntExtra("record_id", -1);
         record = LitePal.find(BleHrRecord10.class, recordId, true);
-        ViseLog.e(record);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
         }
-        record.updateHrHistogram();
+        ViseLog.e(record);
+        record.createHistogram();
 
         tvCreateTime = findViewById(R.id.tv_create_time);
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
@@ -45,13 +45,13 @@ public class HrRecordActivity extends AppCompatActivity {
         tvCreator.setText(record.getCreatorName());
 
         tvHrNum = findViewById(R.id.tv_hr_num);
-        if(record.getHrList() == null)
+        if(record.getFilterHrList() == null)
             tvHrNum.setText(String.valueOf(0));
         else
-            tvHrNum.setText(String.valueOf(record.getHrList().size()));
+            tvHrNum.setText(String.valueOf(record.getFilterHrList().size()));
 
         hrLineChart = findViewById(R.id.hr_line_chart);
-        hrLineChart.showLineChart(record.getHrList(), "心率变化", Color.BLUE);
+        hrLineChart.showLineChart(record.getFilterHrList(), "心率变化", Color.BLUE);
 
         hrHistChart = findViewById(R.id.chart_hr_histogram);
         tvAveHr = findViewById(R.id.tv_hr_ave_value);

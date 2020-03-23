@@ -9,19 +9,15 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.HrRecordListAdapter;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
-import org.litepal.crud.LitePalSupport;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,10 +54,6 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         this.allRecords = LitePal.findAll(BleHrRecord10.class, true);
-        for(BleHrRecord10 record : allRecords) {
-            record.updateHrHistogram();
-        }
-        ViseLog.e(allRecords);
         if(allRecords != null && allRecords.size() > 1) {
             Collections.sort(allRecords, new Comparator<BleHrRecord10>() {
                 @Override
