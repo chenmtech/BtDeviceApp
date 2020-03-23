@@ -20,6 +20,7 @@ import com.vise.log.ViseLog;
 import org.litepal.LitePal;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
@@ -30,8 +31,18 @@ import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.RegisterPage;
 
+import static com.cmtech.android.bledeviceapp.activity.HuaweiLoginActivity.HUAWEI_PLAT_NAME;
+
 public class LoginActivity extends AppCompatActivity {
     private static final String SMS_PLAT_NAME = "SMS";
+    public static final Map<String, Integer> SUPPORT_PLATFORM = new HashMap<String, Integer>() {
+        {
+            put(QQ.NAME, R.mipmap.ic_qq);
+            put(Wechat.NAME, R.mipmap.ic_weixin);
+            put(HUAWEI_PLAT_NAME, R.mipmap.ic_huawei);
+            put(SMS_PLAT_NAME, R.mipmap.ic_sms);
+        }
+    };
 
     private ImageButton qqLogin;
     private ImageButton wxLogin;
@@ -136,7 +147,14 @@ public class LoginActivity extends AppCompatActivity {
         account.setUserId(userId);
         account.setName(userName);
         AccountManager.getInstance().setAccount(account);
-        LitePal.find
+        Account tmp = LitePal.where("platName = ? and userId = ?", platName, userId).findFirst(Account.class);
+        if(tmp == null)
+            account.save();
+        else {
+            tmp.setName(userName);
+            tmp.save();
+        }
+
         Intent intent = new Intent(activity, MainActivity.class);
         activity.startActivity(intent);
         activity.finish();

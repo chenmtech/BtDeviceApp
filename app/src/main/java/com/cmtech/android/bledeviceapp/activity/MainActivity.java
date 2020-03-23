@@ -45,8 +45,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
 import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.core.BleScanner;
@@ -86,6 +84,7 @@ import static com.cmtech.android.bledevice.ecg.device.EcgFactory.ECGMONITOR_DEVI
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
+import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLATFORM;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
 import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_DEVICE_MAC_LIST;
 
@@ -755,17 +754,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
 
         // load icon by platform name
-        int resourceId = 0;
-        if(account.getPlatName().equals("Phone")) {
-            resourceId = R.mipmap.ic_phone;
-        } else if(account.getPlatName().equals("QQ")) {
-            resourceId = R.mipmap.ic_qq;
-        } else if(account.getPlatName().equals("Huawei")) {
-            resourceId = R.mipmap.ic_huawei;
-        } else if(account.getPlatName().equals("Wechat")){
-            resourceId = R.mipmap.ic_weixin;
-        }
-        ivAccountImage.setImageResource(resourceId);
+        ivAccountImage.setImageResource(SUPPORT_PLATFORM.get(account.getPlatName()));
         //Glide.with(MyApplication.getContext()).load(R.id.ib_qq_login).into(ivAccountImage);
 
         /* load icon from imagePath
