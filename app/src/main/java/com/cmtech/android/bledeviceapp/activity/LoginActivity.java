@@ -1,6 +1,7 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +17,8 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 
+import org.litepal.LitePal;
+
 import java.util.HashMap;
 
 import cn.sharesdk.framework.Platform;
@@ -28,11 +31,12 @@ import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.RegisterPage;
 
 public class LoginActivity extends AppCompatActivity {
+    private static final String SMS_PLAT_NAME = "SMS";
 
     private ImageButton qqLogin;
     private ImageButton wxLogin;
     private ImageButton hwLogin;
-    private ImageButton phLogin;
+    private ImageButton smsLogin;
     private CheckBox cbGrant;
 
     @Override
@@ -71,12 +75,12 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        phLogin = findViewById(R.id.ib_phone_login);
-        phLogin.setOnClickListener(new View.OnClickListener() {
+        smsLogin = findViewById(R.id.ib_sms_login);
+        smsLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!checkPrivacyGrant()) return;
-                sendCode(LoginActivity.this);
+                loginWithSMS(LoginActivity.this);
             }
         });
 
@@ -88,19 +92,18 @@ public class LoginActivity extends AppCompatActivity {
         if(granted) {
             MobSDK.submitPolicyGrantResult(granted, null);
         } else {
-            Toast.makeText(this, "如您同意本软件使用的隐私条款，请勾选授权框。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "如您同意隐私条款，请勾选授权框。", Toast.LENGTH_SHORT).show();
         }
         return granted;
     }
 
     private void login(Platform plat) {
         final String platName = plat.getName();
-        //抖音登录适配安卓9.0
         ShareSDK.setActivity(LoginActivity.this);
         if (plat.isAuthValid()) {
             String userId = plat.getDb().getUserId();
             String userName = plat.getDb().getUserName();
-            login(platName, userId, userName);
+            LoginActivity.loginMainActivity(this, platName, userId, userName);
         } else {
             //授权回调监听，监听oncomplete，onerror，oncancel三种状态
             plat.setPlatformActionListener(new PlatformActionListener() {
@@ -109,7 +112,7 @@ public class LoginActivity extends AppCompatActivity {
                     String userId = platform.getDb().getUserId();
                     String userName = platform.getDb().getUserName();
                     String userIcon = platform.getDb().getUserIcon();
-                    login(platName, userId, userName);
+                    LoginActivity.loginMainActivity(LoginActivity.this, platName, userId, userName);
                 }
 
                 @Override
@@ -127,18 +130,19 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void login(String platName, String userId, String userName) {
+    public static void loginMainActivity(Activity activity, String platName, String userId, String userName) {
         Account account = new Account();
         account.setPlatName(platName);
         account.setUserId(userId);
         account.setName(userName);
         AccountManager.getInstance().setAccount(account);
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        LitePal.find
+        Intent intent = new Intent(activity, MainActivity.class);
+        activity.startActivity(intent);
+        activity.finish();
     }
 
-    public void sendCode(Context context) {
+    public void loginWithSMS(Context context) {
         RegisterPage page = new RegisterPage();
         //如果使用我们的ui，没有申请模板编号的情况下需传null
         page.setTempCode(null);
@@ -153,7 +157,7 @@ public class LoginActivity extends AppCompatActivity {
                     String phone = (String) phoneMap.get("phone");
                     // TODO 利用国家代码和手机号码进行后续的操作
                     ViseLog.e(country+phone);
-                    login("Phone", country+phone, phone);
+                    LoginActivity.loginMainActivity(LoginActivity.this, SMS_PLAT_NAME, country+phone, phone);
                 } else{
                     // TODO 处理错误的结果
                 }

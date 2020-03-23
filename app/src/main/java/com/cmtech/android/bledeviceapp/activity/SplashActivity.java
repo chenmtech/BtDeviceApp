@@ -54,7 +54,7 @@ public class SplashActivity extends AppCompatActivity {
         public boolean handleMessage(Message msg) {
             if(msg.what == MSG_COUNT_DOWN) {
                 int nSecond = msg.arg1;
-                SplashActivity.this.tvCountDownTime.setText(String.valueOf(nSecond) + "秒");
+                SplashActivity.this.tvCountDownTime.setText(nSecond + "秒");
 
                 if(nSecond == 0) {
                     Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
@@ -101,11 +101,6 @@ public class SplashActivity extends AppCompatActivity {
         tvCountDownTime.setText(String.valueOf(COUNT_DOWN_SECOND) + "秒");
 
         startCountDown();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

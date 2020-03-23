@@ -14,6 +14,8 @@ import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
 public class HuaweiLoginActivity extends AppCompatActivity {
+    public static final String HUAWEI_PLAT_NAME = "Huawei";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,14 +30,7 @@ public class HuaweiLoginActivity extends AppCompatActivity {
                     ViseLog.e("Huawei login response: " + url);
                     String huaweiId = HttpUtils.parseUrl(url).get("open_id");
                     String userName = HttpUtils.parseUrl(url).get("displayName");
-                    Account account = new Account();
-                    account.setPlatName("Huawei");
-                    account.setUserId(huaweiId);
-                    account.setName(userName);
-                    AccountManager.getInstance().setAccount(account);
-                    Intent intent = new Intent(HuaweiLoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    LoginActivity.loginMainActivity(HuaweiLoginActivity.this, HUAWEI_PLAT_NAME, huaweiId, userName);
                     return true;
                 }
                 return false;
