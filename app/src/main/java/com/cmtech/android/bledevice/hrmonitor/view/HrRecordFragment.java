@@ -35,7 +35,7 @@ public class HrRecordFragment extends Fragment {
     private TextView tvHrAve; // average heart rate value
     private TextView tvHrMax; // max heart rate value
     private HrLineChart hrLineChart; // heart rate line chart
-    private ImageButton ibRecord;
+    private ImageButton ibStart, ibStop;
     private HRMonitorDevice device;
 
     @Nullable
@@ -54,14 +54,24 @@ public class HrRecordFragment extends Fragment {
         tvHrAve = view.findViewById(R.id.tv_hr_ave_value);
         tvHrAve.setText("__");
         hrLineChart = view.findViewById(R.id.hr_line_chart);
-        ibRecord = view.findViewById(R.id.ib_record);
-        ibRecord.setOnClickListener(new View.OnClickListener() {
+        ibStart = view.findViewById(R.id.ib_record_start);
+        ibStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(device != null) {
-                    boolean isRecord = !device.isRecord();
-                    int imageId = (isRecord) ? R.mipmap.ic_stop_48px : R.mipmap.ic_start_48px;
-                    ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
+                    ibStart.setVisibility(View.INVISIBLE);
+                    ibStop.setVisibility(View.VISIBLE);
+                    device.switchRecord();
+                }
+            }
+        });
+        ibStop = view.findViewById(R.id.ib_record_stop);
+        ibStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(device != null) {
+                    ibStart.setVisibility(View.VISIBLE);
+                    ibStop.setVisibility(View.INVISIBLE);
                     device.switchRecord();
                 }
             }
