@@ -4,6 +4,7 @@ import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
 
+import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
@@ -89,8 +90,16 @@ public class BleHrRecord10 extends LitePalSupport {
     public String getDevAddress() {
         return devAddress;
     }
+    public String getCreatorPlat() {
+        return creatorPlat;
+    }
     public String getCreatorName() {
-        return creatorPlat+creatorId;
+        Account account = LitePal.where("platName = ? and userId = ?", creatorPlat, creatorId).findFirst(Account.class);
+        if(account == null)
+            return creatorId;
+        else {
+            return account.getName();
+        }
     }
     public List<Short> getFilterHrList() {
         return filterHrList;
@@ -100,6 +109,9 @@ public class BleHrRecord10 extends LitePalSupport {
     }
     public short getHrAve() {
         return hrAve;
+    }
+    public List<Integer> getHrHist() {
+        return hrHist;
     }
     public List<HrHistogramElement<Integer>> getHrHistogram() {
         return hrHistogram;

@@ -14,8 +14,11 @@ import com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.vise.log.ViseLog;
 
 import java.util.List;
+
+import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLATFORM;
 
 
 /**
@@ -34,14 +37,15 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
     private final HrRecordExplorerActivity activity;
     private final List<BleHrRecord10> allRecordList;
     private int selPos = -1;
-    private Drawable defaultBackground; // 缺省背景
+    private Drawable defaultBg; // 缺省背景
 
     class ViewHolder extends RecyclerView.ViewHolder {
         View fileView;
 
         TextView tvCreateTime; // 创建时间
         TextView tvCreator; // 创建人
-        TextView tvHrNum; // 心率次数
+        TextView tvTimeLength; // record time length, unit: s
+        TextView tvAddress;
         ImageButton ibDelete;
 
         ViewHolder(View itemView) {
@@ -49,7 +53,8 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
             fileView = itemView;
             tvCreateTime = fileView.findViewById(R.id.tv_create_time);
             tvCreator = fileView.findViewById(R.id.tv_creator);
-            tvHrNum = fileView.findViewById(R.id.tv_hr_num);
+            tvTimeLength = fileView.findViewById(R.id.tv_time_length);
+            tvAddress = fileView.findViewById(R.id.tv_device_address);
             ibDelete = fileView.findViewById(R.id.ib_delete);
         }
     }
@@ -67,7 +72,7 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
 
         final HrRecordListAdapter.ViewHolder holder = new HrRecordListAdapter.ViewHolder(view);
 
-        defaultBackground = holder.fileView.getBackground();
+        defaultBg = holder.fileView.getBackground();
 
         holder.fileView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,17 +103,28 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
         holder.tvCreator.setText(record.getCreatorName());
+        Drawable drawable = ContextCompat.getDrawable(activity, SUPPORT_PLATFORM.get(record.getCreatorPlat()));
+        drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
+        holder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-        if(record.getFilterHrList() == null)
-            holder.tvHrNum.setText(String.valueOf(0));
-        else
-            holder.tvHrNum.setText(String.valueOf(record.getFilterHrList().size()));
+        List<Integer> hrHist = record.getHrHist();
+        if(hrHist == null || hrHist.size() == 0)
+            holder.tvTimeLength.setText(String.valueOf(0));
+        else {
+            long time = 0;
+            for(int num : hrHist) {
+                time += num;
+            }
+            time = (time/60 == 0) ? 1 : time/60;
+            holder.tvTimeLength.setText(String.valueOf(time));
+        }
+        holder.tvAddress.setText(record.getDevAddress());
 
         if(position == selPos) {
             int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
             holder.fileView.setBackgroundColor(bgdColor);
         } else {
-            holder.fileView.setBackground(defaultBackground);
+            holder.fileView.setBackground(defaultBg);
         }
     }
     @Override

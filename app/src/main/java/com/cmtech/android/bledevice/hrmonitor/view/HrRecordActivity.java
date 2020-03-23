@@ -1,7 +1,9 @@
 package com.cmtech.android.bledevice.hrmonitor.view;
 
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
@@ -12,11 +14,16 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
+import java.util.List;
+
+import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLATFORM;
+
 public class HrRecordActivity extends AppCompatActivity {
     private BleHrRecord10 record;
     private TextView tvCreateTime; // 创建时间
     private TextView tvCreator; // 创建人
-    private TextView tvHrNum; // 心率次数
+    private TextView tvAddress;
+    private TextView tvTimeLength; // 心率次数
 
     private TextView tvMaxHr; // 最大心率
     private TextView tvAveHr; // 平均心率
@@ -44,11 +51,25 @@ public class HrRecordActivity extends AppCompatActivity {
         tvCreator = findViewById(R.id.tv_creator);
         tvCreator.setText(record.getCreatorName());
 
-        tvHrNum = findViewById(R.id.tv_hr_num);
-        if(record.getFilterHrList() == null)
-            tvHrNum.setText(String.valueOf(0));
-        else
-            tvHrNum.setText(String.valueOf(record.getFilterHrList().size()));
+        Drawable drawable = ContextCompat.getDrawable(this, SUPPORT_PLATFORM.get(record.getCreatorPlat()));
+        drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
+        tvCreator.setCompoundDrawables(null, drawable, null, null);
+
+        tvTimeLength = findViewById(R.id.tv_time_length);
+        List<Integer> hrHist = record.getHrHist();
+        if(hrHist == null || hrHist.size() == 0)
+            tvTimeLength.setText(String.valueOf(0));
+        else {
+            long time = 0;
+            for(int num : hrHist) {
+                time += num;
+            }
+            time = (time/60 == 0) ? 1 : time/60;
+            tvTimeLength.setText(String.valueOf(time));
+        }
+
+        tvAddress = findViewById(R.id.tv_device_address);
+        tvAddress.setText(record.getDevAddress());
 
         hrLineChart = findViewById(R.id.hr_line_chart);
         hrLineChart.showLineChart(record.getFilterHrList(), "心率变化", Color.BLUE);
