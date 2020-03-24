@@ -21,12 +21,16 @@ public class HRMonitorConfiguration extends LitePalSupport implements Serializab
     public static final int DEFAULT_HR_LOW_LIMIT = 50;
     public static final int DEFAULT_HR_HIGH_LIMIT = 180;
     public static final boolean DEFAULT_HR_WARN = true;
+    public static final int DEFAULT_HR_SPEAK_PERIOD = 5; // unit: m
+    public static final boolean DEFAULT_HR_SPEAK = true;
 
     private int id; // id
     private String address = ""; // mac address
     private int hrLow = DEFAULT_HR_LOW_LIMIT; // hr exception low limit
     private int hrHigh = DEFAULT_HR_HIGH_LIMIT; // hr exception high limit
     private boolean isWarn = DEFAULT_HR_WARN; // is warn when hr exception occurred
+    private int speakPeriod = DEFAULT_HR_SPEAK_PERIOD;
+    private boolean isSpeak = DEFAULT_HR_SPEAK;
 
     public int getId() {
         return id;
@@ -58,10 +62,24 @@ public class HRMonitorConfiguration extends LitePalSupport implements Serializab
     public void setHrHigh(int hrHigh) {
         this.hrHigh = hrHigh;
     }
+    public int getSpeakPeriod() {
+        return speakPeriod;
+    }
+    public void setSpeakPeriod(int speakPeriod) {
+        this.speakPeriod = speakPeriod;
+    }
+    public boolean isSpeak() {
+        return isSpeak;
+    }
+    public void setSpeak(boolean isSpeak) {
+        this.isSpeak = isSpeak;
+    }
 
     public void copyFrom(HRMonitorConfiguration config) {
         isWarn = config.isWarn;
         hrLow = config.hrLow;
         hrHigh = config.hrHigh;
+        speakPeriod = config.speakPeriod;
+        isSpeak = config.isSpeak;
     }
 }

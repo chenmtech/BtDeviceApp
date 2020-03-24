@@ -48,8 +48,6 @@ public class HRMonitorDevice extends AbstractDevice {
     private static final byte ECG_LOCKED = (byte)0x00;
     private static final byte ECG_UNLOCKED = (byte)0x01;
 
-    private static final int HR_TTS_PERIOD = 60; // the period of hr TTS, unit: s
-
     // heart rate measurement service
     private static final String hrMonitorServiceUuid = "180D"; // standart ble heart rate service UUID
     private static final String hrMonitorMeasUuid = "2A37"; // 心率测量特征UUID
@@ -116,7 +114,7 @@ public class HRMonitorDevice extends AbstractDevice {
     private boolean isRecord = false;
 
     private Timer ttsTimer = new Timer();
-    private boolean needSpeak = false;
+    private volatile boolean waitSpeak = false;
 
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
@@ -136,14 +134,16 @@ public class HRMonitorDevice extends AbstractDevice {
             if(record != null && listener != null)
                 listener.onHRStatInfoUpdated(record.getFilterHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
 
-            ttsTimer.cancel();
-            ttsTimer = new Timer();
-            ttsTimer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    needSpeak = true;
-                }
-            }, HR_TTS_PERIOD*1000, HR_TTS_PERIOD*1000);
+            if(config.isSpeak()) {
+                ttsTimer.cancel();
+                ttsTimer = new Timer();
+                ttsTimer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        waitSpeak = true;
+                    }
+                }, config.getSpeakPeriod() * 60 * 1000L, config.getSpeakPeriod() * 60 * 1000L);
+            }
         } else {
             if(record != null) {
                 if (record.getFilterHrList().size() < 6) {
@@ -156,7 +156,7 @@ public class HRMonitorDevice extends AbstractDevice {
                 record = null;
 
                 ttsTimer.cancel();
-                needSpeak = false;
+                waitSpeak = false;
             }
         }
     }
@@ -175,7 +175,7 @@ public class HRMonitorDevice extends AbstractDevice {
         }
 
         ttsTimer.cancel();
-        needSpeak = false;
+        waitSpeak = false;
     }
 
     @Override
@@ -320,8 +320,8 @@ public class HRMonitorDevice extends AbstractDevice {
                                 listener.onHRStatInfoUpdated(record.getFilterHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
                         }
 
-                        if(needSpeak) {
-                            needSpeak = false;
+                        if(waitSpeak) {
+                            waitSpeak = false;
                             String str = "当前心率:" + heartRateData.getBpm();
                             MyApplication.getTTS().speak(str);
                             ViseLog.e(str);

@@ -15,7 +15,9 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
@@ -67,8 +69,6 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private final HrDebugFragment debugFragment = new HrDebugFragment(); // debug fragment
 
     private boolean isEcgChecked = false;
-
-    private AudioTrack warnAudio; // 心率异常报警声音
 
     public HRMonitorFragment() {
         super();
@@ -135,13 +135,14 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
         if(requestCode == 1) { // cfg return
             if(resultCode == RESULT_CHANGE_ECG_LOCK) {
+                if(device.getState() != DeviceState.CONNECT) {
+                    Toast.makeText(getContext(), "设备未连接，无法切换心电功能。", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 boolean ecgLock = data.getBooleanExtra("ecg_lock", true);
                 device.lockEcg(ecgLock);
             } else if(resultCode == RESULT_OK) {
-                HRMonitorConfiguration cfg = new HRMonitorConfiguration();
-                cfg.setHrLow(data.getIntExtra("hr_low", DEFAULT_HR_LOW_LIMIT));
-                cfg.setHrHigh(data.getIntExtra("hr_high", DEFAULT_HR_HIGH_LIMIT));
-                cfg.setWarn(data.getBooleanExtra("is_warn", DEFAULT_HR_WARN));
+                HRMonitorConfiguration cfg = (HRMonitorConfiguration) data.getSerializableExtra("hr_cfg");
                 device.updateConfig(cfg);
             }
         }
@@ -153,9 +154,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
         Intent intent = new Intent(getActivity(), HRMCfgActivity.class);
         intent.putExtra("ecg_lock", device.isEcgLock());
-        intent.putExtra("hr_low", cfg.getHrLow());
-        intent.putExtra("hr_high", cfg.getHrHigh());
-        intent.putExtra("is_warn", cfg.isWarn());
+        intent.putExtra("hr_cfg", cfg);
         startActivityForResult(intent, 1);
     }
 
@@ -272,36 +271,4 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         MyApplication.getTTS().speak("心率过高");
     }
 
-    public void warn() {
-        if(warnAudio == null) {
-            initWarnAudio();
-        } else {
-            switch(warnAudio.getPlayState()) {
-                case AudioTrack.PLAYSTATE_PAUSED:
-                case AudioTrack.PLAYSTATE_PLAYING:
-                    warnAudio.stop();
-                    break;
-            }
-            warnAudio.reloadStaticData();
-        }
-        warnAudio.play();
-    }
-
-    private void initWarnAudio() {
-        int length = 4000;
-        int f = 1000;
-        int fs = 44100;
-        float mag = 127.0f;
-        double omega = 2 * Math.PI * f/fs;
-
-        byte[] wave = new byte[length];
-        for(int i = 0; i < length; i++) {
-            wave[i] = (byte) (mag * Math.sin(omega * i));
-        }
-
-        warnAudio = new AudioTrack(AudioManager.STREAM_MUSIC, fs,
-                AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_8BIT, length, AudioTrack.MODE_STATIC);
-        warnAudio.write(wave, 0, wave.length);
-        warnAudio.write(wave, 0, wave.length);
-    }
 }

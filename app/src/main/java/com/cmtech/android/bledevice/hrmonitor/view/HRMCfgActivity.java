@@ -8,10 +8,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.ArrayList;
@@ -27,9 +29,7 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
     private static final int HR_LIMIT_INTERVAL = 5;
     public static final int RESULT_CHANGE_ECG_LOCK = RESULT_FIRST_USER;
     private boolean ecgLock = true;
-    private int hrLow;
-    private int hrHigh;
-    private boolean isWarn;
+    private HRMonitorConfiguration hrCfg;
 
     private TextView tvStatus; // current ecg lock status
     private Button btnSwitch; // switch ecg lock status
@@ -37,6 +37,9 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
     private NumberPicker npHrLow;
     private NumberPicker npHrHigh;
     private CheckBox cbWarn;
+
+    private EditText etSpeakPeriod;
+    private CheckBox cbSpeak;
 
     private Button btnOk;
 
@@ -55,9 +58,7 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         Intent intent = getIntent();
         if(intent != null) {
             ecgLock = intent.getBooleanExtra("ecg_lock", true);
-            hrLow = intent.getIntExtra("hr_low", DEFAULT_HR_LOW_LIMIT);
-            hrHigh = intent.getIntExtra("hr_high", DEFAULT_HR_HIGH_LIMIT);
-            isWarn = intent.getBooleanExtra("is_warn", DEFAULT_HR_WARN);
+            hrCfg = (HRMonitorConfiguration) intent.getSerializableExtra("hr_cfg");
         }
 
         if(ecgLock) {
@@ -88,7 +89,7 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         npHrLow.setOnValueChangedListener(this);
         npHrLow.setMinValue(0);
         npHrLow.setMaxValue(hrLimitValues.size()-1);
-        npHrLow.setValue((hrLow - HR_LIMIT_LOWEST)/HR_LIMIT_INTERVAL);
+        npHrLow.setValue((hrCfg.getHrLow() - HR_LIMIT_LOWEST)/HR_LIMIT_INTERVAL);
         npHrHigh = findViewById(R.id.np_hr_high);
         npHrHigh.setDisplayedValues(hrLimitValues.toArray(new String[0]));
         npHrHigh.setFormatter(this);
@@ -96,10 +97,14 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         npHrHigh.setOnValueChangedListener(this);
         npHrHigh.setMinValue(0);
         npHrHigh.setMaxValue(hrLimitValues.size()-1);
-        npHrHigh.setValue((hrHigh - HR_LIMIT_LOWEST)/HR_LIMIT_INTERVAL);
+        npHrHigh.setValue((hrCfg.getHrHigh() - HR_LIMIT_LOWEST)/HR_LIMIT_INTERVAL);
 
         cbWarn = findViewById(R.id.cb_hr_warn);
-        cbWarn.setChecked(isWarn);
+        cbWarn.setChecked(hrCfg.isWarn());
+
+        etSpeakPeriod = findViewById(R.id.et_speak_period);
+        cbSpeak = findViewById(R.id.cb_hr_speak);
+        cbSpeak.setChecked(hrCfg.isSpeak());
 
         btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
@@ -111,11 +116,21 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
                     Toast.makeText(HRMCfgActivity.this, getString(R.string.hr_limit_wrong), Toast.LENGTH_SHORT).show();
                     return;
                 }
+                boolean isWarn = cbWarn.isChecked();
+                int speakPeriod = Integer.parseInt(etSpeakPeriod.getText().toString());
+                if(speakPeriod <= 0) {
+                    Toast.makeText(HRMCfgActivity.this, "语音播报频率不能小于等于0", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                boolean isSpeak = cbSpeak.isChecked();
+                hrCfg.setHrLow(low);
+                hrCfg.setHrHigh(high);
+                hrCfg.setWarn(isWarn);
+                hrCfg.setSpeakPeriod(speakPeriod);
+                hrCfg.setSpeak(isSpeak);
 
                 Intent intent = new Intent();
-                intent.putExtra("hr_low", low);
-                intent.putExtra("hr_high", high);
-                intent.putExtra("is_warn", cbWarn.isChecked());
+                intent.putExtra("hr_cfg", hrCfg);
                 setResult(RESULT_OK, intent);
                 finish();
             }
