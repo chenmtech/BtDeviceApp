@@ -16,7 +16,10 @@ import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice.INVALID_HEART_RATE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -50,10 +53,10 @@ public class HrRecordFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         tvHrMax = view.findViewById(R.id.tv_hr_max_value);
-        tvHrMax.setText("__");
         tvHrAve = view.findViewById(R.id.tv_hr_ave_value);
-        tvHrAve.setText("__");
         hrLineChart = view.findViewById(R.id.hr_line_chart);
+        updateHrInfo(new ArrayList<Short>(), INVALID_HEART_RATE, INVALID_HEART_RATE);
+
         ibStart = view.findViewById(R.id.ib_record_start);
         ibStart.setOnClickListener(new View.OnClickListener() {
             @Override

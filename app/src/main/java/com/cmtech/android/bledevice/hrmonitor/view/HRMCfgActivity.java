@@ -103,6 +103,7 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         cbWarn.setChecked(hrCfg.isWarn());
 
         etSpeakPeriod = findViewById(R.id.et_speak_period);
+        etSpeakPeriod.setText(String.valueOf(hrCfg.getSpeakPeriod()));
         cbSpeak = findViewById(R.id.cb_hr_speak);
         cbSpeak.setChecked(hrCfg.isSpeak());
 

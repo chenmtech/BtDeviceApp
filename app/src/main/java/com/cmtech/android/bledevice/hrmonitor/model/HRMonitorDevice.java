@@ -134,16 +134,8 @@ public class HRMonitorDevice extends AbstractDevice {
             if(record != null && listener != null)
                 listener.onHRStatInfoUpdated(record.getFilterHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
 
-            if(config.isSpeak()) {
-                ttsTimer.cancel();
-                ttsTimer = new Timer();
-                ttsTimer.scheduleAtFixedRate(new TimerTask() {
-                    @Override
-                    public void run() {
-                        waitSpeak = true;
-                    }
-                }, config.getSpeakPeriod() * 60 * 1000L, config.getSpeakPeriod() * 60 * 1000L);
-            }
+            if(config.isSpeak())
+                startSpeak(config.getSpeakPeriod());
         } else {
             if(record != null) {
                 if (record.getFilterHrList().size() < 6) {
@@ -276,8 +268,17 @@ public class HRMonitorDevice extends AbstractDevice {
     }
 
     public void updateConfig(HRMonitorConfiguration config) {
+        boolean isSpeakChanged = (this.config.isSpeak() != config.isSpeak() || this.config.getSpeakPeriod() != config.getSpeakPeriod());
         this.config.copyFrom(config);
         this.config.save();
+        if(isSpeakChanged && isRecord) {
+            if(this.config.isSpeak())
+                startSpeak(this.config.getSpeakPeriod());
+            else {
+                ttsTimer.cancel();
+                waitSpeak = false;
+            }
+        }
     }
 
     public void setListener(OnHRMonitorDeviceListener listener) {
@@ -286,6 +287,18 @@ public class HRMonitorDevice extends AbstractDevice {
 
     public void removeListener() {
         this.listener = null;
+    }
+
+    private void startSpeak(int speakPeriod) {
+        ttsTimer.cancel();
+        waitSpeak = false;
+        ttsTimer = new Timer();
+        ttsTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                waitSpeak = true;
+            }
+        }, speakPeriod * 60 * 1000L, speakPeriod * 60 * 1000L);
     }
 
     private void readSensorLocation() {
