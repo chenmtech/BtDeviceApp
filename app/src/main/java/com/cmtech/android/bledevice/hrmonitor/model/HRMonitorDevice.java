@@ -18,6 +18,8 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
@@ -45,6 +47,8 @@ public class HRMonitorDevice extends AbstractDevice {
 
     private static final byte ECG_LOCKED = (byte)0x00;
     private static final byte ECG_UNLOCKED = (byte)0x01;
+
+    private static final int HR_TTS_PERIOD = 60; // the period of hr TTS, unit: s
 
     // heart rate measurement service
     private static final String hrMonitorServiceUuid = "180D"; // standart ble heart rate service UUID
@@ -111,6 +115,9 @@ public class HRMonitorDevice extends AbstractDevice {
     private BleHrRecord10 record;
     private boolean isRecord = false;
 
+    private Timer ttsTimer = new Timer();
+    private boolean needSpeak = false;
+
     public HRMonitorDevice(DeviceRegisterInfo registerInfo) {
         super(registerInfo);
         HRMonitorConfiguration config = LitePal.where("address = ?", getAddress()).findFirst(HRMonitorConfiguration.class);
@@ -128,6 +135,15 @@ public class HRMonitorDevice extends AbstractDevice {
             record = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
             if(record != null && listener != null)
                 listener.onHRStatInfoUpdated(record.getFilterHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
+
+            ttsTimer.cancel();
+            ttsTimer = new Timer();
+            ttsTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    needSpeak = true;
+                }
+            }, HR_TTS_PERIOD*1000, HR_TTS_PERIOD*1000);
         } else {
             if(record != null) {
                 if (record.getFilterHrList().size() < 6) {
@@ -138,6 +154,9 @@ public class HRMonitorDevice extends AbstractDevice {
                     ViseLog.e(record.toString());
                 }
                 record = null;
+
+                ttsTimer.cancel();
+                needSpeak = false;
             }
         }
     }
@@ -154,6 +173,9 @@ public class HRMonitorDevice extends AbstractDevice {
         if(isRecord) {
             switchRecord();
         }
+
+        ttsTimer.cancel();
+        needSpeak = false;
     }
 
     @Override
@@ -296,6 +318,13 @@ public class HRMonitorDevice extends AbstractDevice {
                         if(isRecord && record.process((short) heartRateData.getBpm(), heartRateData.getTime())) {
                             if(listener != null)
                                 listener.onHRStatInfoUpdated(record.getFilterHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
+                        }
+
+                        if(needSpeak) {
+                            needSpeak = false;
+                            String str = "当前心率:" + heartRateData.getBpm();
+                            MyApplication.getTTS().speak(str);
+                            ViseLog.e(str);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();

@@ -23,6 +23,7 @@ import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration;
 import com.cmtech.android.bledevice.hrmonitor.model.HrCtrlPanelAdapter;
 import com.cmtech.android.bledevice.hrmonitor.model.OnHRMonitorDeviceListener;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -172,7 +173,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
                     HRMonitorConfiguration cfg = device.getConfig();
                     if(cfg.isWarn() && (bpm > cfg.getHrHigh() || bpm < cfg.getHrLow())) {
-                        warn();
+                        warnUsingTTS();
                     }
                 }
             });
@@ -265,6 +266,10 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
             flEcgOn.setVisibility(View.GONE);
             ecgView.stop();
         }
+    }
+
+    public void warnUsingTTS() {
+        MyApplication.getTTS().speak("心率过高");
     }
 
     public void warn() {
