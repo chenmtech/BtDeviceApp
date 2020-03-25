@@ -13,6 +13,12 @@
         <include layout="@layout/layout_hr_record_introduction"/>
     </LinearLayout>
 
+    <view
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:layout_margin="6dp"
+        android:background="@color/primary_dark"/>
+
     <ImageButton
         android:id="@+id/ib_delete"
         android:layout_width="wrap_content"

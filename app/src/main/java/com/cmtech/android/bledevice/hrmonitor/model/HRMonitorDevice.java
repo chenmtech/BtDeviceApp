@@ -8,6 +8,7 @@ import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -133,9 +134,6 @@ public class HRMonitorDevice extends AbstractDevice {
             record = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
             if(record != null && listener != null)
                 listener.onHRStatInfoUpdated(record.getFilterHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
-
-            if(config.isSpeak())
-                startSpeak(config.getSpeakPeriod());
         } else {
             if(record != null) {
                 if (record.getFilterHrList().size() < 6) {
@@ -146,9 +144,6 @@ public class HRMonitorDevice extends AbstractDevice {
                     ViseLog.e(record.toString());
                 }
                 record = null;
-
-                ttsTimer.cancel();
-                waitSpeak = false;
             }
         }
     }
@@ -166,8 +161,7 @@ public class HRMonitorDevice extends AbstractDevice {
             switchRecord();
         }
 
-        ttsTimer.cancel();
-        waitSpeak = false;
+        stopSpeak();
     }
 
     @Override
@@ -211,6 +205,9 @@ public class HRMonitorDevice extends AbstractDevice {
             });
         }
 
+        if(config.isSpeak())
+            startSpeak(config.getSpeakPeriod());
+
         return true;
     }
 
@@ -219,6 +216,8 @@ public class HRMonitorDevice extends AbstractDevice {
         if(ecgProcessor != null) {
             ecgProcessor.stop();
         }
+
+        stopSpeak();
     }
 
     @Override
@@ -226,6 +225,8 @@ public class HRMonitorDevice extends AbstractDevice {
         if(ecgProcessor != null) {
             ecgProcessor.stop();
         }
+
+        stopSpeak();
     }
 
     @Override
@@ -271,12 +272,11 @@ public class HRMonitorDevice extends AbstractDevice {
         boolean isSpeakChanged = (this.config.isSpeak() != config.isSpeak() || this.config.getSpeakPeriod() != config.getSpeakPeriod());
         this.config.copyFrom(config);
         this.config.save();
-        if(isSpeakChanged && isRecord) {
+        if(isSpeakChanged && getState() == DeviceState.CONNECT) {
             if(this.config.isSpeak())
                 startSpeak(this.config.getSpeakPeriod());
             else {
-                ttsTimer.cancel();
-                waitSpeak = false;
+                stopSpeak();
             }
         }
     }
@@ -299,6 +299,11 @@ public class HRMonitorDevice extends AbstractDevice {
                 waitSpeak = true;
             }
         }, speakPeriod * 60 * 1000L, speakPeriod * 60 * 1000L);
+    }
+
+    private void stopSpeak() {
+        ttsTimer.cancel();
+        waitSpeak = false;
     }
 
     private void readSensorLocation() {
@@ -335,7 +340,9 @@ public class HRMonitorDevice extends AbstractDevice {
 
                         if(waitSpeak) {
                             waitSpeak = false;
-                            String str = "当前心率:" + heartRateData.getBpm();
+                            int hundred = heartRateData.getBpm()/100;
+                            String hundredStr = (hundred > 0) ? hundred+"百" : "";
+                            String str = "当前心率:" + hundredStr + heartRateData.getBpm()%100;
                             MyApplication.getTTS().speak(str);
                             ViseLog.e(str);
                         }

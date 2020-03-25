@@ -43,7 +43,7 @@
             <include layout = "@layout/layout_no_device_opened"/>
 
             <!-- 有设备打开时的界面 -->
-            <include layout = "@layout/layout_when_device_opened"/>
+            <include layout = "@layout/layout_device_opened"/>
 
         </FrameLayout>
 

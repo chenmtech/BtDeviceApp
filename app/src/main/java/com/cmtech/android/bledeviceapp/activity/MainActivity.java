@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -361,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(device == null) {
             toolbarManager.setTitle(getString(R.string.app_name), getString(R.string.no_device_opened));
             toolbarManager.setBattery(INVALID_BATTERY);
-            updateConnectFloatingActionButton(CLOSED.getIcon(), false);
+            updateConnectFloatingActionButton(CLOSED.getIcon());
             invalidateOptionsMenu();
             updateMainLayoutVisibility(false);
         } else {
@@ -372,11 +373,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             }
             toolbarManager.setTitle(title, device.getAddress());
             toolbarManager.setBattery(device.getBattery());
-            DeviceState state = device.getState();
-            if(state == CONNECTING || state == DISCONNECTING)
-                updateConnectFloatingActionButton(state.getIcon(), true);
-            else
-                updateConnectFloatingActionButton(state.getIcon(), false);
+            updateConnectFloatingActionButton(device.getState().getIcon());
             updateCloseMenuItemVisible(true);
             updateMainLayoutVisibility(true);
         }
@@ -566,11 +563,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 DeviceFragment deviceFrag = fragTabManager.findFragment(device);
                 if(deviceFrag != null) deviceFrag.updateState();
                 if(fragTabManager.isFragmentSelected(device)) {
-                    DeviceState state = device.getState();
-                    if(state == CONNECTING || state == DISCONNECTING)
-                        updateConnectFloatingActionButton(state.getIcon(), true);
-                    else
-                        updateConnectFloatingActionButton(state.getIcon(), false);
+                    updateConnectFloatingActionButton(device.getState().getIcon());
                     updateCloseMenuItemVisible(true);
                 }
             }
@@ -775,27 +768,12 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     }
 
     // 更新连接浮动动作按钮
-    private void updateConnectFloatingActionButton(int icon, boolean isRotate) {
-        float degree;
-        long duration;
-        int count;
-
-        if(isRotate) {
-            degree = 360.0f;
-            duration = 2000;
-            count = ValueAnimator.INFINITE;
-        } else {
-            degree = 0.0f;
-            duration = 100;
-            count = 0;
-        }
-
+    private void updateConnectFloatingActionButton(int icon) {
         fabConnect.clearAnimation();
         fabConnect.setImageResource(icon);
-        ObjectAnimator connectFabAnimator = ObjectAnimator.ofFloat(fabConnect, "rotation", 0.0f, degree).setDuration(duration);
-        connectFabAnimator.setRepeatCount(count);
-        connectFabAnimator.setAutoCancel(true);
-        connectFabAnimator.start();
+        if(fabConnect.getDrawable() instanceof AnimationDrawable) {
+            ((AnimationDrawable) fabConnect.getDrawable()).start();
+        }
     }
 
     private void updateCloseMenuItemVisible(boolean canClosed) {

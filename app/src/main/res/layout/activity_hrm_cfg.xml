@@ -153,6 +153,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:gravity="center_horizontal"
                     android:orientation="horizontal"
                     android:focusable="true"
                     android:focusableInTouchMode="true">
@@ -160,22 +161,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="下限："/>
+                        android:gravity="center_horizontal"
+                        android:text="下限\n次/分钟"
+                        android:textSize="10dp"/>
 
                     <NumberPicker
                         android:id="@+id/np_hr_low"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:gravity="center_vertical"
                         android:focusable="false"
                         android:focusableInTouchMode="false"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="次/分钟"/>
                 </LinearLayout>
 
 
@@ -183,25 +179,22 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:gravity="center_horizontal"
                     android:orientation="horizontal">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:text="上限："/>
+                        android:gravity="center_horizontal"
+                        android:text="上限\n次/分钟"
+                        android:textSize="10dp"/>
                     <NumberPicker
                         android:id="@+id/np_hr_high"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:gravity="center_vertical"
                         android:focusable="false"
                         android:focusableInTouchMode="false"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="次/分钟"/>
                 </LinearLayout>
             </LinearLayout>
 
