@@ -24,10 +24,9 @@ import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.HexUtil;
-import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.ScannedDeviceAdapter;
-import com.cmtech.android.bledeviceapp.model.DeviceType;
+import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,14 +52,14 @@ import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_R
 
 public class ScanActivity extends AppCompatActivity {
     private static final String TAG = "ScanActivity";
-    private static final ScanFilter SCAN_FILTER = null; //new ScanFilter.Builder().setDeviceName(AppConstant.SCAN_DEVICE_NAME).build();
-    public static final String REGISTERED_DEVICE_MAC_LIST = "registered_device_mac_list";
+    private static final ScanFilter SCAN_FILTER = null;
+    public static final String REGISTERED_DEVICE_ADDRESS_LIST = "registered_device_address_list";
 
-    private final List<BleDeviceDetailInfo> scannedDeviceDetailInfoList = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
-    private List<String> registeredDeviceMacList = new ArrayList<>(); // 已注册的设备mac地址列表
-    private SwipeRefreshLayout srlScanDevice;
-    private ScannedDeviceAdapter scannedDeviceAdapter;
-    private RecyclerView rvScanDevice;
+    private final List<BleDeviceDetailInfo> foundDevInfos = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
+    private List<String> regAddrs = new ArrayList<>(); // 已注册的设备mac地址列表
+    private SwipeRefreshLayout srlDevice;
+    private ScannedDeviceAdapter devAdapter;
+    private RecyclerView rvDevice;
     private Handler mHandle = new Handler(Looper.getMainLooper());
 
     // 扫描回调
@@ -79,20 +78,20 @@ public class ScanActivity extends AppCompatActivity {
         public void onScanFailed(int errorCode) {
             switch (errorCode) {
                 case CODE_ALREADY_STARTED:
-                    showMessageUsingLongToast("扫描进行中，不能重复扫描。");
+                    showMessageUsingLongToast("扫描中，请稍等");
                     break;
 
                 case CODE_BLE_CLOSED:
-                    showMessageUsingLongToast("蓝牙已关闭，无法扫描，请打开蓝牙。");
-                    srlScanDevice.setRefreshing(false);
+                    showMessageUsingLongToast("蓝牙已关闭");
+                    srlDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
                     Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     startActivity(intent);
                     break;
 
                 case CODE_BLE_INNER_ERROR:
-                    showMessageUsingLongToast("蓝牙内部错误，必须重启蓝牙。");
-                    srlScanDevice.setRefreshing(false);
+                    showMessageUsingLongToast("蓝牙错误，请重启蓝牙。");
+                    srlDevice.setRefreshing(false);
                     BleScanner.stopScan(this);
                     break;
             }
@@ -108,26 +107,25 @@ public class ScanActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_device_scan);
         setSupportActionBar(toolbar);
 
-        // 获取已注册设备Mac列表
+        // 获取已注册设备地址列表
         Intent intent = getIntent();
         if(intent != null) {
-            registeredDeviceMacList = (List<String>) intent.getSerializableExtra(REGISTERED_DEVICE_MAC_LIST);
+            regAddrs = (List<String>) intent.getSerializableExtra(REGISTERED_DEVICE_ADDRESS_LIST);
         }
 
         // 初始化扫描设备列表
-        rvScanDevice = findViewById(R.id.rv_scandevice);
-        rvScanDevice.setLayoutManager(new LinearLayoutManager(this));
-        rvScanDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        scannedDeviceAdapter = new ScannedDeviceAdapter(scannedDeviceDetailInfoList, registeredDeviceMacList, this);
-        rvScanDevice.setAdapter(scannedDeviceAdapter);
+        rvDevice = findViewById(R.id.rv_device);
+        rvDevice.setLayoutManager(new LinearLayoutManager(this));
+        rvDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        devAdapter = new ScannedDeviceAdapter(foundDevInfos, regAddrs, this);
+        rvDevice.setAdapter(devAdapter);
 
-        srlScanDevice = findViewById(R.id.srl_scandevice);
-        Display display = getWindowManager().getDefaultDisplay();
+        srlDevice = findViewById(R.id.srl_device);
         Point pt = new Point();
-        display.getSize(pt);
+        getWindowManager().getDefaultDisplay().getSize(pt);
         int height = pt.y;
-        srlScanDevice.setProgressViewOffset(true, height/2-50, height/2);
-        srlScanDevice.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        srlDevice.setProgressViewOffset(true, height/2-50, height/2);
+        srlDevice.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 startScan();
@@ -141,17 +139,17 @@ public class ScanActivity extends AppCompatActivity {
     private void startScan() {
         mHandle.removeCallbacksAndMessages(null);
 
-        scannedDeviceDetailInfoList.clear();
-        scannedDeviceAdapter.notifyDataSetChanged();
+        foundDevInfos.clear();
+        devAdapter.notifyDataSetChanged();
         BleScanner.stopScan(bleScanCallback);
-        srlScanDevice.setRefreshing(true);
+        srlDevice.setRefreshing(true);
         BleScanner.startScan(SCAN_FILTER, bleScanCallback);
 
         mHandle.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(srlScanDevice.isRefreshing())
-                    srlScanDevice.setRefreshing(false);
+                if(srlDevice.isRefreshing())
+                    srlDevice.setRefreshing(false);
 
                 BleScanner.stopScan(bleScanCallback);
             }
@@ -198,8 +196,8 @@ public class ScanActivity extends AppCompatActivity {
 
         mHandle.removeCallbacksAndMessages(null);
 
-        if(srlScanDevice.isRefreshing())
-            srlScanDevice.setRefreshing(false);
+        if(srlDevice.isRefreshing())
+            srlDevice.setRefreshing(false);
 
         BleScanner.stopScan(bleScanCallback);
     }
@@ -207,21 +205,15 @@ public class ScanActivity extends AppCompatActivity {
     public void registerDevice(final BleDeviceDetailInfo detailInfo) {
         // 先停止扫描
         BleScanner.stopScan(bleScanCallback);
-        srlScanDevice.setRefreshing(false);
+        srlDevice.setRefreshing(false);
 
-        // 获取设备广播数据中的UUID的短串
-        AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
+        AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
         byte[] uuidBytes = null;
         if(serviceUUID != null) {
-            uuidBytes = new byte[]{serviceUUID.getData()[13], serviceUUID.getData()[12]};
-        } else {
-            serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE);
-            if(serviceUUID != null) {
-                uuidBytes = new byte[]{serviceUUID.getData()[1], serviceUUID.getData()[0]};
-            }
+            uuidBytes = new byte[]{serviceUUID.getData()[1], serviceUUID.getData()[0]};
         }
         if(uuidBytes == null) {
-            showMessageUsingShortToast("不支持的设备类型，无法注册。");
+            showMessageUsingShortToast("不支持的设备类型");
             return;
         }
 
@@ -235,8 +227,10 @@ public class ScanActivity extends AppCompatActivity {
     private void addDevice(final BleDeviceDetailInfo device) {
         if(device == null) return;
 
+        ViseLog.e("Find device: " + device);
+
         boolean isNewDevice = true;
-        for(BleDeviceDetailInfo dv : scannedDeviceDetailInfoList) {
+        for(BleDeviceDetailInfo dv : foundDevInfos) {
             if(dv.getAddress().equalsIgnoreCase(device.getAddress())) {
                 isNewDevice = false;
                 break;
@@ -244,16 +238,8 @@ public class ScanActivity extends AppCompatActivity {
         }
 
         if(isNewDevice) {
-            scannedDeviceDetailInfoList.add(device);
-            Collections.sort(scannedDeviceDetailInfoList, new Comparator<BleDeviceDetailInfo>() {
-                @Override
-                public int compare(BleDeviceDetailInfo o1, BleDeviceDetailInfo o2) {
-                    return o2.getRssi() - o1.getRssi();
-                }
-            });
-
-            scannedDeviceAdapter.notifyDataSetChanged();
-            rvScanDevice.scrollToPosition(scannedDeviceDetailInfoList.size()-1);
+            foundDevInfos.add(device);
+            devAdapter.notifyDataSetChanged();
         }
     }
 }

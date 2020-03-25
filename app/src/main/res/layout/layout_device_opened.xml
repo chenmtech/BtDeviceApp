@@ -37,7 +37,7 @@
         android:layout_margin="5dp"
         android:src="@mipmap/ic_disconnect_32px"
         app:backgroundTint="@color/primary"
-        app:fabSize="mini"
+        app:fabSize="normal"
         app:borderWidth="0dp"
         app:elevation="8dp"
         app:pressedTranslationZ="16dp"/>

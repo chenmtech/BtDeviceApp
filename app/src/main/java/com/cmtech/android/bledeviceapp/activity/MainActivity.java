@@ -1,7 +1,5 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -47,7 +45,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceRegisterInfo;
 import com.cmtech.android.ble.core.IDevice;
@@ -78,8 +75,6 @@ import java.util.List;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static com.cmtech.android.ble.core.DeviceState.CLOSED;
-import static com.cmtech.android.ble.core.DeviceState.CONNECTING;
-import static com.cmtech.android.ble.core.DeviceState.DISCONNECTING;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledevice.ecg.device.EcgFactory.ECGMONITOR_DEVICE_TYPE;
 import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
@@ -87,7 +82,7 @@ import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEV
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
 import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLATFORM;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
-import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_DEVICE_MAC_LIST;
+import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_DEVICE_ADDRESS_LIST;
 
 /**
  *  MainActivity: 主界面
@@ -100,8 +95,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private final static int RC_MODIFY_REGISTER_INFO = 2;       // 修改设备注册信息返回码
     private final static int RC_MODIFY_ACCOUNT_INFO = 3;     // 修改账户信息返回码
 
-
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
+
     // 蓝牙状态改变广播接收器
     private final BroadcastReceiver btStateChangedReceiver = new BroadcastReceiver() {
         @Override
@@ -110,10 +105,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
                 if(state == STATE_ON) {
                     BleScanner.clearInnerError();
-                    BleScanner.resetScanTimes();
-                    Toast.makeText(context, "蓝牙已开启。", Toast.LENGTH_SHORT).show();
+                    MyApplication.showMessageUsingShortToast("蓝牙已开启");
                 } else if(state == STATE_OFF) {
-                    Toast.makeText(context, "蓝牙已关闭。", Toast.LENGTH_SHORT).show();
+                    MyApplication.showMessageUsingShortToast("蓝牙已关闭");
                 }
             }
         }
@@ -274,13 +268,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 createAndOpenFragment(device);
             }
         }
-
-        Account account = AccountManager.getInstance().getAccount();
-        if(TextUtils.isEmpty(account.getName())) {
-            //Intent intent = new Intent(MainActivity.this, AccountActivity.class);
-            //startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
-            return;
-        }
     }
 
     private void initNavigation() {
@@ -305,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                     case R.id.nav_scan_device: // 扫描设备
                         List<String> registeredMacList = DeviceManager.getDeviceMacList();
                         Intent scanIntent = new Intent(MainActivity.this, ScanActivity.class);
-                        scanIntent.putExtra(REGISTERED_DEVICE_MAC_LIST, (Serializable) registeredMacList);
+                        scanIntent.putExtra(REGISTERED_DEVICE_ADDRESS_LIST, (Serializable) registeredMacList);
                         startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
                         return true;
                     case R.id.nav_query_record: // 查阅记录
