@@ -28,6 +28,6 @@ public class EcgFactory extends DeviceFactory {
 
     @Override
     public DeviceFragment createFragment() {
-        return DeviceFragment.create(registerInfo.getMacAddress(), EcgFragment.class);
+        return DeviceFragment.create(registerInfo.getAddress(), EcgFragment.class);
     }
 }

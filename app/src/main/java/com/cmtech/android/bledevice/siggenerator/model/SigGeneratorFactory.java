@@ -27,6 +27,6 @@ public class SigGeneratorFactory extends DeviceFactory {
 
     @Override
     public DeviceFragment createFragment() {
-        return DeviceFragment.create(registerInfo.getMacAddress(), SigGeneratorFragment.class);
+        return DeviceFragment.create(registerInfo.getAddress(), SigGeneratorFragment.class);
     }
 }

@@ -146,7 +146,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountImage; // 头像头像控件
-    private boolean isWarningBleInnerError = false;
     private boolean stopNotifyService = false; // 是否停止通知服务
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -561,22 +560,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     // 异常通知
     @Override
     public void onExceptionNotified(IDevice device, BleException ex) {
-        if(ex instanceof ScanException && ((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BLE_INNER_ERROR) {
-            if(!isWarningBleInnerError) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("蓝牙内部错误").setMessage(device.getName() + "无法连接，需要重启蓝牙。");
-                builder.setPositiveButton("知道了", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        isWarningBleInnerError = false;
-                        notifyService.stopWarningBleInnerError();
-                    }
-                }).setCancelable(false).show();
-                isWarningBleInnerError = true;
-            }
-        } else {
-            showMessageUsingShortToast(device.getAddress() + "-" + ex.getDescription());
-        }
+        showMessageUsingShortToast(device.getAddress() + "-" + ex.getDescription());
     }
 
     // 电量更新

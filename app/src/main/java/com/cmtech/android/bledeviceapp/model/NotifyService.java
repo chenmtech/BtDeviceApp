@@ -10,14 +10,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
-import android.media.AudioAttributes;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 
 import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
@@ -32,8 +27,6 @@ import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
 /**
@@ -50,14 +43,9 @@ import java.util.TimerTask;
 public class NotifyService extends Service implements IDevice.OnDeviceListener {
     private static final String TAG = "NotifyService";
     private static final int NOTIFY_ID = 0x0001; // id不可设置为0,否则不能设置为前台service
-    private static final Ringtone WARN_RINGTONE = RingtoneManager.getRingtone(MyApplication.getContext(), Settings.System.DEFAULT_ALARM_ALERT_URI); // 报警铃声
-    private static final Vibrator WARN_VIBRATOR = (Vibrator) MyApplication.getContext().getSystemService(VIBRATOR_SERVICE); // 报警震动
-    private static final int WARN_INTERVAL = 5000; // 报警间隔时间，单位：ms
-    private static final int WARN_TIMES = 5; // 报警次数
     private final BleNotifyServiceBinder binder = new BleNotifyServiceBinder();
     private String notifyTitle; // 通知栏标题
-    private String strWhenNoDeviceOpened; // 无设备打开时的通知串
-    private Timer warnTimer; // 报警定时器
+    private String noDevice; // 无设备打开时的通知串
     private NotificationCompat.Builder notifyBuilder;
 
     @Override
@@ -65,7 +53,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         super.onCreate();
 
         notifyTitle = getString(R.string.welcome_text_format, getString(R.string.app_name));
-        strWhenNoDeviceOpened = getString(R.string.no_device_opened);
+        noDevice = getString(R.string.no_device_opened);
 
         initDeviceManager(PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext()));
 
@@ -133,7 +121,6 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         DeviceManager.clearDevices();
 
         stopForeground(true);
-        stopWarningBleInnerError();
         AccountManager.getInstance().signOut();
 
         try {
@@ -154,9 +141,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     @Override
     public void onExceptionNotified(IDevice device, BleException ex) {
         if (ex instanceof ScanException) {
-            if (((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BLE_INNER_ERROR) {
-                startWarningBleInnerError();
-            } else if (((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BT_CLOSED) {
+            if (((ScanException) ex).getScanError() == ScanException.SCAN_ERR_BT_CLOSED) {
                 Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -168,46 +153,12 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     public void onBatteryUpdated(IDevice device) {
     }
 
-    // 启动蓝牙内部错误报警
-    private void startWarningBleInnerError() {
-        if (warnTimer == null) {
-            warnTimer = new Timer();
-            warnTimer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    if (!WARN_RINGTONE.isPlaying()) {
-                        WARN_RINGTONE.play();
-                    }
-                    WARN_VIBRATOR.vibrate(1000, new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build());
-                }
-            }, 0, WARN_INTERVAL);
-
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    stopWarningBleInnerError();
-                }
-            }, WARN_INTERVAL * WARN_TIMES);
-        }
-    }
-
-    public void stopWarningBleInnerError() {
-        if (warnTimer != null) {
-            warnTimer.cancel();
-            warnTimer = null;
-            if (WARN_RINGTONE.isPlaying()) {
-                WARN_RINGTONE.stop();
-            }
-            WARN_VIBRATOR.cancel();
-        }
-    }
-
     private Notification createNotification(List<String> notifyContents) {
         NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle();
         inboxStyle.setBigContentTitle(notifyTitle);
         if (notifyContents == null || notifyContents.isEmpty()) {
-            notifyBuilder.setContentText(strWhenNoDeviceOpened);
-            inboxStyle.addLine(strWhenNoDeviceOpened);
+            notifyBuilder.setContentText(noDevice);
+            inboxStyle.addLine(noDevice);
         } else {
             notifyBuilder.setContentText(getString(R.string.some_devices_opened, notifyContents.size()));
             for (String content : notifyContents) {

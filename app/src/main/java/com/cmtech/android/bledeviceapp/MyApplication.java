@@ -20,7 +20,7 @@ import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.CONNECT_INTERVAL;
+import static com.cmtech.android.bledeviceapp.AppConstant.RECONNECT_INTERVAL;
 
 /**
  * MyApplication
@@ -40,7 +40,7 @@ public class MyApplication extends Application {
         LitePal.initialize(getApplicationContext());
         LitePal.getDatabase();
         // BLE包配置
-        BleConfig.getInstance().setConnectInterval(CONNECT_INTERVAL);
+        BleConfig.setReconnInterval(RECONNECT_INTERVAL);
         // 配置支持的设备类型
         DeviceConfig.addSupportedDeviceType(EcgFactory.ECGMONITOR_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(TempHumidFactory.TEMPHUMID_DEVICE_TYPE);

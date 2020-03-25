@@ -40,6 +40,6 @@ public class HRMonitorFactory extends DeviceFactory {
 
     @Override
     public DeviceFragment createFragment() {
-        return DeviceFragment.create(registerInfo.getMacAddress(), HRMonitorFragment.class);
+        return DeviceFragment.create(registerInfo.getAddress(), HRMonitorFragment.class);
     }
 }

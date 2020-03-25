@@ -27,6 +27,6 @@ public class WebEcgFactory extends DeviceFactory {
 
     @Override
     public DeviceFragment createFragment() {
-        return DeviceFragment.create(registerInfo.getMacAddress(), WebEcgFragment.class);
+        return DeviceFragment.create(registerInfo.getAddress(), WebEcgFragment.class);
     }
 }

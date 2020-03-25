@@ -16,10 +16,7 @@ public class AppConstant {
     public static final String MY_BASE_UUID = "0a20XXXX-cce5-4025-a156-38ea833f6ef8"; // 我的基础UUID
     public static final String STANDARD_BLE_UUID = "0000XXXX-0000-1000-8000-00805F9B34FB"; // 标准BLE UUID
     public static final UUID CCC_UUID = UuidUtil.stringToUuid("2902", STANDARD_BLE_UUID); // client characteristic config UUID
-    public static final int CONNECT_TIMEOUT = 60000; // 连接超时时间
-    public static final int DATA_OPERATE_TIMEOUT = 3000; // 数据操作超时时间
-    public static final int CONNECT_INTERVAL = 6000; // connect interval, unit: millisecond
-    public static final String SCAN_DEVICE_NAME = "CM1.0"; // 扫描时过滤的设备名称：只获取广播数据包中设备名为该名称的设备
+    public static final int RECONNECT_INTERVAL = 6000; // reconnect interval, unit: millisecond
     public static final File DIR_IMAGE = MyApplication.getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES); // 图像文件DIR
     public static final File DIR_CACHE = MyApplication.getContext().getExternalCacheDir(); // 文件缓存cache目录
 }

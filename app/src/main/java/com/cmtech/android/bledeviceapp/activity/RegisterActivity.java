@@ -31,8 +31,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_DEVICE_AUTO_CONNECT;
-import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_DEVICE_IMAGE_PATH;
-import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_WARN_WHEN_BLE_INNER_ERROR;
+import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_DEVICE_ICON;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 
 /**
@@ -68,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
             finish();
             return;
         }
-        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuidStr());
+        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuid());
         if(type == null) {
             Toast.makeText(this, "设备类型未知，无法注册。", Toast.LENGTH_SHORT).show();
             finish();
@@ -76,7 +75,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // 设置标题为设备地址
-        setTitle("设备:"+ registerInfo.getMacAddress());
+        setTitle("设备:"+ registerInfo.getAddress());
 
         // 设置设备昵称
         etName = findViewById(R.id.et_device_nickname);
@@ -88,7 +87,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // 设置设备图像
         ivImage = findViewById(R.id.iv_tab_image);
-        cacheImagePath = registerInfo.getImagePath();
+        cacheImagePath = registerInfo.getIcon();
         if("".equals(cacheImagePath)) {
             int defaultImageId = type.getDefaultImageId();
             Glide.with(this).load(defaultImageId).into(ivImage);
@@ -115,28 +114,28 @@ public class RegisterActivity extends AppCompatActivity {
                 registerInfo.setName(etName.getText().toString());
 
                 // 如果图像有变化
-                if(!cacheImagePath.equals(registerInfo.getImagePath())) {
+                if(!cacheImagePath.equals(registerInfo.getIcon())) {
                     // 把原来的图像文件删除
-                    if(!"".equals(registerInfo.getImagePath())) {
-                        File imageFile = new File(registerInfo.getImagePath());
+                    if(!"".equals(registerInfo.getIcon())) {
+                        File imageFile = new File(registerInfo.getIcon());
                         imageFile.delete();
                     }
 
                     // 把当前的ImageView中图像保存，以设备地址为文件名
                     if("".equals(cacheImagePath)) {
-                        registerInfo.setImagePath("");
+                        registerInfo.setIcon("");
                     } else {
                         ivImage.setDrawingCacheEnabled(true);
                         Bitmap bitmap = ivImage.getDrawingCache();
-                        File toFile = FileUtil.getFile(DIR_IMAGE, registerInfo.getMacAddress() + ".jpg");
+                        File toFile = FileUtil.getFile(DIR_IMAGE, registerInfo.getAddress() + ".jpg");
                         try {
                             String filePath = toFile.getCanonicalPath();
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivImage.setDrawingCacheEnabled(false);
-                            registerInfo.setImagePath(filePath);
+                            registerInfo.setIcon(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            registerInfo.setImagePath("");
+                            registerInfo.setIcon("");
                         }
                     }
                 }
@@ -245,10 +244,10 @@ public class RegisterActivity extends AppCompatActivity {
 
     // 恢复缺省设置
     private void restoreDefaultSetup() {
-        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuidStr());
+        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuid());
         if(type != null) {
             etName.setText(type.getDefaultNickname());
-            cacheImagePath = DEFAULT_DEVICE_IMAGE_PATH;
+            cacheImagePath = DEFAULT_DEVICE_ICON;
             Glide.with(this).load(type.getDefaultImageId()).into(ivImage);
             cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTO_CONNECT);
         }

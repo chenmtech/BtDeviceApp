@@ -31,7 +31,7 @@ public abstract class DeviceFactory {
     public static DeviceFactory getFactory(DeviceRegisterInfo registerInfo) {
         if(registerInfo == null) return null;
 
-        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuidStr());
+        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuid());
         if(type == null) {
             ViseLog.e("The device type is not supported.");
             return null;

@@ -28,7 +28,7 @@ public class TempHumidFactory extends DeviceFactory {
 
     @Override
     public DeviceFragment createFragment() {
-        return DeviceFragment.create(registerInfo.getMacAddress(), TempHumidFragment.class);
+        return DeviceFragment.create(registerInfo.getAddress(), TempHumidFragment.class);
     }
 
 

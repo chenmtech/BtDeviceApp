@@ -56,7 +56,7 @@ public class DeviceManager {
 
     // 用注册信息寻找设备
     public static IDevice findDevice(DeviceRegisterInfo registerInfo) {
-        return (registerInfo == null) ? null : findDevice(registerInfo.getMacAddress());
+        return (registerInfo == null) ? null : findDevice(registerInfo.getAddress());
     }
 
     // 用设备mac地址寻找设备
