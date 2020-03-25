@@ -13,19 +13,23 @@
         <include layout="@layout/layout_hr_record_introduction"/>
     </LinearLayout>
 
-    <view
-        android:layout_width="2dp"
-        android:layout_height="match_parent"
-        android:layout_margin="6dp"
-        android:background="@color/primary_dark"/>
-
-    <ImageButton
-        android:id="@+id/ib_delete"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/ic_delete_32px"
-        android:background="@android:color/transparent"
         android:layout_gravity="center_vertical"
-        android:layout_margin="20dp"/>
+        android:orientation="horizontal">
+        <View
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="@color/primary_dark"/>
+        <ImageButton
+            android:id="@+id/ib_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_delete_32px"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="20dp"/>
+    </LinearLayout>
 
 </LinearLayout>
