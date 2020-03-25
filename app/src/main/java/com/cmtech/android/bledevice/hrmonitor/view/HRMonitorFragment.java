@@ -171,8 +171,15 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                     tvHrEcgOff.setText(String.valueOf(bpm));
 
                     HRMonitorConfiguration cfg = device.getConfig();
-                    if(cfg.isWarn() && (bpm > cfg.getHrHigh() || bpm < cfg.getHrLow())) {
-                        warnUsingTTS();
+                    if(cfg.isWarn()) {
+                        String warnStr = null;
+                        if(bpm > cfg.getHrHigh())
+                            warnStr = "心率过高";
+                        else if(bpm < cfg.getHrLow()) {
+                            warnStr = "心率过低";
+                        }
+                        if(warnStr != null)
+                            warnUsingTTS(warnStr);
                     }
                 }
             });
@@ -267,8 +274,8 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         }
     }
 
-    public void warnUsingTTS() {
-        MyApplication.getTTS().speak("心率过高");
+    public void warnUsingTTS(String warnStr) {
+        MyApplication.getTTS().speak(warnStr);
     }
 
 }
