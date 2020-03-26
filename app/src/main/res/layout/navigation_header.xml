@@ -13,34 +13,29 @@
             android:id="@+id/iv_account_image"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_centerHorizontal="true"
             android:src="@mipmap/ic_unknown_user"
             android:layout_marginTop="20dp"
-            android:layout_marginBottom="5dp"/>
+            android:layout_marginStart="10dp"/>
 
         <TextView
             android:id="@+id/tv_account_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginBottom="10dp"
-            android:gravity="center_horizontal"
             android:layout_below="@+id/iv_account_image"
+            android:layout_marginStart="10dp"
             android:text="请设置"
             android:textColor="@color/secondary_text"
             android:textSize="20sp"
             android:maxLength="12"/>
 
-        <Button
-            android:id="@+id/btn_logout"
+        <ImageButton
+            android:id="@+id/ib_logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:text="登出"
-            android:textSize="10dp"
-            style="@style/minWidth0DpButtonStyle"/>
-
+            android:background="@android:color/transparent"
+            android:src="@mipmap/ic_change_user" />
     </RelativeLayout>
 
 

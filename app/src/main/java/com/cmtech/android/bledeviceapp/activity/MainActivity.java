@@ -31,7 +31,7 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountImage; // 头像头像控件
-    private Button btnLogout;
+    private ImageButton ibLogout;
     private boolean stopNotiService = false; // 是否停止通知服务
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -222,11 +222,23 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         View headerView = navView.getHeaderView(0);
         tvAccountName = headerView.findViewById(R.id.tv_account_name);
         ivAccountImage = headerView.findViewById(R.id.iv_account_image);
-        btnLogout = headerView.findViewById(R.id.btn_logout);
-        btnLogout.setOnClickListener(new View.OnClickListener() {
+        ibLogout = headerView.findViewById(R.id.ib_logout);
+        ibLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                logoutAccount();
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("切换账户")
+                        .setMessage("退出账户，重新登录。")
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                logoutAccount();
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).show();
             }
         });
 
@@ -618,7 +630,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     }
 
     private void initMainLayout() {
-        TextView tvVersionName = noDeviceLayout.findViewById(R.id.tv_versionname);
+        TextView tvVersionName = noDeviceLayout.findViewById(R.id.tv_version);
         tvVersionName.setText(String.format("Ver%s", APKVersionCodeUtils.getVerName(this)));
         updateMainLayout(null);
     }
@@ -635,7 +647,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     // logout
     private void logoutAccount() {
         if(DeviceManager.hasOpenedDevice()) {
-            Toast.makeText(this, "有设备打开，请先关闭设备。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
         }
 

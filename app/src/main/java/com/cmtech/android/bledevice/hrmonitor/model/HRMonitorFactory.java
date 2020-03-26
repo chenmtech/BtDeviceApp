@@ -22,8 +22,8 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
  */
 public class HRMonitorFactory extends DeviceFactory {
     private static final String HRMONITOR_UUID = "180D"; // standard heart rate uuid
-    private static final String DEFAULT_HRMONITOR_NAME = "标准心率计"; // default standard heart rate monitor name
-    private static final int DEFAULT_HRMONITOR_IMAGE_ID = R.drawable.ic_ecgmonitor_default_image;
+    private static final String DEFAULT_HRMONITOR_NAME = "心率计"; // default standard heart rate monitor name
+    private static final int DEFAULT_HRMONITOR_IMAGE_ID = R.drawable.ic_hrm_default_image;
     private static final String HRMONITOR_FACTORY = HRMonitorFactory.class.getName();
 
     public static final DeviceType HRMONITOR_DEVICE_TYPE = new DeviceType(HRMONITOR_UUID, DEFAULT_HRMONITOR_IMAGE_ID, DEFAULT_HRMONITOR_NAME, HRMONITOR_FACTORY);

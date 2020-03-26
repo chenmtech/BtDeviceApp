@@ -1,7 +1,9 @@
 package com.cmtech.android.bledevice.hrmonitor.view;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -71,10 +73,22 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.putExtra("ecg_lock", !ecgLock);
-                setResult(RESULT_CHANGE_ECG_LOCK, intent);
-                finish();
+                AlertDialog.Builder builder = new AlertDialog.Builder(HRMCfgActivity.this);
+                builder.setTitle("切换心电功能")
+                        .setMessage("设备断开后重新连接。")
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Intent intent = new Intent();
+                                intent.putExtra("ecg_lock", !ecgLock);
+                                setResult(RESULT_CHANGE_ECG_LOCK, intent);
+                                HRMCfgActivity.this.finish();
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).show();
             }
         });
 

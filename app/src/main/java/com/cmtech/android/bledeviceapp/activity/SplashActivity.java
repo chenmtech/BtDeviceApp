@@ -84,7 +84,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private void initialize() {
         TextView tvWelcome = findViewById(R.id.tv_welcome);
-        String welcomeText = String.format(getResources().getString(R.string.welcome_text_format), getResources().getString(R.string.app_name));
+        String welcomeText = getResources().getString(R.string.app_name);
         tvWelcome.setText(welcomeText);
 
         tvSecond = findViewById(R.id.tv_count_second);
