@@ -40,13 +40,13 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <ImageButton
-                    android:id="@+id/ib_weixin_login"
+                    android:id="@+id/ib_wechat_login"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="10dp"
                     android:background="@color/white"
-                    android:src="@mipmap/ic_weixin"/>
+                    android:src="@mipmap/ic_wechat"/>
                 <TextView
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"

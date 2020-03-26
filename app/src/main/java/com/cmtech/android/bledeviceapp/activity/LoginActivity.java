@@ -38,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     public static final Map<String, Integer> SUPPORT_PLATFORM = new HashMap<String, Integer>() {
         {
             put(QQ.NAME, R.mipmap.ic_qq);
-            put(Wechat.NAME, R.mipmap.ic_weixin);
+            put(Wechat.NAME, R.mipmap.ic_wechat);
             put(HUAWEI_PLAT_NAME, R.mipmap.ic_huawei);
             put(SMS_PLAT_NAME, R.mipmap.ic_sms);
         }
@@ -65,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        wxLogin = findViewById(R.id.ib_weixin_login);
+        wxLogin = findViewById(R.id.ib_wechat_login);
         wxLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
         if(granted) {
             MobSDK.submitPolicyGrantResult(granted, null);
         } else {
-            Toast.makeText(this, "如您同意隐私条款，请勾选授权框。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "如您同意上述隐私条款，请勾选授权框。", Toast.LENGTH_SHORT).show();
         }
         return granted;
     }
@@ -160,7 +160,7 @@ public class LoginActivity extends AppCompatActivity {
         activity.finish();
     }
 
-    public void loginWithSMS(Context context) {
+    private void loginWithSMS(Context context) {
         RegisterPage page = new RegisterPage();
         //如果使用我们的ui，没有申请模板编号的情况下需传null
         page.setTempCode(null);

@@ -88,7 +88,7 @@ public class SplashActivity extends AppCompatActivity {
         tvWelcome.setText(welcomeText);
 
         tvSecond = findViewById(R.id.tv_count_second);
-        tvSecond.setText(String.valueOf(SPLASH_ACTIVITY_COUNT_DOWN_SECOND) + "秒");
+        tvSecond.setText(SPLASH_ACTIVITY_COUNT_DOWN_SECOND + "秒");
 
         startCountDown();
     }
