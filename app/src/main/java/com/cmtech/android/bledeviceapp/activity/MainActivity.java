@@ -2,13 +2,9 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
@@ -71,8 +67,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.bluetooth.BluetoothAdapter.STATE_OFF;
-import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledevice.ecg.device.EcgFactory.ECGMONITOR_DEVICE_TYPE;
@@ -96,29 +90,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
-    // 绑定状态广播接收器
-    private final BroadcastReceiver bondStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(intent.getAction())) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    Toast.makeText(context, device.getAddress() + "绑定成功。", Toast.LENGTH_SHORT).show();
-                } else if(device.getBondState() == BluetoothDevice.BOND_BONDING){
-                    Toast.makeText(context, device.getAddress() + "绑定中。", Toast.LENGTH_SHORT).show();
-                } else if(device.getBondState() == BluetoothDevice.BOND_NONE) {
-                    Toast.makeText(context, device.getAddress() + "绑定失败。", Toast.LENGTH_SHORT).show();
-                }
-            } else if(BluetoothDevice.ACTION_PAIRING_REQUEST.equals(intent.getAction())) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    String strPsw = "000000";
-                    device.setPin(strPsw.getBytes());
-                    abortBroadcast();
-                }
-            }
-        }
-    };
     LocalDevicesFragment localDevicesFragment;
     //WebDevicesFragment webDevicesFragment;
     private NotifyService notifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
@@ -178,16 +149,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             startService(serviceIntent);
         }
         bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE);
-
-        // 登记蓝牙状态改变广播接收器
-        IntentFilter bleStateIntent = new IntentFilter();
-        bleStateIntent.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-
-        // 登记绑定状态广播接收器
-        IntentFilter bondIntent = new IntentFilter();
-        bondIntent.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        bondIntent.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
-        registerReceiver(bondStateReceiver, bondIntent);
 
         if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -483,8 +444,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);
             stopService(stopIntent);
         }
-
-        unregisterReceiver(bondStateReceiver);
     }
 
     private void requestFinish() {
