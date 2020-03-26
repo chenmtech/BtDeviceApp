@@ -34,6 +34,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
+import static com.cmtech.android.bledeviceapp.AppConstant.SCAN_DURATION;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingLongToast;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
@@ -153,7 +154,7 @@ public class ScanActivity extends AppCompatActivity {
 
                 BleScanner.stopScan(bleScanCallback);
             }
-        }, 20000);
+        }, SCAN_DURATION);
     }
 
     @Override

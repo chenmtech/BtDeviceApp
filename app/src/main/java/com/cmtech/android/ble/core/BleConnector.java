@@ -5,6 +5,7 @@ import android.content.Context;
 import com.cmtech.android.ble.callback.IBleConnectCallback;
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.exception.BleException;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 
 import static com.cmtech.android.ble.core.DeviceState.CLOSED;
@@ -129,6 +130,9 @@ public class BleConnector extends AbstractConnector {
 
     @Override
     public void connect() {
+        if(BleScanner.isBleDisabled()) {
+            df
+        }
         super.connect();
         new BleGatt(context, address, connectCallback).connect();
     }

@@ -21,7 +21,7 @@ import static com.cmtech.android.ble.callback.IBleScanCallback.CODE_BLE_INNER_ER
 /**
  *
  * ClassName:      BleScanner
- * Description:    低功耗蓝牙扫描仪类
+ * Description:    BLE scanner
  * Author:         chenm
  * CreateDate:     2019-09-19 07:02
  * UpdateUser:     chenm
@@ -31,7 +31,7 @@ import static com.cmtech.android.ble.callback.IBleScanCallback.CODE_BLE_INNER_ER
  */
 
 public class BleScanner {
-    private static final List<ScanCallbackAdapter> callbackList = new ArrayList<>(); // 所有扫描的回调
+    private static final List<ScanCallbackAdapter> callbacks = new ArrayList<>(); // 所有扫描的回调
     private static volatile boolean bleInnerError = false; // 是否发生蓝牙内部错误，比如由于频繁扫描引起的错误
 
     // 开始扫描
@@ -40,7 +40,7 @@ public class BleScanner {
             throw new NullPointerException("The IBleScanCallback is null");
         }
 
-        ScanCallbackAdapter scanCallback = null;
+        ScanCallbackAdapter cbAdapter = null;
         synchronized (BleScanner.class) {
             if (BleScanner.isBleDisabled()) {
                 bleScanCallback.onScanFailed(CODE_BLE_CLOSED);
@@ -50,15 +50,15 @@ public class BleScanner {
                 bleScanCallback.onScanFailed(CODE_BLE_INNER_ERROR);
                 return;
             }
-            for (ScanCallbackAdapter callback : callbackList) {
+            for (ScanCallbackAdapter callback : callbacks) {
                 if (callback.bleScanCallback == bleScanCallback) {
-                    scanCallback = callback;
+                    cbAdapter = callback;
                     break;
                 }
             }
-            if (scanCallback == null) {
-                scanCallback = new ScanCallbackAdapter(bleScanCallback);
-                callbackList.add(scanCallback);
+            if (cbAdapter == null) {
+                cbAdapter = new ScanCallbackAdapter(bleScanCallback);
+                callbacks.add(cbAdapter);
             } else {
                 bleScanCallback.onScanFailed(IBleScanCallback.CODE_ALREADY_STARTED);
                 return;
@@ -67,7 +67,7 @@ public class BleScanner {
         BluetoothLeScanner scanner;
         scanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
         if(scanFilter == null) {
-            scanner.startScan(scanCallback);
+            scanner.startScan(cbAdapter);
         } else {
             ScanSettings.Builder settingsBuilder = new ScanSettings.Builder()
                     .setScanMode(SCAN_MODE_LOW_POWER)
@@ -75,7 +75,7 @@ public class BleScanner {
                     .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
                     .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
                     .setReportDelay(0L);
-            scanner.startScan(Collections.singletonList(scanFilter), settingsBuilder.build(), scanCallback);
+            scanner.startScan(Collections.singletonList(scanFilter), settingsBuilder.build(), cbAdapter);
         }
     }
 
@@ -90,14 +90,14 @@ public class BleScanner {
             if(isBleDisabled()) {
                 return;
             }
-            for(ScanCallbackAdapter callback : callbackList) {
+            for(ScanCallbackAdapter callback : callbacks) {
                 if(callback.bleScanCallback == bleScanCallback) {
                     scanCallback = callback;
                     break;
                 }
             }
             if(scanCallback != null) {
-                callbackList.remove(scanCallback);
+                callbacks.remove(scanCallback);
             }
         }
         if(scanCallback != null) {
