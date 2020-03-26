@@ -13,15 +13,14 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.cmtech.android.ble.callback.IBleScanCallback;
 import com.cmtech.android.ble.core.BleDeviceDetailInfo;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceInfo;
 import com.cmtech.android.ble.core.BleScanner;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.bledeviceapp.R;
@@ -29,11 +28,8 @@ import com.cmtech.android.bledeviceapp.adapter.ScannedDeviceAdapter;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
-import static com.cmtech.android.ble.model.adrecord.AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE;
 import static com.cmtech.android.bledeviceapp.AppConstant.SCAN_DURATION;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingLongToast;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
@@ -219,7 +215,7 @@ public class ScanActivity extends AppCompatActivity {
         }
 
         String uuidShortString = HexUtil.encodeHexStr(uuidBytes);
-        DeviceRegisterInfo registerInfo = new BleDeviceRegisterInfo(detailInfo.getAddress(), uuidShortString);
+        DeviceInfo registerInfo = new BleDeviceInfo(detailInfo.getAddress(), uuidShortString);
         Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, 1);

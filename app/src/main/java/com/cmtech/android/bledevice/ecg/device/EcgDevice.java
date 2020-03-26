@@ -6,7 +6,7 @@ import android.os.Looper;
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.OtherException;
 import com.cmtech.android.ble.utils.ExecutorUtil;
@@ -63,13 +63,13 @@ public class EcgDevice extends AbstractEcgDevice {
     private static final String batteryServiceUuid = "aa90";           // 电池电量服务UUID:aa90
     private static final String batteryDataUuid = "aa91";           // 电池电量数据特征UUID:aa91
 
-    private static final UUID ecgMonitorServiceUUID = UuidUtil.stringToUuid(ecgMonitorServiceUuid, MY_BASE_UUID);
-    private static final UUID ecgMonitorDataUUID = UuidUtil.stringToUuid(ecgMonitorDataUuid, MY_BASE_UUID);
-    private static final UUID ecgMonitorCtrlUUID = UuidUtil.stringToUuid(ecgMonitorCtrlUuid, MY_BASE_UUID);
-    private static final UUID ecgMonitorSampleRateUUID = UuidUtil.stringToUuid(ecgMonitorSampleRateUuid, MY_BASE_UUID);
-    private static final UUID ecgMonitorLeadTypeUUID = UuidUtil.stringToUuid(ecgMonitorLeadTypeUuid, MY_BASE_UUID);
-    private static final UUID batteryServiceUUID = UuidUtil.stringToUuid(batteryServiceUuid, MY_BASE_UUID);
-    private static final UUID batteryDataUUID = UuidUtil.stringToUuid(batteryDataUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorServiceUUID = UuidUtil.stringToUUUID(ecgMonitorServiceUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorDataUUID = UuidUtil.stringToUUUID(ecgMonitorDataUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorCtrlUUID = UuidUtil.stringToUUUID(ecgMonitorCtrlUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorSampleRateUUID = UuidUtil.stringToUUUID(ecgMonitorSampleRateUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorLeadTypeUUID = UuidUtil.stringToUUUID(ecgMonitorLeadTypeUuid, MY_BASE_UUID);
+    private static final UUID batteryServiceUUID = UuidUtil.stringToUUUID(batteryServiceUuid, MY_BASE_UUID);
+    private static final UUID batteryDataUUID = UuidUtil.stringToUUUID(batteryDataUuid, MY_BASE_UUID);
 
     // Gatt Element常量
     private static final BleGattElement ECGMONITOR_DATA =
@@ -98,7 +98,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
 
     // 构造器
-    public EcgDevice(DeviceRegisterInfo registerInfo) {
+    public EcgDevice(DeviceInfo registerInfo) {
         super(registerInfo);
         dataProcessor = new EcgDataProcessor(this);
     }

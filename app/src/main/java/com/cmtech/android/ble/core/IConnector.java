@@ -7,12 +7,12 @@ public interface IConnector {
     void close(); // close connector
     void connect(); // connect
     void disconnect(boolean forever); // disconnect. if forever=true, no reconnection occurred, otherwise reconnect it.
-    DeviceState getState();
+    DeviceState getState(); // get device state about connection
 
     interface IConnectorCallback {
         boolean onConnectSuccess(); // operate when connection success
         void onConnectFailure(); // operate when connection failure
         void onDisconnect(); // operate when disconnection
-        void onConnectorStateUpdated();
+        void onConnectStateUpdated(); // connect state updated
     }
 }

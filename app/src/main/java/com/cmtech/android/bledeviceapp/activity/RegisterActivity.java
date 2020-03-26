@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceInfo;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
@@ -30,8 +30,8 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_DEVICE_AUTO_CONNECT;
-import static com.cmtech.android.ble.core.DeviceRegisterInfo.DEFAULT_DEVICE_ICON;
+import static com.cmtech.android.ble.core.DeviceInfo.DEFAULT_DEVICE_AUTO_CONNECT;
+import static com.cmtech.android.ble.core.DeviceInfo.DEFAULT_DEVICE_ICON;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 
 /**
@@ -42,7 +42,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 public class RegisterActivity extends AppCompatActivity {
     public static final String DEVICE_REGISTER_INFO = "device_register_info";
 
-    private BleDeviceRegisterInfo registerInfo; // 设备基本信息
+    private BleDeviceInfo registerInfo; // 设备基本信息
     private EditText etName; // 设备名
     private ImageView ivImage; // 设备图像
     private CheckBox cbIsAutoconnect; // 设备是否自动连接
@@ -55,7 +55,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent != null) {
-            registerInfo = (BleDeviceRegisterInfo) intent.getSerializableExtra(DEVICE_REGISTER_INFO);
+            registerInfo = (BleDeviceInfo) intent.getSerializableExtra(DEVICE_REGISTER_INFO);
             if(registerInfo == null) {
                 Toast.makeText(this, "设备注册信息无效", Toast.LENGTH_SHORT).show();
                 finish();

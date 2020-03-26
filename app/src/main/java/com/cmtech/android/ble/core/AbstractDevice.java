@@ -16,12 +16,12 @@ import static com.cmtech.android.ble.core.DeviceState.FAILURE;
 
 public abstract class AbstractDevice implements IDevice{
     private Context context; // context
-    private final DeviceRegisterInfo registerInfo; // connCallback register information
+    private final DeviceInfo registerInfo; // connCallback register information
     private int battery; // battery level
     private final List<OnDeviceListener> listeners; // connCallback listeners
     protected final IConnector connector; // connector
 
-    public AbstractDevice(DeviceRegisterInfo registerInfo) {
+    public AbstractDevice(DeviceInfo registerInfo) {
         if(registerInfo == null) {
             throw new NullPointerException("The register info is null.");
         }
@@ -36,11 +36,11 @@ public abstract class AbstractDevice implements IDevice{
     }
 
     @Override
-    public DeviceRegisterInfo getRegisterInfo() {
+    public DeviceInfo getRegisterInfo() {
         return registerInfo;
     }
     @Override
-    public void updateRegisterInfo(DeviceRegisterInfo registerInfo) {
+    public void updateRegisterInfo(DeviceInfo registerInfo) {
         this.registerInfo.update(registerInfo);
     }
     @Override
@@ -146,7 +146,7 @@ public abstract class AbstractDevice implements IDevice{
     }
 
     @Override
-    public void onConnectorStateUpdated() {
+    public void onConnectStateUpdated() {
         for(OnDeviceListener listener : listeners) {
             if(listener != null) {
                 listener.onStateUpdated(this);

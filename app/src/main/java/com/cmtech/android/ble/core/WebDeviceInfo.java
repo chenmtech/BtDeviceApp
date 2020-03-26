@@ -1,11 +1,11 @@
 package com.cmtech.android.ble.core;
 
-public class WebDeviceRegisterInfo extends DeviceRegisterInfo {
+public class WebDeviceInfo extends DeviceInfo {
     private final String broadcastId; // 该网络设备的广播者ID
     private String broadcastName = "";
 
-    public WebDeviceRegisterInfo(String macAddress, String uuidStr, String broadcastId) {
-        super(macAddress, uuidStr);
+    public WebDeviceInfo(String address, String uuid, String broadcastId) {
+        super(address, uuid);
         this.broadcastId = broadcastId;
     }
 

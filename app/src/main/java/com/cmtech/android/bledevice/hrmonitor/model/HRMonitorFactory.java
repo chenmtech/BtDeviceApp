@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.hrmonitor.view.HRMonitorFragment;
 import com.cmtech.android.bledeviceapp.R;
@@ -29,7 +29,7 @@ public class HRMonitorFactory extends DeviceFactory {
     public static final DeviceType HRMONITOR_DEVICE_TYPE = new DeviceType(HRMONITOR_UUID, DEFAULT_HRMONITOR_IMAGE_ID, DEFAULT_HRMONITOR_NAME, HRMONITOR_FACTORY);
 
 
-    private HRMonitorFactory(DeviceRegisterInfo registerInfo) {
+    private HRMonitorFactory(DeviceInfo registerInfo) {
         super(registerInfo);
     }
 

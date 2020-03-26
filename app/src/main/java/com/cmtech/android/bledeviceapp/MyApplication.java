@@ -29,28 +29,32 @@ import static com.cmtech.android.bledeviceapp.AppConstant.RECONNECT_INTERVAL;
 
 public class MyApplication extends Application {
     private static MyApplication instance;
-    private static SystemTTS tts;
+    private static SystemTTS tts; // text to speech
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         instance = this;
-        // 初始化LitePal
+
+        // init LitePal
         LitePal.initialize(getApplicationContext());
         LitePal.getDatabase();
-        // BLE包配置
+
+        // configure the BLE library
         BleConfig.setReconnInterval(RECONNECT_INTERVAL);
-        // 配置支持的设备类型
+
+        // configure the supported device
         DeviceConfig.addSupportedDeviceType(EcgFactory.ECGMONITOR_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(TempHumidFactory.TEMPHUMID_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(ThermoFactory.THERMO_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(SigGeneratorFactory.SIGGENERATOR_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(WebEcgFactory.ECGWEBMONITOR_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(HRMonitorFactory.HRMONITOR_DEVICE_TYPE);
-        // 初始化MobSDK
+
+        // init MobSDK
         MobSDK.init(getApplicationContext(), "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");
-        // 初始化ViseLog
+        // init ViseLog
         ViseLog.getLogConfig()
                 .configAllowLog(true)           //是否输出日志
                 .configShowBorders(false)        //是否排版显示
@@ -58,6 +62,7 @@ public class MyApplication extends Application {
                 .configLevel(Log.VERBOSE);      //设置日志最小输出级别，默认Log.VERBOSE
         ViseLog.plant(new LogcatTree());        //添加打印日志信息到Logcat的树
 
+        // init text-to-speech instance
         tts = SystemTTS.getInstance(getApplicationContext());
     }
 

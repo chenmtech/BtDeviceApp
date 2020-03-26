@@ -20,7 +20,7 @@ public class UuidUtil {
     }
 
     // 16位短字符串转换为长字符串
-    public static String shortToLongString(String shortString, String baseUuid) {
+    public static String shortStringToLong(String shortString, String baseUuid) {
         if(shortString == null || shortString.length() != 4 || baseUuid.length() != 36) return null;
 
         String sub = baseUuid.substring(4, 8);
@@ -28,20 +28,20 @@ public class UuidUtil {
     }
 
     // 长字符串转换为短字符串
-    public static String longToShortString(String longString) {
+    public static String longStringToShort(String longString) {
         return longString.substring(4, 8);
     }
 
     // 将16位UUID短字符串转换为UUID
-    public static UUID shortStringToUuid(String shortString, String baseUuid) {
-        String uuid = shortToLongString(shortString, baseUuid);
+    public static UUID shortStringToUUID(String shortString, String baseUuid) {
+        String uuid = shortStringToLong(shortString, baseUuid);
         return (uuid == null) ? null : UUID.fromString(uuid);
     }
 
-    public static UUID stringToUuid(String str, String baseUuid) {
+    public static UUID stringToUUUID(String str, String baseUuid) {
         if(str == null) return null;
         if(str.length() == 4) {
-            return shortStringToUuid(str, baseUuid);
+            return shortStringToUUID(str, baseUuid);
         }
         if(str.length() == 36) {
             return UUID.fromString(str);

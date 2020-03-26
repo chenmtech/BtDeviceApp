@@ -41,9 +41,9 @@ public class BleGattElement {
         this.characteristicUuid = characteristicUuid;
         this.descriptorUuid = descriptorUuid;
 
-        String servStr = (serviceUuid == null) ? null : UuidUtil.longToShortString(serviceUuid.toString());
-        String charaStr = (characteristicUuid == null) ? null : UuidUtil.longToShortString(characteristicUuid.toString());
-        String descStr = (descriptorUuid == null) ? null : UuidUtil.longToShortString(descriptorUuid.toString());
+        String servStr = (serviceUuid == null) ? null : UuidUtil.longStringToShort(serviceUuid.toString());
+        String charaStr = (characteristicUuid == null) ? null : UuidUtil.longStringToShort(characteristicUuid.toString());
+        String descStr = (descriptorUuid == null) ? null : UuidUtil.longStringToShort(descriptorUuid.toString());
         this.description = description + "[" + servStr + "-" + charaStr + "-" + descStr + "]";
     }
 

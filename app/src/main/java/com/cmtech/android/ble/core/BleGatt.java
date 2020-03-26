@@ -316,7 +316,7 @@ public class BleGatt {
     }
 
     // disconnect
-    public void disconnect(boolean forever) {
+    public void disconnect() {
         try{
             connLock.lock();
             callbackHandler.removeMessages(MSG_CONNECT);

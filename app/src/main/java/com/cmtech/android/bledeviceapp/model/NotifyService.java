@@ -15,8 +15,8 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.exception.ScanException;
@@ -64,9 +64,9 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
 
     // 初始化BleDeviceManager: 从Preference获取所有设备注册信息，并构造相应的设备
     private void initDeviceManager(SharedPreferences pref) {
-        List<DeviceRegisterInfo> registerInfoList = BleDeviceRegisterInfo.readAllFromPref(pref);
+        List<DeviceInfo> registerInfoList = BleDeviceInfo.readAllFromPref(pref);
         if (registerInfoList == null || registerInfoList.isEmpty()) return;
-        for (DeviceRegisterInfo registerInfo : registerInfoList) {
+        for (DeviceInfo registerInfo : registerInfoList) {
             IDevice device = DeviceManager.createDeviceIfNotExist(registerInfo);
             if (device != null) {
                 device.addListener(this);

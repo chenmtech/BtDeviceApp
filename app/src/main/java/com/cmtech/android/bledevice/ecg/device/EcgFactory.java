@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecg.device;
 
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.ecg.fragment.EcgFragment;
 import com.cmtech.android.bledeviceapp.R;
@@ -17,7 +17,7 @@ public class EcgFactory extends DeviceFactory {
 
     public static final DeviceType ECGMONITOR_DEVICE_TYPE = new DeviceType(ECGMONITOR_UUID, ECGMONITOR_DEFAULT_IMAGE_ID, ECGMONITOR_DEFAULT_NAME, ECGMONITOR_FACTORY);
 
-    private EcgFactory(DeviceRegisterInfo registerInfo) {
+    private EcgFactory(DeviceInfo registerInfo) {
         super(registerInfo);
     }
 

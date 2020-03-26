@@ -4,7 +4,7 @@ import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
@@ -35,10 +35,10 @@ public class TempHumidDevice extends AbstractDevice {
     private static final String tempHumidIntervalUuid   = "2a21";           // 测量间隔UUID:aa63
     private static final String tempHumidIRangeUuid     = "2906";           // 测量间隔范围UUID
 
-    private static final UUID tempHumidServiceUUID    = UuidUtil.stringToUuid(tempHumidServiceUuid, MY_BASE_UUID);
-    private static final UUID tempHumidDataUUID       = UuidUtil.stringToUuid(tempHumidDataUuid, MY_BASE_UUID);
-    private static final UUID tempHumidIntervalUUID   = UuidUtil.stringToUuid(tempHumidIntervalUuid, STANDARD_BLE_UUID);
-    private static final UUID tempHumidIRangeUUID     = UuidUtil.stringToUuid(tempHumidIRangeUuid, STANDARD_BLE_UUID);
+    private static final UUID tempHumidServiceUUID    = UuidUtil.stringToUUUID(tempHumidServiceUuid, MY_BASE_UUID);
+    private static final UUID tempHumidDataUUID       = UuidUtil.stringToUUUID(tempHumidDataUuid, MY_BASE_UUID);
+    private static final UUID tempHumidIntervalUUID   = UuidUtil.stringToUUUID(tempHumidIntervalUuid, STANDARD_BLE_UUID);
+    private static final UUID tempHumidIRangeUUID     = UuidUtil.stringToUUUID(tempHumidIRangeUuid, STANDARD_BLE_UUID);
 
     private static final BleGattElement TEMPHUMIDDATA =
             new BleGattElement(tempHumidServiceUUID, tempHumidDataUUID, null, "温湿度数据");
@@ -66,7 +66,7 @@ public class TempHumidDevice extends AbstractDevice {
     }
 
     // 构造器
-    public TempHumidDevice(DeviceRegisterInfo registerInfo) {
+    public TempHumidDevice(DeviceInfo registerInfo) {
         super(registerInfo);
     }
 

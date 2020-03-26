@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class BleDeviceRegisterInfo extends DeviceRegisterInfo {
+public class BleDeviceInfo extends DeviceInfo {
     private static final String ADDR_SET = "addrset";
     private static final String ADDRESS = "_address";
     private static final String UUID = "_uuid";
@@ -17,17 +17,17 @@ public class BleDeviceRegisterInfo extends DeviceRegisterInfo {
     private static final String ICON = "_icon";
     private static final String AUTOCONNECT = "_autoconnect";
 
-    public BleDeviceRegisterInfo(String address, String uuidStr) {
-        super(address, uuidStr);
+    public BleDeviceInfo(String address, String uuid) {
+        super(address, uuid);
     }
 
-    private BleDeviceRegisterInfo(String address, String uuid, String name, String icon,
-                               boolean autoConnect) {
+    private BleDeviceInfo(String address, String uuid, String name, String icon,
+                          boolean autoConnect) {
         super(address, uuid, name, icon, autoConnect);
     }
 
-    // 从Pref读取所有的设备注册信息
-    public static List<DeviceRegisterInfo> readAllFromPref(SharedPreferences pref) {
+    // 从Pref读取所有的设备信息
+    public static List<DeviceInfo> readAllFromPref(SharedPreferences pref) {
         Set<String> addrSet = new HashSet<>();
         addrSet = pref.getStringSet(ADDR_SET, addrSet);
         if (addrSet == null || addrSet.isEmpty()) {
@@ -36,9 +36,9 @@ public class BleDeviceRegisterInfo extends DeviceRegisterInfo {
         // 转为数组排序
         String[] addrArr = addrSet.toArray(new String[0]);
         Arrays.sort(addrArr);
-        List<DeviceRegisterInfo> infos = new ArrayList<>();
+        List<DeviceInfo> infos = new ArrayList<>();
         for (String address : addrArr) {
-            DeviceRegisterInfo info = readFromPref(pref, address);
+            DeviceInfo info = readFromPref(pref, address);
             if (info != null)
                 infos.add(info);
         }
@@ -46,7 +46,7 @@ public class BleDeviceRegisterInfo extends DeviceRegisterInfo {
     }
 
     // 由Pref读取设备注册信息
-    private static DeviceRegisterInfo readFromPref(SharedPreferences pref, String address) {
+    private static DeviceInfo readFromPref(SharedPreferences pref, String address) {
         if (TextUtils.isEmpty(address)) return null;
         String addr = pref.getString(address + ADDRESS, "");
         if (TextUtils.isEmpty(addr)) return null;
@@ -54,10 +54,10 @@ public class BleDeviceRegisterInfo extends DeviceRegisterInfo {
         String name = pref.getString(address + NAME, DEFAULT_DEVICE_NAME);
         String icon = pref.getString(address + ICON, DEFAULT_DEVICE_ICON);
         boolean autoConnect = pref.getBoolean(address + AUTOCONNECT, DEFAULT_DEVICE_AUTO_CONNECT);
-        return new BleDeviceRegisterInfo(addr, uuid, name, icon, autoConnect);
+        return new BleDeviceInfo(addr, uuid, name, icon, autoConnect);
     }
 
-    // 将注册信息保存到Pref
+    // 将设备信息保存到Pref
     public boolean saveToPref(SharedPreferences pref) {
         if (TextUtils.isEmpty(address)) return false;
 

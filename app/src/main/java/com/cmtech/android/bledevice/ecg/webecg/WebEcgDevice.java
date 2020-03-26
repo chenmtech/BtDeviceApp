@@ -5,7 +5,7 @@ import android.os.Looper;
 import android.os.Message;
 
 import com.cmtech.android.ble.core.DeviceState;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.bledevice.ecg.device.AbstractEcgDevice;
 import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
 import com.cmtech.android.bledevice.ecg.process.signal.EcgSignalProcessor;
@@ -93,7 +93,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
     };
 
     // 构造器
-    public WebEcgDevice(DeviceRegisterInfo registerInfo) {
+    public WebEcgDevice(DeviceInfo registerInfo) {
         super(registerInfo);
         signalProcessor = new EcgSignalProcessor(this, false);
     }

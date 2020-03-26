@@ -3,7 +3,7 @@ package com.cmtech.android.bledevice.siggenerator.model;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.vise.log.ViseLog;
 
@@ -20,12 +20,12 @@ public class SigGeneratorDevice extends AbstractDevice {
     private static final String sigGeneratorFreqUuid        = "aa54";           // 信号频率UUID:aa54
     private static final String sigGeneratorBaselineUuid      = "aa55";           // 信号基线UUID:aa55
 
-    private static final UUID sigGeneratorServiceUUID       = UuidUtil.stringToUuid(sigGeneratorServiceUuid, MY_BASE_UUID);
-    private static final UUID sigGeneratorCtrlUUID          = UuidUtil.stringToUuid(sigGeneratorCtrlUuid, MY_BASE_UUID);
-    private static final UUID sigGeneratorTypeUUID          = UuidUtil.stringToUuid(sigGeneratorTypeUuid, MY_BASE_UUID);
-    private static final UUID sigGeneratorMagUUID          = UuidUtil.stringToUuid(sigGeneratorMagUuid, MY_BASE_UUID);
-    private static final UUID sigGeneratorFreqUUID        = UuidUtil.stringToUuid(sigGeneratorFreqUuid, MY_BASE_UUID);
-    private static final UUID sigGeneratorBaselineUUID      = UuidUtil.stringToUuid(sigGeneratorBaselineUuid, MY_BASE_UUID);
+    private static final UUID sigGeneratorServiceUUID       = UuidUtil.stringToUUUID(sigGeneratorServiceUuid, MY_BASE_UUID);
+    private static final UUID sigGeneratorCtrlUUID          = UuidUtil.stringToUUUID(sigGeneratorCtrlUuid, MY_BASE_UUID);
+    private static final UUID sigGeneratorTypeUUID          = UuidUtil.stringToUUUID(sigGeneratorTypeUuid, MY_BASE_UUID);
+    private static final UUID sigGeneratorMagUUID          = UuidUtil.stringToUUUID(sigGeneratorMagUuid, MY_BASE_UUID);
+    private static final UUID sigGeneratorFreqUUID        = UuidUtil.stringToUUUID(sigGeneratorFreqUuid, MY_BASE_UUID);
+    private static final UUID sigGeneratorBaselineUUID      = UuidUtil.stringToUUUID(sigGeneratorBaselineUuid, MY_BASE_UUID);
 
     // Gatt Element常量
     private static final BleGattElement SIGGENERATOR_CTRL =
@@ -44,7 +44,7 @@ public class SigGeneratorDevice extends AbstractDevice {
     private static final byte SIGGENERATOR_CTRL_START =             (byte) 0x01;        // 启动信号
 
     // 构造器
-    public SigGeneratorDevice(DeviceRegisterInfo registerInfo) {
+    public SigGeneratorDevice(DeviceInfo registerInfo) {
         super(registerInfo);
     }
 

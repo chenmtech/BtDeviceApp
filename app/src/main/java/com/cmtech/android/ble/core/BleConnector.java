@@ -1,6 +1,8 @@
 package com.cmtech.android.ble.core;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.Intent;
 
 import com.cmtech.android.ble.callback.IBleConnectCallback;
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -131,7 +133,9 @@ public class BleConnector extends AbstractConnector {
     @Override
     public void connect() {
         if(BleScanner.isBleDisabled()) {
-            df
+            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            context.startActivity(intent);
+            return;
         }
         super.connect();
         new BleGatt(context, address, connectCallback).connect();
@@ -143,7 +147,7 @@ public class BleConnector extends AbstractConnector {
         ViseLog.e("BleConnector.disconnect(): " + (forever ? "forever" : ""));
         super.disconnect(forever);
         if (bleGatt != null) {
-            bleGatt.disconnect(forever);
+            bleGatt.disconnect();
         }
     }
 

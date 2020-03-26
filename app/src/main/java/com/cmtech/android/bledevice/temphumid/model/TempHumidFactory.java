@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.temphumid.model;
 
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.temphumid.view.TempHumidFragment;
 import com.cmtech.android.bledeviceapp.R;
@@ -17,7 +17,7 @@ public class TempHumidFactory extends DeviceFactory {
 
     public static final DeviceType TEMPHUMID_DEVICE_TYPE = new DeviceType(TEMPHUMID_UUID, TEMPHUMID_DEFAULT_IMAGE_ID, TEMPHUMID_DEFAULT_NAME, TEMPHUMID_FACTORY);
 
-    private TempHumidFactory(DeviceRegisterInfo registerInfo) {
+    private TempHumidFactory(DeviceInfo registerInfo) {
         super(registerInfo);
     }
 

@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.thermo.model;
 
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.thermo.view.ThermoFragment;
 import com.cmtech.android.bledeviceapp.R;
@@ -16,7 +16,7 @@ public class ThermoFactory extends DeviceFactory {
 
     public static final DeviceType THERMO_DEVICE_TYPE = new DeviceType(THERMOMETER_UUID, THERMOMETER_DEFAULT_IMAGE_ID, THERMOMETER_DEFAULT_NAME, THERMOMETER_FACTORY);
 
-    private ThermoFactory(DeviceRegisterInfo registerInfo) {
+    private ThermoFactory(DeviceInfo registerInfo) {
         super(registerInfo);
     }
 

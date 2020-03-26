@@ -1,6 +1,6 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.vise.log.ViseLog;
@@ -21,14 +21,14 @@ import java.lang.reflect.Constructor;
 
 
 public abstract class DeviceFactory {
-    protected final DeviceRegisterInfo registerInfo; // 设备注册信息
+    protected final DeviceInfo registerInfo; // 设备注册信息
 
-    protected DeviceFactory(DeviceRegisterInfo registerInfo) {
+    protected DeviceFactory(DeviceInfo registerInfo) {
         this.registerInfo = registerInfo;
     }
 
     // 获取注册信息对应的工厂
-    public static DeviceFactory getFactory(DeviceRegisterInfo registerInfo) {
+    public static DeviceFactory getFactory(DeviceInfo registerInfo) {
         if(registerInfo == null) return null;
 
         DeviceType type = DeviceType.getFromUuid(registerInfo.getUuid());
@@ -45,7 +45,7 @@ public abstract class DeviceFactory {
 
         DeviceFactory factory;
         try {
-            Constructor constructor = Class.forName(factoryClassName).getDeclaredConstructor(DeviceRegisterInfo.class);
+            Constructor constructor = Class.forName(factoryClassName).getDeclaredConstructor(DeviceInfo.class);
             constructor.setAccessible(true);
             factory = (DeviceFactory) constructor.newInstance(registerInfo);
         } catch (Exception e) {

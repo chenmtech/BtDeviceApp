@@ -7,8 +7,8 @@ import com.cmtech.android.ble.exception.BleException;
 public interface IDevice extends IConnector.IConnectorCallback {
     int INVALID_BATTERY = -1; // invalid battery level
 
-    DeviceRegisterInfo getRegisterInfo();
-    void updateRegisterInfo(DeviceRegisterInfo registerInfo);
+    DeviceInfo getRegisterInfo();
+    void updateRegisterInfo(DeviceInfo registerInfo);
     boolean isLocal(); // is local connCallback
     String getAddress();
     String getName();

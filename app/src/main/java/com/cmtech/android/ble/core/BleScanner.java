@@ -35,74 +35,69 @@ public class BleScanner {
     private static volatile boolean bleInnerError = false; // 是否发生蓝牙内部错误，比如由于频繁扫描引起的错误
 
     // 开始扫描
-    public static void startScan(ScanFilter scanFilter, final IBleScanCallback bleScanCallback) {
-        if(bleScanCallback == null) {
-            throw new NullPointerException("The IBleScanCallback is null");
+    public static void startScan(ScanFilter scanFilter, final IBleScanCallback bleCallback) {
+        if(bleCallback == null) {
+            throw new NullPointerException("The IBleCallback is null");
         }
 
         ScanCallbackAdapter cbAdapter = null;
         synchronized (BleScanner.class) {
             if (BleScanner.isBleDisabled()) {
-                bleScanCallback.onScanFailed(CODE_BLE_CLOSED);
+                bleCallback.onScanFailed(CODE_BLE_CLOSED);
                 return;
             }
             if (bleInnerError) {
-                bleScanCallback.onScanFailed(CODE_BLE_INNER_ERROR);
+                bleCallback.onScanFailed(CODE_BLE_INNER_ERROR);
                 return;
             }
             for (ScanCallbackAdapter callback : callbacks) {
-                if (callback.bleScanCallback == bleScanCallback) {
+                if (callback.callback == bleCallback) {
                     cbAdapter = callback;
                     break;
                 }
             }
             if (cbAdapter == null) {
-                cbAdapter = new ScanCallbackAdapter(bleScanCallback);
+                cbAdapter = new ScanCallbackAdapter(bleCallback);
                 callbacks.add(cbAdapter);
             } else {
-                bleScanCallback.onScanFailed(IBleScanCallback.CODE_ALREADY_STARTED);
+                bleCallback.onScanFailed(IBleScanCallback.CODE_ALREADY_STARTED);
                 return;
             }
         }
-        BluetoothLeScanner scanner;
-        scanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
-        if(scanFilter == null) {
-            scanner.startScan(cbAdapter);
-        } else {
-            ScanSettings.Builder settingsBuilder = new ScanSettings.Builder()
-                    .setScanMode(SCAN_MODE_LOW_POWER)
-                    .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                    .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
-                    .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
-                    .setReportDelay(0L);
-            scanner.startScan(Collections.singletonList(scanFilter), settingsBuilder.build(), cbAdapter);
-        }
+        BluetoothLeScanner scanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
+        ScanSettings.Builder settingsBuilder = new ScanSettings.Builder()
+                .setScanMode(SCAN_MODE_LOW_POWER)
+                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
+                .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
+                .setReportDelay(0L);
+        List<ScanFilter> scanFilters = (scanFilter == null) ? null : Collections.singletonList(scanFilter);
+        scanner.startScan(scanFilters, settingsBuilder.build(), cbAdapter);
     }
 
     // 停止扫描
-    public static void stopScan(IBleScanCallback bleScanCallback) {
-        if(bleScanCallback == null) {
+    public static void stopScan(IBleScanCallback bleCallback) {
+        if(bleCallback == null) {
             throw new NullPointerException("The IBleScanCallback is null.");
         }
 
-        ScanCallbackAdapter scanCallback = null;
+        ScanCallbackAdapter cbAdapter = null;
         synchronized (BleScanner.class) {
             if(isBleDisabled()) {
                 return;
             }
             for(ScanCallbackAdapter callback : callbacks) {
-                if(callback.bleScanCallback == bleScanCallback) {
-                    scanCallback = callback;
+                if(callback.callback == bleCallback) {
+                    cbAdapter = callback;
                     break;
                 }
             }
-            if(scanCallback != null) {
-                callbacks.remove(scanCallback);
+            if(cbAdapter != null) {
+                callbacks.remove(cbAdapter);
             }
         }
-        if(scanCallback != null) {
-            BluetoothLeScanner scanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
-            scanner.stopScan(scanCallback);
+        if(cbAdapter != null) {
+            BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner().stopScan(cbAdapter);
         }
 
         ViseLog.e("Scan stopped");
@@ -120,33 +115,32 @@ public class BleScanner {
     }
 
     private static class ScanCallbackAdapter extends ScanCallback {
-        private IBleScanCallback bleScanCallback;
+        private IBleScanCallback callback;
 
-        ScanCallbackAdapter(IBleScanCallback bleScanCallback) {
-            if(bleScanCallback == null) {
+        ScanCallbackAdapter(IBleScanCallback bleCallback) {
+            if(bleCallback == null) {
                 throw new IllegalArgumentException("The IBleScanCallback is null.");
             }
-            this.bleScanCallback = bleScanCallback;
+            this.callback = bleCallback;
         }
 
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
 
-            if(bleScanCallback != null) {
+            if(callback != null) {
                 byte[] recordBytes = (result.getScanRecord() == null) ? null : result.getScanRecord().getBytes();
                 BleDeviceDetailInfo bleDeviceDetailInfo = new BleDeviceDetailInfo(result.getDevice(), result.getRssi(), recordBytes, result.getTimestampNanos());
-                bleScanCallback.onDeviceFound(bleDeviceDetailInfo);
+                callback.onDeviceFound(bleDeviceDetailInfo);
             }
         }
 
         @Override
         public void onScanFailed(int errorCode) {
             super.onScanFailed(errorCode);
-
             bleInnerError = true;
-            if(bleScanCallback != null)
-                bleScanCallback.onScanFailed(CODE_BLE_INNER_ERROR);
+            if(callback != null)
+                callback.onScanFailed(CODE_BLE_INNER_ERROR);
         }
 
         @Override

@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.siggenerator.model;
 
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.siggenerator.view.SigGeneratorFragment;
 import com.cmtech.android.bledeviceapp.R;
@@ -16,7 +16,7 @@ public class SigGeneratorFactory extends DeviceFactory {
 
     public static final DeviceType SIGGENERATOR_DEVICE_TYPE = new DeviceType(SIGGENERATOR_UUID, SIGGENERATOR_DEFAULT_IMAGE_ID, SIGGENERATOR_DEFAULT_NAME, SIGGENERATOR_FACTORY);
 
-    private SigGeneratorFactory(DeviceRegisterInfo registerInfo) {
+    private SigGeneratorFactory(DeviceInfo registerInfo) {
         super(registerInfo);
     }
 

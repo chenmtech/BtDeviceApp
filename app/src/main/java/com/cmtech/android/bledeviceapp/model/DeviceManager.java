@@ -3,9 +3,9 @@ package com.cmtech.android.bledeviceapp.model;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
+import com.cmtech.android.ble.core.WebDeviceInfo;
 import com.cmtech.android.bledevice.ecg.webecg.EcgHttpReceiver;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgDevice;
 import com.cmtech.android.bledeviceapp.util.UserUtil;
@@ -34,7 +34,7 @@ public class DeviceManager {
     private static final List<IDevice> DEVICE_LIST = new ArrayList<IDevice>(); // 所有已注册设备列表
 
     // 如果设备不存在，用注册信息创建一个设备
-    public static IDevice createDeviceIfNotExist(DeviceRegisterInfo registerInfo) {
+    public static IDevice createDeviceIfNotExist(DeviceInfo registerInfo) {
         IDevice device = findDevice(registerInfo);
         if(device != null) {
             ViseLog.e("The device has existed.");
@@ -55,7 +55,7 @@ public class DeviceManager {
     }
 
     // 用注册信息寻找设备
-    public static IDevice findDevice(DeviceRegisterInfo registerInfo) {
+    public static IDevice findDevice(DeviceInfo registerInfo) {
         return (registerInfo == null) ? null : findDevice(registerInfo.getAddress());
     }
 
@@ -70,7 +70,7 @@ public class DeviceManager {
         return null;
     }
 
-    private static IDevice createDevice(DeviceRegisterInfo registerInfo) {
+    private static IDevice createDevice(DeviceInfo registerInfo) {
         DeviceFactory factory = DeviceFactory.getFactory(registerInfo); // 获取相应的工厂
         return (factory == null) ? null : factory.createDevice();
     }
@@ -176,7 +176,7 @@ public class DeviceManager {
 
                 final int[] update = new int[]{deviceList.size()};
                 for(WebEcgDevice device : deviceList) {
-                    final WebDeviceRegisterInfo registerInfo = (WebDeviceRegisterInfo)device.getRegisterInfo();
+                    final WebDeviceInfo registerInfo = (WebDeviceInfo)device.getRegisterInfo();
                     UserUtil.getUserInfo(registerInfo.getBroadcastId(), new UserUtil.IGetUserInfoCallback() {
                         @Override
                         public void onReceived(String userId, final String name, String description, Bitmap image) {

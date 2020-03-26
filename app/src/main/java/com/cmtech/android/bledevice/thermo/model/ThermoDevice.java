@@ -4,7 +4,7 @@ import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
 import com.cmtech.android.ble.core.BleConnector;
 import com.cmtech.android.ble.core.BleGattElement;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -31,11 +31,11 @@ public class ThermoDevice extends AbstractDevice {
     private static final String thermoIntervalUuid = "2A21"; // measurement interval UUID
     private static final String thermoIRangeUuid = "2906"; // measurement interval range UUID
 
-    private static final UUID thermoServiceUUID = UuidUtil.stringToUuid(thermoServiceUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoTempUUID = UuidUtil.stringToUuid(thermoTempUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoTypeUUID = UuidUtil.stringToUuid(thermoTypeUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoIntervalUUID = UuidUtil.stringToUuid(thermoIntervalUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoIRangeUUID = UuidUtil.stringToUuid(thermoIRangeUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoServiceUUID = UuidUtil.stringToUUUID(thermoServiceUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoTempUUID = UuidUtil.stringToUUUID(thermoTempUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoTypeUUID = UuidUtil.stringToUUUID(thermoTypeUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoIntervalUUID = UuidUtil.stringToUUUID(thermoIntervalUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoIRangeUUID = UuidUtil.stringToUUUID(thermoIRangeUuid, STANDARD_BLE_UUID);
 
     private static final BleGattElement THERMOTEMP =
             new BleGattElement(thermoServiceUUID, thermoTempUUID, null, "体温值");
@@ -52,7 +52,7 @@ public class ThermoDevice extends AbstractDevice {
 
     private final List<OnThermoDeviceListener> thermoListeners = new LinkedList<>();
 
-    public ThermoDevice(DeviceRegisterInfo registerInfo) {
+    public ThermoDevice(DeviceInfo registerInfo) {
         super(registerInfo);
     }
 

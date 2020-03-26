@@ -44,13 +44,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.ble.core.BleDeviceRegisterInfo;
+import com.cmtech.android.ble.core.BleDeviceInfo;
 import com.cmtech.android.ble.core.BleScanner;
-import com.cmtech.android.ble.core.DeviceRegisterInfo;
+import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
-import com.cmtech.android.ble.core.WebDeviceRegisterInfo;
+import com.cmtech.android.ble.core.WebDeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.ble.exception.ScanException;
 import com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity;
 import com.cmtech.android.bledevice.ecg.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity;
@@ -353,9 +352,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             updateMainLayoutVisibility(false);
         } else {
             String title = device.getName();
-            DeviceRegisterInfo registerInfo = device.getRegisterInfo();
+            DeviceInfo registerInfo = device.getRegisterInfo();
             if(!device.isLocal()) {
-                title += ("-" + ((WebDeviceRegisterInfo) registerInfo).getBroadcastName());
+                title += ("-" + ((WebDeviceInfo) registerInfo).getBroadcastName());
             }
             toolbarManager.setTitle(title, device.getAddress());
             toolbarManager.setBattery(device.getBattery());
@@ -371,14 +370,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         switch (requestCode) {
             case RC_REGISTER_DEVICE: // 注册设备返回
                 if(resultCode == RESULT_OK) {
-                    BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
+                    BleDeviceInfo registerInfo = (BleDeviceInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     registerDevice(registerInfo);
                 }
                 break;
 
             case RC_MODIFY_REGISTER_INFO: // 修改注册信息返回
                 if ( resultCode == RESULT_OK) {
-                    BleDeviceRegisterInfo registerInfo = (BleDeviceRegisterInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
+                    BleDeviceInfo registerInfo = (BleDeviceInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
                     IDevice device = DeviceManager.findDevice(registerInfo);
                     if(device != null && registerInfo.saveToPref(pref)) {
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
@@ -419,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
     }
 
-    private void registerDevice(BleDeviceRegisterInfo registerInfo) {
+    private void registerDevice(BleDeviceInfo registerInfo) {
         if(registerInfo != null) {
             IDevice device = DeviceManager.createDeviceIfNotExist(registerInfo);
             if(device != null) {
@@ -651,8 +650,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                DeviceRegisterInfo registerInfo = device.getRegisterInfo();
-                if(registerInfo instanceof BleDeviceRegisterInfo && ((BleDeviceRegisterInfo)registerInfo).deleteFromPref(pref)) {
+                DeviceInfo registerInfo = device.getRegisterInfo();
+                if(registerInfo instanceof BleDeviceInfo && ((BleDeviceInfo)registerInfo).deleteFromPref(pref)) {
                     DeviceManager.deleteDevice(device);
                     updateDeviceList();
                 } else {
@@ -668,7 +667,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     }
 
     // 修改设备注册信息 
-    public void modifyRegisterInfo(final DeviceRegisterInfo registerInfo) {
+    public void modifyRegisterInfo(final DeviceInfo registerInfo) {
         Intent intent = new Intent(this, RegisterActivity.class);
         intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
         startActivityForResult(intent, RC_MODIFY_REGISTER_INFO);

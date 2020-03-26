@@ -5,8 +5,8 @@ import java.io.Serializable;
 
 
 /**
- * ClassName:      DeviceRegisterInfo
- * Description:    设备注册信息，字段信息将保存在Preference中
+ * ClassName:      DeviceInfo
+ * Description:    设备信息，字段信息将保存在Preference中
  * Author:         chenm
  * CreateDate:     2018-06-27 08:56
  * UpdateUser:     chenm
@@ -15,7 +15,7 @@ import java.io.Serializable;
  * Version:        1.0
  */
 
-public abstract class DeviceRegisterInfo implements Serializable {
+public abstract class DeviceInfo implements Serializable {
     private static final long serialVersionUID = 1L;
     public static final String DEFAULT_DEVICE_NAME = ""; // 缺省设备名
     public static final String DEFAULT_DEVICE_ICON = ""; // 缺省设备图标路径名
@@ -27,13 +27,13 @@ public abstract class DeviceRegisterInfo implements Serializable {
     protected String icon = DEFAULT_DEVICE_ICON; // 设备图标完整路径
     protected boolean autoConnect = DEFAULT_DEVICE_AUTO_CONNECT; // 设备打开后是否自动连接
 
-    public DeviceRegisterInfo(String address, String uuid) {
+    public DeviceInfo(String address, String uuid) {
         this.address = address;
         this.uuid = uuid;
     }
 
-    protected DeviceRegisterInfo(String address, String uuid, String name, String icon,
-                                 boolean autoConnect) {
+    protected DeviceInfo(String address, String uuid, String name, String icon,
+                         boolean autoConnect) {
         this.address = address;
         this.uuid = uuid;
         this.name = name;
@@ -67,11 +67,11 @@ public abstract class DeviceRegisterInfo implements Serializable {
         this.autoConnect = autoConnect;
     }
 
-    public void update(DeviceRegisterInfo registerInfo) {
-        if (address.equalsIgnoreCase(registerInfo.address) && uuid.equalsIgnoreCase(registerInfo.uuid)) {
-            name = registerInfo.name;
-            icon = registerInfo.icon;
-            autoConnect = registerInfo.autoConnect;
+    public void update(DeviceInfo info) {
+        if (address.equalsIgnoreCase(info.address) && uuid.equalsIgnoreCase(info.uuid)) {
+            name = info.name;
+            icon = info.icon;
+            autoConnect = info.autoConnect;
         }
     }
 
@@ -79,7 +79,7 @@ public abstract class DeviceRegisterInfo implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DeviceRegisterInfo that = (DeviceRegisterInfo) o;
+        DeviceInfo that = (DeviceInfo) o;
         return address.equalsIgnoreCase(that.address) && isLocal() == that.isLocal();
     }
 

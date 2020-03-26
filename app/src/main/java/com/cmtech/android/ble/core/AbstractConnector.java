@@ -91,7 +91,7 @@ public abstract class AbstractConnector implements IConnector {
         if (this.state != state) {
             ViseLog.e(address + ": " + state);
             this.state = state;
-            connCallback.onConnectorStateUpdated();
+            connCallback.onConnectStateUpdated();
         }
     }
 
