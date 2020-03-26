@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecg.adapter;
+package com.cmtech.android.bledeviceapp.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -8,9 +8,9 @@ import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.ecgmonitor.adapter
- * ClassName:      EcgCtrlPanelAdapter
- * Description:    Ecg控制Adapter
+ * Package:        com.cmtech.android.bledeviceapp.adapter
+ * ClassName:      CtrlPanelAdapter
+ * Description:    控制板Adapter
  * Author:         chenm
  * CreateDate:     2019/4/15 上午5:44
  * UpdateUser:     更新者
@@ -18,11 +18,11 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class EcgCtrlPanelAdapter extends FragmentPagerAdapter {
+public class CtrlPanelAdapter extends FragmentPagerAdapter {
     private final List<Fragment> fragmentList;
     private final List<String> titleList;
 
-    public EcgCtrlPanelAdapter(FragmentManager fm, List<Fragment> fragmentList, List<String> titleList) {
+    public CtrlPanelAdapter(FragmentManager fm, List<Fragment> fragmentList, List<String> titleList) {
         super(fm);
         this.fragmentList = fragmentList;
         this.titleList = titleList;

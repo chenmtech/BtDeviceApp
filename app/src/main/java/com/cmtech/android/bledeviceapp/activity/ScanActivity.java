@@ -33,7 +33,7 @@ import java.util.List;
 import static com.cmtech.android.bledeviceapp.AppConstant.SCAN_DURATION;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingLongToast;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
-import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
+import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_INFO;
 
 /**
   *
@@ -50,7 +50,7 @@ import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_R
 public class ScanActivity extends AppCompatActivity {
     private static final String TAG = "ScanActivity";
     private static final ScanFilter SCAN_FILTER = null;
-    public static final String REGISTERED_DEVICE_ADDRESS_LIST = "registered_device_address_list";
+    //public static final String REGISTERED_DEVICE_ADDRESS_LIST = "registered_device_address_list";
 
     private final List<BleDeviceDetailInfo> foundDevInfos = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
     private List<String> regAddrs = new ArrayList<>(); // 已注册的设备mac地址列表
@@ -107,7 +107,7 @@ public class ScanActivity extends AppCompatActivity {
         // 获取已注册设备地址列表
         Intent intent = getIntent();
         if(intent != null) {
-            regAddrs = (List<String>) intent.getSerializableExtra(REGISTERED_DEVICE_ADDRESS_LIST);
+            regAddrs = (List<String>) intent.getSerializableExtra("device_address_list");
         }
 
         // 初始化扫描设备列表
@@ -217,7 +217,7 @@ public class ScanActivity extends AppCompatActivity {
         String uuidShortString = HexUtil.encodeHexStr(uuidBytes);
         DeviceInfo registerInfo = new BleDeviceInfo(detailInfo.getAddress(), uuidShortString);
         Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
-        intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
+        intent.putExtra(DEVICE_INFO, registerInfo);
         startActivityForResult(intent, 1);
     }
 

@@ -26,14 +26,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuPopupHelper;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -46,11 +44,10 @@ import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity;
-import com.cmtech.android.bledevice.ecg.adapter.EcgCtrlPanelAdapter;
 import com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
@@ -67,15 +64,17 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.tencent.qq.QQ;
+import cn.sharesdk.wechat.friends.Wechat;
+
 import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
-import static com.cmtech.android.bledevice.ecg.device.EcgFactory.ECGMONITOR_DEVICE_TYPE;
-import static com.cmtech.android.bledevice.temphumid.model.TempHumidFactory.TEMPHUMID_DEVICE_TYPE;
-import static com.cmtech.android.bledevice.thermo.model.ThermoFactory.THERMO_DEVICE_TYPE;
+import static com.cmtech.android.bledeviceapp.AppConstant.KM_STORE_URI;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
 import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLATFORM;
-import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_REGISTER_INFO;
-import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_DEVICE_ADDRESS_LIST;
+import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_INFO;
 
 /**
  *  MainActivity: 主界面
@@ -84,31 +83,33 @@ import static com.cmtech.android.bledeviceapp.activity.ScanActivity.REGISTERED_D
 
 public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceListener, FragTabManager.OnFragmentUpdatedListener {
     private static final String TAG = "MainActivity";
-    private final static int RC_REGISTER_DEVICE = 1;     // 注册设备返回码
-    private final static int RC_MODIFY_REGISTER_INFO = 2;       // 修改设备注册信息返回码
-    private final static int RC_MODIFY_ACCOUNT_INFO = 3;     // 修改账户信息返回码
+    private final static int RC_REGISTER_DEVICE = 1;     // return code for registering new device
+    private final static int RC_MODIFY_DEVICE_INFO = 2;       // return code for modifying device info
+    private final static int RC_MODIFY_ACCOUNT_INFO = 3;     // return code for modifying account info
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
     LocalDevicesFragment localDevicesFragment;
     //WebDevicesFragment webDevicesFragment;
-    private NotifyService notifyService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
+    private NotifyService notiService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
     private DeviceFragTabManager fragTabManager; // BleFragment和TabLayout管理器
-    private MainToolbarManager toolbarManager; // 工具条管理器
+    private MainToolbarManager tbManager; // 工具条管理器
     private DrawerLayout drawerLayout; // 侧滑界面
-    private LinearLayout noDeviceOpenedLayout; // 无设备打开时的界面
-    private RelativeLayout hasDeviceOpenedLayout; // 有设备打开时的界面，即包含设备Fragment和Tablayout的主界面
+    private LinearLayout noDeviceLayout; // 无设备打开时的界面
+    private RelativeLayout hasDeviceLayout; // 有设备打开时的界面，即包含设备Fragment和Tablayout的主界面
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountImage; // 头像头像控件
-    private boolean stopNotifyService = false; // 是否停止通知服务
+    private Button btnLogout;
+    private boolean stopNotiService = false; // 是否停止通知服务
+
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            notifyService = ((NotifyService.BleNotifyServiceBinder)iBinder).getService();
-            // 成功绑定后初始化，否则请求退出
-            if(notifyService != null) {
-                initialize();
+            notiService = ((NotifyService.BleNotifyServiceBinder)iBinder).getService();
+            // 成功绑定后初始化UI，否则请求退出
+            if(notiService != null) {
+                initUI();
             } else {
                 requestFinish();
             }
@@ -116,17 +117,17 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            if(notifyService != null) {
-                Intent stopServiceIntent = new Intent(MainActivity.this, NotifyService.class);
-                stopService(stopServiceIntent);
-                notifyService = null;
+            if(notiService != null) {
+                Intent intent = new Intent(MainActivity.this, NotifyService.class);
+                stopService(intent);
+                notiService = null;
             }
             finish();
         }
     };
 
-    public NotifyService getNotifyService() {
-        return notifyService;
+    public NotifyService getNotiService() {
+        return notiService;
     }
 
     @Override
@@ -157,26 +158,29 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     }
 
     // 主界面初始化
-    private void initialize() {
+    private void initUI() {
         // 初始化工具条管理器
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        TextView tvDeviceBattery = findViewById(R.id.tv_device_battery);
-        toolbarManager = new MainToolbarManager(this, toolbar, tvDeviceBattery);
-        toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
+        TextView tvBattery = findViewById(R.id.tv_device_battery);
+        tbManager = new MainToolbarManager(this, toolbar, tvBattery);
+        tbManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
 
+        // init device control panel
         ViewPager pager = findViewById(R.id.vp_device_panel);
         TabLayout layout = findViewById(R.id.tl_device_panel);
         localDevicesFragment = new LocalDevicesFragment();
         //webDevicesFragment = new WebDevicesFragment();
-        List<Fragment> fragmentList = new ArrayList<>();fragmentList.add(localDevicesFragment);
-        List<String> titleList = new ArrayList<>();titleList.add("本地设备");
-        EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getSupportFragmentManager(), fragmentList, titleList);
+        List<Fragment> fragmentList = new ArrayList<>();
+        fragmentList.add(localDevicesFragment);
+        List<String> titleList = new ArrayList<>();
+        titleList.add("本地设备");
+        CtrlPanelAdapter fragAdapter = new CtrlPanelAdapter(getSupportFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(1);
         layout.setupWithViewPager(pager);
 
-        // 初始化导航视图
+        // init navigation view
         initNavigation();
         updateNavigation();
 
@@ -193,15 +197,15 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         });
 
         drawerLayout = findViewById(R.id.drawer_layout);
-        noDeviceOpenedLayout = findViewById(R.id.layout_when_nodeivce_opened);
-        hasDeviceOpenedLayout = findViewById(R.id.layout_when_device_opened);
+        noDeviceLayout = findViewById(R.id.layout_when_nodeivce_opened);
+        hasDeviceLayout = findViewById(R.id.layout_when_device_opened);
 
         // 初始化BleFragTabManager
         TabLayout tabLayout = findViewById(R.id.tablayout_device);
         fragTabManager = new DeviceFragTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
         fragTabManager.setOnFragmentUpdatedListener(this);
 
-        // 初始化主界面
+        // init main layout
         initMainLayout();
 
         // 为已经打开的设备创建并打开Fragment
@@ -218,12 +222,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         View headerView = navView.getHeaderView(0);
         tvAccountName = headerView.findViewById(R.id.tv_account_name);
         ivAccountImage = headerView.findViewById(R.id.iv_account_image);
-
-        headerView.setOnClickListener(new View.OnClickListener() {
+        btnLogout = headerView.findViewById(R.id.btn_logout);
+        btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                //Intent intent = new Intent(MainActivity.this, AccountActivity.class);
-                //startActivityForResult(intent, RC_MODIFY_ACCOUNT_INFO);
+            public void onClick(View v) {
+                logoutAccount();
             }
         });
 
@@ -233,13 +236,13 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_scan_device: // 扫描设备
-                        List<String> registeredMacList = DeviceManager.getDeviceMacList();
+                        List<String> addresses = DeviceManager.getDeviceAddressList();
                         Intent scanIntent = new Intent(MainActivity.this, ScanActivity.class);
-                        scanIntent.putExtra(REGISTERED_DEVICE_ADDRESS_LIST, (Serializable) registeredMacList);
+                        scanIntent.putExtra("device_address_list", (Serializable) addresses);
                         startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
                         return true;
                     case R.id.nav_query_record: // 查阅记录
-                        PopupMenu popupMenu = new PopupMenu(MainActivity.this, item.getActionView());
+                        /*PopupMenu popupMenu = new PopupMenu(MainActivity.this, item.getActionView());
                         popupMenu.inflate(R.menu.menu_query_record);
                         List<DeviceType> types = DeviceType.getSupportedDeviceTypes();
                         popupMenu.getMenu().findItem(R.id.nav_hr_record).setVisible(true);
@@ -254,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                             public boolean onMenuItemClick(MenuItem menuItem) {
                                 switch (menuItem.getItemId()) {
                                     case R.id.nav_hr_record:
-                                      Intent hrIntent = new Intent(MainActivity.this, HrRecordExplorerActivity.class);
+                                        Intent hrIntent = new Intent(MainActivity.this, HrRecordExplorerActivity.class);
                                         startActivity(hrIntent);
                                         return true;
                                     case R.id.nav_ecg_record:
@@ -269,15 +272,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                                 return false;
                             }
                         });
-                        popupHelper.show();
+                        popupHelper.show();*/
+                        Intent hrIntent = new Intent(MainActivity.this, HrRecordExplorerActivity.class);
+                        startActivity(hrIntent);
                         return true;
                     case R.id.nav_open_store: // open KM store
-                        String storeAddress = "https://decathlon.tmall.com/shop/view_shop.htm?spm=a21bo.2017.201863-1.d2.6dd211d9AzJgBt&user_number_id=352469034&pvid=067004f4-d493-413a-a4f7-003e62637549&pos=2&brandId=44506&acm=03014.1003.1.765824&scm=1007.13143.56636.100200300000000";
-                        Intent storeIntent = new Intent(Intent.ACTION_VIEW);
-                        storeIntent.setData(Uri.parse(storeAddress));
-                        startActivity(storeIntent);
-                        //Intent newsIntent = new Intent(MainActivity.this, NewsActivity.class);
-                        //startActivity(newsIntent);
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(KM_STORE_URI));
+                        startActivity(intent);
                         return true;
                     case R.id.nav_exit: // exit
                         requestFinish();
@@ -290,9 +292,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     private void updateMainLayout(IDevice device) {
         if(device == null) {
-            toolbarManager.setTitle(getString(R.string.app_name), getString(R.string.no_device_opened));
-            toolbarManager.setBattery(INVALID_BATTERY);
-            updateConnectFloatingActionButton(CLOSED.getIcon());
+            tbManager.setTitle(getString(R.string.app_name), getString(R.string.no_device_opened));
+            tbManager.setBattery(INVALID_BATTERY);
+            updateConnectFAButton(CLOSED.getIcon());
             invalidateOptionsMenu();
             updateMainLayoutVisibility(false);
         } else {
@@ -301,10 +303,10 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             if(!device.isLocal()) {
                 title += ("-" + ((WebDeviceInfo) registerInfo).getBroadcastName());
             }
-            toolbarManager.setTitle(title, device.getAddress());
-            toolbarManager.setBattery(device.getBattery());
-            updateConnectFloatingActionButton(device.getState().getIcon());
-            updateCloseMenuItemVisible(true);
+            tbManager.setTitle(title, device.getAddress());
+            tbManager.setBattery(device.getBattery());
+            updateConnectFAButton(device.getState().getIcon());
+            updateCloseMenuItem(true);
             updateMainLayoutVisibility(true);
         }
     }
@@ -315,14 +317,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         switch (requestCode) {
             case RC_REGISTER_DEVICE: // 注册设备返回
                 if(resultCode == RESULT_OK) {
-                    BleDeviceInfo registerInfo = (BleDeviceInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
+                    BleDeviceInfo registerInfo = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
                     registerDevice(registerInfo);
                 }
                 break;
 
-            case RC_MODIFY_REGISTER_INFO: // 修改注册信息返回
+            case RC_MODIFY_DEVICE_INFO: // 修改注册信息返回
                 if ( resultCode == RESULT_OK) {
-                    BleDeviceInfo registerInfo = (BleDeviceInfo) data.getSerializableExtra(DEVICE_REGISTER_INFO);
+                    BleDeviceInfo registerInfo = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
                     IDevice device = DeviceManager.findDevice(registerInfo);
                     if(device != null && registerInfo.saveToPref(pref)) {
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
@@ -340,8 +342,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                         }
                         fragTabManager.updateTabInfo(fragTabManager.findFragment(device), drawable, device.getName());
                         if(fragTabManager.isFragmentSelected(device)) {
-                            toolbarManager.setTitle(device.getName(), device.getAddress());
-                            toolbarManager.setBattery(device.getBattery());
+                            tbManager.setTitle(device.getName(), device.getAddress());
+                            tbManager.setBattery(device.getBattery());
                         }
                     } else {
                         showMessageUsingShortToast("设备信息修改失败");
@@ -352,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             case RC_MODIFY_ACCOUNT_INFO: // 修改用户信息返回
                 if(resultCode == RESULT_OK) {
                     updateNavigation();
-                    toolbarManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
+                    tbManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
                 } else {
                     boolean logout = (data != null && data.getBooleanExtra("logout", false));
                     if(logout) { // 退出登录
@@ -363,16 +365,16 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
     }
 
-    private void registerDevice(BleDeviceInfo registerInfo) {
-        if(registerInfo != null) {
-            IDevice device = DeviceManager.createDeviceIfNotExist(registerInfo);
+    private void registerDevice(BleDeviceInfo deviceInfo) {
+        if(deviceInfo != null) {
+            IDevice device = DeviceManager.createDeviceIfNotExist(deviceInfo);
             if(device != null) {
-                if(registerInfo.saveToPref(pref)) {
-                    Toast.makeText(MainActivity.this, "设备注册成功", Toast.LENGTH_SHORT).show();
+                if(deviceInfo.saveToPref(pref)) {
+                    //Toast.makeText(MainActivity.this, "设备注册成功", Toast.LENGTH_SHORT).show();
                     updateDeviceList();
-                    device.addListener(notifyService);
+                    device.addListener(notiService);
                 } else {
-                    Toast.makeText(MainActivity.this, "设备注册失败", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "添加设备失败", Toast.LENGTH_SHORT).show();
                     DeviceManager.deleteDevice(device);
                 }
             }
@@ -389,7 +391,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         getMenuInflater().inflate(R.menu.menu_main, menu);
         MenuItem menuConfig = menu.findItem(R.id.toolbar_config);
         MenuItem menuClose = menu.findItem(R.id.toolbar_close);
-        toolbarManager.setMenuItems(new MenuItem[]{menuConfig, menuClose});
+        tbManager.setMenuItems(new MenuItem[]{menuConfig, menuClose});
         return true;
     }
 
@@ -398,9 +400,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         super.onPrepareOptionsMenu(menu);
 
         if(fragTabManager.size() == 0) {
-            toolbarManager.updateMenuItemsVisible(new boolean[]{false, true});
+            tbManager.updateMenuItemsVisible(new boolean[]{false, true});
         } else {
-            toolbarManager.updateMenuItemsVisible(new boolean[]{true, true});
+            tbManager.updateMenuItemsVisible(new boolean[]{true, true});
         }
         return true;
     }
@@ -440,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         DeviceManager.removeDeviceListener(this);
 
         unbindService(serviceConnection);
-        if(stopNotifyService) {
+        if(stopNotiService) {
             Intent stopIntent = new Intent(MainActivity.this, NotifyService.class);
             stopService(stopIntent);
         }
@@ -454,21 +456,21 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             builder.setPositiveButton("退出", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    stopNotifyService = true;
+                    stopNotiService = true;
                     finish();
                 }
             });
             builder.setNegativeButton("最小化", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    stopNotifyService = false;
+                    stopNotiService = false;
                     openDrawer(false);
                     MainActivity.this.moveTaskToBack(true);
                 }
             });
             builder.show();
         } else {
-            stopNotifyService = true;
+            stopNotiService = true;
             finish();
         }
     }
@@ -490,8 +492,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 DeviceFragment deviceFrag = fragTabManager.findFragment(device);
                 if(deviceFrag != null) deviceFrag.updateState();
                 if(fragTabManager.isFragmentSelected(device)) {
-                    updateConnectFloatingActionButton(device.getState().getIcon());
-                    updateCloseMenuItemVisible(true);
+                    updateConnectFAButton(device.getState().getIcon());
+                    updateCloseMenuItem(true);
                 }
             }
         });
@@ -511,7 +513,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    toolbarManager.setBattery(device.getBattery());
+                    tbManager.setBattery(device.getBattery());
                 }
             });
         }
@@ -609,14 +611,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     }
 
     // 修改设备注册信息 
-    public void modifyRegisterInfo(final DeviceInfo registerInfo) {
+    public void modifyDeviceInfo(final DeviceInfo deviceInfo) {
         Intent intent = new Intent(this, RegisterActivity.class);
-        intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
-        startActivityForResult(intent, RC_MODIFY_REGISTER_INFO);
+        intent.putExtra(DEVICE_INFO, deviceInfo);
+        startActivityForResult(intent, RC_MODIFY_DEVICE_INFO);
     }
 
     private void initMainLayout() {
-        TextView tvVersionName = noDeviceOpenedLayout.findViewById(R.id.tv_versionname);
+        TextView tvVersionName = noDeviceLayout.findViewById(R.id.tv_versionname);
         tvVersionName.setText(String.format("Ver%s", APKVersionCodeUtils.getVerName(this)));
         updateMainLayout(null);
     }
@@ -630,20 +632,28 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
     }
 
-    // 退出登录
+    // logout
     private void logoutAccount() {
-        /*if(DeviceManager.hasOpenedDevice()) {
+        if(DeviceManager.hasOpenedDevice()) {
             Toast.makeText(this, "有设备打开，请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        Account account = AccountManager.getInstance().getAccount();
+        if(account != null) {
+            if(account.getPlatName().equals(QQ.NAME)) {
+                Platform plat = ShareSDK.getPlatform(QQ.NAME);
+                plat.removeAccount(true);
+            } else if(account.getPlatName().equals(Wechat.NAME)) {
+                Platform plat = ShareSDK.getPlatform(Wechat.NAME);
+                plat.removeAccount(true);
+            }
+        }
         AccountManager.getInstance().signOut();
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        SplashActivity.saveLoginInfo(pref, "", -1);
 
         Intent intent = new Intent(MainActivity.this, SplashActivity.class);
         startActivity(intent);
-        finish();*/
+        finish();
     }
 
     private void updateNavigation() {
@@ -670,17 +680,17 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     // 更新MainLayout的可视性
     private void updateMainLayoutVisibility(boolean hasDeviceOpened) {
-        if(hasDeviceOpened && hasDeviceOpenedLayout.getVisibility() == View.INVISIBLE) {
-            noDeviceOpenedLayout.setVisibility(View.INVISIBLE);
-            hasDeviceOpenedLayout.setVisibility(View.VISIBLE);
-        } else if(!hasDeviceOpened && hasDeviceOpenedLayout.getVisibility() == View.VISIBLE){
-            noDeviceOpenedLayout.setVisibility(View.VISIBLE);
-            hasDeviceOpenedLayout.setVisibility(View.INVISIBLE);
+        if(hasDeviceOpened && hasDeviceLayout.getVisibility() == View.INVISIBLE) {
+            noDeviceLayout.setVisibility(View.INVISIBLE);
+            hasDeviceLayout.setVisibility(View.VISIBLE);
+        } else if(!hasDeviceOpened && hasDeviceLayout.getVisibility() == View.VISIBLE){
+            noDeviceLayout.setVisibility(View.VISIBLE);
+            hasDeviceLayout.setVisibility(View.INVISIBLE);
         }
     }
 
     // 更新连接浮动动作按钮
-    private void updateConnectFloatingActionButton(int icon) {
+    private void updateConnectFAButton(int icon) {
         fabConnect.clearAnimation();
         fabConnect.setImageResource(icon);
         if(fabConnect.getDrawable() instanceof AnimationDrawable) {
@@ -688,8 +698,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
     }
 
-    private void updateCloseMenuItemVisible(boolean canClosed) {
-        toolbarManager.updateMenuItemVisible(1, canClosed);
+    private void updateCloseMenuItem(boolean visible) {
+        tbManager.updateMenuItemVisible(1, visible);
     }
 
 }

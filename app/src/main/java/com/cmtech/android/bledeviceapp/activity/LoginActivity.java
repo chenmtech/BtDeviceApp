@@ -55,6 +55,17 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        Platform plat = ShareSDK.getPlatform(QQ.NAME);
+        if(plat.isAuthValid()) {
+            loginUsingQQorWechat(plat);
+            return;
+        }
+        plat = ShareSDK.getPlatform(Wechat.NAME);
+        if(plat.isAuthValid()) {
+            loginUsingQQorWechat(plat);
+            return;
+        }
+
         qqLogin = findViewById(R.id.ib_qq_login);
         qqLogin.setOnClickListener(new View.OnClickListener() {
             @Override

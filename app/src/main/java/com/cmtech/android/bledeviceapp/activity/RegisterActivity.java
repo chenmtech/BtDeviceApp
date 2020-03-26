@@ -40,7 +40,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
  */
 
 public class RegisterActivity extends AppCompatActivity {
-    public static final String DEVICE_REGISTER_INFO = "device_register_info";
+    public static final String DEVICE_INFO = "device__info";
 
     private BleDeviceInfo registerInfo; // 设备基本信息
     private EditText etName; // 设备名
@@ -55,7 +55,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent != null) {
-            registerInfo = (BleDeviceInfo) intent.getSerializableExtra(DEVICE_REGISTER_INFO);
+            registerInfo = (BleDeviceInfo) intent.getSerializableExtra(DEVICE_INFO);
             if(registerInfo == null) {
                 Toast.makeText(this, "设备注册信息无效", Toast.LENGTH_SHORT).show();
                 finish();
@@ -143,7 +143,7 @@ public class RegisterActivity extends AppCompatActivity {
                 registerInfo.setAutoConnect(cbIsAutoconnect.isChecked());
 
                 Intent intent = new Intent();
-                intent.putExtra(DEVICE_REGISTER_INFO, registerInfo);
+                intent.putExtra(DEVICE_INFO, registerInfo);
                 setResult(RESULT_OK, intent);
                 finish();
             }

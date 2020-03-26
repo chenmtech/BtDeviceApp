@@ -1,9 +1,6 @@
 package com.cmtech.android.bledevice.hrmonitor.view;
 
 import android.content.Intent;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -35,9 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration.DEFAULT_HR_HIGH_LIMIT;
-import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration.DEFAULT_HR_LOW_LIMIT;
-import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration.DEFAULT_HR_WARN;
 import static com.cmtech.android.bledevice.hrmonitor.view.HRMCfgActivity.RESULT_CHANGE_ECG_LOCK;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
@@ -126,7 +120,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
-        device.open(activity.getNotifyService());
+        device.open(activity.getNotiService());
     }
 
     @Override

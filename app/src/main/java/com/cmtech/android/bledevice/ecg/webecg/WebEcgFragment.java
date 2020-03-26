@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity;
-import com.cmtech.android.bledevice.ecg.adapter.EcgCtrlPanelAdapter;
+import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
 import com.cmtech.android.bledevice.ecg.device.EcgHttpBroadcast;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
@@ -103,7 +103,7 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(hrFragment, recordFragment));
         List<String> titleList = new ArrayList<>(Arrays.asList(EcgHrStatisticsFragment.TITLE, EcgRecordFragment.TITLE));
-        EcgCtrlPanelAdapter fragAdapter = new EcgCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
+        CtrlPanelAdapter fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(1);
         layout.setupWithViewPager(pager);
@@ -113,7 +113,7 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
 
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
-        device.open(activity.getNotifyService());
+        device.open(activity.getNotiService());
     }
 
     private void initEcgView() {

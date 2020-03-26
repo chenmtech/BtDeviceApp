@@ -75,7 +75,7 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
 
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
-        device.open(activity.getNotifyService());
+        device.open(activity.getNotiService());
     }
 
     @Override

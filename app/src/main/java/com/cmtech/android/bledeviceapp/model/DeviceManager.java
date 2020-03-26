@@ -106,7 +106,7 @@ public class DeviceManager {
     }
 
     // 获取所有设备的Mac列表
-    public static List<String> getDeviceMacList() {
+    public static List<String> getDeviceAddressList() {
         List<String> deviceMacList = new ArrayList<>();
         for(IDevice device : DEVICE_LIST) {
             deviceMacList.add(device.getAddress());

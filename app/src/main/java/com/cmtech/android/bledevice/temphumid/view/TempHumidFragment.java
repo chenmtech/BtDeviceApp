@@ -69,7 +69,7 @@ public class TempHumidFragment extends DeviceFragment implements OnTempHumidDevi
 
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
-        device.open(activity.getNotifyService());
+        device.open(activity.getNotiService());
     }
 
     @Override
