@@ -96,21 +96,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
-    // 蓝牙状态改变广播接收器
-    private final BroadcastReceiver btStateChangedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if(BluetoothAdapter.ACTION_STATE_CHANGED.equals(intent.getAction())) {
-                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-                if(state == STATE_ON) {
-                    BleScanner.clearInnerError();
-                    MyApplication.showMessageUsingShortToast("蓝牙已开启");
-                } else if(state == STATE_OFF) {
-                    MyApplication.showMessageUsingShortToast("蓝牙已关闭");
-                }
-            }
-        }
-    };
     // 绑定状态广播接收器
     private final BroadcastReceiver bondStateReceiver = new BroadcastReceiver() {
         @Override
@@ -197,7 +182,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         // 登记蓝牙状态改变广播接收器
         IntentFilter bleStateIntent = new IntentFilter();
         bleStateIntent.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(btStateChangedReceiver, bleStateIntent);
 
         // 登记绑定状态广播接收器
         IntentFilter bondIntent = new IntentFilter();
@@ -500,7 +484,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             stopService(stopIntent);
         }
 
-        unregisterReceiver(btStateChangedReceiver);
         unregisterReceiver(bondStateReceiver);
     }
 

@@ -61,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(!checkPrivacyGrant()) return;
                 Platform plat = ShareSDK.getPlatform(QQ.NAME);
-                login(plat);
+                loginUsingQQorWechat(plat);
             }
         });
 
@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(!checkPrivacyGrant()) return;
                 Platform plat = ShareSDK.getPlatform(Wechat.NAME);
-                login(plat);
+                loginUsingQQorWechat(plat);
             }
         });
 
@@ -80,9 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!checkPrivacyGrant()) return;
-                Intent intent = new Intent(LoginActivity.this, HuaweiLoginActivity.class);
-                startActivity(intent);
-                finish();
+                loginUsingHuaweiAccount();
             }
         });
 
@@ -91,11 +89,27 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!checkPrivacyGrant()) return;
-                loginWithSMS(LoginActivity.this);
+                loginUsingSMS(LoginActivity.this);
             }
         });
 
         cbGrant = findViewById(R.id.cb_privacy_grant);
+    }
+
+    public static void loginMainActivity(Activity activity, String platName, String userId, String userName) {
+        Account account = LitePal.where("platName = ? and userId = ?", platName, userId).findFirst(Account.class);
+        if(account == null) {
+            account = new Account();
+            account.setPlatName(platName);
+            account.setUserId(userId);
+        }
+        account.setName(userName);
+        account.save();
+        AccountManager.getInstance().setAccount(account);
+
+        Intent intent = new Intent(activity, MainActivity.class);
+        activity.startActivity(intent);
+        activity.finish();
     }
 
     private boolean checkPrivacyGrant() {
@@ -108,7 +122,7 @@ public class LoginActivity extends AppCompatActivity {
         return granted;
     }
 
-    private void login(Platform plat) {
+    private void loginUsingQQorWechat(Platform plat) {
         final String platName = plat.getName();
         ShareSDK.setActivity(LoginActivity.this);
         if (plat.isAuthValid()) {
@@ -141,26 +155,13 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    public static void loginMainActivity(Activity activity, String platName, String userId, String userName) {
-        Account account = new Account();
-        account.setPlatName(platName);
-        account.setUserId(userId);
-        account.setName(userName);
-        AccountManager.getInstance().setAccount(account);
-        Account tmp = LitePal.where("platName = ? and userId = ?", platName, userId).findFirst(Account.class);
-        if(tmp == null)
-            account.save();
-        else {
-            tmp.setName(userName);
-            tmp.save();
-        }
-
-        Intent intent = new Intent(activity, MainActivity.class);
-        activity.startActivity(intent);
-        activity.finish();
+    private void loginUsingHuaweiAccount() {
+        Intent intent = new Intent(LoginActivity.this, HuaweiLoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
-    private void loginWithSMS(Context context) {
+    private void loginUsingSMS(Context context) {
         RegisterPage page = new RegisterPage();
         //如果使用我们的ui，没有申请模板编号的情况下需传null
         page.setTempCode(null);
