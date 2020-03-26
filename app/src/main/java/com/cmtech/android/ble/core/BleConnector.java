@@ -62,11 +62,12 @@ public class BleConnector extends AbstractConnector {
         // connection failure
         @Override
         public void onConnectFailure(final BleException exception) {
-            if (state != FAILURE) {
+            if (state != FAILURE && state != CLOSED) {
                 ViseLog.e("Connect failure: " + exception);
 
                 bleGatt = null;
-                gattCmdExecutor.stop();
+                if(gattCmdExecutor != null)
+                    gattCmdExecutor.stop();
                 setState(FAILURE);
                 reconnect();
                 connCallback.onConnectFailure();
@@ -76,11 +77,12 @@ public class BleConnector extends AbstractConnector {
         // disconnection
         @Override
         public void onDisconnect() {
-            if (state != DISCONNECT) {
+            if (state != DISCONNECT && state != CLOSED) {
                 ViseLog.e("Disconnect.");
 
                 bleGatt = null;
-                gattCmdExecutor.stop();
+                if(gattCmdExecutor != null)
+                    gattCmdExecutor.stop();
                 setState(DISCONNECT);
                 reconnect();
                 connCallback.onDisconnect();
@@ -124,7 +126,10 @@ public class BleConnector extends AbstractConnector {
         if(bleGatt != null)
             bleGatt.close();
 
-        gattCmdExecutor = null;
+        if(gattCmdExecutor != null) {
+            gattCmdExecutor.stop();
+            gattCmdExecutor = null;
+        }
         bleGatt = null;
 
         super.close();
