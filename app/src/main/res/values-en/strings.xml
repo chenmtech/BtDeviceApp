@@ -14,6 +14,12 @@
     <string name="no_record_currently">No Record Currently</string>
     <string name="hr_limit_wrong">The up limit of HR must be larger than its low limit.</string>
     <string name="title_activity_hrmcfg">Configuration of HR Monitor</string>
+    <string name="scan_failed_already_started">scan already started</string>
+    <string name="scan_failed_bt_closed">bluetooth closed</string>
+    <string name="scan_failed_ble_inner_error">BLE inner error occurred</string>
+    <string name="invalid_operation">invalid operation</string>
+    <string name="wait_scan_pls">please wait for scanning</string>
+    <string name="device_unbond">device unbond</string>
     <drawable name="clr_normal">@color/accent</drawable>
     <drawable name="clr_pressed">@color/red</drawable>
     <string name="exit">exit</string>

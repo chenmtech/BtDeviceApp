@@ -15,6 +15,12 @@
     <string name="no_record_currently">当前无记录</string>
     <string name="hr_limit_wrong">心率上限必须大于下限。</string>
     <string name="title_activity_hrmcfg">配置心率计</string>
+    <string name="scan_failed_already_started">扫描已开始</string>
+    <string name="scan_failed_bt_closed">蓝牙已关闭</string>
+    <string name="scan_failed_ble_inner_error">蓝牙内部错误</string>
+    <string name="invalid_operation">无效操作</string>
+    <string name="wait_scan_pls">准备扫描中，请等待</string>
+    <string name="device_unbond">设备未绑定</string>
     <drawable name="clr_normal">@color/accent</drawable>
     <drawable name="clr_pressed">@color/red</drawable>
 
