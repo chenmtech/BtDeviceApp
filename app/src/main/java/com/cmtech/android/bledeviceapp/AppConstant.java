@@ -20,4 +20,5 @@ public class AppConstant {
     public static final int SCAN_DURATION = 20000; // scan duration, unit: millisecond
     public static final File DIR_IMAGE = MyApplication.getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES); // image file directory
     public static final File DIR_CACHE = MyApplication.getContext().getExternalCacheDir(); // file cache directory
+    public static final int SPLASH_ACTIVITY_COUNT_DOWN_SECOND = 3; // count down second in splash activity
 }

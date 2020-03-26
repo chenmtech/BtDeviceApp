@@ -2,34 +2,25 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-
-import cn.smssdk.SMSSDK;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static com.cmtech.android.bledeviceapp.AppConstant.SPLASH_ACTIVITY_COUNT_DOWN_SECOND;
 
 /**
   *
@@ -44,17 +35,16 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
  */
 public class SplashActivity extends AppCompatActivity {
     private static final int MSG_COUNT_DOWN = 1; // 倒计时消息
-    private static final int COUNT_DOWN_SECOND = 3; // 倒计时秒数
 
-    private TextView tvCountDownTime;
-    private Thread countThread; // 倒计时线程
+    private TextView tvSecond;
+    private Thread thread; // 倒计时线程
 
-    private final Handler countHandler = new Handler(new Handler.Callback() {
+    private final Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             if(msg.what == MSG_COUNT_DOWN) {
                 int nSecond = msg.arg1;
-                SplashActivity.this.tvCountDownTime.setText(nSecond + "秒");
+                SplashActivity.this.tvSecond.setText(nSecond + "秒");
 
                 if(nSecond == 0) {
                     Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
@@ -93,12 +83,12 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void initialize() {
-        TextView tvWelcome = findViewById(R.id.tv_welcometext);
+        TextView tvWelcome = findViewById(R.id.tv_welcome);
         String welcomeText = String.format(getResources().getString(R.string.welcome_text_format), getResources().getString(R.string.app_name));
         tvWelcome.setText(welcomeText);
 
-        tvCountDownTime = findViewById(R.id.tv_count_down_time);
-        tvCountDownTime.setText(String.valueOf(COUNT_DOWN_SECOND) + "秒");
+        tvSecond = findViewById(R.id.tv_count_second);
+        tvSecond.setText(String.valueOf(SPLASH_ACTIVITY_COUNT_DOWN_SECOND) + "秒");
 
         startCountDown();
     }
@@ -131,27 +121,27 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void startCountDown() {
-        countThread = new Thread(new Runnable() {
+        thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                int nSecond = COUNT_DOWN_SECOND;
+                int nSecond = SPLASH_ACTIVITY_COUNT_DOWN_SECOND;
                 try {
                     while (--nSecond >= 0) {
                         Thread.sleep(1000);
-                        Message.obtain(countHandler, MSG_COUNT_DOWN, nSecond, 0).sendToTarget();
+                        Message.obtain(handler, MSG_COUNT_DOWN, nSecond, 0).sendToTarget();
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }
         });
-        countThread.start();
+        thread.start();
     }
 
     private void stopCountDown() throws InterruptedException{
-        if (countThread != null && countThread.isAlive()) {
-            countThread.interrupt();
-            countThread.join();
+        if (thread != null && thread.isAlive()) {
+            thread.interrupt();
+            thread.join();
         }
     }
 

@@ -1,3 +1,2 @@
 include ':app'
-include ':ble'
-project(':ble').projectDir = new File(settingsDir, '../AndroidBLE/ble')
+//project(':ble').projectDir = new File(settingsDir, '../AndroidBLE/ble')
