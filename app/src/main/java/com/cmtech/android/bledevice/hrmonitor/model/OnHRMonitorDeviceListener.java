@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface OnHRMonitorDeviceListener {
     void onHRUpdated(BleHeartRateData hrData); // heart rate updated
-    void onHRStatInfoUpdated(List<Short> hrList, short hrMax, short hrAve, List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram);
+    void onHRStatisticInfoUpdated(List<Short> hrList, short hrMax, short hrAve, List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram);
     void onHRSensLocUpdated(int loc); // sensor location updated
     void onHRCtrlPtUpdated(int ctrl); // control point updated
     void onFragmentUpdated(int sampleRate, int value1mV, double zeroLocation, boolean ecgLock); // fragment updated

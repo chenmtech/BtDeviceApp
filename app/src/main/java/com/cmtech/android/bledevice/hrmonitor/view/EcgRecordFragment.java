@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.hrmonitor.view;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,51 +8,40 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledeviceapp.R;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice.INVALID_HEART_RATE;
-
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.ecgmonitor.activity
- * ClassName:      HrSequenceFragment
- * Description:    Ecg心率统计Fragment
- * Author:         chenm
- * CreateDate:     2019/4/15 上午5:40
+ * Package:        com.cmtech.android.bledevice.hrmonitor.view
+ * ClassName:      EcgRecordFragment
+ * Description:    java类作用描述
+ * Author:         作者名
+ * CreateDate:     2020/3/28 上午6:48
  * UpdateUser:     更新者
- * UpdateDate:     2019/4/15 上午5:40
+ * UpdateDate:     2020/3/28 上午6:48
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class HrRecordFragment extends Fragment {
-    public static final String TITLE = "心率记录";
-    private TextView tvHrAve; // average heart rate value
-    private TextView tvHrMax; // max heart rate value
-    private HrLineChart hrLineChart; // heart rate line chart
-    private ImageButton ibStart, ibStop;
+public class EcgRecordFragment extends Fragment {
+    public static final String TITLE = "心电记录";
+
+    ImageButton ibStart;
+    ImageButton ibStop;
+
     private HRMonitorDevice device;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_hr_record, container, false);
+        return inflater.inflate(R.layout.fragment_ecg_record, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        tvHrMax = view.findViewById(R.id.tv_hr_max_value);
-        tvHrAve = view.findViewById(R.id.tv_hr_ave_value);
-        hrLineChart = view.findViewById(R.id.hr_line_chart);
-        updateHrInfo(new ArrayList<Short>(), INVALID_HEART_RATE, INVALID_HEART_RATE);
 
         ibStart = view.findViewById(R.id.ib_record_start);
         ibStart.setOnClickListener(new View.OnClickListener() {
@@ -62,10 +50,11 @@ public class HrRecordFragment extends Fragment {
                 if(device != null) {
                     ibStart.setVisibility(View.INVISIBLE);
                     ibStop.setVisibility(View.VISIBLE);
-                    device.switchHrRecord();
+                    device.switchEcgRecord();
                 }
             }
         });
+
         ibStop = view.findViewById(R.id.ib_record_stop);
         ibStop.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,26 +62,13 @@ public class HrRecordFragment extends Fragment {
                 if(device != null) {
                     ibStart.setVisibility(View.VISIBLE);
                     ibStop.setVisibility(View.INVISIBLE);
-                    device.switchHrRecord();
+                    device.switchEcgRecord();
                 }
             }
         });
     }
 
-    public void updateHrInfo(List<Short> hrList, short hrMax, short hrAve) {
-        if(hrMax <= 0)
-            tvHrMax.setText("__");
-        else
-            tvHrMax.setText(String.valueOf(hrMax));
-        if(hrAve <= 0)
-            tvHrAve.setText("__");
-        else
-            tvHrAve.setText(String.valueOf(hrAve));
-        hrLineChart.showLineChart(hrList, TITLE, Color.BLUE);
-    }
-
     public void setDevice(HRMonitorDevice device) {
         this.device = device;
     }
-
 }

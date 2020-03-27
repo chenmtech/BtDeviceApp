@@ -59,8 +59,10 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private FrameLayout flEcgOff; // frame layout when ecg off
     private FrameLayout flEcgOn; // frame layout when ecg on
 
-    private final HrRecordFragment recordFragment = new HrRecordFragment(); // heart rate record Fragment
-    private final HrDebugFragment debugFragment = new HrDebugFragment(); // debug fragment
+    private HrCtrlPanelAdapter fragAdapter;
+    private final HrRecordFragment hrRecFrag = new HrRecordFragment(); // heart rate record Fragment
+    private final HrDebugFragment debugFrag = new HrDebugFragment(); // debug fragment
+    private EcgRecordFragment ecgRecFrag; // ecg record fragment
 
     private boolean isEcgChecked = false;
 
@@ -91,7 +93,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         flEcgOn.setVisibility(View.GONE);
 
         ecgView = view.findViewById(R.id.scanview_ecg);
-        ecgView.setup(device.getSampleRate(), device.getCali1mV(), DEFAULT_ZERO_LOCATION);
+        ecgView.setup(device.getSampleRate(), device.getCaliValue(), DEFAULT_ZERO_LOCATION);
 
         ibEcg = view.findViewById(R.id.ib_ecg);
         setEcgStatus(false);
@@ -106,14 +108,14 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
         ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
-        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(debugFragment, recordFragment));
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(debugFrag, hrRecFrag));
         List<String> titleList = new ArrayList<>(Arrays.asList(HrDebugFragment.TITLE, HrRecordFragment.TITLE));
         HrCtrlPanelAdapter fragAdapter = new HrCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(2);
         layout.setupWithViewPager(pager);
 
-        recordFragment.setDevice(device);
+        hrRecFrag.setDevice(device);
 
         device.setListener(this);
         ecgView.setListener(this);
@@ -158,7 +160,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    debugFragment.updateHrMeas(hrData.toString());
+                    debugFrag.updateHrMeas(hrData.toString());
 
                     int bpm = hrData.getBpm();
                     tvHrEcgOn.setText(String.valueOf(bpm));
@@ -181,12 +183,12 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void onHRStatInfoUpdated(final List<Short> hrList, final short hrMax, final short hrAve, List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram) {
+    public void onHRStatisticInfoUpdated(final List<Short> hrList, final short hrMax, final short hrAve, List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    recordFragment.updateHrInfo(hrList, hrMax, hrAve);
+                    hrRecFrag.updateHrInfo(hrList, hrMax, hrAve);
                 }
             });
         }
@@ -198,7 +200,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    debugFragment.updateHrSensLoc(String.valueOf(loc));
+                    debugFrag.updateHrSensLoc(String.valueOf(loc));
                 }
             });
         }
@@ -221,10 +223,15 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                         flEcgOff.setVisibility(View.VISIBLE);
                         flEcgOn.setVisibility(View.GONE);
                         ecgView.stop();
+                        fragAdapter.removeFragment(ecgRecFrag);
+                        ecgRecFrag = null;
                     } else {
                         ibEcg.setVisibility(View.VISIBLE);
                         isEcgChecked = false;
                         setEcgStatus(false);
+                        ecgRecFrag = new EcgRecordFragment();
+                        ecgRecFrag.setDevice(device);
+                        fragAdapter.addFragment(ecgRecFrag, EcgRecordFragment.TITLE);
                     }
                 }
             });

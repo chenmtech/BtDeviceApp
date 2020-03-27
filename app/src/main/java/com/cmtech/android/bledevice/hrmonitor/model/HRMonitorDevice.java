@@ -100,7 +100,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
 
     private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
-    private int cali1mV = DEFAULT_CALI_1MV; // 1mV calibration value
+    private int caliValue = DEFAULT_CALI_1MV; // 1mV calibration value
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // lead type
 
     private boolean hasBattService = false; // has battery service
@@ -111,8 +111,11 @@ public class HRMonitorDevice extends AbstractDevice {
 
     private final HRMonitorConfiguration config; // hr device configuration
 
-    private BleHrRecord10 record;
-    private boolean isRecord = false;
+    private BleHrRecord10 hrRecord;
+    private boolean isHrRecord = false;
+
+    private BleEcgRecord10 ecgRecord;
+    private boolean isEcgRecord = false;
 
     private Timer ttsTimer = new Timer();
     private volatile boolean waitSpeak = false;
@@ -128,22 +131,40 @@ public class HRMonitorDevice extends AbstractDevice {
         this.config = config;
     }
 
-    public void switchRecord() {
-        isRecord = !isRecord;
-        if(isRecord) {
-            record = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
-            if(record != null && listener != null)
-                listener.onHRStatInfoUpdated(record.getFilterHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
+    public void switchHrRecord() {
+        isHrRecord = !isHrRecord;
+        if(isHrRecord) {
+            hrRecord = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
+            if(hrRecord != null && listener != null)
+                listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
         } else {
-            if(record != null) {
-                if (record.getFilterHrList().size() < 6) {
+            if(hrRecord != null) {
+                if (hrRecord.getFilterHrList().size() < 6) {
                     Toast.makeText(MyApplication.getContext(), "记录太短，未保存。", Toast.LENGTH_SHORT).show();
                 } else {
-                    record.save();
+                    hrRecord.save();
                     Toast.makeText(MyApplication.getContext(), "记录已保存。", Toast.LENGTH_SHORT).show();
-                    ViseLog.e(record.toString());
+                    ViseLog.e(hrRecord.toString());
                 }
-                record = null;
+                hrRecord = null;
+            }
+        }
+    }
+
+    public void switchEcgRecord() {
+        isEcgRecord = !isEcgRecord;
+        if(isEcgRecord) {
+            ecgRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount(), sampleRate, caliValue, leadType.getCode());
+        } else {
+            if(ecgRecord != null) {
+                if (ecgRecord.getEcgList().size() < 6) {
+                    Toast.makeText(MyApplication.getContext(), "记录太短，未保存。", Toast.LENGTH_SHORT).show();
+                } else {
+                    ecgRecord.save();
+                    Toast.makeText(MyApplication.getContext(), "记录已保存。", Toast.LENGTH_SHORT).show();
+                    ViseLog.e(ecgRecord.toString());
+                }
+                ecgRecord = null;
             }
         }
     }
@@ -157,8 +178,12 @@ public class HRMonitorDevice extends AbstractDevice {
     public void close() {
         super.close();
 
-        if(isRecord) {
-            switchRecord();
+        if(isHrRecord) {
+            switchHrRecord();
+        }
+
+        if(isEcgRecord) {
+            switchEcgRecord();
         }
 
         stopSpeak();
@@ -191,7 +216,7 @@ public class HRMonitorDevice extends AbstractDevice {
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if(ecgLock) {
                         if (listener != null)
-                            listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, ecgLock);
+                            listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, ecgLock);
                     }
                     else {
                         initEcgService();
@@ -252,16 +277,16 @@ public class HRMonitorDevice extends AbstractDevice {
         return sampleRate;
     }
 
-    public final int getCali1mV() {
-        return cali1mV;
+    public final int getCaliValue() {
+        return caliValue;
     }
 
     public final boolean isEcgLock() {
         return ecgLock;
     }
 
-    public final boolean isRecord() {
-        return isRecord;
+    public final boolean isHrRecord() {
+        return isHrRecord;
     }
 
     public final HRMonitorConfiguration getConfig() {
@@ -333,9 +358,9 @@ public class HRMonitorDevice extends AbstractDevice {
                         if(listener != null) {
                             listener.onHRUpdated(heartRateData);
                         }
-                        if(isRecord && record.process((short) heartRateData.getBpm(), heartRateData.getTime())) {
+                        if(isHrRecord && hrRecord.process((short) heartRateData.getBpm(), heartRateData.getTime())) {
                             if(listener != null)
-                                listener.onHRStatInfoUpdated(record.getFilterHrList(), record.getHrMax(), record.getHrAve(), record.getHrHistogram());
+                                listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
                         }
 
                         if(waitSpeak) {
@@ -420,7 +445,7 @@ public class HRMonitorDevice extends AbstractDevice {
             public void onSuccess(byte[] data, BleGattElement element) {
                 ecgProcessor = new EcgDataProcessor(HRMonitorDevice.this);
                 if (listener != null)
-                    listener.onFragmentUpdated(sampleRate, cali1mV, DEFAULT_ZERO_LOCATION, ecgLock);
+                    listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, ecgLock);
             }
 
             @Override
@@ -447,7 +472,7 @@ public class HRMonitorDevice extends AbstractDevice {
         ((BleConnector)connector).read(ECG1MVCALI, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                cali1mV = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
+                caliValue = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
             }
 
             @Override
@@ -517,6 +542,12 @@ public class HRMonitorDevice extends AbstractDevice {
     public void showEcgSignal(int ecgSignal) {
         if (listener != null) {
             listener.onEcgSignalShowed(ecgSignal);
+        }
+    }
+
+    public void recordEcgSignal(int ecgSignal) {
+        if(isEcgRecord && ecgRecord != null) {
+            ecgRecord.process((short)ecgSignal);
         }
     }
 }
