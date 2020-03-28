@@ -8,6 +8,7 @@ import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +27,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord {
+public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serializable {
     private int id;
     private byte[] ver = new byte[2]; // ecg record version
     private long createTime; //

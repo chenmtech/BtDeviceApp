@@ -6,27 +6,27 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.hrmonitor.model.BleEcgRecord10;
+import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
-import org.litepal.LitePal;
-
 import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLATFORM;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
     private BleEcgRecord10 record;
+
     private TextView tvCreateTime; // 创建时间
     private TextView tvCreator; // 创建人
-    private TextView tvAddress;
-    private TextView tvTimeLength; // 心率次数
-
+    private TextView tvAddress; // device address
+    private ImageView ivRecordType; // record type
+    private TextView tvTimeLength; // time length
 
     private RollEcgRecordWaveView signalView; // signalView
     private TextView tvTotalTime; // 总时长
@@ -39,13 +39,15 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ecg_record);
 
-        int recordId = getIntent().getIntExtra("record_id", -1);
-        record = LitePal.find(BleEcgRecord10.class, recordId, true);
+        record = (BleEcgRecord10) getIntent().getSerializableExtra("record");
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
         }
         ViseLog.e(record);
+
+        ivRecordType = findViewById(R.id.iv_record_type);
+        ivRecordType.setImageResource(R.mipmap.ic_ecg_32px);
 
         tvCreateTime = findViewById(R.id.tv_create_time);
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
@@ -59,6 +61,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 
         tvTimeLength = findViewById(R.id.tv_time_length);
+        int second = record.getDataNum()/ record.getSampleRate();
+        tvTimeLength.setText(second+"秒");
 
         tvAddress = findViewById(R.id.tv_device_address);
         tvAddress.setText(record.getDevAddress());
@@ -98,10 +102,11 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             }
         });
 
-        int second = record.getEcgList().size()/ record.getSampleRate();
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));
         tvTotalTime.setText(DateTimeUtil.secToTime(second));
         sbReplay.setMax(second);
+
+        signalView.startShow();
     }
 
     @Override

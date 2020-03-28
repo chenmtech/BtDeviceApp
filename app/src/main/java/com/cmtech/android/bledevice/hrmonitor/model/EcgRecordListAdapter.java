@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.view.EcgRecordExplorerActivity;
@@ -45,6 +46,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         TextView tvCreator; // 创建人
         TextView tvTimeLength; // record time length, unit: s
         TextView tvAddress;
+        ImageView ivRecordType; // record type
         ImageButton ibDelete;
 
         ViewHolder(View itemView) {
@@ -54,6 +56,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
             tvCreator = fileView.findViewById(R.id.tv_creator);
             tvTimeLength = fileView.findViewById(R.id.tv_time_length);
             tvAddress = fileView.findViewById(R.id.tv_device_address);
+            ivRecordType = fileView.findViewById(R.id.iv_record_type);
             ibDelete = fileView.findViewById(R.id.ib_delete);
         }
     }
@@ -99,6 +102,8 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     public void onBindViewHolder(@NonNull EcgRecordListAdapter.ViewHolder holder, final int position) {
         BleEcgRecord10 record = allRecordList.get(position);
         if(record == null) return;
+        holder.ivRecordType.setImageResource(R.mipmap.ic_ecg_32px);
+
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
         holder.tvCreator.setText(record.getCreatorName());
@@ -106,12 +111,8 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         holder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-        List<Short> ecgList = record.getEcgList();
-        if(ecgList == null || ecgList.size() == 0)
-            holder.tvTimeLength.setText(String.valueOf(0));
-        else {
-            holder.tvTimeLength.setText(""+ecgList.size()/record.getSampleRate());
-        }
+        holder.tvTimeLength.setText(record.getDataNum()/record.getSampleRate()+"秒");
+
         holder.tvAddress.setText(record.getDevAddress());
 
         if(position == selPos) {

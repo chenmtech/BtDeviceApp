@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <!--记录简介部分-->
-    <include layout="@layout/layout_ecg_record_introduction"/>
+    <include layout="@layout/layout_record_introduction"/>
 
     <FrameLayout
         android:layout_width="match_parent"

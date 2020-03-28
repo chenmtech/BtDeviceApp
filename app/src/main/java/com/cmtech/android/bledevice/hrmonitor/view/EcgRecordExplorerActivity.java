@@ -91,7 +91,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity {
     public void selectRecord(final BleEcgRecord10 record) {
         if(record != null) {
             Intent intent = new Intent(this, EcgRecordActivity.class);
-            intent.putExtra("record_id", record.getId());
+            intent.putExtra("record", record);
             startActivity(intent);
         }
     }
