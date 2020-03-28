@@ -47,7 +47,7 @@ import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity;
+import com.cmtech.android.bledevice.hrmonitor.view.EcgRecordExplorerActivity;
 import com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -288,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                                 return false;
                             }
                         });
+                        popupHelper.show();
                         return true;
                     case R.id.nav_open_store: // open KM store
                         Intent intent = new Intent(Intent.ACTION_VIEW);
