@@ -50,9 +50,11 @@ public class HrCtrlPanelAdapter extends FragmentPagerAdapter {
     }
 
     public void addFragment(Fragment fragment, String title) {
-        this.fragmentList.add(fragment);
-        this.titleList.add(title);
-        notifyDataSetChanged();
+        if(!this.fragmentList.contains(fragment)) {
+            this.fragmentList.add(fragment);
+            this.titleList.add(title);
+            notifyDataSetChanged();
+        }
     }
 
     public void removeFragment(Fragment fragment) {

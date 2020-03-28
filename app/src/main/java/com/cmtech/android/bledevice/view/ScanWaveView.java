@@ -267,7 +267,7 @@ public class ScanWaveView extends View {
      * @param data: 要显示的数据
      */
     public void showData(final int data) {
-        if(isShowed && showService != null && !showService.isShutdown()) {
+        if(isShowed && !ExecutorUtil.isDead(showService)) {
             showService.execute(new Runnable() {
                 @Override
                 public void run() {

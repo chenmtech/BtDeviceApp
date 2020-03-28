@@ -89,8 +89,9 @@ public class EcgDataProcessor {
         int j = 0;
         for (int i = begin; i < data.length; i=i+2, j++) {
             pack[j] = (short) ((0xff & data[i]) | (0xff00 & (data[i+1] << 8)));
-            device.showEcgSignal((int) ecgFilter.filter(pack[j]));
-            device.recordEcgSignal(pack[j]);
+            int fData = (int) ecgFilter.filter(pack[j]);
+            device.showEcgSignal(fData);
+            device.recordEcgSignal(fData);
         }
         return pack;
     }

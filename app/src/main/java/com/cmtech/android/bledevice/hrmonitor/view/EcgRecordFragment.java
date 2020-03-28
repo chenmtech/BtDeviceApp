@@ -30,8 +30,6 @@ public class EcgRecordFragment extends Fragment {
     ImageButton ibStart;
     ImageButton ibStop;
 
-    private HRMonitorDevice device;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -47,11 +45,7 @@ public class EcgRecordFragment extends Fragment {
         ibStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(device != null) {
-                    ibStart.setVisibility(View.INVISIBLE);
-                    ibStop.setVisibility(View.VISIBLE);
-                    device.switchEcgRecord();
-                }
+                ((HRMonitorFragment)getParentFragment()).setEcgRecord(true);
             }
         });
 
@@ -59,16 +53,18 @@ public class EcgRecordFragment extends Fragment {
         ibStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(device != null) {
-                    ibStart.setVisibility(View.VISIBLE);
-                    ibStop.setVisibility(View.INVISIBLE);
-                    device.switchEcgRecord();
-                }
+                ((HRMonitorFragment)getParentFragment()).setEcgRecord(false);
             }
         });
     }
 
-    public void setDevice(HRMonitorDevice device) {
-        this.device = device;
+    public void updateRecordStatus(boolean isRecord) {
+        if(isRecord) {
+            ibStart.setVisibility(View.INVISIBLE);
+            ibStop.setVisibility(View.VISIBLE);
+        } else {
+            ibStart.setVisibility(View.VISIBLE);
+            ibStop.setVisibility(View.INVISIBLE);
+        }
     }
 }

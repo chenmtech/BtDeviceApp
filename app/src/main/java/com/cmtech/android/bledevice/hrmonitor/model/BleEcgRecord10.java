@@ -1,23 +1,15 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.bmefile.DataIOUtil;
 
 import org.litepal.LitePal;
 import org.litepal.crud.LitePalSupport;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice.INVALID_HEART_RATE;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
-import static com.cmtech.android.bledeviceapp.model.Account.PLAT_NAME_CHAR_LEN;
-import static com.cmtech.android.bledeviceapp.model.Account.USER_ID_CHAR_LEN;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -32,9 +24,6 @@ import static com.cmtech.android.bledeviceapp.model.Account.USER_ID_CHAR_LEN;
  * Version:        1.0
  */
 public class BleEcgRecord10 extends LitePalSupport {
-    private static final byte[] ECG = {'E', 'C', 'G'}; // indication of ecg record
-    private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // char num of device address
-
     private int id;
     private byte[] ver = new byte[2]; // ecg record version
     private long createTime; //
@@ -83,6 +72,9 @@ public class BleEcgRecord10 extends LitePalSupport {
     public List<Short> getEcgList() {
         return ecgList;
     }
+    public int getSampleRate() {
+        return sampleRate;
+    }
 
     public boolean process(short ecg) {
         ecgList.add(ecg);
@@ -114,7 +106,7 @@ public class BleEcgRecord10 extends LitePalSupport {
 
     @Override
     public String toString() {
-        return createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + ecgList;
+        return createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" +ecgList;
     }
 
     @Override

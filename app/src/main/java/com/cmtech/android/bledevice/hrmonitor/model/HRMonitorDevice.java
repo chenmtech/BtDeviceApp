@@ -131,8 +131,9 @@ public class HRMonitorDevice extends AbstractDevice {
         this.config = config;
     }
 
-    public void switchHrRecord() {
-        isHrRecord = !isHrRecord;
+    public void setHrRecord(boolean isRecord) {
+        if(isHrRecord == isRecord) return;
+        isHrRecord = isRecord;
         if(isHrRecord) {
             hrRecord = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
             if(hrRecord != null && listener != null)
@@ -151,13 +152,14 @@ public class HRMonitorDevice extends AbstractDevice {
         }
     }
 
-    public void switchEcgRecord() {
-        isEcgRecord = !isEcgRecord;
+    public void setEcgRecord(boolean isRecord) {
+        if(isEcgRecord == isRecord) return;
+        isEcgRecord = isRecord;
         if(isEcgRecord) {
             ecgRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount(), sampleRate, caliValue, leadType.getCode());
         } else {
             if(ecgRecord != null) {
-                if (ecgRecord.getEcgList().size() < 6) {
+                if (ecgRecord.getEcgList().size() < ecgRecord.getSampleRate()*10) {
                     Toast.makeText(MyApplication.getContext(), "记录太短，未保存。", Toast.LENGTH_SHORT).show();
                 } else {
                     ecgRecord.save();
@@ -166,6 +168,9 @@ public class HRMonitorDevice extends AbstractDevice {
                 }
                 ecgRecord = null;
             }
+        }
+        if(listener != null) {
+            listener.onEcgSignalRecorded(isEcgRecord);
         }
     }
 
@@ -179,11 +184,11 @@ public class HRMonitorDevice extends AbstractDevice {
         super.close();
 
         if(isHrRecord) {
-            switchHrRecord();
+            setHrRecord(false);
         }
 
         if(isEcgRecord) {
-            switchEcgRecord();
+            setEcgRecord(false);
         }
 
         stopSpeak();
@@ -196,7 +201,7 @@ public class HRMonitorDevice extends AbstractDevice {
         BleGattElement[] elements = new BleGattElement[]{HRMONITORMEAS, HRMONITORMEASCCC};
         if(connector.containGattElements(elements)) {
             readSensorLocation();
-            switchHRMeasure(true);
+            setHRMeasure(true);
         } else {
             return false;
         }
@@ -205,7 +210,7 @@ public class HRMonitorDevice extends AbstractDevice {
         if(connector.containGattElements(elements)) {
             hasBattService = true;
             readBatteryLevel();
-            switchBatteryMeasure(true);
+            setBatteryMeasure(true);
         }
 
         elements = new BleGattElement[]{ECGMEAS, ECGMEASCCC, ECG1MVCALI, ECGSAMPLERATE, ECGLEADTYPE, ECGLOCKSTATUS};
@@ -243,6 +248,9 @@ public class HRMonitorDevice extends AbstractDevice {
         }
 
         stopSpeak();
+        if(isEcgRecord) {
+            setEcgRecord(false);
+        }
     }
 
     @Override
@@ -252,13 +260,16 @@ public class HRMonitorDevice extends AbstractDevice {
         }
 
         stopSpeak();
+        if(isEcgRecord) {
+            setEcgRecord(false);
+        }
     }
 
     @Override
     public void disconnect(final boolean forever) {
-        switchHRMeasure(false);
-        switchBatteryMeasure(false);
-        switchEcgSignal(false);
+        setHRMeasure(false);
+        setBatteryMeasure(false);
+        setEcgShow(false);
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
@@ -346,10 +357,10 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
-    private void switchHRMeasure(boolean isStart) {
-        //((BleConnector)connector).notify(HRMONITORMEASCCC, false, null);
-
+    private void setHRMeasure(boolean isStart) {
         if(isStart) {
+            ((BleConnector)connector).notify(HRMONITORMEASCCC, false, null);
+
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
@@ -388,7 +399,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
     }
 
-    private void switchBatteryMeasure(boolean isStart) {
+    private void setBatteryMeasure(boolean isStart) {
         if(!hasBattService) return;
 
         //((BleConnector)connector).notify(BATTLEVELCCC, false, null);
@@ -494,7 +505,7 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
-    public void lockEcg(final boolean ecgLock) {
+    public void setEcgLock(final boolean ecgLock) {
         if(this.ecgLock == ecgLock) return;
 
         byte data = (ecgLock) ? ECG_LOCKED : ECG_UNLOCKED;
@@ -511,7 +522,7 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
-    public void switchEcgSignal(boolean isStart) {
+    public void setEcgShow(boolean isStart) {
         if(ecgLock) return;
 
         if(ecgProcessor != null)

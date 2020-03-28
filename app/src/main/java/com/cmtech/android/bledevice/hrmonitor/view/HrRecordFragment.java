@@ -37,7 +37,6 @@ public class HrRecordFragment extends Fragment {
     private TextView tvHrMax; // max heart rate value
     private HrLineChart hrLineChart; // heart rate line chart
     private ImageButton ibStart, ibStop;
-    private HRMonitorDevice device;
 
     @Nullable
     @Override
@@ -59,22 +58,18 @@ public class HrRecordFragment extends Fragment {
         ibStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(device != null) {
-                    ibStart.setVisibility(View.INVISIBLE);
-                    ibStop.setVisibility(View.VISIBLE);
-                    device.switchHrRecord();
-                }
+                ibStart.setVisibility(View.INVISIBLE);
+                ibStop.setVisibility(View.VISIBLE);
+                ((HRMonitorFragment)getParentFragment()).setHrRecord(true);
             }
         });
         ibStop = view.findViewById(R.id.ib_record_stop);
         ibStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(device != null) {
-                    ibStart.setVisibility(View.VISIBLE);
-                    ibStop.setVisibility(View.INVISIBLE);
-                    device.switchHrRecord();
-                }
+                ibStart.setVisibility(View.VISIBLE);
+                ibStop.setVisibility(View.INVISIBLE);
+                ((HRMonitorFragment)getParentFragment()).setHrRecord(false);
             }
         });
     }
@@ -89,10 +84,6 @@ public class HrRecordFragment extends Fragment {
         else
             tvHrAve.setText(String.valueOf(hrAve));
         hrLineChart.showLineChart(hrList, TITLE, Color.BLUE);
-    }
-
-    public void setDevice(HRMonitorDevice device) {
-        this.device = device;
     }
 
 }
