@@ -27,8 +27,9 @@ import com.cmtech.android.bledeviceapp.R;
 public class EcgRecordFragment extends Fragment {
     public static final String TITLE = "心电记录";
 
-    ImageButton ibStart;
-    ImageButton ibStop;
+    ImageButton ibRecord;
+
+    boolean isRecord = false;
 
     @Nullable
     @Override
@@ -41,30 +42,21 @@ public class EcgRecordFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ibStart = view.findViewById(R.id.ib_record_start);
-        ibStart.setOnClickListener(new View.OnClickListener() {
+        ibRecord = view.findViewById(R.id.ib_record);
+        ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((HRMonitorFragment)getParentFragment()).setEcgRecord(true);
-            }
-        });
-
-        ibStop = view.findViewById(R.id.ib_record_stop);
-        ibStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((HRMonitorFragment)getParentFragment()).setEcgRecord(false);
+                ((HRMonitorFragment)getParentFragment()).setEcgRecord(!isRecord);
             }
         });
     }
 
     public void updateRecordStatus(boolean isRecord) {
         if(isRecord) {
-            ibStart.setVisibility(View.INVISIBLE);
-            ibStop.setVisibility(View.VISIBLE);
+            ibRecord.setImageResource(R.mipmap.ic_stop_48px);
         } else {
-            ibStart.setVisibility(View.VISIBLE);
-            ibStop.setVisibility(View.INVISIBLE);
+            ibRecord.setImageResource(R.mipmap.ic_start_48px);
         }
+        this.isRecord = isRecord;
     }
 }

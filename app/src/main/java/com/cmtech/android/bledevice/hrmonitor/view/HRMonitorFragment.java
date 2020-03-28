@@ -9,8 +9,10 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,14 +51,13 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
  * Version:        1.0
  */
 public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDeviceListener, OnWaveViewListener {
-
     private HRMonitorDevice device; // device
 
     private ScanEcgView ecgView; // EcgView
     private TextView tvHrEcgOff; // hr when ecg off
     private TextView tvHrEcgOn; // hr when ecg on
     private TextView tvMessage; // message
-    private ImageButton ibEcg; // ecg on/off
+    private Switch swEcg; // ecg on/off
     private FrameLayout flEcgOff; // frame layout when ecg off
     private FrameLayout flEcgOn; // frame layout when ecg on
 
@@ -64,8 +65,6 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private final HrRecordFragment hrRecFrag = new HrRecordFragment(); // heart rate record Fragment
     private final HrDebugFragment debugFrag = new HrDebugFragment(); // debug fragment
     private final EcgRecordFragment ecgRecFrag = new EcgRecordFragment(); // ecg record fragment
-
-    private boolean isEcgChecked = false;
 
     public HRMonitorFragment() {
         super();
@@ -96,13 +95,11 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         ecgView = view.findViewById(R.id.scanview_ecg);
         ecgView.setup(device.getSampleRate(), device.getCaliValue(), DEFAULT_ZERO_LOCATION);
 
-        ibEcg = view.findViewById(R.id.ib_ecg);
-        setEcgShow(false);
-        ibEcg.setOnClickListener(new View.OnClickListener() {
+        swEcg = view.findViewById(R.id.switch_ecg);
+        swEcg.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                isEcgChecked = !isEcgChecked;
-                setEcgShow(isEcgChecked);
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setEcgShow(isChecked);
             }
         });
 
@@ -217,15 +214,14 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                 public void run() {
                     ecgView.setup(sampleRate, value1mV, zeroLocation);
                     if(ecgLock) {
-                        ibEcg.setVisibility(View.GONE);
+                        swEcg.setVisibility(View.GONE);
                         flEcgOff.setVisibility(View.VISIBLE);
                         flEcgOn.setVisibility(View.GONE);
                         ecgView.stop();
                         fragAdapter.removeFragment(ecgRecFrag);
                     } else {
-                        ibEcg.setVisibility(View.VISIBLE);
-                        isEcgChecked = false;
-                        setEcgShow(false);
+                        swEcg.setVisibility(View.VISIBLE);
+                        swEcg.setChecked(false);
                         fragAdapter.addFragment(ecgRecFrag, EcgRecordFragment.TITLE);
                     }
                 }

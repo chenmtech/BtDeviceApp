@@ -71,16 +71,17 @@
 
         </FrameLayout>
 
-        <ImageButton
-            android:id="@+id/ib_ecg"
-            style="@style/Widget.AppCompat.ImageButton"
+        <Switch
+            android:id="@+id/switch_ecg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|top"
             android:layout_margin="5dp"
-            android:background="@android:color/transparent"
-            android:src="@mipmap/ic_ecg_32px"
-            android:visibility="gone" />
+            android:switchMinWidth="40dp"
+            android:checked="false"
+            android:text="ECG"
+            android:textColor="@color/blue"
+            android:visibility="gone"/>
 
     </FrameLayout>
 
