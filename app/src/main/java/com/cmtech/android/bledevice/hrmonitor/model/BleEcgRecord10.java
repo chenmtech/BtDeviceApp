@@ -1,10 +1,13 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
+import com.cmtech.android.bledevice.IEcgRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.litepal.LitePal;
+import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +26,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEcgRecord10 extends LitePalSupport {
+public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord {
     private int id;
     private byte[] ver = new byte[2]; // ecg record version
     private long createTime; //
@@ -34,6 +37,8 @@ public class BleEcgRecord10 extends LitePalSupport {
     private int caliValue; // 标定值
     private int leadTypeCode; // 导联类型代码
     private List<Short> ecgList; // list of the filtered HR
+    @Column(ignore = true)
+    private int pos = 0;
 
     private BleEcgRecord10() {
         createTime = 0;
@@ -72,8 +77,35 @@ public class BleEcgRecord10 extends LitePalSupport {
     public List<Short> getEcgList() {
         return ecgList;
     }
+    @Override
     public int getSampleRate() {
         return sampleRate;
+    }
+
+    @Override
+    public int getCaliValue() {
+        return caliValue;
+    }
+
+    @Override
+    public boolean isEOD() {
+        return (pos >= ecgList.size());
+    }
+
+    @Override
+    public void seekData(int pos) {
+        this.pos = pos;
+    }
+
+    @Override
+    public int readData() throws IOException {
+        if(pos >= ecgList.size()) throw new IOException();
+        return ecgList.get(pos);
+    }
+
+    @Override
+    public int getDataNum() {
+        return ecgList.size();
     }
 
     public boolean process(short ecg) {

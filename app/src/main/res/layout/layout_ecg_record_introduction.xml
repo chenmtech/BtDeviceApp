@@ -1,106 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="2dp">
+    android:layout_margin="10dp">
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="更新时间:"
-            android:textColor="@color/black"
-            android:textSize="16sp"/>
-
-        <TextView
-            android:id="@+id/tv_modify_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="未知"
-            android:textColor="@color/black"
-            android:textSize="16sp"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="记录人:"
-            android:textColor="@color/secondary_text"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:id="@+id/tv_creator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:maxLength="10"
-            android:text="匿名"
-            android:textAppearance="@style/PersonTextAppearance"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="记录时间:"
-            android:textColor="@color/secondary_text"
-            android:textSize="14sp"/>
-
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
         <TextView
             android:id="@+id/tv_create_time"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="未知"
             android:textColor="@color/primary_text"
-            android:textSize="14sp"/>
+            android:textSize="20sp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="时长约"
+                android:textColor="@color/gray"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/tv_time_length"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textColor="@color/gray"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="秒"
+                android:textColor="@color/gray"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_device_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="未知"
+            android:textColor="@color/gray"
+            android:textSize="12sp"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tv_creator"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="记录信号长:"
-            android:textColor="@color/secondary_text"
-            android:textSize="14sp"/>
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center_horizontal"
+        android:layout_marginEnd="10dp"
+        android:maxLength="10"
+        android:text="匿名"
+        android:textAppearance="@style/PersonTextAppearance"
+        android:textSize="14sp"
+        android:drawableTop="@mipmap/ic_heart_48px"/>
 
-        <TextView
-            android:id="@+id/tv_signal_length"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="未知"
-            android:textColor="@color/primary_text"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="记录心跳次数:"
-            android:textColor="@color/secondary_text"
-            android:textSize="14sp"/>
-
-        <TextView
-            android:id="@+id/tv_time_length"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="0"
-            android:textColor="@color/primary_text"
-            android:textSize="14sp"/>
-    </LinearLayout>
-
-    <View
-        android:id="@+id/ecgfile_update"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@color/red"
-        android:visibility="gone"/>
-</LinearLayout>
+</RelativeLayout>

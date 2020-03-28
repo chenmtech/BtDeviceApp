@@ -50,7 +50,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity implements EcgR
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ecg_record_explorer);
+        setContentView(R.layout.activity_ecgrecord_explorer);
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_ecg_record_explorer);

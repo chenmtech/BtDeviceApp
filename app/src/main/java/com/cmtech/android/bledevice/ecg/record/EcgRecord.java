@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.ecg.record;
 
+import com.cmtech.android.bledevice.IEcgRecord;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgComment;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgCommentFactory;
@@ -25,7 +26,7 @@ import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 
-public class EcgRecord extends LitePalSupport {
+public class EcgRecord extends LitePalSupport implements IEcgRecord {
     private static final byte[] ECG = {'E', 'C', 'G'}; // 心电标识
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // 设备地址字符数
     public static final int INVALID_SAMPLE_RATE = -1; // 无效采样率

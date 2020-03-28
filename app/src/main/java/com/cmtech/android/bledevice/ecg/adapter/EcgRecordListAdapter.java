@@ -74,7 +74,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     @Override
     public EcgRecordListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_ecg_record, parent, false);
+                .inflate(R.layout.recycle_item_ecgrecord, parent, false);
 
         final EcgRecordListAdapter.ViewHolder holder = new EcgRecordListAdapter.ViewHolder(view);
 

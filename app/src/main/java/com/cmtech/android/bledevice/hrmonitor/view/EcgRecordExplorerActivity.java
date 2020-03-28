@@ -12,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrmonitor.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.EcgRecordListAdapter;
 import com.cmtech.android.bledeviceapp.R;
@@ -35,10 +34,10 @@ public class EcgRecordExplorerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ecg_record_explorer2);
+        setContentView(R.layout.activity_ecg_record_explorer);
 
         // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_hr_record_explorer);
+        Toolbar toolbar = findViewById(R.id.tb_ecg_record_explorer);
         setSupportActionBar(toolbar);
 
         this.allRecords = LitePal.findAll(BleEcgRecord10.class, true);
@@ -54,7 +53,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity {
             });
         }
 
-        rvRecords = findViewById(R.id.rv_hr_record_list);
+        rvRecords = findViewById(R.id.rv_ecg_record_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rvRecords.setLayoutManager(fileLayoutManager);
@@ -88,8 +87,6 @@ public class EcgRecordExplorerActivity extends AppCompatActivity {
 
         updateRecordList();
     }
-
-
 
     public void selectRecord(final BleEcgRecord10 record) {
         if(record != null) {

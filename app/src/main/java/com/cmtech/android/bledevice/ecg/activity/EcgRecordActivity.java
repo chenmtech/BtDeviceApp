@@ -66,7 +66,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ecg_record);
+        setContentView(R.layout.activity_ecgrecord);
 
         int recordId = getIntent().getIntExtra("record_id", -1);
         try {

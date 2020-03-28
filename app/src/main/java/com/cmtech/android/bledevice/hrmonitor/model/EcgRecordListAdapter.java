@@ -11,11 +11,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.view.EcgRecordExplorerActivity;
-import com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.vise.log.ViseLog;
 
 import java.util.List;
 
@@ -69,7 +67,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
     @Override
     public EcgRecordListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_hr_record, parent, false);
+                .inflate(R.layout.recycle_item_ecg_record, parent, false);
 
         final EcgRecordListAdapter.ViewHolder holder = new EcgRecordListAdapter.ViewHolder(view);
 
@@ -112,7 +110,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         if(ecgList == null || ecgList.size() == 0)
             holder.tvTimeLength.setText(String.valueOf(0));
         else {
-            holder.tvTimeLength.setText(""+ecgList.size());
+            holder.tvTimeLength.setText(""+ecgList.size()/record.getSampleRate());
         }
         holder.tvAddress.setText(record.getDevAddress());
 
