@@ -100,7 +100,7 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord {
     @Override
     public int readData() throws IOException {
         if(pos >= ecgList.size()) throw new IOException();
-        return ecgList.get(pos);
+        return ecgList.get(pos++);
     }
 
     @Override

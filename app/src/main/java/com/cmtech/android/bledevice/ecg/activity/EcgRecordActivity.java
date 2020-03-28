@@ -21,7 +21,7 @@ import com.cmtech.android.bledevice.ecg.record.EcgRecord;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledevice.ecg.view.EcgHrHistogramChart;
 import com.cmtech.android.bledevice.ecg.view.EcgHrLineChart;
-import com.cmtech.android.bledevice.ecg.view.RollEcgRecordWaveView;
+import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;

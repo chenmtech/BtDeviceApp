@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity;
+import com.cmtech.android.bledevice.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledevice.ecg.device.EcgConfiguration;
 import com.cmtech.android.bledevice.ecg.device.EcgHttpBroadcast;
@@ -27,7 +28,6 @@ import com.cmtech.android.bledevice.ecg.fragment.EcgHrStatisticsFragment;
 import com.cmtech.android.bledevice.ecg.fragment.EcgRecordFragment;
 import com.cmtech.android.bledevice.ecg.interfac.IEcgDevice;
 import com.cmtech.android.bledevice.ecg.process.hr.HrStatisticsInfo;
-import com.cmtech.android.bledevice.ecg.view.ScanEcgView;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;

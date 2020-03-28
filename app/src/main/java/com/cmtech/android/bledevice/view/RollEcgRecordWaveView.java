@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecg.view;
+package com.cmtech.android.bledevice.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -6,8 +6,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 
 import com.cmtech.android.bledevice.IEcgRecord;
-import com.cmtech.android.bledevice.ecg.record.EcgRecord;
-import com.cmtech.android.bledevice.view.ColorRollWaveView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,9 +13,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.cmtech.android.bledevice.ecg.view.ScanEcgView.MV_PER_GRID;
-import static com.cmtech.android.bledevice.ecg.view.ScanEcgView.PIXEL_PER_GRID;
-import static com.cmtech.android.bledevice.ecg.view.ScanEcgView.SECOND_PER_GRID;
+import static com.cmtech.android.bledevice.view.ScanEcgView.MV_PER_GRID;
+import static com.cmtech.android.bledevice.view.ScanEcgView.PIXEL_PER_GRID;
+import static com.cmtech.android.bledevice.view.ScanEcgView.SECOND_PER_GRID;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**

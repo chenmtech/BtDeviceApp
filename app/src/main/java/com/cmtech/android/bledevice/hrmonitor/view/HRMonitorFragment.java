@@ -22,6 +22,7 @@ import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorConfiguration;
 import com.cmtech.android.bledevice.hrmonitor.model.HrCtrlPanelAdapter;
 import com.cmtech.android.bledevice.hrmonitor.model.OnHRMonitorDeviceListener;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
+import com.cmtech.android.bledevice.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;

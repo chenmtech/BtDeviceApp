@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone">
-            <com.cmtech.android.bledevice.hrmonitor.view.ScanEcgView
+            <com.cmtech.android.bledevice.view.ScanEcgView
                 android:id="@+id/scanview_ecg"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

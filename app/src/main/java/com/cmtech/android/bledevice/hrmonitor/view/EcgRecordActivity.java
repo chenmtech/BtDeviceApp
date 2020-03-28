@@ -9,7 +9,7 @@ import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.ecg.view.RollEcgRecordWaveView;
+import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.hrmonitor.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;

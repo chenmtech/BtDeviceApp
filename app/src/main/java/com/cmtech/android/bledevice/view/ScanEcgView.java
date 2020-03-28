@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.ecg.view;
+package com.cmtech.android.bledevice.view;
 
 import android.content.Context;
 import android.util.AttributeSet;

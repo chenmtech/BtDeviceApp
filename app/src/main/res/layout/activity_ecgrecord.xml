@@ -40,7 +40,7 @@
                     android:layout_marginStart="6dp"
                     android:layout_marginEnd="6dp">
 
-                    <com.cmtech.android.bledevice.ecg.view.RollEcgRecordWaveView
+                    <com.cmtech.android.bledevice.view.RollEcgRecordWaveView
                         android:id="@+id/scan_ecg_view"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
