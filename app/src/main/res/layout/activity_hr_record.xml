@@ -4,13 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <!--记录简介部分-->
-    <include layout="@layout/layout_hr_record_introduction"/>
+    <include layout="@layout/layout_record_introduction"/>
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--心率部分-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,17 +24,17 @@
 
             <include layout="@layout/layout_hr_line_chart"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"/>
+                android:layout_height="200dp"/>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_margin="6dp"
+                android:layout_margin="10dp"
                 android:background="@color/primary_dark"/>
 
             <include layout="@layout/layout_hr_hist_chart"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"/>
+                android:layout_height="200dp"/>
         </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>

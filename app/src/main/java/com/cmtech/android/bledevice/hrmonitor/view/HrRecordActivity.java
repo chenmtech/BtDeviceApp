@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
@@ -23,7 +24,8 @@ public class HrRecordActivity extends AppCompatActivity {
     private TextView tvCreateTime; // 创建时间
     private TextView tvCreator; // 创建人
     private TextView tvAddress;
-    private TextView tvTimeLength; // 心率次数
+    private TextView tvTimeLength; // time length
+    private ImageView ivRecordType; // record type
 
     private TextView tvMaxHr; // 最大心率
     private TextView tvAveHr; // 平均心率
@@ -35,14 +37,16 @@ public class HrRecordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hr_record);
 
-        int recordId = getIntent().getIntExtra("record_id", -1);
-        record = LitePal.find(BleHrRecord10.class, recordId, true);
+        record = (BleHrRecord10) getIntent().getSerializableExtra("record");
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
         }
         ViseLog.e(record);
         record.createHistogram();
+
+        ivRecordType = findViewById(R.id.iv_record_type);
+        ivRecordType.setImageResource(R.mipmap.ic_hr_32px);
 
         tvCreateTime = findViewById(R.id.tv_create_time);
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
@@ -56,17 +60,12 @@ public class HrRecordActivity extends AppCompatActivity {
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 
         tvTimeLength = findViewById(R.id.tv_time_length);
-        List<Integer> hrHist = record.getHrHist();
-        if(hrHist == null || hrHist.size() == 0)
-            tvTimeLength.setText(String.valueOf(0));
-        else {
-            long time = 0;
-            for(int num : hrHist) {
-                time += num;
-            }
-            time = (time/60 == 0) ? 1 : time/60;
-            tvTimeLength.setText(String.valueOf(time));
+        long time = 0;
+        for(int num : record.getHrHist()) {
+            time += num;
         }
+        time = (time/60 == 0) ? 1 : time/60;
+        tvTimeLength.setText(time+"分钟");
 
         tvAddress = findViewById(R.id.tv_device_address);
         tvAddress.setText(record.getDevAddress());

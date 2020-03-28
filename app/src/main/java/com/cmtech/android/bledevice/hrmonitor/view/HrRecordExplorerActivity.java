@@ -106,7 +106,7 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
     public void selectRecord(final BleHrRecord10 record) {
         if(record != null) {
             Intent intent = new Intent(this, HrRecordActivity.class);
-            intent.putExtra("record_id", record.getId());
+            intent.putExtra("record", record);
             startActivity(intent);
         }
     }

@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity;
@@ -46,6 +47,7 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         TextView tvCreator; // 创建人
         TextView tvTimeLength; // record time length, unit: s
         TextView tvAddress;
+        ImageView ivRecordType;
         ImageButton ibDelete;
 
         ViewHolder(View itemView) {
@@ -55,6 +57,7 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
             tvCreator = fileView.findViewById(R.id.tv_creator);
             tvTimeLength = fileView.findViewById(R.id.tv_time_length);
             tvAddress = fileView.findViewById(R.id.tv_device_address);
+            ivRecordType = fileView.findViewById(R.id.iv_record_type);
             ibDelete = fileView.findViewById(R.id.ib_delete);
         }
     }
@@ -100,6 +103,8 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
     public void onBindViewHolder(@NonNull HrRecordListAdapter.ViewHolder holder, final int position) {
         BleHrRecord10 record = allRecordList.get(position);
         if(record == null) return;
+        holder.ivRecordType.setImageResource(R.mipmap.ic_hr_32px);
+
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
         holder.tvCreator.setText(record.getCreatorName());
@@ -107,17 +112,12 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         holder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-        List<Integer> hrHist = record.getHrHist();
-        if(hrHist == null || hrHist.size() == 0)
-            holder.tvTimeLength.setText(String.valueOf(0));
-        else {
-            long time = 0;
-            for(int num : hrHist) {
-                time += num;
-            }
-            time = (time/60 == 0) ? 1 : time/60;
-            holder.tvTimeLength.setText(String.valueOf(time));
+        long time = 0;
+        for(int num : record.getHrHist()) {
+            time += num;
         }
+        time = (time/60 == 0) ? 1 : time/60;
+        holder.tvTimeLength.setText(time+"分钟");
         holder.tvAddress.setText(record.getDevAddress());
 
         if(position == selPos) {

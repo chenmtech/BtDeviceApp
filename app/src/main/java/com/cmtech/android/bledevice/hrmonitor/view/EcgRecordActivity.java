@@ -120,4 +120,11 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     public void onShowStateUpdated(boolean isShow) {
         sbReplay.setEnabled(!isShow);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        signalView.stopShow();
+    }
 }

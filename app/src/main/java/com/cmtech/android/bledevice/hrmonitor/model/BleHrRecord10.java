@@ -11,6 +11,7 @@ import org.litepal.crud.LitePalSupport;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,7 +34,7 @@ import static com.cmtech.android.bledeviceapp.model.Account.USER_ID_CHAR_LEN;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleHrRecord10 extends LitePalSupport {
+public class BleHrRecord10 extends LitePalSupport implements Serializable {
     public static final int HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH = 10; // unit: s
     private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // char num of device address
@@ -50,15 +51,15 @@ public class BleHrRecord10 extends LitePalSupport {
     private List<Integer> hrHist; // HR histogram value
 
     @Column(ignore = true)
-    private final HrMAFilter hrMAFilter; // moving average filter
+    private transient final HrMAFilter hrMAFilter; // moving average filter
     @Column(ignore = true)
     private final List<HrHistogramElement<Integer>> hrHistogram = new ArrayList<>();
     @Column(ignore = true)
-    private long hrSum;
+    private transient long hrSum;
     @Column(ignore = true)
-    private long hrNum;
+    private transient long hrNum;
     @Column(ignore = true)
-    private long preTime = 0;
+    private transient long preTime = 0;
 
     private BleHrRecord10() {
         createTime = 0;
@@ -314,7 +315,7 @@ public class BleHrRecord10 extends LitePalSupport {
     }
 
     // HR histogram element
-    public static class HrHistogramElement<T> {
+    public static class HrHistogramElement<T> implements Serializable{
         private final short minValue;
         private final short maxValue;
         private final String barTitle; // histogram bar title string

@@ -16,7 +16,7 @@
         <com.cmtech.android.bledevice.view.RollEcgRecordWaveView
             android:id="@+id/scan_ecg_view"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="300dp"
             cmtech:background_color="#666"
             cmtech:grid_color="#f00"
             cmtech:wave_color="#ff0"
