@@ -22,4 +22,5 @@ public interface OnHRMonitorDeviceListener {
     void onFragmentUpdated(int sampleRate, int value1mV, double zeroLocation, boolean ecgLock); // fragment updated
     void onEcgSignalShowed(int ecgSignal); // ecg signal showed
     void onEcgSignalRecorded(boolean isRecord); // ecg signal recorded
+    void onEcgRecordTimeUpdated(int second);
 }

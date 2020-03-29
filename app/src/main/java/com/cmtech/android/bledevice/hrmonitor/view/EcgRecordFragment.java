@@ -8,9 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
-import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice;
 import com.cmtech.android.bledeviceapp.R;
+
+import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice.ECG_RECORD_MAX_SECOND;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -28,6 +30,8 @@ public class EcgRecordFragment extends Fragment {
     public static final String TITLE = "心电记录";
 
     ImageButton ibRecord;
+    TextView tvTimeLength;
+    TextView tvTotalRecordTime;
 
     boolean isRecord = false;
 
@@ -49,6 +53,10 @@ public class EcgRecordFragment extends Fragment {
                 ((HRMonitorFragment)getParentFragment()).setEcgRecord(!isRecord);
             }
         });
+
+        tvTimeLength = view.findViewById(R.id.tv_time_length);
+        tvTotalRecordTime = view.findViewById(R.id.tv_total_record_time);
+        tvTotalRecordTime.setText(""+ECG_RECORD_MAX_SECOND);
     }
 
     public void updateRecordStatus(boolean isRecord) {
@@ -58,5 +66,14 @@ public class EcgRecordFragment extends Fragment {
             ibRecord.setImageResource(R.mipmap.ic_start_48px);
         }
         this.isRecord = isRecord;
+    }
+
+    public void setEcgRecordTime(final int second) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvTimeLength.setText(""+second);
+            }
+        });
     }
 }

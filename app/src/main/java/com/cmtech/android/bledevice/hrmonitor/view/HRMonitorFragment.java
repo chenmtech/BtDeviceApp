@@ -240,6 +240,11 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
+    public void onEcgRecordTimeUpdated(int second) {
+        ecgRecFrag.setEcgRecordTime(second);
+    }
+
+    @Override
     public void onShowStateUpdated(boolean isShow) {
         if(isShow) {
             tvMessage.setVisibility(View.GONE);

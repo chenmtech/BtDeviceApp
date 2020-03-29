@@ -77,10 +77,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|top"
             android:layout_margin="5dp"
-            android:switchMinWidth="40dp"
             android:checked="false"
-            android:text="ECG"
-            android:textColor="@color/blue"
+            android:thumb="@mipmap/ic_ecg_24px"
+            android:showText="false"
             android:visibility="gone"/>
 
     </FrameLayout>

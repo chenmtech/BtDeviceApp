@@ -1,6 +1,8 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
@@ -42,6 +44,9 @@ import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
  */
 public class HRMonitorDevice extends AbstractDevice {
     public static final short INVALID_HEART_RATE = -1;
+    public static final int ECG_RECORD_MAX_SECOND = 20;
+    private static final int ECG_RECORD_MIN_SECOND = 5;
+
     private static final int DEFAULT_CALI_1MV = 164; // default 1mV calibration value
     private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
     private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // default lead type
@@ -159,10 +164,15 @@ public class HRMonitorDevice extends AbstractDevice {
             ecgRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount(), sampleRate, caliValue, leadType.getCode());
         } else {
             if(ecgRecord != null) {
-                if (ecgRecord.getEcgList().size() < ecgRecord.getSampleRate()*10) {
+                if (ecgRecord.getDataNum()/ecgRecord.getSampleRate() < ECG_RECORD_MIN_SECOND) {
                     Toast.makeText(MyApplication.getContext(), "记录太短，未保存。", Toast.LENGTH_SHORT).show();
                 } else {
-                    ecgRecord.save();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ecgRecord.save();
+                        }
+                    }).start();
                     Toast.makeText(MyApplication.getContext(), "记录已保存。", Toast.LENGTH_SHORT).show();
                     ViseLog.e(ecgRecord.toString());
                 }
@@ -171,6 +181,51 @@ public class HRMonitorDevice extends AbstractDevice {
         }
         if(listener != null) {
             listener.onEcgSignalRecorded(isEcgRecord);
+        }
+    }
+
+    public void setEcgLock(final boolean ecgLock) {
+        if(this.ecgLock == ecgLock) return;
+
+        byte data = (ecgLock) ? ECG_LOCKED : ECG_UNLOCKED;
+
+        ((BleConnector) connector).write(ECGLOCKSTATUS, data, new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                HRMonitorDevice.this.ecgLock = ecgLock;
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+            }
+        });
+    }
+
+    public void setEcgShow(boolean isStart) {
+        if(ecgLock) return;
+
+        if(ecgProcessor != null)
+            ecgProcessor.stop();
+
+        //((BleConnector)connector).notify(ECGMEASCCC, false, null);
+
+        if(isStart) {
+            ecgProcessor.start();
+            IBleDataCallback notifyCallback = new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    //ViseLog.i("ecg data: " + Arrays.toString(data));
+                    ecgProcessor.processData(data);
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+
+                }
+            };
+            ((BleConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
+        } else {
+            ((BleConnector)connector).notify(ECGMEASCCC, false, null);
         }
     }
 
@@ -505,51 +560,6 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
-    public void setEcgLock(final boolean ecgLock) {
-        if(this.ecgLock == ecgLock) return;
-
-        byte data = (ecgLock) ? ECG_LOCKED : ECG_UNLOCKED;
-
-        ((BleConnector) connector).write(ECGLOCKSTATUS, data, new IBleDataCallback() {
-            @Override
-            public void onSuccess(byte[] data, BleGattElement element) {
-                HRMonitorDevice.this.ecgLock = ecgLock;
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-            }
-        });
-    }
-
-    public void setEcgShow(boolean isStart) {
-        if(ecgLock) return;
-
-        if(ecgProcessor != null)
-            ecgProcessor.stop();
-
-        //((BleConnector)connector).notify(ECGMEASCCC, false, null);
-
-        if(isStart) {
-            ecgProcessor.start();
-            IBleDataCallback notifyCallback = new IBleDataCallback() {
-                @Override
-                public void onSuccess(byte[] data, BleGattElement element) {
-                    //ViseLog.i("ecg data: " + Arrays.toString(data));
-                    ecgProcessor.processData(data);
-                }
-
-                @Override
-                public void onFailure(BleException exception) {
-
-                }
-            };
-            ((BleConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
-        } else {
-            ((BleConnector)connector).notify(ECGMEASCCC, false, null);
-        }
-    }
-
     public void showEcgSignal(int ecgSignal) {
         if (listener != null) {
             listener.onEcgSignalShowed(ecgSignal);
@@ -559,6 +569,18 @@ public class HRMonitorDevice extends AbstractDevice {
     public void recordEcgSignal(int ecgSignal) {
         if(isEcgRecord && ecgRecord != null) {
             ecgRecord.process((short)ecgSignal);
+            if(ecgRecord.getDataNum() % sampleRate == 0 && listener != null) {
+                int second = ecgRecord.getDataNum()/sampleRate;
+                listener.onEcgRecordTimeUpdated(second);
+                if(second >= ECG_RECORD_MAX_SECOND) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            setEcgRecord(false);
+                        }
+                    });
+                }
+            }
         }
     }
 }
