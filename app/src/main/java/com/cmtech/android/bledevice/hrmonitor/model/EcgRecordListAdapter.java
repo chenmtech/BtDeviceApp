@@ -111,7 +111,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         holder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-        holder.tvTimeLength.setText(record.getDataNumSaved()/record.getSampleRate()+"秒");
+        holder.tvTimeLength.setText(record.getRecordSecond()+"秒");
 
         holder.tvAddress.setText(record.getDevAddress());
 

@@ -93,7 +93,7 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
         //"id, hrHist, createTime, devAddress, creatorPlat, creatorId"
-        LitePal.select("createTime, devAddress, creatorPlat, creatorId, saveTime").order("createTime desc").findAsync(BleHrRecord10.class, true).listen(new FindMultiCallback<BleHrRecord10>() {
+        LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").order("createTime desc").findAsync(BleHrRecord10.class, true).listen(new FindMultiCallback<BleHrRecord10>() {
             @Override
             public void onFinish(List<BleHrRecord10> list) {
                 if(list != null)

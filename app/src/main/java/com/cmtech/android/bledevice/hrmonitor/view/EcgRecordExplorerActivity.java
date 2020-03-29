@@ -78,7 +78,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity {
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
 
-        LitePal.select("id, createTime, devAddress, creatorPlat, creatorId, dataNumSaved, sampleRate").order("createTime desc").findAsync(BleEcgRecord10.class).listen(new FindMultiCallback<BleEcgRecord10>() {
+        LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").order("createTime desc").findAsync(BleEcgRecord10.class).listen(new FindMultiCallback<BleEcgRecord10>() {
             @Override
             public void onFinish(List<BleEcgRecord10> list) {
                 if(list != null)

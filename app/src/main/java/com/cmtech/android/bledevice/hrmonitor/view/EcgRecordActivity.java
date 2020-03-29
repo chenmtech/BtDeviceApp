@@ -65,7 +65,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 
         tvTimeLength = findViewById(R.id.tv_time_length);
-        int second = record.getDataNumSaved()/ record.getSampleRate();
+        int second = record.getRecordSecond();
         tvTimeLength.setText(second+"秒");
 
         tvAddress = findViewById(R.id.tv_device_address);

@@ -111,7 +111,7 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         holder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-        int time = (record.getSaveTime() <= 60) ? 1 : record.getSaveTime()/60;
+        int time = (record.getRecordSecond() <= 60) ? 1 : record.getRecordSecond()/60;
         holder.tvTimeLength.setText(time+"分钟");
         holder.tvAddress.setText(record.getDevAddress());
 

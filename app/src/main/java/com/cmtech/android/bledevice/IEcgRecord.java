@@ -21,5 +21,5 @@ public interface IEcgRecord {
     void seekData(int pos);
     int readData() throws IOException;
     int getDataNum();
-    int getDataNumSaved();
+    int getRecordSecond();
 }

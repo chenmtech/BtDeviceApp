@@ -8,15 +8,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.hrmonitor.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
-
-import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLATFORM;
 
@@ -63,7 +60,7 @@ public class HrRecordActivity extends AppCompatActivity {
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 
         tvTimeLength = findViewById(R.id.tv_time_length);
-        int time = (record.getSaveTime() <= 60) ? 1 : record.getSaveTime()/60;
+        int time = (record.getRecordSecond() <= 60) ? 1 : record.getRecordSecond()/60;
         tvTimeLength.setText(time+"分钟");
 
         tvAddress = findViewById(R.id.tv_device_address);

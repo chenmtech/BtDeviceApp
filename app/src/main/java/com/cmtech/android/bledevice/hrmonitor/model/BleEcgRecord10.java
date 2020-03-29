@@ -37,7 +37,7 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serial
     private int sampleRate; // 采样频率
     private int caliValue; // 标定值
     private int leadTypeCode; // 导联类型代码
-    private int dataNumSaved;
+    private int recordSecond; // unit: s
     private List<Short> ecgList; // list of the filtered HR
     @Column(ignore = true)
     private int pos = 0;
@@ -50,7 +50,7 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serial
         sampleRate = 0;
         caliValue = 0;
         leadTypeCode = 0;
-        dataNumSaved = 0;
+        recordSecond = 0;
         ecgList = new ArrayList<>();
     }
 
@@ -112,13 +112,13 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serial
     }
 
     @Override
-    public int getDataNumSaved() {
-        return dataNumSaved;
+    public int getRecordSecond() {
+        return recordSecond;
     }
 
     @Override
     public boolean save() {
-        dataNumSaved = ecgList.size();
+        recordSecond = ecgList.size()/sampleRate;
         return super.save();
     }
 
@@ -147,7 +147,7 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serial
         record.sampleRate = sampleRate;
         record.caliValue = caliValue;
         record.leadTypeCode = leadTypeCode;
-        record.dataNumSaved = 0;
+        record.recordSecond = 0;
         return record;
     }
 
