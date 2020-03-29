@@ -204,13 +204,12 @@ public class HRMonitorDevice extends AbstractDevice {
     public void setEcgShow(boolean isStart) {
         if(ecgLock) return;
 
-        if(ecgProcessor != null)
-            ecgProcessor.stop();
-
         //((BleConnector)connector).notify(ECGMEASCCC, false, null);
 
         if(isStart) {
-            ecgProcessor.start();
+            if(ecgProcessor != null)
+                ecgProcessor.start();
+
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
@@ -225,6 +224,9 @@ public class HRMonitorDevice extends AbstractDevice {
             };
             ((BleConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
         } else {
+            if(ecgProcessor != null)
+                ecgProcessor.stop();
+
             ((BleConnector)connector).notify(ECGMEASCCC, false, null);
         }
     }
