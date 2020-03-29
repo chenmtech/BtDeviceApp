@@ -20,6 +20,7 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
+import org.litepal.crud.callback.SaveCallback;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -162,25 +163,31 @@ public class HRMonitorDevice extends AbstractDevice {
         isEcgRecord = isRecord;
         if(isEcgRecord) {
             ecgRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount(), sampleRate, caliValue, leadType.getCode());
+            if(listener != null) {
+                listener.onEcgSignalRecorded(true);
+            }
         } else {
             if(ecgRecord != null) {
                 if (ecgRecord.getDataNum()/ecgRecord.getSampleRate() < ECG_RECORD_MIN_SECOND) {
                     Toast.makeText(MyApplication.getContext(), "记录太短，未保存。", Toast.LENGTH_SHORT).show();
+                    ecgRecord = null;
+                    if(listener != null) {
+                        listener.onEcgSignalRecorded(false);
+                    }
                 } else {
-                    new Thread(new Runnable() {
+                    ecgRecord.saveAsync().listen(new SaveCallback() {
                         @Override
-                        public void run() {
-                            ecgRecord.save();
+                        public void onFinish(boolean success) {
+                            Toast.makeText(MyApplication.getContext(), "心电记录已保存。", Toast.LENGTH_SHORT).show();
+                            ViseLog.e(ecgRecord.toString());
+                            ecgRecord = null;
+                            if(listener != null) {
+                                listener.onEcgSignalRecorded(false);
+                            }
                         }
-                    }).start();
-                    Toast.makeText(MyApplication.getContext(), "记录已保存。", Toast.LENGTH_SHORT).show();
-                    ViseLog.e(ecgRecord.toString());
+                    });
                 }
-                ecgRecord = null;
             }
-        }
-        if(listener != null) {
-            listener.onEcgSignalRecorded(isEcgRecord);
         }
     }
 

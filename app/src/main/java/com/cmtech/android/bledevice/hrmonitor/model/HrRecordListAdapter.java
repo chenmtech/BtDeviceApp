@@ -15,7 +15,6 @@ import com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.vise.log.ViseLog;
 
 import java.util.List;
 
@@ -36,7 +35,7 @@ import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLA
 
 public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapter.ViewHolder>{
     private final HrRecordExplorerActivity activity;
-    private final List<BleHrRecord10> allRecordList;
+    private final List<BleHrRecord10> allRecords;
     private int selPos = -1;
     private Drawable defaultBg; // 缺省背景
 
@@ -62,9 +61,9 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         }
     }
 
-    public HrRecordListAdapter(HrRecordExplorerActivity activity, List<BleHrRecord10> allRecordList) {
+    public HrRecordListAdapter(HrRecordExplorerActivity activity, List<BleHrRecord10> allRecords) {
         this.activity = activity;
-        this.allRecordList = allRecordList;
+        this.allRecords = allRecords;
     }
 
     @NonNull
@@ -82,18 +81,18 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
             public void onClick(View view) {
                 int before = selPos;
                 selPos = holder.getAdapterPosition();
-                if(before >= 0 && before < allRecordList.size()) {
+                if(before >= 0 && before < allRecords.size()) {
                     notifyItemChanged(before);
                 }
                 notifyItemChanged(selPos);
-                activity.selectRecord(allRecordList.get(selPos));
+                activity.selectRecord(allRecords.get(selPos));
             }
         });
 
         holder.ibDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.deleteRecord(allRecordList.get(holder.getAdapterPosition()));
+                activity.deleteRecord(allRecords.get(holder.getAdapterPosition()));
             }
         });
         return holder;
@@ -101,7 +100,7 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
 
     @Override
     public void onBindViewHolder(@NonNull HrRecordListAdapter.ViewHolder holder, final int position) {
-        BleHrRecord10 record = allRecordList.get(position);
+        BleHrRecord10 record = allRecords.get(position);
         if(record == null) return;
         holder.ivRecordType.setImageResource(R.mipmap.ic_hr_32px);
 
@@ -129,7 +128,7 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
     }
     @Override
     public int getItemCount() {
-        return allRecordList.size();
+        return allRecords.size();
     }
 
     public void updateRecordList() {
@@ -137,6 +136,6 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
     }
 
     public void clear() {
-        allRecordList.clear();
+        allRecords.clear();
     }
 }

@@ -19,6 +19,7 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -39,7 +40,7 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "HrRecordExplorerActivity";
     private static final int DEFAULT_LOAD_RECORD_NUM_EACH_TIMES = 10; // 缺省每次加载的记录数
 
-    private List<BleHrRecord10> allRecords; // 所有心电记录列表
+    private List<BleHrRecord10> allRecords = new ArrayList<>(); // 所有心电记录列表
     private HrRecordListAdapter recordAdapter; // 记录Adapter
     private RecyclerView rvRecords; // 记录RecycleView
     private TextView tvPromptInfo; // 提示信息
@@ -53,18 +54,7 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_hr_record_explorer);
         setSupportActionBar(toolbar);
 
-        this.allRecords = LitePal.findAll(BleHrRecord10.class, true);
-        if(allRecords != null && allRecords.size() > 1) {
-            Collections.sort(allRecords, new Comparator<BleHrRecord10>() {
-                @Override
-                public int compare(BleHrRecord10 o1, BleHrRecord10 o2) {
-                    long time1 = o1.getCreateTime();
-                    long time2 = o2.getCreateTime();
-                    if(time1 == time2) return 0;
-                    return (time2 > time1) ? 1 : -1;
-                }
-            });
-        }
+        this.allRecords = LitePal.order("createTime desc").find(BleHrRecord10.class, true);
 
         rvRecords = findViewById(R.id.rv_hr_record_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
@@ -79,6 +69,8 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
 
+                ViseLog.e("hi, onScrollStateChanged");
+
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == recordAdapter.getItemCount()-1) {
                     //explorer.loadNextRecords(DEFAULT_LOAD_RECORD_NUM_EACH_TIMES);
@@ -88,6 +80,8 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
+
+                ViseLog.e("hi, onScrolled");
 
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if(layoutManager != null)
