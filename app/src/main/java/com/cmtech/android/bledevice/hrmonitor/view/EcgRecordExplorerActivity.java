@@ -13,20 +13,22 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrmonitor.model.BleEcgRecord10;
+import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.EcgRecordListAdapter;
 import com.cmtech.android.bledeviceapp.R;
 
 import org.litepal.LitePal;
+import org.litepal.crud.callback.FindCallback;
+import org.litepal.crud.callback.FindMultiCallback;
 
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class EcgRecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "EcgRecordExplorerActivity";
-    private static final int DEFAULT_LOAD_RECORD_NUM_EACH_TIMES = 10; // 缺省每次加载的记录数
 
-    private List<BleEcgRecord10> allRecords; // 所有心电记录列表
+    private List<BleEcgRecord10> allRecords = new ArrayList<>(); // 所有心电记录列表
     private EcgRecordListAdapter recordAdapter; // 记录Adapter
     private RecyclerView rvRecords; // 记录RecycleView
     private TextView tvPromptInfo; // 提示信息
@@ -39,8 +41,6 @@ public class EcgRecordExplorerActivity extends AppCompatActivity {
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_ecg_record_explorer);
         setSupportActionBar(toolbar);
-
-        this.allRecords = LitePal.order("createTime desc").find(BleEcgRecord10.class, true);
 
         rvRecords = findViewById(R.id.rv_ecg_record_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
@@ -66,21 +66,32 @@ public class EcgRecordExplorerActivity extends AppCompatActivity {
                 super.onScrolled(recyclerView, dx, dy);
 
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if(layoutManager != null)
+                if(layoutManager != null) {
                     lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                    if(lastVisibleItem == recordAdapter.getItemCount()-1) {
+
+                    }
+                }
             }
         });
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
 
-        updateRecordList();
+        LitePal.select("id, createTime, devAddress, creatorPlat, creatorId, dataNumSaved, sampleRate").order("createTime desc").findAsync(BleEcgRecord10.class).listen(new FindMultiCallback<BleEcgRecord10>() {
+            @Override
+            public void onFinish(List<BleEcgRecord10> list) {
+                if(list != null)
+                    allRecords.addAll(list);
+                updateRecordList();
+            }
+        });
     }
 
     public void selectRecord(final BleEcgRecord10 record) {
         if(record != null) {
-            Intent intent = new Intent(this, EcgRecordActivity.class);
-            intent.putExtra("record", record);
+            Intent intent = new Intent(EcgRecordExplorerActivity.this, EcgRecordActivity.class);
+            intent.putExtra("record_id", record.getId());
             startActivity(intent);
         }
     }

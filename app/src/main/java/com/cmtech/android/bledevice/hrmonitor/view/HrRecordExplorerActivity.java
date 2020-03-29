@@ -12,16 +12,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.hrmonitor.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.HrRecordListAdapter;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
+import org.litepal.crud.callback.FindMultiCallback;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -54,8 +57,6 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_hr_record_explorer);
         setSupportActionBar(toolbar);
 
-        this.allRecords = LitePal.order("createTime desc").find(BleHrRecord10.class, true);
-
         rvRecords = findViewById(R.id.rv_hr_record_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -69,8 +70,6 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
 
-                ViseLog.e("hi, onScrollStateChanged");
-
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == recordAdapter.getItemCount()-1) {
                     //explorer.loadNextRecords(DEFAULT_LOAD_RECORD_NUM_EACH_TIMES);
@@ -81,26 +80,33 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                ViseLog.e("hi, onScrolled");
-
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if(layoutManager != null)
+                if(layoutManager != null) {
                     lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                    if(lastVisibleItem == recordAdapter.getItemCount()-1) {
+
+                    }
+                }
             }
         });
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
-
-        updateRecordList();
+        //"id, hrHist, createTime, devAddress, creatorPlat, creatorId"
+        LitePal.select("createTime, devAddress, creatorPlat, creatorId, saveTime").order("createTime desc").findAsync(BleHrRecord10.class, true).listen(new FindMultiCallback<BleHrRecord10>() {
+            @Override
+            public void onFinish(List<BleHrRecord10> list) {
+                if(list != null)
+                    allRecords.addAll(list);
+                updateRecordList();
+            }
+        });
     }
-
-
 
     public void selectRecord(final BleHrRecord10 record) {
         if(record != null) {
             Intent intent = new Intent(this, HrRecordActivity.class);
-            intent.putExtra("record", record);
+            intent.putExtra("record_id", record.getId());
             startActivity(intent);
         }
     }
@@ -128,19 +134,13 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecordList() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(allRecords == null || allRecords.isEmpty()) {
-                    rvRecords.setVisibility(View.INVISIBLE);
-                    tvPromptInfo.setVisibility(View.VISIBLE);
-                }else {
-                    rvRecords.setVisibility(View.VISIBLE);
-                    tvPromptInfo.setVisibility(View.INVISIBLE);
-                }
-
-                recordAdapter.updateRecordList();
-            }
-        });
+        if(allRecords.isEmpty()) {
+            rvRecords.setVisibility(View.INVISIBLE);
+            tvPromptInfo.setVisibility(View.VISIBLE);
+        }else {
+            rvRecords.setVisibility(View.VISIBLE);
+            tvPromptInfo.setVisibility(View.INVISIBLE);
+        }
+        recordAdapter.updateRecordList();
     }
 }

@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.hrmonitor.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrmonitor.model.BleHrRecord10;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -37,7 +38,9 @@ public class HrRecordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hr_record);
 
-        record = (BleHrRecord10) getIntent().getSerializableExtra("record");
+        int recordId = getIntent().getIntExtra("record_id", -1);
+
+        record = LitePal.where("id = ?", ""+recordId).findFirst(BleHrRecord10.class);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
@@ -60,11 +63,7 @@ public class HrRecordActivity extends AppCompatActivity {
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 
         tvTimeLength = findViewById(R.id.tv_time_length);
-        long time = 0;
-        for(int num : record.getHrHist()) {
-            time += num;
-        }
-        time = (time/60 == 0) ? 1 : time/60;
+        int time = (record.getSaveTime() <= 60) ? 1 : record.getSaveTime()/60;
         tvTimeLength.setText(time+"分钟");
 
         tvAddress = findViewById(R.id.tv_device_address);

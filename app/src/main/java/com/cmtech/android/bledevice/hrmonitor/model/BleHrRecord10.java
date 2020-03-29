@@ -49,6 +49,7 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
     private short hrMax;
     private short hrAve;
     private List<Integer> hrHist; // HR histogram value
+    private int saveTime; // unit: s
 
     @Column(ignore = true)
     private transient final HrMAFilter hrMAFilter; // moving average filter
@@ -77,6 +78,7 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
         hrHistogram.add(new HrHistogramElement<>((short)142, (short)152, 0, "有氧耐力"));
         hrHistogram.add(new HrHistogramElement<>((short)153, (short)162, 0, "无氧耐力"));
         hrHistogram.add(new HrHistogramElement<>((short)163, (short)1000, 0, "极限冲刺"));
+        saveTime = 0;
     }
 
     public String getRecordName() {
@@ -117,6 +119,9 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
     public List<HrHistogramElement<Integer>> getHrHistogram() {
         return hrHistogram;
     }
+    public int getSaveTime() {
+        return saveTime;
+    }
     public void createHistogram() {
         if(hrHist != null && hrHist.size() == hrHistogram.size()) {
             for (int i = 0; i < hrHistogram.size(); i++) {
@@ -155,6 +160,9 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
     public boolean save() {
         for(int i = 0; i < hrHistogram.size(); i++) {
             hrHist.set(i, hrHistogram.get(i).getHistValue());
+        }
+        for(int num : hrHist) {
+            saveTime += num;
         }
 
         return super.save();

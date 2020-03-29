@@ -261,6 +261,9 @@ public class EcgRecord extends LitePalSupport implements IEcgRecord {
     public int getDataNum() {
         return dataNum;
     }
+    public int getDataNumSaved() {
+        return dataNum;
+    }
     // 获取记录的秒数
     public int getRecordSecond() {
         return dataNum /sampleRate;

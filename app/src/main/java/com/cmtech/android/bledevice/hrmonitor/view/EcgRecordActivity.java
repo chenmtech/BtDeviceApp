@@ -17,6 +17,8 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
+import org.litepal.LitePal;
+
 import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLATFORM;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
@@ -39,7 +41,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ecg_record);
 
-        record = (BleEcgRecord10) getIntent().getSerializableExtra("record");
+        int recordId = getIntent().getIntExtra("record_id", -1);
+
+        record = LitePal.where("id = ?", ""+recordId).findFirst(BleEcgRecord10.class);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
@@ -61,7 +65,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 
         tvTimeLength = findViewById(R.id.tv_time_length);
-        int second = record.getDataNum()/ record.getSampleRate();
+        int second = record.getDataNumSaved()/ record.getSampleRate();
         tvTimeLength.setText(second+"秒");
 
         tvAddress = findViewById(R.id.tv_device_address);
