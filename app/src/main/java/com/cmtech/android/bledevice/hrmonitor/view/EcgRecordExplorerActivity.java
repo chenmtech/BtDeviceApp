@@ -40,8 +40,8 @@ public class EcgRecordExplorerActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.tb_ecg_record_explorer);
         setSupportActionBar(toolbar);
 
-        this.allRecords = LitePal.findAll(BleEcgRecord10.class, true);
-        if(allRecords != null && allRecords.size() > 1) {
+        this.allRecords = LitePal.order("createTime desc").find(BleEcgRecord10.class, true);
+        /*if(allRecords != null && allRecords.size() > 1) {
             Collections.sort(allRecords, new Comparator<BleEcgRecord10>() {
                 @Override
                 public int compare(BleEcgRecord10 o1, BleEcgRecord10 o2) {
@@ -51,7 +51,7 @@ public class EcgRecordExplorerActivity extends AppCompatActivity {
                     return (time2 > time1) ? 1 : -1;
                 }
             });
-        }
+        }*/
 
         rvRecords = findViewById(R.id.rv_ecg_record_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
