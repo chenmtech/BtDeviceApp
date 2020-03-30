@@ -45,7 +45,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
  */
 public class HRMonitorDevice extends AbstractDevice {
     public static final short INVALID_HEART_RATE = -1;
-    public static final int ECG_RECORD_MAX_SECOND = 60;
+    public static final int ECG_RECORD_MAX_SECOND = 30;
     private static final int ECG_RECORD_MIN_SECOND = 5;
 
     private static final int DEFAULT_CALI_1MV = 164; // default 1mV calibration value
@@ -152,7 +152,7 @@ public class HRMonitorDevice extends AbstractDevice {
                     MyApplication.showMessageUsingShortToast("记录太短，未保存。");
                 } else {
                     hrRecord.save();
-                    MyApplication.showMessageUsingShortToast("已保存。");
+                    MyApplication.showMessageUsingShortToast("停止心率记录，已保存。");
                     ViseLog.e(hrRecord.toString());
                 }
                 hrRecord = null;
@@ -180,7 +180,7 @@ public class HRMonitorDevice extends AbstractDevice {
             if(listener != null) {
                 listener.onEcgSignalRecorded(true);
             }
-            MyApplication.showMessageUsingShortToast("请保持安静。");
+            MyApplication.showMessageUsingShortToast("记录时请保持安静。");
         } else {
             if(ecgRecord != null) {
                 if (ecgRecord.getDataNum()/ecgRecord.getSampleRate() < ECG_RECORD_MIN_SECOND) {
@@ -193,7 +193,7 @@ public class HRMonitorDevice extends AbstractDevice {
                     ecgRecord.saveAsync().listen(new SaveCallback() {
                         @Override
                         public void onFinish(boolean success) {
-                            MyApplication.showMessageUsingShortToast("已保存。");
+                            MyApplication.showMessageUsingShortToast("停止心电记录，已保存。");
                             ViseLog.e(ecgRecord.toString());
                             ecgRecord = null;
                             if(listener != null) {
