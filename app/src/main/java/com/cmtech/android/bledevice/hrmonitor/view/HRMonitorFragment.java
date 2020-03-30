@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -99,7 +98,9 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         swEcg.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                setEcgShow(isChecked);
+                if(device != null && isChecked != device.isEcgOpen()) {
+                    device.setEcgOpen(isChecked);
+                }
             }
         });
 
@@ -230,6 +231,11 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
+    public void onHrRecordStatusUpdated(boolean isRecord) {
+        hrRecFrag.updateHrRecordStatus(isRecord);
+    }
+
+    @Override
     public void onEcgSignalShowed(final int ecgSignal) {
         ecgView.showData(ecgSignal);
     }
@@ -237,6 +243,21 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     @Override
     public void onEcgSignalRecorded(boolean isRecord) {
         ecgRecFrag.updateRecordStatus(isRecord);
+    }
+
+    @Override
+    public void onEcgOpenStatusUpdated(boolean isOpen) {
+        if(isOpen) {
+            flEcgOff.setVisibility(View.GONE);
+            flEcgOn.setVisibility(View.VISIBLE);
+            ecgView.start();
+            ecgView.initialize();
+        } else {
+            flEcgOff.setVisibility(View.VISIBLE);
+            flEcgOn.setVisibility(View.GONE);
+            ecgView.stop();
+        }
+        swEcg.setChecked(isOpen);
     }
 
     @Override
@@ -261,20 +282,6 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
             device.removeListener();
 
         ecgView.stop();
-    }
-
-    private void setEcgShow(boolean isStart) {
-        if(isStart) {
-            flEcgOff.setVisibility(View.GONE);
-            flEcgOn.setVisibility(View.VISIBLE);
-            ecgView.start();
-            ecgView.initialize();
-        } else {
-            flEcgOff.setVisibility(View.VISIBLE);
-            flEcgOn.setVisibility(View.GONE);
-            ecgView.stop();
-        }
-        device.setEcgShow(isStart);
     }
 
     public void warnUsingTTS(String warnStr) {

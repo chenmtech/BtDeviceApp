@@ -45,7 +45,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
  */
 public class HRMonitorDevice extends AbstractDevice {
     public static final short INVALID_HEART_RATE = -1;
-    public static final int ECG_RECORD_MAX_SECOND = 20;
+    public static final int ECG_RECORD_MAX_SECOND = 60;
     private static final int ECG_RECORD_MIN_SECOND = 5;
 
     private static final int DEFAULT_CALI_1MV = 164; // default 1mV calibration value
@@ -118,13 +118,15 @@ public class HRMonitorDevice extends AbstractDevice {
     private final HRMonitorConfiguration config; // hr device configuration
 
     private BleHrRecord10 hrRecord;
-    private boolean isHrRecord = false;
+    private boolean isHrRecord = false; // is recording hr
 
     private BleEcgRecord10 ecgRecord;
-    private boolean isEcgRecord = false;
+    private boolean isEcgRecord = false; // is recording ecg
+
+    private boolean isEcgOpen = false; // is ecg function opened
 
     private Timer ttsTimer = new Timer();
-    private volatile boolean waitSpeak = false;
+    private volatile boolean waitSpeak = false; // is waiting for warnning speak
 
     public HRMonitorDevice(DeviceInfo registerInfo) {
         super(registerInfo);
@@ -139,8 +141,8 @@ public class HRMonitorDevice extends AbstractDevice {
 
     public void setHrRecord(boolean isRecord) {
         if(isHrRecord == isRecord) return;
-        isHrRecord = isRecord;
-        if(isHrRecord) {
+
+        if(isRecord) {
             hrRecord = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
             if(hrRecord != null && listener != null)
                 listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
@@ -156,10 +158,23 @@ public class HRMonitorDevice extends AbstractDevice {
                 hrRecord = null;
             }
         }
+        isHrRecord = isRecord;
+        if(listener != null) {
+            listener.onHrRecordStatusUpdated(isHrRecord);
+        }
     }
 
     public void setEcgRecord(boolean isRecord) {
         if(isEcgRecord == isRecord) return;
+
+        if(isRecord && !isEcgOpen) {
+            Toast.makeText(MyApplication.getContext(), "心电功能未打开，无法记录。", Toast.LENGTH_SHORT).show();
+            if(listener != null) {
+                listener.onEcgSignalRecorded(false);
+            }
+            return;
+        }
+
         isEcgRecord = isRecord;
         if(isEcgRecord) {
             ecgRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount(), sampleRate, caliValue, leadType.getCode());
@@ -208,12 +223,24 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
-    public void setEcgShow(boolean isStart) {
-        if(ecgLock) return;
+    public void setEcgOpen(boolean isOpen) {
+        if(isEcgOpen == isOpen) return;
+
+        if(ecgLock) {
+            if(listener != null)
+                listener.onEcgOpenStatusUpdated(false);
+            return;
+        }
+
+        if(isEcgRecord && !isOpen) {
+            Toast.makeText(MyApplication.getContext(), "正在记录心电，不能关闭。", Toast.LENGTH_SHORT).show();
+            if(listener != null) listener.onEcgOpenStatusUpdated(true);
+            return;
+        }
 
         //((BleConnector)connector).notify(ECGMEASCCC, false, null);
 
-        if(isStart) {
+        if(isOpen) {
             if(ecgProcessor != null)
                 ecgProcessor.start();
 
@@ -235,6 +262,11 @@ public class HRMonitorDevice extends AbstractDevice {
                 ecgProcessor.stop();
 
             ((BleConnector)connector).notify(ECGMEASCCC, false, null);
+        }
+
+        isEcgOpen = isOpen;
+        if(listener != null) {
+            listener.onEcgOpenStatusUpdated(isEcgOpen);
         }
     }
 
@@ -312,9 +344,8 @@ public class HRMonitorDevice extends AbstractDevice {
         }
 
         stopSpeak();
-        if(isEcgRecord) {
-            setEcgRecord(false);
-        }
+        setEcgRecord(false);
+        setEcgOpen(false);
     }
 
     @Override
@@ -324,16 +355,16 @@ public class HRMonitorDevice extends AbstractDevice {
         }
 
         stopSpeak();
-        if(isEcgRecord) {
-            setEcgRecord(false);
-        }
+        setEcgRecord(false);
+        setEcgOpen(false);
     }
 
     @Override
     public void disconnect(final boolean forever) {
         setHRMeasure(false);
         setBatteryMeasure(false);
-        setEcgShow(false);
+        setEcgRecord(false);
+        setEcgOpen(false);
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
@@ -358,6 +389,14 @@ public class HRMonitorDevice extends AbstractDevice {
 
     public final boolean isEcgLock() {
         return ecgLock;
+    }
+
+    public boolean isEcgOpen() {
+        return isEcgOpen;
+    }
+
+    public boolean isEcgRecord() {
+        return isEcgRecord;
     }
 
     public final boolean isHrRecord() {

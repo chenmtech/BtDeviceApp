@@ -58,8 +58,6 @@ public class HrRecordFragment extends Fragment {
         ibStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ibStart.setVisibility(View.INVISIBLE);
-                ibStop.setVisibility(View.VISIBLE);
                 ((HRMonitorFragment)getParentFragment()).setHrRecord(true);
             }
         });
@@ -67,8 +65,6 @@ public class HrRecordFragment extends Fragment {
         ibStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ibStart.setVisibility(View.VISIBLE);
-                ibStop.setVisibility(View.INVISIBLE);
                 ((HRMonitorFragment)getParentFragment()).setHrRecord(false);
             }
         });
@@ -84,6 +80,16 @@ public class HrRecordFragment extends Fragment {
         else
             tvHrAve.setText(String.valueOf(hrAve));
         hrLineChart.showLineChart(hrList, TITLE, Color.BLUE);
+    }
+
+    public void updateHrRecordStatus(boolean isRecord) {
+        if(isRecord) {
+            ibStart.setVisibility(View.INVISIBLE);
+            ibStop.setVisibility(View.VISIBLE);
+        } else {
+            ibStart.setVisibility(View.VISIBLE);
+            ibStop.setVisibility(View.INVISIBLE);
+        }
     }
 
 }
