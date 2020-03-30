@@ -247,17 +247,19 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
     @Override
     public void onEcgOpenStatusUpdated(boolean isOpen) {
-        if(isOpen) {
-            flEcgOff.setVisibility(View.GONE);
-            flEcgOn.setVisibility(View.VISIBLE);
-            ecgView.start();
-            ecgView.initialize();
-        } else {
-            flEcgOff.setVisibility(View.VISIBLE);
-            flEcgOn.setVisibility(View.GONE);
-            ecgView.stop();
-        }
-        swEcg.setChecked(isOpen);
+        if(swEcg.isChecked() == isOpen) {
+            if (isOpen) {
+                flEcgOff.setVisibility(View.GONE);
+                flEcgOn.setVisibility(View.VISIBLE);
+                ecgView.start();
+                ecgView.initialize();
+            } else {
+                flEcgOff.setVisibility(View.VISIBLE);
+                flEcgOn.setVisibility(View.GONE);
+                ecgView.stop();
+            }
+        } else
+            swEcg.setChecked(isOpen);
     }
 
     @Override

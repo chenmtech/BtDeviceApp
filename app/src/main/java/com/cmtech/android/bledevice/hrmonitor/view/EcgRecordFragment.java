@@ -31,7 +31,6 @@ public class EcgRecordFragment extends Fragment {
 
     ImageButton ibRecord;
     TextView tvTimeLength;
-    TextView tvTotalRecordTime;
 
     boolean isRecord = false;
 
@@ -55,8 +54,6 @@ public class EcgRecordFragment extends Fragment {
         });
 
         tvTimeLength = view.findViewById(R.id.tv_time_length);
-        tvTotalRecordTime = view.findViewById(R.id.tv_total_record_time);
-        tvTotalRecordTime.setText(""+ECG_RECORD_MAX_SECOND);
     }
 
     public void updateRecordStatus(boolean isRecord) {

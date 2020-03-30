@@ -149,10 +149,10 @@ public class HRMonitorDevice extends AbstractDevice {
         } else {
             if(hrRecord != null) {
                 if (hrRecord.getFilterHrList().size() < 6) {
-                    Toast.makeText(MyApplication.getContext(), "记录太短，未保存。", Toast.LENGTH_SHORT).show();
+                    MyApplication.showMessageUsingShortToast("记录太短，未保存。");
                 } else {
                     hrRecord.save();
-                    Toast.makeText(MyApplication.getContext(), "记录已保存。", Toast.LENGTH_SHORT).show();
+                    MyApplication.showMessageUsingShortToast("已保存。");
                     ViseLog.e(hrRecord.toString());
                 }
                 hrRecord = null;
@@ -168,23 +168,23 @@ public class HRMonitorDevice extends AbstractDevice {
         if(isEcgRecord == isRecord) return;
 
         if(isRecord && !isEcgOpen) {
-            Toast.makeText(MyApplication.getContext(), "心电功能未打开，无法记录。", Toast.LENGTH_SHORT).show();
+            MyApplication.showMessageUsingShortToast("请先打开心电功能。");
             if(listener != null) {
                 listener.onEcgSignalRecorded(false);
             }
             return;
         }
 
-        isEcgRecord = isRecord;
-        if(isEcgRecord) {
+        if(isRecord) {
             ecgRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount(), sampleRate, caliValue, leadType.getCode());
             if(listener != null) {
                 listener.onEcgSignalRecorded(true);
             }
+            MyApplication.showMessageUsingShortToast("请保持安静。");
         } else {
             if(ecgRecord != null) {
                 if (ecgRecord.getDataNum()/ecgRecord.getSampleRate() < ECG_RECORD_MIN_SECOND) {
-                    Toast.makeText(MyApplication.getContext(), "记录太短，未保存。", Toast.LENGTH_SHORT).show();
+                    MyApplication.showMessageUsingShortToast("记录太短，未保存。");
                     ecgRecord = null;
                     if(listener != null) {
                         listener.onEcgSignalRecorded(false);
@@ -193,7 +193,7 @@ public class HRMonitorDevice extends AbstractDevice {
                     ecgRecord.saveAsync().listen(new SaveCallback() {
                         @Override
                         public void onFinish(boolean success) {
-                            Toast.makeText(MyApplication.getContext(), "心电记录已保存。", Toast.LENGTH_SHORT).show();
+                            MyApplication.showMessageUsingShortToast("已保存。");
                             ViseLog.e(ecgRecord.toString());
                             ecgRecord = null;
                             if(listener != null) {
@@ -204,6 +204,7 @@ public class HRMonitorDevice extends AbstractDevice {
                 }
             }
         }
+        isEcgRecord = isRecord;
     }
 
     public void setEcgLock(final boolean ecgLock) {
@@ -233,7 +234,7 @@ public class HRMonitorDevice extends AbstractDevice {
         }
 
         if(isEcgRecord && !isOpen) {
-            Toast.makeText(MyApplication.getContext(), "正在记录心电，不能关闭。", Toast.LENGTH_SHORT).show();
+            MyApplication.showMessageUsingShortToast("请先停止记录。");
             if(listener != null) listener.onEcgOpenStatusUpdated(true);
             return;
         }
