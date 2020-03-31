@@ -3,7 +3,6 @@ package com.cmtech.android.bledevice.hrmonitor.model;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
@@ -123,7 +122,7 @@ public class HRMonitorDevice extends AbstractDevice {
     private BleEcgRecord10 ecgRecord;
     private boolean isEcgRecord = false; // is recording ecg
 
-    private boolean isEcgOpen = false; // is ecg function opened
+    private boolean isEcgOn = false; // is ecg function on
 
     private Timer ttsTimer = new Timer();
     private volatile boolean waitSpeak = false; // is waiting for warnning speak
@@ -152,7 +151,7 @@ public class HRMonitorDevice extends AbstractDevice {
                     MyApplication.showMessageUsingShortToast("记录太短，未保存。");
                 } else {
                     hrRecord.save();
-                    MyApplication.showMessageUsingShortToast("停止心率记录，已保存。");
+                    MyApplication.showMessageUsingShortToast("心率记录已保存。");
                     ViseLog.e(hrRecord.toString());
                 }
                 hrRecord = null;
@@ -167,7 +166,7 @@ public class HRMonitorDevice extends AbstractDevice {
     public void setEcgRecord(boolean isRecord) {
         if(isEcgRecord == isRecord) return;
 
-        if(isRecord && !isEcgOpen) {
+        if(isRecord && !isEcgOn) {
             MyApplication.showMessageUsingShortToast("请先打开心电功能。");
             if(listener != null) {
                 listener.onEcgSignalRecorded(false);
@@ -193,7 +192,7 @@ public class HRMonitorDevice extends AbstractDevice {
                     ecgRecord.saveAsync().listen(new SaveCallback() {
                         @Override
                         public void onFinish(boolean success) {
-                            MyApplication.showMessageUsingShortToast("停止心电记录，已保存。");
+                            MyApplication.showMessageUsingShortToast("心电记录已保存。");
                             ViseLog.e(ecgRecord.toString());
                             ecgRecord = null;
                             if(listener != null) {
@@ -224,24 +223,24 @@ public class HRMonitorDevice extends AbstractDevice {
         });
     }
 
-    public void setEcgOpen(boolean isOpen) {
-        if(isEcgOpen == isOpen) return;
+    public void setEcgOn(boolean isOn) {
+        if(isEcgOn == isOn) return;
 
         if(ecgLock) {
             if(listener != null)
-                listener.onEcgOpenStatusUpdated(false);
+                listener.onEcgOnStatusUpdated(false);
             return;
         }
 
-        if(isEcgRecord && !isOpen) {
+        if(isEcgRecord && !isOn) {
             MyApplication.showMessageUsingShortToast("请先停止记录。");
-            if(listener != null) listener.onEcgOpenStatusUpdated(true);
+            if(listener != null) listener.onEcgOnStatusUpdated(true);
             return;
         }
 
         //((BleConnector)connector).notify(ECGMEASCCC, false, null);
 
-        if(isOpen) {
+        if(isOn) {
             if(ecgProcessor != null)
                 ecgProcessor.start();
 
@@ -265,9 +264,9 @@ public class HRMonitorDevice extends AbstractDevice {
             ((BleConnector)connector).notify(ECGMEASCCC, false, null);
         }
 
-        isEcgOpen = isOpen;
+        isEcgOn = isOn;
         if(listener != null) {
-            listener.onEcgOpenStatusUpdated(isEcgOpen);
+            listener.onEcgOnStatusUpdated(isEcgOn);
         }
     }
 
@@ -346,7 +345,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
         stopSpeak();
         setEcgRecord(false);
-        setEcgOpen(false);
+        setEcgOn(false);
     }
 
     @Override
@@ -357,7 +356,7 @@ public class HRMonitorDevice extends AbstractDevice {
 
         stopSpeak();
         setEcgRecord(false);
-        setEcgOpen(false);
+        setEcgOn(false);
     }
 
     @Override
@@ -365,7 +364,7 @@ public class HRMonitorDevice extends AbstractDevice {
         setHRMeasure(false);
         setBatteryMeasure(false);
         setEcgRecord(false);
-        setEcgOpen(false);
+        setEcgOn(false);
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
@@ -392,8 +391,8 @@ public class HRMonitorDevice extends AbstractDevice {
         return ecgLock;
     }
 
-    public boolean isEcgOpen() {
-        return isEcgOpen;
+    public boolean isEcgOn() {
+        return isEcgOn;
     }
 
     public boolean isEcgRecord() {

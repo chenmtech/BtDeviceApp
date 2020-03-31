@@ -9,9 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,7 +54,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private TextView tvHrEcgOff; // hr when ecg off
     private TextView tvHrEcgOn; // hr when ecg on
     private TextView tvMessage; // message
-    private Switch swEcg; // ecg on/off
+    private TextView tvEcgSwitch;
     private FrameLayout flEcgOff; // frame layout when ecg off
     private FrameLayout flEcgOn; // frame layout when ecg on
 
@@ -64,6 +62,8 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private final HrRecordFragment hrRecFrag = new HrRecordFragment(); // heart rate record Fragment
     private final HrDebugFragment debugFrag = new HrDebugFragment(); // debug fragment
     private final EcgRecordFragment ecgRecFrag = new EcgRecordFragment(); // ecg record fragment
+
+    private boolean isEcgOn = false;
 
     public HRMonitorFragment() {
         super();
@@ -94,12 +94,12 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         ecgView = view.findViewById(R.id.scanview_ecg);
         ecgView.setup(device.getSampleRate(), device.getCaliValue(), DEFAULT_ZERO_LOCATION);
 
-        swEcg = view.findViewById(R.id.switch_ecg);
-        swEcg.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        tvEcgSwitch = view.findViewById(R.id.tv_switch_ecg);
+        tvEcgSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(device != null && isChecked != device.isEcgOpen()) {
-                    device.setEcgOpen(isChecked);
+            public void onClick(View v) {
+                if(device != null) {
+                    device.setEcgOn(!isEcgOn);
                 }
             }
         });
@@ -215,14 +215,13 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                 public void run() {
                     ecgView.setup(sampleRate, value1mV, zeroLocation);
                     if(ecgLock) {
-                        swEcg.setVisibility(View.GONE);
+                        tvEcgSwitch.setVisibility(View.GONE);
                         flEcgOff.setVisibility(View.VISIBLE);
                         flEcgOn.setVisibility(View.GONE);
                         ecgView.stop();
                         fragAdapter.removeFragment(ecgRecFrag);
                     } else {
-                        swEcg.setVisibility(View.VISIBLE);
-                        swEcg.setChecked(false);
+                        tvEcgSwitch.setVisibility(View.VISIBLE);
                         fragAdapter.addFragment(ecgRecFrag, EcgRecordFragment.TITLE);
                     }
                 }
@@ -246,20 +245,23 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     }
 
     @Override
-    public void onEcgOpenStatusUpdated(boolean isOpen) {
-        if(swEcg.isChecked() == isOpen) {
-            if (isOpen) {
-                flEcgOff.setVisibility(View.GONE);
-                flEcgOn.setVisibility(View.VISIBLE);
-                ecgView.start();
-                ecgView.initialize();
-            } else {
-                flEcgOff.setVisibility(View.VISIBLE);
-                flEcgOn.setVisibility(View.GONE);
-                ecgView.stop();
-            }
-        } else
-            swEcg.setChecked(isOpen);
+    public void onEcgOnStatusUpdated(boolean isOpen) {
+        if(isEcgOn == isOpen) return;
+
+        if (isOpen) {
+            flEcgOff.setVisibility(View.GONE);
+            flEcgOn.setVisibility(View.VISIBLE);
+            ecgView.start();
+            ecgView.initialize();
+            tvEcgSwitch.setText("关");
+        } else {
+            flEcgOff.setVisibility(View.VISIBLE);
+            flEcgOn.setVisibility(View.GONE);
+            ecgView.stop();
+            tvEcgSwitch.setText("开");
+        }
+
+        isEcgOn = isOpen;
     }
 
     @Override

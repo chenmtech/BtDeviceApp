@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginEnd="10dp"
-                    android:text="关闭"
+                    android:text="已上锁"
                     android:textColor="@color/black"
                     android:textSize="22dp"/>
                 <Button
@@ -60,7 +60,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     style="@style/minWidth0DpButtonStyle"
-                    android:text="开启"/>
+                    android:text="解锁"/>
 
             </LinearLayout>
 
@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:layout_margin="10dp"
-                android:text="*开启心电功能会增加设备功耗。"
+                android:text="*解锁心电功能会增加设备功耗。"
                 android:textColor="@color/red"
                 android:textSize="15dp"/>
 

@@ -64,18 +64,18 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         }
 
         if(ecgLock) {
-            btnSwitch.setText("开启");
-            tvStatus.setText("关闭");
+            btnSwitch.setText("解锁");
+            tvStatus.setText("已上锁");
         } else {
-            btnSwitch.setText("关闭");
-            tvStatus.setText("开启");
+            btnSwitch.setText("上锁");
+            tvStatus.setText("已解锁");
         }
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(HRMCfgActivity.this);
                 builder.setTitle("切换心电功能")
-                        .setMessage("设备断开后重新连接。")
+                        .setMessage("将重新连接设备。")
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent intent = new Intent();
