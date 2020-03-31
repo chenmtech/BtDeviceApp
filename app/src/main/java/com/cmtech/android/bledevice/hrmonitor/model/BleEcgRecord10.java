@@ -70,7 +70,7 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serial
         return creatorPlat;
     }
     public String getCreatorName() {
-        Account account = LitePal.where("platName = ? and userId = ?", creatorPlat, creatorId).findFirst(Account.class);
+        Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
         if(account == null)
             return creatorId;
         else {
@@ -143,7 +143,7 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serial
         record.createTime = new Date().getTime();
         record.devAddress = devAddress;
         record.creatorPlat = creator.getPlatName();
-        record.creatorId = creator.getUserId();
+        record.creatorId = creator.getPlatId();
         record.sampleRate = sampleRate;
         record.caliValue = caliValue;
         record.leadTypeCode = leadTypeCode;

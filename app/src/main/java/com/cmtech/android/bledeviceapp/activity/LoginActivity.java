@@ -107,14 +107,14 @@ public class LoginActivity extends AppCompatActivity {
         cbGrant = findViewById(R.id.cb_privacy_grant);
     }
 
-    public static void loginMainActivity(Activity activity, String platName, String userId, String userName) {
-        Account account = LitePal.where("platName = ? and userId = ?", platName, userId).findFirst(Account.class);
+    public static void loginMainActivity(Activity activity, String platName, String platId, String name) {
+        Account account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(Account.class);
         if(account == null) {
             account = new Account();
             account.setPlatName(platName);
-            account.setUserId(userId);
+            account.setPlatId(platId);
         }
-        account.setName(userName);
+        account.setName(name);
         account.save();
         AccountManager.getInstance().setAccount(account);
 
@@ -137,18 +137,18 @@ public class LoginActivity extends AppCompatActivity {
         final String platName = plat.getName();
         ShareSDK.setActivity(LoginActivity.this);
         if (plat.isAuthValid()) {
-            String userId = plat.getDb().getUserId();
-            String userName = plat.getDb().getUserName();
-            LoginActivity.loginMainActivity(this, platName, userId, userName);
+            String platId = plat.getDb().getUserId();
+            String name = plat.getDb().getUserName();
+            LoginActivity.loginMainActivity(this, platName, platId, name);
         } else {
             //授权回调监听，监听oncomplete，onerror，oncancel三种状态
             plat.setPlatformActionListener(new PlatformActionListener() {
                 @Override
                 public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
-                    String userId = platform.getDb().getUserId();
-                    String userName = platform.getDb().getUserName();
-                    String userIcon = platform.getDb().getUserIcon();
-                    LoginActivity.loginMainActivity(LoginActivity.this, platName, userId, userName);
+                    String platId = platform.getDb().getUserId();
+                    String name = platform.getDb().getUserName();
+                    String icon = platform.getDb().getUserIcon();
+                    LoginActivity.loginMainActivity(LoginActivity.this, platName, platId, name);
                 }
 
                 @Override

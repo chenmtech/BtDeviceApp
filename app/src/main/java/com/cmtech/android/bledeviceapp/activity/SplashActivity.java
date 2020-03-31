@@ -34,10 +34,10 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SPLASH_ACTIVITY_COUNT_
   * Version:        1.0
  */
 public class SplashActivity extends AppCompatActivity {
-    private static final int MSG_COUNT_DOWN = 1; // 倒计时消息
+    private static final int MSG_COUNT_DOWN = 1; // count down message
 
     private TextView tvSecond;
-    private Thread thread; // 倒计时线程
+    private Thread thread; // count down thread
 
     private final Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -99,7 +99,7 @@ public class SplashActivity extends AppCompatActivity {
             case 1:
                 for(int result : grantResults) {
                     if(result != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(this, "没有必要的权限，程序无法正常运行", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "The app exits because of no permission.", Toast.LENGTH_SHORT).show();
                         finish();
                         break;
                     }

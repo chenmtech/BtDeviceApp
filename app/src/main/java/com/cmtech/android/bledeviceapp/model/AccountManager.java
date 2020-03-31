@@ -19,8 +19,8 @@ import org.litepal.LitePal;
  */
 
 public class AccountManager {
-    private static AccountManager instance; // 单例
-    private Account account; // 用户
+    private static AccountManager instance; // singleton instance
+    private Account account; // account
 
     private AccountManager() {
     }
@@ -42,43 +42,13 @@ public class AccountManager {
     public void setAccount(Account account) {
         this.account = account;
     }
-    // 是否已经登录
+
     public boolean isSignIn() {
         return account != null;
     }
-    // 退出账号
+
     public void signOut() {
         account = null;
-    }
-
-    // 注册新账户
-    public boolean signUp(String huaweiId, String name) {
-        Account account = LitePal.where("huaweiId = ?", huaweiId).findFirst(Account.class);
-
-        if(account != null) {
-            ViseLog.e("The account exists.");
-            return false;
-        } else {
-            this.account = new Account();
-            this.account.setUserId(huaweiId);
-            this.account.setName(name);
-            this.account.save();
-            return true;
-        }
-    }
-
-    public boolean signUp(String phone) {
-        return signUp(phone, "");
-    }
-
-    // 登录
-    public boolean signIn(String huaweiId) {
-        Account account = LitePal.where("huaweiId = ?", huaweiId).findFirst(Account.class);
-        if(account != null) {
-            this.account = account;
-            return true;
-        }
-        return false;
     }
 
 }

@@ -3,7 +3,7 @@
 <litepal>
     <dbname value = "BtDeviceApp"/>
 
-    <version value="28"/>
+    <version value="29"/>
 
     <list>
         <mapping class="com.cmtech.android.bledeviceapp.model.Account"/>

@@ -28,9 +28,9 @@ public class HuaweiLoginActivity extends AppCompatActivity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.contains("open_id=")) {
                     ViseLog.e("Huawei login response: " + url);
-                    String huaweiId = HttpUtils.parseUrl(url).get("open_id");
-                    String userName = HttpUtils.parseUrl(url).get("displayName");
-                    LoginActivity.loginMainActivity(HuaweiLoginActivity.this, HUAWEI_PLAT_NAME, huaweiId, userName);
+                    String id = HttpUtils.parseUrl(url).get("open_id");
+                    String name = HttpUtils.parseUrl(url).get("displayName");
+                    LoginActivity.loginMainActivity(HuaweiLoginActivity.this, HUAWEI_PLAT_NAME, id, name);
                     return true;
                 }
                 return false;
@@ -40,24 +40,11 @@ public class HuaweiLoginActivity extends AppCompatActivity {
             public void onReceivedError(WebView view, int errorCode,
                                         String description, String failingUrl) {
                 ViseLog.e(view.getUrl() + "----" + description);
-                Toast.makeText(HuaweiLoginActivity.this, "登录失败，请检查您的手机网络是否打开。", Toast.LENGTH_LONG).show();
+                Toast.makeText(HuaweiLoginActivity.this, "Huawei login failure", Toast.LENGTH_LONG).show();
                 finish();
             }
         });
         final String url = "http://huawei.tighoo.com/home/login";
         webView.loadUrl(url);
-    }
-
-    // 登录
-    private void signIn(String phone, String name, boolean isSaveLoginInfo) {
-        AccountManager manager = AccountManager.getInstance();
-        if(manager.signIn(phone) || manager.signUp(phone, name)) {
-            Intent intent = new Intent(HuaweiLoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        } else {
-            Toast.makeText(HuaweiLoginActivity.this, "登录错误。", Toast.LENGTH_SHORT).show();
-            finish();
-        }
     }
 }

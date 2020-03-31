@@ -20,7 +20,7 @@ import java.util.List;
 import static com.cmtech.android.bledevice.hrmonitor.model.HRMonitorDevice.INVALID_HEART_RATE;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 import static com.cmtech.android.bledeviceapp.model.Account.PLAT_NAME_CHAR_LEN;
-import static com.cmtech.android.bledeviceapp.model.Account.USER_ID_CHAR_LEN;
+import static com.cmtech.android.bledeviceapp.model.Account.PLAT_ID_CHAR_LEN;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -97,7 +97,7 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
         return creatorPlat;
     }
     public String getCreatorName() {
-        Account account = LitePal.where("platName = ? and userId = ?", creatorPlat, creatorId).findFirst(Account.class);
+        Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
         if(account == null)
             return creatorId;
         else {
@@ -184,7 +184,7 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
         record.createTime = new Date().getTime();
         record.devAddress = devAddress;
         record.creatorPlat = creator.getPlatName();
-        record.creatorId = creator.getUserId();
+        record.creatorId = creator.getPlatId();
         for(int i = 0; i < record.hrHistogram.size(); i++)
             record.hrHist.add(0);
         return record;
@@ -213,7 +213,7 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
                 record.createTime = raf.readLong();
                 record.devAddress = DataIOUtil.readFixedString(raf, DEVICE_ADDRESS_CHAR_NUM);
                 record.creatorPlat = DataIOUtil.readFixedString(raf, PLAT_NAME_CHAR_LEN);
-                record.creatorId = DataIOUtil.readFixedString(raf, USER_ID_CHAR_LEN);
+                record.creatorId = DataIOUtil.readFixedString(raf, PLAT_ID_CHAR_LEN);
                 // 读心率信息
                 record.filterHrList = new ArrayList<>();
                 while (true) {
@@ -255,7 +255,7 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
             raf.writeLong(createTime); // 写创建时间
             DataIOUtil.writeFixedString(raf, devAddress, DEVICE_ADDRESS_CHAR_NUM); // 写设备地址
             DataIOUtil.writeFixedString(raf, creatorPlat, PLAT_NAME_CHAR_LEN); // 写设备地址
-            DataIOUtil.writeFixedString(raf, creatorId, USER_ID_CHAR_LEN); // 写设备地址
+            DataIOUtil.writeFixedString(raf, creatorId, PLAT_ID_CHAR_LEN); // 写设备地址
             // 写心率信息
             for(short hr : filterHrList) {
                 raf.writeShort(hr);

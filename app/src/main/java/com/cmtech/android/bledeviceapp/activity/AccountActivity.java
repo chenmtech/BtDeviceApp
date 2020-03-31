@@ -129,7 +129,7 @@ public class AccountActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
             isReturn = false;
 
-            UserUtil.saveUser(account.getUserId(), account.getName(), account.getDescription(), null, new UserUtil.ISaveUserInfoCallback() {
+            UserUtil.saveUser(account.getPlatId(), account.getName(), account.getDescription(), null, new UserUtil.ISaveUserInfoCallback() {
                 @Override
                 public void onReceived(boolean success) {
                     isSaved = success;
@@ -176,13 +176,13 @@ public class AccountActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         TextView tvId = findViewById(R.id.et_account_id);
-        tvId.setText(account.getShortUserId());
+        tvId.setText(account.getShortPlatId());
 
         etName = findViewById(R.id.et_account_name);
         etName.setText(account.getName());
 
         ivImage = findViewById(R.id.iv_account_image);
-        cacheImagePath = account.getImagePath();
+        cacheImagePath = account.getIcon();
         if(TextUtils.isEmpty(cacheImagePath)) {
             Glide.with(this).load(R.mipmap.ic_unknown_user).into(ivImage);
         } else {
@@ -202,7 +202,7 @@ public class AccountActivity extends AppCompatActivity {
         ibUpdateFromWeb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new GetAccountFromWebTask(account.getUserId()).execute();
+                new GetAccountFromWebTask(account.getPlatId()).execute();
             }
         });
 
@@ -213,28 +213,28 @@ public class AccountActivity extends AppCompatActivity {
                 Account account = AccountManager.getInstance().getAccount();
                 account.setName(etName.getText().toString());
 
-                if(!cacheImagePath.equals(account.getImagePath())) {
+                if(!cacheImagePath.equals(account.getIcon())) {
                     // 把原来的图像文件删除
-                    if(!TextUtils.isEmpty(account.getImagePath())) {
-                        File imageFile = new File(account.getImagePath());
+                    if(!TextUtils.isEmpty(account.getIcon())) {
+                        File imageFile = new File(account.getIcon());
                         imageFile.delete();
                     }
 
                     // 把当前图像保存到DIR_IMAGE，以ID号为文件名
                     if(TextUtils.isEmpty(cacheImagePath)) {
-                        account.setImagePath("");
+                        account.setIcon("");
                     } else {
                         try {
                             ivImage.setDrawingCacheEnabled(true);
                             Bitmap bitmap = ivImage.getDrawingCache();
-                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getUserId() + ".jpg");
+                            File toFile = FileUtil.getFile(DIR_IMAGE, account.getPlatId() + ".jpg");
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivImage.setDrawingCacheEnabled(false);
                             String filePath = toFile.getCanonicalPath();
-                            account.setImagePath(filePath);
+                            account.setIcon(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            account.setImagePath("");
+                            account.setIcon("");
                         }
                     }
                 }

@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         setSupportActionBar(toolbar);
         TextView tvBattery = findViewById(R.id.tv_device_battery);
         tbManager = new MainToolbarManager(this, toolbar, tvBattery);
-        tbManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
+        tbManager.setNavigationIcon(AccountManager.getInstance().getAccount().getIcon());
 
         // init device control panel
         ViewPager pager = findViewById(R.id.vp_device_panel);
@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             case RC_MODIFY_ACCOUNT_INFO: // 修改用户信息返回
                 if(resultCode == RESULT_OK) {
                     updateNavigation();
-                    tbManager.setNavigationIcon(AccountManager.getInstance().getAccount().getImagePath());
+                    tbManager.setNavigationIcon(AccountManager.getInstance().getAccount().getIcon());
                 } else {
                     boolean logout = (data != null && data.getBooleanExtra("logout", false));
                     if(logout) { // 退出登录
@@ -676,9 +676,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             throw new IllegalStateException();
         }
 
-        if(account.getName() == null || "".equals(account.getName().trim())) {
-            tvAccountName.setText("请设置");
-        } else {
+        if(account.getName() != null && !"".equals(account.getName().trim())) {
             tvAccountName.setText(account.getName());
         }
 
