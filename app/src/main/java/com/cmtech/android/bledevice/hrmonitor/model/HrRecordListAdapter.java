@@ -18,7 +18,7 @@ import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
 import java.util.List;
 
-import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLATFORM;
+import static com.cmtech.android.bledeviceapp.activity.LoginActivity.PLATFORM_NAME_ICON_PAIR;
 
 
 /**
@@ -107,7 +107,7 @@ public class HrRecordListAdapter extends RecyclerView.Adapter<HrRecordListAdapte
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
         holder.tvCreator.setText(record.getCreatorName());
-        Drawable drawable = ContextCompat.getDrawable(activity, SUPPORT_PLATFORM.get(record.getCreatorPlat()));
+        Drawable drawable = ContextCompat.getDrawable(activity, PLATFORM_NAME_ICON_PAIR.get(record.getCreatorPlat()));
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         holder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 

@@ -5,7 +5,7 @@
         android:id="@+id/group1"
         android:checkable="false">
         <item
-            android:id="@+id/nav_scan_device"
+            android:id="@+id/nav_add_device"
             android:title="@string/scan_device"
             android:icon="@mipmap/ic_scan_device_32px"/>
 
@@ -18,7 +18,7 @@
         <item
             android:id="@+id/nav_open_store"
             android:title="@string/open_store"
-            android:icon="@mipmap/ic_open_store"/>
+            android:icon="@mipmap/ic_store_32px"/>
 
         <item
             android:id="@+id/nav_exit"

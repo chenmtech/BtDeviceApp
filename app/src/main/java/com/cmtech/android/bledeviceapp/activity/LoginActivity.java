@@ -35,7 +35,7 @@ import static com.cmtech.android.bledeviceapp.activity.HuaweiLoginActivity.HUAWE
 
 public class LoginActivity extends AppCompatActivity {
     private static final String SMS_PLAT_NAME = "SMS";
-    public static final Map<String, Integer> SUPPORT_PLATFORM = new HashMap<String, Integer>() {
+    public static final Map<String, Integer> PLATFORM_NAME_ICON_PAIR = new HashMap<String, Integer>() {
         {
             put(QQ.NAME, R.mipmap.ic_qq);
             put(Wechat.NAME, R.mipmap.ic_wechat);

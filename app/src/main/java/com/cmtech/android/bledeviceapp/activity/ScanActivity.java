@@ -155,7 +155,7 @@ public class ScanActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_search_device, menu);
+        getMenuInflater().inflate(R.menu.menu_scan_device, menu);
         return true;
     }
 

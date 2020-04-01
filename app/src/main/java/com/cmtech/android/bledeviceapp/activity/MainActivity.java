@@ -77,7 +77,7 @@ import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledeviceapp.AppConstant.KM_STORE_URI;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
-import static com.cmtech.android.bledeviceapp.activity.LoginActivity.SUPPORT_PLATFORM;
+import static com.cmtech.android.bledeviceapp.activity.LoginActivity.PLATFORM_NAME_ICON_PAIR;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_INFO;
 
 /**
@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
         // init navigation view
         initNavigation();
-        updateNavigation();
+        updateNavigationHeader();
 
         // 设置FAB，FloatingActionButton
         fabConnect = findViewById(R.id.fab_connect);
@@ -250,17 +250,17 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             @SuppressLint("RestrictedApi")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Intent intent;
                 switch (item.getItemId()) {
-                    case R.id.nav_scan_device: // 扫描设备
+                    case R.id.nav_add_device: // add device
                         List<String> addresses = DeviceManager.getDeviceAddressList();
-                        Intent scanIntent = new Intent(MainActivity.this, ScanActivity.class);
-                        scanIntent.putExtra("device_address_list", (Serializable) addresses);
-                        startActivityForResult(scanIntent, RC_REGISTER_DEVICE);
+                        intent = new Intent(MainActivity.this, ScanActivity.class);
+                        intent.putExtra("device_address_list", (Serializable) addresses);
+                        startActivityForResult(intent, RC_REGISTER_DEVICE);
                         return true;
-                    case R.id.nav_query_record: // 查阅记录
+                    case R.id.nav_query_record: // query user records
                         PopupMenu popupMenu = new PopupMenu(MainActivity.this, item.getActionView());
-                        popupMenu.inflate(R.menu.menu_query_record);
-                        List<DeviceType> types = DeviceType.getSupportedDeviceTypes();
+                        popupMenu.inflate(R.menu.menu_user_record);
                         popupMenu.getMenu().findItem(R.id.nav_hr_record).setVisible(true);
                         popupMenu.getMenu().findItem(R.id.nav_ecg_record).setVisible(true);
                         popupMenu.getMenu().findItem(R.id.nav_temphumid_record).setVisible(false);
@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                         popupHelper.show();
                         return true;
                     case R.id.nav_open_store: // open KM store
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent = new Intent(Intent.ACTION_VIEW);
                         intent.setData(Uri.parse(KM_STORE_URI));
                         startActivity(intent);
                         return true;
@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
             case RC_MODIFY_ACCOUNT_INFO: // 修改用户信息返回
                 if(resultCode == RESULT_OK) {
-                    updateNavigation();
+                    updateNavigationHeader();
                     tbManager.setNavigationIcon(AccountManager.getInstance().getAccount().getIcon());
                 } else {
                     boolean logout = (data != null && data.getBooleanExtra("logout", false));
@@ -670,7 +670,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         finish();
     }
 
-    private void updateNavigation() {
+    private void updateNavigationHeader() {
         Account account = AccountManager.getInstance().getAccount();
         if(account == null) {
             throw new IllegalStateException();
@@ -681,7 +681,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
 
         // load icon by platform name
-        ivAccountImage.setImageResource(SUPPORT_PLATFORM.get(account.getPlatName()));
+        ivAccountImage.setImageResource(PLATFORM_NAME_ICON_PAIR.get(account.getPlatName()));
         //Glide.with(MyApplication.getContext()).load(R.id.ib_qq_login).into(ivAccountImage);
 
         /* load icon from imagePath
