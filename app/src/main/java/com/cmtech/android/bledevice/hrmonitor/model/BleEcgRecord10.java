@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.hrmonitor.model;
 
-import com.cmtech.android.bledevice.IEcgRecord;
+import com.cmtech.android.bledevice.interf.IEcgRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.litepal.LitePal;

@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice;
+package com.cmtech.android.bledevice.interf;
 
 import java.io.IOException;
 
