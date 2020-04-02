@@ -12,14 +12,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
-import com.cmtech.android.bledevice.hrm.model.HrRecordListAdapter;
+import com.cmtech.android.bledevice.hrm.model.RecordListAdapter;
+import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledeviceapp.R;
 
 import org.litepal.LitePal;
-import org.litepal.crud.callback.FindMultiCallback;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -34,53 +37,64 @@ import java.util.List;
   * Version:        1.0
  */
 
-public class HrRecordExplorerActivity extends AppCompatActivity {
-    private static final String TAG = "HrRecordExplorerActivity";
+public class RecordExplorerActivity extends AppCompatActivity {
+    private static final String TAG = "RecordExplorerActivity";
 
-    private List<BleHrRecord10> allRecords = new ArrayList<>(); // 所有心电记录列表
-    private HrRecordListAdapter recordAdapter; // 记录Adapter
-    private RecyclerView rvRecords; // 记录RecycleView
-    private TextView tvPromptInfo; // 提示信息
+    private List<IRecord> allRecords = new ArrayList<>(); // all records
+    private RecordListAdapter adapter; // Adapter
+    private RecyclerView view; // RecycleView
+    private TextView tvPromptInfo; // prompt info
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_hr_record_explorer);
+        setContentView(R.layout.activity_record_explorer);
 
         // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_hr_record_explorer);
+        Toolbar toolbar = findViewById(R.id.tb_record_explorer);
         setSupportActionBar(toolbar);
 
-        rvRecords = findViewById(R.id.rv_hr_record_list);
+        view = findViewById(R.id.rv_record_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
         fileLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        rvRecords.setLayoutManager(fileLayoutManager);
-        rvRecords.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        recordAdapter = new HrRecordListAdapter(this, allRecords);
-        rvRecords.setAdapter(recordAdapter);
+        view.setLayoutManager(fileLayoutManager);
+        view.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        adapter = new RecordListAdapter(this, allRecords);
+        view.setAdapter(adapter);
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
 
-        LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").order("createTime desc").findAsync(BleHrRecord10.class, true).listen(new FindMultiCallback<BleHrRecord10>() {
+        List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleHrRecord10.class);
+        allRecords.addAll(hrRecords);
+        List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleEcgRecord10.class);
+        allRecords.addAll(ecgRecords);
+        Collections.sort(allRecords, new Comparator<IRecord>() {
             @Override
-            public void onFinish(List<BleHrRecord10> list) {
-                if(list != null)
-                    allRecords.addAll(list);
-                updateRecordList();
+            public int compare(IRecord o1, IRecord o2) {
+                long time1 = o1.getCreateTime();
+                long time2 = o2.getCreateTime();
+                if(time1 == time2) return 0;
+                return (time2 > time1) ? 1 : -1;
             }
         });
+        updateRecordList();
     }
 
-    public void selectRecord(final BleHrRecord10 record) {
-        if(record != null) {
-            Intent intent = new Intent(this, HrRecordActivity.class);
+    public void selectRecord(final IRecord record) {
+        Intent intent = null;
+        if(record instanceof BleHrRecord10) {
+            intent = new Intent(this, HrRecordActivity.class);
+        } else if(record instanceof BleEcgRecord10) {
+            intent = new Intent(this, EcgRecordActivity.class);
+        }
+        if(intent != null) {
             intent.putExtra("record_id", record.getId());
             startActivity(intent);
         }
     }
 
-    public void deleteRecord(final BleHrRecord10 record) {
+    public void deleteRecord(final IRecord record) {
         if(record != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("删除心率记录").setMessage("确定删除该心率记录吗？");
@@ -91,7 +105,11 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
                     if(allRecords.remove(record)) {
                         updateRecordList();
                     }
-                    LitePal.delete(BleHrRecord10.class, record.getId());
+                    if(record instanceof BleHrRecord10) {
+                        LitePal.delete(BleHrRecord10.class, record.getId());
+                    } else if(record instanceof BleEcgRecord10) {
+                        LitePal.delete(BleEcgRecord10.class, record.getId());
+                    }
                 }
             }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
                 @Override
@@ -104,12 +122,12 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
 
     private void updateRecordList() {
         if(allRecords.isEmpty()) {
-            rvRecords.setVisibility(View.INVISIBLE);
+            view.setVisibility(View.INVISIBLE);
             tvPromptInfo.setVisibility(View.VISIBLE);
         }else {
-            rvRecords.setVisibility(View.VISIBLE);
+            view.setVisibility(View.VISIBLE);
             tvPromptInfo.setVisibility(View.INVISIBLE);
         }
-        recordAdapter.updateRecordList();
+        adapter.updateRecordList();
     }
 }

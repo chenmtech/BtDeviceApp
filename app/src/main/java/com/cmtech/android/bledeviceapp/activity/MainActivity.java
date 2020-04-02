@@ -48,7 +48,7 @@ import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordExplorerActivity;
-import com.cmtech.android.bledevice.hrm.view.HrRecordExplorerActivity;
+import com.cmtech.android.bledevice.hrm.view.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                             public boolean onMenuItemClick(MenuItem menuItem) {
                                 switch (menuItem.getItemId()) {
                                     case R.id.nav_hr_record:
-                                        Intent hrIntent = new Intent(MainActivity.this, HrRecordExplorerActivity.class);
+                                        Intent hrIntent = new Intent(MainActivity.this, RecordExplorerActivity.class);
                                         startActivity(hrIntent);
                                         return true;
                                     case R.id.nav_ecg_record:

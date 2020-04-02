@@ -2,26 +2,17 @@ package com.cmtech.android.bledevice.hrm.model;
 
 import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
 
-import org.litepal.LitePal;
 import org.litepal.annotation.Column;
-import org.litepal.crud.LitePalSupport;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.hrm.model.HRMonitorDevice.INVALID_HEART_RATE;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
-import static com.cmtech.android.bledeviceapp.model.Account.PLAT_NAME_CHAR_LEN;
-import static com.cmtech.android.bledeviceapp.model.Account.PLAT_ID_CHAR_LEN;
 
 /**
  * ProjectName:    BtDeviceApp

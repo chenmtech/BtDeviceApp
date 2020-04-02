@@ -6,11 +6,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
     <android.support.v7.widget.Toolbar
-        android:id="@+id/tb_hr_record_explorer"
+        android:id="@+id/tb_record_explorer"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        toolbar:title="心率记录"
+        toolbar:title="用户记录"
         toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
         android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_hr_record_list"
+            android:id="@+id/rv_record_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="invisible"/>

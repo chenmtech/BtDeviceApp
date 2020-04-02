@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.interf;
 
-import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.litepal.LitePal;
