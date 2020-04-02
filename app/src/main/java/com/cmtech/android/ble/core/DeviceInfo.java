@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 /**
  * ClassName:      DeviceInfo
- * Description:    设备信息，字段信息将保存在Preference中
+ * Description:    设备信息
  * Author:         chenm
  * CreateDate:     2018-06-27 08:56
  * UpdateUser:     chenm

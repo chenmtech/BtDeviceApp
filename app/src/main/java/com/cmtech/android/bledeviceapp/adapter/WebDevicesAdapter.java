@@ -88,7 +88,7 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
         holder.deviceName.setText(device.getName());
         holder.deviceAddress.setText(device.getAddress());
         holder.deviceStatus.setText(device.getState().getDescription());
-        holder.broadcastName.setText(((WebDeviceInfo)device.getRegisterInfo()).getBroadcastName());
+        holder.broadcastName.setText(((WebDeviceInfo)device.getInfo()).getBroadcastName());
     }
 
     @Override

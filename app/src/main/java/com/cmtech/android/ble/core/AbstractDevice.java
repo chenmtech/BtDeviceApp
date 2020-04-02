@@ -16,17 +16,17 @@ import static com.cmtech.android.ble.core.DeviceState.FAILURE;
 
 public abstract class AbstractDevice implements IDevice{
     private Context context; // context
-    private final DeviceInfo registerInfo; // connCallback register information
+    private final DeviceInfo info; // information
     private int battery; // battery level
     private final List<OnDeviceListener> listeners; // connCallback listeners
     protected final IConnector connector; // connector
 
-    public AbstractDevice(DeviceInfo registerInfo) {
-        if(registerInfo == null) {
-            throw new NullPointerException("The register info is null.");
+    public AbstractDevice(DeviceInfo info) {
+        if(info == null) {
+            throw new NullPointerException("The info is null.");
         }
-        this.registerInfo = registerInfo;
-        if(registerInfo.isLocal()) {
+        this.info = info;
+        if(info.isLocal()) {
             connector = new BleConnector(this.getAddress(), this);
         } else {
             connector = new WebConnector(this.getAddress(), this);
@@ -36,36 +36,36 @@ public abstract class AbstractDevice implements IDevice{
     }
 
     @Override
-    public DeviceInfo getRegisterInfo() {
-        return registerInfo;
+    public DeviceInfo getInfo() {
+        return info;
     }
     @Override
-    public void updateRegisterInfo(DeviceInfo registerInfo) {
-        this.registerInfo.update(registerInfo);
+    public void updateInfo(DeviceInfo info) {
+        this.info.update(info);
     }
     @Override
     public boolean isLocal() {
-        return registerInfo.isLocal();
+        return info.isLocal();
     }
     @Override
     public final String getAddress() {
-        return registerInfo.getAddress();
+        return info.getAddress();
     }
     @Override
     public String getUuidString() {
-        return registerInfo.getUuid();
+        return info.getUuid();
     }
     @Override
     public String getName() {
-        return registerInfo.getName();
+        return info.getName();
     }
     @Override
     public void setName(String name) {
-        registerInfo.setName(name);
+        info.setName(name);
     }
     @Override
     public String getImagePath() {
-        return registerInfo.getIcon();
+        return info.getIcon();
     }
     @Override
     public int getBattery() {
@@ -104,7 +104,7 @@ public abstract class AbstractDevice implements IDevice{
         }
         this.context = context;
 
-        if (connector.open(context) && registerInfo.isAutoConnect())
+        if (connector.open(context) && info.isAutoConnect())
             connect();
     }
 
@@ -159,12 +159,12 @@ public abstract class AbstractDevice implements IDevice{
         if (this == o) return true;
         if (!(o instanceof AbstractDevice)) return false;
         AbstractDevice that = (AbstractDevice) o;
-        return registerInfo.equals(that.registerInfo);
+        return info.equals(that.info);
     }
 
     @Override
     public int hashCode() {
-        return (registerInfo != null) ? registerInfo.hashCode() : 0;
+        return (info != null) ? info.hashCode() : 0;
     }
 
 }

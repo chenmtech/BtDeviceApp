@@ -313,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             updateMainLayoutVisibility(false);
         } else {
             String title = device.getName();
-            DeviceInfo registerInfo = device.getRegisterInfo();
+            DeviceInfo registerInfo = device.getInfo();
             if(!device.isLocal()) {
                 title += ("-" + ((WebDeviceInfo) registerInfo).getBroadcastName());
             }
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                     IDevice device = DeviceManager.findDevice(registerInfo);
                     if(device != null && registerInfo.saveToPref(pref)) {
                         Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
-                        device.updateRegisterInfo(registerInfo);
+                        device.updateInfo(registerInfo);
                         updateDeviceList();
                         Drawable drawable;
                         if(TextUtils.isEmpty(device.getImagePath())) {
@@ -558,7 +558,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private void createAndOpenFragment(IDevice device) {
         if(device == null) return;
 
-        DeviceFactory factory = DeviceFactory.getFactory(device.getRegisterInfo());
+        DeviceFactory factory = DeviceFactory.getFactory(device.getInfo());
         if(factory != null) {
             openDrawer(false);
             Drawable drawable;
@@ -608,7 +608,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                DeviceInfo registerInfo = device.getRegisterInfo();
+                DeviceInfo registerInfo = device.getInfo();
                 if(registerInfo instanceof BleDeviceInfo && ((BleDeviceInfo)registerInfo).deleteFromPref(pref)) {
                     DeviceManager.deleteDevice(device);
                     updateDeviceList();

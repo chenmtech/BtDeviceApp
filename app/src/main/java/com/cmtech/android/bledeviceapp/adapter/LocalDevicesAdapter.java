@@ -76,7 +76,7 @@ public class LocalDevicesAdapter extends RecyclerView.Adapter<LocalDevicesAdapte
                     IDevice device = deviceList.get(holder.getAdapterPosition());
                     switch (item.getItemId()){
                         case 1:
-                            activity.modifyDeviceInfo(device.getRegisterInfo());
+                            activity.modifyDeviceInfo(device.getInfo());
                             break;
                         case 2:
                             activity.removeRegisteredDevice(device);

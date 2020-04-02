@@ -33,14 +33,14 @@ import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 public class DeviceManager {
     private static final List<IDevice> DEVICE_LIST = new ArrayList<IDevice>(); // 所有已注册设备列表
 
-    // 如果设备不存在，用注册信息创建一个设备
-    public static IDevice createDeviceIfNotExist(DeviceInfo registerInfo) {
-        IDevice device = findDevice(registerInfo);
+    // 如果设备不存在，用信息创建一个设备
+    public static IDevice createDeviceIfNotExist(DeviceInfo info) {
+        IDevice device = findDevice(info);
         if(device != null) {
             ViseLog.e("The device has existed.");
             return null;
         }
-        device = createDevice(registerInfo); // 创建设备
+        device = createDevice(info); // 创建设备
         if(device == null) return null;
 
         DEVICE_LIST.add(device); // 将设备添加到设备列表
@@ -54,9 +54,9 @@ public class DeviceManager {
         return device;
     }
 
-    // 用注册信息寻找设备
-    public static IDevice findDevice(DeviceInfo registerInfo) {
-        return (registerInfo == null) ? null : findDevice(registerInfo.getAddress());
+    // 用信息寻找设备
+    public static IDevice findDevice(DeviceInfo info) {
+        return (info == null) ? null : findDevice(info.getAddress());
     }
 
     // 用设备mac地址寻找设备
@@ -70,8 +70,8 @@ public class DeviceManager {
         return null;
     }
 
-    private static IDevice createDevice(DeviceInfo registerInfo) {
-        DeviceFactory factory = DeviceFactory.getFactory(registerInfo); // 获取相应的工厂
+    private static IDevice createDevice(DeviceInfo info) {
+        DeviceFactory factory = DeviceFactory.getFactory(info); // 获取相应的工厂
         return (factory == null) ? null : factory.createDevice();
     }
 
@@ -176,7 +176,7 @@ public class DeviceManager {
 
                 final int[] update = new int[]{deviceList.size()};
                 for(WebEcgDevice device : deviceList) {
-                    final WebDeviceInfo registerInfo = (WebDeviceInfo)device.getRegisterInfo();
+                    final WebDeviceInfo registerInfo = (WebDeviceInfo)device.getInfo();
                     UserUtil.getUserInfo(registerInfo.getBroadcastId(), new UserUtil.IGetUserInfoCallback() {
                         @Override
                         public void onReceived(String userId, final String name, String description, Bitmap image) {
