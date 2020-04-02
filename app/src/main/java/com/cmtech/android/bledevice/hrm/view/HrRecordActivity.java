@@ -46,7 +46,7 @@ public class HrRecordActivity extends AppCompatActivity {
         record.createHistogram();
 
         ivRecordType = findViewById(R.id.iv_record_type);
-        ivRecordType.setImageResource(R.mipmap.ic_hr_32px);
+        ivRecordType.setImageResource(R.mipmap.ic_hr_24px);
 
         tvCreateTime = findViewById(R.id.tv_create_time);
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());

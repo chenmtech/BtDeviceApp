@@ -119,7 +119,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_HR) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_hr_record, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record_hr, parent, false);
             final HrViewHolder holder = new HrViewHolder(view);
             defaultBg = holder.fileView.getBackground();
 
@@ -146,7 +146,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         if (viewType == TYPE_ECG) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_ecg_record, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record_ecg, parent, false);
             final EcgViewHolder holder = new EcgViewHolder(view);
 
             defaultBg = holder.fileView.getBackground();
@@ -175,7 +175,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         if (viewType == TYPE_THERMO) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_ecg_record, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record_ecg, parent, false);
             final ThermoViewHolder holder = new ThermoViewHolder(view);
             return holder;
         }
@@ -189,7 +189,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             BleHrRecord10 record = (BleHrRecord10) allRecords.get(position);
 
             if(record == null) return;
-            hrHolder.ivRecordType.setImageResource(R.mipmap.ic_hr_32px);
+            hrHolder.ivRecordType.setImageResource(R.mipmap.ic_hr_24px);
 
             String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
             hrHolder.tvCreateTime.setText(createTime);
@@ -215,7 +215,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             BleEcgRecord10 record = (BleEcgRecord10) allRecords.get(position);
             if(record == null) return;
 
-            ecgHolder.ivRecordType.setImageResource(R.mipmap.ic_ecg_32px);
+            ecgHolder.ivRecordType.setImageResource(R.mipmap.ic_ecg_24px);
 
             String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
             ecgHolder.tvCreateTime.setText(createTime);

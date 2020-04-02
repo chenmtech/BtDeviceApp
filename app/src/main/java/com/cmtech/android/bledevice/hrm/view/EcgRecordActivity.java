@@ -51,7 +51,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         ViseLog.e(record);
 
         ivRecordType = findViewById(R.id.iv_record_type);
-        ivRecordType.setImageResource(R.mipmap.ic_ecg_32px);
+        ivRecordType.setImageResource(R.mipmap.ic_ecg_24px);
 
         tvCreateTime = findViewById(R.id.tv_create_time);
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());

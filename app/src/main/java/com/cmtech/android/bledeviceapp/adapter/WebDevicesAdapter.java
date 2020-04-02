@@ -57,7 +57,7 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
     @Override
     public WebDevicesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recycle_item_web_device, parent, false);
+                .inflate(R.layout.recycle_item_device_web, parent, false);
         final ViewHolder holder = new ViewHolder(view);
 
         holder.deviceView.setOnClickListener(new View.OnClickListener() {
