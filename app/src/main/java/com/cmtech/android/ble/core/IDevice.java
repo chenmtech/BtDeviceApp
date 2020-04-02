@@ -8,13 +8,13 @@ public interface IDevice extends IConnector.IConnectorCallback {
     int INVALID_BATTERY = -1; // invalid battery level
 
     DeviceInfo getInfo();
-    void updateInfo(DeviceInfo registerInfo);
+    void updateInfo(DeviceInfo info);
     boolean isLocal(); // is local connCallback
     String getAddress();
     String getName();
     void setName(String name);
-    String getUuidString();
-    String getImagePath();
+    String getUuid();
+    String getIcon();
     int getBattery();
     void setBattery(final int battery);
     DeviceState getState(); // get state

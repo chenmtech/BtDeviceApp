@@ -5,7 +5,7 @@ public class WebDeviceInfo extends DeviceInfo {
     private String broadcastName = "";
 
     public WebDeviceInfo(String address, String uuid, String broadcastId) {
-        super(address, uuid);
+        super(address, uuid, false);
         this.broadcastId = broadcastId;
     }
 
@@ -21,8 +21,4 @@ public class WebDeviceInfo extends DeviceInfo {
         this.broadcastName = broadcastName;
     }
 
-    @Override
-    public boolean isLocal() {
-        return false;
-    }
 }

@@ -47,8 +47,8 @@ import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.bledevice.hrmonitor.view.EcgRecordExplorerActivity;
-import com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity;
+import com.cmtech.android.bledevice.hrm.view.EcgRecordExplorerActivity;
+import com.cmtech.android.bledevice.hrm.view.HrRecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
@@ -63,6 +63,8 @@ import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.NotifyService;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
 import com.vise.log.ViseLog;
+
+import org.litepal.LitePal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -253,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 Intent intent;
                 switch (item.getItemId()) {
                     case R.id.nav_add_device: // add device
-                        List<String> addresses = DeviceManager.getDeviceAddressList();
+                        List<String> addresses = DeviceManager.getAddressList();
                         intent = new Intent(MainActivity.this, ScanActivity.class);
                         intent.putExtra("device_address_list", (Serializable) addresses);
                         startActivityForResult(intent, RC_REGISTER_DEVICE);
@@ -331,28 +333,22 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         switch (requestCode) {
             case RC_REGISTER_DEVICE: // 注册设备返回
                 if(resultCode == RESULT_OK) {
-                    BleDeviceInfo registerInfo = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
-                    registerDevice(registerInfo);
+                    registerDevice((BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO));
                 }
                 break;
 
             case RC_MODIFY_DEVICE_INFO: // 修改注册信息返回
                 if ( resultCode == RESULT_OK) {
-                    BleDeviceInfo registerInfo = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
-                    IDevice device = DeviceManager.findDevice(registerInfo);
-                    if(device != null && registerInfo.saveToPref(pref)) {
-                        Toast.makeText(MainActivity.this, "设备信息修改成功", Toast.LENGTH_SHORT).show();
-                        device.updateInfo(registerInfo);
+                    BleDeviceInfo info = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
+                    IDevice device = DeviceManager.findDevice(info);
+                    if(device != null && info.save()) {
+                        device.updateInfo(info);
                         updateDeviceList();
                         Drawable drawable;
-                        if(TextUtils.isEmpty(device.getImagePath())) {
-                            DeviceType deviceType = DeviceType.getFromUuid(device.getUuidString());
-                            if(deviceType == null) {
-                                throw new IllegalStateException("The device type is not supported.");
-                            }
-                            drawable = ContextCompat.getDrawable(this, deviceType.getDefaultIcon());
+                        if(TextUtils.isEmpty(device.getIcon())) {
+                            drawable = ContextCompat.getDrawable(this, DeviceType.getFromUuid(device.getUuid()).getDefaultIcon());
                         } else {
-                            drawable = new BitmapDrawable(getResources(), device.getImagePath());
+                            drawable = new BitmapDrawable(getResources(), device.getIcon());
                         }
                         fragTabManager.updateTabInfo(fragTabManager.findFragment(device), drawable, device.getName());
                         if(fragTabManager.isFragmentSelected(device)) {
@@ -379,12 +375,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
     }
 
-    private void registerDevice(BleDeviceInfo deviceInfo) {
-        if(deviceInfo != null) {
-            IDevice device = DeviceManager.createDeviceIfNotExist(deviceInfo);
+    private void registerDevice(BleDeviceInfo info) {
+        if(info != null) {
+            IDevice device = DeviceManager.createNewDevice(info);
             if(device != null) {
-                if(deviceInfo.saveToPref(pref)) {
-                    //Toast.makeText(MainActivity.this, "设备注册成功", Toast.LENGTH_SHORT).show();
+                if(info.save()) {
                     updateDeviceList();
                     device.addListener(notiService);
                 } else {
@@ -453,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         ViseLog.e("MainActivity.onDestroy()");
         super.onDestroy();
 
-        DeviceManager.removeDeviceListener(this);
+        DeviceManager.removeListener(this);
 
         unbindService(serviceConnection);
         if(stopNotiService) {
@@ -562,17 +557,17 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(factory != null) {
             openDrawer(false);
             Drawable drawable;
-            if(TextUtils.isEmpty(device.getImagePath())) {
-                DeviceType deviceType = DeviceType.getFromUuid(device.getUuidString());
+            if(TextUtils.isEmpty(device.getIcon())) {
+                DeviceType deviceType = DeviceType.getFromUuid(device.getUuid());
                 if(deviceType == null) {
                     throw new IllegalStateException("The device type is not supported.");
                 }
                 drawable = ContextCompat.getDrawable(this, deviceType.getDefaultIcon());
             } else {
-                drawable = new BitmapDrawable(getResources(), device.getImagePath());
+                drawable = new BitmapDrawable(getResources(), device.getIcon());
             }
             if(drawable == null) {
-                DeviceType deviceType = DeviceType.getFromUuid(device.getUuidString());
+                DeviceType deviceType = DeviceType.getFromUuid(device.getUuid());
                 if(deviceType == null) {
                     throw new IllegalStateException("The device type is not supported.");
                 }
@@ -608,12 +603,13 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                DeviceInfo registerInfo = device.getInfo();
-                if(registerInfo instanceof BleDeviceInfo && ((BleDeviceInfo)registerInfo).deleteFromPref(pref)) {
-                    DeviceManager.deleteDevice(device);
-                    updateDeviceList();
-                } else {
-                    Toast.makeText(MainActivity.this, "无法删除设备。", Toast.LENGTH_SHORT).show();
+                if(device.getInfo() instanceof BleDeviceInfo) {
+                    if(LitePal.delete(BleDeviceInfo.class, device.getInfo().getId()) != 0) {
+                        DeviceManager.deleteDevice(device);
+                        updateDeviceList();
+                    } else {
+                        Toast.makeText(MainActivity.this, "无法删除设备。", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         }).setNegativeButton("取消", new DialogInterface.OnClickListener() {

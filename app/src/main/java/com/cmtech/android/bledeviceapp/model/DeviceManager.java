@@ -33,8 +33,8 @@ import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 public class DeviceManager {
     private static final List<IDevice> DEVICE_LIST = new ArrayList<IDevice>(); // 所有已注册设备列表
 
-    // 如果设备不存在，用信息创建一个设备
-    public static IDevice createDeviceIfNotExist(DeviceInfo info) {
+    // create a new device
+    public static IDevice createNewDevice(DeviceInfo info) {
         IDevice device = findDevice(info);
         if(device != null) {
             ViseLog.e("The device has existed.");
@@ -54,16 +54,16 @@ public class DeviceManager {
         return device;
     }
 
-    // 用信息寻找设备
+    // find a device using info
     public static IDevice findDevice(DeviceInfo info) {
         return (info == null) ? null : findDevice(info.getAddress());
     }
 
-    // 用设备mac地址寻找设备
-    public static IDevice findDevice(String macAddress) {
-        if(TextUtils.isEmpty(macAddress)) return null;
+    // find a device using address
+    public static IDevice findDevice(String address) {
+        if(TextUtils.isEmpty(address)) return null;
         for(IDevice device : DEVICE_LIST) {
-            if(macAddress.equalsIgnoreCase(device.getAddress())) {
+            if(address.equalsIgnoreCase(device.getAddress())) {
                 return device;
             }
         }
@@ -78,11 +78,6 @@ public class DeviceManager {
     // 删除一个设备
     public static void deleteDevice(IDevice device) {
         DEVICE_LIST.remove(device);
-    }
-
-    // 获取设备清单
-    public static List<IDevice> getDeviceList() {
-        return DEVICE_LIST;
     }
 
     public static List<IDevice> getBleDeviceList() {
@@ -106,12 +101,12 @@ public class DeviceManager {
     }
 
     // 获取所有设备的Mac列表
-    public static List<String> getDeviceAddressList() {
-        List<String> deviceMacList = new ArrayList<>();
+    public static List<String> getAddressList() {
+        List<String> addresses = new ArrayList<>();
         for(IDevice device : DEVICE_LIST) {
-            deviceMacList.add(device.getAddress());
+            addresses.add(device.getAddress());
         }
-        return deviceMacList;
+        return addresses;
     }
 
     public static List<IDevice> getOpenedDevice() {
@@ -125,19 +120,19 @@ public class DeviceManager {
         return devices;
     }
 
-    public static void removeDeviceListener(IDevice.OnDeviceListener listener) {
+    public static void removeListener(IDevice.OnDeviceListener listener) {
         for(IDevice device : DEVICE_LIST) {
             device.removeListener(listener);
         }
     }
 
-    public static void addDeviceListener(IDevice.OnDeviceListener listener) {
+    public static void addListener(IDevice.OnDeviceListener listener) {
         for(IDevice device : DEVICE_LIST) {
             device.addListener(listener);
         }
     }
 
-    public static void clearDevices() {
+    public static void clear() {
         for(IDevice device : DEVICE_LIST) {
             if(device.getState() != CLOSED)
                 device.close();

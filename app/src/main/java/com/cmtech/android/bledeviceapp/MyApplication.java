@@ -7,22 +7,12 @@ import android.view.Gravity;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.BleConfig;
-import com.cmtech.android.bledevice.ecg.device.EcgFactory;
-import com.cmtech.android.bledevice.ecg.webecg.WebEcgFactory;
-import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorFactory;
-import com.cmtech.android.bledevice.siggenerator.model.SigGeneratorFactory;
-import com.cmtech.android.bledevice.temphumid.model.TempHumidFactory;
-import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
-import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.util.SystemTTS;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.RECONNECT_INTERVAL;
 

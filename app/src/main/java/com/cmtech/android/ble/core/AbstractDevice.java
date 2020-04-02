@@ -52,7 +52,7 @@ public abstract class AbstractDevice implements IDevice{
         return info.getAddress();
     }
     @Override
-    public String getUuidString() {
+    public String getUuid() {
         return info.getUuid();
     }
     @Override
@@ -64,7 +64,7 @@ public abstract class AbstractDevice implements IDevice{
         info.setName(name);
     }
     @Override
-    public String getImagePath() {
+    public String getIcon() {
         return info.getIcon();
     }
     @Override

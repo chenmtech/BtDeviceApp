@@ -30,8 +30,8 @@ import com.vise.utils.view.BitmapUtil;
 import java.io.File;
 import java.io.IOException;
 
-import static com.cmtech.android.ble.core.DeviceInfo.DEFAULT_DEVICE_AUTO_CONNECT;
-import static com.cmtech.android.ble.core.DeviceInfo.DEFAULT_DEVICE_ICON;
+import static com.cmtech.android.ble.core.DeviceInfo.DEFAULT_AUTO_CONNECT;
+import static com.cmtech.android.ble.core.DeviceInfo.DEFAULT_ICON;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 
 /**
@@ -40,7 +40,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
  */
 
 public class RegisterActivity extends AppCompatActivity {
-    public static final String DEVICE_INFO = "device__info";
+    public static final String DEVICE_INFO = "device_info";
 
     private BleDeviceInfo registerInfo; // 设备基本信息
     private EditText etName; // 设备名
@@ -247,9 +247,9 @@ public class RegisterActivity extends AppCompatActivity {
         DeviceType type = DeviceType.getFromUuid(registerInfo.getUuid());
         if(type != null) {
             etName.setText(type.getDefaultName());
-            cacheImagePath = DEFAULT_DEVICE_ICON;
+            cacheImagePath = DEFAULT_ICON;
             Glide.with(this).load(type.getDefaultIcon()).into(ivImage);
-            cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTO_CONNECT);
+            cbIsAutoconnect.setChecked(DEFAULT_AUTO_CONNECT);
         }
     }
 }

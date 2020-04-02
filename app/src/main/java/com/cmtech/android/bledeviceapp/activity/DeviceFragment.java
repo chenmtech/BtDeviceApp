@@ -9,8 +9,6 @@ import android.widget.Toast;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 
-import static com.cmtech.android.ble.core.DeviceState.CLOSED;
-
 /**
  * DeviceFragment：设备Fragment
  * Created by bme on 2018/2/27.
@@ -18,18 +16,18 @@ import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 
 public abstract class DeviceFragment extends Fragment{
     private static final String TAG = "DeviceFragment";
-    private static final String ARG_DEVICE_MAC = "device_mac";
+    private static final String ARG_ADDRESS = "address";
 
     private IDevice device; // 设备
 
     protected DeviceFragment() {
     }
 
-    public static DeviceFragment create(String macAddress, Class<? extends DeviceFragment> fragClass) {
+    public static DeviceFragment create(String address, Class<? extends DeviceFragment> fragClass) {
         try {
             DeviceFragment fragment = fragClass.newInstance();
             Bundle bundle = new Bundle();
-            bundle.putString(ARG_DEVICE_MAC, macAddress);
+            bundle.putString(ARG_ADDRESS, address);
             fragment.setArguments(bundle);
             return fragment;
         } catch (Exception e) {
@@ -55,11 +53,10 @@ public abstract class DeviceFragment extends Fragment{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 用macAddress获取BleDevice
+        // get device using address
         Bundle bundle = getArguments();
         if(bundle == null) throw new IllegalStateException();
-        String deviceMac = bundle.getString(ARG_DEVICE_MAC);
-        device = DeviceManager.findDevice(deviceMac);
+        device = DeviceManager.findDevice(bundle.getString(ARG_ADDRESS));
         if(device == null) {
             Toast.makeText(getContext(), "设备已不存在。", Toast.LENGTH_SHORT).show();
             return;

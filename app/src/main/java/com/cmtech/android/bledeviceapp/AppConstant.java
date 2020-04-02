@@ -5,9 +5,8 @@ import android.os.Environment;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.ecg.device.EcgFactory;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgFactory;
-import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorFactory;
-import com.cmtech.android.bledevice.siggenerator.model.SigGeneratorFactory;
-import com.cmtech.android.bledevice.temphumid.model.TempHumidFactory;
+import com.cmtech.android.bledevice.hrm.model.HRMonitorFactory;
+import com.cmtech.android.bledevice.thm.model.TempHumidFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 

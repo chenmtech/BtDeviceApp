@@ -132,9 +132,9 @@ public class EcgHttpReceiver {
                 int caliValue = Integer.parseInt(settingObj.getString("cali_Value"));
                 int leadTypeCode = Integer.parseInt(settingObj.getString("lead_Type"));
                 EcgLeadType leadType = EcgLeadType.getFromCode(leadTypeCode);
-                DeviceInfo registerInfo = new WebDeviceInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid(), creatorId);
-                ViseLog.e(registerInfo + " sr=" + sampleRate + " cali=" + caliValue + " lead=" + leadType);
-                WebEcgDevice device = (WebEcgDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
+                DeviceInfo info = new WebDeviceInfo(deviceId, ECGWEBMONITOR_DEVICE_TYPE.getUuid(), creatorId);
+                ViseLog.e(info + " sr=" + sampleRate + " cali=" + caliValue + " lead=" + leadType);
+                WebEcgDevice device = (WebEcgDevice) DeviceManager.createNewDevice(info);
                 if (device != null) {
                     device.setName(ECGWEBMONITOR_DEVICE_TYPE.getDefaultName());
                     device.setSampleRate(sampleRate);

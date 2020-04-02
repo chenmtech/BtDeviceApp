@@ -34,7 +34,7 @@
         tools:replace="android:name">
         <activity android:name=".activity.LoginActivity" />
         <activity
-            android:name="com.cmtech.android.bledevice.hrmonitor.view.HRMCfgActivity"
+            android:name="com.cmtech.android.bledevice.hrm.view.HRMCfgActivity"
             android:label="@string/title_activity_hrmcfg" />
         <activity android:name=".activity.HuaweiLoginActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity" />
@@ -75,14 +75,14 @@
             android:name="com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity"
             android:label="配置心电带设备"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
-        <activity android:name="com.cmtech.android.bledevice.temphumid.view.TempHumidConfigureActivity" />
+        <activity android:name="com.cmtech.android.bledevice.thm.view.TempHumidConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity" />
         <activity android:name=".activity.AccountActivity" />
-        <activity android:name="com.cmtech.android.bledevice.hrmonitor.view.HrRecordExplorerActivity" />
-        <activity android:name="com.cmtech.android.bledevice.hrmonitor.view.HrRecordActivity" />
-        <activity android:name="com.cmtech.android.bledevice.hrmonitor.view.EcgRecordExplorerActivity"/>
-        <activity android:name="com.cmtech.android.bledevice.hrmonitor.view.EcgRecordActivity" />
+        <activity android:name="com.cmtech.android.bledevice.hrm.view.HrRecordExplorerActivity" />
+        <activity android:name="com.cmtech.android.bledevice.hrm.view.HrRecordActivity" />
+        <activity android:name="com.cmtech.android.bledevice.hrm.view.EcgRecordExplorerActivity"/>
+        <activity android:name="com.cmtech.android.bledevice.hrm.view.EcgRecordActivity" />
 
         <service
             android:name=".model.NotifyService"

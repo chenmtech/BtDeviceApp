@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.cmtech.android.bledevice.hrmonitor.view.HrHistogramChart
+    <com.cmtech.android.bledevice.hrm.view.HrHistogramChart
         android:id="@+id/chart_hr_histogram"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

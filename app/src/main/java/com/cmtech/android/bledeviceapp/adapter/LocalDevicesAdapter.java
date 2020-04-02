@@ -109,12 +109,12 @@ public class LocalDevicesAdapter extends RecyclerView.Adapter<LocalDevicesAdapte
     public void onBindViewHolder(ViewHolder holder, final int position) {
         IDevice device = deviceList.get(position);
 
-        String imagePath = device.getImagePath();
+        String imagePath = device.getIcon();
         if(!TextUtils.isEmpty(imagePath)) {
             Drawable drawable = new BitmapDrawable(MyApplication.getContext().getResources(), imagePath);
             holder.deviceImage.setImageDrawable(drawable);
         } else {
-            DeviceType type = DeviceType.getFromUuid(device.getUuidString());
+            DeviceType type = DeviceType.getFromUuid(device.getUuid());
             if(type == null) return;
             Glide.with(MyApplication.getContext()).load(type.getDefaultIcon()).into(holder.deviceImage);
         }
