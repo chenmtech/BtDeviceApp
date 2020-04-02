@@ -45,12 +45,12 @@ public class MyApplication extends Application {
         BleConfig.setReconnInterval(RECONNECT_INTERVAL);
 
         // configure the supported device
-        DeviceConfig.addSupportedDeviceType(EcgFactory.ECGMONITOR_DEVICE_TYPE);
-        DeviceConfig.addSupportedDeviceType(TempHumidFactory.TEMPHUMID_DEVICE_TYPE);
+        DeviceConfig.addSupportedDeviceType(EcgFactory.ECG_DEVICE_TYPE);
+        DeviceConfig.addSupportedDeviceType(TempHumidFactory.THM_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(ThermoFactory.THERMO_DEVICE_TYPE);
-        DeviceConfig.addSupportedDeviceType(SigGeneratorFactory.SIGGENERATOR_DEVICE_TYPE);
+        DeviceConfig.addSupportedDeviceType(SigGeneratorFactory.SGG_DEVICE_TYPE);
         DeviceConfig.addSupportedDeviceType(WebEcgFactory.ECGWEBMONITOR_DEVICE_TYPE);
-        DeviceConfig.addSupportedDeviceType(HRMonitorFactory.HRMONITOR_DEVICE_TYPE);
+        DeviceConfig.addSupportedDeviceType(HRMonitorFactory.HRM_DEVICE_TYPE);
 
         // init MobSDK
         MobSDK.init(getApplicationContext(), "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");

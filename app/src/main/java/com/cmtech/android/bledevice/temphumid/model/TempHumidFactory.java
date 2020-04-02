@@ -10,26 +10,25 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 // 会根据设备类型BleDeviceType，通过反射创建工厂类实例
 public class TempHumidFactory extends DeviceFactory {
-    private static final String TEMPHUMID_UUID = "aa60"; // 温湿度计
-    private static final String TEMPHUMID_DEFAULT_NAME = "康明温湿度计";
-    private static final int TEMPHUMID_DEFAULT_IMAGE_ID = R.drawable.ic_temphumid_defaultimage;
-    private static final String TEMPHUMID_FACTORY = TempHumidFactory.class.getName();
+    private static final String THM_UUID = "aa60"; // temp & humid monitor uuid
+    private static final String THM_DEFAULT_NAME = "康明温湿度计";
+    private static final int THM_DEFAULT_ICON = R.drawable.ic_thm_default_icon;
+    private static final String THM_FACTORY = TempHumidFactory.class.getName();
 
-    public static final DeviceType TEMPHUMID_DEVICE_TYPE = new DeviceType(TEMPHUMID_UUID, TEMPHUMID_DEFAULT_IMAGE_ID, TEMPHUMID_DEFAULT_NAME, TEMPHUMID_FACTORY);
+    public static final DeviceType THM_DEVICE_TYPE = new DeviceType(THM_UUID, THM_DEFAULT_ICON, THM_DEFAULT_NAME, THM_FACTORY);
 
-    private TempHumidFactory(DeviceInfo registerInfo) {
-        super(registerInfo);
+    private TempHumidFactory(DeviceInfo info) {
+        super(info);
     }
 
     @Override
     public IDevice createDevice() {
-        return new TempHumidDevice(registerInfo);
+        return new TempHumidDevice(info);
     }
 
     @Override
     public DeviceFragment createFragment() {
-        return DeviceFragment.create(registerInfo.getAddress(), TempHumidFragment.class);
+        return DeviceFragment.create(info.getAddress(), TempHumidFragment.class);
     }
-
 
 }

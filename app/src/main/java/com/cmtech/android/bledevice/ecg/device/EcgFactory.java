@@ -10,24 +10,24 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 // 根据设备类型BleDeviceType，通过反射创建工厂类实例
 public class EcgFactory extends DeviceFactory {
-    private static final String ECGMONITOR_UUID = "aa40"; // 设备支持的服务UUID短串
-    private static final String ECGMONITOR_DEFAULT_NAME = "心电带"; // 缺省设备名
-    private static final int ECGMONITOR_DEFAULT_IMAGE_ID = R.drawable.ic_ecgmonitor_default_image; // 缺省图标ID
-    private static final String ECGMONITOR_FACTORY = EcgFactory.class.getName();//"com.cmtech.android.bledevice.ecgmonitor.device.EcgFactory"; // 工厂类名
+    private static final String ECG_UUID = "aa40"; // ecg uuid string
+    private static final String ECG_DEFAULT_NAME = "康明心电带"; // default device name
+    private static final int ECG_DEFAULT_ICON = R.drawable.ic_ecg_default_icon; // default device icon id
+    private static final String ECG_FACTORY = EcgFactory.class.getName();// factory class name
 
-    public static final DeviceType ECGMONITOR_DEVICE_TYPE = new DeviceType(ECGMONITOR_UUID, ECGMONITOR_DEFAULT_IMAGE_ID, ECGMONITOR_DEFAULT_NAME, ECGMONITOR_FACTORY);
+    public static final DeviceType ECG_DEVICE_TYPE = new DeviceType(ECG_UUID, ECG_DEFAULT_ICON, ECG_DEFAULT_NAME, ECG_FACTORY);
 
-    private EcgFactory(DeviceInfo registerInfo) {
-        super(registerInfo);
+    private EcgFactory(DeviceInfo info) {
+        super(info);
     }
 
     @Override
     public IDevice createDevice() {
-        return new EcgDevice(registerInfo);
+        return new EcgDevice(info);
     }
 
     @Override
     public DeviceFragment createFragment() {
-        return DeviceFragment.create(registerInfo.getAddress(), EcgFragment.class);
+        return DeviceFragment.create(info.getAddress(), EcgFragment.class);
     }
 }

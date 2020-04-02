@@ -21,17 +21,17 @@ import java.lang.reflect.Constructor;
 
 
 public abstract class DeviceFactory {
-    protected final DeviceInfo registerInfo; // 设备注册信息
+    protected final DeviceInfo info; // device info
 
-    protected DeviceFactory(DeviceInfo registerInfo) {
-        this.registerInfo = registerInfo;
+    protected DeviceFactory(DeviceInfo info) {
+        this.info = info;
     }
 
-    // 获取注册信息对应的工厂
-    public static DeviceFactory getFactory(DeviceInfo registerInfo) {
-        if(registerInfo == null) return null;
+    // create device factory using device info
+    public static DeviceFactory getFactory(DeviceInfo info) {
+        if(info == null) return null;
 
-        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuid());
+        DeviceType type = DeviceType.getFromUuid(info.getUuid());
         if(type == null) {
             ViseLog.e("The device type is not supported.");
             return null;
@@ -47,7 +47,7 @@ public abstract class DeviceFactory {
         try {
             Constructor constructor = Class.forName(factoryClassName).getDeclaredConstructor(DeviceInfo.class);
             constructor.setAccessible(true);
-            factory = (DeviceFactory) constructor.newInstance(registerInfo);
+            factory = (DeviceFactory) constructor.newInstance(info);
         } catch (Exception e) {
             ViseLog.e("The device factory can't be found.");
             factory = null;
@@ -55,6 +55,6 @@ public abstract class DeviceFactory {
         return factory;
     }
 
-    public abstract IDevice createDevice(); // 创建Device
-    public abstract DeviceFragment createFragment(); // 创建Fragment
+    public abstract IDevice createDevice(); // create Device
+    public abstract DeviceFragment createFragment(); // create Fragment
 }

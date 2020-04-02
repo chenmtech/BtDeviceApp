@@ -21,25 +21,25 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
  * Version:        1.0
  */
 public class HRMonitorFactory extends DeviceFactory {
-    private static final String HRMONITOR_UUID = "180D"; // standard heart rate uuid
-    private static final String DEFAULT_HRMONITOR_NAME = "心率计"; // default standard heart rate monitor name
-    private static final int DEFAULT_HRMONITOR_IMAGE_ID = R.drawable.ic_hrm_default_image;
-    private static final String HRMONITOR_FACTORY = HRMonitorFactory.class.getName();
+    private static final String HRM_UUID = "180D"; // standard heart rate uuid
+    private static final String HRM_DEFAULT_NAME = "心率计"; // default standard heart rate monitor name
+    private static final int HRM_DEFAULT_ICON = R.drawable.ic_hrm_default_icon;
+    private static final String HRM_FACTORY = HRMonitorFactory.class.getName();
 
-    public static final DeviceType HRMONITOR_DEVICE_TYPE = new DeviceType(HRMONITOR_UUID, DEFAULT_HRMONITOR_IMAGE_ID, DEFAULT_HRMONITOR_NAME, HRMONITOR_FACTORY);
+    public static final DeviceType HRM_DEVICE_TYPE = new DeviceType(HRM_UUID, HRM_DEFAULT_ICON, HRM_DEFAULT_NAME, HRM_FACTORY);
 
 
-    private HRMonitorFactory(DeviceInfo registerInfo) {
-        super(registerInfo);
+    private HRMonitorFactory(DeviceInfo info) {
+        super(info);
     }
 
     @Override
     public IDevice createDevice() {
-        return new HRMonitorDevice(registerInfo);
+        return new HRMonitorDevice(info);
     }
 
     @Override
     public DeviceFragment createFragment() {
-        return DeviceFragment.create(registerInfo.getAddress(), HRMonitorFragment.class);
+        return DeviceFragment.create(info.getAddress(), HRMonitorFragment.class);
     }
 }

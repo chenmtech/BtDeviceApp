@@ -9,24 +9,24 @@ import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 public class ThermoFactory extends DeviceFactory {
-    private static final String THERMOMETER_UUID = "1809"; // thermometer
-    private static final String THERMOMETER_DEFAULT_NAME = "标准体温计";
-    private static final int THERMOMETER_DEFAULT_IMAGE_ID = R.drawable.ic_thermo_defaultimage;
-    private static final String THERMOMETER_FACTORY = ThermoFactory.class.getName();
+    private static final String THERMO_UUID = "1809"; // thermometer uuid
+    private static final String THERMO_DEFAULT_NAME = "体温计";
+    private static final int THERMO_DEFAULT_ICON = R.drawable.ic_thermo_default_icon;
+    private static final String THERMO_FACTORY = ThermoFactory.class.getName();
 
-    public static final DeviceType THERMO_DEVICE_TYPE = new DeviceType(THERMOMETER_UUID, THERMOMETER_DEFAULT_IMAGE_ID, THERMOMETER_DEFAULT_NAME, THERMOMETER_FACTORY);
+    public static final DeviceType THERMO_DEVICE_TYPE = new DeviceType(THERMO_UUID, THERMO_DEFAULT_ICON, THERMO_DEFAULT_NAME, THERMO_FACTORY);
 
-    private ThermoFactory(DeviceInfo registerInfo) {
-        super(registerInfo);
+    private ThermoFactory(DeviceInfo info) {
+        super(info);
     }
 
     @Override
     public IDevice createDevice() {
-        return new ThermoDevice(registerInfo);
+        return new ThermoDevice(info);
     }
 
     @Override
     public DeviceFragment createFragment() {
-        return DeviceFragment.create(registerInfo.getAddress(), ThermoFragment.class);
+        return DeviceFragment.create(info.getAddress(), ThermoFragment.class);
     }
 }
