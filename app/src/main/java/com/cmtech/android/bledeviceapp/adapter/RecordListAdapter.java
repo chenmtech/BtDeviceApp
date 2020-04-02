@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.hrm.model;
+package com.cmtech.android.bledeviceapp.adapter;
 
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
@@ -11,7 +11,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.hrm.view.RecordExplorerActivity;
+import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
+import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;

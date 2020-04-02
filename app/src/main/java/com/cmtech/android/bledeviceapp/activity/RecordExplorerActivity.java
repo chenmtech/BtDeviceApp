@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.hrm.view;
+package com.cmtech.android.bledeviceapp.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,7 +14,9 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
-import com.cmtech.android.bledevice.hrm.model.RecordListAdapter;
+import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
+import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
+import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
 import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledeviceapp.R;
 

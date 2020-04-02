@@ -25,7 +25,7 @@ import java.util.List;
  * Created by bme on 2018/2/8.
  */
 
-public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdapter.ViewHolder> {
+public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
     private final List<BleDeviceDetailInfo> scannedDeviceDetailInfoList; // 扫描到的设备详细信息列表
     private final List<String> registeredMacList; // 已注册设备Mac地址List
     private final ScanActivity activity; // 扫描设备的Activiy
@@ -47,7 +47,7 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
         }
     }
 
-    public ScannedDeviceAdapter(List<BleDeviceDetailInfo> scannedDeviceDetailInfoList, List<String> registeredMacList, ScanActivity activity) {
+    public ScanAdapter(List<BleDeviceDetailInfo> scannedDeviceDetailInfoList, List<String> registeredMacList, ScanActivity activity) {
         this.scannedDeviceDetailInfoList = scannedDeviceDetailInfoList;
         this.registeredMacList = registeredMacList;
         this.activity = activity;
@@ -55,7 +55,7 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
 
 
     @Override
-    public ScannedDeviceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ScanAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recycle_item_scan_device, parent, false);
         final ViewHolder holder = new ViewHolder(view);
@@ -77,7 +77,7 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ScannedDeviceAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull ScanAdapter.ViewHolder holder, final int position) {
         BleDeviceDetailInfo detailInfo = scannedDeviceDetailInfoList.get(position);
 
         AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);

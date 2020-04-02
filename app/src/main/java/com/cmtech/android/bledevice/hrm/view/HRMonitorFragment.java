@@ -18,7 +18,6 @@ import com.cmtech.android.bledevice.hrm.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrm.model.HRMonitorDevice;
 import com.cmtech.android.bledevice.hrm.model.HRMonitorConfiguration;
-import com.cmtech.android.bledevice.hrm.model.HrCtrlPanelAdapter;
 import com.cmtech.android.bledevice.hrm.model.OnHRMonitorDeviceListener;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledevice.view.ScanEcgView;
@@ -26,6 +25,7 @@ import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +58,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     private FrameLayout flEcgOff; // frame layout when ecg off
     private FrameLayout flEcgOn; // frame layout when ecg on
 
-    private HrCtrlPanelAdapter fragAdapter;
+    private CtrlPanelAdapter fragAdapter;
     private final HrRecordFragment hrRecFrag = new HrRecordFragment(); // heart rate record Fragment
     private final HrDebugFragment debugFrag = new HrDebugFragment(); // debug fragment
     private final EcgRecordFragment ecgRecFrag = new EcgRecordFragment(); // ecg record fragment
@@ -108,7 +108,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(debugFrag, hrRecFrag));
         List<String> titleList = new ArrayList<>(Arrays.asList(HrDebugFragment.TITLE, HrRecordFragment.TITLE));
-        fragAdapter = new HrCtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
+        fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(3);
         layout.setupWithViewPager(pager);

@@ -24,7 +24,7 @@ import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.HexUtil;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.ScannedDeviceAdapter;
+import com.cmtech.android.bledeviceapp.adapter.ScanAdapter;
 import com.vise.log.ViseLog;
 
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ public class ScanActivity extends AppCompatActivity {
     private final List<BleDeviceDetailInfo> foundDevInfos = new ArrayList<>(); // 扫描到的设备的BleDeviceDetailInfo列表
     private List<String> regAddrs = new ArrayList<>(); // 已注册的设备mac地址列表
     private SwipeRefreshLayout srlDevice;
-    private ScannedDeviceAdapter devAdapter;
+    private ScanAdapter devAdapter;
     private RecyclerView rvDevice;
     private Handler mHandle = new Handler(Looper.getMainLooper());
 
@@ -114,7 +114,7 @@ public class ScanActivity extends AppCompatActivity {
         rvDevice = findViewById(R.id.rv_device);
         rvDevice.setLayoutManager(new LinearLayoutManager(this));
         rvDevice.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        devAdapter = new ScannedDeviceAdapter(foundDevInfos, regAddrs, this);
+        devAdapter = new ScanAdapter(foundDevInfos, regAddrs, this);
         rvDevice.setAdapter(devAdapter);
 
         srlDevice = findViewById(R.id.srl_device);

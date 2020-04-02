@@ -12,8 +12,7 @@
         <item
             android:id="@+id/nav_query_record"
             android:title="@string/query_record"
-            android:icon="@mipmap/ic_query_record"
-            app:actionLayout="@layout/anchor"/>
+            android:icon="@mipmap/ic_query_record"/>
 
         <item
             android:id="@+id/nav_open_store"

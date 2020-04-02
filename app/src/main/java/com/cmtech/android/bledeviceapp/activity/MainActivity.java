@@ -26,9 +26,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.view.menu.MenuPopupHelper;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -47,8 +44,6 @@ import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.ble.core.WebDeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.bledevice.hrm.view.EcgRecordExplorerActivity;
-import com.cmtech.android.bledevice.hrm.view.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
@@ -261,36 +256,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                         startActivityForResult(intent, RC_REGISTER_DEVICE);
                         return true;
                     case R.id.nav_query_record: // query user records
-                        PopupMenu popupMenu = new PopupMenu(MainActivity.this, item.getActionView());
-                        popupMenu.inflate(R.menu.menu_user_record);
-                        popupMenu.getMenu().findItem(R.id.nav_hr_record).setVisible(true);
-                        popupMenu.getMenu().findItem(R.id.nav_ecg_record).setVisible(true);
-                        popupMenu.getMenu().findItem(R.id.nav_temphumid_record).setVisible(false);
-                        popupMenu.getMenu().findItem(R.id.nav_thermo_record).setVisible(true);
-                        @SuppressLint("RestrictedApi")
-                        MenuPopupHelper popupHelper = new MenuPopupHelper(MainActivity.this, (MenuBuilder) popupMenu.getMenu(), item.getActionView());
-                        popupHelper.setForceShowIcon(true);
-                        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                            @Override
-                            public boolean onMenuItemClick(MenuItem menuItem) {
-                                switch (menuItem.getItemId()) {
-                                    case R.id.nav_hr_record:
-                                        Intent hrIntent = new Intent(MainActivity.this, RecordExplorerActivity.class);
-                                        startActivity(hrIntent);
-                                        return true;
-                                    case R.id.nav_ecg_record:
-                                        Intent recordIntent = new Intent(MainActivity.this, EcgRecordExplorerActivity.class);
-                                        startActivity(recordIntent);
-                                        return true;
-                                    case R.id.nav_temphumid_record:
-                                    case R.id.nav_thermo_record:
-                                        Toast.makeText(MainActivity.this, "当前无记录。", Toast.LENGTH_SHORT).show();
-                                        return true;
-                                }
-                                return false;
-                            }
-                        });
-                        popupHelper.show();
+                        intent = new Intent(MainActivity.this, RecordExplorerActivity.class);
+                        startActivity(intent);
                         return true;
                     case R.id.nav_open_store: // open KM store
                         intent = new Intent(Intent.ACTION_VIEW);

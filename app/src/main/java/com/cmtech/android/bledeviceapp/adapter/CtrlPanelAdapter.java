@@ -48,4 +48,21 @@ public class CtrlPanelAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         return titleList.get(position);
     }
+
+    public void addFragment(Fragment fragment, String title) {
+        if(!this.fragmentList.contains(fragment)) {
+            this.fragmentList.add(fragment);
+            this.titleList.add(title);
+            notifyDataSetChanged();
+        }
+    }
+
+    public void removeFragment(Fragment fragment) {
+        int index = this.fragmentList.indexOf(fragment);
+        if(index != -1) {
+            this.fragmentList.remove(index);
+            this.titleList.remove(index);
+            notifyDataSetChanged();
+        }
+    }
 }

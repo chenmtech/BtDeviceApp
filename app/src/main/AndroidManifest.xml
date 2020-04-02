@@ -75,9 +75,8 @@
         <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoConfigureActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity" />
         <activity android:name=".activity.AccountActivity" />
-        <activity android:name="com.cmtech.android.bledevice.hrm.view.RecordExplorerActivity" />
+        <activity android:name=".activity.RecordExplorerActivity" />
         <activity android:name="com.cmtech.android.bledevice.hrm.view.HrRecordActivity" />
-        <activity android:name="com.cmtech.android.bledevice.hrm.view.EcgRecordExplorerActivity"/>
         <activity android:name="com.cmtech.android.bledevice.hrm.view.EcgRecordActivity" />
 
         <service
