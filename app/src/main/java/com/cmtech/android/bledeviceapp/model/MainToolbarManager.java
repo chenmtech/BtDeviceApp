@@ -13,8 +13,6 @@ import android.widget.TextView;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.utils.view.BitmapUtil;
 
-import java.util.logging.Handler;
-
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 
 /**
@@ -54,7 +52,7 @@ public class MainToolbarManager {
     public void set(int flag, Object... objects) {
         int i = 0;
         if((flag & FLAG_NAVI_ICON) != 0) {
-            setNavigationIcon((String)objects[i++]);
+            setNavIcon((String)objects[i++]);
         }
         if((flag & FLAG_TITLE) != 0) {
             String[] titles = (String[]) objects[i++];
@@ -65,8 +63,8 @@ public class MainToolbarManager {
             setBattery(battery);
         }
         if((flag & FLAG_MENU) != 0) {
-            boolean[] showMenu = (boolean[]) objects[i];
-            updateMenuItemsVisible(showMenu);
+            boolean[] visible = (boolean[]) objects[i];
+            updateMenuVisible(visible);
         }
     }
 
@@ -76,8 +74,13 @@ public class MainToolbarManager {
     }
 
     public void setBattery(int battery) {
+        if(battery == INVALID_BATTERY) {
+            tvBattery.setVisibility(View.GONE);
+            return;
+        }
+
         Drawable drawable = ContextCompat.getDrawable(context, R.drawable.battery_list_drawable);
-        if(battery == INVALID_BATTERY || drawable == null) {
+        if(drawable == null) {
             tvBattery.setVisibility(View.GONE);
         } else {
             tvBattery.setVisibility(View.VISIBLE);
@@ -90,46 +93,28 @@ public class MainToolbarManager {
         }
     }
 
-    public void setNavigationIcon(String imagePath) {
+    public void setNavIcon(String navIcon) {
         Drawable drawable;
-        if(imagePath == null || "".equals(imagePath.trim())) {
+        if(navIcon == null || "".equals(navIcon.trim())) {
             drawable = ContextCompat.getDrawable(context, R.mipmap.ic_menu);
         } else {
-            Bitmap bitmap = BitmapUtil.getSmallBitmap(imagePath, 64, 64);
+            Bitmap bitmap = BitmapUtil.getSmallBitmap(navIcon, 64, 64);
             drawable = new BitmapDrawable(context.getResources(), bitmap);
         }
         toolbar.setNavigationIcon(drawable);
     }
 
-    public void updateMenuItemsVisible(boolean[] showMenu) {
-        if(menuItems == null || menuItems.length == 0 || showMenu == null || showMenu.length == 0 || showMenu.length != menuItems.length) return;
+    public void updateMenuVisible(boolean[] visible) {
+        if(menuItems == null || menuItems.length == 0 || visible == null || visible.length == 0 || visible.length != menuItems.length) return;
 
         int i = 0;
         for(MenuItem item : menuItems) {
-            item.setVisible(showMenu[i++]);
+            item.setVisible(visible[i++]);
         }
     }
 
-    public void updateMenuItemVisible(MenuItem item, boolean showMenu) {
-        for(MenuItem ele : menuItems) {
-            if(ele == item) {
-                ele.setVisible(showMenu);
-            }
-        }
-    }
-
-    public void updateMenuItemVisible(int itemIndex, boolean showMenu) {
-        if(itemIndex >= 0 && itemIndex < menuItems.length && showMenu != menuItems[itemIndex].isVisible())
-            menuItems[itemIndex].setVisible(showMenu);
-    }
-
-    public boolean[] getMenuItemsVisible() {
-        if(menuItems == null || menuItems.length == 0) return null;
-        boolean[] visible = new boolean[menuItems.length];
-        int i = 0;
-        for(MenuItem item : menuItems) {
-            visible[i++] = item.isVisible();
-        }
-        return visible;
+    public void updateMenuVisible(int itemIndex, boolean visible) {
+        if(itemIndex >= 0 && itemIndex < menuItems.length && visible != menuItems[itemIndex].isVisible())
+            menuItems[itemIndex].setVisible(visible);
     }
 }
