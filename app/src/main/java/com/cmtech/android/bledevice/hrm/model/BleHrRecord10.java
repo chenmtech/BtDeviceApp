@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.hrm.model;
 
+import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.bmefile.DataIOUtil;
 import com.vise.log.ViseLog;
@@ -34,17 +35,11 @@ import static com.cmtech.android.bledeviceapp.model.Account.PLAT_ID_CHAR_LEN;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleHrRecord10 extends LitePalSupport implements Serializable {
+public class BleHrRecord10 extends AbstractRecord implements Serializable {
     public static final int HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH = 10; // unit: s
     private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // char num of device address
 
-    private int id;
-    private byte[] ver = new byte[2]; // hr record version
-    private long createTime; //
-    private String devAddress; //
-    private String creatorPlat;
-    private String creatorId;
     private List<Short> filterHrList; // list of the filtered HR
     private short hrMax;
     private short hrAve;
@@ -63,10 +58,7 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
     private transient long preTime = 0;
 
     private BleHrRecord10() {
-        createTime = 0;
-        devAddress = "";
-        creatorPlat = "";
-        creatorId = "";
+        super();
         filterHrList = new ArrayList<>();
         hrMax = INVALID_HEART_RATE;
         hrAve = INVALID_HEART_RATE;
@@ -81,29 +73,6 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
         recordSecond = 0;
     }
 
-    public String getRecordName() {
-        return createTime + devAddress;
-    }
-    public int getId() {
-        return id;
-    }
-    public long getCreateTime() {
-        return createTime;
-    }
-    public String getDevAddress() {
-        return devAddress;
-    }
-    public String getCreatorPlat() {
-        return creatorPlat;
-    }
-    public String getCreatorName() {
-        Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
-        if(account == null)
-            return creatorId;
-        else {
-            return account.getName();
-        }
-    }
     public List<Short> getFilterHrList() {
         return filterHrList;
     }
@@ -179,18 +148,16 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
         if(ver == null || ver.length != 2 || ver[0] != 0x01 || ver[1] != 0x00) return null;
 
         BleHrRecord10 record = new BleHrRecord10();
-        record.ver[0] = 0x01;
-        record.ver[1] = 0x00;
-        record.createTime = new Date().getTime();
-        record.devAddress = devAddress;
-        record.creatorPlat = creator.getPlatName();
-        record.creatorId = creator.getPlatId();
+        record.setVer(ver);
+        record.setCreateTime(new Date().getTime());
+        record.setDevAddress(devAddress);
+        record.setCreator(creator);
         for(int i = 0; i < record.hrHistogram.size(); i++)
             record.hrHist.add(0);
         return record;
     }
 
-    // load hr record from a file
+   /* // load hr record from a file
     public static BleHrRecord10 load(String fileName) {
         File file = new File(fileName);
         RandomAccessFile raf = null;
@@ -273,25 +240,11 @@ public class BleHrRecord10 extends LitePalSupport implements Serializable {
                 ex.printStackTrace();
             }
         }
-    }
+    }*/
 
     @Override
     public String toString() {
-        return createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + filterHrList + "-" + hrMax + "-" + hrAve + "-" + hrHist;
-    }
-
-    @Override
-    public boolean equals(Object otherObject) {
-        if(this == otherObject) return true;
-        if(otherObject == null) return false;
-        if(getClass() != otherObject.getClass()) return false;
-        BleHrRecord10 other = (BleHrRecord10) otherObject;
-        return getRecordName().equals(other.getRecordName());
-    }
-
-    @Override
-    public int hashCode() {
-        return getRecordName().hashCode();
+        return super.toString() + "-" + filterHrList + "-" + hrMax + "-" + hrAve + "-" + hrHist;
     }
 
     // moving average filter

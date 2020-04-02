@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.hrm.model;
 
+import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledevice.interf.IEcgRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 
@@ -27,13 +28,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serializable {
-    private int id;
-    private byte[] ver = new byte[2]; // ecg record version
-    private long createTime; //
-    private String devAddress; //
-    private String creatorPlat;
-    private String creatorId;
+public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serializable {
     private int sampleRate; // 采样频率
     private int caliValue; // 标定值
     private int leadTypeCode; // 导联类型代码
@@ -43,10 +38,7 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serial
     private int pos = 0;
 
     private BleEcgRecord10() {
-        createTime = 0;
-        devAddress = "";
-        creatorPlat = "";
-        creatorId = "";
+        super();
         sampleRate = 0;
         caliValue = 0;
         leadTypeCode = 0;
@@ -54,29 +46,6 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serial
         ecgList = new ArrayList<>();
     }
 
-    public String getRecordName() {
-        return createTime + devAddress;
-    }
-    public int getId() {
-        return id;
-    }
-    public long getCreateTime() {
-        return createTime;
-    }
-    public String getDevAddress() {
-        return devAddress;
-    }
-    public String getCreatorPlat() {
-        return creatorPlat;
-    }
-    public String getCreatorName() {
-        Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
-        if(account == null)
-            return creatorId;
-        else {
-            return account.getName();
-        }
-    }
     public List<Short> getEcgList() {
         return ecgList;
     }
@@ -138,12 +107,11 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serial
         if(ver == null || ver.length != 2 || ver[0] != 0x01 || ver[1] != 0x00) return null;
 
         BleEcgRecord10 record = new BleEcgRecord10();
-        record.ver[0] = 0x01;
-        record.ver[1] = 0x00;
-        record.createTime = new Date().getTime();
-        record.devAddress = devAddress;
-        record.creatorPlat = creator.getPlatName();
-        record.creatorId = creator.getPlatId();
+        record.setVer(ver);
+        record.setCreateTime(new Date().getTime());
+        record.setDevAddress(devAddress);
+        record.setCreator(creator);
+
         record.sampleRate = sampleRate;
         record.caliValue = caliValue;
         record.leadTypeCode = leadTypeCode;
@@ -153,21 +121,6 @@ public class BleEcgRecord10 extends LitePalSupport implements IEcgRecord, Serial
 
     @Override
     public String toString() {
-        return createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + ecgList;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + ecgList;
     }
-
-    @Override
-    public boolean equals(Object otherObject) {
-        if(this == otherObject) return true;
-        if(otherObject == null) return false;
-        if(getClass() != otherObject.getClass()) return false;
-        BleEcgRecord10 other = (BleEcgRecord10) otherObject;
-        return getRecordName().equals(other.getRecordName());
-    }
-
-    @Override
-    public int hashCode() {
-        return getRecordName().hashCode();
-    }
-
 }
