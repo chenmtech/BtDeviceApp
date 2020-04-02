@@ -60,10 +60,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.NewsActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".activity.ScanActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait" />

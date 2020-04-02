@@ -36,7 +36,6 @@ import java.util.List;
 
 public class HrRecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "HrRecordExplorerActivity";
-    private static final int DEFAULT_LOAD_RECORD_NUM_EACH_TIMES = 10; // 缺省每次加载的记录数
 
     private List<BleHrRecord10> allRecords = new ArrayList<>(); // 所有心电记录列表
     private HrRecordListAdapter recordAdapter; // 记录Adapter
@@ -59,35 +58,10 @@ public class HrRecordExplorerActivity extends AppCompatActivity {
         rvRecords.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recordAdapter = new HrRecordListAdapter(this, allRecords);
         rvRecords.setAdapter(recordAdapter);
-        rvRecords.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            int lastVisibleItem;
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
-                if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == recordAdapter.getItemCount()-1) {
-                    //explorer.loadNextRecords(DEFAULT_LOAD_RECORD_NUM_EACH_TIMES);
-                }
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-
-                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if(layoutManager != null) {
-                    lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-                    if(lastVisibleItem == recordAdapter.getItemCount()-1) {
-
-                    }
-                }
-            }
-        });
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
-        //"id, hrHist, createTime, devAddress, creatorPlat, creatorId"
+
         LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").order("createTime desc").findAsync(BleHrRecord10.class, true).listen(new FindMultiCallback<BleHrRecord10>() {
             @Override
             public void onFinish(List<BleHrRecord10> list) {
