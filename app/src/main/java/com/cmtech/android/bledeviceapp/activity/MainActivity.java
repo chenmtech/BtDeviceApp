@@ -207,8 +207,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         hasDeviceLayout = findViewById(R.id.layout_when_device_opened);
 
         // 初始化BleFragTabManager
-        TabLayout tabLayout = findViewById(R.id.tablayout_device);
-        fragTabManager = new DeviceFragTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_main_fragment);
+        TabLayout tabLayout = findViewById(R.id.device_tab);
+        fragTabManager = new DeviceFragTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_device_fragment);
         fragTabManager.setOnFragmentUpdatedListener(this);
 
         // init main layout
@@ -709,5 +709,4 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private void updateCloseMenuItem(boolean visible) {
         tbManager.updateMenuVisible(1, visible);
     }
-
 }
