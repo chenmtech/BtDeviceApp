@@ -13,12 +13,9 @@ import android.widget.Toast;
 import com.cmtech.android.ble.core.BleDeviceDetailInfo;
 import com.cmtech.android.ble.model.adrecord.AdRecord;
 import com.cmtech.android.ble.utils.HexUtil;
-import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.ScanActivity;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
-import com.cmtech.android.bledeviceapp.util.ByteUtil;
-import com.vise.log.ViseLog;
 
 import java.util.List;
 
@@ -99,7 +96,7 @@ public class ScannedDeviceAdapter extends RecyclerView.Adapter<ScannedDeviceAdap
             String supportedUUID = HexUtil.encodeHexStr(uuidBytes);
             type = DeviceType.getFromUuid(supportedUUID);
         }
-        holder.deviceTypeName.setText(String.format("设备类型：%s", (type == null) ? "未知" : type.getDefaultNickname()));
+        holder.deviceTypeName.setText(String.format("设备类型：%s", (type == null) ? "未知" : type.getDefaultName()));
         holder.deviceAddress.setText(String.format("设备地址：%s", detailInfo.getAddress()));
         holder.deviceName.setText(String.format("设备名：%s", detailInfo.getName()));
         boolean status = isRegistered(detailInfo);

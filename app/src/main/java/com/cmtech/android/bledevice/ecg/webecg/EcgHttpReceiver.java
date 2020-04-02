@@ -136,7 +136,7 @@ public class EcgHttpReceiver {
                 ViseLog.e(registerInfo + " sr=" + sampleRate + " cali=" + caliValue + " lead=" + leadType);
                 WebEcgDevice device = (WebEcgDevice) DeviceManager.createDeviceIfNotExist(registerInfo);
                 if (device != null) {
-                    device.setName(ECGWEBMONITOR_DEVICE_TYPE.getDefaultNickname());
+                    device.setName(ECGWEBMONITOR_DEVICE_TYPE.getDefaultName());
                     device.setSampleRate(sampleRate);
                     device.setValue1mV(caliValue);
                     device.setLeadType(leadType);

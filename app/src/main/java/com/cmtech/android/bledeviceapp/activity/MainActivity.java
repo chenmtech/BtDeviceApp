@@ -350,7 +350,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                             if(deviceType == null) {
                                 throw new IllegalStateException("The device type is not supported.");
                             }
-                            drawable = ContextCompat.getDrawable(this, deviceType.getDefaultImageId());
+                            drawable = ContextCompat.getDrawable(this, deviceType.getDefaultIcon());
                         } else {
                             drawable = new BitmapDrawable(getResources(), device.getImagePath());
                         }
@@ -567,7 +567,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 if(deviceType == null) {
                     throw new IllegalStateException("The device type is not supported.");
                 }
-                drawable = ContextCompat.getDrawable(this, deviceType.getDefaultImageId());
+                drawable = ContextCompat.getDrawable(this, deviceType.getDefaultIcon());
             } else {
                 drawable = new BitmapDrawable(getResources(), device.getImagePath());
             }
@@ -576,7 +576,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 if(deviceType == null) {
                     throw new IllegalStateException("The device type is not supported.");
                 }
-                drawable = ContextCompat.getDrawable(this, deviceType.getDefaultImageId());
+                drawable = ContextCompat.getDrawable(this, deviceType.getDefaultIcon());
             }
             fragTabManager.openFragment(factory.createFragment(), drawable, device.getName());
             updateMainLayout(device);

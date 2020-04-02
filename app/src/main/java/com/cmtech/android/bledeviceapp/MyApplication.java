@@ -13,12 +13,16 @@ import com.cmtech.android.bledevice.hrmonitor.model.HRMonitorFactory;
 import com.cmtech.android.bledevice.siggenerator.model.SigGeneratorFactory;
 import com.cmtech.android.bledevice.temphumid.model.TempHumidFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
+import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.util.SystemTTS;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 import com.vise.log.inner.LogcatTree;
 
 import org.litepal.LitePal;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.RECONNECT_INTERVAL;
 
@@ -44,16 +48,9 @@ public class MyApplication extends Application {
         // configure the BLE library
         BleConfig.setReconnInterval(RECONNECT_INTERVAL);
 
-        // configure the supported device
-        DeviceConfig.addSupportedDeviceType(EcgFactory.ECG_DEVICE_TYPE);
-        DeviceConfig.addSupportedDeviceType(TempHumidFactory.THM_DEVICE_TYPE);
-        DeviceConfig.addSupportedDeviceType(ThermoFactory.THERMO_DEVICE_TYPE);
-        DeviceConfig.addSupportedDeviceType(SigGeneratorFactory.SGG_DEVICE_TYPE);
-        DeviceConfig.addSupportedDeviceType(WebEcgFactory.ECGWEBMONITOR_DEVICE_TYPE);
-        DeviceConfig.addSupportedDeviceType(HRMonitorFactory.HRM_DEVICE_TYPE);
-
         // init MobSDK
         MobSDK.init(getApplicationContext(), "2865551f849a2", "4e4d54b3cba5472505b5f251419ba502");
+
         // init ViseLog
         ViseLog.getLogConfig()
                 .configAllowLog(true)           //是否输出日志

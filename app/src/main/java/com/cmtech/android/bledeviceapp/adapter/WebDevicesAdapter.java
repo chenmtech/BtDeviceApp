@@ -82,7 +82,7 @@ public class WebDevicesAdapter extends RecyclerView.Adapter<WebDevicesAdapter.Vi
         } else {
             DeviceType type = DeviceType.getFromUuid(device.getUuidString());
             if(type == null) return;
-            Glide.with(MyApplication.getContext()).load(type.getDefaultImageId()).into(holder.deviceImage);
+            Glide.with(MyApplication.getContext()).load(type.getDefaultIcon()).into(holder.deviceImage);
         }
 
         holder.deviceName.setText(device.getName());

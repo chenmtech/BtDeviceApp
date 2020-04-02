@@ -81,7 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
         etName = findViewById(R.id.et_device_nickname);
         String deviceName = registerInfo.getName();
         if("".equals(deviceName)) {
-            deviceName = type.getDefaultNickname();
+            deviceName = type.getDefaultName();
         }
         etName.setText(deviceName);
 
@@ -89,7 +89,7 @@ public class RegisterActivity extends AppCompatActivity {
         ivImage = findViewById(R.id.iv_tab_image);
         cacheImagePath = registerInfo.getIcon();
         if("".equals(cacheImagePath)) {
-            int defaultImageId = type.getDefaultImageId();
+            int defaultImageId = type.getDefaultIcon();
             Glide.with(this).load(defaultImageId).into(ivImage);
         } else {
             // 注意不要从缓存显示图像
@@ -246,9 +246,9 @@ public class RegisterActivity extends AppCompatActivity {
     private void restoreDefaultSetup() {
         DeviceType type = DeviceType.getFromUuid(registerInfo.getUuid());
         if(type != null) {
-            etName.setText(type.getDefaultNickname());
+            etName.setText(type.getDefaultName());
             cacheImagePath = DEFAULT_DEVICE_ICON;
-            Glide.with(this).load(type.getDefaultImageId()).into(ivImage);
+            Glide.with(this).load(type.getDefaultIcon()).into(ivImage);
             cbIsAutoconnect.setChecked(DEFAULT_DEVICE_AUTO_CONNECT);
         }
     }
