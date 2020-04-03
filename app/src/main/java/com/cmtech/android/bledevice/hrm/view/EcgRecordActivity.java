@@ -44,7 +44,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ecg_record);
+        setContentView(R.layout.activity_record_ecg);
 
         int recordId = getIntent().getIntExtra("record_id", -1);
 
@@ -69,7 +69,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-        tvTimeLength = findViewById(R.id.tv_time_length);
+        tvTimeLength = findViewById(R.id.tv_record_desc);
         int second = record.getRecordSecond();
         tvTimeLength.setText(second+"秒");
 

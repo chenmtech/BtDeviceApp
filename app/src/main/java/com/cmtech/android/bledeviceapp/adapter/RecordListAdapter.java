@@ -52,7 +52,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         TextView tvCreateTime; // 创建时间
         TextView tvCreator; // 创建人
-        TextView tvTimeLength; // record time length, unit: s
+        TextView tvRecordDesc; // record description
         TextView tvAddress;
         ImageView ivType;
         ImageButton ibDelete;
@@ -62,7 +62,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             fileView = itemView;
             tvCreateTime = fileView.findViewById(R.id.tv_create_time);
             tvCreator = fileView.findViewById(R.id.tv_creator);
-            tvTimeLength = fileView.findViewById(R.id.tv_time_length);
+            tvRecordDesc = fileView.findViewById(R.id.tv_record_desc);
             tvAddress = fileView.findViewById(R.id.tv_device_address);
             ivType = fileView.findViewById(R.id.iv_record_type);
             ibDelete = fileView.findViewById(R.id.ib_delete);
@@ -74,7 +74,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         TextView tvCreateTime; // 创建时间
         TextView tvCreator; // 创建人
-        TextView tvTimeLength; // record time length, unit: s
+        TextView tvRecordDesc; // record
         TextView tvAddress;
         ImageView ivType; // record type
         ImageButton ibDelete;
@@ -84,7 +84,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             fileView = itemView;
             tvCreateTime = fileView.findViewById(R.id.tv_create_time);
             tvCreator = fileView.findViewById(R.id.tv_creator);
-            tvTimeLength = fileView.findViewById(R.id.tv_time_length);
+            tvRecordDesc = fileView.findViewById(R.id.tv_record_desc);
             tvAddress = fileView.findViewById(R.id.tv_device_address);
             ivType = fileView.findViewById(R.id.iv_record_type);
             ibDelete = fileView.findViewById(R.id.ib_delete);
@@ -96,7 +96,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         TextView tvCreateTime; // 创建时间
         TextView tvCreator; // 创建人
-        TextView tvTimeLength;
+        TextView tvRecordDesc;
         TextView tvAddress;
         ImageView ivType; // record type
         ImageButton ibDelete;
@@ -106,7 +106,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             fileView = itemView;
             tvCreateTime = fileView.findViewById(R.id.tv_create_time);
             tvCreator = fileView.findViewById(R.id.tv_creator);
-            tvTimeLength = fileView.findViewById(R.id.tv_time_length);
+            tvRecordDesc = fileView.findViewById(R.id.tv_record_desc);
             tvAddress = fileView.findViewById(R.id.tv_device_address);
             ivType = fileView.findViewById(R.id.iv_record_type);
             ibDelete = fileView.findViewById(R.id.ib_delete);
@@ -225,7 +225,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             hrHolder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
             int time = (record.getRecordSecond() <= 60) ? 1 : record.getRecordSecond()/60;
-            hrHolder.tvTimeLength.setText(time+"分钟");
+            hrHolder.tvRecordDesc.setText("时长约"+time+"分钟");
             hrHolder.tvAddress.setText(record.getDevAddress());
 
             if(position == selPos) {
@@ -250,7 +250,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
             ecgHolder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-            ecgHolder.tvTimeLength.setText(record.getRecordSecond()+"秒");
+            ecgHolder.tvRecordDesc.setText("时长约"+record.getRecordSecond()+"秒");
 
             ecgHolder.tvAddress.setText(record.getDevAddress());
 
@@ -267,7 +267,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             BleThermoRecord10 record = (BleThermoRecord10) allRecords.get(position);
 
             if(record == null) return;
-            thermoHolder.ivType.setImageResource(R.mipmap.ic_hr_24px);
+            thermoHolder.ivType.setImageResource(R.mipmap.ic_thermo_24px);
 
             String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
             thermoHolder.tvCreateTime.setText(createTime);
@@ -276,7 +276,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
             thermoHolder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-            thermoHolder.tvTimeLength.setText((int)record.getHighestTemp());
+            thermoHolder.tvRecordDesc.setText("体温"+record.getHighestTemp());
             thermoHolder.tvAddress.setText(record.getDevAddress());
 
             if(position == selPos) {
@@ -295,9 +295,10 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return TYPE_HR;
         } else if (record instanceof BleEcgRecord10) {
             return TYPE_ECG;
-        } else {
+        } else if (record instanceof BleThermoRecord10){
             return TYPE_THERMO;
         }
+        return 10;
     }
 
     @Override

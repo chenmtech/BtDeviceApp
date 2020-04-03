@@ -102,7 +102,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     public void deleteRecord(final IRecord record) {
         if(record != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("删除心率记录").setMessage("确定删除该心率记录吗？");
+            builder.setTitle("删除记录").setMessage("确定删除该记录吗？");
 
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
@@ -114,6 +114,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         LitePal.delete(BleHrRecord10.class, record.getId());
                     } else if(record instanceof BleEcgRecord10) {
                         LitePal.delete(BleEcgRecord10.class, record.getId());
+                    } else if(record instanceof BleThermoRecord10) {
+                        LitePal.delete(BleThermoRecord10.class, record.getId());
                     }
                 }
             }).setNegativeButton("取消", new DialogInterface.OnClickListener() {

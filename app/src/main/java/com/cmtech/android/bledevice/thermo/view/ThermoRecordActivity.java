@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.hrm.view;
+package com.cmtech.android.bledevice.thermo.view;
 
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.hrm.view.HrHistogramChart;
+import com.cmtech.android.bledevice.hrm.view.HrLineChart;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
@@ -18,7 +20,19 @@ import org.litepal.LitePal;
 import static com.cmtech.android.bledevice.hrm.model.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
 import static com.cmtech.android.bledeviceapp.activity.LoginActivity.PLATFORM_NAME_ICON_PAIR;
 
-public class HrRecordActivity extends AppCompatActivity {
+/**
+ * ProjectName:    BtDeviceApp
+ * Package:        com.cmtech.android.bledevice.thermo.view
+ * ClassName:      ThermoRecordActivity
+ * Description:    java类作用描述
+ * Author:         作者名
+ * CreateDate:     2020/4/3 下午5:35
+ * UpdateUser:     更新者
+ * UpdateDate:     2020/4/3 下午5:35
+ * UpdateRemark:   更新说明
+ * Version:        1.0
+ */
+public class ThermoRecordActivity extends AppCompatActivity {
     private BleHrRecord10 record;
     private TextView tvCreateTime; // 创建时间
     private TextView tvCreator; // 创建人
@@ -34,7 +48,7 @@ public class HrRecordActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record_hr);
+        setContentView(R.layout.activity_record_thermo);
 
         int recordId = getIntent().getIntExtra("record_id", -1);
 

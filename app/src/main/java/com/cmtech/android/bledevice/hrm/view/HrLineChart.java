@@ -24,6 +24,8 @@ import static com.cmtech.android.bledevice.hrm.model.BleHrRecord10.HR_MOVE_AVERA
 
 
 public class HrLineChart extends LineChart {
+    private static final int DEFAULT_X_VALUE_INTERVAL = 10;
+
     public HrLineChart(Context context) {
         super(context);
         initialize();
@@ -37,6 +39,16 @@ public class HrLineChart extends LineChart {
     public HrLineChart(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initialize();
+    }
+
+    public void setXAxisValueFormatter(final int interval) {
+        XAxis xAxis = getXAxis();
+        xAxis.setValueFormatter(new IAxisValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, AxisBase axis) {
+                return DateTimeUtil.secToTime((int)value * interval);
+            }
+        });
     }
 
     private void initialize() {
@@ -65,7 +77,7 @@ public class HrLineChart extends LineChart {
         xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
-                return DateTimeUtil.secToTime((int)value* HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
+                return DateTimeUtil.secToTime((int)value* DEFAULT_X_VALUE_INTERVAL);
             }
         });
 

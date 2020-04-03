@@ -78,6 +78,7 @@
         <activity android:name=".activity.RecordExplorerActivity" />
         <activity android:name="com.cmtech.android.bledevice.hrm.view.HrRecordActivity" />
         <activity android:name="com.cmtech.android.bledevice.hrm.view.EcgRecordActivity" />
+        <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity"/>
 
         <service
             android:name=".model.NotifyService"

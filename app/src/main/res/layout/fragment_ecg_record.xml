@@ -24,7 +24,7 @@
             android:textSize="20dp"/>
 
         <TextView
-            android:id="@+id/tv_time_length"
+            android:id="@+id/tv_record_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="__"
