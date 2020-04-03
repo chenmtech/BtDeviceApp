@@ -67,8 +67,8 @@ public class ThermoRecordActivity extends AppCompatActivity {
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-        tvRecordDesc = findViewById(R.id.tv_record_desc);
-        tvRecordDesc.setText("体温"+record.getHighestTemp());
+        tvRecordDesc = findViewById(R.id.tv_desc);
+        tvRecordDesc.setText(record.getDesc());
 
         tvAddress = findViewById(R.id.tv_device_address);
         tvAddress.setText(record.getDevAddress());

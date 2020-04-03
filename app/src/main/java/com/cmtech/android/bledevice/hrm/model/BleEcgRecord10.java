@@ -48,6 +48,11 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         ecgList = new ArrayList<>();
     }
 
+    @Override
+    public String getDesc() {
+        return "时长约"+getRecordSecond()+"秒";
+    }
+
     public List<Short> getEcgList() {
         return ecgList;
     }

@@ -64,6 +64,12 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         recordSecond = 0;
     }
 
+    @Override
+    public String getDesc() {
+        int time = (getRecordSecond() <= 60) ? 1 : getRecordSecond()/60;
+        return "时长约"+time+"分钟";
+    }
+
     public List<Short> getFilterHrList() {
         return filterHrList;
     }

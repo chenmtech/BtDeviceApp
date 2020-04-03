@@ -69,9 +69,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-        tvTimeLength = findViewById(R.id.tv_record_desc);
-        int second = record.getRecordSecond();
-        tvTimeLength.setText("时长约"+second+"秒");
+        tvTimeLength = findViewById(R.id.tv_desc);
+        tvTimeLength.setText(record.getDesc());
 
         tvAddress = findViewById(R.id.tv_device_address);
         tvAddress.setText(record.getDevAddress());
@@ -111,6 +110,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             }
         });
 
+        int second = record.getRecordSecond();
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));
         tvTotalTime.setText(DateTimeUtil.secToTime(second));
         sbReplay.setMax(second);

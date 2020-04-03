@@ -32,6 +32,11 @@ public class BleThermoRecord10 extends AbstractRecord {
         temp = new ArrayList<>();
     }
 
+    @Override
+    public String getDesc() {
+        return "体温"+getHighestTemp();
+    }
+
     public List<Float> getTemp() {
         return temp;
     }

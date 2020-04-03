@@ -74,7 +74,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
 
     @Override
     public String toString() {
-        return createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId;
+        return createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + getDesc();
     }
 
     @Override

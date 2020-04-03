@@ -19,4 +19,5 @@ public interface IRecord {
     public String getRecordName() ;
     public String getCreatorPlat();
     public String getCreatorName();
+    public String getDesc();
 }
