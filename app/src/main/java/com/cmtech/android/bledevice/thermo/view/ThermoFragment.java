@@ -30,13 +30,13 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
     private TextView tvCurrentTemp;
     private TextView tvHightestTemp;
     private TextView tvStatus;
-    private Button btnReset;
     private EditText etSensLoc;
     private EditText etInterval;
 
-    private ThermoDevice device;
+    private Button btnReset;
+    private Button btnRecord;
 
-    private float highestTemp = 0.0f;
+    private ThermoDevice device;
 
     public ThermoFragment() {
         super();
@@ -59,15 +59,23 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
         tvCurrentTemp = view.findViewById(R.id.tv_current_temp);
         tvHightestTemp = view.findViewById(R.id.tv_highest_temp);
         tvStatus = view.findViewById(R.id.tv_thermo_status);
-        btnReset = view.findViewById(R.id.btn_thermo_reset);
         etSensLoc = view.findViewById(R.id.et_sens_loc);
         etInterval = view.findViewById(R.id.et_meas_interval);
 
+        btnReset = view.findViewById(R.id.btn_thermo_reset);
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ViseLog.e("重新开始" + highestTemp);
-                updateHighestTemp(0.0f);
+                device.restart();
+            }
+        });
+
+        btnRecord = view.findViewById(R.id.btn_record);
+        btnRecord.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(device != null)
+                    device.setRecord(!device.isRecord());
             }
         });
 
@@ -88,12 +96,12 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
         super.onDestroy();
 
         if(device != null) {
-            device.removeListener(this);
+            device.removeListener();
         }
     }
 
     @Override
-    public void onTemperatureUpdated(final float temp) {
+    public void onTempUpdated(final float temp) {
         if(getActivity() == null) return;
 
         getActivity().runOnUiThread(new Runnable() {
@@ -106,15 +114,17 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
                     String str = String.format(Locale.getDefault(), "%.2f", temp);
                     tvCurrentTemp.setText(str);
                 }
-
-                if(highestTemp <= temp)
-                    updateHighestTemp(temp);
             }
         });
     }
 
     @Override
-    public void onTemperatureTypeUpdated(final byte type) {
+    public void onHighestTempUpdated(float highestTemp) {
+        updateHighestTemp(highestTemp);
+    }
+
+    @Override
+    public void onTempTypeUpdated(final byte type) {
         if(getActivity() == null) return;
 
         getActivity().runOnUiThread(new Runnable() {
@@ -137,9 +147,16 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
         });
     }
 
-    private void updateHighestTemp(float temp) {
-        highestTemp = temp;
+    @Override
+    public void onRecordStatusUpdated(boolean isRecord) {
+        if(isRecord) {
+            btnRecord.setText("停止记录");
+        } else {
+            btnRecord.setText("开始记录");
+        }
+    }
 
+    private void updateHighestTemp(float highestTemp) {
         if(highestTemp < 33.00) {
             tvHightestTemp.setText(LOW_33);
         }

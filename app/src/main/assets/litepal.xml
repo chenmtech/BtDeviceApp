@@ -3,7 +3,7 @@
 <litepal>
     <dbname value = "BtDeviceApp"/>
 
-    <version value="31"/>
+    <version value="32"/>
 
     <list>
         <mapping class="com.cmtech.android.bledeviceapp.model.Account"/>
@@ -19,5 +19,7 @@
         <mapping class="com.cmtech.android.bledevice.hrm.model.BleEcgRecord10"/>
 
         <mapping class="com.cmtech.android.bledevice.thm.model.TempHumidHistoryData"/>
+
+        <mapping class="com.cmtech.android.bledevice.thermo.model.BleThermoRecord10"/>
     </list>
 </litepal>

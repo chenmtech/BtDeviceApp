@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -53,7 +54,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         TextView tvCreator; // 创建人
         TextView tvTimeLength; // record time length, unit: s
         TextView tvAddress;
-        ImageView ivRecordType;
+        ImageView ivType;
         ImageButton ibDelete;
 
         HrViewHolder(View itemView) {
@@ -63,7 +64,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tvCreator = fileView.findViewById(R.id.tv_creator);
             tvTimeLength = fileView.findViewById(R.id.tv_time_length);
             tvAddress = fileView.findViewById(R.id.tv_device_address);
-            ivRecordType = fileView.findViewById(R.id.iv_record_type);
+            ivType = fileView.findViewById(R.id.iv_record_type);
             ibDelete = fileView.findViewById(R.id.ib_delete);
         }
     }
@@ -75,7 +76,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         TextView tvCreator; // 创建人
         TextView tvTimeLength; // record time length, unit: s
         TextView tvAddress;
-        ImageView ivRecordType; // record type
+        ImageView ivType; // record type
         ImageButton ibDelete;
 
         EcgViewHolder(View itemView) {
@@ -85,7 +86,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             tvCreator = fileView.findViewById(R.id.tv_creator);
             tvTimeLength = fileView.findViewById(R.id.tv_time_length);
             tvAddress = fileView.findViewById(R.id.tv_device_address);
-            ivRecordType = fileView.findViewById(R.id.iv_record_type);
+            ivType = fileView.findViewById(R.id.iv_record_type);
             ibDelete = fileView.findViewById(R.id.ib_delete);
         }
     }
@@ -95,8 +96,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         TextView tvCreateTime; // 创建时间
         TextView tvCreator; // 创建人
+        TextView tvTimeLength;
         TextView tvAddress;
-        ImageView ivRecordType; // record type
+        ImageView ivType; // record type
         ImageButton ibDelete;
 
         ThermoViewHolder(View itemView) {
@@ -104,8 +106,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             fileView = itemView;
             tvCreateTime = fileView.findViewById(R.id.tv_create_time);
             tvCreator = fileView.findViewById(R.id.tv_creator);
+            tvTimeLength = fileView.findViewById(R.id.tv_time_length);
             tvAddress = fileView.findViewById(R.id.tv_device_address);
-            ivRecordType = fileView.findViewById(R.id.iv_record_type);
+            ivType = fileView.findViewById(R.id.iv_record_type);
             ibDelete = fileView.findViewById(R.id.ib_delete);
         }
     }
@@ -175,8 +178,31 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         if (viewType == TYPE_THERMO) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record_ecg, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record_thermo, parent, false);
             final ThermoViewHolder holder = new ThermoViewHolder(view);
+
+            defaultBg = holder.fileView.getBackground();
+
+            holder.fileView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int prePos = selPos;
+                    selPos = holder.getAdapterPosition();
+                    if(prePos >= 0 && prePos < allRecords.size()) {
+                        notifyItemChanged(prePos);
+                    }
+                    notifyItemChanged(selPos);
+                    activity.selectRecord(allRecords.get(selPos));
+                }
+            });
+
+            holder.ibDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    activity.deleteRecord(allRecords.get(holder.getAdapterPosition()));
+                }
+            });
+
             return holder;
         }
         return null;
@@ -189,7 +215,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             BleHrRecord10 record = (BleHrRecord10) allRecords.get(position);
 
             if(record == null) return;
-            hrHolder.ivRecordType.setImageResource(R.mipmap.ic_hr_24px);
+            hrHolder.ivType.setImageResource(R.mipmap.ic_hr_24px);
 
             String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
             hrHolder.tvCreateTime.setText(createTime);
@@ -215,7 +241,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             BleEcgRecord10 record = (BleEcgRecord10) allRecords.get(position);
             if(record == null) return;
 
-            ecgHolder.ivRecordType.setImageResource(R.mipmap.ic_ecg_24px);
+            ecgHolder.ivType.setImageResource(R.mipmap.ic_ecg_24px);
 
             String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
             ecgHolder.tvCreateTime.setText(createTime);
@@ -237,7 +263,28 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         if(holder instanceof ThermoViewHolder) {
+            ThermoViewHolder hrHolder = (ThermoViewHolder) holder;
+            BleThermoRecord10 record = (BleThermoRecord10) allRecords.get(position);
 
+            if(record == null) return;
+            hrHolder.ivType.setImageResource(R.mipmap.ic_hr_24px);
+
+            String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
+            hrHolder.tvCreateTime.setText(createTime);
+            hrHolder.tvCreator.setText(record.getCreatorName());
+            Drawable drawable = ContextCompat.getDrawable(activity, PLATFORM_NAME_ICON_PAIR.get(record.getCreatorPlat()));
+            drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
+            hrHolder.tvCreator.setCompoundDrawables(null, drawable, null, null);
+
+            hrHolder.tvTimeLength.setText((int)record.getHighestTemp());
+            hrHolder.tvAddress.setText(record.getDevAddress());
+
+            if(position == selPos) {
+                int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
+                hrHolder.fileView.setBackgroundColor(bgdColor);
+            } else {
+                hrHolder.fileView.setBackground(defaultBg);
+            }
         }
     }
 

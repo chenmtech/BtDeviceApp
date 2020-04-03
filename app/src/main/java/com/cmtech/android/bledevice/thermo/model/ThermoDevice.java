@@ -7,12 +7,13 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.vise.log.ViseLog;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
@@ -50,7 +51,11 @@ public class ThermoDevice extends AbstractDevice {
 
     private static final short DEFAULT_MEAS_INTERVAL = 2;
 
-    private final List<OnThermoDeviceListener> thermoListeners = new LinkedList<>();
+    private OnThermoDeviceListener listener;
+
+    private float highestTemp = 0.0f;
+    private BleThermoRecord10 record;
+    private boolean isRecord = false;
 
     public ThermoDevice(DeviceInfo registerInfo) {
         super(registerInfo);
@@ -69,10 +74,8 @@ public class ThermoDevice extends AbstractDevice {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
                     ViseLog.e("The temperature type is " + data[0]);
-                    for(final OnThermoDeviceListener listener : thermoListeners) {
-                        if(listener != null)
-                            listener.onTemperatureTypeUpdated(data[0]);
-                    }
+                    if(listener != null)
+                        listener.onTempTypeUpdated(data[0]);
                 }
 
                 @Override
@@ -89,10 +92,8 @@ public class ThermoDevice extends AbstractDevice {
                 public void onSuccess(byte[] data, BleGattElement element) {
                     int interval = ByteUtil.getShort(data);
                     ViseLog.e("The measurement interval data is " + data[0] + " " + data[1] + Arrays.toString(data));
-                    for(final OnThermoDeviceListener listener : thermoListeners) {
-                        if(listener != null)
-                            listener.onMeasIntervalUpdated(interval);
-                    }
+                    if(listener != null)
+                        listener.onMeasIntervalUpdated(interval);
                 }
 
                 @Override
@@ -117,19 +118,40 @@ public class ThermoDevice extends AbstractDevice {
 
     }
 
-    // 登记体温数据观察者
-    public void registerListener(OnThermoDeviceListener listener) {
-        if(!thermoListeners.contains(listener)) {
-            thermoListeners.add(listener);
+    public void restart() {
+        highestTemp = 0.0f;
+    }
+
+    public boolean isRecord() {
+        return isRecord;
+    }
+
+    public void setRecord(boolean isRecord) {
+        if(this.isRecord == isRecord) return;
+
+        if(isRecord) {
+            record = BleThermoRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
+        } else {
+            if(record != null) {
+                record.setCreateTime(new Date().getTime());
+                record.save();
+                record = null;
+            }
+        }
+        this.isRecord = isRecord;
+        if(listener != null) {
+            listener.onRecordStatusUpdated(isRecord);
         }
     }
 
+    // 登记体温数据观察者
+    public void registerListener(OnThermoDeviceListener listener) {
+        this.listener = listener;
+    }
+
     // 删除体温数据观察者
-    public void removeListener(OnThermoDeviceListener listener) {
-        int index = thermoListeners.indexOf(listener);
-        if(index >= 0) {
-            thermoListeners.remove(index);
-        }
+    public void removeListener() {
+        this.listener = null;
     }
 
     private void startTempMeasurement() {
@@ -139,9 +161,20 @@ public class ThermoDevice extends AbstractDevice {
                 byte[] tempArr = new byte[]{data[1],data[2],data[3],data[4]};
                 float temp = ByteUtil.getFloat(tempArr);
                 ViseLog.e("The temperature data is " + Arrays.toString(data) + "temp = " + temp);
-                for(final OnThermoDeviceListener listener : thermoListeners) {
+                if(listener != null) {
+                    listener.onTempUpdated(temp);
+
+                }
+                if(isRecord && record != null) {
+                    record.addTemp(temp);
+                }
+                if(highestTemp < temp) {
+                    highestTemp = temp;
                     if(listener != null)
-                        listener.onTemperatureUpdated(temp);
+                        listener.onHighestTempUpdated(highestTemp);
+                    if(isRecord && record != null) {
+                        record.setHighestTemp(highestTemp);
+                    }
                 }
             }
 
@@ -152,5 +185,4 @@ public class ThermoDevice extends AbstractDevice {
         };
         ((BleConnector)connector).indicate(THERMOTEMPCCC, true, indicateCallback);
     }
-
 }
