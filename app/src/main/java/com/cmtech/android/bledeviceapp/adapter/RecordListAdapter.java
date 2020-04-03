@@ -263,27 +263,27 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         if(holder instanceof ThermoViewHolder) {
-            ThermoViewHolder hrHolder = (ThermoViewHolder) holder;
+            ThermoViewHolder thermoHolder = (ThermoViewHolder) holder;
             BleThermoRecord10 record = (BleThermoRecord10) allRecords.get(position);
 
             if(record == null) return;
-            hrHolder.ivType.setImageResource(R.mipmap.ic_hr_24px);
+            thermoHolder.ivType.setImageResource(R.mipmap.ic_hr_24px);
 
             String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
-            hrHolder.tvCreateTime.setText(createTime);
-            hrHolder.tvCreator.setText(record.getCreatorName());
+            thermoHolder.tvCreateTime.setText(createTime);
+            thermoHolder.tvCreator.setText(record.getCreatorName());
             Drawable drawable = ContextCompat.getDrawable(activity, PLATFORM_NAME_ICON_PAIR.get(record.getCreatorPlat()));
             drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
-            hrHolder.tvCreator.setCompoundDrawables(null, drawable, null, null);
+            thermoHolder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
-            hrHolder.tvTimeLength.setText((int)record.getHighestTemp());
-            hrHolder.tvAddress.setText(record.getDevAddress());
+            thermoHolder.tvTimeLength.setText((int)record.getHighestTemp());
+            thermoHolder.tvAddress.setText(record.getDevAddress());
 
             if(position == selPos) {
                 int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
-                hrHolder.fileView.setBackgroundColor(bgdColor);
+                thermoHolder.fileView.setBackgroundColor(bgdColor);
             } else {
-                hrHolder.fileView.setBackground(defaultBg);
+                thermoHolder.fileView.setBackground(defaultBg);
             }
         }
     }

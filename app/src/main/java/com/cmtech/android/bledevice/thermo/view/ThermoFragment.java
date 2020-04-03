@@ -119,8 +119,13 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
     }
 
     @Override
-    public void onHighestTempUpdated(float highestTemp) {
-        updateHighestTemp(highestTemp);
+    public void onHighestTempUpdated(final float highestTemp) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                updateHighestTemp(highestTemp);
+            }
+        });
     }
 
     @Override
@@ -148,12 +153,17 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
     }
 
     @Override
-    public void onRecordStatusUpdated(boolean isRecord) {
-        if(isRecord) {
-            btnRecord.setText("停止记录");
-        } else {
-            btnRecord.setText("开始记录");
-        }
+    public void onRecordStatusUpdated(final boolean isRecord) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(isRecord) {
+                    btnRecord.setText("停止记录");
+                } else {
+                    btnRecord.setText("开始记录");
+                }
+            }
+        });
     }
 
     private void updateHighestTemp(float highestTemp) {

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
@@ -71,6 +72,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
         allRecords.addAll(hrRecords);
         List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleEcgRecord10.class);
         allRecords.addAll(ecgRecords);
+        List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp").find(BleThermoRecord10.class);
+        allRecords.addAll(thermoRecords);
         Collections.sort(allRecords, new Comparator<IRecord>() {
             @Override
             public int compare(IRecord o1, IRecord o2) {
