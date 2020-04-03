@@ -32,6 +32,10 @@ public class BleThermoRecord10 extends AbstractRecord {
         temp = new ArrayList<>();
     }
 
+    public List<Float> getTemp() {
+        return temp;
+    }
+
     public float getHighestTemp() {
         return highestTemp;
     }
@@ -61,5 +65,10 @@ public class BleThermoRecord10 extends AbstractRecord {
         record.highestTemp = 0.0f;
         record.temp = new ArrayList<>();
         return record;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "-" + highestTemp + "-" + temp;
     }
 }

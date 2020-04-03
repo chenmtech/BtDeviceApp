@@ -71,7 +71,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
         tvTimeLength = findViewById(R.id.tv_record_desc);
         int second = record.getRecordSecond();
-        tvTimeLength.setText(second+"秒");
+        tvTimeLength.setText("时长约"+second+"秒");
 
         tvAddress = findViewById(R.id.tv_device_address);
         tvAddress.setText(record.getDevAddress());

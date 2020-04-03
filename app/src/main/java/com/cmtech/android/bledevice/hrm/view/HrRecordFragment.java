@@ -80,7 +80,7 @@ public class HrRecordFragment extends Fragment {
             tvHrAve.setText("__");
         else
             tvHrAve.setText(String.valueOf(hrAve));
-        hrLineChart.showLineChart(hrList, TITLE, Color.BLUE);
+        hrLineChart.showShortLineChart(hrList, TITLE, Color.BLUE);
     }
 
     public void updateHrRecordStatus(boolean isRecord) {

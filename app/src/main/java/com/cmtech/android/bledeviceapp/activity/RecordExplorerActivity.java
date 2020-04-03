@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
+import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
@@ -92,6 +93,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
             intent = new Intent(this, HrRecordActivity.class);
         } else if(record instanceof BleEcgRecord10) {
             intent = new Intent(this, EcgRecordActivity.class);
+        } else if(record instanceof BleThermoRecord10) {
+            intent = new Intent(this, ThermoRecordActivity.class);
         }
         if(intent != null) {
             intent.putExtra("record_id", record.getId());

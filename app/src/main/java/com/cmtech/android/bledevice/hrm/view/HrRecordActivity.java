@@ -62,14 +62,14 @@ public class HrRecordActivity extends AppCompatActivity {
 
         tvTimeLength = findViewById(R.id.tv_record_desc);
         int time = (record.getRecordSecond() <= 60) ? 1 : record.getRecordSecond()/60;
-        tvTimeLength.setText(time+"分钟");
+        tvTimeLength.setText("时长约"+time+"分钟");
 
         tvAddress = findViewById(R.id.tv_device_address);
         tvAddress.setText(record.getDevAddress());
 
         hrLineChart = findViewById(R.id.hr_line_chart);
         hrLineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
-        hrLineChart.showLineChart(record.getFilterHrList(), "心率变化", Color.BLUE);
+        hrLineChart.showShortLineChart(record.getFilterHrList(), "心率变化", Color.BLUE);
 
         hrHistChart = findViewById(R.id.chart_hr_histogram);
         tvAveHr = findViewById(R.id.tv_hr_ave_value);
