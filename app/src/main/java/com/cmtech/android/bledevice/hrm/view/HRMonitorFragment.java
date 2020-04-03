@@ -98,7 +98,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         tvEcgSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(device != null) {
+                if(device != null && device.getState() == DeviceState.CONNECT) {
                     device.setEcgOn(!isEcgOn);
                 }
             }

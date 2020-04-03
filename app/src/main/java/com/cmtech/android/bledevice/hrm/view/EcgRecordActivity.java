@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -35,6 +37,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private TextView tvCurrentTime; // 当前播放信号的时刻
     private SeekBar sbReplay; // 播放条
     private ImageButton btnReplayCtrl; // 转换播放状态
+
+    private EditText etNote;
+    private Button btnSave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +114,26 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvCurrentTime.setText(DateTimeUtil.secToTime(0));
         tvTotalTime.setText(DateTimeUtil.secToTime(second));
         sbReplay.setMax(second);
+
+        etNote = findViewById(R.id.et_note);
+        etNote.setText(record.getNote());
+        etNote.setEnabled(false);
+        btnSave = findViewById(R.id.btn_save);
+        btnSave.setText("编辑");
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(etNote.isEnabled()) {
+                    record.setNote(etNote.getText().toString());
+                    record.save();
+                    etNote.setEnabled(false);
+                    btnSave.setText("编辑");
+                } else {
+                    etNote.setEnabled(true);
+                    btnSave.setText("保存");
+                }
+            }
+        });
 
         signalView.startShow();
     }

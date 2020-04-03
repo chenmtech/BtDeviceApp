@@ -21,6 +21,7 @@ import com.vise.log.ViseLog;
 import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -150,6 +151,7 @@ public class HRMonitorDevice extends AbstractDevice {
                 if (hrRecord.getFilterHrList().size() < 6) {
                     MyApplication.showMessageUsingShortToast("记录太短，未保存。");
                 } else {
+                    hrRecord.setCreateTime(new Date().getTime());
                     hrRecord.save();
                     MyApplication.showMessageUsingShortToast("心率记录已保存。");
                     ViseLog.e(hrRecord.toString());
@@ -189,6 +191,7 @@ public class HRMonitorDevice extends AbstractDevice {
                         listener.onEcgSignalRecorded(false);
                     }
                 } else {
+                    ecgRecord.setCreateTime(new Date().getTime());
                     ecgRecord.saveAsync().listen(new SaveCallback() {
                         @Override
                         public void onFinish(boolean success) {

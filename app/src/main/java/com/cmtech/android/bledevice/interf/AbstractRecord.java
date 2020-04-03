@@ -5,6 +5,8 @@ import com.cmtech.android.bledeviceapp.model.Account;
 import org.litepal.LitePal;
 import org.litepal.crud.LitePalSupport;
 
+import java.util.Date;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.interf

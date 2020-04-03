@@ -29,6 +29,7 @@ public class EcgRecordFragment extends Fragment {
 
     ImageButton ibRecord;
     TextView tvTimeLength;
+    TextView tvRecordStatus;
 
     boolean isRecord = false;
 
@@ -52,13 +53,17 @@ public class EcgRecordFragment extends Fragment {
         });
 
         tvTimeLength = view.findViewById(R.id.tv_time_length);
+
+        tvRecordStatus = view.findViewById(R.id.tv_record_status);
     }
 
     public void updateRecordStatus(boolean isRecord) {
         if(isRecord) {
             ibRecord.setImageResource(R.mipmap.ic_stop_48px);
+            tvRecordStatus.setText("已记录：");
         } else {
             ibRecord.setImageResource(R.mipmap.ic_start_48px);
+            tvRecordStatus.setText("已停止：");
         }
         this.isRecord = isRecord;
     }

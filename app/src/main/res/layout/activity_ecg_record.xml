@@ -35,10 +35,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="6dp"
-        android:layout_marginEnd="6dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp">
+        android:layout_margin="4dp">
 
         <ImageButton
             android:id="@+id/ib_replay_control"
@@ -70,4 +67,28 @@
             android:textColor="@color/primary_text"
             android:textSize="12sp"/>
     </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:text="备注："/>
+
+    <EditText
+        android:id="@+id/et_note"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:enabled="false"/>
+
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="编辑"/>
+
+
 </LinearLayout>

@@ -33,6 +33,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     private int caliValue; // 标定值
     private int leadTypeCode; // 导联类型代码
     private int recordSecond; // unit: s
+    private String note;
     private List<Short> ecgList; // list of the filtered HR
     @Column(ignore = true)
     private int pos = 0;
@@ -43,6 +44,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         caliValue = 0;
         leadTypeCode = 0;
         recordSecond = 0;
+        note = "";
         ecgList = new ArrayList<>();
     }
 
@@ -85,6 +87,14 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         return recordSecond;
     }
 
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
     @Override
     public boolean save() {
         recordSecond = ecgList.size()/sampleRate;
@@ -116,11 +126,12 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         record.caliValue = caliValue;
         record.leadTypeCode = leadTypeCode;
         record.recordSecond = 0;
+        record.note = "";
         return record;
     }
 
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + ecgList;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + note + "-" + ecgList;
     }
 }
