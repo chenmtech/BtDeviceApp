@@ -57,7 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
         if(intent != null) {
             registerInfo = (BleDeviceInfo) intent.getSerializableExtra(DEVICE_INFO);
             if(registerInfo == null) {
-                Toast.makeText(this, "设备注册信息无效", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "设备信息无效", Toast.LENGTH_SHORT).show();
                 finish();
                 return;
             }
@@ -69,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
         DeviceType type = DeviceType.getFromUuid(registerInfo.getUuid());
         if(type == null) {
-            Toast.makeText(this, "设备类型未知，无法注册。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "设备类型未知，无法添加。", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }

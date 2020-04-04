@@ -26,30 +26,30 @@ import java.util.List;
  */
 
 public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
-    private final List<BleDeviceDetailInfo> scannedDeviceDetailInfoList; // 扫描到的设备详细信息列表
-    private final List<String> registeredMacList; // 已注册设备Mac地址List
+    private final List<BleDeviceDetailInfo> foundDetailInfos; // 扫描到的设备详细信息列表
+    private final List<String> registeredAddresses; // 已注册设备Mac地址List
     private final ScanActivity activity; // 扫描设备的Activiy
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        View deviceView; // 设备视图
-        TextView deviceName; // 设备名
-        TextView deviceAddress; // 设备mac地址
-        TextView deviceTypeName; // 设备类型名
-        TextView deviceStatus; // 设备状态：是否已经登记
+        View view; // 设备视图
+        TextView name; // 设备名
+        TextView address; // 设备mac地址
+        TextView type; // 设备类型名
+        TextView status; // 设备状态：是否已经登记
 
         ViewHolder(View itemView) {
             super(itemView);
-            deviceView = itemView;
-            deviceName = deviceView.findViewById(R.id.tv_scandevice_name);
-            deviceAddress = deviceView.findViewById(R.id.tv_scandevice_macaddress);
-            deviceTypeName = deviceView.findViewById(R.id.tv_scandevice_type);
-            deviceStatus = deviceView.findViewById(R.id.tv_tab_text);
+            view = itemView;
+            name = view.findViewById(R.id.tv_name);
+            address = view.findViewById(R.id.tv_address);
+            type = view.findViewById(R.id.tv_type);
+            status = view.findViewById(R.id.tv_status);
         }
     }
 
-    public ScanAdapter(List<BleDeviceDetailInfo> scannedDeviceDetailInfoList, List<String> registeredMacList, ScanActivity activity) {
-        this.scannedDeviceDetailInfoList = scannedDeviceDetailInfoList;
-        this.registeredMacList = registeredMacList;
+    public ScanAdapter(List<BleDeviceDetailInfo> foundDetailInfos, List<String> registeredAddresses, ScanActivity activity) {
+        this.foundDetailInfos = foundDetailInfos;
+        this.registeredAddresses = registeredAddresses;
         this.activity = activity;
     }
 
@@ -60,15 +60,15 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
                 .inflate(R.layout.recycle_item_device_scan, parent, false);
         final ViewHolder holder = new ViewHolder(view);
 
-        holder.deviceView.setOnClickListener(new View.OnClickListener() {
+        holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(activity != null) {
-                    BleDeviceDetailInfo detailInfo = scannedDeviceDetailInfoList.get(holder.getAdapterPosition());
+                    BleDeviceDetailInfo detailInfo = foundDetailInfos.get(holder.getAdapterPosition());
                     if(!isRegistered(detailInfo)) {
                         activity.registerDevice(detailInfo);
                     } else {
-                        Toast.makeText(activity, "该设备已注册。", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, "该设备已添加。", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -78,7 +78,7 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ScanAdapter.ViewHolder holder, final int position) {
-        BleDeviceDetailInfo detailInfo = scannedDeviceDetailInfoList.get(position);
+        BleDeviceDetailInfo detailInfo = foundDetailInfos.get(position);
 
         AdRecord serviceUUID = detailInfo.getAdRecordStore().getRecord(AdRecord.BLE_GAP_AD_TYPE_128BIT_SERVICE_UUID_MORE_AVAILABLE);
         byte[] uuidBytes = null;
@@ -93,31 +93,30 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
 
         DeviceType type = null;
         if(uuidBytes != null) {
-            String supportedUUID = HexUtil.encodeHexStr(uuidBytes);
-            type = DeviceType.getFromUuid(supportedUUID);
+            type = DeviceType.getFromUuid(HexUtil.encodeHexStr(uuidBytes));
         }
-        holder.deviceTypeName.setText(String.format("设备类型：%s", (type == null) ? "未知" : type.getDefaultName()));
-        holder.deviceAddress.setText(String.format("设备地址：%s", detailInfo.getAddress()));
-        holder.deviceName.setText(String.format("设备名：%s", detailInfo.getName()));
+        holder.type.setText((type == null) ? "未知" : type.getDefaultName());
+        holder.address.setText(detailInfo.getAddress());
+        holder.name.setText(detailInfo.getName());
         boolean status = isRegistered(detailInfo);
-        TextPaint paint = holder.deviceStatus.getPaint();
+        TextPaint paint = holder.status.getPaint();
         if(status) {
-            holder.deviceStatus.setText("已注册");
+            holder.status.setText("已添加");
             paint.setFlags(paint.getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
-            holder.deviceStatus.setText("未注册");
+            holder.status.setText("未添加");
             paint.setFlags(paint.getFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         }
     }
 
     @Override
     public int getItemCount() {
-        return scannedDeviceDetailInfoList.size();
+        return foundDetailInfos.size();
     }
 
     // 设备是否已经注册过
     private boolean isRegistered(BleDeviceDetailInfo device) {
-        for(String ele : registeredMacList) {
+        for(String ele : registeredAddresses) {
             if(ele.equalsIgnoreCase(device.getAddress())) {
                 return true;
             }

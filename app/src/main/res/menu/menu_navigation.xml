@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group
         android:id="@+id/group1"
         android:checkable="false">
@@ -17,7 +16,8 @@
         <item
             android:id="@+id/nav_open_store"
             android:title="@string/open_store"
-            android:icon="@mipmap/ic_store_32px"/>
+            android:icon="@mipmap/ic_store_32px"
+            android:visible="false"/>
 
         <item
             android:id="@+id/nav_exit"

@@ -43,7 +43,7 @@ public class HrRecordFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_hrm_hr_record, container, false);
+        return inflater.inflate(R.layout.fragment_record_hrm_hr, container, false);
     }
 
     @Override

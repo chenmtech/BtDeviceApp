@@ -9,17 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
-import com.cmtech.android.bledevice.hrm.view.HrmFragment;
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.cmtech.android.bledevice.hrm.model.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
-import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -42,7 +37,7 @@ public class ThermoRecordFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_thermo_temp_record, container, false);
+        return inflater.inflate(R.layout.fragment_record_thermo_temp, container, false);
     }
 
     @Override
