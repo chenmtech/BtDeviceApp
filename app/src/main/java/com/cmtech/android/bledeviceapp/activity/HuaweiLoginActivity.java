@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebView;
@@ -8,8 +7,6 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.Account;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
@@ -19,7 +16,7 @@ public class HuaweiLoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_huwei_login);
+        setContentView(R.layout.activity_login_huawei);
         final WebView webView = findViewById(R.id.wvLoginHuawei);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.requestFocus();

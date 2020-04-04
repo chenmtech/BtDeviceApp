@@ -28,7 +28,7 @@ public class SigGeneratorFragment extends DeviceFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_unknowndevice, container, false);
+        View view = inflater.inflate(R.layout.fragment_device_unknown, container, false);
 
         tvServices = view.findViewById(R.id.tv_device_services);
         tvCharacteristic = view.findViewById(R.id.tv_device_characteristics);

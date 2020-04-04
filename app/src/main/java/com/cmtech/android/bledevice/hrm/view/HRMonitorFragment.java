@@ -75,7 +75,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (HRMonitorDevice) getDevice();
-        return inflater.inflate(R.layout.fragment_hrmonitor, container, false);
+        return inflater.inflate(R.layout.fragment_device_hrm, container, false);
     }
 
     @Override

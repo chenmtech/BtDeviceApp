@@ -73,7 +73,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record_hr, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record, parent, false);
         final ViewHolder holder = new ViewHolder(view);
         defaultBg = holder.fileView.getBackground();
 

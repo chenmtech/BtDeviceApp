@@ -33,7 +33,7 @@ public class HrDebugFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        return inflater.inflate(R.layout.fragment_hr_debug, container, false);
+        return inflater.inflate(R.layout.fragment_hrm_debug, container, false);
     }
 
     @Override

@@ -44,7 +44,7 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_hrm_cfg);
+        setContentView(R.layout.activity_cfg_hrm);
 
         // create ToolBar
         Toolbar toolbar = findViewById(R.id.tb_hrm_cfg);

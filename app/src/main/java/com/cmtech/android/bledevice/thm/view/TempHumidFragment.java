@@ -43,7 +43,7 @@ public class TempHumidFragment extends DeviceFragment implements OnTempHumidDevi
 
         device = (TempHumidDevice) getDevice();
 
-        return inflater.inflate(R.layout.fragment_temphumid, container, false);
+        return inflater.inflate(R.layout.fragment_device_thm, container, false);
     }
 
     @Override

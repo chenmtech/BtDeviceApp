@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.ArrayList;
@@ -35,14 +36,14 @@ public class HrRecordFragment extends Fragment {
     public static final String TITLE = "心率记录";
     private TextView tvHrAve; // average heart rate value
     private TextView tvHrMax; // max heart rate value
-    private HrLineChart hrLineChart; // heart rate line chart
+    private MyLineChart lineChart; // heart rate line chart
     private ImageButton ibStart, ibStop;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_hr_record, container, false);
+        return inflater.inflate(R.layout.fragment_hrm_hr_record, container, false);
     }
 
     @Override
@@ -51,8 +52,8 @@ public class HrRecordFragment extends Fragment {
 
         tvHrMax = view.findViewById(R.id.tv_hr_max_value);
         tvHrAve = view.findViewById(R.id.tv_hr_ave_value);
-        hrLineChart = view.findViewById(R.id.hr_line_chart);
-        hrLineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
+        lineChart = view.findViewById(R.id.hr_line_chart);
+        lineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
         updateHrInfo(new ArrayList<Short>(), INVALID_HEART_RATE, INVALID_HEART_RATE);
 
         ibStart = view.findViewById(R.id.ib_record_start);
@@ -80,7 +81,7 @@ public class HrRecordFragment extends Fragment {
             tvHrAve.setText("__");
         else
             tvHrAve.setText(String.valueOf(hrAve));
-        hrLineChart.showShortLineChart(hrList, TITLE, Color.BLUE);
+        lineChart.showShortLineChart(hrList, TITLE, Color.BLUE);
     }
 
     public void updateHrRecordStatus(boolean isRecord) {

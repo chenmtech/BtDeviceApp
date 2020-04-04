@@ -33,7 +33,7 @@ public class LocalDevicesFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_local_devices, container, false);
+        return inflater.inflate(R.layout.fragment_device_local, container, false);
     }
 
     @Override

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <!--记录简介部分-->
-    <include layout="@layout/layout_record_introduction"/>
+    <include layout="@layout/layout_record_item"/>
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
 
             <include layout="@layout/layout_hr_common_info"/>
 
-            <include layout="@layout/layout_hr_line_chart"
+            <include layout="@layout/layout_line_chart"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"/>
 

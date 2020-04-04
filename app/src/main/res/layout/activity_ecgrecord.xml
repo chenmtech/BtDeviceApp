@@ -128,7 +128,7 @@
 
                 <include layout="@layout/layout_hr_common_info"/>
 
-                <include layout="@layout/layout_hr_line_chart"
+                <include layout="@layout/layout_line_chart"
                     android:layout_width="match_parent"
                     android:layout_height="150dp"/>
 

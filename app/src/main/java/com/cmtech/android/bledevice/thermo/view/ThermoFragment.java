@@ -15,7 +15,6 @@ import com.cmtech.android.bledevice.thermo.model.OnThermoDeviceListener;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
-import com.vise.log.ViseLog;
 
 import java.util.Locale;
 
@@ -49,7 +48,7 @@ public class ThermoFragment extends DeviceFragment implements OnThermoDeviceList
 
         device = (ThermoDevice)getDevice();
 
-        return inflater.inflate(R.layout.fragment_thermometer, container, false);
+        return inflater.inflate(R.layout.fragment_device_thermo, container, false);
     }
 
     @Override

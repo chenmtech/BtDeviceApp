@@ -12,7 +12,7 @@ public class TempHumidConfigureActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_temphumid_configure);
+        setContentView(R.layout.activity_cfg_thm);
 
         //Bundle bundle = (Bundle) getIntent().getExtras();
         //ViseLog.i("" + device.getDeviceAddress());

@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.hrm.view.HrLineChart;
+import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -37,7 +37,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
     private TextView tvAddress;
     private TextView tvRecordDesc; // time length
     private ImageView ivRecordType; // record type
-    private HrLineChart hrLineChart; // 心率折线图
+    private MyLineChart lineChart; // 心率折线图
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +73,8 @@ public class ThermoRecordActivity extends AppCompatActivity {
         tvAddress = findViewById(R.id.tv_device_address);
         tvAddress.setText(record.getDevAddress());
 
-        hrLineChart = findViewById(R.id.hr_line_chart);
-        hrLineChart.setXAxisValueFormatter(2);
-        hrLineChart.showFloatLineChart(record.getTemp(), "心率变化", Color.BLUE);
+        lineChart = findViewById(R.id.hr_line_chart);
+        lineChart.setXAxisValueFormatter(2);
+        lineChart.showFloatLineChart(record.getTemp(), "心率变化", Color.BLUE);
     }
 }

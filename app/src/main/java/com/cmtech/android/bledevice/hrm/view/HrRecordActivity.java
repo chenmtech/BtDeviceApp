@@ -9,6 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.view.HrHistogramChart;
+import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
@@ -28,7 +30,7 @@ public class HrRecordActivity extends AppCompatActivity {
 
     private TextView tvMaxHr; // 最大心率
     private TextView tvAveHr; // 平均心率
-    private HrLineChart hrLineChart; // 心率折线图
+    private MyLineChart lineChart; // 心率折线图
     private HrHistogramChart hrHistChart; // 心率直方图
 
     @Override
@@ -66,9 +68,9 @@ public class HrRecordActivity extends AppCompatActivity {
         tvAddress = findViewById(R.id.tv_device_address);
         tvAddress.setText(record.getDevAddress());
 
-        hrLineChart = findViewById(R.id.hr_line_chart);
-        hrLineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
-        hrLineChart.showShortLineChart(record.getFilterHrList(), "心率变化", Color.BLUE);
+        lineChart = findViewById(R.id.hr_line_chart);
+        lineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
+        lineChart.showShortLineChart(record.getFilterHrList(), "心率变化", Color.BLUE);
 
         hrHistChart = findViewById(R.id.chart_hr_histogram);
         tvAveHr = findViewById(R.id.tv_hr_ave_value);

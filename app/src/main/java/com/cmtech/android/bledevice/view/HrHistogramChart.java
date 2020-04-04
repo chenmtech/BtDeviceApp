@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.hrm.view;
+package com.cmtech.android.bledevice.view;
 
 import android.content.Context;
 import android.graphics.Color;

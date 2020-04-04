@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.hrm.view;
+package com.cmtech.android.bledevice.view;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -23,20 +23,20 @@ import java.util.List;
 import static com.cmtech.android.bledevice.hrm.model.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
 
 
-public class HrLineChart extends LineChart {
+public class MyLineChart extends LineChart {
     private static final int DEFAULT_X_VALUE_INTERVAL = 10;
 
-    public HrLineChart(Context context) {
+    public MyLineChart(Context context) {
         super(context);
         initialize();
     }
 
-    public HrLineChart(Context context, AttributeSet attrs) {
+    public MyLineChart(Context context, AttributeSet attrs) {
         super(context, attrs);
         initialize();
     }
 
-    public HrLineChart(Context context, AttributeSet attrs, int defStyle) {
+    public MyLineChart(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initialize();
     }
