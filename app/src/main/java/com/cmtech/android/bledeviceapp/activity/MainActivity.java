@@ -596,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     private void initMainLayout() {
         TextView tvVersionName = noDeviceLayout.findViewById(R.id.tv_version);
-        tvVersionName.setText(String.format("Ver%s", APKVersionCodeUtils.getVerName(this)));
+        tvVersionName.setText(APKVersionCodeUtils.getVerName(this));
         updateMainLayout(null);
     }
 

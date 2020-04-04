@@ -68,7 +68,7 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
                     if(!isRegistered(detailInfo)) {
                         activity.registerDevice(detailInfo);
                     } else {
-                        Toast.makeText(activity, "该设备已添加。", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, "设备已添加。", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
