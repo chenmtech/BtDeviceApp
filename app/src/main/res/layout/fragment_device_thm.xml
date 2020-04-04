@@ -57,6 +57,7 @@
     </LinearLayout>
 
     <RelativeLayout
+        android:id="@+id/rl_heat_index"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/layout_temphumid"
@@ -94,9 +95,37 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="地点："/>
+        <EditText
+            android:id="@+id/et_sens_loc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="室内"/>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/ib_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_below="@id/rl_heat_index"
+        android:layout_centerHorizontal="true"
+        android:src="@mipmap/ic_save_color_32px"
+        android:background="@android:color/transparent"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true">
+        android:layout_centerHorizontal="true"
+        android:visibility="gone">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -7,6 +7,8 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.cmtech.bmefile.ByteUtil;
 import com.vise.log.ViseLog;
@@ -99,6 +101,16 @@ public class ThmDevice extends AbstractDevice {
     @Override
     public  void onConnectFailure() {
 
+    }
+
+    public void save(String loc) {
+        BleTempHumidRecord10 record = BleTempHumidRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getAccount());
+        record.setTemperature(tempHumidData.getTemp()/100.0f);
+        record.setHumid(tempHumidData.getHumid()/100.0f);
+        record.setHeatIndex(tempHumidData.calculateHeatIndex());
+        record.setLocation(loc);
+        record.save();
+        MyApplication.showMessageUsingShortToast("温湿度数据已保存");
     }
 
     // start measurement

@@ -16,6 +16,7 @@ import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
+import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
@@ -75,6 +76,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
         allRecords.addAll(ecgRecords);
         List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp").find(BleThermoRecord10.class);
         allRecords.addAll(thermoRecords);
+        List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location").find(BleTempHumidRecord10.class);
+        allRecords.addAll(thmRecords);
         Collections.sort(allRecords, new Comparator<IRecord>() {
             @Override
             public int compare(IRecord o1, IRecord o2) {
@@ -119,6 +122,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         LitePal.delete(BleEcgRecord10.class, record.getId());
                     } else if(record instanceof BleThermoRecord10) {
                         LitePal.delete(BleThermoRecord10.class, record.getId());
+                    } else if(record instanceof BleTempHumidRecord10) {
+                        LitePal.delete(BleTempHumidRecord10.class, record.getId());
                     }
                 }
             }).setNegativeButton("取消", new DialogInterface.OnClickListener() {

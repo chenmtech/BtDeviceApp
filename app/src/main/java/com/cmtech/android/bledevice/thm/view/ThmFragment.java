@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
@@ -29,6 +30,8 @@ public class ThmFragment extends DeviceFragment implements OnThmListener {
     private TextView tvHeadIndex;
     private EditText etInterval;
     private Button btnSetInterval;
+    private ImageButton ibSave;
+    private EditText etLoc;
 
     private ThmDevice device;
 
@@ -62,6 +65,17 @@ public class ThmFragment extends DeviceFragment implements OnThmListener {
             public void onClick(View v) {
                 short interval = Short.valueOf(etInterval.getText().toString());
                 device.setInterval(interval);
+            }
+        });
+
+        etLoc = view.findViewById(R.id.et_sens_loc);
+
+        ibSave = view.findViewById(R.id.ib_record);
+        ibSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(device != null)
+                    device.save(etLoc.getText().toString());
             }
         });
 

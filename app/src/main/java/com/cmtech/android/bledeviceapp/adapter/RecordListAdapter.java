@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
+import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -110,6 +111,8 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             holder.ivType.setImageResource(R.mipmap.ic_ecg_24px);
         } else if(record instanceof BleThermoRecord10) {
             holder.ivType.setImageResource(R.mipmap.ic_thermo_24px);
+        } else if(record instanceof BleTempHumidRecord10) {
+            holder.ivType.setImageResource(R.drawable.ic_thm_default_icon);
         }
 
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
