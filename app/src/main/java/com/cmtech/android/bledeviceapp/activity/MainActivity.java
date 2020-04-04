@@ -50,10 +50,10 @@ import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
-import com.cmtech.android.bledeviceapp.model.DeviceFragTabManager;
+import com.cmtech.android.bledeviceapp.model.DeviceTabFragManager;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 import com.cmtech.android.bledeviceapp.model.DeviceType;
-import com.cmtech.android.bledeviceapp.model.FragTabManager;
+import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.NotifyService;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
@@ -82,7 +82,7 @@ import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_I
  *  Created by bme on 2018/2/19.
  */
 
-public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceListener, FragTabManager.OnFragmentUpdatedListener {
+public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceListener, TabFragManager.OnFragmentUpdatedListener {
     private static final String TAG = "MainActivity";
     private final static int RC_REGISTER_DEVICE = 1;     // return code for registering new device
     private final static int RC_MODIFY_DEVICE_INFO = 2;       // return code for modifying device info
@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     LocalDevicesFragment localDevicesFragment;
     //WebDevicesFragment webDevicesFragment;
     private NotifyService notiService; // 通知服务,用于初始化BleDeviceManager，并管理后台通知
-    private DeviceFragTabManager fragTabManager; // BleFragment和TabLayout管理器
+    private DeviceTabFragManager fragTabManager; // BleFragment和TabLayout管理器
     private MainToolbarManager tbManager; // 工具条管理器
     private DrawerLayout drawerLayout; // 侧滑界面
     private LinearLayout noDeviceLayout; // 无设备打开时的界面
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
         // 初始化BleFragTabManager
         TabLayout tabLayout = findViewById(R.id.device_tab);
-        fragTabManager = new DeviceFragTabManager(getSupportFragmentManager(), tabLayout, R.id.layout_device_fragment);
+        fragTabManager = new DeviceTabFragManager(getSupportFragmentManager(), tabLayout, R.id.layout_device_fragment);
         fragTabManager.setOnFragmentUpdatedListener(this);
 
         // init main layout

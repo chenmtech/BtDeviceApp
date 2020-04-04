@@ -22,20 +22,20 @@ import java.util.List;
  * Version:        1.0
  */
 
-public class DeviceFragTabManager extends FragTabManager {
+public class DeviceTabFragManager extends TabFragManager {
 
-    public DeviceFragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
+    public DeviceTabFragManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId) {
         this(fragmentManager, tabLayout, containerId, false);
     }
 
-    public DeviceFragTabManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
+    public DeviceTabFragManager(FragmentManager fragmentManager, TabLayout tabLayout, int containerId, boolean isShowTabText) {
         super(fragmentManager, tabLayout, containerId, isShowTabText);
     }
 
     // 寻找设备的Fragment
     public DeviceFragment findFragment(IDevice device) {
         if(device != null) {
-            List<Fragment> fragments = getFragmentList();
+            List<Fragment> fragments = getFragList();
             for (Fragment fragment : fragments) {
                 /*if (device.equals(((DeviceFragment) fragment).getDevice())) {
                     return (DeviceFragment) fragment;
