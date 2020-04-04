@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private DeviceTabFragManager fragTabManager; // BleFragment和TabLayout管理器
     private MainToolbarManager tbManager; // 工具条管理器
     private DrawerLayout drawerLayout; // 侧滑界面
-    private LinearLayout noDeviceLayout; // 无设备打开时的界面
+    private RelativeLayout noDeviceLayout; // 无设备打开时的界面
     private RelativeLayout hasDeviceLayout; // 有设备打开时的界面，即包含设备Fragment和Tablayout的主界面
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private TextView tvAccountName; // 账户名称控件
@@ -308,8 +308,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 if ( resultCode == RESULT_OK) {
                     BleDeviceInfo info = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
                     IDevice device = DeviceManager.findDevice(info);
-                    if(device != null && info.save()) {
+                    if(device != null) {
                         device.updateInfo(info);
+                        device.getInfo().save();
                         updateDeviceList();
                         Drawable drawable;
                         if(TextUtils.isEmpty(device.getIcon())) {

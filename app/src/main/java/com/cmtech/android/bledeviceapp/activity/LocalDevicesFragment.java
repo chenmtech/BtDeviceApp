@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.LocalDevicesAdapter;
+import com.cmtech.android.bledeviceapp.adapter.LocalDeviceAdapter;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -27,7 +27,7 @@ import com.cmtech.android.bledeviceapp.adapter.LocalDevicesAdapter;
  * Version:        1.0
  */
 public class LocalDevicesFragment extends Fragment {
-    private LocalDevicesAdapter localDevicesAdapter;
+    private LocalDeviceAdapter localDeviceAdapter;
 
     @Nullable
     @Override
@@ -45,11 +45,11 @@ public class LocalDevicesFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         rvDevices.setLayoutManager(layoutManager);
         rvDevices.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        localDevicesAdapter = new LocalDevicesAdapter((MainActivity) getActivity());
-        rvDevices.setAdapter(localDevicesAdapter);
+        localDeviceAdapter = new LocalDeviceAdapter((MainActivity) getActivity());
+        rvDevices.setAdapter(localDeviceAdapter);
     }
 
     public void update() {
-        localDevicesAdapter.update();
+        localDeviceAdapter.update();
     }
 }

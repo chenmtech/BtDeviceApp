@@ -1,6 +1,8 @@
 package com.cmtech.android.ble.core;
 
 
+import android.support.annotation.NonNull;
+
 import org.litepal.crud.LitePalSupport;
 
 import java.io.Serializable;
@@ -84,6 +86,12 @@ public abstract class DeviceInfo extends LitePalSupport implements Serializable 
             icon = info.icon;
             autoConnect = info.autoConnect;
         }
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "name" + name + "address" + address + "icon" + icon;
     }
 
     @Override

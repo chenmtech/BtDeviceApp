@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.adapter.WebDevicesAdapter;
+import com.cmtech.android.bledeviceapp.adapter.WebDeviceAdapter;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
 
 /**
@@ -33,7 +33,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceManager;
  */
 public class WebDevicesFragment extends Fragment {
     private static final int MSG_UPDATE_WEB_DEVICES = 0;
-    private WebDevicesAdapter webDevicesAdapter;
+    private WebDeviceAdapter webDeviceAdapter;
 
     private Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -63,8 +63,8 @@ public class WebDevicesFragment extends Fragment {
         rvDevices.setLayoutManager(layoutManager);
         if(getContext() != null)
             rvDevices.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        webDevicesAdapter = new WebDevicesAdapter((MainActivity) getActivity());
-        rvDevices.setAdapter(webDevicesAdapter);
+        webDeviceAdapter = new WebDeviceAdapter((MainActivity) getActivity());
+        rvDevices.setAdapter(webDeviceAdapter);
 
         Button btnUpdate = view.findViewById(R.id.bt_update_web_devices);
         btnUpdate.setOnClickListener(new View.OnClickListener() {
@@ -84,6 +84,6 @@ public class WebDevicesFragment extends Fragment {
     }
 
     public void update() {
-        webDevicesAdapter.update();
+        webDeviceAdapter.update();
     }
 }
