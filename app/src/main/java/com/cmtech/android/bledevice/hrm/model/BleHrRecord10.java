@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.hrm.model.HRMonitorDevice.INVALID_HEART_RATE;
+import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 
 /**

@@ -25,7 +25,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
  * Created by bme on 2018/9/20.
  */
 
-public class TempHumidDevice extends AbstractDevice {
+public class ThmDevice extends AbstractDevice {
     private static final String TAG = "TempHumidDevice";
 
     private static final short DEFAULT_TEMPHUMID_INTERVAL  = 15; // default measurement interval, unit: second
@@ -58,7 +58,7 @@ public class TempHumidDevice extends AbstractDevice {
     private short intMax;
 
     // device listeners
-    private final List<OnTempHumidDeviceListener> listeners = new LinkedList<>();
+    private final List<OnThmListener> listeners = new LinkedList<>();
 
     // get T&H data
     public BleTempHumidData getTempHumidData() {
@@ -66,7 +66,7 @@ public class TempHumidDevice extends AbstractDevice {
     }
 
     // 构造器
-    public TempHumidDevice(DeviceInfo registerInfo) {
+    public ThmDevice(DeviceInfo registerInfo) {
         super(registerInfo);
     }
 
@@ -152,14 +152,14 @@ public class TempHumidDevice extends AbstractDevice {
     }
 
     // 登记温湿度数据观察者
-    public void registerListener(OnTempHumidDeviceListener listener) {
+    public void registerListener(OnThmListener listener) {
         if(!listeners.contains(listener)) {
             listeners.add(listener);
         }
     }
 
     // 删除连接状态观察者
-    public void removeListener(OnTempHumidDeviceListener listener) {
+    public void removeListener(OnThmListener listener) {
         int index = listeners.indexOf(listener);
         if(index >= 0) {
             listeners.remove(index);
@@ -168,7 +168,7 @@ public class TempHumidDevice extends AbstractDevice {
 
     //
     private void notifyTempHumidData() {
-        for(final OnTempHumidDeviceListener listener : listeners) {
+        for(final OnThmListener listener : listeners) {
             if(listener != null)
                 listener.onTempHumidDataUpdated(tempHumidData);
         }

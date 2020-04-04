@@ -13,7 +13,6 @@ import com.vise.log.ViseLog;
 
 import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.UUID;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
@@ -51,7 +50,7 @@ public class ThermoDevice extends AbstractDevice {
 
     private static final short DEFAULT_MEAS_INTERVAL = 2;
 
-    private OnThermoDeviceListener listener;
+    private OnThermoListener listener;
 
     private float highestTemp = 0.0f;
     private BleThermoRecord10 record;
@@ -145,7 +144,7 @@ public class ThermoDevice extends AbstractDevice {
     }
 
     // 登记体温数据观察者
-    public void registerListener(OnThermoDeviceListener listener) {
+    public void registerListener(OnThermoListener listener) {
         this.listener = listener;
     }
 

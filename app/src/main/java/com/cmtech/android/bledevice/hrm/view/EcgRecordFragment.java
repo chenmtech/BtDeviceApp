@@ -48,7 +48,7 @@ public class EcgRecordFragment extends Fragment {
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((HRMonitorFragment)getParentFragment()).setEcgRecord(!isRecord);
+                ((HrmFragment)getParentFragment()).setEcgRecord(!isRecord);
             }
         });
 

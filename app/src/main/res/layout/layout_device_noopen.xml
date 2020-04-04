@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:id="@+id/layout_when_nodeivce_opened"
+    android:id="@+id/layout_deivce_noopen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/window_background"
@@ -31,4 +31,9 @@
         android:layout_margin="10dp"
         android:text="ver"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Copyright© 2020 powered by KM IOT Co."/>
 </LinearLayout>

@@ -14,7 +14,7 @@ import java.util.List;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public interface OnHRMonitorDeviceListener {
+public interface OnHrmListener {
     void onHRUpdated(BleHeartRateData hrData); // heart rate updated
     void onHRStatisticInfoUpdated(List<Short> hrList, short hrMax, short hrAve, List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram);
     void onHRSensLocUpdated(int loc); // sensor location updated

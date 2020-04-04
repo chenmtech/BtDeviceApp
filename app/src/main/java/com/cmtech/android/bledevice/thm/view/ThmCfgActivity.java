@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.cmtech.android.bledeviceapp.R;
 
-public class TempHumidConfigureActivity extends AppCompatActivity {
+public class ThmCfgActivity extends AppCompatActivity {
     private static final String TAG = "TempHumidConfigureActivity";
 
     @Override

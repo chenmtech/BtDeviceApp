@@ -25,12 +25,12 @@ public class EcgDataProcessor {
     private static final int MAX_PACKET_NUM = 255; // the max packet number
     private static final int INVALID_PACKET_NUM = -1; // invalid packet number
 
-    private final HRMonitorDevice device;
+    private final HrmDevice device;
     private int nextPackNum = INVALID_PACKET_NUM; // the next packet number wanted to received
     private final IEcgFilter ecgFilter; // ecg filter
     private ExecutorService procService; // ecg data process Service
 
-    public EcgDataProcessor(HRMonitorDevice device) {
+    public EcgDataProcessor(HrmDevice device) {
         if(device == null) {
             throw new NullPointerException("The device is null.");
         }

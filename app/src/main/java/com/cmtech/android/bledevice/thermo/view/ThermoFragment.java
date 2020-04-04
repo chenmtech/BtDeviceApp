@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
-import com.cmtech.android.bledevice.thermo.model.OnThermoDeviceListener;
+import com.cmtech.android.bledevice.thermo.model.OnThermoListener;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -23,7 +23,7 @@ import java.util.Locale;
  * Created by bme on 2018/2/27.
  */
 
-public class ThermoFragment extends DeviceFragment implements OnThermoDeviceListener {
+public class ThermoFragment extends DeviceFragment implements OnThermoListener {
     private static final String LOW_33 = "低于33.0";
 
     private TextView tvCurrentTemp;

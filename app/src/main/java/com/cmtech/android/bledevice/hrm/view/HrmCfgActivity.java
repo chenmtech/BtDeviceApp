@@ -15,19 +15,19 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.hrm.model.HRMonitorConfiguration;
+import com.cmtech.android.bledevice.hrm.model.HrmCfg;
 import com.cmtech.android.bledeviceapp.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Formatter, NumberPicker.OnScrollListener, NumberPicker.OnValueChangeListener {
+public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Formatter, NumberPicker.OnScrollListener, NumberPicker.OnValueChangeListener {
     private static final int HR_LIMIT_LOWEST = 30;
     private static final int HR_LIMIT_HGIHEST = 200;
     private static final int HR_LIMIT_INTERVAL = 5;
     public static final int RESULT_CHANGE_ECG_LOCK = RESULT_FIRST_USER;
     private boolean ecgLock = true;
-    private HRMonitorConfiguration hrCfg;
+    private HrmCfg hrCfg;
 
     private TextView tvStatus; // current ecg lock status
     private Button btnSwitch; // switch ecg lock status
@@ -56,7 +56,7 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         Intent intent = getIntent();
         if(intent != null) {
             ecgLock = intent.getBooleanExtra("ecg_lock", true);
-            hrCfg = (HRMonitorConfiguration) intent.getSerializableExtra("hr_cfg");
+            hrCfg = (HrmCfg) intent.getSerializableExtra("hr_cfg");
         }
 
         if(ecgLock) {
@@ -69,7 +69,7 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(HRMCfgActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(HrmCfgActivity.this);
                 builder.setTitle("切换心电功能")
                         .setMessage("将重新连接设备。")
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -77,7 +77,7 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
                                 Intent intent = new Intent();
                                 intent.putExtra("ecg_lock", !ecgLock);
                                 setResult(RESULT_CHANGE_ECG_LOCK, intent);
-                                HRMCfgActivity.this.finish();
+                                HrmCfgActivity.this.finish();
                             }
                         })
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -124,13 +124,13 @@ public class HRMCfgActivity extends AppCompatActivity implements NumberPicker.Fo
                 int low = npHrLow.getValue()*HR_LIMIT_INTERVAL+HR_LIMIT_LOWEST;
                 int high = npHrHigh.getValue()*HR_LIMIT_INTERVAL+HR_LIMIT_LOWEST;
                 if(high <= low) {
-                    Toast.makeText(HRMCfgActivity.this, getString(R.string.hr_limit_wrong), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HrmCfgActivity.this, getString(R.string.hr_limit_wrong), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 boolean isWarn = cbWarn.isChecked();
                 int speakPeriod = Integer.parseInt(etSpeakPeriod.getText().toString());
                 if(speakPeriod <= 0) {
-                    Toast.makeText(HRMCfgActivity.this, "语音播报频率不能小于等于0", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HrmCfgActivity.this, "语音播报频率不能小于等于0", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 boolean isSpeak = cbSpeak.isChecked();

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.hrm.model.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
-import static com.cmtech.android.bledevice.hrm.model.HRMonitorDevice.INVALID_HEART_RATE;
+import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -60,14 +60,14 @@ public class HrRecordFragment extends Fragment {
         ibStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((HRMonitorFragment)getParentFragment()).setHrRecord(true);
+                ((HrmFragment)getParentFragment()).setHrRecord(true);
             }
         });
         ibStop = view.findViewById(R.id.ib_record_stop);
         ibStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((HRMonitorFragment)getParentFragment()).setHrRecord(false);
+                ((HrmFragment)getParentFragment()).setHrRecord(false);
             }
         });
     }

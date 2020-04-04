@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.cmtech.android.bledeviceapp.R;
 
-public class ThermoConfigureActivity extends AppCompatActivity {
+public class ThermoCfgActivity extends AppCompatActivity {
     private static final String TAG = "ThermoConfigureActivity";
 
     @Override

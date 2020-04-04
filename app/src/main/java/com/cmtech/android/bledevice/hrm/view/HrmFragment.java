@@ -16,9 +16,9 @@ import android.widget.Toast;
 import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.bledevice.hrm.model.BleHeartRateData;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
-import com.cmtech.android.bledevice.hrm.model.HRMonitorDevice;
-import com.cmtech.android.bledevice.hrm.model.HRMonitorConfiguration;
-import com.cmtech.android.bledevice.hrm.model.OnHRMonitorDeviceListener;
+import com.cmtech.android.bledevice.hrm.model.HrmDevice;
+import com.cmtech.android.bledevice.hrm.model.HrmCfg;
+import com.cmtech.android.bledevice.hrm.model.OnHrmListener;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledevice.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledevice.hrm.view.HRMCfgActivity.RESULT_CHANGE_ECG_LOCK;
+import static com.cmtech.android.bledevice.hrm.view.HrmCfgActivity.RESULT_CHANGE_ECG_LOCK;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
@@ -47,8 +47,8 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDeviceListener, OnWaveViewListener {
-    private HRMonitorDevice device; // device
+public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWaveViewListener {
+    private HrmDevice device; // device
 
     private ScanEcgView ecgView; // EcgView
     private TextView tvHrEcgOff; // hr when ecg off
@@ -65,7 +65,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
     private boolean isEcgOn = false;
 
-    public HRMonitorFragment() {
+    public HrmFragment() {
         super();
     }
 
@@ -74,7 +74,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        device = (HRMonitorDevice) getDevice();
+        device = (HrmDevice) getDevice();
         return inflater.inflate(R.layout.fragment_device_hrm, container, false);
     }
 
@@ -134,7 +134,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                 boolean ecgLock = data.getBooleanExtra("ecg_lock", true);
                 device.setEcgLock(ecgLock);
             } else if(resultCode == RESULT_OK) {
-                HRMonitorConfiguration cfg = (HRMonitorConfiguration) data.getSerializableExtra("hr_cfg");
+                HrmCfg cfg = (HrmCfg) data.getSerializableExtra("hr_cfg");
                 device.updateConfig(cfg);
             }
         }
@@ -142,9 +142,9 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
 
     @Override
     public void openConfigureActivity() {
-        HRMonitorConfiguration cfg = device.getConfig();
+        HrmCfg cfg = device.getConfig();
 
-        Intent intent = new Intent(getActivity(), HRMCfgActivity.class);
+        Intent intent = new Intent(getActivity(), HrmCfgActivity.class);
         intent.putExtra("ecg_lock", device.isEcgLock());
         intent.putExtra("hr_cfg", cfg);
         startActivityForResult(intent, 1);
@@ -162,7 +162,7 @@ public class HRMonitorFragment extends DeviceFragment implements OnHRMonitorDevi
                     tvHrEcgOn.setText(String.valueOf(bpm));
                     tvHrEcgOff.setText(String.valueOf(bpm));
 
-                    HRMonitorConfiguration cfg = device.getConfig();
+                    HrmCfg cfg = device.getConfig();
                     if(cfg.isWarn()) {
                         String warnStr = null;
                         if(bpm > cfg.getHrHigh())

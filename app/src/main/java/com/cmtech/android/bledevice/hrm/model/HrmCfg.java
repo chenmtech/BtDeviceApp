@@ -16,7 +16,7 @@ import java.io.Serializable;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class HRMonitorConfiguration extends LitePalSupport implements Serializable {
+public class HrmCfg extends LitePalSupport implements Serializable {
     private final static long serialVersionUID = 1L;
     public static final int DEFAULT_HR_LOW_LIMIT = 50;
     public static final int DEFAULT_HR_HIGH_LIMIT = 180;
@@ -75,7 +75,7 @@ public class HRMonitorConfiguration extends LitePalSupport implements Serializab
         this.isSpeak = isSpeak;
     }
 
-    public void copyFrom(HRMonitorConfiguration config) {
+    public void copyFrom(HrmCfg config) {
         isWarn = config.isWarn;
         hrLow = config.hrLow;
         hrHigh = config.hrHigh;

@@ -40,10 +40,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <!--  无设备打开时的界面  -->
-            <include layout = "@layout/layout_no_device"/>
+            <include layout = "@layout/layout_device_noopen"/>
 
             <!-- 有设备打开时的界面 -->
-            <include layout = "@layout/layout_device_opened"/>
+            <include layout = "@layout/layout_device_open"/>
 
         </FrameLayout>
 

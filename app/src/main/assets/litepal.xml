@@ -14,7 +14,7 @@
         <mapping class="com.cmtech.android.bledevice.ecg.record.EcgRecord"/>
         <mapping class="com.cmtech.android.bledevice.ecg.device.EcgConfiguration"/>
 
-        <mapping class="com.cmtech.android.bledevice.hrm.model.HRMonitorConfiguration"/>
+        <mapping class="com.cmtech.android.bledevice.hrm.model.HrmCfg"/>
         <mapping class="com.cmtech.android.bledevice.hrm.model.BleHrRecord10"/>
         <mapping class="com.cmtech.android.bledevice.hrm.model.BleEcgRecord10"/>
 

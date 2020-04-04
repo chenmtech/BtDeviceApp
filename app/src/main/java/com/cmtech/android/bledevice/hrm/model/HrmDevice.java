@@ -43,7 +43,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class HRMonitorDevice extends AbstractDevice {
+public class HrmDevice extends AbstractDevice {
     public static final short INVALID_HEART_RATE = -1;
     public static final int ECG_RECORD_MAX_SECOND = 30;
     private static final int ECG_RECORD_MIN_SECOND = 5;
@@ -113,9 +113,9 @@ public class HRMonitorDevice extends AbstractDevice {
     private boolean ecgLock = true; // ecg lock status
     private EcgDataProcessor ecgProcessor; // ecg processor
 
-    private OnHRMonitorDeviceListener listener; // device listener
+    private OnHrmListener listener; // device listener
 
-    private final HRMonitorConfiguration config; // hr device configuration
+    private final HrmCfg config; // hr device configuration
 
     private BleHrRecord10 hrRecord;
     private boolean isHrRecord = false; // is recording hr
@@ -128,11 +128,11 @@ public class HRMonitorDevice extends AbstractDevice {
     private Timer ttsTimer = new Timer();
     private volatile boolean waitSpeak = false; // is waiting for warnning speak
 
-    public HRMonitorDevice(DeviceInfo registerInfo) {
+    public HrmDevice(DeviceInfo registerInfo) {
         super(registerInfo);
-        HRMonitorConfiguration config = LitePal.where("address = ?", getAddress()).findFirst(HRMonitorConfiguration.class);
+        HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class);
         if (config == null) {
-            config = new HRMonitorConfiguration();
+            config = new HrmCfg();
             config.setAddress(getAddress());
             config.save();
         }
@@ -217,7 +217,7 @@ public class HRMonitorDevice extends AbstractDevice {
         ((BleConnector) connector).write(ECGLOCKSTATUS, data, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                HRMonitorDevice.this.ecgLock = ecgLock;
+                HrmDevice.this.ecgLock = ecgLock;
             }
 
             @Override
@@ -371,7 +371,7 @@ public class HRMonitorDevice extends AbstractDevice {
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                HRMonitorDevice.super.disconnect(forever);
+                HrmDevice.super.disconnect(forever);
             }
 
             @Override
@@ -406,11 +406,11 @@ public class HRMonitorDevice extends AbstractDevice {
         return isHrRecord;
     }
 
-    public final HRMonitorConfiguration getConfig() {
+    public final HrmCfg getConfig() {
         return config;
     }
 
-    public void updateConfig(HRMonitorConfiguration config) {
+    public void updateConfig(HrmCfg config) {
         boolean isSpeakChanged = (this.config.isSpeak() != config.isSpeak() || this.config.getSpeakPeriod() != config.getSpeakPeriod());
         this.config.copyFrom(config);
         this.config.save();
@@ -423,7 +423,7 @@ public class HRMonitorDevice extends AbstractDevice {
         }
     }
 
-    public void setListener(OnHRMonitorDeviceListener listener) {
+    public void setListener(OnHrmListener listener) {
         this.listener = listener;
     }
 
@@ -560,7 +560,7 @@ public class HRMonitorDevice extends AbstractDevice {
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                ecgProcessor = new EcgDataProcessor(HRMonitorDevice.this);
+                ecgProcessor = new EcgDataProcessor(HrmDevice.this);
                 if (listener != null)
                     listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, ecgLock);
             }

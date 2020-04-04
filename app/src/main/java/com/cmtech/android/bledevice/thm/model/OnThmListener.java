@@ -1,5 +1,5 @@
 package com.cmtech.android.bledevice.thm.model;
 
-public interface OnTempHumidDeviceListener {
+public interface OnThmListener {
     void onTempHumidDataUpdated(BleTempHumidData tempHumidData); // Temp&Humid data updated
 }

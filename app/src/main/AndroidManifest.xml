@@ -34,7 +34,7 @@
         tools:replace="android:name">
         <activity android:name=".activity.LoginActivity" />
         <activity
-            android:name="com.cmtech.android.bledevice.hrm.view.HRMCfgActivity"
+            android:name="com.cmtech.android.bledevice.hrm.view.HrmCfgActivity"
             android:label="@string/title_activity_hrmcfg" />
         <activity android:name=".activity.HuaweiLoginActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity" />
@@ -71,8 +71,8 @@
             android:name="com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity"
             android:label="配置心电带设备"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
-        <activity android:name="com.cmtech.android.bledevice.thm.view.TempHumidConfigureActivity" />
-        <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoConfigureActivity" />
+        <activity android:name="com.cmtech.android.bledevice.thm.view.ThmCfgActivity" />
+        <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoCfgActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity" />
         <activity android:name=".activity.AccountActivity" />
         <activity android:name=".activity.RecordExplorerActivity" />

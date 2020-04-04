@@ -10,9 +10,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
-import com.cmtech.android.bledevice.thm.model.OnTempHumidDeviceListener;
+import com.cmtech.android.bledevice.thm.model.OnThmListener;
 import com.cmtech.android.bledevice.thm.model.BleTempHumidData;
-import com.cmtech.android.bledevice.thm.model.TempHumidDevice;
+import com.cmtech.android.bledevice.thm.model.ThmDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 
@@ -23,16 +23,16 @@ import java.util.Locale;
  * Created by bme on 2018/2/27.
  */
 
-public class TempHumidFragment extends DeviceFragment implements OnTempHumidDeviceListener {
+public class ThmFragment extends DeviceFragment implements OnThmListener {
     private TextView tvTempData;
     private TextView tvHumidData;
     private TextView tvHeadIndex;
     private EditText etInterval;
     private Button btnSetInterval;
 
-    private TempHumidDevice device;
+    private ThmDevice device;
 
-    public TempHumidFragment() {
+    public ThmFragment() {
         super();
     }
 
@@ -41,7 +41,7 @@ public class TempHumidFragment extends DeviceFragment implements OnTempHumidDevi
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        device = (TempHumidDevice) getDevice();
+        device = (ThmDevice) getDevice();
 
         return inflater.inflate(R.layout.fragment_device_thm, container, false);
     }

@@ -198,8 +198,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         });
 
         drawerLayout = findViewById(R.id.drawer_layout);
-        noDeviceLayout = findViewById(R.id.layout_when_nodeivce_opened);
-        hasDeviceLayout = findViewById(R.id.layout_when_device_opened);
+        noDeviceLayout = findViewById(R.id.layout_deivce_noopen);
+        hasDeviceLayout = findViewById(R.id.layout_device_open);
 
         // 初始化BleFragTabManager
         TabLayout tabLayout = findViewById(R.id.device_tab);
