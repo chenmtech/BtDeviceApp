@@ -42,7 +42,7 @@ public class EcgNormalComment extends EcgComment {
      * @return 默认留言对象
      */
     public static EcgNormalComment create() {
-        Account creator = AccountManager.getInstance().getAccount();
+        Account creator = AccountManager.getAccount();
         long modifyTime = new Date().getTime();
         return new EcgNormalComment(creator, modifyTime);
     }

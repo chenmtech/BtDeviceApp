@@ -502,7 +502,7 @@ public class EcgDevice extends AbstractEcgDevice {
 
         // 创建心电记录
         if (ecgRecord == null) {
-            ecgRecord = EcgRecord.create(AccountManager.getInstance().getAccount(), getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), getLeadType());
+            ecgRecord = EcgRecord.create(AccountManager.getAccount(), getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), getLeadType());
             if (ecgRecord != null) {
                 ViseLog.e("ecgRecord: " + ecgRecord);
                 try {
@@ -516,7 +516,7 @@ public class EcgDevice extends AbstractEcgDevice {
         }
 
         if (broadcast == null) {
-            broadcast = new EcgHttpBroadcast(AccountManager.getInstance().getAccount().getPlatId(),
+            broadcast = new EcgHttpBroadcast(AccountManager.getAccount().getPlatId(),
                     EcgMonitorUtil.deleteColon(getAddress()),
                     getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getLeadType().getCode());
             broadcast.setListener(listener);

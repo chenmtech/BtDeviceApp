@@ -103,7 +103,7 @@ public class EcgRecordListAdapter extends RecyclerView.Adapter<EcgRecordListAdap
         holder.tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(record.getModifyTime()));
 
         Account creator = record.getCreator();
-        Account account = AccountManager.getInstance().getAccount();
+        Account account = AccountManager.getAccount();
         if(account.equals(creator)) {
             holder.tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {

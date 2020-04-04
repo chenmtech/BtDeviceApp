@@ -69,10 +69,10 @@ public class EcgReceiverAdapter extends RecyclerView.Adapter<EcgReceiverAdapter.
             holder.cbReceiver.setText(receiver.getName());
         }
 
-        if(TextUtils.isEmpty(receiver.getDescription())) {
+        if(TextUtils.isEmpty(receiver.getNote())) {
             holder.tvReceiverDescription.setText("无个人信息");
         } else {
-            holder.tvReceiverDescription.setText(receiver.getDescription());
+            holder.tvReceiverDescription.setText(receiver.getNote());
         }
 
         holder.cbReceiver.setChecked(receiver.isReceiving());

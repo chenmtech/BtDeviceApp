@@ -137,11 +137,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
-        if(!AccountManager.getInstance().isSignIn()) {
+        if(!AccountManager.isSignIn()) {
             Toast.makeText(this, "account sign in fail.", Toast.LENGTH_SHORT).show();
             finish();
         }
-        ViseLog.e(AccountManager.getInstance().getAccount());
+        ViseLog.e(AccountManager.getAccount());
 
         // 启动并绑定通知服务
         Intent serviceIntent = new Intent(this, NotifyService.class);
@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         setSupportActionBar(toolbar);
         TextView tvBattery = findViewById(R.id.tv_device_battery);
         tbManager = new MainToolbarManager(this, toolbar, tvBattery);
-        tbManager.setNavIcon(AccountManager.getInstance().getAccount().getIcon());
+        tbManager.setNavIcon(AccountManager.getAccount().getIcon());
 
         // init device control panel
         ViewPager pager = findViewById(R.id.vp_device_panel);
@@ -331,7 +331,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             case RC_MODIFY_ACCOUNT_INFO: // 修改用户信息返回
                 if(resultCode == RESULT_OK) {
                     updateNavigationHeader();
-                    tbManager.setNavIcon(AccountManager.getInstance().getAccount().getIcon());
+                    tbManager.setNavIcon(AccountManager.getAccount().getIcon());
                 } else {
                     boolean logout = (data != null && data.getBooleanExtra("logout", false));
                     if(logout) { // 退出登录
@@ -616,7 +616,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             return;
         }
 
-        Account account = AccountManager.getInstance().getAccount();
+        Account account = AccountManager.getAccount();
         if(account != null) {
             if(account.getPlatName().equals(QQ.NAME)) {
                 Platform plat = ShareSDK.getPlatform(QQ.NAME);
@@ -626,7 +626,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 plat.removeAccount(true);
             }
         }
-        AccountManager.getInstance().signOut();
+        AccountManager.signOut();
 
         Intent intent = new Intent(MainActivity.this, SplashActivity.class);
         startActivity(intent);
@@ -634,7 +634,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     }
 
     private void updateNavigationHeader() {
-        Account account = AccountManager.getInstance().getAccount();
+        Account account = AccountManager.getAccount();
         if(account == null) {
             throw new IllegalStateException();
         }

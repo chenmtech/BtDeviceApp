@@ -65,7 +65,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
             public void onClick(View view) {
                 final EcgNormalComment comment = commentList.get(holder.getAdapterPosition());
                 final Account creator = comment.getCreator();
-                Account account = AccountManager.getInstance().getAccount();
+                Account account = AccountManager.getAccount();
                 if(listener != null && creator.equals(account)) {
                     comment.setContent(holder.etContent.getText().toString());
                     long modifyTime = new Date().getTime();
@@ -85,7 +85,7 @@ public class EcgCommentAdapter extends RecyclerView.Adapter<EcgCommentAdapter.Vi
     public void onBindViewHolder(@NonNull final EcgCommentAdapter.ViewHolder holder, final int position) {
         EcgNormalComment comment = commentList.get(position);
         Account creator = comment.getCreator();
-        Account account = AccountManager.getInstance().getAccount();
+        Account account = AccountManager.getAccount();
         if(creator.equals(account)) {
             holder.tvCreatorName.setText(Html.fromHtml("<u>您</u>"));
             holder.etContent.setHint("请输入。");

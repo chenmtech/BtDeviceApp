@@ -53,7 +53,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_READ_DATA_PACKET) {
-                EcgHttpReceiver.readDataPackets(AccountManager.getInstance().getAccount().getPlatId(), getAddress(), lastDataPackId, new EcgHttpReceiver.IEcgDataPacketCallback() {
+                EcgHttpReceiver.readDataPackets(AccountManager.getAccount().getPlatId(), getAddress(), lastDataPackId, new EcgHttpReceiver.IEcgDataPacketCallback() {
                     @Override
                     public void onReceived(List<EcgHttpReceiver.EcgDataPacket> dataPacketList) {
                         if (dataPacketList != null && !dataPacketList.isEmpty()) {
@@ -113,7 +113,7 @@ public class WebEcgDevice extends AbstractEcgDevice {
 
         // 创建心电记录
         if (ecgRecord == null) {
-            ecgRecord = EcgRecord.create(AccountManager.getInstance().getAccount(), getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), getLeadType());
+            ecgRecord = EcgRecord.create(AccountManager.getAccount(), getSampleRate(), STANDARD_VALUE_1MV_AFTER_CALIBRATION, getAddress(), getLeadType());
             if (ecgRecord != null) {
                 ViseLog.e("ecgRecord: " + ecgRecord);
                 try {

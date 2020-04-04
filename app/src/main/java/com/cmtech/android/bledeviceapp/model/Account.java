@@ -25,14 +25,14 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     public static final int PLAT_NAME_CHAR_LEN = 10;
     public static final int PLAT_ID_CHAR_LEN = 255;
     public static final int NAME_CHAR_LEN = 10;
-    private static final int DESCRIPTION_CHAR_LEN = 50;
+    private static final int NOTE_CHAR_LEN = 50;
 
     private int id; // id
     private String platName = ""; // registration platform name
     private String platId = ""; // platform ID
     private String name = ""; // user name
     private String icon = ""; // user icon
-    private String description = ""; // user description
+    private String note = ""; // user note
 
     public Account() {
     }
@@ -42,7 +42,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
         this.platId = account.platId;
         this.name = account.name;
         this.icon = account.icon;
-        this.description = account.description;
+        this.note = account.note;
     }
 
     public int getId() {
@@ -77,18 +77,18 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     public void setIcon(String icon) {
         this.icon = icon;
     }
-    public String getDescription() {
-        return description;
+    public String getNote() {
+        return note;
     }
-    public void setDescription(String description) {
-        this.description = description;
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public boolean readFromStream(DataInput in) throws IOException{
         platName = DataIOUtil.readFixedString(in, PLAT_NAME_CHAR_LEN);
         platId = DataIOUtil.readFixedString(in, PLAT_ID_CHAR_LEN);
         name = DataIOUtil.readFixedString(in, NAME_CHAR_LEN);
-        description = DataIOUtil.readFixedString(in, DESCRIPTION_CHAR_LEN);
+        note = DataIOUtil.readFixedString(in, NOTE_CHAR_LEN);
         return true;
     }
 
@@ -96,17 +96,17 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
         DataIOUtil.writeFixedString(out, platName, PLAT_NAME_CHAR_LEN);
         DataIOUtil.writeFixedString(out, platId, PLAT_ID_CHAR_LEN);
         DataIOUtil.writeFixedString(out, name, NAME_CHAR_LEN);
-        DataIOUtil.writeFixedString(out, description, DESCRIPTION_CHAR_LEN);
+        DataIOUtil.writeFixedString(out, note, NOTE_CHAR_LEN);
         return true;
     }
 
     public int length() {
-        return (PLAT_NAME_CHAR_LEN + PLAT_ID_CHAR_LEN + NAME_CHAR_LEN + DESCRIPTION_CHAR_LEN)*2;
+        return (PLAT_NAME_CHAR_LEN + PLAT_ID_CHAR_LEN + NAME_CHAR_LEN + NOTE_CHAR_LEN)*2;
     }
 
     @Override
     public String toString() {
-        return "Plat: " + getPlatName() + " Id: " + getShortPlatId() + " 姓名：" + name + ' ' + " 个人信息：" + description;
+        return "Plat: " + getPlatName() + " Id: " + getShortPlatId() + " Name：" + name + ' ' + " Note：" + note;
     }
 
     @Override
@@ -130,7 +130,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
         account.platId = platId;
         account.name = name;
         account.icon = icon;
-        account.description = description;
+        account.note = note;
         return account;
     }
 

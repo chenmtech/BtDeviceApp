@@ -116,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         account.setName(name);
         account.save();
-        AccountManager.getInstance().setAccount(account);
+        AccountManager.setAccount(account);
 
         Intent intent = new Intent(activity, MainActivity.class);
         activity.startActivity(intent);

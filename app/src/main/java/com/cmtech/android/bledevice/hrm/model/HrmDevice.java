@@ -143,7 +143,7 @@ public class HrmDevice extends AbstractDevice {
         if(isHrRecord == isRecord) return;
 
         if(isRecord) {
-            hrRecord = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount());
+            hrRecord = BleHrRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getAccount());
             if(hrRecord != null && listener != null)
                 listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
         } else {
@@ -177,7 +177,7 @@ public class HrmDevice extends AbstractDevice {
         }
 
         if(isRecord) {
-            ecgRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getInstance().getAccount(), sampleRate, caliValue, leadType.getCode());
+            ecgRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getAccount(), sampleRate, caliValue, leadType.getCode());
             if(listener != null) {
                 listener.onEcgSignalRecorded(true);
             }

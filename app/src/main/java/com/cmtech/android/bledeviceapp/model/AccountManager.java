@@ -19,35 +19,21 @@ import org.litepal.LitePal;
  */
 
 public class AccountManager {
-    private static AccountManager instance; // singleton instance
-    private Account account; // account
+    private static Account account; // account
 
     private AccountManager() {
     }
 
-    public static AccountManager getInstance() {
-        if (instance == null) {
-            synchronized (AccountManager.class) {
-                if (instance == null) {
-                    instance = new AccountManager();
-                }
-            }
-        }
-        return instance;
-    }
-
-    public Account getAccount() {
+    public static Account getAccount() {
         return account;
     }
-    public void setAccount(Account account) {
-        this.account = account;
+    public static void setAccount(Account account) {
+        AccountManager.account = account;
     }
-
-    public boolean isSignIn() {
+    public static boolean isSignIn() {
         return account != null;
     }
-
-    public void signOut() {
+    public static void signOut() {
         account = null;
     }
 

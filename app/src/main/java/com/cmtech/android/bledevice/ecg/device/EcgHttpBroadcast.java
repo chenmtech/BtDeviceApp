@@ -356,7 +356,7 @@ public class EcgHttpBroadcast {
                 String description = jsonObject.getString("description");
                 receiver.setPlatId(huaweiId);
                 if(name.equals("null")) receiver.setName(displayName); else receiver.setName(name);
-                if(description.equals("null")) receiver.setDescription(""); else receiver.setDescription(description);
+                if(description.equals("null")) receiver.setNote(""); else receiver.setNote(description);
                 receivers.add(receiver);
             }
         } catch (Exception e) {

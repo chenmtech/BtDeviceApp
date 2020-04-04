@@ -144,7 +144,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvModifyTime.setText(DateTimeUtil.timeToShortStringWithTodayYesterday(modifyTime));
 
         Account fileCreator = record.getCreator();
-        Account account = AccountManager.getInstance().getAccount();
+        Account account = AccountManager.getAccount();
         if(fileCreator.equals(account)) {
             tvCreator.setText(Html.fromHtml("<u>您本人</u>"));
         } else {
@@ -203,7 +203,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         if(ecgRecord == null)
             return new ArrayList<>();
         else {
-            Account account = AccountManager.getInstance().getAccount();
+            Account account = AccountManager.getAccount();
             boolean found = false;
             for(EcgNormalComment comment : ecgRecord.getCommentList()) {
                 if(comment.getCreator().equals(account)) {

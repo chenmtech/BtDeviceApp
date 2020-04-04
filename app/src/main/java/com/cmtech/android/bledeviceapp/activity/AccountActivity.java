@@ -50,7 +50,7 @@ public class AccountActivity extends AppCompatActivity {
     private EditText etDescription;
     private String cacheImagePath = ""; // 头像文件路径缓存
 
-    private final Account account = AccountManager.getInstance().getAccount();
+    private final Account account = AccountManager.getAccount();
 
     private class GetAccountFromWebTask extends AsyncTask<Void, Void, Boolean> {
         private ProgressDialog dialog;
@@ -129,7 +129,7 @@ public class AccountActivity extends AppCompatActivity {
         protected Boolean doInBackground(Void... params) {
             isReturn = false;
 
-            UserUtil.saveUser(account.getPlatId(), account.getName(), account.getDescription(), null, new UserUtil.ISaveUserInfoCallback() {
+            UserUtil.saveUser(account.getPlatId(), account.getName(), account.getNote(), null, new UserUtil.ISaveUserInfoCallback() {
                 @Override
                 public void onReceived(boolean success) {
                     isSaved = success;
@@ -169,7 +169,7 @@ public class AccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
 
-        if(!AccountManager.getInstance().isSignIn()) finish();
+        if(!AccountManager.isSignIn()) finish();
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_set_account_info);
@@ -196,7 +196,7 @@ public class AccountActivity extends AppCompatActivity {
         });
 
         etDescription = findViewById(R.id.et_account_description);
-        etDescription.setText(account.getDescription());
+        etDescription.setText(account.getNote());
 
         ImageButton ibUpdateFromWeb = findViewById(R.id.ib_update_from_web);
         ibUpdateFromWeb.setOnClickListener(new View.OnClickListener() {
@@ -210,7 +210,7 @@ public class AccountActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Account account = AccountManager.getInstance().getAccount();
+                Account account = AccountManager.getAccount();
                 account.setName(etName.getText().toString());
 
                 if(!cacheImagePath.equals(account.getIcon())) {
@@ -239,7 +239,7 @@ public class AccountActivity extends AppCompatActivity {
                     }
                 }
 
-                account.setDescription(etDescription.getText().toString());
+                account.setNote(etDescription.getText().toString());
                 account.save();
 
                 new SaveAccountToWebTask().execute();
