@@ -7,6 +7,7 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.vise.log.ViseLog;
@@ -119,10 +120,16 @@ public class ThermoDevice extends AbstractDevice {
 
     public void restart() {
         highestTemp = 0.0f;
+        if(listener != null)
+            listener.onHighestTempUpdated(highestTemp);
     }
 
     public boolean isRecord() {
         return isRecord;
+    }
+
+    public BleThermoRecord10 getRecord() {
+        return record;
     }
 
     public void setRecord(boolean isRecord) {
@@ -134,6 +141,7 @@ public class ThermoDevice extends AbstractDevice {
             if(record != null) {
                 record.setCreateTime(new Date().getTime());
                 record.save();
+                MyApplication.showMessageUsingShortToast("体温记录已保存");
                 record = null;
             }
         }

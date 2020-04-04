@@ -43,7 +43,6 @@ public class ThermoFragment extends DeviceFragment implements OnThermoListener {
     private EditText etInterval;
 
     private ImageButton ibRestart;
-    private Button btnRecord;
 
     private CtrlPanelAdapter fragAdapter;
     private final ThermoRecordFragment thermoRecFrag = new ThermoRecordFragment(); // heart rate record Fragment
@@ -82,16 +81,6 @@ public class ThermoFragment extends DeviceFragment implements OnThermoListener {
             }
         });
 
-        btnRecord = view.findViewById(R.id.btn_record);
-        btnRecord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(device != null)
-                    device.setRecord(!device.isRecord());
-            }
-        });
-
-
         ViewPager pager = view.findViewById(R.id.thermo_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.thermo_control_panel_tab);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(thermoRecFrag));
@@ -106,6 +95,10 @@ public class ThermoFragment extends DeviceFragment implements OnThermoListener {
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
         device.open(activity.getNotiService());
+    }
+
+    public void setThermoRecord(boolean isRecord) {
+        device.setRecord(isRecord);
     }
 
     @Override
@@ -136,6 +129,8 @@ public class ThermoFragment extends DeviceFragment implements OnThermoListener {
                     String str = String.format(Locale.getDefault(), "%.2f", temp);
                     tvCurrentTemp.setText(str);
                 }
+                if(device.isRecord() && device.getRecord() != null)
+                    thermoRecFrag.updateThermoLineChart(device.getRecord().getTemp());
             }
         });
     }
@@ -179,11 +174,7 @@ public class ThermoFragment extends DeviceFragment implements OnThermoListener {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(isRecord) {
-                    btnRecord.setText("停止记录");
-                } else {
-                    btnRecord.setText("开始记录");
-                }
+                thermoRecFrag.updateThermoRecordStatus(isRecord);
             }
         });
     }

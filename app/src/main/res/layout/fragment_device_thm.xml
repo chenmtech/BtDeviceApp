@@ -56,15 +56,6 @@
 
     </LinearLayout>
 
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/layout_temphumid"
-        android:layout_centerHorizontal="true"
-        android:src="@mipmap/ic_temphumid"
-        android:contentDescription="temp and humid"/>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
