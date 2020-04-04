@@ -1,145 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/secondary"
-    tools:context = "com.cmtech.android.bledevice.thermo.view.ThermoFragment">
-
-
-    <RelativeLayout
-        android:id="@+id/layout_highest_temp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
-        <TextView
-            android:id="@+id/tv_highest_temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textSize="80sp"
-            android:textColor="#ff0000"
-            android:text="00.00"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/tv_highest_temp"
-            android:text="℃"
-            android:textColor="#ff0000"
-            android:textSize="80sp" />
-
-    </RelativeLayout>
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/layout_highest_temp"
-        android:layout_centerHorizontal="true"
-        android:src="@mipmap/ic_thermometer"
-        android:contentDescription="thermometer"/>
-
-
-    <TextView
-        android:id="@+id/tv_thermo_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/layout_highest_temp"
-        android:layout_centerHorizontal="true"
-        android:gravity="center_vertical"
-        android:textSize="30sp"
-        android:textColor="@color/accent"
-        android:text="正常"/>
-
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context="com.cmtech.android.bledevice.thermo.view.ThermoFragment">
 
     <RelativeLayout
-        android:id="@+id/layout_current_temp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tv_thermo_status"
-        android:layout_centerHorizontal="true">
-
-        <ImageView
-            android:id="@+id/iv_current_temp"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_centerVertical="true"
-            android:src="@mipmap/ic_realtime_temp"
-            android:contentDescription="current temp"/>
-
-        <TextView
-            android:id="@+id/tv_current_temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/iv_current_temp"
-            android:text="00.00"
-            android:textColor="@color/secondary_text"
-            android:textSize="30sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/tv_current_temp"
-            android:layout_toEndOf="@id/tv_current_temp"
-            android:text="℃"
-            android:textColor="@color/secondary_text"
-            android:textSize="30sp" />
-
-    </RelativeLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/layout_current_temp"
-        android:layout_centerHorizontal="true"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/btn_thermo_reset"
-            android:layout_width="wrap_content"
-            android:layout_height="44dp"
-            android:text="重新开始"/>
-
-        <Button
-            android:id="@+id/btn_record"
-            android:layout_width="wrap_content"
-            android:layout_height="44dp"
-            android:text="开始记录"/>
-    </LinearLayout>
-
-
-    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_alignParentBottom="true">
-        <LinearLayout
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/secondary">
+        <ImageButton
+            android:id="@+id/ib_restart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="5dp"
+            android:background="@android:color/transparent"
+            android:src="@mipmap/ic_restart_32px" />
+
+        <RelativeLayout
+            android:id="@+id/layout_highest_temp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:gravity="center_horizontal"
+            android:layout_centerInParent="true">
+            <TextView
+                android:id="@+id/tv_highest_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="80sp"
+                android:textColor="#ff0000"
+                android:text="00.00"/>
+
+            <TextView
+                android:id="@+id/tv_temp_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/tv_highest_temp"
+                android:layout_alignParentTop="true"
+                android:text="℃"
+                android:textColor="#ff0000"
+                android:textSize="40sp" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tv_thermo_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/layout_highest_temp"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_vertical"
+            android:textSize="30sp"
+            android:textColor="@color/accent"
+            android:text="正常"
+            android:visibility="gone"/>
+
+        <RelativeLayout
+            android:id="@+id/layout_current_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_thermo_status"
+            android:layout_centerHorizontal="true">
+
+            <TextView
+                android:id="@+id/tv_current_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableStart="@mipmap/ic_realtime_temp"
+                android:text="00.00"
+                android:textColor="@color/secondary_text"
+                android:textSize="30sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="测量位置："/>
-            <EditText
-                android:id="@+id/et_sens_loc"
+                android:layout_alignTop="@+id/tv_current_temp"
+                android:layout_toEndOf="@id/tv_current_temp"
+                android:text="℃"
+                android:textColor="@color/secondary_text"
+                android:textSize="30sp" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/layout_current_temp"
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_record"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="44dp"
+                android:text="开始记录"/>
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_alignParentBottom="true">
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="测量间隔："/>
-            <EditText
-                android:id="@+id/et_meas_interval"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="测量位置："/>
+                <EditText
+                    android:id="@+id/et_sens_loc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="测量间隔："/>
+                <EditText
+                    android:id="@+id/et_meas_interval"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
         </LinearLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
 
-</RelativeLayout>
+    <android.support.design.widget.TabLayout
+        android:id="@+id/thermo_control_panel_tab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabGravity="center"
+        app:tabIndicatorColor="@color/accent"
+        app:tabIndicatorHeight="1dp"
+        app:tabMode="scrollable"
+        app:tabPadding="0dp"
+        app:tabSelectedTextColor="@color/accent"
+        app:tabTextColor="@color/primary_text"
+        app:tabTextAppearance="@style/ControllerTabLayoutTextAppearance"
+        android:background="@color/primary"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/primary_dark"/>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/thermo_control_panel_viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+</LinearLayout>
+

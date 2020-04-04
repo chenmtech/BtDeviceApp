@@ -3,19 +3,29 @@ package com.cmtech.android.bledevice.thermo.view;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.hrm.view.HrDebugFragment;
+import com.cmtech.android.bledevice.hrm.view.HrRecordFragment;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledevice.thermo.model.OnThermoListener;
 import com.cmtech.android.bledevice.thermo.model.ThermoDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
+import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 
@@ -32,8 +42,11 @@ public class ThermoFragment extends DeviceFragment implements OnThermoListener {
     private EditText etSensLoc;
     private EditText etInterval;
 
-    private Button btnReset;
+    private ImageButton ibRestart;
     private Button btnRecord;
+
+    private CtrlPanelAdapter fragAdapter;
+    private final ThermoRecordFragment thermoRecFrag = new ThermoRecordFragment(); // heart rate record Fragment
 
     private ThermoDevice device;
 
@@ -61,8 +74,8 @@ public class ThermoFragment extends DeviceFragment implements OnThermoListener {
         etSensLoc = view.findViewById(R.id.et_sens_loc);
         etInterval = view.findViewById(R.id.et_meas_interval);
 
-        btnReset = view.findViewById(R.id.btn_thermo_reset);
-        btnReset.setOnClickListener(new View.OnClickListener() {
+        ibRestart = view.findViewById(R.id.ib_restart);
+        ibRestart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 device.restart();
@@ -77,6 +90,16 @@ public class ThermoFragment extends DeviceFragment implements OnThermoListener {
                     device.setRecord(!device.isRecord());
             }
         });
+
+
+        ViewPager pager = view.findViewById(R.id.thermo_control_panel_viewpager);
+        TabLayout layout = view.findViewById(R.id.thermo_control_panel_tab);
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(thermoRecFrag));
+        List<String> titleList = new ArrayList<>(Arrays.asList(ThermoRecordFragment.TITLE));
+        fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
+        pager.setAdapter(fragAdapter);
+        pager.setOffscreenPageLimit(2);
+        layout.setupWithViewPager(pager);
 
         device.registerListener(this);
 

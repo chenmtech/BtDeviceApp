@@ -104,8 +104,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
             }
         });
 
-        ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
-        TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
+        ViewPager pager = view.findViewById(R.id.hrm_control_panel_viewpager);
+        TabLayout layout = view.findViewById(R.id.hrm_control_panel_tab);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(debugFrag, hrRecFrag));
         List<String> titleList = new ArrayList<>(Arrays.asList(HrDebugFragment.TITLE, HrRecordFragment.TITLE));
         fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);

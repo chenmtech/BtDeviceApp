@@ -100,8 +100,8 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
         tvCaliValue1mV.setText(String.format(Locale.getDefault(), "%d/%d", device.getValue1mV(), STANDARD_VALUE_1MV_AFTER_CALIBRATION));
         tvHeartRate.setText("");
         initialEcgView();
-        ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
-        TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
+        ViewPager pager = view.findViewById(R.id.hrm_control_panel_viewpager);
+        TabLayout layout = view.findViewById(R.id.hrm_control_panel_tab);
         List<Fragment> fragmentList = new ArrayList<>(Arrays.asList(hrFragment, recordFragment, broadcastFragment));
         List<String> titleList = new ArrayList<>(Arrays.asList(EcgHrStatisticsFragment.TITLE, EcgRecordFragment.TITLE, EcgBroadcastFragment.TITLE));
         CtrlPanelAdapter fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);

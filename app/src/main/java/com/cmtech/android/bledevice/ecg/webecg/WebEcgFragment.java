@@ -99,8 +99,8 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
         tvHeartRate.setText("");
 
         initEcgView();
-        ViewPager pager = view.findViewById(R.id.vp_ecg_control_panel);
-        TabLayout layout = view.findViewById(R.id.tl_ecg_control_panel);
+        ViewPager pager = view.findViewById(R.id.hrm_control_panel_viewpager);
+        TabLayout layout = view.findViewById(R.id.hrm_control_panel_tab);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(hrFragment, recordFragment));
         List<String> titleList = new ArrayList<>(Arrays.asList(EcgHrStatisticsFragment.TITLE, EcgRecordFragment.TITLE));
         CtrlPanelAdapter fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);

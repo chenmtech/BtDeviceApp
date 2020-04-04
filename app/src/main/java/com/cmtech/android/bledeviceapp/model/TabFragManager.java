@@ -148,8 +148,8 @@ public class TabFragManager {
     public void removeFragment(Fragment fragment) {
         if(fragment == null || !fragList.contains(fragment)) return;
 
-        innerFragManager.removeFragment(fragment);
         int index = fragList.indexOf(fragment);
+        innerFragManager.removeFragment(fragment);
         TabLayout.Tab tab = tabLayout.getTabAt(index);
         if(tab != null)
             tabLayout.removeTab(tab);

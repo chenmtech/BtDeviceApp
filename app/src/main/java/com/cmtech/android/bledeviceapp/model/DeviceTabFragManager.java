@@ -37,9 +37,6 @@ public class DeviceTabFragManager extends TabFragManager {
         if(device != null) {
             List<Fragment> fragments = getFragList();
             for (Fragment fragment : fragments) {
-                /*if (device.equals(((DeviceFragment) fragment).getDevice())) {
-                    return (DeviceFragment) fragment;
-                }*/
                 if(device.getAddress().equals(((DeviceFragment) fragment).getDevice().getAddress())) {
                     return (DeviceFragment) fragment;
                 }
@@ -56,7 +53,6 @@ public class DeviceTabFragManager extends TabFragManager {
     // 设备的Fragment是否被选中
     public boolean isFragmentSelected(IDevice device) {
         Fragment fragment = findFragment(device);
-        ViseLog.e(fragment);
         return (fragment != null && fragment == getCurrentFragment());
     }
 }
