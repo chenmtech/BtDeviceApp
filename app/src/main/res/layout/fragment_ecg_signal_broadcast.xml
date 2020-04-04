@@ -20,7 +20,7 @@
             android:layout_centerInParent="true"
             android:layout_margin="4dp"
             android:background="@color/primary_dark"
-            android:src="@mipmap/ic_stop_48px"
+            android:src="@mipmap/ic_stop_32px"
             android:contentDescription="@null"/>
         <TextView
             android:layout_width="wrap_content"

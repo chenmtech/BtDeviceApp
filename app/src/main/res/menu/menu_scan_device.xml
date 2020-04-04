@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/scan_device"
-        android:icon="@mipmap/ic_refresh_32px"
+        android:icon="@mipmap/ic_refresh_24px"
         android:orderInCategory="0"
         android:title="扫描"
         app:showAsAction="always" />

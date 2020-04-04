@@ -89,7 +89,7 @@ public class EcgBroadcastFragment extends Fragment {
     }
 
     public void setBroadcastStatus(final boolean isBroadcast) {
-        int imageId = (isBroadcast) ? R.mipmap.ic_start_48px : R.mipmap.ic_stop_48px;
+        int imageId = (isBroadcast) ? R.mipmap.ic_start_32px : R.mipmap.ic_stop_32px;
         ibBroadcast.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
         ibUpdateReceivers.setEnabled(isBroadcast);
         receiverAdapter.setEnabled(isBroadcast);

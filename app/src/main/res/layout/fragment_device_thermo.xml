@@ -9,7 +9,7 @@
 
     <RelativeLayout
         android:id="@+id/layout_highest_temp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true">
         <TextView
@@ -21,13 +21,13 @@
             android:textColor="#ff0000"
             android:text="00.00"/>
 
-        <ImageView
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/tv_highest_temp"
-            android:layout_centerVertical="true"
-            android:src="@mipmap/ic_temperature_unit"
-            android:contentDescription="temp unit"/>
+            android:text="℃"
+            android:textColor="#ff0000"
+            android:textSize="80sp" />
 
     </RelativeLayout>
 

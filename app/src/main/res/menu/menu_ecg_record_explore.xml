@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/ecg_record_delete"
-        android:icon="@mipmap/ic_delete_32px"
+        android:icon="@mipmap/ic_delete_24px"
         android:orderInCategory="1"
         android:title= "@string/delete"
         app:showAsAction="ifRoom"/>
@@ -24,7 +24,6 @@
         <menu>
             <item
                 android:id="@+id/share_with_wechat"
-                android:icon="@mipmap/ic_wechat_32px"
                 android:title="微信"/>
             <item
                 android:id="@+id/share_with_qq"

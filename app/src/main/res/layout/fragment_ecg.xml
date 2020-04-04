@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_margin="2dp"
-            android:drawableStart="@mipmap/ic_heart_48px"
+            android:drawableStart="@mipmap/ic_hr_48px"
             android:text=""
             android:textSize="40sp"
             android:textColor="@color/primary"/>

@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:src="@mipmap/ic_start_48px"
+            android:src="@mipmap/ic_start_32px"
             android:background="@android:color/transparent"/>
     </FrameLayout>
 
@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="10dp"
-            android:src="@mipmap/ic_stop_48px"
+            android:src="@mipmap/ic_stop_32px"
             android:background="@android:color/transparent"
             android:visibility="invisible"/>
 

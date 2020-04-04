@@ -103,7 +103,7 @@ public class EcgRecordFragment extends Fragment{
     }
 
     public void setRecordStatus(final boolean isRecord) {
-        int imageId = (isRecord) ? R.mipmap.ic_start_48px : R.mipmap.ic_stop_48px;
+        int imageId = (isRecord) ? R.mipmap.ic_start_32px : R.mipmap.ic_stop_32px;
         ibRecord.setImageDrawable(ContextCompat.getDrawable(MyApplication.getContext(), imageId));
         markerAdapter.setEnabled(isRecord);
     }

@@ -59,10 +59,10 @@ public class EcgRecordFragment extends Fragment {
 
     public void updateRecordStatus(boolean isRecord) {
         if(isRecord) {
-            ibRecord.setImageResource(R.mipmap.ic_stop_48px);
+            ibRecord.setImageResource(R.mipmap.ic_stop_32px);
             tvRecordStatus.setText("已记录：");
         } else {
-            ibRecord.setImageResource(R.mipmap.ic_start_48px);
+            ibRecord.setImageResource(R.mipmap.ic_start_32px);
             tvRecordStatus.setText("已停止：");
         }
         this.isRecord = isRecord;
