@@ -1,2 +1,1 @@
 include ':app'
-//project(':ble').projectDir = new File(settingsDir, '../AndroidBLE/ble')
