@@ -75,7 +75,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // 设置标题为设备地址
-        setTitle("设备:"+ registerInfo.getAddress());
+        setTitle("设置:"+ registerInfo.getAddress());
 
         // 设置设备昵称
         etName = findViewById(R.id.et_device_nickname);
