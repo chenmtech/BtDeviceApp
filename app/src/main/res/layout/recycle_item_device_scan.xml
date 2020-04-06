@@ -16,7 +16,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="设备名："
+                android:text="广播名："
                 android:textSize="16sp"/>
             <TextView
                 android:id="@+id/tv_name"
@@ -32,7 +32,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="设备类型："/>
+                android:text="类型："/>
             <TextView
                 android:id="@+id/tv_type"
                 android:layout_width="wrap_content"
@@ -46,7 +46,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="设备地址："/>
+                android:text="地址："/>
             <TextView
                 android:id="@+id/tv_address"
                 android:layout_width="wrap_content"
