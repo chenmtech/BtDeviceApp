@@ -27,9 +27,9 @@
                 android:layout_gravity="center"
                 android:layout_margin="2dp"
                 android:drawableStart="@mipmap/ic_hr_48px"
-                android:text="   "
-                android:textSize="80sp"
-                android:textColor="@color/black"/>
+                android:text="请等待"
+                android:textSize="60sp"
+                android:textColor="@color/gray"/>
 
         </FrameLayout>
 
@@ -54,8 +54,8 @@
                 android:layout_gravity="bottom|start"
                 android:layout_margin="2dp"
                 android:drawableStart="@mipmap/ic_hr_48px"
-                android:text=""
-                android:textSize="40sp"
+                android:text="请等待"
+                android:textSize="30sp"
                 android:textColor="@color/primary"/>
 
             <TextView

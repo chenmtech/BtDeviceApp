@@ -105,10 +105,10 @@ public class ThmFragment extends DeviceFragment implements OnThmListener {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    tvHumidData.setText(String.format(Locale.getDefault(), "%.2f", tempHumidData.getHumid()/100.0));
-                    tvTempData.setText(String.format(Locale.getDefault(), "%.2f", tempHumidData.getTemp()/100.0));
+                    tvHumidData.setText(String.valueOf((int)(Math.round(tempHumidData.getHumid()/100.0))));
+                    tvTempData.setText(String.valueOf((int)(Math.round(tempHumidData.getTemp()/100.0))));
                     float heatindex = tempHumidData.calculateHeatIndex();
-                    tvHeadIndex.setText(String.format(Locale.getDefault(),"%.2f", heatindex));
+                    tvHeadIndex.setText(String.valueOf((int)heatindex));
                 }
             });
         }

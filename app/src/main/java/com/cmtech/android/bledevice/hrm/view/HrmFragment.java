@@ -58,6 +58,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     private FrameLayout flEcgOff; // frame layout when ecg off
     private FrameLayout flEcgOn; // frame layout when ecg on
 
+    private ViewPager pager;
     private CtrlPanelAdapter fragAdapter;
     private final HrRecordFragment hrRecFrag = new HrRecordFragment(); // heart rate record Fragment
     private final HrDebugFragment debugFrag = new HrDebugFragment(); // debug fragment
@@ -104,10 +105,10 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
             }
         });
 
-        ViewPager pager = view.findViewById(R.id.hrm_control_panel_viewpager);
+        pager = view.findViewById(R.id.hrm_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.hrm_control_panel_tab);
-        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(debugFrag, hrRecFrag));
-        List<String> titleList = new ArrayList<>(Arrays.asList(HrDebugFragment.TITLE, HrRecordFragment.TITLE));
+        List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(hrRecFrag));
+        List<String> titleList = new ArrayList<>(Arrays.asList(HrRecordFragment.TITLE));
         fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(3);
@@ -156,7 +157,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    debugFrag.updateHrMeas(hrData.toString());
+                    //debugFrag.updateHrMeas(hrData.toString());
 
                     int bpm = hrData.getBpm();
                     tvHrEcgOn.setText(String.valueOf(bpm));
@@ -196,7 +197,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    debugFrag.updateHrSensLoc(String.valueOf(loc));
+                    //debugFrag.updateHrSensLoc(String.valueOf(loc));
                 }
             });
         }
@@ -220,6 +221,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         flEcgOn.setVisibility(View.GONE);
                         ecgView.stop();
                         fragAdapter.removeFragment(ecgRecFrag);
+                        pager.setCurrentItem(fragAdapter.getCount()-1);
                     } else {
                         tvEcgSwitch.setVisibility(View.VISIBLE);
                         fragAdapter.addFragment(ecgRecFrag, EcgRecordFragment.TITLE);
