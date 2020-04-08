@@ -4,6 +4,8 @@ import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledevice.interf.IEcgRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
@@ -29,12 +31,12 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
  * Version:        1.0
  */
 public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serializable {
-    private int sampleRate; // 采样频率
-    private int caliValue; // 标定值
-    private int leadTypeCode; // 导联类型代码
+    private int sampleRate; // sample rate
+    private int caliValue; // calibration value of 1mV
+    private int leadTypeCode; // lead type code
     private int recordSecond; // unit: s
-    private String note;
-    private List<Short> ecgList; // list of the filtered HR
+    private String note; // record description
+    private List<Short> ecgList; // ecg data
     @Column(ignore = true)
     private int pos = 0;
 
@@ -138,5 +140,25 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     @Override
     public String toString() {
         return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + note + "-" + ecgList;
+    }
+
+    public JSONObject toJson() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("sampleRate", sampleRate);
+            jsonObject.put("caliValue", caliValue);
+            jsonObject.put("leadTypeCode", leadTypeCode);
+            jsonObject.put("recordSecond", recordSecond);
+            jsonObject.put("note", note);
+            StringBuilder builder = new StringBuilder();
+            for(Short ele : ecgList) {
+                builder.append(ele).append(',');
+            }
+            jsonObject.put("ecgList", builder.toString());
+            return jsonObject;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

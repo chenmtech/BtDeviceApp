@@ -17,9 +17,17 @@ import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
+import org.jetbrains.annotations.NotNull;
 import org.litepal.LitePal;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.activity.LoginActivity.PLATFORM_NAME_ICON_PAIR;
 
@@ -40,6 +48,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private EditText etNote;
     private Button btnSave;
+    private Button btnSend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +62,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             setResult(RESULT_CANCELED);
             finish();
         }
-        ViseLog.e(record);
+        ViseLog.e(record.toJson().toString());
 
         ivRecordType = findViewById(R.id.iv_record_type);
         ivRecordType.setImageResource(R.mipmap.ic_ecg_24px);
@@ -132,6 +141,25 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     etNote.setEnabled(true);
                     btnSave.setText("保存");
                 }
+            }
+        });
+
+        btnSend = findViewById(R.id.btn_send);
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String url = "http://192.168.0.102:8080";
+                HttpUtils.postRequest(url, record.toJson().toString(), new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        ViseLog.e("发送失败");
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        ViseLog.e("发送Ecg记录成功");
+                    }
+                });
             }
         });
 
