@@ -143,8 +143,10 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     public JSONObject toJson() {
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject = super.toJson();
+        if(jsonObject == null) return null;
         try {
+            jsonObject.put("recordTypeCode", 1);
             jsonObject.put("sampleRate", sampleRate);
             jsonObject.put("caliValue", caliValue);
             jsonObject.put("leadTypeCode", leadTypeCode);
@@ -154,7 +156,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
             for(Short ele : ecgList) {
                 builder.append(ele).append(',');
             }
-            jsonObject.put("ecgList", builder.toString());
+            jsonObject.put("ecgData", builder.toString());
             return jsonObject;
         } catch (JSONException e) {
             e.printStackTrace();
