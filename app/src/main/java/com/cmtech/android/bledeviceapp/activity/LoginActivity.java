@@ -1,24 +1,28 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 
+import org.jetbrains.annotations.NotNull;
 import org.litepal.LitePal;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,20 +34,14 @@ import cn.sharesdk.wechat.friends.Wechat;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.RegisterPage;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
-import static com.cmtech.android.bledeviceapp.activity.HuaweiLoginActivity.HUAWEI_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.AppConstant.HW_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.AppConstant.SMS_PLAT_NAME;
 
 public class LoginActivity extends AppCompatActivity {
-    private static final String SMS_PLAT_NAME = "SMS";
-    public static final Map<String, Integer> PLATFORM_NAME_ICON_PAIR = new HashMap<String, Integer>() {
-        {
-            put(QQ.NAME, R.mipmap.ic_qq);
-            put(Wechat.NAME, R.mipmap.ic_wechat);
-            put(HUAWEI_PLAT_NAME, R.mipmap.ic_huawei);
-            put(SMS_PLAT_NAME, R.mipmap.ic_sms);
-        }
-    };
-
     private ImageButton qqLogin;
     private ImageButton wxLogin;
     private ImageButton hwLogin;
@@ -107,7 +105,23 @@ public class LoginActivity extends AppCompatActivity {
         cbGrant = findViewById(R.id.cb_privacy_grant);
     }
 
-    public static void loginMainActivity(Activity activity, String platName, String platId, String name) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+            case 1: // 华为登录返回码
+                if (resultCode == RESULT_OK) {
+                    String platId = data.getStringExtra("platId");
+                    String userName = data.getStringExtra("userName");
+                    String icon = data.getStringExtra("icon");
+                    signUpKMServer(HW_PLAT_NAME, platId);
+                    loginMainActivity(HW_PLAT_NAME, platId, userName, icon);
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void loginMainActivity(String platName, String platId, String name, String icon) {
         Account account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(Account.class);
         if(account == null) {
             account = new Account();
@@ -115,12 +129,13 @@ public class LoginActivity extends AppCompatActivity {
             account.setPlatId(platId);
         }
         account.setName(name);
+        account.setIcon(icon);
         account.save();
         AccountManager.setAccount(account);
 
-        Intent intent = new Intent(activity, MainActivity.class);
-        activity.startActivity(intent);
-        activity.finish();
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private boolean checkPrivacyGrant() {
@@ -128,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
         if(granted) {
             MobSDK.submitPolicyGrantResult(granted, null);
         } else {
-            Toast.makeText(this, "如您同意上述隐私条款，请勾选授权框。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "请勾选同意隐私条款。", Toast.LENGTH_SHORT).show();
         }
         return granted;
     }
@@ -138,22 +153,24 @@ public class LoginActivity extends AppCompatActivity {
         ShareSDK.setActivity(LoginActivity.this);
         if (plat.isAuthValid()) {
             String platId = plat.getDb().getUserId();
-            String name = plat.getDb().getUserName();
-            LoginActivity.loginMainActivity(this, platName, platId, name);
+            String username = plat.getDb().getUserName();
+            String icon = plat.getDb().getUserIcon();
+            loginMainActivity(platName, platId, username, icon);
         } else {
             //授权回调监听，监听oncomplete，onerror，oncancel三种状态
             plat.setPlatformActionListener(new PlatformActionListener() {
                 @Override
                 public void onComplete(Platform platform, int i, HashMap<String, Object> hashMap) {
                     String platId = platform.getDb().getUserId();
-                    String name = platform.getDb().getUserName();
+                    String userName = platform.getDb().getUserName();
                     String icon = platform.getDb().getUserIcon();
-                    LoginActivity.loginMainActivity(LoginActivity.this, platName, platId, name);
+                    signUpKMServer(platName, platId);
+                    loginMainActivity(platName, platId, userName, icon);
                 }
 
                 @Override
                 public void onError(Platform platform, int i, Throwable throwable) {
-
+                    MyApplication.showMessageUsingShortToast("登录错误");
                 }
 
                 @Override
@@ -168,8 +185,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginUsingHuaweiAccount() {
         Intent intent = new Intent(LoginActivity.this, HuaweiLoginActivity.class);
-        startActivity(intent);
-        finish();
+        startActivityForResult(intent, 1);
     }
 
     private void loginUsingSMS(Context context) {
@@ -185,14 +201,33 @@ public class LoginActivity extends AppCompatActivity {
                     String country = (String) phoneMap.get("country");
                     // 手机号码，如“13800138000”
                     String phone = (String) phoneMap.get("phone");
-                    // TODO 利用国家代码和手机号码进行后续的操作
-                    ViseLog.e(country+phone);
-                    LoginActivity.loginMainActivity(LoginActivity.this, SMS_PLAT_NAME, country+phone, phone);
+                    String platId = country+phone;
+
+                    signUpKMServer(SMS_PLAT_NAME, platId);
+                    loginMainActivity(SMS_PLAT_NAME, platId, phone, "");
                 } else{
                     // TODO 处理错误的结果
                 }
             }
         });
         page.show(context);
+    }
+
+    private void signUpKMServer(String platName, String platId) {
+        KMWebService.signUp(platName, platId, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String respBody = response.body().string();
+                Map<String, Object> map = KMWebService.parseSignUpJsonResponse(respBody);
+                boolean isSuccess = (Boolean) map.get("isSuccess");
+                String errStr = (String) map.get("errStr");
+                ViseLog.e(isSuccess+errStr);
+            }
+        });
     }
 }

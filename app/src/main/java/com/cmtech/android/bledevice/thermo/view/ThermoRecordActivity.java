@@ -16,7 +16,7 @@ import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledeviceapp.activity.LoginActivity.PLATFORM_NAME_ICON_PAIR;
+import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -63,7 +63,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
         tvCreator = findViewById(R.id.tv_creator);
         tvCreator.setText(record.getCreatorName());
 
-        Drawable drawable = ContextCompat.getDrawable(this, PLATFORM_NAME_ICON_PAIR.get(record.getCreatorPlat()));
+        Drawable drawable = ContextCompat.getDrawable(this, SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 

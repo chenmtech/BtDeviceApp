@@ -33,7 +33,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,8 +72,10 @@ import cn.sharesdk.wechat.friends.Wechat;
 import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
 import static com.cmtech.android.bledeviceapp.AppConstant.KM_STORE_URI;
+import static com.cmtech.android.bledeviceapp.AppConstant.QQ_PLAT_NAME;
+import static com.cmtech.android.bledeviceapp.AppConstant.WX_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
-import static com.cmtech.android.bledeviceapp.activity.LoginActivity.PLATFORM_NAME_ICON_PAIR;
+import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_INFO;
 
 /**
@@ -165,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         setSupportActionBar(toolbar);
         TextView tvBattery = findViewById(R.id.tv_device_battery);
         tbManager = new MainToolbarManager(this, toolbar, tvBattery);
-        tbManager.setNavIcon(AccountManager.getAccount().getIcon());
+        //tbManager.setNavIcon(AccountManager.getAccount().getIcon());
 
         // init device control panel
         ViewPager pager = findViewById(R.id.vp_device_panel);
@@ -332,7 +333,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             case RC_MODIFY_ACCOUNT_INFO: // 修改用户信息返回
                 if(resultCode == RESULT_OK) {
                     updateNavigationHeader();
-                    tbManager.setNavIcon(AccountManager.getAccount().getIcon());
+                    //tbManager.setNavIcon(AccountManager.getAccount().getIcon());
                 } else {
                     boolean logout = (data != null && data.getBooleanExtra("logout", false));
                     if(logout) { // 退出登录
@@ -619,10 +620,10 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
         Account account = AccountManager.getAccount();
         if(account != null) {
-            if(account.getPlatName().equals(QQ.NAME)) {
+            if(account.getPlatName().equals(QQ_PLAT_NAME)) {
                 Platform plat = ShareSDK.getPlatform(QQ.NAME);
                 plat.removeAccount(true);
-            } else if(account.getPlatName().equals(Wechat.NAME)) {
+            } else if(account.getPlatName().equals(WX_PLAT_NAME)) {
                 Platform plat = ShareSDK.getPlatform(Wechat.NAME);
                 plat.removeAccount(true);
             }
@@ -645,7 +646,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
 
         // load icon by platform name
-        ivAccountImage.setImageResource(PLATFORM_NAME_ICON_PAIR.get(account.getPlatName()));
+        ivAccountImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
         //Glide.with(MyApplication.getContext()).load(R.id.ib_qq_login).into(ivAccountImage);
 
         /* load icon from imagePath

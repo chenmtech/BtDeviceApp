@@ -41,7 +41,7 @@ public class UserUtil {
         Map<String, String> data = new HashMap<>();
         data.put("open_id", userId);
         String url = getuser_url + convertString(data);
-        HttpUtils.upload(url, new Callback() {
+        HttpUtils.requestGet(url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 if(callback != null) {
@@ -75,7 +75,7 @@ public class UserUtil {
         data.put("user_description", description);
         //data.put("user_image", bitmapToString(image));
         String url = saveuser_url + convertString(data);
-        HttpUtils.upload(url, new Callback() {
+        HttpUtils.requestGet(url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 if(callback != null) {

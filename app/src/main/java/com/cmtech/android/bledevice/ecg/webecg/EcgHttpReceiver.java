@@ -53,7 +53,7 @@ public class EcgHttpReceiver {
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_RECEIVER_ID, receiverId);
 
-        HttpUtils.upload(device_info_url, data, new Callback() {
+        HttpUtils.requestGet(device_info_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, e.getMessage());
@@ -92,7 +92,7 @@ public class EcgHttpReceiver {
         data.put(TYPE_RECEIVER_ID, receiverId);
         data.put(TYPE_LAST_PACKET_ID, String.valueOf(id));
         data.put(TYPE_DATA_TYPE, String.valueOf(1));
-        HttpUtils.upload(download_url, data, new Callback() {
+        HttpUtils.requestGet(download_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, e.getMessage());

@@ -29,7 +29,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.cmtech.android.bledeviceapp.activity.LoginActivity.PLATFORM_NAME_ICON_PAIR;
+import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
     private BleEcgRecord10 record;
@@ -74,7 +74,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvCreator = findViewById(R.id.tv_creator);
         tvCreator.setText(record.getCreatorName());
 
-        Drawable drawable = ContextCompat.getDrawable(this, PLATFORM_NAME_ICON_PAIR.get(record.getCreatorPlat()));
+        Drawable drawable = ContextCompat.getDrawable(this, SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 
@@ -149,7 +149,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             @Override
             public void onClick(View v) {
                 String url = "http://192.168.0.102:8080";
-                HttpUtils.postRequest(url, record.toJson().toString(), new Callback() {
+                HttpUtils.requestPost(url, record.toJson().toString(), new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         ViseLog.e("发送失败");

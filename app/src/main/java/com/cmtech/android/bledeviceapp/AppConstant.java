@@ -12,8 +12,13 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import cn.sharesdk.tencent.qq.QQ;
+import cn.sharesdk.wechat.friends.Wechat;
 
 /**
  * AppConstant: App constant
@@ -39,4 +44,20 @@ public class AppConstant {
             add(WebEcgFactory.ECGWEBMONITOR_DEVICE_TYPE);
         }
     }; // supported device type
+
+    public static final String QQ_PLAT_NAME = QQ.NAME;
+    public static final String WX_PLAT_NAME = Wechat.NAME;
+    public static final String HW_PLAT_NAME = "HW";
+    public static final String SMS_PLAT_NAME = "SMS";
+    public static final Map<String, Integer> SUPPORT_LOGIN_PLATFORM = new HashMap<String, Integer>() {
+        {
+            put(QQ_PLAT_NAME, R.mipmap.ic_qq);
+            put(WX_PLAT_NAME, R.mipmap.ic_wechat);
+            put(HW_PLAT_NAME, R.mipmap.ic_huawei);
+            put(SMS_PLAT_NAME, R.mipmap.ic_sms);
+        }
+    }; // supported login platform
+
+    public static final String KMURL = "http://192.168.0.102:8080/BtDeviceWebApp/";
+
 }

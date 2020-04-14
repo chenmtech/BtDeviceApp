@@ -112,7 +112,7 @@ public class EcgHttpBroadcast {
         data.put(TYPE_SAMPLE_RATE, String.valueOf(sampleRate));
         data.put(TYPE_CALI_VALUE, String.valueOf(caliValue));
         data.put(TYPE_LEAD_TYPE, String.valueOf(leadTypeCode));
-        HttpUtils.upload(upload_url, data, new Callback() {
+        HttpUtils.requestGet(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "broadcast start fail.");
@@ -186,9 +186,9 @@ public class EcgHttpBroadcast {
         }
         String ecgStr = sb.toString();
 
-        data.put(TYPE_DATA, HttpUtils.convertString(hrBuffer)+ ";"+ ecgStr);
+        data.put(TYPE_DATA, HttpUtils.convertToString(hrBuffer)+ ";"+ ecgStr);
         hrBuffer.clear();
-        HttpUtils.upload(upload_url, data, new Callback() {
+        HttpUtils.requestGet(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 ViseLog.e(e.getMessage());
@@ -223,7 +223,7 @@ public class EcgHttpBroadcast {
         data.put(TYPE_DEVICE_ID, deviceId);
         data.put(TYPE_RECEIVER_ID, receiver.getPlatId());
 
-        HttpUtils.upload(upload_url, data, new Callback() {
+        HttpUtils.requestGet(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 notifyReceiverUpdated();
@@ -260,7 +260,7 @@ public class EcgHttpBroadcast {
         data.put(TYPE_DEVICE_ID, deviceId);
         data.put(TYPE_RECEIVER_ID, receiver.getPlatId());
 
-        HttpUtils.upload(upload_url, data, new Callback() {
+        HttpUtils.requestGet(upload_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 notifyReceiverUpdated();
@@ -288,7 +288,7 @@ public class EcgHttpBroadcast {
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
-        HttpUtils.upload(getuser_url, data, new Callback() {
+        HttpUtils.requestGet(getuser_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "getReceivers failure.");
@@ -311,7 +311,7 @@ public class EcgHttpBroadcast {
         Map<String, String> data = new HashMap<>();
         data.put(TYPE_USER_ID, userId);
         data.put(TYPE_DEVICE_ID, deviceId);
-        HttpUtils.upload(getuser_url, data, new Callback() {
+        HttpUtils.requestGet(getuser_url, data, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "getReceivers failure.");

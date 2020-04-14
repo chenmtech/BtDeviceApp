@@ -2,6 +2,9 @@ package com.cmtech.android.bledeviceapp.util;
 
 import com.vise.log.ViseLog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,26 +17,15 @@ import okhttp3.RequestBody;
 
 public class HttpUtils {
     private static OkHttpClient client = new OkHttpClient();
+    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public static void upload(String baseUrl, Map<String, String> data, Callback callback) {
-        String url = baseUrl + convertString(data);
-        Get(url, callback);
+    public static void requestGet(String baseUrl, Map<String, String> requestData, Callback callback) {
+        String url = baseUrl + convertToString(requestData);
+        requestGet(url, callback);
         ViseLog.e(url);
     }
 
-    public static String upload(String url, Callback callback) {
-        ViseLog.e(url);
-        String result = "OK";
-        try {
-            Get(url, callback);
-            return result;
-        } catch (Exception ex) {
-            return "failure:" + ex.getMessage();
-        }
-    }
-
-    private static void Get(String url, Callback callback) {
-        OkHttpClient client = new OkHttpClient();
+    public static void requestGet(String url, Callback callback) {
         Request request = new Request.Builder()
                 .get() //请求参数
                 .url(url)
@@ -42,7 +34,16 @@ public class HttpUtils {
         client.newCall(request).enqueue(callback);
     }
 
-    private static String convertString(Map<String, String> data) {
+    public static void requestPost(String url, String json, Callback callback) {
+        RequestBody body = RequestBody.create(JSON, json);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
+    private static String convertToString(Map<String, String> data) {
         if (data == null || data.isEmpty()) return "";
 
         StringBuilder builder = new StringBuilder();
@@ -58,7 +59,7 @@ public class HttpUtils {
         return builder.toString();
     }
 
-    public static String convertString(List list) {
+    public static String convertToString(List list) {
         if (list == null || list.isEmpty()) {
             return null;
         }
@@ -70,7 +71,6 @@ public class HttpUtils {
     }
 
     public static Map<String, String> parseUrl(String url) {
-
         Map<String, String> entity = new HashMap<>();
         if (url == null) {
             return entity;
@@ -97,16 +97,4 @@ public class HttpUtils {
 
         return entity;
     }
-
-    private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-
-    public static void postRequest(String url, String json, Callback callback) {
-        RequestBody body = RequestBody.create(JSON, json);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-        client.newCall(request).enqueue(callback);
-    }
-
 }
