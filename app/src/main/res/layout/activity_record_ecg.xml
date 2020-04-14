@@ -1,23 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:cmtech="http://schemas.android.com/apk/res-auto"
+    xmlns:toolbar="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tb_ecg_record"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        toolbar:title="心电记录"
+        toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <!--记录简介部分-->
     <include layout="@layout/layout_record_item"/>
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="3"
         android:layout_marginStart="6dp"
         android:layout_marginEnd="6dp">
 
         <com.cmtech.android.bledevice.view.RollEcgRecordWaveView
             android:id="@+id/scan_ecg_view"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="match_parent"
             cmtech:background_color="#666"
             cmtech:grid_color="#f00"
             cmtech:wave_color="#ff0"
@@ -69,60 +80,27 @@
             android:textSize="12sp"/>
     </LinearLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:text="备注："/>
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:text="备注："/>
 
-            <EditText
-                android:id="@+id/et_note"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:ems="10"
-                android:gravity="start|top"
-                android:inputType="textMultiLine"
-                android:enabled="false"/>
+    <EditText
+        android:id="@+id/et_note"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:ems="10"
+        android:gravity="start|top"
+        android:inputType="textMultiLine"
+        android:enabled="false"/>
 
-            <Button
-                android:id="@+id/btn_save"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="编辑"/>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:text="报告："/>
-
-            <EditText
-                android:id="@+id/et_report"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_weight="1"
-                android:ems="10"
-                android:gravity="start|top"
-                android:inputType="textMultiLine"
-                android:enabled="false"/>
-            <Button
-                android:id="@+id/btn_get_report"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="获取报告"/>
-        </LinearLayout>
-
-
-
-    </android.support.v4.widget.NestedScrollView>
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="编辑"/>
 
 
 

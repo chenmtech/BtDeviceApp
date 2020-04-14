@@ -4,6 +4,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -55,12 +58,15 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private EditText etNote;
     private Button btnSave;
-    private Button btnGetReport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_ecg);
+
+        // 创建ToolBar
+        Toolbar toolbar = findViewById(R.id.tb_ecg_record);
+        setSupportActionBar(toolbar);
 
         int recordId = getIntent().getIntExtra("record_id", -1);
 
@@ -155,52 +161,28 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             }
         });
 
-        btnGetReport = findViewById(R.id.btn_get_report);
-        btnGetReport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                KMWebService.findRecord(1, record.getCreateTime(), record.getDevAddress(), new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        ViseLog.e("寻找记录失败");
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        Map<String, Object> map = KMWebService.parseFindRecordJsonResponse(response.body().string());
-                        int id = (Integer) map.get("id");
-                        ViseLog.e("find ecg record id = " + id);
-                        if(id == INVALID_ID) {
-                            KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
-                                @Override
-                                public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                                    ViseLog.e("上传记录失败");
-                                }
-
-                                @Override
-                                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                                    String respBody = response.body().string();
-                                    Map<String, Object> map = KMWebService.parseUploadRecordJsonResponse(respBody);
-                                    boolean isSuccess = (Boolean) map.get("isSuccess");
-                                    String errStr = (String) map.get("errStr");
-                                    if(isSuccess) {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                MyApplication.showMessageUsingShortToast("记录上传成功");
-                                            }
-                                        });
-                                    }
-                                    ViseLog.e(isSuccess+errStr);
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-        });
-
         signalView.startShow();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_ecg_record, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED, null);
+                finish();
+                break;
+
+            case R.id.ecg_upload:
+                upload();
+                break;
+        }
+        return true;
     }
 
     @Override
@@ -220,5 +202,44 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         super.onDestroy();
 
         signalView.stopShow();
+    }
+
+    private void upload() {
+        KMWebService.findRecord(1, record.getCreateTime(), record.getDevAddress(), new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                ViseLog.e("寻找记录失败");
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                Map<String, Object> map = KMWebService.parseFindRecordJsonResponse(response.body().string());
+                int id = (Integer) map.get("id");
+                ViseLog.e("find ecg record id = " + id);
+                KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        ViseLog.e("上传记录失败");
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String respBody = response.body().string();
+                        Map<String, Object> map = KMWebService.parseUploadRecordJsonResponse(respBody);
+                        boolean isSuccess = (Boolean) map.get("isSuccess");
+                        final String errStr = (String) map.get("errStr");
+                        if(isSuccess) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    MyApplication.showMessageUsingShortToast(errStr);
+                                }
+                            });
+                        }
+                        ViseLog.e(isSuccess+errStr);
+                    }
+                });
+            }
+        });
     }
 }
