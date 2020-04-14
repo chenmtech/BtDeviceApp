@@ -1,5 +1,6 @@
 package com.cmtech.android.bledeviceapp.model;
 
+import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
@@ -52,4 +53,50 @@ public class KMWebService {
         }
     }
 
+    public static void findRecord(int recordTypeCode, long createTime, String devAddress, Callback callback) {
+        Map<String, String> data = new HashMap<>();
+        data.put("recordTypeCode", String.valueOf(recordTypeCode));
+        data.put("createTime", String.valueOf(createTime));
+        data.put("devAddress", devAddress);
+        HttpUtils.requestGet(KMURL + "RecordUpload?", data, callback);
+    }
+
+    public static Map<String, Object> parseFindRecordJsonResponse(String jsonStr) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            JSONObject json = new JSONObject(jsonStr);
+            int id = Integer.parseInt(json.getString("id"));
+            map.put("id", id);
+            return map;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static void uploadRecord(String platName, String platId, BleEcgRecord10 record, Callback callback) {
+        JSONObject json = record.toJson();
+        try {
+            json.put("platName", platName);
+            json.put("platId", platId);
+            HttpUtils.requestPost(KMURL + "RecordUpload?", json, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Map<String, Object> parseUploadRecordJsonResponse(String jsonStr) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            JSONObject json = new JSONObject(jsonStr);
+            boolean isSuccess = Boolean.parseBoolean(json.getString("isSuccess"));
+            String errStr = json.getString("errStr");
+            map.put("isSuccess", isSuccess);
+            map.put("errStr", errStr);
+            return map;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

@@ -2,11 +2,13 @@ package com.cmtech.android.bledevice.interf;
 
 import com.cmtech.android.bledeviceapp.model.Account;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 import org.litepal.crud.LitePalSupport;
 
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -38,6 +40,9 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
 
     public int getId() {
         return id;
+    }
+    public byte[] getVer() {
+        return ver;
     }
     public void setVer(byte[] ver) {
         this.ver[0] = ver[0];
@@ -77,7 +82,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     public JSONObject toJson() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("ver", ver);
+            jsonObject.put("ver", ver[0]+","+ver[1]);
             jsonObject.put("createTime", createTime);
             jsonObject.put("devAddress", devAddress);
             jsonObject.put("creatorPlat", creatorPlat);

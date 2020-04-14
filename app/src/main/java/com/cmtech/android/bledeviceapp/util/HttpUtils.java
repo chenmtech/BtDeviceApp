@@ -34,8 +34,8 @@ public class HttpUtils {
         client.newCall(request).enqueue(callback);
     }
 
-    public static void requestPost(String url, String json, Callback callback) {
-        RequestBody body = RequestBody.create(JSON, json);
+    public static void requestPost(String url, JSONObject json, Callback callback) {
+        RequestBody body = RequestBody.create(JSON, json.toString());
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)

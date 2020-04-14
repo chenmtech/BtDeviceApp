@@ -15,7 +15,10 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
@@ -24,14 +27,18 @@ import org.jetbrains.annotations.NotNull;
 import org.litepal.LitePal;
 
 import java.io.IOException;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+import static com.cmtech.android.bledeviceapp.AppConstant.KMURL;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
+    private static final int INVALID_ID = -1;
+
     private BleEcgRecord10 record;
 
     private TextView tvCreateTime; // 创建时间
@@ -48,7 +55,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private EditText etNote;
     private Button btnSave;
-    private Button btnSend;
+    private Button btnGetReport;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +68,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
+        }
+        if(record.getNote() == null) {
+            record.setNote("");
+            record.save();
         }
         ViseLog.e(record.toJson().toString());
 
@@ -144,20 +155,46 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             }
         });
 
-        btnSend = findViewById(R.id.btn_send);
-        btnSend.setOnClickListener(new View.OnClickListener() {
+        btnGetReport = findViewById(R.id.btn_get_report);
+        btnGetReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String url = "http://192.168.0.102:8080";
-                HttpUtils.requestPost(url, record.toJson().toString(), new Callback() {
+                KMWebService.findRecord(1, record.getCreateTime(), record.getDevAddress(), new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        ViseLog.e("发送失败");
+                        ViseLog.e("寻找记录失败");
                     }
 
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        ViseLog.e("发送Ecg记录成功");
+                        Map<String, Object> map = KMWebService.parseFindRecordJsonResponse(response.body().string());
+                        int id = (Integer) map.get("id");
+                        ViseLog.e("find ecg record id = " + id);
+                        if(id == INVALID_ID) {
+                            KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                                @Override
+                                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                    ViseLog.e("上传记录失败");
+                                }
+
+                                @Override
+                                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                    String respBody = response.body().string();
+                                    Map<String, Object> map = KMWebService.parseUploadRecordJsonResponse(respBody);
+                                    boolean isSuccess = (Boolean) map.get("isSuccess");
+                                    String errStr = (String) map.get("errStr");
+                                    if(isSuccess) {
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                MyApplication.showMessageUsingShortToast("记录上传成功");
+                                            }
+                                        });
+                                    }
+                                    ViseLog.e(isSuccess+errStr);
+                                }
+                            });
+                        }
                     }
                 });
             }
