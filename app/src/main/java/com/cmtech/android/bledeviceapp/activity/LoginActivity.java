@@ -20,6 +20,8 @@ import com.mob.MobSDK;
 import com.vise.log.ViseLog;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.io.IOException;
@@ -222,11 +224,16 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if(response.body() == null) return;
                 String respBody = response.body().string();
-                Map<String, Object> map = KMWebService.parseSignUpJsonResponse(respBody);
-                boolean isSuccess = (Boolean) map.get("isSuccess");
-                String errStr = (String) map.get("errStr");
-                ViseLog.e(isSuccess+errStr);
+                try {
+                    JSONObject json = new JSONObject(respBody);
+                    int code = json.getInt("code");
+                    String errStr = json.getString("errStr");
+                    ViseLog.e(code+errStr);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

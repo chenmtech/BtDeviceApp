@@ -27,6 +27,8 @@ import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.io.IOException;
@@ -213,32 +215,41 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                Map<String, Object> map = KMWebService.parseFindRecordJsonResponse(response.body().string());
-                int id = (Integer) map.get("id");
-                ViseLog.e("find ecg record id = " + id);
-                KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        ViseLog.e("上传记录失败");
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String respBody = response.body().string();
-                        Map<String, Object> map = KMWebService.parseUploadRecordJsonResponse(respBody);
-                        boolean isSuccess = (Boolean) map.get("isSuccess");
-                        final String errStr = (String) map.get("errStr");
-                        if(isSuccess) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    MyApplication.showMessageUsingShortToast(errStr);
-                                }
-                            });
+                if(response.body() == null) return;
+                try {
+                    JSONObject json = new JSONObject(response.body().string());
+                    int id = json.getInt("id");
+                    ViseLog.e("find ecg record id = " + id);
+                    KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                        @Override
+                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                            ViseLog.e("上传记录失败");
                         }
-                        ViseLog.e(isSuccess+errStr);
-                    }
-                });
+
+                        @Override
+                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                            String respBody = response.body().string();
+                            try {
+                                JSONObject json = new JSONObject(respBody);
+                                boolean isSuccess = json.getBoolean("isSuccess");
+                                final String errStr = json.getString("errStr");
+                                if(isSuccess) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MyApplication.showMessageUsingShortToast(errStr);
+                                        }
+                                    });
+                                }
+                                ViseLog.e(isSuccess+errStr);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
