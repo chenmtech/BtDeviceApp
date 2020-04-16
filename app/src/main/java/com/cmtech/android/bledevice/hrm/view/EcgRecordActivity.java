@@ -23,7 +23,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
 import org.jetbrains.annotations.NotNull;
@@ -32,13 +31,11 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.io.IOException;
-import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-import static com.cmtech.android.bledeviceapp.AppConstant.KMURL;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
@@ -207,10 +204,15 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void upload() {
-        KMWebService.findRecord(1, record.getCreateTime(), record.getDevAddress(), new Callback() {
+        KMWebService.queryRecord(1, record.getCreateTime(), record.getDevAddress(), new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                ViseLog.e("寻找记录失败");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MyApplication.showMessageUsingShortToast("您的网络有问题");
+                    }
+                });
             }
 
             @Override
@@ -220,34 +222,68 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     JSONObject json = new JSONObject(response.body().string());
                     int id = json.getInt("id");
                     ViseLog.e("find ecg record id = " + id);
-                    KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
-                        @Override
-                        public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                            ViseLog.e("上传记录失败");
-                        }
+                    if(id == INVALID_ID) {
+                        KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                            @Override
+                            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        MyApplication.showMessageUsingShortToast("您的网络有问题");
+                                    }
+                                });
+                            }
 
-                        @Override
-                        public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                            String respBody = response.body().string();
-                            try {
-                                JSONObject json = new JSONObject(respBody);
-                                boolean isSuccess = json.getBoolean("isSuccess");
-                                final String errStr = json.getString("errStr");
-                                if(isSuccess) {
+                            @Override
+                            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                String respBody = response.body().string();
+                                try {
+                                    JSONObject json = new JSONObject(respBody);
+                                    final int code = json.getInt("code");
+                                    final String errStr = json.getString("errStr");
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             MyApplication.showMessageUsingShortToast(errStr);
                                         }
                                     });
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                                ViseLog.e(isSuccess+errStr);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
-                        }
-                    });
-                } catch (JSONException e) {
+                        });
+                    } else {
+                        KMWebService.updateRecordNote(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                            @Override
+                            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        MyApplication.showMessageUsingShortToast("您的网络有问题");
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                String respBody = response.body().string();
+                                try {
+                                    JSONObject json = new JSONObject(respBody);
+                                    final int code = json.getInt("code");
+                                    final String errStr = json.getString("errStr");
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MyApplication.showMessageUsingShortToast(errStr);
+                                        }
+                                    });
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
+                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }

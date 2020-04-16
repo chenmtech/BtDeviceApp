@@ -216,10 +216,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void signUpKMServer(String platName, String platId) {
-        KMWebService.signUp(platName, platId, new Callback() {
+        KMWebService.signUporLogin(platName, platId, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        MyApplication.showMessageUsingShortToast("您的网络有问题");
+                    }
+                });
             }
 
             @Override

@@ -39,7 +39,23 @@ public class KMWebService {
         HttpUtils.requestGet(KMURL + "Account?", data, callback);
     }
 
-    public static void findRecord(int recordTypeCode, long createTime, String devAddress, Callback callback) {
+    public static void login(String platName, String platId, Callback callback) {
+        Map<String, String> data = new HashMap<>();
+        data.put("cmd", "login");
+        data.put("platName", platName);
+        data.put("platId", platId);
+        HttpUtils.requestGet(KMURL + "Account?", data, callback);
+    }
+
+    public static void signUporLogin(String platName, String platId, Callback callback) {
+        Map<String, String> data = new HashMap<>();
+        data.put("cmd", "signUporLogin");
+        data.put("platName", platName);
+        data.put("platId", platId);
+        HttpUtils.requestGet(KMURL + "Account?", data, callback);
+    }
+
+    public static void queryRecord(int recordTypeCode, long createTime, String devAddress, Callback callback) {
         Map<String, String> data = new HashMap<>();
         data.put("recordTypeCode", String.valueOf(recordTypeCode));
         data.put("createTime", String.valueOf(createTime));
@@ -50,8 +66,25 @@ public class KMWebService {
     public static void uploadRecord(String platName, String platId, BleEcgRecord10 record, Callback callback) {
         JSONObject json = record.toJson();
         try {
+            json.put("cmd", "upload");
             json.put("platName", platName);
             json.put("platId", platId);
+            HttpUtils.requestPost(KMURL + "Record?", json, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void updateRecordNote(String platName, String platId, BleEcgRecord10 record, Callback callback) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", "updateNote");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            json.put("recordTypeCode", 1);
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
+            json.put("note", record.getNote());
             HttpUtils.requestPost(KMURL + "Record?", json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
