@@ -26,7 +26,6 @@ import org.litepal.LitePal;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.PlatformActionListener;
