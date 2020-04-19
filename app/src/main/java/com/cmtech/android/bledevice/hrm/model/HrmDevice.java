@@ -26,6 +26,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
+import kotlin.sequences.ConstrainedOnceSequence;
+
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
@@ -128,6 +130,8 @@ public class HrmDevice extends AbstractDevice {
     private Timer ttsTimer = new Timer();
     private volatile boolean waitSpeak = false; // is waiting for warnning speak
 
+    private Context context;
+
     public HrmDevice(DeviceInfo registerInfo) {
         super(registerInfo);
         HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class);
@@ -137,6 +141,10 @@ public class HrmDevice extends AbstractDevice {
             config.save();
         }
         this.config = config;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 
     public void setHrRecord(boolean isRecord) {
@@ -192,17 +200,11 @@ public class HrmDevice extends AbstractDevice {
                     }
                 } else {
                     ecgRecord.setCreateTime(new Date().getTime());
-                    ecgRecord.saveAsync().listen(new SaveCallback() {
-                        @Override
-                        public void onFinish(boolean success) {
-                            MyApplication.showMessageUsingShortToast("心电记录已保存。");
-                            ViseLog.e(ecgRecord.toString());
-                            ecgRecord = null;
-                            if(listener != null) {
-                                listener.onEcgSignalRecorded(false);
-                            }
-                        }
-                    });
+                    new RecordAsyncTask(context, 1).execute(ecgRecord);
+                    ecgRecord = null;
+                    if(listener != null) {
+                        listener.onEcgSignalRecorded(false);
+                    }
                 }
             }
         }

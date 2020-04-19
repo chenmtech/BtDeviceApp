@@ -76,6 +76,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         super.onCreateView(inflater, container, savedInstanceState);
 
         device = (HrmDevice) getDevice();
+        device.setContext(getContext());
         return inflater.inflate(R.layout.fragment_device_hrm, container, false);
     }
 
