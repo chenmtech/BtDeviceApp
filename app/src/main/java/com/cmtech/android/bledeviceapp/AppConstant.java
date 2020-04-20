@@ -58,7 +58,7 @@ public class AppConstant {
         }
     }; // supported login platform
 
-    //public static final String KMURL = "http://localhost:8080/BtDeviceWebApp/";
+    //public static final String KMURL = "http://192.168.0.101:8080/BtDeviceWebApp/";
     public static final String KMURL = "http://203.195.137.198:8080/BtDeviceWebApp/";
 
 }

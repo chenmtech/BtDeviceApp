@@ -14,8 +14,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
+import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -29,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
+import org.litepal.crud.callback.SaveCallback;
 
 import java.io.IOException;
 
@@ -150,7 +153,19 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             public void onClick(View v) {
                 if(etNote.isEnabled()) {
                     record.setNote(etNote.getText().toString());
-                    record.save();
+                    record.saveAsync().listen(new SaveCallback() {
+                        @Override
+                        public void onFinish(boolean success) {
+                            Toast.makeText(EcgRecordActivity.this, "修改已保存", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                        @Override
+                        public void onFinish(Object[] objs) {
+
+                        }
+                    }).execute(record);
+
                     etNote.setEnabled(false);
                     btnSave.setText("编辑");
                 } else {
@@ -204,89 +219,46 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void upload() {
-        KMWebService.queryRecord(1, record.getCreateTime(), record.getDevAddress(), new Callback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        MyApplication.showMessageUsingShortToast("您的网络有问题");
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if(response.body() == null) return;
-                try {
-                    JSONObject json = new JSONObject(response.body().string());
-                    int id = json.getInt("id");
-                    ViseLog.e("find ecg record id = " + id);
+            public void onFinish(final Object[] objs) {
+                boolean result = ((Integer)objs[0] == 0);
+                if(result) {
+                    int id = (Integer) objs[2];
                     if(id == INVALID_ID) {
-                        KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                                runOnUiThread(new Runnable() {
+                            public void run() {
+                                new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
-                                    public void run() {
-                                        MyApplication.showMessageUsingShortToast("您的网络有问题");
+                                    public void onFinish(Object[] objs) {
+                                        MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
                                     }
-                                });
-                            }
-
-                            @Override
-                            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                                String respBody = response.body().string();
-                                try {
-                                    JSONObject json = new JSONObject(respBody);
-                                    final int code = json.getInt("code");
-                                    final String errStr = json.getString("errStr");
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            MyApplication.showMessageUsingShortToast(errStr);
-                                        }
-                                    });
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                                }).execute(record);
                             }
                         });
                     } else {
-                        KMWebService.updateRecordNote(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                        runOnUiThread(new Runnable() {
                             @Override
-                            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                                runOnUiThread(new Runnable() {
+                            public void run() {
+                                new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
-                                    public void run() {
-                                        MyApplication.showMessageUsingShortToast("您的网络有问题");
+                                    public void onFinish(Object[] objs) {
+                                        MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
                                     }
-                                });
-                            }
-
-                            @Override
-                            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                                String respBody = response.body().string();
-                                try {
-                                    JSONObject json = new JSONObject(respBody);
-                                    final int code = json.getInt("code");
-                                    final String errStr = json.getString("errStr");
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            MyApplication.showMessageUsingShortToast(errStr);
-                                        }
-                                    });
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                                }).execute(record);
                             }
                         });
                     }
-                 } catch (JSONException e) {
-                    e.printStackTrace();
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MyApplication.showMessageUsingShortToast((String)objs[1]);
+                        }
+                    });
                 }
             }
-        });
+        }).execute(record);
     }
 }

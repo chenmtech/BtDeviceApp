@@ -233,7 +233,13 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     JSONObject json = new JSONObject(respBody);
                     int code = json.getInt("code");
-                    String errStr = json.getString("errStr");
+                    final String errStr = json.getString("errStr");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            MyApplication.showMessageUsingShortToast(errStr);
+                        }
+                    });
                     ViseLog.e(code+errStr);
                 } catch (JSONException e) {
                     e.printStackTrace();

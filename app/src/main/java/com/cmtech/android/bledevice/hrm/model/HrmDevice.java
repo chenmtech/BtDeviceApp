@@ -26,8 +26,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-import kotlin.sequences.ConstrainedOnceSequence;
-
+import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.RECORD_UPLOAD_CMD;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
@@ -194,17 +193,25 @@ public class HrmDevice extends AbstractDevice {
             if(ecgRecord != null) {
                 if (ecgRecord.getDataNum()/ecgRecord.getSampleRate() < ECG_RECORD_MIN_SECOND) {
                     MyApplication.showMessageUsingShortToast("记录太短，未保存。");
-                    ecgRecord = null;
-                    if(listener != null) {
-                        listener.onEcgSignalRecorded(false);
-                    }
                 } else {
                     ecgRecord.setCreateTime(new Date().getTime());
-                    new RecordAsyncTask(context, 1).execute(ecgRecord);
-                    ecgRecord = null;
-                    if(listener != null) {
-                        listener.onEcgSignalRecorded(false);
-                    }
+                    ecgRecord.saveAsync().listen(new SaveCallback() {
+                        @Override
+                        public void onFinish(boolean success) {
+                            MyApplication.showMessageUsingShortToast("记录已保存。");
+                        }
+                    });
+                    new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                        @Override
+                        public void onFinish(Object[] objs) {
+                            MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                        }
+                    }).execute(ecgRecord);
+                }
+                ViseLog.e(ecgRecord.toString());
+                ecgRecord = null;
+                if(listener != null) {
+                    listener.onEcgSignalRecorded(false);
                 }
             }
         }
