@@ -4,9 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.interf.AbstractRecord;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.vise.log.ViseLog;
@@ -37,23 +35,24 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
     public static final int RECORD_UPLOAD_CMD = 1;
     public static final int RECORD_UPDATE_NOTE_CMD = 2;
     public static final int RECORD_QUERY_CMD = 3;
+    public static final int RECORD_DELETE_CMD = 4;
 
     private ProgressDialog progressDialog;
     private final int cmd;
     private String cmdStr = "未知命令";
     private final boolean isShowProgress;
 
-    private final boolean[] finish = new boolean[]{false};
+    private boolean finish = false;
+
+    private int code;
+    private String errStr;
+    private Object rlt;
 
     public interface RecordWebCallback {
         void onFinish(Object[] objs);
     }
 
     private final RecordWebCallback callback;
-
-    private int code;
-    private String errStr;
-    private Object rlt;
 
     public RecordWebAsyncTask(Context context, int cmd, RecordWebCallback callback) {
         this(context, cmd, true, callback);
@@ -71,6 +70,9 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                 break;
             case RECORD_QUERY_CMD:
                 cmdStr = "查询记录";
+                break;
+            case RECORD_DELETE_CMD:
+                cmdStr = "删除记录";
                 break;
             default:
                 break;
@@ -108,7 +110,8 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                         code = 1;
                         errStr = "网络错误";
                         rlt = null;
-                        finish[0] = true;
+                        ViseLog.e(code+errStr);
+                        finish = true;
                     }
 
                     @Override
@@ -119,7 +122,7 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                             code = json.getInt("code");
                             errStr = json.getString("errStr");
                             ViseLog.e(code+errStr);
-                            finish[0] = true;
+                            finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -134,7 +137,8 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                         code = 1;
                         errStr = "网络错误";
                         rlt = null;
-                        finish[0] = true;
+                        ViseLog.e(code+errStr);
+                        finish = true;
                     }
 
                     @Override
@@ -145,7 +149,7 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                             code = json.getInt("code");
                             errStr = json.getString("errStr");
                             ViseLog.e(code+errStr);
-                            finish[0] = true;
+                            finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -160,7 +164,8 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                         code = 1;
                         errStr = "网络错误";
                         rlt = null;
-                        finish[0] = true;
+                        ViseLog.e(code+errStr);
+                        finish = true;
                     }
 
                     @Override
@@ -173,7 +178,34 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                             code = 0;
                             errStr = "查询成功";
                             rlt = (Integer)id;
-                            finish[0] = true;
+                            finish = true;
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                break;
+
+            case RECORD_DELETE_CMD:
+                KMWebService.deleteRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), (BleEcgRecord10) record, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        code = 1;
+                        errStr = "网络错误";
+                        rlt = null;
+                        ViseLog.e(code+errStr);
+                        finish = true;
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String respBody = response.body().string();
+                        try {
+                            JSONObject json = new JSONObject(respBody);
+                            code = json.getInt("code");
+                            errStr = json.getString("errStr");
+                            ViseLog.e(code+errStr);
+                            finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -185,11 +217,11 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                 code = 1;
                 errStr = "无效命令";
                 rlt = null;
-                finish[0] = true;
+                finish = true;
                 break;
         }
 
-        while (!finish[0]) {
+        while (!finish) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {

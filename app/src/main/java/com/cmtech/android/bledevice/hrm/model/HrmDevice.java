@@ -19,7 +19,6 @@ import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
-import org.litepal.crud.callback.SaveCallback;
 
 import java.util.Date;
 import java.util.Timer;
@@ -131,6 +130,8 @@ public class HrmDevice extends AbstractDevice {
 
     private Context context;
 
+    private volatile boolean isUploadRecord = false;
+
     public HrmDevice(DeviceInfo registerInfo) {
         super(registerInfo);
         HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class);
@@ -172,8 +173,8 @@ public class HrmDevice extends AbstractDevice {
         }
     }
 
-    public void setEcgRecord(boolean isRecord) {
-        if(isEcgRecord == isRecord) return;
+    public void setEcgRecord(final boolean isRecord) {
+        if(isEcgRecord == isRecord || isUploadRecord) return;
 
         if(isRecord && !isEcgOn) {
             MyApplication.showMessageUsingShortToast("请先打开心电功能。");
@@ -183,6 +184,7 @@ public class HrmDevice extends AbstractDevice {
             return;
         }
 
+        isEcgRecord = isRecord;
         if(isRecord) {
             ecgRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getAccount(), sampleRate, caliValue, leadType.getCode());
             if(listener != null) {
@@ -190,32 +192,27 @@ public class HrmDevice extends AbstractDevice {
             }
             MyApplication.showMessageUsingShortToast("记录时请保持安静。");
         } else {
-            if(ecgRecord != null) {
-                if (ecgRecord.getDataNum()/ecgRecord.getSampleRate() < ECG_RECORD_MIN_SECOND) {
-                    MyApplication.showMessageUsingShortToast("记录太短，未保存。");
-                } else {
-                    ecgRecord.setCreateTime(new Date().getTime());
-                    ecgRecord.saveAsync().listen(new SaveCallback() {
-                        @Override
-                        public void onFinish(boolean success) {
-                            MyApplication.showMessageUsingShortToast("记录已保存。");
-                        }
-                    });
-                    new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
-                        @Override
-                        public void onFinish(Object[] objs) {
-                            MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
-                        }
-                    }).execute(ecgRecord);
-                }
-                ViseLog.e(ecgRecord.toString());
-                ecgRecord = null;
-                if(listener != null) {
-                    listener.onEcgSignalRecorded(false);
-                }
+            if(ecgRecord == null) return;
+
+            if (ecgRecord.getDataNum()/ecgRecord.getSampleRate() < ECG_RECORD_MIN_SECOND) {
+                MyApplication.showMessageUsingShortToast("记录太短，未保存。");
+            } else {
+                ecgRecord.setCreateTime(new Date().getTime());
+                ecgRecord.save();
+                isUploadRecord = true;
+                new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                    @Override
+                    public void onFinish(Object[] objs) {
+                        MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                        isUploadRecord = false;
+                    }
+                }).execute(ecgRecord);
+            }
+            ecgRecord = null;
+            if(listener != null) {
+                listener.onEcgSignalRecorded(false);
             }
         }
-        isEcgRecord = isRecord;
     }
 
     public void setEcgLock(final boolean ecgLock) {

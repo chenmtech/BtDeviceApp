@@ -14,21 +14,31 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
 import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
 import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.KMWebService;
 
+import org.jetbrains.annotations.NotNull;
 import org.litepal.LitePal;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 /**
   *
@@ -120,6 +130,12 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         LitePal.delete(BleHrRecord10.class, record.getId());
                     } else if(record instanceof BleEcgRecord10) {
                         LitePal.delete(BleEcgRecord10.class, record.getId());
+                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_DELETE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                            @Override
+                            public void onFinish(Object[] objs) {
+                                MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                            }
+                        }).execute((BleEcgRecord10)record);
                     } else if(record instanceof BleThermoRecord10) {
                         LitePal.delete(BleThermoRecord10.class, record.getId());
                     } else if(record instanceof BleTempHumidRecord10) {

@@ -2,19 +2,14 @@ package com.cmtech.android.bledeviceapp.model;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
-import com.vise.log.ViseLog;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.KMURL;
 
@@ -85,6 +80,21 @@ public class KMWebService {
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
             json.put("note", record.getNote());
+            HttpUtils.requestPost(KMURL + "Record?", json, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteRecord(String platName, String platId, BleEcgRecord10 record, Callback callback) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", "delete");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            json.put("recordTypeCode", 1);
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
             HttpUtils.requestPost(KMURL + "Record?", json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
