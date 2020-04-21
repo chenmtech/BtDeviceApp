@@ -66,6 +66,9 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     public String getCreatorPlat() {
         return creatorPlat;
     }
+    public String getCreatorId() {
+        return creatorId;
+    }
     public void setCreator(Account creator) {
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();

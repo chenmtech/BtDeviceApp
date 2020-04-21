@@ -100,4 +100,21 @@ public class KMWebService {
             e.printStackTrace();
         }
     }
+
+    public static void downloadRecord(String platName, String platId, BleEcgRecord10 record, int num, Callback callback) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", "download");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            json.put("recordTypeCode", 1);
+            json.put("fromTime", record.getCreateTime());
+            json.put("creatorPlat", record.getCreatorPlat());
+            json.put("creatorId", record.getCreatorId());
+            json.put("num", num);
+            HttpUtils.requestPost(KMURL + "Record?", json, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }

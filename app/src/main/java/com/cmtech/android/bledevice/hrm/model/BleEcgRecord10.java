@@ -118,9 +118,6 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
-        if(DIR_CACHE == null) {
-            throw new NullPointerException("The cache dir is null");
-        }
         if(ver == null || ver.length != 2 || ver[0] != 0x01 || ver[1] != 0x00) return null;
 
         BleEcgRecord10 record = new BleEcgRecord10();

@@ -36,6 +36,9 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
     public static final int RECORD_UPDATE_NOTE_CMD = 2;
     public static final int RECORD_QUERY_CMD = 3;
     public static final int RECORD_DELETE_CMD = 4;
+    public static final int RECORD_DOWNLOAD_CMD = 5;
+
+    private static final int DOWNLOAD_NUM_PER_TIME = 20;
 
     private ProgressDialog progressDialog;
     private final int cmd;
@@ -73,6 +76,9 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                 break;
             case RECORD_DELETE_CMD:
                 cmdStr = "删除记录";
+                break;
+            case RECORD_DOWNLOAD_CMD:
+                cmdStr = "下载记录";
                 break;
             default:
                 break;
@@ -205,6 +211,34 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                             code = json.getInt("code");
                             errStr = json.getString("errStr");
                             ViseLog.e(code+errStr);
+                            finish = true;
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                break;
+
+            case RECORD_DOWNLOAD_CMD:
+                KMWebService.downloadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), (BleEcgRecord10)record, DOWNLOAD_NUM_PER_TIME, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        code = 1;
+                        errStr = "网络错误";
+                        rlt = null;
+                        ViseLog.e(code+errStr);
+                        finish = true;
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String respBody = response.body().string();
+                        try {
+                            JSONObject json = new JSONObject(respBody);
+                            code = json.getInt("code");
+                            errStr = json.getString("errStr");
+                            rlt = json;
+                            ViseLog.e(json.toString());
                             finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
