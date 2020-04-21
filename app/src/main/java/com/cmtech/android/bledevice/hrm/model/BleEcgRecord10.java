@@ -6,17 +6,13 @@ import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.LitePal;
 import org.litepal.annotation.Column;
-import org.litepal.crud.LitePalSupport;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -36,7 +32,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     private int leadTypeCode; // lead type code
     private int recordSecond; // unit: s
     private String note; // record description
-    private List<Short> ecgList; // ecg data
+    private List<Short> ecgData; // ecg data
     @Column(ignore = true)
     private int pos = 0;
 
@@ -47,7 +43,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         leadTypeCode = 0;
         recordSecond = 0;
         note = "";
-        ecgList = new ArrayList<>();
+        ecgData = new ArrayList<>();
     }
 
     @Override
@@ -55,8 +51,12 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         return "时长约"+getRecordSecond()+"秒";
     }
 
-    public List<Short> getEcgList() {
-        return ecgList;
+    public List<Short> getEcgData() {
+        return ecgData;
+    }
+
+    public void setEcgData(List<Short> ecgData) {
+        this.ecgData.addAll(ecgData);
     }
     @Override
     public int getSampleRate() {
@@ -70,7 +70,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
 
     @Override
     public boolean isEOD() {
-        return (pos >= ecgList.size());
+        return (pos >= ecgData.size());
     }
 
     @Override
@@ -80,18 +80,22 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
 
     @Override
     public int readData() throws IOException {
-        if(pos >= ecgList.size()) throw new IOException();
-        return ecgList.get(pos++);
+        if(pos >= ecgData.size()) throw new IOException();
+        return ecgData.get(pos++);
     }
 
     @Override
     public int getDataNum() {
-        return ecgList.size();
+        return ecgData.size();
     }
 
     @Override
     public int getRecordSecond() {
         return recordSecond;
+    }
+
+    public void setRecordSecond(int recordSecond) {
+        this.recordSecond = recordSecond;
     }
 
     public String getNote() {
@@ -104,12 +108,12 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
 
     @Override
     public boolean save() {
-        recordSecond = ecgList.size()/sampleRate;
+        recordSecond = ecgData.size()/sampleRate;
         return super.save();
     }
 
     public boolean process(short ecg) {
-        ecgList.add(ecg);
+        ecgData.add(ecg);
         return true;
     }
 
@@ -136,7 +140,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
 
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + note + "-" + ecgList;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + note + "-" + ecgData;
     }
 
     public JSONObject toJson() {
@@ -150,7 +154,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
             jsonObject.put("recordSecond", recordSecond);
             jsonObject.put("note", note);
             StringBuilder builder = new StringBuilder();
-            for(Short ele : ecgList) {
+            for(Short ele : ecgData) {
                 builder.append(ele).append(',');
             }
             jsonObject.put("ecgData", builder.toString());

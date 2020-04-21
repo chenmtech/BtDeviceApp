@@ -237,7 +237,7 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                             JSONObject json = new JSONObject(respBody);
                             code = json.getInt("code");
                             errStr = json.getString("errStr");
-                            rlt = json;
+                            rlt = json.get("records");
                             ViseLog.e(json.toString());
                             finish = true;
                         } catch (JSONException e) {
