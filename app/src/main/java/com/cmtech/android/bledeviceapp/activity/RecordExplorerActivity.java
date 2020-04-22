@@ -76,6 +76,27 @@ public class RecordExplorerActivity extends AppCompatActivity {
         view.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         adapter = new RecordListAdapter(this, allRecords);
         view.setAdapter(adapter);
+        view.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            int lastVisibleItem;
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
+                if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == adapter.getItemCount()-1) {
+                    updateRecords(updateTime);
+                }
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if(layoutManager != null)
+                    lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+            }
+        });
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
@@ -87,17 +108,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
         //List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location").find(BleTempHumidRecord10.class);
         //allRecords.addAll(thmRecords);
         List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                .where("createTime >= ?", String.valueOf(updateTime)).find(BleEcgRecord10.class);
+                .where("createTime >= ?", String.valueOf(updateTime)).order("createTime desc").find(BleEcgRecord10.class);
         allRecords.addAll(ecgRecords);
-        /*Collections.sort(allRecords, new Comparator<IRecord>() {
-            @Override
-            public int compare(IRecord o1, IRecord o2) {
-                long time1 = o1.getCreateTime();
-                long time2 = o2.getCreateTime();
-                if(time1 == time2) return 0;
-                return (time2 > time1) ? 1 : -1;
-            }
-        });*/
         updateRecordList();
 
         if(allRecords.size() < 10)
