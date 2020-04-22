@@ -36,8 +36,6 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -61,6 +59,11 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private static final int RECORD_TYPE_THERMO = 3;
 
     private static long updateTime = new Date().getTime();
+
+    static {
+        long time3day = new Date().getTime()-3*24*60*60*1000L;
+        LitePal.deleteAll(BleEcgRecord10.class, "createTime < ?", ""+time3day);
+    }
 
     private List<IRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter adapter; // Adapter
@@ -93,7 +96,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == adapter.getItemCount()-1) {
-                    updateRecords(updateTime);
+                    updateRecordsFromKMServer(updateTime);
                 }
             }
 
@@ -111,12 +114,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
         tvPromptInfo.setText("无记录");
 
         setRecordType(RECORD_TYPE_ECG);
-
-        if(allRecords.size() < 10)
-            updateRecords(updateTime);
     }
 
-    private void updateRecords(long fromTime) {
+    private void updateRecordsFromKMServer(long fromTime) {
         if(recordType != RECORD_TYPE_ECG) return;
 
         final BleEcgRecord10 record = BleEcgRecord10.create(new byte[]{0x01,0x00},null, AccountManager.getAccount(), 0,0,0);
@@ -130,7 +130,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     BleEcgRecord10 newRecord = null;
                     try {
                         JSONArray jsonArr = (JSONArray) objs[2];
-                        if(jsonArr.length() == 0) return;
                         for(int i = 0; i < jsonArr.length(); i++) {
                             JSONObject json = (JSONObject) jsonArr.get(i);
                             String devAddress = json.getString("devAddress");
@@ -157,11 +156,12 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             newRecord.setEcgData(ecgData);
                             ViseLog.e(newRecord);
                             newRecord.saveIfNotExist("createTime = ? and devAddress = ?", ""+newRecord.getCreateTime(), newRecord.getDevAddress());
+                            updateTime = newRecord.getCreateTime();
                         }
                         List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                                .where("createTime < ? and createTime >= ?", ""+updateTime, ""+newRecord.getCreateTime()).find(BleEcgRecord10.class);
+                                .where("createTime >= ?", ""+updateTime).order("createTime desc").find(BleEcgRecord10.class);
+                        allRecords.clear();
                         allRecords.addAll(ecgRecords);
-                        updateTime = newRecord.getCreateTime();
                         updateRecordList();
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -216,22 +216,25 @@ public class RecordExplorerActivity extends AppCompatActivity {
         switch (recordType) {
             case RECORD_TYPE_ECG:
                 List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                        .where("createTime >= ?", String.valueOf(updateTime)).order("createTime desc").find(BleEcgRecord10.class);
+                        .order("createTime desc").find(BleEcgRecord10.class);
                 allRecords.addAll(ecgRecords);
+
+                updateRecordsFromKMServer(updateTime);
                 break;
 
             case RECORD_TYPE_HR:
-                List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleHrRecord10.class);
+                List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").order("createTime desc").find(BleHrRecord10.class);
                 allRecords.addAll(hrRecords);
                 break;
 
             case RECORD_TYPE_THERMO:
-                List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp").find(BleThermoRecord10.class);
+                List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp").order("createTime desc").find(BleThermoRecord10.class);
                 allRecords.addAll(thermoRecords);
                 break;
 
             case RECORD_TYPE_THM:
-                List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location").find(BleTempHumidRecord10.class);
+                List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location")
+                        .order("createTime desc").find(BleTempHumidRecord10.class);
                 allRecords.addAll(thmRecords);
                 break;
         }

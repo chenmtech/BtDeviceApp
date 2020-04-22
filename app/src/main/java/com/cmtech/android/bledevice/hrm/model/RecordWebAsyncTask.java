@@ -268,8 +268,7 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
 
     @Override
     protected void onPostExecute(Void result) {
-        progressDialog.dismiss();
-
         callback.onFinish(new Object[]{code, errStr, rlt});
+        progressDialog.dismiss();
     }
 }

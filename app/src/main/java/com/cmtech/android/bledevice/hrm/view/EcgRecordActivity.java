@@ -145,7 +145,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     record.saveAsync().listen(new SaveCallback() {
                         @Override
                         public void onFinish(boolean success) {
-                            Toast.makeText(EcgRecordActivity.this, "修改已保存", Toast.LENGTH_SHORT).show();
+
                         }
                     });
                     new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
@@ -208,28 +208,23 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void upload() {
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
             public void onFinish(final Object[] objs) {
-                boolean result = ((Integer)objs[0] == 0);
-                if(result) {
-                    int id = (Integer) objs[2];
-                    if(id == INVALID_ID) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                final boolean result = ((Integer)objs[0] == 0);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(result) {
+                            int id = (Integer) objs[2];
+                            if(id == INVALID_ID) {
                                 new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(Object[] objs) {
                                         MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
                                     }
                                 }).execute(record);
-                            }
-                        });
-                    } else {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                            } else {
                                 new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(Object[] objs) {
@@ -237,16 +232,11 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                                     }
                                 }).execute(record);
                             }
-                        });
-                    }
-                } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                        } else {
                             MyApplication.showMessageUsingShortToast((String)objs[1]);
                         }
-                    });
-                }
+                    }
+                });
             }
         }).execute(record);
     }
