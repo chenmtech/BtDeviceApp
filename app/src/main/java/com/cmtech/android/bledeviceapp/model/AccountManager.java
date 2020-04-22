@@ -36,5 +36,10 @@ public class AccountManager {
     public static void signOut() {
         account = null;
     }
-
+    public static String getAccountPlat() {
+        return account.getPlatName();
+    }
+    public static String getAccountPlatId() {
+        return account.getPlatId();
+    }
 }

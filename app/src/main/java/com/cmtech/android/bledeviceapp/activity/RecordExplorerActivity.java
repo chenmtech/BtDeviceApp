@@ -159,7 +159,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             updateTime = newRecord.getCreateTime();
                         }
                         List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                                .where("createTime >= ?", ""+updateTime).order("createTime desc").find(BleEcgRecord10.class);
+                                .where("creatorPlat = ? and creatorId = ? and createTime >= ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime).order("createTime desc").find(BleEcgRecord10.class);
                         allRecords.clear();
                         allRecords.addAll(ecgRecords);
                         updateRecordList();
@@ -216,25 +216,27 @@ public class RecordExplorerActivity extends AppCompatActivity {
         switch (recordType) {
             case RECORD_TYPE_ECG:
                 List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                        .order("createTime desc").find(BleEcgRecord10.class);
+                        .order("createTime desc").where("creatorPlat = ? and creatorId = ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId()).find(BleEcgRecord10.class);
                 allRecords.addAll(ecgRecords);
 
                 updateRecordsFromKMServer(updateTime);
                 break;
 
             case RECORD_TYPE_HR:
-                List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").order("createTime desc").find(BleHrRecord10.class);
+                List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                        .order("createTime desc").where("creatorPlat = ? and creatorId = ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId()).find(BleHrRecord10.class);
                 allRecords.addAll(hrRecords);
                 break;
 
             case RECORD_TYPE_THERMO:
-                List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp").order("createTime desc").find(BleThermoRecord10.class);
+                List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp")
+                        .order("createTime desc").where("creatorPlat = ? and creatorId = ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId()).find(BleThermoRecord10.class);
                 allRecords.addAll(thermoRecords);
                 break;
 
             case RECORD_TYPE_THM:
                 List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location")
-                        .order("createTime desc").find(BleTempHumidRecord10.class);
+                        .order("createTime desc").where("creatorPlat = ? and creatorId = ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId()).find(BleTempHumidRecord10.class);
                 allRecords.addAll(thmRecords);
                 break;
         }
