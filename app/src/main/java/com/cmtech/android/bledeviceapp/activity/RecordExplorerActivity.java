@@ -2,7 +2,6 @@ package com.cmtech.android.bledeviceapp.activity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,36 +15,29 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
+import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
+import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
+import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
 import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
-import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
-import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
-import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.vise.log.ViseLog;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 /**
   *
@@ -61,14 +53,14 @@ import okhttp3.Response;
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
-    private static boolean updated = false;
+    private static long updateTime = new Date().getTime();
 
     private List<IRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter adapter; // Adapter
     private RecyclerView view; // RecycleView
     private TextView tvPromptInfo; // prompt info
 
-  @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_explorer);
@@ -88,95 +80,81 @@ public class RecordExplorerActivity extends AppCompatActivity {
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
 
-        if(updated) {
-            List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleHrRecord10.class);
-            allRecords.addAll(hrRecords);
-            List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleEcgRecord10.class);
-            allRecords.addAll(ecgRecords);
-            List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp").find(BleThermoRecord10.class);
-            allRecords.addAll(thermoRecords);
-            List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location").find(BleTempHumidRecord10.class);
-            allRecords.addAll(thmRecords);
-            Collections.sort(allRecords, new Comparator<IRecord>() {
-                @Override
-                public int compare(IRecord o1, IRecord o2) {
-                    long time1 = o1.getCreateTime();
-                    long time2 = o2.getCreateTime();
-                    if(time1 == time2) return 0;
-                    return (time2 > time1) ? 1 : -1;
-                }
-            });
-            updateRecordList();
-        } else {
+        //List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleHrRecord10.class);
+        //allRecords.addAll(hrRecords);
+        //List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp").find(BleThermoRecord10.class);
+        //allRecords.addAll(thermoRecords);
+        //List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location").find(BleTempHumidRecord10.class);
+        //allRecords.addAll(thmRecords);
+        List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                .where("createTime >= ?", String.valueOf(updateTime)).find(BleEcgRecord10.class);
+        allRecords.addAll(ecgRecords);
+        /*Collections.sort(allRecords, new Comparator<IRecord>() {
+            @Override
+            public int compare(IRecord o1, IRecord o2) {
+                long time1 = o1.getCreateTime();
+                long time2 = o2.getCreateTime();
+                if(time1 == time2) return 0;
+                return (time2 > time1) ? 1 : -1;
+            }
+        });*/
+        updateRecordList();
 
-            final BleEcgRecord10 record = BleEcgRecord10.create(new byte[]{0x01,0x00},null, AccountManager.getAccount(), 0,0,0);
-            record.setCreateTime(new Date().getTime()-3*24*60*60*1000L);
+        if(allRecords.size() < 10)
+            updateRecords(updateTime);
+    }
 
-            new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
-                @Override
-                public void onFinish(Object[] objs) {
-                    MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
-                    if((Integer) objs[0] == 0) {
-                        BleEcgRecord10 newRecord = null;
-                        try {
-                            JSONArray jsonArr = (JSONArray) objs[2];
-                            for(int i = 0; i < jsonArr.length(); i++) {
-                                JSONObject json = (JSONObject) jsonArr.get(i);
-                                String devAddress = json.getString("devAddress");
-                                long createTime = json.getLong("createTime");
-                                Account account = new Account();
-                                account.setPlatName(json.getString("creatorPlat"));
-                                account.setPlatId(json.getString("creatorId"));
-                                int sampleRate = json.getInt("sampleRate");
-                                int caliValue = json.getInt("caliValue");
-                                int leadTypeCode = json.getInt("leadTypeCode");
-                                int recordSecond = json.getInt("recordSecond");
-                                String note = json.getString("note");
-                                String ecgDataStr = json.getString("ecgData");
-                                List<Short> ecgData = new ArrayList<>();
-                                String[] strings = ecgDataStr.split(",");
-                                for(String str : strings) {
-                                    ecgData.add(Short.parseShort(str));
-                                }
+    public void updateRecords(long fromTime) {
+        final BleEcgRecord10 record = BleEcgRecord10.create(new byte[]{0x01,0x00},null, AccountManager.getAccount(), 0,0,0);
+        record.setCreateTime(fromTime);
 
-                                newRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, devAddress, account, sampleRate, caliValue, leadTypeCode);
-                                newRecord.setCreateTime(createTime);
-                                newRecord.setRecordSecond(recordSecond);
-                                newRecord.setNote(note);
-                                newRecord.setEcgData(ecgData);
-                                ViseLog.e(newRecord);
-                                newRecord.saveIfNotExist("createTime = ? and devAddress = ?", ""+newRecord.getCreateTime(), newRecord.getDevAddress());
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+            @Override
+            public void onFinish(Object[] objs) {
+                MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                if((Integer) objs[0] == 0) {
+                    BleEcgRecord10 newRecord = null;
+                    try {
+                        JSONArray jsonArr = (JSONArray) objs[2];
+                        if(jsonArr.length() == 0) return;
+                        for(int i = 0; i < jsonArr.length(); i++) {
+                            JSONObject json = (JSONObject) jsonArr.get(i);
+                            String devAddress = json.getString("devAddress");
+                            long createTime = json.getLong("createTime");
+                            Account account = new Account();
+                            account.setPlatName(json.getString("creatorPlat"));
+                            account.setPlatId(json.getString("creatorId"));
+                            int sampleRate = json.getInt("sampleRate");
+                            int caliValue = json.getInt("caliValue");
+                            int leadTypeCode = json.getInt("leadTypeCode");
+                            int recordSecond = json.getInt("recordSecond");
+                            String note = json.getString("note");
+                            String ecgDataStr = json.getString("ecgData");
+                            List<Short> ecgData = new ArrayList<>();
+                            String[] strings = ecgDataStr.split(",");
+                            for(String str : strings) {
+                                ecgData.add(Short.parseShort(str));
                             }
-                            LitePal.deleteAll(BleEcgRecord10.class, "createTime < ?", ""+record.getCreateTime());
-                            updated = true;
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+
+                            newRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, devAddress, account, sampleRate, caliValue, leadTypeCode);
+                            newRecord.setCreateTime(createTime);
+                            newRecord.setRecordSecond(recordSecond);
+                            newRecord.setNote(note);
+                            newRecord.setEcgData(ecgData);
+                            ViseLog.e(newRecord);
+                            newRecord.saveIfNotExist("createTime = ? and devAddress = ?", ""+newRecord.getCreateTime(), newRecord.getDevAddress());
                         }
+                        List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                                .where("createTime < ? and createTime >= ?", ""+updateTime, ""+newRecord.getCreateTime()).find(BleEcgRecord10.class);
+                        allRecords.addAll(ecgRecords);
+                        updateTime = newRecord.getCreateTime();
+                        updateRecordList();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-
-                    List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleHrRecord10.class);
-                    allRecords.addAll(hrRecords);
-                    List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleEcgRecord10.class);
-                    allRecords.addAll(ecgRecords);
-                    List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp").find(BleThermoRecord10.class);
-                    allRecords.addAll(thermoRecords);
-                    List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location").find(BleTempHumidRecord10.class);
-                    allRecords.addAll(thmRecords);
-                    Collections.sort(allRecords, new Comparator<IRecord>() {
-                        @Override
-                        public int compare(IRecord o1, IRecord o2) {
-                            long time1 = o1.getCreateTime();
-                            long time2 = o2.getCreateTime();
-                            if(time1 == time2) return 0;
-                            return (time2 > time1) ? 1 : -1;
-                        }
-                    });
-                    updateRecordList();
                 }
-            }).execute(record);
-        }
-
-
+            }
+        }).execute(record);
     }
 
     public void selectRecord(final IRecord record) {
