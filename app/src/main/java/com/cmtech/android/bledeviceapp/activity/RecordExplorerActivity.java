@@ -9,6 +9,8 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -53,12 +55,19 @@ import java.util.List;
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
+    private static final int RECORD_TYPE_ECG = 0;
+    private static final int RECORD_TYPE_HR = 1;
+    private static final int RECORD_TYPE_THM = 2;
+    private static final int RECORD_TYPE_THERMO = 3;
+
     private static long updateTime = new Date().getTime();
 
     private List<IRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter adapter; // Adapter
     private RecyclerView view; // RecycleView
     private TextView tvPromptInfo; // prompt info
+
+    private int recordType = RECORD_TYPE_ECG;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,22 +110,15 @@ public class RecordExplorerActivity extends AppCompatActivity {
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
 
-        //List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleHrRecord10.class);
-        //allRecords.addAll(hrRecords);
-        //List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp").find(BleThermoRecord10.class);
-        //allRecords.addAll(thermoRecords);
-        //List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location").find(BleTempHumidRecord10.class);
-        //allRecords.addAll(thmRecords);
-        List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                .where("createTime >= ?", String.valueOf(updateTime)).order("createTime desc").find(BleEcgRecord10.class);
-        allRecords.addAll(ecgRecords);
-        updateRecordList();
+        setRecordType(RECORD_TYPE_ECG);
 
         if(allRecords.size() < 10)
             updateRecords(updateTime);
     }
 
-    public void updateRecords(long fromTime) {
+    private void updateRecords(long fromTime) {
+        if(recordType != RECORD_TYPE_ECG) return;
+
         final BleEcgRecord10 record = BleEcgRecord10.create(new byte[]{0x01,0x00},null, AccountManager.getAccount(), 0,0,0);
         record.setCreateTime(fromTime);
 
@@ -168,6 +170,74 @@ public class RecordExplorerActivity extends AppCompatActivity {
             }
         }).execute(record);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_record_explore, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED, null);
+                finish();
+                break;
+
+            case R.id.ecg_record:
+                changeRecordType(RECORD_TYPE_ECG);
+                break;
+
+            case R.id.hr_record:
+                changeRecordType(RECORD_TYPE_HR);
+                break;
+
+            case R.id.thm_record:
+                changeRecordType(RECORD_TYPE_THM);
+                break;
+
+            case R.id.thermo_record:
+                changeRecordType(RECORD_TYPE_THERMO);
+                break;
+        }
+        return true;
+    }
+
+    public void changeRecordType(int recordType) {
+        if(this.recordType == recordType) return;
+        setRecordType(recordType);
+    }
+
+    public void setRecordType(int recordType) {
+        this.recordType = recordType;
+        allRecords.clear();
+
+        switch (recordType) {
+            case RECORD_TYPE_ECG:
+                List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                        .where("createTime >= ?", String.valueOf(updateTime)).order("createTime desc").find(BleEcgRecord10.class);
+                allRecords.addAll(ecgRecords);
+                break;
+
+            case RECORD_TYPE_HR:
+                List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond").find(BleHrRecord10.class);
+                allRecords.addAll(hrRecords);
+                break;
+
+            case RECORD_TYPE_THERMO:
+                List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp").find(BleThermoRecord10.class);
+                allRecords.addAll(thermoRecords);
+                break;
+
+            case RECORD_TYPE_THM:
+                List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location").find(BleTempHumidRecord10.class);
+                allRecords.addAll(thmRecords);
+                break;
+        }
+        updateRecordList();
+    }
+
 
     public void selectRecord(final IRecord record) {
         Intent intent = null;

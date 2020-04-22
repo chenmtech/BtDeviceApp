@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/ecg_record"
+        android:icon="@mipmap/ic_ecg_24px"
+        android:orderInCategory="0"
+        android:title="心电"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/hr_record"
+        android:icon="@mipmap/ic_hr_24px"
+        android:orderInCategory="0"
+        android:title="心率"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/thermo_record"
+        android:icon="@mipmap/ic_thermo_24px"
+        android:orderInCategory="0"
+        android:title="体温"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/thm_record"
+        android:icon="@drawable/ic_thm_default_icon"
+        android:orderInCategory="0"
+        android:title="温湿度"
+        app:showAsAction="never" />
+</menu>
