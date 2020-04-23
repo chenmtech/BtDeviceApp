@@ -130,7 +130,8 @@ public class HrmDevice extends AbstractDevice {
 
     private Context context;
 
-    private volatile boolean isUploadRecord = false;
+    private volatile boolean isUploadEcgRecord = false;
+    private volatile boolean isUploadHrRecord = false;
 
     public HrmDevice(DeviceInfo registerInfo) {
         super(registerInfo);
@@ -148,7 +149,9 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void setHrRecord(boolean isRecord) {
-        if(isHrRecord == isRecord) return;
+        if(isHrRecord == isRecord || isUploadHrRecord) return;
+
+        isHrRecord = isRecord;
 
         if(isRecord) {
             hrRecord = BleHrRecord10.create(getAddress(), AccountManager.getAccount());
@@ -161,8 +164,14 @@ public class HrmDevice extends AbstractDevice {
                 } else {
                     hrRecord.setCreateTime(new Date().getTime());
                     hrRecord.save();
-                    MyApplication.showMessageUsingShortToast("心率记录已保存。");
-                    ViseLog.e(hrRecord.toString());
+                    /*isUploadHrRecord = true;
+                    new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                        @Override
+                        public void onFinish(Object[] objs) {
+                            MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                            isUploadHrRecord = false;
+                        }
+                    }).execute(hrRecord);*/
                 }
                 hrRecord = null;
             }
@@ -174,7 +183,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void setEcgRecord(final boolean isRecord) {
-        if(isEcgRecord == isRecord || isUploadRecord) return;
+        if(isEcgRecord == isRecord || isUploadEcgRecord) return;
 
         if(isRecord && !isEcgOn) {
             MyApplication.showMessageUsingShortToast("请先打开心电功能。");
@@ -187,9 +196,6 @@ public class HrmDevice extends AbstractDevice {
         isEcgRecord = isRecord;
         if(isRecord) {
             ecgRecord = BleEcgRecord10.create(getAddress(), AccountManager.getAccount(), sampleRate, caliValue, leadType.getCode());
-            if(listener != null) {
-                listener.onEcgSignalRecorded(true);
-            }
             MyApplication.showMessageUsingShortToast("记录时请保持安静。");
         } else {
             if(ecgRecord == null) return;
@@ -199,19 +205,19 @@ public class HrmDevice extends AbstractDevice {
             } else {
                 ecgRecord.setCreateTime(new Date().getTime());
                 ecgRecord.save();
-                isUploadRecord = true;
+                isUploadEcgRecord = true;
                 new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                     @Override
                     public void onFinish(Object[] objs) {
                         MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
-                        isUploadRecord = false;
+                        isUploadEcgRecord = false;
                     }
                 }).execute(ecgRecord);
             }
             ecgRecord = null;
-            if(listener != null) {
-                listener.onEcgSignalRecorded(false);
-            }
+        }
+        if(listener != null) {
+            listener.onEcgSignalRecorded(isRecord);
         }
     }
 

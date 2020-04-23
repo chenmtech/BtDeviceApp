@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.cmtech.android.bledevice.interf.AbstractRecord;
+import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
+import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.vise.log.ViseLog;
@@ -38,7 +40,7 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
     public static final int RECORD_DELETE_CMD = 4;
     public static final int RECORD_DOWNLOAD_CMD = 5;
 
-    private static final int DOWNLOAD_NUM_PER_TIME = 10;
+    private static final int DOWNLOAD_NUM_PER_TIME = 5;
 
     private ProgressDialog progressDialog;
     private final int cmd;
@@ -109,62 +111,9 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
         AbstractRecord record = records[0];
 
         switch (cmd) {
-            case RECORD_UPLOAD_CMD:
-                KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), (BleEcgRecord10) record, new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        code = 1;
-                        errStr = "网络错误";
-                        rlt = null;
-                        ViseLog.e(code+errStr);
-                        finish = true;
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String respBody = response.body().string();
-                        try {
-                            JSONObject json = new JSONObject(respBody);
-                            code = json.getInt("code");
-                            errStr = json.getString("errStr");
-                            ViseLog.e(code+errStr);
-                            finish = true;
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                break;
-
-            case RECORD_UPDATE_NOTE_CMD:
-                KMWebService.updateRecordNote(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), (BleEcgRecord10) record, new Callback() {
-                    @Override
-                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                        code = 1;
-                        errStr = "网络错误";
-                        rlt = null;
-                        ViseLog.e(code+errStr);
-                        finish = true;
-                    }
-
-                    @Override
-                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        String respBody = response.body().string();
-                        try {
-                            JSONObject json = new JSONObject(respBody);
-                            code = json.getInt("code");
-                            errStr = json.getString("errStr");
-                            ViseLog.e(code+errStr);
-                            finish = true;
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                break;
-
+            // QUERY
             case RECORD_QUERY_CMD:
-                KMWebService.queryRecord(1, record.getCreateTime(), record.getDevAddress(), new Callback() {
+                KMWebService.queryRecord(getRecordTypeCode(record), record.getCreateTime(), record.getDevAddress(), new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
@@ -192,8 +141,9 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                 });
                 break;
 
-            case RECORD_DELETE_CMD:
-                KMWebService.deleteRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), (BleEcgRecord10) record, new Callback() {
+            // UPLOAD
+            case RECORD_UPLOAD_CMD:
+                KMWebService.uploadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
@@ -219,8 +169,65 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
                 });
                 break;
 
+            // UPDATE NOTE
+            case RECORD_UPDATE_NOTE_CMD:
+                KMWebService.updateRecordNote(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        code = 1;
+                        errStr = "网络错误";
+                        rlt = null;
+                        ViseLog.e(code+errStr);
+                        finish = true;
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String respBody = response.body().string();
+                        try {
+                            JSONObject json = new JSONObject(respBody);
+                            code = json.getInt("code");
+                            errStr = json.getString("errStr");
+                            ViseLog.e(code+errStr);
+                            finish = true;
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                break;
+
+            // DELETE
+            case RECORD_DELETE_CMD:
+                KMWebService.deleteRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        code = 1;
+                        errStr = "网络错误";
+                        rlt = null;
+                        ViseLog.e(code+errStr);
+                        finish = true;
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String respBody = response.body().string();
+                        try {
+                            JSONObject json = new JSONObject(respBody);
+                            code = json.getInt("code");
+                            errStr = json.getString("errStr");
+                            ViseLog.e(code+errStr);
+                            finish = true;
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                break;
+
+            // DOWNLOAD
             case RECORD_DOWNLOAD_CMD:
-                KMWebService.downloadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), (BleEcgRecord10)record, DOWNLOAD_NUM_PER_TIME, new Callback() {
+                KMWebService.downloadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, DOWNLOAD_NUM_PER_TIME, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
@@ -270,5 +277,18 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
     protected void onPostExecute(Void result) {
         callback.onFinish(new Object[]{code, errStr, rlt});
         progressDialog.dismiss();
+    }
+
+    private static int getRecordTypeCode(AbstractRecord record) {
+        if(record instanceof BleEcgRecord10) {
+            return 1;
+        } else if(record instanceof BleHrRecord10) {
+            return 2;
+        } else if(record instanceof BleThermoRecord10) {
+            return 3;
+        } else if(record instanceof BleTempHumidRecord10) {
+            return 4;
+        } else
+            return -1;
     }
 }
