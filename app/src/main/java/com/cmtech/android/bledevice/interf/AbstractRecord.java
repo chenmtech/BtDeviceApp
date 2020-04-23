@@ -25,13 +25,14 @@ import java.util.Date;
  */
 public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     private int id;
-    private byte[] ver = new byte[2]; // hr record version
+    private String ver; // hr record version
     private long createTime; //
     private String devAddress; //
     private String creatorPlat;
     private String creatorId;
 
     protected AbstractRecord() {
+        ver = "";
         createTime = 0;
         devAddress = "";
         creatorPlat = "";
@@ -41,12 +42,11 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     public int getId() {
         return id;
     }
-    public byte[] getVer() {
+    public String getVer() {
         return ver;
     }
-    public void setVer(byte[] ver) {
-        this.ver[0] = ver[0];
-        this.ver[1] = ver[1];
+    public void setVer(String ver) {
+        this.ver = ver;
     }
     public long getCreateTime() {
         return createTime;
@@ -85,7 +85,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     public JSONObject toJson() {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("ver", ver[0]+","+ver[1]);
+            jsonObject.put("ver", ver);
             jsonObject.put("createTime", createTime);
             jsonObject.put("devAddress", devAddress);
             jsonObject.put("creatorPlat", creatorPlat);

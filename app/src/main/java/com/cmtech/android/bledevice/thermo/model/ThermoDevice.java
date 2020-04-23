@@ -136,7 +136,7 @@ public class ThermoDevice extends AbstractDevice {
         if(this.isRecord == isRecord) return;
 
         if(isRecord) {
-            record = BleThermoRecord10.create(new byte[]{0x01,0x00}, getAddress(), AccountManager.getAccount());
+            record = BleThermoRecord10.create(getAddress(), AccountManager.getAccount());
         } else {
             if(record != null) {
                 record.setCreateTime(new Date().getTime());

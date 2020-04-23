@@ -70,17 +70,16 @@ public class BleTempHumidRecord10 extends AbstractRecord {
         return "地点" + location + "，温度" + temperature + "℃，湿度" + humid + "%，体感" + (int)heatIndex;
     }
 
-    public static BleTempHumidRecord10 create(byte[] ver, String devAddress, Account creator) {
+    public static BleTempHumidRecord10 create(String devAddress, Account creator) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
         if(DIR_CACHE == null) {
             throw new NullPointerException("The cache dir is null");
         }
-        if(ver == null || ver.length != 2 || ver[0] != 0x01 || ver[1] != 0x00) return null;
 
         BleTempHumidRecord10 record = new BleTempHumidRecord10();
-        record.setVer(ver);
+        record.setVer("1.0");
         record.setCreateTime(new Date().getTime());
         record.setDevAddress(devAddress);
         record.setCreator(creator);

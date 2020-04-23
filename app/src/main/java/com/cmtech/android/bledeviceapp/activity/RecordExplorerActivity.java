@@ -119,7 +119,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private void updateRecordsFromKMServer(long fromTime) {
         if(recordType != RECORD_TYPE_ECG) return;
 
-        final BleEcgRecord10 record = BleEcgRecord10.create(new byte[]{0x01,0x00},null, AccountManager.getAccount(), 0,0,0);
+        final BleEcgRecord10 record = BleEcgRecord10.create(null, AccountManager.getAccount(), 0,0,0);
         record.setCreateTime(fromTime);
 
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
@@ -149,7 +149,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                                 ecgData.add(Short.parseShort(str));
                             }
 
-                            newRecord = BleEcgRecord10.create(new byte[]{0x01,0x00}, devAddress, account, sampleRate, caliValue, leadTypeCode);
+                            newRecord = BleEcgRecord10.create(devAddress, account, sampleRate, caliValue, leadTypeCode);
                             newRecord.setCreateTime(createTime);
                             newRecord.setRecordSecond(recordSecond);
                             newRecord.setNote(note);

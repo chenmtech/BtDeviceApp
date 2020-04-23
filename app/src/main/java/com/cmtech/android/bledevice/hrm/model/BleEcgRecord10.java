@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.hrm.model;
 
+import android.text.TextUtils;
+
 import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledevice.interf.IEcgRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
@@ -118,14 +120,13 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     // create new ecg record
-    public static BleEcgRecord10 create(byte[] ver, String devAddress, Account creator, int sampleRate, int caliValue, int leadTypeCode) {
+    public static BleEcgRecord10 create(String devAddress, Account creator, int sampleRate, int caliValue, int leadTypeCode) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
-        if(ver == null || ver.length != 2 || ver[0] != 0x01 || ver[1] != 0x00) return null;
 
         BleEcgRecord10 record = new BleEcgRecord10();
-        record.setVer(ver);
+        record.setVer("1.0");
         record.setCreateTime(new Date().getTime());
         record.setDevAddress(devAddress);
         record.setCreator(creator);

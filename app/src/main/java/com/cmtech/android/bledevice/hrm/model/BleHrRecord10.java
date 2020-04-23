@@ -135,17 +135,16 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     }
 
     // create new hr record
-    public static BleHrRecord10 create(byte[] ver, String devAddress, Account creator) {
+    public static BleHrRecord10 create(String devAddress, Account creator) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
         if(DIR_CACHE == null) {
             throw new NullPointerException("The cache dir is null");
         }
-        if(ver == null || ver.length != 2 || ver[0] != 0x01 || ver[1] != 0x00) return null;
 
         BleHrRecord10 record = new BleHrRecord10();
-        record.setVer(ver);
+        record.setVer("1.0");
         record.setCreateTime(new Date().getTime());
         record.setDevAddress(devAddress);
         record.setCreator(creator);
