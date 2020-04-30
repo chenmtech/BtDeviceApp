@@ -33,6 +33,11 @@ public class BleTempHumidRecord10 extends AbstractRecord {
         location = "室内";
     }
 
+    @Override
+    public int getRecordTypeCode() {
+        return 4;
+    }
+
     public float getTemperature() {
         return temperature;
     }

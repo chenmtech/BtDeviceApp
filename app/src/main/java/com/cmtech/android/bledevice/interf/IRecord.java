@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.interf;
 
+import org.json.JSONObject;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.interf
@@ -18,6 +20,9 @@ public interface IRecord {
     public String getDevAddress();
     public String getRecordName() ;
     public String getCreatorPlat();
+    public String getCreatorId();
     public String getCreatorName();
     public String getDesc();
+    public JSONObject toJson();
+    public int getRecordTypeCode();
 }

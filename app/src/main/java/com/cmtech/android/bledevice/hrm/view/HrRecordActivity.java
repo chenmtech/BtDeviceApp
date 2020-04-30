@@ -5,12 +5,17 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.HrHistogramChart;
 import com.cmtech.android.bledevice.view.MyLineChart;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
@@ -21,6 +26,8 @@ import static com.cmtech.android.bledevice.hrm.model.BleHrRecord10.HR_MOVE_AVERA
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 public class HrRecordActivity extends AppCompatActivity {
+    private static final int INVALID_ID = -1;
+
     private BleHrRecord10 record;
     private TextView tvCreateTime; // 创建时间
     private TextView tvCreator; // 创建人
@@ -36,7 +43,10 @@ public class HrRecordActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record_hr);
+        setContentView(R.layout.activity_record_hr);// 创建ToolBar
+
+        Toolbar toolbar = findViewById(R.id.tb_hr_record);
+        setSupportActionBar(toolbar);
 
         int recordId = getIntent().getIntExtra("record_id", -1);
 
@@ -79,5 +89,53 @@ public class HrRecordActivity extends AppCompatActivity {
         tvAveHr.setText(String.valueOf(record.getHrAve()));
         tvMaxHr.setText(String.valueOf(record.getHrMax()));
         hrHistChart.update(record.getHrHistogram());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_record, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED, null);
+                finish();
+                break;
+
+            case R.id.ecg_upload:
+                upload();
+                break;
+        }
+        return true;
+    }
+
+    private void upload() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+            @Override
+            public void onFinish(final Object[] objs) {
+                final boolean result = ((Integer)objs[0] == 0);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(result) {
+                            int id = (Integer) objs[2];
+                            if(id == INVALID_ID) {
+                                new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                                    @Override
+                                    public void onFinish(Object[] objs) {
+                                        MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                                    }
+                                }).execute(record);
+                            }
+                        } else {
+                            MyApplication.showMessageUsingShortToast((String)objs[1]);
+                        }
+                    }
+                });
+            }
+        }).execute(record);
     }
 }

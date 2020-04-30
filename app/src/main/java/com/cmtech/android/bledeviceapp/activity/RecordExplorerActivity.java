@@ -19,6 +19,7 @@ import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
+import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
@@ -272,6 +273,12 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     }
                     if(record instanceof BleHrRecord10) {
                         LitePal.delete(BleHrRecord10.class, record.getId());
+                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_DELETE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                            @Override
+                            public void onFinish(Object[] objs) {
+                                MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                            }
+                        }).execute(record);
                     } else if(record instanceof BleEcgRecord10) {
                         LitePal.delete(BleEcgRecord10.class, record.getId());
                         new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_DELETE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
@@ -279,7 +286,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             public void onFinish(Object[] objs) {
                                 MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
                             }
-                        }).execute((BleEcgRecord10)record);
+                        }).execute(record);
                     } else if(record instanceof BleThermoRecord10) {
                         LitePal.delete(BleThermoRecord10.class, record.getId());
                     } else if(record instanceof BleTempHumidRecord10) {

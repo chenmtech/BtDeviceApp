@@ -49,6 +49,11 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     @Override
+    public int getRecordTypeCode() {
+        return 1;
+    }
+
+    @Override
     public String getDesc() {
         return "时长约"+getRecordSecond()+"秒";
     }
@@ -148,7 +153,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         JSONObject jsonObject = super.toJson();
         if(jsonObject == null) return null;
         try {
-            jsonObject.put("recordTypeCode", 1);
+            jsonObject.put("recordTypeCode", getRecordTypeCode());
             jsonObject.put("sampleRate", sampleRate);
             jsonObject.put("caliValue", caliValue);
             jsonObject.put("leadTypeCode", leadTypeCode);

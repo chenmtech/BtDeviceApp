@@ -82,6 +82,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         }
     }
 
+    @Override
     public JSONObject toJson() {
         JSONObject jsonObject = new JSONObject();
         try {

@@ -152,7 +152,6 @@ public class HrmDevice extends AbstractDevice {
         if(isHrRecord == isRecord || isUploadHrRecord) return;
 
         isHrRecord = isRecord;
-
         if(isRecord) {
             hrRecord = BleHrRecord10.create(getAddress(), AccountManager.getAccount());
             if(listener != null)
@@ -164,19 +163,18 @@ public class HrmDevice extends AbstractDevice {
                 } else {
                     hrRecord.setCreateTime(new Date().getTime());
                     hrRecord.save();
-                    /*isUploadHrRecord = true;
+                    isUploadHrRecord = true;
                     new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                         @Override
                         public void onFinish(Object[] objs) {
                             MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
                             isUploadHrRecord = false;
                         }
-                    }).execute(hrRecord);*/
+                    }).execute(hrRecord);
                 }
                 hrRecord = null;
             }
         }
-        isHrRecord = isRecord;
         if(listener != null) {
             listener.onHrRecordStatusUpdated(isHrRecord);
         }

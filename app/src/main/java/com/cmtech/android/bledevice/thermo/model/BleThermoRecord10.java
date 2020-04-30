@@ -31,6 +31,10 @@ public class BleThermoRecord10 extends AbstractRecord {
         highestTemp = 0.0f;
         temp = new ArrayList<>();
     }
+    @Override
+    public int getRecordTypeCode() {
+        return 3;
+    }
 
     @Override
     public String getDesc() {

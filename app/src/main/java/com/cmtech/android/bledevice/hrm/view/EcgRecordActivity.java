@@ -14,7 +14,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
@@ -169,7 +168,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_ecg_record, menu);
+        getMenuInflater().inflate(R.menu.menu_record, menu);
         return true;
     }
 

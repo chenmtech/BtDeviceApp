@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:toolbar="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tb_hr_record"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        toolbar:title="心率记录"
+        toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
+        android:theme="@style/ThemeOverlay.AppCompat.Light"/>
+
+
     <!--记录简介部分-->
     <include layout="@layout/layout_record_item"/>
 

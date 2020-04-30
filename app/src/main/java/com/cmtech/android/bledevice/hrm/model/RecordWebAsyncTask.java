@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.cmtech.android.bledevice.interf.AbstractRecord;
+import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
@@ -33,7 +34,7 @@ import okhttp3.Response;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
+public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
     public static final int RECORD_UPLOAD_CMD = 1;
     public static final int RECORD_UPDATE_NOTE_CMD = 2;
     public static final int RECORD_QUERY_CMD = 3;
@@ -105,10 +106,10 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(AbstractRecord... records) {
+    protected Void doInBackground(IRecord... records) {
         if(records == null) return null;
 
-        AbstractRecord record = records[0];
+        IRecord record = records[0];
 
         switch (cmd) {
             // QUERY
@@ -279,7 +280,7 @@ public class RecordWebAsyncTask extends AsyncTask<AbstractRecord, Void, Void> {
         progressDialog.dismiss();
     }
 
-    private static int getRecordTypeCode(AbstractRecord record) {
+    private static int getRecordTypeCode(IRecord record) {
         if(record instanceof BleEcgRecord10) {
             return 1;
         } else if(record instanceof BleHrRecord10) {

@@ -4,6 +4,8 @@ import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.vise.log.ViseLog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.annotation.Column;
 
 import java.io.Serializable;
@@ -62,6 +64,11 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         hrHistogram.add(new HrHistogramElement<>((short)153, (short)162, 0, "无氧耐力"));
         hrHistogram.add(new HrHistogramElement<>((short)163, (short)1000, 0, "极限冲刺"));
         recordSecond = 0;
+    }
+
+    @Override
+    public int getRecordTypeCode() {
+        return 2;
     }
 
     @Override
@@ -151,6 +158,31 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         for(int i = 0; i < record.hrHistogram.size(); i++)
             record.hrHist.add(0);
         return record;
+    }
+
+    public JSONObject toJson() {
+        JSONObject jsonObject = super.toJson();
+        if(jsonObject == null) return null;
+        try {
+            jsonObject.put("recordTypeCode", getRecordTypeCode());
+            StringBuilder builder = new StringBuilder();
+            for(Short ele : filterHrList) {
+                builder.append(ele).append(',');
+            }
+            jsonObject.put("filterHrList", builder.toString());
+            jsonObject.put("hrMax", hrMax);
+            jsonObject.put("hrAve", hrAve);
+            builder = new StringBuilder();
+            for(Integer ele : hrHist) {
+                builder.append(ele).append(',');
+            }
+            jsonObject.put("hrHist", builder.toString());
+            jsonObject.put("recordSecond", recordSecond);
+            return jsonObject;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
    /* // load hr record from a file
