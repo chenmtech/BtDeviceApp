@@ -114,7 +114,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
         switch (cmd) {
             // QUERY
             case RECORD_QUERY_CMD:
-                KMWebService.queryRecord(getRecordTypeCode(record), record.getCreateTime(), record.getDevAddress(), new Callback() {
+                KMWebService.queryRecord(record.getRecordTypeCode(), record.getCreateTime(), record.getDevAddress(), new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
@@ -278,18 +278,5 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
     protected void onPostExecute(Void result) {
         callback.onFinish(new Object[]{code, errStr, rlt});
         progressDialog.dismiss();
-    }
-
-    private static int getRecordTypeCode(IRecord record) {
-        if(record instanceof BleEcgRecord10) {
-            return 1;
-        } else if(record instanceof BleHrRecord10) {
-            return 2;
-        } else if(record instanceof BleThermoRecord10) {
-            return 3;
-        } else if(record instanceof BleTempHumidRecord10) {
-            return 4;
-        } else
-            return -1;
     }
 }

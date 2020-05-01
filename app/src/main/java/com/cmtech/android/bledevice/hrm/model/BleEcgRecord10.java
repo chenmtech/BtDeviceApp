@@ -29,6 +29,7 @@ import java.util.List;
  * Version:        1.0
  */
 public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serializable {
+    private static final int RECORD_TYPE_CODE = 1;
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
@@ -50,7 +51,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
 
     @Override
     public int getRecordTypeCode() {
-        return 1;
+        return RECORD_TYPE_CODE;
     }
 
     @Override
@@ -142,6 +143,39 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         record.recordSecond = 0;
         record.note = "";
         return record;
+    }
+
+    public static BleEcgRecord10 createFromJson(JSONObject json) {
+        BleEcgRecord10 newRecord;
+        try {
+            String devAddress = null;
+            devAddress = json.getString("devAddress");
+            long createTime = json.getLong("createTime");
+            Account account = new Account();
+            account.setPlatName(json.getString("creatorPlat"));
+            account.setPlatId(json.getString("creatorId"));
+            int sampleRate = json.getInt("sampleRate");
+            int caliValue = json.getInt("caliValue");
+            int leadTypeCode = json.getInt("leadTypeCode");
+            int recordSecond = json.getInt("recordSecond");
+            String note = json.getString("note");
+            String ecgDataStr = json.getString("ecgData");
+            List<Short> ecgData = new ArrayList<>();
+            String[] strings = ecgDataStr.split(",");
+            for(String str : strings) {
+                ecgData.add(Short.parseShort(str));
+            }
+
+            newRecord = BleEcgRecord10.create(devAddress, account, sampleRate, caliValue, leadTypeCode);
+            newRecord.setCreateTime(createTime);
+            newRecord.setRecordSecond(recordSecond);
+            newRecord.setNote(note);
+            newRecord.setEcgData(ecgData);
+            return newRecord;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

@@ -20,6 +20,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
  * Version:        1.0
  */
 public class BleTempHumidRecord10 extends AbstractRecord {
+    private static final int RECORD_TYPE_CODE = 4;
     private float temperature;
     private float humid;
     private float heatIndex;
@@ -35,7 +36,7 @@ public class BleTempHumidRecord10 extends AbstractRecord {
 
     @Override
     public int getRecordTypeCode() {
-        return 4;
+        return RECORD_TYPE_CODE;
     }
 
     public float getTemperature() {

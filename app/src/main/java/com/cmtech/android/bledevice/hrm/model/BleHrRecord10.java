@@ -29,6 +29,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
  * Version:        1.0
  */
 public class BleHrRecord10 extends AbstractRecord implements Serializable {
+    private static final int RECORD_TYPE_CODE = 2;
     public static final int HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH = 10; // unit: s
     private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // char num of device address
@@ -68,7 +69,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
 
     @Override
     public int getRecordTypeCode() {
-        return 2;
+        return RECORD_TYPE_CODE;
     }
 
     @Override
@@ -80,20 +81,35 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     public List<Short> getFilterHrList() {
         return filterHrList;
     }
+    public void setFilterHrList(List<Short> filterHrList) {
+        this.filterHrList = filterHrList;
+    }
     public short getHrMax() {
         return hrMax;
+    }
+    public void setHrMax(short hrMax) {
+        this.hrMax = hrMax;
     }
     public short getHrAve() {
         return hrAve;
     }
+    public void setHrAve(short hrAve) {
+        this.hrAve = hrAve;
+    }
     public List<Integer> getHrHist() {
         return hrHist;
+    }
+    public void setHrHist(List<Integer> hrHist) {
+        this.hrHist = hrHist;
     }
     public List<HrHistogramElement<Integer>> getHrHistogram() {
         return hrHistogram;
     }
     public int getRecordSecond() {
         return recordSecond;
+    }
+    public void setRecordSecond(int recordSecond) {
+        this.recordSecond = recordSecond;
     }
     public void createHistogram() {
         if(hrHist != null && hrHist.size() == hrHistogram.size()) {
@@ -159,6 +175,45 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
             record.hrHist.add(0);
         return record;
     }
+
+    public static BleHrRecord10 createFromJson(JSONObject json) {
+        BleHrRecord10 newRecord;
+        try {
+            String devAddress = json.getString("devAddress");
+            long createTime = json.getLong("createTime");
+            Account account = new Account();
+            account.setPlatName(json.getString("creatorPlat"));
+            account.setPlatId(json.getString("creatorId"));
+            String filterHrListStr = json.getString("filterHrList");
+            List<Short> filterHrList = new ArrayList<>();
+            String[] strings = filterHrListStr.split(",");
+            for(String str : strings) {
+                filterHrList.add(Short.parseShort(str));
+            }
+            short hrMax = (short)json.getInt("hrMax");
+            short hrAve = (short)json.getInt("hrAve");
+            String hrHistStr = json.getString("hrHist");
+            List<Integer> hrHist = new ArrayList<>();
+            String[] strings1 = hrHistStr.split(",");
+            for(String str : strings1) {
+                hrHist.add(Integer.parseInt(str));
+            }
+            int recordSecond = json.getInt("recordSecond");
+
+            newRecord = BleHrRecord10.create(devAddress, account);
+            newRecord.setCreateTime(createTime);
+            newRecord.setRecordSecond(recordSecond);
+            newRecord.setFilterHrList(filterHrList);
+            newRecord.setHrMax(hrMax);
+            newRecord.setHrAve(hrAve);
+            newRecord.setHrHist(hrHist);
+            return newRecord;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public JSONObject toJson() {
         JSONObject jsonObject = super.toJson();

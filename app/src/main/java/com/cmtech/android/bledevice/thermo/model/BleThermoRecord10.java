@@ -23,6 +23,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
  * Version:        1.0
  */
 public class BleThermoRecord10 extends AbstractRecord {
+    private static final int RECORD_TYPE_CODE = 3;
     private float highestTemp;
     private List<Float> temp;
 
@@ -33,7 +34,7 @@ public class BleThermoRecord10 extends AbstractRecord {
     }
     @Override
     public int getRecordTypeCode() {
-        return 3;
+        return RECORD_TYPE_CODE;
     }
 
     @Override

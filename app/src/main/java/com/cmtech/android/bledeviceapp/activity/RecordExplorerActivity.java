@@ -118,9 +118,22 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecordsFromKMServer(long fromTime) {
-        if(recordType != RECORD_TYPE_ECG) return;
+        AbstractRecord record;
+        switch (recordType) {
+            case RECORD_TYPE_ECG:
+                record = BleEcgRecord10.create(null, AccountManager.getAccount(), 0,0,0);
+                break;
 
-        final BleEcgRecord10 record = BleEcgRecord10.create(null, AccountManager.getAccount(), 0,0,0);
+            case RECORD_TYPE_HR:
+                record = BleHrRecord10.create(null, AccountManager.getAccount());
+                break;
+
+            default:
+                record = null;
+                break;
+        }
+        if(record == null) return;
+
         record.setCreateTime(fromTime);
 
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
@@ -128,41 +141,53 @@ public class RecordExplorerActivity extends AppCompatActivity {
             public void onFinish(Object[] objs) {
                 MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
                 if((Integer) objs[0] == 0) {
-                    BleEcgRecord10 newRecord = null;
                     try {
                         JSONArray jsonArr = (JSONArray) objs[2];
                         for(int i = 0; i < jsonArr.length(); i++) {
+                            AbstractRecord newRecord = null;
                             JSONObject json = (JSONObject) jsonArr.get(i);
-                            String devAddress = json.getString("devAddress");
-                            long createTime = json.getLong("createTime");
-                            Account account = new Account();
-                            account.setPlatName(json.getString("creatorPlat"));
-                            account.setPlatId(json.getString("creatorId"));
-                            int sampleRate = json.getInt("sampleRate");
-                            int caliValue = json.getInt("caliValue");
-                            int leadTypeCode = json.getInt("leadTypeCode");
-                            int recordSecond = json.getInt("recordSecond");
-                            String note = json.getString("note");
-                            String ecgDataStr = json.getString("ecgData");
-                            List<Short> ecgData = new ArrayList<>();
-                            String[] strings = ecgDataStr.split(",");
-                            for(String str : strings) {
-                                ecgData.add(Short.parseShort(str));
-                            }
+                            int recordTypeCode = json.getInt("recordTypeCode");
+                            switch (recordTypeCode) {
+                                case 1:
+                                    newRecord = BleEcgRecord10.createFromJson(json);
+                                    break;
 
-                            newRecord = BleEcgRecord10.create(devAddress, account, sampleRate, caliValue, leadTypeCode);
-                            newRecord.setCreateTime(createTime);
-                            newRecord.setRecordSecond(recordSecond);
-                            newRecord.setNote(note);
-                            newRecord.setEcgData(ecgData);
-                            ViseLog.e(newRecord);
-                            newRecord.saveIfNotExist("createTime = ? and devAddress = ?", ""+newRecord.getCreateTime(), newRecord.getDevAddress());
-                            updateTime = newRecord.getCreateTime();
+                                case 2:
+                                    newRecord = BleHrRecord10.createFromJson(json);
+                                    break;
+
+                                default:
+                                    break;
+
+                            }
+                            if(newRecord != null) {
+                                ViseLog.e(newRecord);
+                                //newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
+                                newRecord.assignBaseObjId(0);
+                                newRecord.save();
+                                updateTime = newRecord.getCreateTime();
+                            }
                         }
-                        List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                                .where("creatorPlat = ? and creatorId = ? and createTime >= ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime).order("createTime desc").find(BleEcgRecord10.class);
                         allRecords.clear();
-                        allRecords.addAll(ecgRecords);
+                        switch (recordType) {
+                            case RECORD_TYPE_ECG:
+                                List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                                        .where("creatorPlat = ? and creatorId = ? and createTime >= ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime)
+                                        .order("createTime desc").find(BleEcgRecord10.class);
+                                allRecords.addAll(ecgRecords);
+                                break;
+
+                            case RECORD_TYPE_HR:
+                                List<BleHrRecord10> hrRecords = LitePal//LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                                        .where("creatorPlat = ? and creatorId = ? and createTime >= ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime)
+                                        .order("createTime desc").find(BleHrRecord10.class);
+                                ViseLog.e(hrRecords.toString());
+                                allRecords.addAll(hrRecords);
+                                break;
+
+                            default:
+                                break;
+                        }
                         updateRecordList();
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -212,6 +237,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     public void setRecordType(int recordType) {
         this.recordType = recordType;
+        updateTime = new Date().getTime();
         allRecords.clear();
 
         switch (recordType) {
@@ -227,6 +253,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
                         .order("createTime desc").where("creatorPlat = ? and creatorId = ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId()).find(BleHrRecord10.class);
                 allRecords.addAll(hrRecords);
+
+                updateRecordsFromKMServer(updateTime);
                 break;
 
             case RECORD_TYPE_THERMO:

@@ -50,7 +50,7 @@ public class HrRecordActivity extends AppCompatActivity {
 
         int recordId = getIntent().getIntExtra("record_id", -1);
 
-        record = LitePal.where("id = ?", ""+recordId).findFirst(BleHrRecord10.class);
+        record = LitePal.where("id = ?", ""+recordId).findFirst(BleHrRecord10.class, true);
         if(record == null) {
             setResult(RESULT_CANCELED);
             finish();
