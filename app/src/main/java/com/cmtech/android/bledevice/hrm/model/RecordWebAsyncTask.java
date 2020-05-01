@@ -41,7 +41,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
     public static final int RECORD_DELETE_CMD = 4;
     public static final int RECORD_DOWNLOAD_CMD = 5;
 
-    private static final int DOWNLOAD_NUM_PER_TIME = 5;
+    public static final int DOWNLOAD_NUM_PER_TIME = 3;
 
     private ProgressDialog progressDialog;
     private final int cmd;

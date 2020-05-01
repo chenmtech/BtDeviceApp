@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
+
 /**
   *
   * ClassName:      HrRecordExplorerActivity
@@ -59,12 +61,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private static final int RECORD_TYPE_THM = 2;
     private static final int RECORD_TYPE_THERMO = 3;
 
-    private static long updateTime = new Date().getTime();
-
-    static {
-        long time3day = new Date().getTime()-3*24*60*60*1000L;
-        LitePal.deleteAll(BleEcgRecord10.class, "createTime < ?", ""+time3day);
-    }
+    private long updateTime;
 
     private List<IRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter adapter; // Adapter
@@ -140,7 +137,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             @Override
             public void onFinish(Object[] objs) {
                 MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
-                if((Integer) objs[0] == 0) {
+                if((Integer) objs[0] == 0) { // download success, update records
                     try {
                         JSONArray jsonArr = (JSONArray) objs[2];
                         for(int i = 0; i < jsonArr.length(); i++) {
@@ -163,33 +160,38 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             if(newRecord != null) {
                                 ViseLog.e(newRecord);
                                 newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
-                                updateTime = newRecord.getCreateTime();
                             }
                         }
-                        allRecords.clear();
-                        switch (recordType) {
-                            case RECORD_TYPE_ECG:
-                                List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                                        .where("creatorPlat = ? and creatorId = ? and createTime >= ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime)
-                                        .order("createTime desc").find(BleEcgRecord10.class);
-                                allRecords.addAll(ecgRecords);
-                                break;
-
-                            case RECORD_TYPE_HR:
-                                List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                                        .where("creatorPlat = ? and creatorId = ? and createTime >= ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime)
-                                        .order("createTime desc").find(BleHrRecord10.class);
-                                allRecords.addAll(hrRecords);
-                                break;
-
-                            default:
-                                break;
-                        }
-                        updateRecordList();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
+
+                switch (recordType) {
+                    case RECORD_TYPE_ECG:
+                        List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                                .where("creatorPlat = ? and creatorId = ? and createTime < ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime)
+                                .order("createTime desc").limit(DOWNLOAD_NUM_PER_TIME).find(BleEcgRecord10.class);
+                        if(!ecgRecords.isEmpty()) {
+                            updateTime = ecgRecords.get(ecgRecords.size() - 1).getCreateTime();
+                            allRecords.addAll(ecgRecords);
+                        }
+                        break;
+
+                    case RECORD_TYPE_HR:
+                        List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                                .where("creatorPlat = ? and creatorId = ? and createTime < ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime)
+                                .order("createTime desc").limit(DOWNLOAD_NUM_PER_TIME).find(BleHrRecord10.class);
+                        if(!hrRecords.isEmpty()) {
+                            updateTime = hrRecords.get(hrRecords.size() - 1).getCreateTime();
+                            allRecords.addAll(hrRecords);
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+                updateRecordList();
             }
         }).execute(record);
     }
@@ -239,18 +241,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
         switch (recordType) {
             case RECORD_TYPE_ECG:
-                List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                        .order("createTime desc").where("creatorPlat = ? and creatorId = ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId()).find(BleEcgRecord10.class);
-                allRecords.addAll(ecgRecords);
-
                 updateRecordsFromKMServer(updateTime);
                 break;
 
             case RECORD_TYPE_HR:
-                List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                        .order("createTime desc").where("creatorPlat = ? and creatorId = ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId()).find(BleHrRecord10.class);
-                allRecords.addAll(hrRecords);
-
                 updateRecordsFromKMServer(updateTime);
                 break;
 
