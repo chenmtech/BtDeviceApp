@@ -177,7 +177,6 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     }
 
     public static BleHrRecord10 createFromJson(JSONObject json) {
-        BleHrRecord10 newRecord;
         try {
             String devAddress = json.getString("devAddress");
             long createTime = json.getLong("createTime");
@@ -200,13 +199,18 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
             }
             int recordSecond = json.getInt("recordSecond");
 
-            newRecord = BleHrRecord10.create(devAddress, account);
+            BleHrRecord10 newRecord = new BleHrRecord10();
+            newRecord.setVer("1.0");
+            newRecord.setCreateTime(createTime);
+            newRecord.setDevAddress(devAddress);
+            newRecord.setCreator(account);
             newRecord.setCreateTime(createTime);
             newRecord.setRecordSecond(recordSecond);
             newRecord.setFilterHrList(filterHrList);
             newRecord.setHrMax(hrMax);
             newRecord.setHrAve(hrAve);
             newRecord.setHrHist(hrHist);
+            newRecord.createHistogram();
             return newRecord;
         } catch (JSONException e) {
             e.printStackTrace();

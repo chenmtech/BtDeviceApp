@@ -162,9 +162,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             }
                             if(newRecord != null) {
                                 ViseLog.e(newRecord);
-                                //newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
-                                newRecord.assignBaseObjId(0);
-                                newRecord.save();
+                                newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
                                 updateTime = newRecord.getCreateTime();
                             }
                         }
@@ -178,10 +176,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
                                 break;
 
                             case RECORD_TYPE_HR:
-                                List<BleHrRecord10> hrRecords = LitePal//LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                                List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
                                         .where("creatorPlat = ? and creatorId = ? and createTime >= ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime)
                                         .order("createTime desc").find(BleHrRecord10.class);
-                                ViseLog.e(hrRecords.toString());
                                 allRecords.addAll(hrRecords);
                                 break;
 
