@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledevice.interf.IEcgRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -143,6 +144,24 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         record.recordSecond = 0;
         record.note = "";
         return record;
+    }
+
+    public static BleEcgRecord10 createFromInfoJson(JSONObject json) {
+        BleEcgRecord10 newRecord;
+        try {
+            String devAddress = json.getString("devAddress");
+            long createTime = json.getLong("createTime");
+            Account account = AccountManager.getAccount();
+            int recordSecond = json.getInt("recordSecond");
+
+            newRecord = BleEcgRecord10.create(devAddress, account, 0, 0, 0);
+            newRecord.setCreateTime(createTime);
+            newRecord.setRecordSecond(recordSecond);
+            return newRecord;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static BleEcgRecord10 createFromJson(JSONObject json) {

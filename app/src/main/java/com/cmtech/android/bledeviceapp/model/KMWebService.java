@@ -105,10 +105,10 @@ public class KMWebService {
         }
     }
 
-    public static void downloadRecord(String platName, String platId, IRecord record, int num, Callback callback) {
+    public static void downloadRecordInfo(String platName, String platId, IRecord record, int num, Callback callback) {
         JSONObject json = new JSONObject();
         try {
-            json.put("cmd", "download");
+            json.put("cmd", "downloadInfo");
             json.put("platName", platName);
             json.put("platId", platId);
             json.put("recordTypeCode", record.getRecordTypeCode());
@@ -116,6 +116,21 @@ public class KMWebService {
             json.put("creatorPlat", record.getCreatorPlat());
             json.put("creatorId", record.getCreatorId());
             json.put("num", num);
+            HttpUtils.requestPost(KMURL + "Record?", json, callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void downloadRecord(String platName, String platId, IRecord record, Callback callback) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("cmd", "download");
+            json.put("platName", platName);
+            json.put("platId", platId);
+            json.put("recordTypeCode", record.getRecordTypeCode());
+            json.put("createTime", record.getCreateTime());
+            json.put("devAddress", record.getDevAddress());
             HttpUtils.requestPost(KMURL + "Record?", json, callback);
         } catch (JSONException e) {
             e.printStackTrace();

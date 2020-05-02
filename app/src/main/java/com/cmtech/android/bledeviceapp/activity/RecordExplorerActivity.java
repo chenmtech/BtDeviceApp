@@ -27,7 +27,6 @@ import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
-import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
@@ -41,6 +40,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
+import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
 
 /**
   *
@@ -94,7 +94,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == adapter.getItemCount()-1) {
-                    updateRecordsFromKMServer(updateTime);
+                    updateRecordInfoFromKMServer(updateTime);
                 }
             }
 
@@ -114,7 +114,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         setRecordType(RECORD_TYPE_ECG);
     }
 
-    private void updateRecordsFromKMServer(long fromTime) {
+    private void updateRecordInfoFromKMServer(long fromTime) {
         AbstractRecord record;
         switch (recordType) {
             case RECORD_TYPE_ECG:
@@ -133,7 +133,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
         record.setCreateTime(fromTime);
 
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_DOWNLOAD_INFO_CMD, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
             public void onFinish(Object[] objs) {
                 MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
@@ -143,14 +143,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         for(int i = 0; i < jsonArr.length(); i++) {
                             AbstractRecord newRecord = null;
                             JSONObject json = (JSONObject) jsonArr.get(i);
-                            int recordTypeCode = json.getInt("recordTypeCode");
-                            switch (recordTypeCode) {
-                                case 1:
-                                    newRecord = BleEcgRecord10.createFromJson(json);
+                            switch (recordType) {
+                                case RECORD_TYPE_ECG:
+                                    newRecord = BleEcgRecord10.createFromInfoJson(json);
                                     break;
 
-                                case 2:
-                                    newRecord = BleHrRecord10.createFromJson(json);
+                                case RECORD_TYPE_HR:
+                                    newRecord = BleHrRecord10.createFromInfoJson(json);
                                     break;
 
                                 default:
@@ -241,11 +240,11 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
         switch (recordType) {
             case RECORD_TYPE_ECG:
-                updateRecordsFromKMServer(updateTime);
+                updateRecordInfoFromKMServer(updateTime);
                 break;
 
             case RECORD_TYPE_HR:
-                updateRecordsFromKMServer(updateTime);
+                updateRecordInfoFromKMServer(updateTime);
                 break;
 
             case RECORD_TYPE_THERMO:
@@ -265,18 +264,45 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
 
     public void selectRecord(final IRecord record) {
-        Intent intent = null;
-        if(record instanceof BleHrRecord10) {
-            intent = new Intent(this, HrRecordActivity.class);
-        } else if(record instanceof BleEcgRecord10) {
-            intent = new Intent(this, EcgRecordActivity.class);
-        } else if(record instanceof BleThermoRecord10) {
-            intent = new Intent(this, ThermoRecordActivity.class);
-        }
-        if(intent != null) {
-            intent.putExtra("record_id", record.getId());
-            startActivity(intent);
-        }
+        new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+            @Override
+            public void onFinish(Object[] objs) {
+                if((Integer)objs[0] == 0) {
+                    AbstractRecord newRecord = null;
+                    JSONObject json = (JSONObject) objs[2];
+                    switch (recordType) {
+                        case RECORD_TYPE_ECG:
+                            newRecord = BleEcgRecord10.createFromJson(json1);
+                            break;
+
+                        case RECORD_TYPE_HR:
+                            newRecord = BleHrRecord10.createFromJson(json);
+                            break;
+
+                        default:
+                            break;
+                    }
+                    if(newRecord != null) {
+                        ViseLog.e(newRecord);
+                        newRecord.update(record.getId());
+                    }
+
+                    Intent intent = null;
+                    if(record instanceof BleHrRecord10) {
+                        intent = new Intent(RecordExplorerActivity.this, HrRecordActivity.class);
+                    } else if(record instanceof BleEcgRecord10) {
+                        intent = new Intent(RecordExplorerActivity.this, EcgRecordActivity.class);
+                    } else if(record instanceof BleThermoRecord10) {
+                        intent = new Intent(RecordExplorerActivity.this, ThermoRecordActivity.class);
+                    }
+                    if(intent != null) {
+                        intent.putExtra("record_id", record.getId());
+                        startActivity(intent);
+                    }
+                }
+            }
+        }).execute(record);
+
     }
 
     public void deleteRecord(final IRecord record) {

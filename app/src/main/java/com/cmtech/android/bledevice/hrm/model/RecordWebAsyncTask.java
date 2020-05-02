@@ -4,10 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledevice.interf.IRecord;
-import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
-import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.vise.log.ViseLog;
@@ -39,7 +36,8 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
     public static final int RECORD_UPDATE_NOTE_CMD = 2;
     public static final int RECORD_QUERY_CMD = 3;
     public static final int RECORD_DELETE_CMD = 4;
-    public static final int RECORD_DOWNLOAD_CMD = 5;
+    public static final int RECORD_DOWNLOAD_INFO_CMD = 5;
+    public static final int RECORD_DOWNLOAD_CMD = 6;
 
     public static final int DOWNLOAD_NUM_PER_TIME = 3;
 
@@ -79,6 +77,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                 break;
             case RECORD_DELETE_CMD:
                 cmdStr = "删除记录";
+                break;
+            case RECORD_DOWNLOAD_INFO_CMD:
+                cmdStr = "下载记录信息";
                 break;
             case RECORD_DOWNLOAD_CMD:
                 cmdStr = "下载记录";
@@ -226,9 +227,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                 });
                 break;
 
-            // DOWNLOAD
-            case RECORD_DOWNLOAD_CMD:
-                KMWebService.downloadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, DOWNLOAD_NUM_PER_TIME, new Callback() {
+            // DOWNLOAD INFO
+            case RECORD_DOWNLOAD_INFO_CMD:
+                KMWebService.downloadRecordInfo(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, DOWNLOAD_NUM_PER_TIME, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
@@ -247,6 +248,35 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             errStr = json.getString("errStr");
                             rlt = json.get("records");
                             ViseLog.e(json.toString());
+                            finish = true;
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                break;
+
+            // DOWNLOAD
+            case RECORD_DOWNLOAD_CMD:
+                KMWebService.downloadRecord(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        code = 1;
+                        errStr = "网络错误";
+                        rlt = null;
+                        ViseLog.e(code+errStr);
+                        finish = true;
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String respBody = response.body().string();
+                        try {
+                            JSONObject json = new JSONObject(respBody);
+                            ViseLog.e(json.toString());
+                            code = json.getInt("code");
+                            errStr = json.getString("errStr");
+                            rlt = json.get("record");
                             finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();

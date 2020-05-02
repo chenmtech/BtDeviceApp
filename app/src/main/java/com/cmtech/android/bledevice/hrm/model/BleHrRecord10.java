@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.hrm.model;
 
 import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
 import org.json.JSONException;
@@ -174,6 +175,24 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         for(int i = 0; i < record.hrHistogram.size(); i++)
             record.hrHist.add(0);
         return record;
+    }
+
+    public static BleHrRecord10 createFromInfoJson(JSONObject json) {
+        BleHrRecord10 newRecord;
+        try {
+            String devAddress = json.getString("devAddress");
+            long createTime = json.getLong("createTime");
+            Account account = AccountManager.getAccount();
+            int recordSecond = json.getInt("recordSecond");
+
+            newRecord = BleHrRecord10.create(devAddress, account);
+            newRecord.setCreateTime(createTime);
+            newRecord.setRecordSecond(recordSecond);
+            return newRecord;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static BleHrRecord10 createFromJson(JSONObject json) {
