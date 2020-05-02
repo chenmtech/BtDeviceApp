@@ -164,37 +164,26 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         return null;
     }
 
-    public static BleEcgRecord10 createFromJson(JSONObject json) {
-        BleEcgRecord10 newRecord;
+    @Override
+    public boolean updateFromJson(JSONObject json) {
         try {
-            String devAddress = null;
-            devAddress = json.getString("devAddress");
-            long createTime = json.getLong("createTime");
-            Account account = new Account();
-            account.setPlatName(json.getString("creatorPlat"));
-            account.setPlatId(json.getString("creatorId"));
-            int sampleRate = json.getInt("sampleRate");
-            int caliValue = json.getInt("caliValue");
-            int leadTypeCode = json.getInt("leadTypeCode");
-            int recordSecond = json.getInt("recordSecond");
-            String note = json.getString("note");
+            sampleRate = json.getInt("sampleRate");
+            caliValue = json.getInt("caliValue");
+            leadTypeCode = json.getInt("leadTypeCode");
+            recordSecond = json.getInt("recordSecond");
+            note = json.getString("note");
             String ecgDataStr = json.getString("ecgData");
             List<Short> ecgData = new ArrayList<>();
             String[] strings = ecgDataStr.split(",");
             for(String str : strings) {
                 ecgData.add(Short.parseShort(str));
             }
-
-            newRecord = BleEcgRecord10.create(devAddress, account, sampleRate, caliValue, leadTypeCode);
-            newRecord.setCreateTime(createTime);
-            newRecord.setRecordSecond(recordSecond);
-            newRecord.setNote(note);
-            newRecord.setEcgData(ecgData);
-            return newRecord;
+            this.ecgData = ecgData;
+            return save();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
     @Override

@@ -23,6 +23,7 @@ public interface IRecord {
     public String getCreatorId();
     public String getCreatorName();
     public String getDesc();
-    public JSONObject toJson();
     public int getRecordTypeCode();
+    public JSONObject toJson();
+    public boolean updateFromJson(JSONObject json);
 }

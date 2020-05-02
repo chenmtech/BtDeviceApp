@@ -268,24 +268,23 @@ public class RecordExplorerActivity extends AppCompatActivity {
             @Override
             public void onFinish(Object[] objs) {
                 if((Integer)objs[0] == 0) {
-                    AbstractRecord newRecord = null;
                     JSONObject json = (JSONObject) objs[2];
                     switch (recordType) {
                         case RECORD_TYPE_ECG:
-                            newRecord = BleEcgRecord10.createFromJson(json1);
+                            record.updateFromJson(json);
                             break;
 
                         case RECORD_TYPE_HR:
-                            newRecord = BleHrRecord10.createFromJson(json);
+                            record.updateFromJson(json);
                             break;
 
                         default:
                             break;
                     }
-                    if(newRecord != null) {
+                    /*if(newRecord != null) {
                         ViseLog.e(newRecord);
                         newRecord.update(record.getId());
-                    }
+                    }*/
 
                     Intent intent = null;
                     if(record instanceof BleHrRecord10) {

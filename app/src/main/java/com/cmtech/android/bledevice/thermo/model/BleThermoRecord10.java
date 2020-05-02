@@ -4,6 +4,8 @@ import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +37,11 @@ public class BleThermoRecord10 extends AbstractRecord {
     @Override
     public int getRecordTypeCode() {
         return RECORD_TYPE_CODE;
+    }
+
+    @Override
+    public boolean updateFromJson(JSONObject json) {
+        return false;
     }
 
     @Override

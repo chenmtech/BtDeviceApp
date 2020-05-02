@@ -195,49 +195,6 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         return null;
     }
 
-    public static BleHrRecord10 createFromJson(JSONObject json) {
-        try {
-            String devAddress = json.getString("devAddress");
-            long createTime = json.getLong("createTime");
-            Account account = new Account();
-            account.setPlatName(json.getString("creatorPlat"));
-            account.setPlatId(json.getString("creatorId"));
-            String filterHrListStr = json.getString("filterHrList");
-            List<Short> filterHrList = new ArrayList<>();
-            String[] strings = filterHrListStr.split(",");
-            for(String str : strings) {
-                filterHrList.add(Short.parseShort(str));
-            }
-            short hrMax = (short)json.getInt("hrMax");
-            short hrAve = (short)json.getInt("hrAve");
-            String hrHistStr = json.getString("hrHist");
-            List<Integer> hrHist = new ArrayList<>();
-            String[] strings1 = hrHistStr.split(",");
-            for(String str : strings1) {
-                hrHist.add(Integer.parseInt(str));
-            }
-            int recordSecond = json.getInt("recordSecond");
-
-            BleHrRecord10 newRecord = new BleHrRecord10();
-            newRecord.setVer("1.0");
-            newRecord.setCreateTime(createTime);
-            newRecord.setDevAddress(devAddress);
-            newRecord.setCreator(account);
-            newRecord.setCreateTime(createTime);
-            newRecord.setRecordSecond(recordSecond);
-            newRecord.setFilterHrList(filterHrList);
-            newRecord.setHrMax(hrMax);
-            newRecord.setHrAve(hrAve);
-            newRecord.setHrHist(hrHist);
-            newRecord.createHistogram();
-            return newRecord;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
     public JSONObject toJson() {
         JSONObject jsonObject = super.toJson();
         if(jsonObject == null) return null;
@@ -261,6 +218,34 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public boolean updateFromJson(JSONObject json) {
+        try {
+            String filterHrListStr = json.getString("filterHrList");
+            List<Short> filterHrList = new ArrayList<>();
+            String[] strings = filterHrListStr.split(",");
+            for(String str : strings) {
+                filterHrList.add(Short.parseShort(str));
+            }
+            this.filterHrList = filterHrList;
+            hrMax = (short)json.getInt("hrMax");
+            hrAve = (short)json.getInt("hrAve");
+            String hrHistStr = json.getString("hrHist");
+            List<Integer> hrHist = new ArrayList<>();
+            String[] strings1 = hrHistStr.split(",");
+            for(String str : strings1) {
+                hrHist.add(Integer.parseInt(str));
+            }
+            this.hrHist = hrHist;
+            recordSecond = json.getInt("recordSecond");
+            createHistogram();
+            return save();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
    /* // load hr record from a file

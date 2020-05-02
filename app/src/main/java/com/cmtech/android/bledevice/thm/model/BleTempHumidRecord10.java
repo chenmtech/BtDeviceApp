@@ -3,6 +3,8 @@ package com.cmtech.android.bledevice.thm.model;
 import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 
+import org.json.JSONObject;
+
 import java.util.Date;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
@@ -37,6 +39,11 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     @Override
     public int getRecordTypeCode() {
         return RECORD_TYPE_CODE;
+    }
+
+    @Override
+    public boolean updateFromJson(JSONObject json) {
+        return false;
     }
 
     public float getTemperature() {
