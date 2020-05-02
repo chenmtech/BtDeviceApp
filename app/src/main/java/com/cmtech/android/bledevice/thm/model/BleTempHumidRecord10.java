@@ -42,7 +42,7 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     }
 
     @Override
-    public boolean updateFromJson(JSONObject json) {
+    public boolean getDataFromJson(JSONObject json) {
         return false;
     }
 
@@ -81,6 +81,11 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     @Override
     public String getDesc() {
         return "地点" + location + "，温度" + temperature + "℃，湿度" + humid + "%，体感" + (int)heatIndex;
+    }
+
+    @Override
+    public boolean hasData() {
+        return true;
     }
 
     public static BleTempHumidRecord10 create(String devAddress, Account creator) {

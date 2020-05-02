@@ -24,9 +24,11 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
+import org.json.JSONObject;
 import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 
+import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
@@ -69,6 +71,26 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             record.setNote("");
             record.save();
         }
+
+        if(!record.hasData()) {
+            new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                @Override
+                public void onFinish(Object[] objs) {
+                    if ((Integer) objs[0] == 0) {
+                        JSONObject json = (JSONObject) objs[2];
+
+                        if(record.getDataFromJson(json)) {
+                            initUI();
+                        }
+                    }
+                }
+            }).execute(record);
+        } else {
+            initUI();
+        }
+    }
+
+    private void initUI() {
         ViseLog.e(record.toJson().toString());
 
         ivRecordType = findViewById(R.id.iv_record_type);
@@ -203,7 +225,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     protected void onDestroy() {
         super.onDestroy();
 
-        signalView.stopShow();
+        if(signalView != null)
+            signalView.stopShow();
     }
 
     private void upload() {

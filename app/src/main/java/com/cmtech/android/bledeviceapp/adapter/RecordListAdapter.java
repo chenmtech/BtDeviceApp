@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.interf.AbstractRecord;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
@@ -40,7 +41,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM
 
 public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.ViewHolder>{
     private final RecordExplorerActivity activity;
-    private final List<IRecord> allRecords;
+    private final List<AbstractRecord> allRecords;
     private int selPos = -1;
     private Drawable defaultBg; // 缺省背景
 
@@ -66,7 +67,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         }
     }
 
-    public RecordListAdapter(RecordExplorerActivity activity, List<IRecord> allRecords) {
+    public RecordListAdapter(RecordExplorerActivity activity, List<AbstractRecord> allRecords) {
         this.activity = activity;
         this.allRecords = allRecords;
     }

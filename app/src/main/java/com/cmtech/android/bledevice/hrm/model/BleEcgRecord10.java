@@ -115,9 +115,12 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         this.note = note;
     }
 
+    public boolean hasData() {
+        return !ecgData.isEmpty();
+    }
+
     @Override
     public boolean save() {
-        recordSecond = ecgData.size()/sampleRate;
         return super.save();
     }
 
@@ -146,7 +149,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         return record;
     }
 
-    public static BleEcgRecord10 createFromInfoJson(JSONObject json) {
+    public static BleEcgRecord10 createFromJson(JSONObject json) {
         BleEcgRecord10 newRecord;
         try {
             String devAddress = json.getString("devAddress");
@@ -165,7 +168,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     @Override
-    public boolean updateFromJson(JSONObject json) {
+    public boolean getDataFromJson(JSONObject json) {
         try {
             sampleRate = json.getInt("sampleRate");
             caliValue = json.getInt("caliValue");

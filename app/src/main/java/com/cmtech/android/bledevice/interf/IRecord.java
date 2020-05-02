@@ -25,5 +25,6 @@ public interface IRecord {
     public String getDesc();
     public int getRecordTypeCode();
     public JSONObject toJson();
-    public boolean updateFromJson(JSONObject json);
+    public boolean hasData();
+    public boolean getDataFromJson(JSONObject json);
 }

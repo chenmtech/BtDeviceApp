@@ -120,6 +120,10 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         }
     }
 
+    public boolean hasData() {
+        return !filterHrList.isEmpty();
+    }
+
     public boolean process(short hr, long time) {
         if(hrMax < hr) hrMax = hr;
         hrSum += hr;
@@ -148,13 +152,6 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
 
     @Override
     public boolean save() {
-        for(int i = 0; i < hrHistogram.size(); i++) {
-            hrHist.set(i, hrHistogram.get(i).getHistValue());
-        }
-        for(int num : hrHist) {
-            recordSecond += num;
-        }
-
         return super.save();
     }
 
@@ -177,7 +174,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         return record;
     }
 
-    public static BleHrRecord10 createFromInfoJson(JSONObject json) {
+    public static BleHrRecord10 createFromJson(JSONObject json) {
         BleHrRecord10 newRecord;
         try {
             String devAddress = json.getString("devAddress");
@@ -221,7 +218,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     }
 
     @Override
-    public boolean updateFromJson(JSONObject json) {
+    public boolean getDataFromJson(JSONObject json) {
         try {
             String filterHrListStr = json.getString("filterHrList");
             List<Short> filterHrList = new ArrayList<>();

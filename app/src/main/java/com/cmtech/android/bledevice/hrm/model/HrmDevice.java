@@ -162,6 +162,14 @@ public class HrmDevice extends AbstractDevice {
                     MyApplication.showMessageUsingShortToast("记录太短，未保存。");
                 } else {
                     hrRecord.setCreateTime(new Date().getTime());
+                    for(int i = 0; i < hrRecord.getHrHistogram().size(); i++) {
+                        hrRecord.getHrHist().set(i, hrRecord.getHrHistogram().get(i).getHistValue());
+                    }
+                    int sum = 0;
+                    for(int num : hrRecord.getHrHist()) {
+                        sum += num;
+                    }
+                    hrRecord.setRecordSecond(sum);
                     hrRecord.save();
                     isUploadHrRecord = true;
                     new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
@@ -202,6 +210,7 @@ public class HrmDevice extends AbstractDevice {
                 MyApplication.showMessageUsingShortToast("记录太短，未保存。");
             } else {
                 ecgRecord.setCreateTime(new Date().getTime());
+                ecgRecord.setRecordSecond(ecgRecord.getEcgData().size()/sampleRate);
                 ecgRecord.save();
                 isUploadEcgRecord = true;
                 new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {

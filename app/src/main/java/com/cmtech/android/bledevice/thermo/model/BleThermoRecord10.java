@@ -40,7 +40,12 @@ public class BleThermoRecord10 extends AbstractRecord {
     }
 
     @Override
-    public boolean updateFromJson(JSONObject json) {
+    public boolean hasData() {
+        return true;
+    }
+
+    @Override
+    public boolean getDataFromJson(JSONObject json) {
         return false;
     }
 

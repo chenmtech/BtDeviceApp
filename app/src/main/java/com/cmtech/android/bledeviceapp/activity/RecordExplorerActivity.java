@@ -20,7 +20,6 @@ import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
 import com.cmtech.android.bledevice.interf.AbstractRecord;
-import com.cmtech.android.bledevice.interf.IRecord;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
 import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
@@ -40,7 +39,6 @@ import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
-import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
 
 /**
   *
@@ -63,7 +61,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     private long updateTime;
 
-    private List<IRecord> allRecords = new ArrayList<>(); // all records
+    private List<AbstractRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter adapter; // Adapter
     private RecyclerView view; // RecycleView
     private TextView tvPromptInfo; // prompt info
@@ -145,11 +143,11 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             JSONObject json = (JSONObject) jsonArr.get(i);
                             switch (recordType) {
                                 case RECORD_TYPE_ECG:
-                                    newRecord = BleEcgRecord10.createFromInfoJson(json);
+                                    newRecord = BleEcgRecord10.createFromJson(json);
                                     break;
 
                                 case RECORD_TYPE_HR:
-                                    newRecord = BleHrRecord10.createFromInfoJson(json);
+                                    newRecord = BleHrRecord10.createFromJson(json);
                                     break;
 
                                 default:
@@ -174,6 +172,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         if(!ecgRecords.isEmpty()) {
                             updateTime = ecgRecords.get(ecgRecords.size() - 1).getCreateTime();
                             allRecords.addAll(ecgRecords);
+                            ViseLog.e(allRecords.toString());
                         }
                         break;
 
@@ -263,48 +262,26 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
 
-    public void selectRecord(final IRecord record) {
-        new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
-            @Override
-            public void onFinish(Object[] objs) {
-                if((Integer)objs[0] == 0) {
-                    JSONObject json = (JSONObject) objs[2];
-                    switch (recordType) {
-                        case RECORD_TYPE_ECG:
-                            record.updateFromJson(json);
-                            break;
-
-                        case RECORD_TYPE_HR:
-                            record.updateFromJson(json);
-                            break;
-
-                        default:
-                            break;
-                    }
-                    /*if(newRecord != null) {
-                        ViseLog.e(newRecord);
-                        newRecord.update(record.getId());
-                    }*/
-
-                    Intent intent = null;
-                    if(record instanceof BleHrRecord10) {
-                        intent = new Intent(RecordExplorerActivity.this, HrRecordActivity.class);
-                    } else if(record instanceof BleEcgRecord10) {
-                        intent = new Intent(RecordExplorerActivity.this, EcgRecordActivity.class);
-                    } else if(record instanceof BleThermoRecord10) {
-                        intent = new Intent(RecordExplorerActivity.this, ThermoRecordActivity.class);
-                    }
-                    if(intent != null) {
-                        intent.putExtra("record_id", record.getId());
-                        startActivity(intent);
-                    }
-                }
-            }
-        }).execute(record);
-
+    public void selectRecord(final AbstractRecord record) {
+        openRecordActivity(record);
     }
 
-    public void deleteRecord(final IRecord record) {
+    private void openRecordActivity(AbstractRecord record) {
+        Intent intent = null;
+        if (record instanceof BleHrRecord10) {
+            intent = new Intent(RecordExplorerActivity.this, HrRecordActivity.class);
+        } else if (record instanceof BleEcgRecord10) {
+            intent = new Intent(RecordExplorerActivity.this, EcgRecordActivity.class);
+        } else if (record instanceof BleThermoRecord10) {
+            intent = new Intent(RecordExplorerActivity.this, ThermoRecordActivity.class);
+        }
+        if (intent != null) {
+            intent.putExtra("record_id", record.getId());
+            startActivity(intent);
+        }
+    }
+
+    public void deleteRecord(final AbstractRecord record) {
         if(record != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("删除记录").setMessage("确定删除该记录吗？");

@@ -20,9 +20,11 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
+import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.hrm.model.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
+import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 public class HrRecordActivity extends AppCompatActivity {
@@ -55,6 +57,26 @@ public class HrRecordActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED);
             finish();
         }
+
+        if(!record.hasData()) {
+            new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                @Override
+                public void onFinish(Object[] objs) {
+                    if ((Integer) objs[0] == 0) {
+                        JSONObject json = (JSONObject) objs[2];
+
+                        if(record.getDataFromJson(json)) {
+                            initUI();
+                        }
+                    }
+                }
+            }).execute(record);
+        } else {
+            initUI();
+        }
+    }
+
+    private void initUI() {
         ViseLog.e(record);
         record.createHistogram();
 
