@@ -1,9 +1,7 @@
 package com.cmtech.android.bledevice.hrm.model;
 
-import android.text.TextUtils;
-
-import com.cmtech.android.bledevice.interf.AbstractRecord;
-import com.cmtech.android.bledevice.interf.IEcgRecord;
+import com.cmtech.android.bledevice.common.AbstractRecord;
+import com.cmtech.android.bledevice.common.IEcgRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 
@@ -16,6 +14,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static com.cmtech.android.bledevice.common.RecordType.ECG;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -30,7 +30,6 @@ import java.util.List;
  * Version:        1.0
  */
 public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serializable {
-    private static final int RECORD_TYPE_CODE = 1;
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
@@ -51,8 +50,8 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     @Override
-    public int getRecordTypeCode() {
-        return RECORD_TYPE_CODE;
+    public int getTypeCode() {
+        return ECG.getCode();
     }
 
     @Override
@@ -168,7 +167,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     @Override
-    public boolean getDataFromJson(JSONObject json) {
+    public boolean updateFromJson(JSONObject json) {
         try {
             sampleRate = json.getInt("sampleRate");
             caliValue = json.getInt("caliValue");
@@ -198,7 +197,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         JSONObject jsonObject = super.toJson();
         if(jsonObject == null) return null;
         try {
-            jsonObject.put("recordTypeCode", getRecordTypeCode());
+            jsonObject.put("recordTypeCode", getTypeCode());
             jsonObject.put("sampleRate", sampleRate);
             jsonObject.put("caliValue", caliValue);
             jsonObject.put("leadTypeCode", leadTypeCode);

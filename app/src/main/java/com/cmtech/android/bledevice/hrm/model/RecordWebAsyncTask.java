@@ -4,7 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.cmtech.android.bledevice.interf.IRecord;
+import com.cmtech.android.bledevice.common.IRecord;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.vise.log.ViseLog;
@@ -115,7 +115,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
         switch (cmd) {
             // QUERY
             case RECORD_QUERY_CMD:
-                KMWebService.queryRecord(record.getRecordTypeCode(), record.getCreateTime(), record.getDevAddress(), new Callback() {
+                KMWebService.queryRecord(record.getTypeCode(), record.getCreateTime(), record.getDevAddress(), new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;

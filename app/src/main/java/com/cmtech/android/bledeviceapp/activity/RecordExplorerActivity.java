@@ -19,7 +19,7 @@ import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
-import com.cmtech.android.bledevice.interf.AbstractRecord;
+import com.cmtech.android.bledevice.common.AbstractRecord;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
 import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;

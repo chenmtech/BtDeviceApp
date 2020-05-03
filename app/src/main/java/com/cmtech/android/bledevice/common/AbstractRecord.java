@@ -1,20 +1,16 @@
-package com.cmtech.android.bledevice.interf;
+package com.cmtech.android.bledevice.common;
 
 import com.cmtech.android.bledeviceapp.model.Account;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 import org.litepal.crud.LitePalSupport;
 
-import java.util.Arrays;
-import java.util.Date;
-
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.interf
+ * Package:        com.cmtech.android.bledevice.common
  * ClassName:      AbstractRecord
  * Description:    java类作用描述
  * Author:         作者名
@@ -26,13 +22,13 @@ import java.util.Date;
  */
 public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     private int id;
-    private String ver; // hr record version
+    private String ver; // record version
     private long createTime; //
     private String devAddress; //
     private String creatorPlat;
     private String creatorId;
 
-    protected AbstractRecord() {
+    public AbstractRecord() {
         ver = "";
         createTime = 0;
         devAddress = "";
@@ -61,7 +57,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     public void setDevAddress(String devAddress) {
         this.devAddress = devAddress;
     }
-    public String getRecordName() {
+    public String getName() {
         return createTime + devAddress;
     }
     public String getCreatorPlat() {
@@ -85,14 +81,14 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
 
     @Override
     public JSONObject toJson() {
-        JSONObject jsonObject = new JSONObject();
+        JSONObject json = new JSONObject();
         try {
-            jsonObject.put("ver", ver);
-            jsonObject.put("createTime", createTime);
-            jsonObject.put("devAddress", devAddress);
-            jsonObject.put("creatorPlat", creatorPlat);
-            jsonObject.put("creatorId", creatorId);
-            return jsonObject;
+            json.put("ver", ver);
+            json.put("createTime", createTime);
+            json.put("devAddress", devAddress);
+            json.put("creatorPlat", creatorPlat);
+            json.put("creatorId", creatorId);
+            return json;
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -101,7 +97,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
 
     @Override
     public String toString() {
-        return createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + getDesc();
+        return ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + getDesc();
     }
 
     @Override
@@ -110,11 +106,11 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         if(otherObject == null) return false;
         if(getClass() != otherObject.getClass()) return false;
         IRecord other = (IRecord) otherObject;
-        return getRecordName().equals(other.getRecordName());
+        return getName().equals(other.getName());
     }
 
     @Override
     public int hashCode() {
-        return getRecordName().hashCode();
+        return getName().hashCode();
     }
 }

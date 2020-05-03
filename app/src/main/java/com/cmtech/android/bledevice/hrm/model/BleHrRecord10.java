@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.hrm.model;
 
-import com.cmtech.android.bledevice.interf.AbstractRecord;
+import com.cmtech.android.bledevice.common.AbstractRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.common.RecordType.HR;
 import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 
@@ -30,7 +31,6 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
  * Version:        1.0
  */
 public class BleHrRecord10 extends AbstractRecord implements Serializable {
-    private static final int RECORD_TYPE_CODE = 2;
     public static final int HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH = 10; // unit: s
     private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // char num of device address
@@ -69,8 +69,8 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     }
 
     @Override
-    public int getRecordTypeCode() {
-        return RECORD_TYPE_CODE;
+    public int getTypeCode() {
+        return HR.getCode();
     }
 
     @Override
@@ -196,7 +196,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         JSONObject jsonObject = super.toJson();
         if(jsonObject == null) return null;
         try {
-            jsonObject.put("recordTypeCode", getRecordTypeCode());
+            jsonObject.put("recordTypeCode", getTypeCode());
             StringBuilder builder = new StringBuilder();
             for(Short ele : filterHrList) {
                 builder.append(ele).append(',');
@@ -218,7 +218,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     }
 
     @Override
-    public boolean getDataFromJson(JSONObject json) {
+    public boolean updateFromJson(JSONObject json) {
         try {
             String filterHrListStr = json.getString("filterHrList");
             List<Short> filterHrList = new ArrayList<>();

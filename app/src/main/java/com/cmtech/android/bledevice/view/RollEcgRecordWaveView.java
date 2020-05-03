@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-import com.cmtech.android.bledevice.interf.IEcgRecord;
+import com.cmtech.android.bledevice.common.IEcgRecord;
 
 import java.io.IOException;
 import java.util.ArrayList;

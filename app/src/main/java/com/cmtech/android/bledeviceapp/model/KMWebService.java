@@ -1,8 +1,7 @@
 package com.cmtech.android.bledeviceapp.model;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
-import com.cmtech.android.bledevice.interf.AbstractRecord;
-import com.cmtech.android.bledevice.interf.IRecord;
+import com.cmtech.android.bledevice.common.IRecord;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
@@ -80,7 +79,7 @@ public class KMWebService {
             json.put("cmd", "updateNote");
             json.put("platName", platName);
             json.put("platId", platId);
-            json.put("recordTypeCode", record.getRecordTypeCode());
+            json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
             json.put("note", ((BleEcgRecord10)record).getNote());
@@ -96,7 +95,7 @@ public class KMWebService {
             json.put("cmd", "delete");
             json.put("platName", platName);
             json.put("platId", platId);
-            json.put("recordTypeCode", record.getRecordTypeCode());
+            json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
             HttpUtils.requestPost(KMURL + "Record?", json, callback);
@@ -111,7 +110,7 @@ public class KMWebService {
             json.put("cmd", "downloadInfo");
             json.put("platName", platName);
             json.put("platId", platId);
-            json.put("recordTypeCode", record.getRecordTypeCode());
+            json.put("recordTypeCode", record.getTypeCode());
             json.put("fromTime", record.getCreateTime());
             json.put("creatorPlat", record.getCreatorPlat());
             json.put("creatorId", record.getCreatorId());
@@ -128,7 +127,7 @@ public class KMWebService {
             json.put("cmd", "download");
             json.put("platName", platName);
             json.put("platId", platId);
-            json.put("recordTypeCode", record.getRecordTypeCode());
+            json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
             HttpUtils.requestPost(KMURL + "Record?", json, callback);

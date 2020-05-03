@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.thermo.model;
 
-import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
-import com.cmtech.android.bledevice.interf.AbstractRecord;
+import com.cmtech.android.bledevice.common.AbstractRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONObject;
@@ -10,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.common.RecordType.THERMO;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 
 /**
@@ -25,7 +25,6 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
  * Version:        1.0
  */
 public class BleThermoRecord10 extends AbstractRecord {
-    private static final int RECORD_TYPE_CODE = 3;
     private float highestTemp;
     private List<Float> temp;
 
@@ -35,8 +34,8 @@ public class BleThermoRecord10 extends AbstractRecord {
         temp = new ArrayList<>();
     }
     @Override
-    public int getRecordTypeCode() {
-        return RECORD_TYPE_CODE;
+    public int getTypeCode() {
+        return THERMO.getCode();
     }
 
     @Override
@@ -45,7 +44,7 @@ public class BleThermoRecord10 extends AbstractRecord {
     }
 
     @Override
-    public boolean getDataFromJson(JSONObject json) {
+    public boolean updateFromJson(JSONObject json) {
         return false;
     }
 

@@ -13,11 +13,11 @@ import android.widget.TextView;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
-import com.cmtech.android.bledevice.interf.AbstractRecord;
+import com.cmtech.android.bledevice.common.AbstractRecord;
 import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
-import com.cmtech.android.bledevice.interf.IRecord;
+import com.cmtech.android.bledevice.common.IRecord;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;

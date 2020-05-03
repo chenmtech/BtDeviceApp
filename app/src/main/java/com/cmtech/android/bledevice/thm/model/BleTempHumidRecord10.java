@@ -1,12 +1,13 @@
 package com.cmtech.android.bledevice.thm.model;
 
-import com.cmtech.android.bledevice.interf.AbstractRecord;
+import com.cmtech.android.bledevice.common.AbstractRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONObject;
 
 import java.util.Date;
 
+import static com.cmtech.android.bledevice.common.RecordType.TH;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 
 /**
@@ -22,7 +23,6 @@ import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
  * Version:        1.0
  */
 public class BleTempHumidRecord10 extends AbstractRecord {
-    private static final int RECORD_TYPE_CODE = 4;
     private float temperature;
     private float humid;
     private float heatIndex;
@@ -37,12 +37,12 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     }
 
     @Override
-    public int getRecordTypeCode() {
-        return RECORD_TYPE_CODE;
+    public int getTypeCode() {
+        return TH.getCode();
     }
 
     @Override
-    public boolean getDataFromJson(JSONObject json) {
+    public boolean updateFromJson(JSONObject json) {
         return false;
     }
 
