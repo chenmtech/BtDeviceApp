@@ -28,23 +28,19 @@ public class BleThermoRecord10 extends AbstractRecord {
     private float highestTemp;
     private List<Float> temp;
 
-    private BleThermoRecord10() {
-        super();
+    public BleThermoRecord10(long createTime, String devAddress, Account creator) {
+        super(THERMO, "1.0", createTime, devAddress, creator);
         highestTemp = 0.0f;
         temp = new ArrayList<>();
     }
-    @Override
-    public int getTypeCode() {
-        return THERMO.getCode();
-    }
 
     @Override
-    public boolean hasData() {
+    public boolean isDataEmpty() {
         return true;
     }
 
     @Override
-    public boolean updateFromJson(JSONObject json) {
+    public boolean setDataFromJson(JSONObject json) {
         return false;
     }
 
@@ -67,24 +63,6 @@ public class BleThermoRecord10 extends AbstractRecord {
 
     public void addTemp(float temp) {
         this.temp.add(temp);
-    }
-
-    public static BleThermoRecord10 create(String devAddress, Account creator) {
-        if(creator == null) {
-            throw new NullPointerException("The creator is null.");
-        }
-        if(DIR_CACHE == null) {
-            throw new NullPointerException("The cache dir is null");
-        }
-
-        BleThermoRecord10 record = new BleThermoRecord10();
-        record.setVer("1.0");
-        record.setCreateTime(new Date().getTime());
-        record.setDevAddress(devAddress);
-        record.setCreator(creator);
-        record.highestTemp = 0.0f;
-        record.temp = new ArrayList<>();
-        return record;
     }
 
     @Override

@@ -104,7 +104,7 @@ public class ThmDevice extends AbstractDevice {
     }
 
     public void save(String loc) {
-        BleTempHumidRecord10 record = BleTempHumidRecord10.create(getAddress(), AccountManager.getAccount());
+        BleTempHumidRecord10 record = new BleTempHumidRecord10(new Date().getTime(), getAddress(), AccountManager.getAccount());
         record.setTemperature(tempHumidData.getTemp()/100.0f);
         record.setHumid(tempHumidData.getHumid()/100.0f);
         record.setHeatIndex(tempHumidData.calculateHeatIndex());

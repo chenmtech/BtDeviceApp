@@ -58,14 +58,14 @@ public class HrRecordActivity extends AppCompatActivity {
             finish();
         }
 
-        if(!record.hasData()) {
+        if(record.isDataEmpty()) {
             new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
                 public void onFinish(Object[] objs) {
                     if ((Integer) objs[0] == 0) {
                         JSONObject json = (JSONObject) objs[2];
 
-                        if(record.updateFromJson(json)) {
+                        if(record.setDataFromJson(json)) {
                             initUI();
                         }
                     }

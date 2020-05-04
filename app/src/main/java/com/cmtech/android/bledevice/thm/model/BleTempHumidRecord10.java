@@ -28,8 +28,8 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     private float heatIndex;
     private String location;
 
-    private BleTempHumidRecord10() {
-        super();
+    public BleTempHumidRecord10(long createTime, String devAddress, Account creator) {
+        super(TH, "1.0", createTime, devAddress, creator);
         temperature = 0.0f;
         humid = 0.0f;
         heatIndex = 0.0f;
@@ -37,12 +37,7 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     }
 
     @Override
-    public int getTypeCode() {
-        return TH.getCode();
-    }
-
-    @Override
-    public boolean updateFromJson(JSONObject json) {
+    public boolean setDataFromJson(JSONObject json) {
         return false;
     }
 
@@ -84,27 +79,8 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     }
 
     @Override
-    public boolean hasData() {
+    public boolean isDataEmpty() {
         return true;
     }
 
-    public static BleTempHumidRecord10 create(String devAddress, Account creator) {
-        if(creator == null) {
-            throw new NullPointerException("The creator is null.");
-        }
-        if(DIR_CACHE == null) {
-            throw new NullPointerException("The cache dir is null");
-        }
-
-        BleTempHumidRecord10 record = new BleTempHumidRecord10();
-        record.setVer("1.0");
-        record.setCreateTime(new Date().getTime());
-        record.setDevAddress(devAddress);
-        record.setCreator(creator);
-        record.temperature = 0.0f;
-        record.humid = 0.0f;
-        record.heatIndex = 0.0f;
-        record.location = "室内";
-        return record;
-    }
 }

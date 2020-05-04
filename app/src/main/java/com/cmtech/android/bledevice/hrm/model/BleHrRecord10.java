@@ -52,8 +52,8 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     @Column(ignore = true)
     private transient long preTime = 0;
 
-    private BleHrRecord10() {
-        super();
+    public BleHrRecord10(long createTime, String devAddress, Account creator) {
+        super(HR, "1.0", createTime, devAddress, creator);
         filterHrList = new ArrayList<>();
         hrMax = INVALID_HEART_RATE;
         hrAve = INVALID_HEART_RATE;
@@ -65,12 +65,9 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         hrHistogram.add(new HrHistogramElement<>((short)142, (short)152, 0, "有氧耐力"));
         hrHistogram.add(new HrHistogramElement<>((short)153, (short)162, 0, "无氧耐力"));
         hrHistogram.add(new HrHistogramElement<>((short)163, (short)1000, 0, "极限冲刺"));
+        for(int i = 0; i < hrHistogram.size(); i++)
+            hrHist.add(0);
         recordSecond = 0;
-    }
-
-    @Override
-    public int getTypeCode() {
-        return HR.getCode();
     }
 
     @Override
@@ -120,8 +117,8 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         }
     }
 
-    public boolean hasData() {
-        return !filterHrList.isEmpty();
+    public boolean isDataEmpty() {
+        return filterHrList.isEmpty();
     }
 
     public boolean process(short hr, long time) {
@@ -150,40 +147,18 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         return false;
     }
 
-    @Override
-    public boolean save() {
-        return super.save();
-    }
-
-    // create new hr record
-    public static BleHrRecord10 create(String devAddress, Account creator) {
-        if(creator == null) {
-            throw new NullPointerException("The creator is null.");
-        }
-        if(DIR_CACHE == null) {
-            throw new NullPointerException("The cache dir is null");
-        }
-
-        BleHrRecord10 record = new BleHrRecord10();
-        record.setVer("1.0");
-        record.setCreateTime(new Date().getTime());
-        record.setDevAddress(devAddress);
-        record.setCreator(creator);
-        for(int i = 0; i < record.hrHistogram.size(); i++)
-            record.hrHist.add(0);
-        return record;
-    }
-
     public static BleHrRecord10 createFromJson(JSONObject json) {
-        BleHrRecord10 newRecord;
+        if(json == null) {
+            throw new NullPointerException("The json is null.");
+        }
+
         try {
             String devAddress = json.getString("devAddress");
             long createTime = json.getLong("createTime");
             Account account = AccountManager.getAccount();
             int recordSecond = json.getInt("recordSecond");
 
-            newRecord = BleHrRecord10.create(devAddress, account);
-            newRecord.setCreateTime(createTime);
+            BleHrRecord10 newRecord = new BleHrRecord10(createTime, devAddress, account);
             newRecord.setRecordSecond(recordSecond);
             return newRecord;
         } catch (JSONException e) {
@@ -218,7 +193,11 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     }
 
     @Override
-    public boolean updateFromJson(JSONObject json) {
+    public boolean setDataFromJson(JSONObject json) {
+        if(json == null) {
+            throw new NullPointerException("The json is null.");
+        }
+
         try {
             String filterHrListStr = json.getString("filterHrList");
             List<Short> filterHrList = new ArrayList<>();

@@ -39,19 +39,14 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     @Column(ignore = true)
     private int pos = 0;
 
-    private BleEcgRecord10() {
-        super();
+    public BleEcgRecord10(long createTime, String devAddress, Account creator) {
+        super(ECG, "1.0", createTime, devAddress, creator);
         sampleRate = 0;
         caliValue = 0;
         leadTypeCode = 0;
         recordSecond = 0;
         note = "";
         ecgData = new ArrayList<>();
-    }
-
-    @Override
-    public int getTypeCode() {
-        return ECG.getCode();
     }
 
     @Override
@@ -66,14 +61,27 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     public void setEcgData(List<Short> ecgData) {
         this.ecgData.addAll(ecgData);
     }
+
     @Override
     public int getSampleRate() {
         return sampleRate;
     }
 
+    public void setSampleRate(int sampleRate) {
+        this.sampleRate = sampleRate;
+    }
+
     @Override
     public int getCaliValue() {
         return caliValue;
+    }
+
+    public void setCaliValue(int caliValue) {
+        this.caliValue = caliValue;
+    }
+
+    public void setLeadTypeCode(int leadTypeCode) {
+        this.leadTypeCode = leadTypeCode;
     }
 
     @Override
@@ -114,13 +122,8 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         this.note = note;
     }
 
-    public boolean hasData() {
-        return !ecgData.isEmpty();
-    }
-
-    @Override
-    public boolean save() {
-        return super.save();
+    public boolean isDataEmpty() {
+        return ecgData.isEmpty();
     }
 
     public boolean process(short ecg) {
@@ -128,36 +131,18 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         return true;
     }
 
-    // create new ecg record
-    public static BleEcgRecord10 create(String devAddress, Account creator, int sampleRate, int caliValue, int leadTypeCode) {
-        if(creator == null) {
-            throw new NullPointerException("The creator is null.");
+    public static BleEcgRecord10 createFromJson(JSONObject json) {
+        if(json == null) {
+            throw new NullPointerException("The json is null.");
         }
 
-        BleEcgRecord10 record = new BleEcgRecord10();
-        record.setVer("1.0");
-        record.setCreateTime(new Date().getTime());
-        record.setDevAddress(devAddress);
-        record.setCreator(creator);
-
-        record.sampleRate = sampleRate;
-        record.caliValue = caliValue;
-        record.leadTypeCode = leadTypeCode;
-        record.recordSecond = 0;
-        record.note = "";
-        return record;
-    }
-
-    public static BleEcgRecord10 createFromJson(JSONObject json) {
-        BleEcgRecord10 newRecord;
         try {
             String devAddress = json.getString("devAddress");
             long createTime = json.getLong("createTime");
             Account account = AccountManager.getAccount();
             int recordSecond = json.getInt("recordSecond");
 
-            newRecord = BleEcgRecord10.create(devAddress, account, 0, 0, 0);
-            newRecord.setCreateTime(createTime);
+            BleEcgRecord10 newRecord = new BleEcgRecord10(createTime, devAddress, account);
             newRecord.setRecordSecond(recordSecond);
             return newRecord;
         } catch (JSONException e) {
@@ -167,7 +152,11 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     @Override
-    public boolean updateFromJson(JSONObject json) {
+    public boolean setDataFromJson(JSONObject json) {
+        if(json == null) {
+            throw new NullPointerException("The json is null.");
+        }
+
         try {
             sampleRate = json.getInt("sampleRate");
             caliValue = json.getInt("caliValue");
@@ -194,24 +183,24 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     public JSONObject toJson() {
-        JSONObject jsonObject = super.toJson();
-        if(jsonObject == null) return null;
+        JSONObject json = super.toJson();
+        if(json == null) return null;
         try {
-            jsonObject.put("recordTypeCode", getTypeCode());
-            jsonObject.put("sampleRate", sampleRate);
-            jsonObject.put("caliValue", caliValue);
-            jsonObject.put("leadTypeCode", leadTypeCode);
-            jsonObject.put("recordSecond", recordSecond);
-            jsonObject.put("note", note);
+            json.put("recordTypeCode", getTypeCode());
+            json.put("sampleRate", sampleRate);
+            json.put("caliValue", caliValue);
+            json.put("leadTypeCode", leadTypeCode);
+            json.put("recordSecond", recordSecond);
+            json.put("note", note);
             StringBuilder builder = new StringBuilder();
             for(Short ele : ecgData) {
                 builder.append(ele).append(',');
             }
-            jsonObject.put("ecgData", builder.toString());
-            return jsonObject;
+            json.put("ecgData", builder.toString());
+            return json;
         } catch (JSONException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 }

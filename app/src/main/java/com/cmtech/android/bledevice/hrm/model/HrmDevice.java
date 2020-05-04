@@ -153,7 +153,7 @@ public class HrmDevice extends AbstractDevice {
 
         isHrRecord = isRecord;
         if(isRecord) {
-            hrRecord = BleHrRecord10.create(getAddress(), AccountManager.getAccount());
+            hrRecord = new BleHrRecord10(new Date().getTime(), getAddress(), AccountManager.getAccount());
             if(listener != null)
                 listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
         } else {
@@ -201,7 +201,10 @@ public class HrmDevice extends AbstractDevice {
 
         isEcgRecord = isRecord;
         if(isRecord) {
-            ecgRecord = BleEcgRecord10.create(getAddress(), AccountManager.getAccount(), sampleRate, caliValue, leadType.getCode());
+            ecgRecord = new BleEcgRecord10(new Date().getTime(), getAddress(), AccountManager.getAccount());
+            ecgRecord.setSampleRate(sampleRate);
+            ecgRecord.setCaliValue(caliValue);
+            ecgRecord.setLeadTypeCode(leadType.getCode());
             MyApplication.showMessageUsingShortToast("记录时请保持安静。");
         } else {
             if(ecgRecord == null) return;

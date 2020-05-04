@@ -13,7 +13,7 @@ package com.cmtech.android.bledevice.common;
  * Version:        1.0
  */
 public enum RecordType {
-    ECG("心电", 1), HR("心率", 2), THERMO("体温", 3), TH("温湿度", 4);
+    UNKNOWN("未知", 0), ECG("心电", 1), HR("心率", 2), THERMO("体温", 3), TH("温湿度", 4);
 
     private String name;
     private int code;
@@ -29,7 +29,7 @@ public enum RecordType {
                 return type;
             }
         }
-        return null;
+        return UNKNOWN;
     }
 
     public static String getName(int code) {

@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.cmtech.android.bledevice.common.IRecord;
+import com.cmtech.android.bledevice.common.RecordFactory;
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
@@ -113,23 +115,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecordInfoFromKMServer(long fromTime) {
-        AbstractRecord record;
-        switch (recordType) {
-            case RECORD_TYPE_ECG:
-                record = BleEcgRecord10.create(null, AccountManager.getAccount(), 0,0,0);
-                break;
+        IRecord record = RecordFactory.create(recordType, fromTime, null, AccountManager.getAccount());
 
-            case RECORD_TYPE_HR:
-                record = BleHrRecord10.create(null, AccountManager.getAccount());
-                break;
-
-            default:
-                record = null;
-                break;
-        }
         if(record == null) return;
-
-        record.setCreateTime(fromTime);
 
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_DOWNLOAD_INFO_CMD, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
@@ -139,21 +127,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     try {
                         JSONArray jsonArr = (JSONArray) objs[2];
                         for(int i = 0; i < jsonArr.length(); i++) {
-                            AbstractRecord newRecord = null;
                             JSONObject json = (JSONObject) jsonArr.get(i);
-                            switch (recordType) {
-                                case RECORD_TYPE_ECG:
-                                    newRecord = BleEcgRecord10.createFromJson(json);
-                                    break;
-
-                                case RECORD_TYPE_HR:
-                                    newRecord = BleHrRecord10.createFromJson(json);
-                                    break;
-
-                                default:
-                                    break;
-
-                            }
+                            AbstractRecord newRecord = (AbstractRecord) RecordFactory.createFromJson(recordType, json);
                             if(newRecord != null) {
                                 ViseLog.e(newRecord);
                                 newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
