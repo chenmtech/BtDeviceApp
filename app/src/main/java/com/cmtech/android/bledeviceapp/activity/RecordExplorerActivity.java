@@ -118,10 +118,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     private void updateRecords(long fromTime) {
         IRecord record = RecordFactory.create(recordType, fromTime, null, AccountManager.getAccount());
-        if(record == null) {
-            ViseLog.e("record is null");
-            return;
-        }
 
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_DOWNLOAD_INFO_CMD, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
@@ -150,7 +146,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     allRecords.addAll(newRecords);
                     ViseLog.e(allRecords.toString());
                 }
-                updateRecordList();
+                updateRecordView();
             }
         }).execute(record);
     }
@@ -198,7 +194,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         updateTime = new Date().getTime();
         allRecords.clear();
         updateRecords(updateTime);
-        updateRecordList();
+        updateRecordView();
     }
 
     public void selectRecord(final IRecord record) {
@@ -229,7 +225,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     if(allRecords.remove(record)) {
-                        updateRecordList();
+                        updateRecordView();
                     }
                     if(record instanceof BleHrRecord10) {
                         LitePal.delete(BleHrRecord10.class, record.getId());
@@ -262,7 +258,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
-    private void updateRecordList() {
+    private void updateRecordView() {
         if(allRecords.isEmpty()) {
             view.setVisibility(View.INVISIBLE);
             tvPromptInfo.setVisibility(View.VISIBLE);

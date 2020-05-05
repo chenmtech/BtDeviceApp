@@ -2,6 +2,7 @@ package com.cmtech.android.bledevice.thermo.model;
 
 import com.cmtech.android.bledevice.common.AbstractRecord;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 
@@ -72,6 +73,10 @@ public class BleThermoRecord10 extends AbstractRecord {
         return LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleThermoRecord10.class);
+    }
+
+    public static BleThermoRecord10 createFromJson(JSONObject json) {
+        return null;
     }
 
     @Override

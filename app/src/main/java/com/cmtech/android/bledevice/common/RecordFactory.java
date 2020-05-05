@@ -34,6 +34,12 @@ public class RecordFactory {
             case HR:
                 return new BleHrRecord10(createTime, devAddress, creator);
 
+            case THERMO:
+                return new BleThermoRecord10(createTime, devAddress, creator);
+
+            case TH:
+                return new BleTempHumidRecord10(createTime, devAddress, creator);
+
             default:
                 return null;
         }
@@ -54,6 +60,12 @@ public class RecordFactory {
 
             case HR:
                 return BleHrRecord10.createFromJson(json);
+
+            case THERMO:
+                return BleThermoRecord10.createFromJson(json);
+
+            case TH:
+                return BleTempHumidRecord10.createFromJson(json);
 
             default:
                 return null;

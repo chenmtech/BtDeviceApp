@@ -89,8 +89,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
         }
 
         progressDialog = new ProgressDialog(context);
-        progressDialog.setTitle(cmdStr);
-        progressDialog.setMessage(cmdStr+"中，请稍等...");
+        progressDialog.setMessage("请稍等...");
         progressDialog.setIndeterminate(false);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -135,9 +134,10 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             code = 0;
                             errStr = "查询成功";
                             rlt = (Integer)id;
-                            finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
+                        } finally {
+                            finish = true;
                         }
                     }
                 });
@@ -163,9 +163,10 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             code = json.getInt("code");
                             errStr = json.getString("errStr");
                             ViseLog.e(code+errStr);
-                            finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
+                        } finally {
+                            finish = true;
                         }
                     }
                 });
@@ -191,9 +192,10 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             code = json.getInt("code");
                             errStr = json.getString("errStr");
                             ViseLog.e(code+errStr);
-                            finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
+                        } finally {
+                            finish = true;
                         }
                     }
                 });
@@ -219,9 +221,10 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             code = json.getInt("code");
                             errStr = json.getString("errStr");
                             ViseLog.e(code+errStr);
-                            finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
+                        } finally {
+                            finish = true;
                         }
                     }
                 });
@@ -248,9 +251,10 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             errStr = json.getString("errStr");
                             rlt = json.get("records");
                             ViseLog.e(json.toString());
-                            finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
+                        } finally {
+                            finish = true;
                         }
                     }
                 });
@@ -277,9 +281,10 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             code = json.getInt("code");
                             errStr = json.getString("errStr");
                             rlt = json.get("record");
-                            finish = true;
                         } catch (JSONException e) {
                             e.printStackTrace();
+                        } finally {
+                            finish = true;
                         }
                     }
                 });
