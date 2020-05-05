@@ -1,11 +1,14 @@
 package com.cmtech.android.bledevice.thm.model;
 
 import com.cmtech.android.bledevice.common.AbstractRecord;
+import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONObject;
+import org.litepal.LitePal;
 
 import java.util.Date;
+import java.util.List;
 
 import static com.cmtech.android.bledevice.common.RecordType.TH;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
@@ -71,6 +74,12 @@ public class BleTempHumidRecord10 extends AbstractRecord {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public static List<BleTempHumidRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location")
+                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
+                .order("createTime desc").limit(num).find(BleTempHumidRecord10.class);
     }
 
     @Override

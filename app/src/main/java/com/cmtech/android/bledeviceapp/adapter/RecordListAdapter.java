@@ -41,7 +41,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM
 
 public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.ViewHolder>{
     private final RecordExplorerActivity activity;
-    private final List<AbstractRecord> allRecords;
+    private final List<IRecord> allRecords;
     private int selPos = -1;
     private Drawable defaultBg; // 缺省背景
 
@@ -67,7 +67,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         }
     }
 
-    public RecordListAdapter(RecordExplorerActivity activity, List<AbstractRecord> allRecords) {
+    public RecordListAdapter(RecordExplorerActivity activity, List<IRecord> allRecords) {
         this.activity = activity;
         this.allRecords = allRecords;
     }

@@ -7,6 +7,7 @@ import com.vise.log.ViseLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import static com.cmtech.android.bledevice.common.RecordType.HR;
 import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
+import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 
 /**
@@ -65,8 +67,6 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         hrHistogram.add(new HrHistogramElement<>((short)142, (short)152, 0, "有氧耐力"));
         hrHistogram.add(new HrHistogramElement<>((short)153, (short)162, 0, "无氧耐力"));
         hrHistogram.add(new HrHistogramElement<>((short)163, (short)1000, 0, "极限冲刺"));
-        for(int i = 0; i < hrHistogram.size(); i++)
-            hrHist.add(0);
         recordSecond = 0;
     }
 
@@ -165,6 +165,12 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static List<BleHrRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
+                .order("createTime desc").limit(num).find(BleHrRecord10.class);
     }
 
     public JSONObject toJson() {

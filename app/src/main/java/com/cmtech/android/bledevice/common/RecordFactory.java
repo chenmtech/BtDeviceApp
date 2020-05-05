@@ -2,11 +2,16 @@ package com.cmtech.android.bledevice.common;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
+import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -57,5 +62,39 @@ public class RecordFactory {
 
     public static IRecord createFromJson(int typeCode, JSONObject json) {
         return createFromJson(RecordType.getType(typeCode), json);
+    }
+
+    public static List<IRecord> createFromLocalDb(RecordType type, Account creator, long fromTime, int num) {
+        if(creator == null) {
+            throw new NullPointerException("The creator is null.");
+        }
+
+        List<IRecord> records = new ArrayList<>();
+
+        switch (type) {
+            case ECG:
+                records.addAll(BleEcgRecord10.createFromLocalDb(creator, fromTime, num));
+                break;
+
+            case HR:
+                records.addAll(BleHrRecord10.createFromLocalDb(creator, fromTime, num));
+                break;
+
+            case THERMO:
+                records.addAll(BleThermoRecord10.createFromLocalDb(creator, fromTime, num));
+                break;
+
+            case TH:
+                records.addAll(BleTempHumidRecord10.createFromLocalDb(creator, fromTime, num));
+                break;
+
+            default:
+                return null;
+        }
+        return records;
+    }
+
+    public static List<IRecord> createFromLocalDb(int typeCode, Account creator, long fromTime, int num) {
+        return createFromLocalDb(RecordType.getType(typeCode), creator, fromTime, num);
     }
 }

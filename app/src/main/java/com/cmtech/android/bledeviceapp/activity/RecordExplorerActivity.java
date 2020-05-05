@@ -13,9 +13,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.common.IRecord;
 import com.cmtech.android.bledevice.common.RecordFactory;
+import com.cmtech.android.bledevice.common.RecordType;
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
@@ -40,6 +42,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.common.RecordType.ECG;
+import static com.cmtech.android.bledevice.common.RecordType.HR;
+import static com.cmtech.android.bledevice.common.RecordType.TH;
+import static com.cmtech.android.bledevice.common.RecordType.THERMO;
 import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
 
 /**
@@ -56,19 +62,15 @@ import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.DOWNLOAD
 
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
-    private static final int RECORD_TYPE_ECG = 0;
-    private static final int RECORD_TYPE_HR = 1;
-    private static final int RECORD_TYPE_THM = 2;
-    private static final int RECORD_TYPE_THERMO = 3;
 
     private long updateTime;
 
-    private List<AbstractRecord> allRecords = new ArrayList<>(); // all records
+    private List<IRecord> allRecords = new ArrayList<>(); // all records
     private RecordListAdapter adapter; // Adapter
     private RecyclerView view; // RecycleView
     private TextView tvPromptInfo; // prompt info
 
-    private int recordType = RECORD_TYPE_ECG;
+    private RecordType recordType = ECG;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +96,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
                 //判断RecyclerView的状态 是空闲时，同时，是最后一个可见的ITEM时才加载
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == adapter.getItemCount()-1) {
-                    updateRecordInfoFromKMServer(updateTime);
+                    updateRecords(updateTime);
                 }
             }
 
@@ -111,19 +113,20 @@ public class RecordExplorerActivity extends AppCompatActivity {
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
 
-        setRecordType(RECORD_TYPE_ECG);
+        setRecordType(ECG);
     }
 
-    private void updateRecordInfoFromKMServer(long fromTime) {
+    private void updateRecords(long fromTime) {
         IRecord record = RecordFactory.create(recordType, fromTime, null, AccountManager.getAccount());
-
-        if(record == null) return;
+        if(record == null) {
+            ViseLog.e("record is null");
+            return;
+        }
 
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_DOWNLOAD_INFO_CMD, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
             public void onFinish(Object[] objs) {
-                MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
-                if((Integer) objs[0] == 0) { // download success, update records
+                if((Integer) objs[0] == 0) { // download success, save into local records
                     try {
                         JSONArray jsonArr = (JSONArray) objs[2];
                         for(int i = 0; i < jsonArr.length(); i++) {
@@ -137,32 +140,15 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    Toast.makeText(RecordExplorerActivity.this, "网络错误，仅显示本地记录", Toast.LENGTH_SHORT).show();
                 }
 
-                switch (recordType) {
-                    case RECORD_TYPE_ECG:
-                        List<BleEcgRecord10> ecgRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                                .where("creatorPlat = ? and creatorId = ? and createTime < ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime)
-                                .order("createTime desc").limit(DOWNLOAD_NUM_PER_TIME).find(BleEcgRecord10.class);
-                        if(!ecgRecords.isEmpty()) {
-                            updateTime = ecgRecords.get(ecgRecords.size() - 1).getCreateTime();
-                            allRecords.addAll(ecgRecords);
-                            ViseLog.e(allRecords.toString());
-                        }
-                        break;
-
-                    case RECORD_TYPE_HR:
-                        List<BleHrRecord10> hrRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
-                                .where("creatorPlat = ? and creatorId = ? and createTime < ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId(), ""+updateTime)
-                                .order("createTime desc").limit(DOWNLOAD_NUM_PER_TIME).find(BleHrRecord10.class);
-                        if(!hrRecords.isEmpty()) {
-                            updateTime = hrRecords.get(hrRecords.size() - 1).getCreateTime();
-                            allRecords.addAll(hrRecords);
-                        }
-                        break;
-
-                    default:
-                        break;
+                List<IRecord> newRecords = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), updateTime, DOWNLOAD_NUM_PER_TIME);
+                if(newRecords != null && !newRecords.isEmpty()) {
+                    updateTime = newRecords.get(newRecords.size() - 1).getCreateTime();
+                    allRecords.addAll(newRecords);
+                    ViseLog.e(allRecords.toString());
                 }
                 updateRecordList();
             }
@@ -184,64 +170,42 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 break;
 
             case R.id.ecg_record:
-                changeRecordType(RECORD_TYPE_ECG);
+                changeRecordType(ECG);
                 break;
 
             case R.id.hr_record:
-                changeRecordType(RECORD_TYPE_HR);
+                changeRecordType(HR);
                 break;
 
             case R.id.thm_record:
-                changeRecordType(RECORD_TYPE_THM);
+                changeRecordType(TH);
                 break;
 
             case R.id.thermo_record:
-                changeRecordType(RECORD_TYPE_THERMO);
+                changeRecordType(THERMO);
                 break;
         }
         return true;
     }
 
-    public void changeRecordType(int recordType) {
-        if(this.recordType == recordType) return;
-        setRecordType(recordType);
+    public void changeRecordType(RecordType type) {
+        if(this.recordType == type) return;
+        setRecordType(type);
     }
 
-    public void setRecordType(int recordType) {
-        this.recordType = recordType;
+    public void setRecordType(RecordType type) {
+        this.recordType = type;
         updateTime = new Date().getTime();
         allRecords.clear();
-
-        switch (recordType) {
-            case RECORD_TYPE_ECG:
-                updateRecordInfoFromKMServer(updateTime);
-                break;
-
-            case RECORD_TYPE_HR:
-                updateRecordInfoFromKMServer(updateTime);
-                break;
-
-            case RECORD_TYPE_THERMO:
-                List<BleThermoRecord10> thermoRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp")
-                        .order("createTime desc").where("creatorPlat = ? and creatorId = ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId()).find(BleThermoRecord10.class);
-                allRecords.addAll(thermoRecords);
-                break;
-
-            case RECORD_TYPE_THM:
-                List<BleTempHumidRecord10> thmRecords = LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location")
-                        .order("createTime desc").where("creatorPlat = ? and creatorId = ?", AccountManager.getAccountPlat(), AccountManager.getAccountPlatId()).find(BleTempHumidRecord10.class);
-                allRecords.addAll(thmRecords);
-                break;
-        }
+        updateRecords(updateTime);
         updateRecordList();
     }
 
-
-    public void selectRecord(final AbstractRecord record) {
+    public void selectRecord(final IRecord record) {
         openRecordActivity(record);
     }
 
-    private void openRecordActivity(AbstractRecord record) {
+    private void openRecordActivity(IRecord record) {
         Intent intent = null;
         if (record instanceof BleHrRecord10) {
             intent = new Intent(RecordExplorerActivity.this, HrRecordActivity.class);
@@ -256,7 +220,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
-    public void deleteRecord(final AbstractRecord record) {
+    public void deleteRecord(final IRecord record) {
         if(record != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("删除记录").setMessage("确定删除该记录吗？");

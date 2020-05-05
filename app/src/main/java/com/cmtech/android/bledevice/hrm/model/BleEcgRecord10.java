@@ -7,6 +7,7 @@ import com.cmtech.android.bledeviceapp.model.AccountManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.cmtech.android.bledevice.common.RecordType.ECG;
+import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -149,6 +151,12 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static List<BleEcgRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
+                .order("createTime desc").limit(num).find(BleEcgRecord10.class);
     }
 
     @Override

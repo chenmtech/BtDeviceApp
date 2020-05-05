@@ -1,9 +1,12 @@
 package com.cmtech.android.bledevice.thermo.model;
 
 import com.cmtech.android.bledevice.common.AbstractRecord;
+import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 
 import org.json.JSONObject;
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,6 +66,12 @@ public class BleThermoRecord10 extends AbstractRecord {
 
     public void addTemp(float temp) {
         this.temp.add(temp);
+    }
+
+    public static List<BleThermoRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp")
+                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
+                .order("createTime desc").limit(num).find(BleThermoRecord10.class);
     }
 
     @Override
