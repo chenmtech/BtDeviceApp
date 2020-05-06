@@ -15,6 +15,7 @@ import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
 import com.cmtech.android.bledevice.record.BleTempHumidRecord10;
+import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -39,6 +40,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM
  */
 
 public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.ViewHolder>{
+    private static final int SELECT_BG_COLOR = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
     private final RecordExplorerActivity activity;
     private final List<IRecord> allRecords;
     private int selPos = -1;
@@ -96,15 +98,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         IRecord record = allRecords.get(position);
         if(record == null) return;
 
-        if(record instanceof BleHrRecord10) {
-            holder.ivType.setImageResource(R.mipmap.ic_hr_24px);
-        } else if(record instanceof BleEcgRecord10) {
-            holder.ivType.setImageResource(R.mipmap.ic_ecg_24px);
-        } else if(record instanceof BleThermoRecord10) {
-            holder.ivType.setImageResource(R.mipmap.ic_thermo_24px);
-        } else if(record instanceof BleTempHumidRecord10) {
-            holder.ivType.setImageResource(R.drawable.ic_thm_default_icon);
-        }
+        holder.ivType.setImageResource(RecordType.getType(record.getTypeCode()).getImgId());
 
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
@@ -119,8 +113,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.tvDesc.setText(record.getDesc());
 
         if(position == selPos) {
-            int bgdColor = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
-            holder.fileView.setBackgroundColor(bgdColor);
+            holder.fileView.setBackgroundColor(SELECT_BG_COLOR);
         } else {
             holder.fileView.setBackground(defaultBg);
         }

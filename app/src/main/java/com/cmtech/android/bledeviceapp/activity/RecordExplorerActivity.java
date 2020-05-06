@@ -16,7 +16,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
@@ -45,10 +44,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.record.RecordType.ECG;
-import static com.cmtech.android.bledevice.record.RecordType.HR;
-import static com.cmtech.android.bledevice.record.RecordType.TH;
-import static com.cmtech.android.bledevice.record.RecordType.THERMO;
 import static com.cmtech.android.bledevice.record.RecordType.UNKNOWN;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
 
@@ -95,7 +90,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         recordSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                changeRecordType(RecordType.getType(position+1));
+                setRecordType(RecordType.getType(position+1));
             }
 
             @Override
@@ -133,8 +128,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
-
-        //setRecordType(ECG);
     }
 
     private void updateRecords(long fromTime) {
@@ -191,12 +184,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
         return true;
     }
 
-    public void changeRecordType(RecordType type) {
+    private void setRecordType(RecordType type) {
         if(this.recordType == type) return;
-        setRecordType(type);
-    }
-
-    public void setRecordType(RecordType type) {
         this.recordType = type;
         updateTime = new Date().getTime();
         allRecords.clear();
@@ -205,10 +194,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     public void selectRecord(final IRecord record) {
-        openRecordActivity(record);
+        openRecord(record);
     }
 
-    private void openRecordActivity(IRecord record) {
+    private void openRecord(IRecord record) {
         Intent intent = null;
         if (record instanceof BleHrRecord10) {
             intent = new Intent(RecordExplorerActivity.this, HrRecordActivity.class);

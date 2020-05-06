@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
+import com.cmtech.android.bledeviceapp.R;
+
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.common
@@ -13,14 +15,20 @@ package com.cmtech.android.bledevice.record;
  * Version:        1.0
  */
 public enum RecordType {
-    UNKNOWN("未知", 0), ECG("心电", 1), HR("心率", 2), THERMO("体温", 3), TH("温湿度", 4);
+    UNKNOWN(0, "未知", 0),
+    ECG(1, "心电", R.mipmap.ic_ecg_24px),
+    HR(2, "心率", R.mipmap.ic_hr_24px),
+    THERMO(3, "体温", R.mipmap.ic_thermo_24px),
+    TH(4, "温湿度", R.drawable.ic_thm_default_icon);
 
     private String name;
     private int code;
+    private int imgId;
 
-    RecordType(String name, int code) {
+    RecordType(int code, String name, int imgId) {
         this.name = name;
         this.code = code;
+        this.imgId = imgId;
     }
 
     public static RecordType getType(int code) {
@@ -47,5 +55,9 @@ public enum RecordType {
 
     public int getCode() {
         return code;
+    }
+
+    public int getImgId() {
+        return imgId;
     }
 }
