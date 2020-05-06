@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
@@ -152,13 +153,14 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 }
 
                 List<IRecord> newRecords = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), updateTime, DOWNLOAD_NUM_PER_TIME);
-                if(newRecords != null && !newRecords.isEmpty()) {
+                if(newRecords == null || newRecords.isEmpty()) {
+                    Toast.makeText(RecordExplorerActivity.this, "没有更多记录了", Toast.LENGTH_SHORT).show();
+                } else  {
                     updateTime = newRecords.get(newRecords.size() - 1).getCreateTime();
                     allRecords.addAll(newRecords);
                     ViseLog.e(allRecords.toString());
+                    updateRecordView();
                 }
-
-                updateRecordView();
             }
         }).execute(record);
     }
@@ -223,27 +225,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     if(allRecords.remove(record)) {
                         updateRecordView();
                     }
-                    if(record instanceof BleHrRecord10) {
-                        LitePal.delete(BleHrRecord10.class, record.getId());
-                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_DELETE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
-                            @Override
-                            public void onFinish(Object[] objs) {
-                                MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
-                            }
-                        }).execute(record);
-                    } else if(record instanceof BleEcgRecord10) {
-                        LitePal.delete(BleEcgRecord10.class, record.getId());
-                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_DELETE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
-                            @Override
-                            public void onFinish(Object[] objs) {
-                                MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
-                            }
-                        }).execute(record);
-                    } else if(record instanceof BleThermoRecord10) {
-                        LitePal.delete(BleThermoRecord10.class, record.getId());
-                    } else if(record instanceof BleTempHumidRecord10) {
-                        LitePal.delete(BleTempHumidRecord10.class, record.getId());
-                    }
+
+                    new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_DELETE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                        @Override
+                        public void onFinish(Object[] objs) {
+                            LitePal.delete(record.getClass(), record.getId());
+                        }
+                    }).execute(record);
                 }
             }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
                 @Override
