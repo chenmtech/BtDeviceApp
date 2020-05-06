@@ -33,6 +33,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     private String name = ""; // user name
     private String icon = ""; // user icon
     private String note = ""; // user note
+    private String localIcon = "";
 
     public Account() {
     }
@@ -43,6 +44,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
         this.name = account.name;
         this.icon = account.icon;
         this.note = account.note;
+        this.localIcon = account.localIcon;
     }
 
     public int getId() {
@@ -56,14 +58,14 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     public String getPlatId() {
         return platId;
     }
+    public void setPlatId(String platId) {
+        this.platId = platId;
+    }
     public String getShortPlatId() {
         if(platId.length() > 3) {
             return String.format("%s****%s", platId.substring(0, 3), platId.substring(platId.length() - 3));
         } else
             return platId;
-    }
-    public void setPlatId(String platId) {
-        this.platId = platId;
     }
     public String getName() {
         return name;
@@ -82,6 +84,12 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
     }
     public void setNote(String note) {
         this.note = note;
+    }
+    public String getLocalIcon() {
+        return localIcon;
+    }
+    public void setLocalIcon(String localIcon) {
+        this.localIcon = localIcon;
     }
 
     public boolean readFromStream(DataInput in) throws IOException{
@@ -106,7 +114,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
 
     @Override
     public String toString() {
-        return "Plat: " + getPlatName() + " Id: " + getShortPlatId() + " Name：" + name + ' ' + " Note：" + note;
+        return "Plat: " + getPlatName() + " Id: " + getShortPlatId() + " Name：" + name + ' ' + " Icon：" + icon + " Note：" + note;
     }
 
     @Override
@@ -125,13 +133,7 @@ public class Account extends LitePalSupport implements Serializable, Cloneable{
 
     @Override
     public Object clone() {
-        Account account = new Account();
-        account.platName = platName;
-        account.platId = platId;
-        account.name = name;
-        account.icon = icon;
-        account.note = note;
-        return account;
+        return new Account(this);
     }
 
 }

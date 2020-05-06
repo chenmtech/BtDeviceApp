@@ -1,18 +1,22 @@
 package com.cmtech.android.bledevice.thermo.view;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
+import com.vise.utils.view.BitmapUtil;
 
 import org.litepal.LitePal;
 
@@ -63,7 +67,13 @@ public class ThermoRecordActivity extends AppCompatActivity {
         tvCreator = findViewById(R.id.tv_creator);
         tvCreator.setText(record.getCreatorName());
 
-        Drawable drawable = ContextCompat.getDrawable(this, SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
+        Drawable drawable;
+        if(TextUtils.isEmpty(AccountManager.getAccount().getLocalIcon())) {
+            drawable = ContextCompat.getDrawable(this, SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
+        } else {
+            Bitmap bitmap = BitmapUtil.getSmallBitmap(AccountManager.getAccount().getLocalIcon(), 200, 200);
+            drawable = BitmapUtil.bitmapToDrawable(bitmap);
+        }
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 

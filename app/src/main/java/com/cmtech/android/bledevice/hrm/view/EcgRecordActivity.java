@@ -1,10 +1,12 @@
 package com.cmtech.android.bledevice.hrm.view;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,8 +24,10 @@ import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
+import com.vise.utils.view.BitmapUtil;
 
 import org.json.JSONObject;
 import org.litepal.LitePal;
@@ -108,7 +112,13 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         tvCreator = findViewById(R.id.tv_creator);
         tvCreator.setText(record.getCreatorName());
 
-        Drawable drawable = ContextCompat.getDrawable(this, SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
+        Drawable drawable;
+        if(TextUtils.isEmpty(AccountManager.getAccount().getLocalIcon())) {
+            drawable = ContextCompat.getDrawable(this, SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
+        } else {
+            Bitmap bitmap = BitmapUtil.getSmallBitmap(AccountManager.getAccount().getLocalIcon(), 200, 200);
+            drawable = BitmapUtil.bitmapToDrawable(bitmap);
+        }
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
         tvCreator.setCompoundDrawables(null, drawable, null, null);
 

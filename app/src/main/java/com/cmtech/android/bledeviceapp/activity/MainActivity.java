@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -28,6 +29,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +39,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.ble.core.BleDeviceInfo;
 import com.cmtech.android.ble.core.BleScanner;
 import com.cmtech.android.ble.core.DeviceInfo;
@@ -56,10 +60,16 @@ import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.NotifyService;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
+import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
+import com.vise.utils.file.FileUtil;
+import com.vise.utils.view.BitmapUtil;
 
+import org.jetbrains.annotations.NotNull;
 import org.litepal.LitePal;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,9 +78,13 @@ import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
+import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.AppConstant.KM_STORE_URI;
 import static com.cmtech.android.bledeviceapp.AppConstant.QQ_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.WX_PLAT_NAME;
@@ -645,14 +659,48 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             tvAccountName.setText(account.getName());
         }
 
-        // load icon by platform name
-        ivAccountImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
-        //Glide.with(MyApplication.getContext()).load(R.id.ib_qq_login).into(ivAccountImage);
+        if(TextUtils.isEmpty(account.getLocalIcon())) {
+            // load icon by platform name
+            ivAccountImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
+            if(!TextUtils.isEmpty(account.getIcon())) {
+                downloadIcon(account.getIcon());
+            }
+        } else {
+            Glide.with(this).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+        }
+    }
 
-        /* load icon from imagePath
-        String imagePath = account.getImagePath();
-        if(imagePath != null && !"".equals(imagePath))
-            Glide.with(MyApplication.getContext()).load(imagePath).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);*/
+    private void downloadIcon(String icon) {
+        HttpUtils.requestGet(icon, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        byte[] bytes = response.body().bytes();
+                        final Bitmap bitmap = BitmapUtil.byteToBitmap(bytes);
+                        final Account account = AccountManager.getAccount();
+                        String localIcon = account.getId()+".jpg";
+                        File toFile = FileUtil.getFile(DIR_IMAGE, localIcon);
+                        BitmapUtil.saveBitmap(bitmap, toFile);
+                        String filePath = toFile.getCanonicalPath();
+                        account.setLocalIcon(filePath);
+                        account.save();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Glide.with(MainActivity.this).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
     }
 
     // 更新MainLayout的可视性
