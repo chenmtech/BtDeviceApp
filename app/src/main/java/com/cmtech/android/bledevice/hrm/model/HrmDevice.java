@@ -163,7 +163,7 @@ public class HrmDevice extends AbstractDevice {
                 } else {
                     hrRecord.setCreateTime(new Date().getTime());
                     for(int i = 0; i < hrRecord.getHrHistogram().size(); i++) {
-                        hrRecord.getHrHist().set(i, hrRecord.getHrHistogram().get(i).getHistValue());
+                        hrRecord.getHrHist().add(hrRecord.getHrHistogram().get(i).getHistValue());
                     }
                     int sum = 0;
                     for(int num : hrRecord.getHrHist()) {

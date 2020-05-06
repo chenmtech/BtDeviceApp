@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
 import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
@@ -67,8 +68,12 @@ public class HrRecordActivity extends AppCompatActivity {
 
                         if(record.setDataFromJson(json)) {
                             initUI();
+                            return;
                         }
                     }
+                    Toast.makeText(HrRecordActivity.this, "获取记录数据失败，无法打开记录", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_CANCELED);
+                    finish();
                 }
             }).execute(record);
         } else {

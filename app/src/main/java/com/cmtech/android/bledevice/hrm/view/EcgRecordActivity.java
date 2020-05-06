@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
 import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
@@ -81,8 +82,12 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
                         if(record.setDataFromJson(json)) {
                             initUI();
+                            return;
                         }
                     }
+                    Toast.makeText(EcgRecordActivity.this, "获取记录数据失败，无法打开记录", Toast.LENGTH_SHORT).show();
+                    setResult(RESULT_CANCELED);
+                    finish();
                 }
             }).execute(record);
         } else {
