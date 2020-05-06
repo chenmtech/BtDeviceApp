@@ -52,7 +52,6 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         TextView tvDesc; // record description
         TextView tvAddress;
         ImageView ivType;
-        ImageButton ibDelete;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -62,7 +61,6 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             tvDesc = fileView.findViewById(R.id.tv_desc);
             tvAddress = fileView.findViewById(R.id.tv_device_address);
             ivType = fileView.findViewById(R.id.iv_record_type);
-            ibDelete = fileView.findViewById(R.id.ib_delete);
         }
     }
 
@@ -88,13 +86,6 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
                 }
                 notifyItemChanged(selPos);
                 activity.selectRecord(allRecords.get(selPos));
-            }
-        });
-
-        holder.ibDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.deleteRecord(allRecords.get(holder.getAdapterPosition()));
             }
         });
         return holder;
@@ -146,5 +137,10 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
     public void clear() {
         allRecords.clear();
+    }
+
+    public IRecord getSelectedRecord() {
+        if(selPos == -1) return null;
+        return allRecords.get(selPos);
     }
 }

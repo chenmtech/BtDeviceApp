@@ -184,20 +184,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 finish();
                 break;
 
-            case R.id.ecg_record:
-                changeRecordType(ECG);
-                break;
-
-            case R.id.hr_record:
-                changeRecordType(HR);
-                break;
-
-            case R.id.thm_record:
-                changeRecordType(TH);
-                break;
-
-            case R.id.thermo_record:
-                changeRecordType(THERMO);
+            case R.id.delete:
+                deleteRecord(adapter.getSelectedRecord());
                 break;
         }
         return true;
