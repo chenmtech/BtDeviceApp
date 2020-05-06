@@ -12,6 +12,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +49,7 @@ import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.record.RecordType.TH;
 import static com.cmtech.android.bledevice.record.RecordType.THERMO;
+import static com.cmtech.android.bledevice.record.RecordType.UNKNOWN;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
 
 /**
@@ -69,8 +73,10 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private RecordListAdapter adapter; // Adapter
     private RecyclerView view; // RecycleView
     private TextView tvPromptInfo; // prompt info
+    private Spinner recordSpinner;
 
-    private RecordType recordType = ECG;
+    private RecordType recordType = UNKNOWN;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +86,21 @@ public class RecordExplorerActivity extends AppCompatActivity {
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_record_explorer);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        recordSpinner = findViewById(R.id.spinner_record);
+        ArrayAdapter<CharSequence> recordAdapter = ArrayAdapter.createFromResource(this,
+                R.array.record_array, android.R.layout.simple_spinner_item);
+        recordSpinner.setAdapter(recordAdapter);
+        recordSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                changeRecordType(RecordType.getType(position+1));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         view = findViewById(R.id.rv_record_list);
         LinearLayoutManager fileLayoutManager = new LinearLayoutManager(this);
@@ -113,7 +134,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         tvPromptInfo = findViewById(R.id.tv_prompt_info);
         tvPromptInfo.setText("无记录");
 
-        setRecordType(ECG);
+        //setRecordType(ECG);
     }
 
     private void updateRecords(long fromTime) {

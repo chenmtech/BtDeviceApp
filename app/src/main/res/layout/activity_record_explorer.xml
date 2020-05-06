@@ -12,7 +12,12 @@
         android:background="?attr/colorPrimary"
         toolbar:title="用户记录"
         toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
-        android:theme="@style/ThemeOverlay.AppCompat.Light"/>
+        android:theme="@style/ThemeOverlay.AppCompat.Light">
+        <Spinner
+            android:id="@+id/spinner_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </android.support.v7.widget.Toolbar>
 
     <View
         android:layout_width="match_parent"
