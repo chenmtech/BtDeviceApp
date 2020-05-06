@@ -16,8 +16,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
-import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
+import com.cmtech.android.bledevice.record.BleEcgRecord10;
+import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -29,7 +29,7 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 
-import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{

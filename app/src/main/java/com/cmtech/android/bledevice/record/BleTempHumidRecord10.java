@@ -1,18 +1,13 @@
-package com.cmtech.android.bledevice.thm.model;
+package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledevice.common.AbstractRecord;
-import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
-import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
-import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.common.RecordType.TH;
-import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
+import static com.cmtech.android.bledevice.record.RecordType.TH;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -32,7 +27,7 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     private float heatIndex;
     private String location;
 
-    public BleTempHumidRecord10(long createTime, String devAddress, Account creator) {
+    BleTempHumidRecord10(long createTime, String devAddress, Account creator) {
         super(TH, "1.0", createTime, devAddress, creator);
         temperature = 0.0f;
         humid = 0.0f;
@@ -40,9 +35,34 @@ public class BleTempHumidRecord10 extends AbstractRecord {
         location = "室内";
     }
 
+    static List<BleTempHumidRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location")
+                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
+                .order("createTime desc").limit(num).find(BleTempHumidRecord10.class);
+    }
+
+    static BleTempHumidRecord10 createFromJson(JSONObject json) {
+        return null;
+    }
+
+    @Override
+    public String getDesc() {
+        return "地点" + location + "，温度" + temperature + "℃，湿度" + humid + "%，体感" + (int)heatIndex;
+    }
+
+    @Override
+    public JSONObject toJson() {
+        return null;
+    }
+
     @Override
     public boolean setDataFromJson(JSONObject json) {
         return false;
+    }
+
+    @Override
+    public boolean isDataEmpty() {
+        return true;
     }
 
     public float getTemperature() {
@@ -75,26 +95,6 @@ public class BleTempHumidRecord10 extends AbstractRecord {
 
     public void setLocation(String location) {
         this.location = location;
-    }
-
-    public static List<BleTempHumidRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location")
-                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
-                .order("createTime desc").limit(num).find(BleTempHumidRecord10.class);
-    }
-
-    public static BleTempHumidRecord10 createFromJson(JSONObject json) {
-        return null;
-    }
-
-    @Override
-    public String getDesc() {
-        return "地点" + location + "，温度" + temperature + "℃，湿度" + humid + "%，体感" + (int)heatIndex;
-    }
-
-    @Override
-    public boolean isDataEmpty() {
-        return true;
     }
 
 }

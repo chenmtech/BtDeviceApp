@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 
-import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;

@@ -15,18 +15,18 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.common.IRecord;
-import com.cmtech.android.bledevice.common.RecordFactory;
-import com.cmtech.android.bledevice.common.RecordType;
-import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
-import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
-import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
+import com.cmtech.android.bledevice.record.IRecord;
+import com.cmtech.android.bledevice.record.RecordFactory;
+import com.cmtech.android.bledevice.record.RecordType;
+import com.cmtech.android.bledevice.record.BleEcgRecord10;
+import com.cmtech.android.bledevice.record.BleHrRecord10;
+import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
-import com.cmtech.android.bledevice.common.AbstractRecord;
-import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
+import com.cmtech.android.bledevice.record.AbstractRecord;
+import com.cmtech.android.bledevice.record.BleThermoRecord10;
 import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
-import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
+import com.cmtech.android.bledevice.record.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
@@ -42,11 +42,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.common.RecordType.ECG;
-import static com.cmtech.android.bledevice.common.RecordType.HR;
-import static com.cmtech.android.bledevice.common.RecordType.TH;
-import static com.cmtech.android.bledevice.common.RecordType.THERMO;
-import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
+import static com.cmtech.android.bledevice.record.RecordType.ECG;
+import static com.cmtech.android.bledevice.record.RecordType.HR;
+import static com.cmtech.android.bledevice.record.RecordType.TH;
+import static com.cmtech.android.bledevice.record.RecordType.THERMO;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
 
 /**
   *
@@ -129,15 +129,12 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             JSONObject json = (JSONObject) jsonArr.get(i);
                             AbstractRecord newRecord = (AbstractRecord) RecordFactory.createFromJson(recordType, json);
                             if(newRecord != null) {
-                                ViseLog.e(newRecord);
                                 newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
                             }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                } else {
-                    Toast.makeText(RecordExplorerActivity.this, "网络错误，仅显示本地记录", Toast.LENGTH_SHORT).show();
                 }
 
                 List<IRecord> newRecords = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), updateTime, DOWNLOAD_NUM_PER_TIME);
@@ -146,6 +143,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     allRecords.addAll(newRecords);
                     ViseLog.e(allRecords.toString());
                 }
+
                 updateRecordView();
             }
         }).execute(record);

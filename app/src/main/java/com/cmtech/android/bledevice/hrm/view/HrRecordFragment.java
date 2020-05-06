@@ -17,7 +17,7 @@ import com.cmtech.android.bledeviceapp.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.hrm.model.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
+import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
 import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
 
 /**

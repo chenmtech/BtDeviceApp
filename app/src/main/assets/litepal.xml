@@ -18,9 +18,9 @@
 
         <mapping class="com.cmtech.android.bledevice.thm.model.TempHumidHistoryData"/>
 
-        <mapping class="com.cmtech.android.bledevice.hrm.model.BleHrRecord10"/>
-        <mapping class="com.cmtech.android.bledevice.hrm.model.BleEcgRecord10"/>
-        <mapping class="com.cmtech.android.bledevice.thermo.model.BleThermoRecord10"/>
-        <mapping class="com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10"/>
+        <mapping class="com.cmtech.android.bledevice.record.BleHrRecord10"/>
+        <mapping class="com.cmtech.android.bledevice.record.BleEcgRecord10"/>
+        <mapping class="com.cmtech.android.bledevice.record.BleThermoRecord10"/>
+        <mapping class="com.cmtech.android.bledevice.record.BleTempHumidRecord10"/>
     </list>
 </litepal>

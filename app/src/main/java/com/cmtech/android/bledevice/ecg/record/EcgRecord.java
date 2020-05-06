@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.ecg.record;
 
-import com.cmtech.android.bledevice.common.IEcgRecord;
+import com.cmtech.android.bledevice.record.IEcgRecord;
 import com.cmtech.android.bledevice.ecg.enumeration.EcgLeadType;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgComment;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgCommentFactory;

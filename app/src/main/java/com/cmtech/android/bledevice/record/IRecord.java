@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.common;
+package com.cmtech.android.bledevice.record;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -12,14 +12,16 @@ package com.cmtech.android.bledevice.common;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public interface IRecord extends IRecordJson{
+public interface IRecord extends IRecordJson {
     int getId();
+    String getVer();
+    int getTypeCode();
     long getCreateTime();
+    void setCreateTime(long createTime);
     String getDevAddress();
     String getName();
     String getCreatorPlat();
     String getCreatorId();
     String getCreatorName();
     String getDesc();
-    int getTypeCode();
 }

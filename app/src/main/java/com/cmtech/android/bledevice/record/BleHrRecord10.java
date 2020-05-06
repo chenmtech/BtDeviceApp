@@ -1,6 +1,5 @@
-package com.cmtech.android.bledevice.hrm.model;
+package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledevice.common.AbstractRecord;
 import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
@@ -12,13 +11,10 @@ import org.litepal.annotation.Column;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.common.RecordType.HR;
+import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
-import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
-import static com.cmtech.android.bledeviceapp.AppConstant.DIR_CACHE;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -54,7 +50,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     @Column(ignore = true)
     private transient long preTime = 0;
 
-    public BleHrRecord10(long createTime, String devAddress, Account creator) {
+    BleHrRecord10(long createTime, String devAddress, Account creator) {
         super(HR, "1.0", createTime, devAddress, creator);
         filterHrList = new ArrayList<>();
         hrMax = INVALID_HEART_RATE;
@@ -70,84 +66,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         recordSecond = 0;
     }
 
-    @Override
-    public String getDesc() {
-        int time = (getRecordSecond() <= 60) ? 1 : getRecordSecond()/60;
-        return "时长约"+time+"分钟";
-    }
-
-    public List<Short> getFilterHrList() {
-        return filterHrList;
-    }
-    public void setFilterHrList(List<Short> filterHrList) {
-        this.filterHrList = filterHrList;
-    }
-    public short getHrMax() {
-        return hrMax;
-    }
-    public void setHrMax(short hrMax) {
-        this.hrMax = hrMax;
-    }
-    public short getHrAve() {
-        return hrAve;
-    }
-    public void setHrAve(short hrAve) {
-        this.hrAve = hrAve;
-    }
-    public List<Integer> getHrHist() {
-        return hrHist;
-    }
-    public void setHrHist(List<Integer> hrHist) {
-        this.hrHist = hrHist;
-    }
-    public List<HrHistogramElement<Integer>> getHrHistogram() {
-        return hrHistogram;
-    }
-    public int getRecordSecond() {
-        return recordSecond;
-    }
-    public void setRecordSecond(int recordSecond) {
-        this.recordSecond = recordSecond;
-    }
-    public void createHistogram() {
-        if(hrHist != null && hrHist.size() == hrHistogram.size()) {
-            for (int i = 0; i < hrHistogram.size(); i++) {
-                hrHistogram.get(i).histValue = hrHist.get(i);
-            }
-        }
-    }
-
-    public boolean isDataEmpty() {
-        return filterHrList.isEmpty();
-    }
-
-    public boolean process(short hr, long time) {
-        if(hrMax < hr) hrMax = hr;
-        hrSum += hr;
-        hrNum++;
-        hrAve = (short)(hrSum/hrNum);
-
-        long tmp;
-        if(preTime == 0) tmp = 2; // the first HR
-        else tmp = Math.round((time-preTime)/1000.0); // ms to second
-        int interval = (tmp > HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH) ? HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH : (int)tmp;
-        preTime = time;
-        for(HrHistogramElement<Integer> ele : hrHistogram) {
-            if(hr < ele.maxValue) {
-                ele.histValue += interval;
-                break;
-            }
-        }
-
-        short fHr = hrMAFilter.process(hr, interval);
-        if(fHr != INVALID_HEART_RATE) {
-            filterHrList.add(fHr);
-            return true;
-        }
-        return false;
-    }
-
-    public static BleHrRecord10 createFromJson(JSONObject json) {
+    static BleHrRecord10 createFromJson(JSONObject json) {
         if(json == null) {
             throw new NullPointerException("The json is null.");
         }
@@ -167,12 +86,19 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         return null;
     }
 
-    public static List<BleHrRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
+    static List<BleHrRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
         return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleHrRecord10.class);
     }
 
+    @Override
+    public String getDesc() {
+        int time = (getRecordSecond() <= 60) ? 1 : getRecordSecond()/60;
+        return "时长约"+time+"分钟";
+    }
+
+    @Override
     public JSONObject toJson() {
         JSONObject jsonObject = super.toJson();
         if(jsonObject == null) return null;
@@ -226,6 +152,78 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
             return save();
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isDataEmpty() {
+        return filterHrList.isEmpty();
+    }
+
+    public List<Short> getFilterHrList() {
+        return filterHrList;
+    }
+    public void setFilterHrList(List<Short> filterHrList) {
+        this.filterHrList = filterHrList;
+    }
+    public short getHrMax() {
+        return hrMax;
+    }
+    public void setHrMax(short hrMax) {
+        this.hrMax = hrMax;
+    }
+    public short getHrAve() {
+        return hrAve;
+    }
+    public void setHrAve(short hrAve) {
+        this.hrAve = hrAve;
+    }
+    public List<Integer> getHrHist() {
+        return hrHist;
+    }
+    public void setHrHist(List<Integer> hrHist) {
+        this.hrHist = hrHist;
+    }
+    public List<HrHistogramElement<Integer>> getHrHistogram() {
+        return hrHistogram;
+    }
+    public int getRecordSecond() {
+        return recordSecond;
+    }
+    public void setRecordSecond(int recordSecond) {
+        this.recordSecond = recordSecond;
+    }
+    public void createHistogram() {
+        if(hrHist != null && hrHist.size() == hrHistogram.size()) {
+            for (int i = 0; i < hrHistogram.size(); i++) {
+                hrHistogram.get(i).histValue = hrHist.get(i);
+            }
+        }
+    }
+
+    public boolean process(short hr, long time) {
+        if(hrMax < hr) hrMax = hr;
+        hrSum += hr;
+        hrNum++;
+        hrAve = (short)(hrSum/hrNum);
+
+        long tmp;
+        if(preTime == 0) tmp = 2; // the first HR
+        else tmp = Math.round((time-preTime)/1000.0); // ms to second
+        int interval = (tmp > HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH) ? HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH : (int)tmp;
+        preTime = time;
+        for(HrHistogramElement<Integer> ele : hrHistogram) {
+            if(hr < ele.maxValue) {
+                ele.histValue += interval;
+                break;
+            }
+        }
+
+        short fHr = hrMAFilter.process(hr, interval);
+        if(fHr != INVALID_HEART_RATE) {
+            filterHrList.add(fHr);
+            return true;
         }
         return false;
     }

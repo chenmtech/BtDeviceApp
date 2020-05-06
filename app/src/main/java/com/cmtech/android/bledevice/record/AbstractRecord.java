@@ -1,6 +1,5 @@
-package com.cmtech.android.bledevice.common;
+package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.model.Account;
 
 import org.json.JSONException;
@@ -31,7 +30,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     @Column(ignore = true)
     private RecordType type;
 
-    public AbstractRecord(RecordType type) {
+    private AbstractRecord(RecordType type) {
         ver = "";
         createTime = 0;
         devAddress = "";
@@ -40,7 +39,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         this.type = type;
     }
 
-    public AbstractRecord(RecordType type, String ver, long createTime, String devAddress, Account creator) {
+    AbstractRecord(RecordType type, String ver, long createTime, String devAddress, Account creator) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
@@ -52,40 +51,57 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         this.creatorId = creator.getPlatId();
     }
 
+    @Override
     public int getId() {
         return id;
     }
+
+    @Override
     public String getVer() {
         return ver;
     }
-    public void setVer(String ver) {
-        this.ver = ver;
+
+    @Override
+    public int getTypeCode() {
+        return type.getCode();
     }
+
+    @Override
     public long getCreateTime() {
         return createTime;
     }
+
+    @Override
     public void setCreateTime(long createTime) {
         this.createTime = createTime;
     }
+
+    @Override
     public String getDevAddress() {
         return devAddress;
     }
-    public void setDevAddress(String devAddress) {
-        this.devAddress = devAddress;
-    }
+
+    @Override
     public String getName() {
         return createTime + devAddress;
     }
+
+    @Override
     public String getCreatorPlat() {
         return creatorPlat;
     }
+
+    @Override
     public String getCreatorId() {
         return creatorId;
     }
+
     public void setCreator(Account creator) {
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();
     }
+
+    @Override
     public String getCreatorName() {
         Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
         if(account == null)
@@ -93,11 +109,6 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         else {
             return account.getName();
         }
-    }
-
-    @Override
-    public int getTypeCode() {
-        return type.getCode();
     }
 
     @Override

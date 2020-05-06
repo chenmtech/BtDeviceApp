@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.bledevice.hrm.model.BleHeartRateData;
-import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
+import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledevice.hrm.model.HrmDevice;
 import com.cmtech.android.bledevice.hrm.model.HrmCfg;
 import com.cmtech.android.bledevice.hrm.model.OnHrmListener;

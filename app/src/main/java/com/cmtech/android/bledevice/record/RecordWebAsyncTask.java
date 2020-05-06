@@ -1,10 +1,9 @@
-package com.cmtech.android.bledevice.hrm.model;
+package com.cmtech.android.bledevice.record;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.cmtech.android.bledevice.common.IRecord;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.vise.log.ViseLog;
@@ -21,8 +20,8 @@ import okhttp3.Response;
 
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.hrm.model
- * ClassName:      RecordOpAsyncTask
+ * Package:        com.cmtech.android.bledevice.record
+ * ClassName:      RecordWebAsyncTask
  * Description:    java类作用描述
  * Author:         作者名
  * CreateDate:     2020/4/20 上午6:44
@@ -43,7 +42,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
     private ProgressDialog progressDialog;
     private final int cmd;
-    private String cmdStr = "未知命令";
     private final boolean isShowProgress;
 
     private boolean finish = false;
@@ -64,29 +62,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
     public RecordWebAsyncTask(Context context, int cmd, boolean isShowProgress, RecordWebCallback callback) {
         this.cmd = cmd;
-
-        switch (cmd) {
-            case RECORD_UPLOAD_CMD:
-                cmdStr = "上传记录";
-                break;
-            case RECORD_UPDATE_NOTE_CMD:
-                cmdStr = "更新记录";
-                break;
-            case RECORD_QUERY_CMD:
-                cmdStr = "查询记录";
-                break;
-            case RECORD_DELETE_CMD:
-                cmdStr = "删除记录";
-                break;
-            case RECORD_DOWNLOAD_INFO_CMD:
-                cmdStr = "下载记录信息";
-                break;
-            case RECORD_DOWNLOAD_CMD:
-                cmdStr = "下载记录";
-                break;
-            default:
-                break;
-        }
 
         progressDialog = new ProgressDialog(context);
         progressDialog.setMessage("请稍等...");
@@ -136,6 +111,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             rlt = (Integer)id;
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            code = 1;
+                            errStr = "网络错误";
+                            rlt = null;
                         } finally {
                             finish = true;
                         }
@@ -165,6 +143,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             ViseLog.e(code+errStr);
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            code = 1;
+                            errStr = "网络错误";
+                            rlt = null;
                         } finally {
                             finish = true;
                         }
@@ -194,6 +175,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             ViseLog.e(code+errStr);
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            code = 1;
+                            errStr = "网络错误";
+                            rlt = null;
                         } finally {
                             finish = true;
                         }
@@ -223,6 +207,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             ViseLog.e(code+errStr);
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            code = 1;
+                            errStr = "网络错误";
+                            rlt = null;
                         } finally {
                             finish = true;
                         }
@@ -253,6 +240,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             ViseLog.e(json.toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            code = 1;
+                            errStr = "网络错误";
+                            rlt = null;
                         } finally {
                             finish = true;
                         }
@@ -283,6 +273,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             rlt = json.get("record");
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            code = 1;
+                            errStr = "网络错误";
+                            rlt = null;
                         } finally {
                             finish = true;
                         }

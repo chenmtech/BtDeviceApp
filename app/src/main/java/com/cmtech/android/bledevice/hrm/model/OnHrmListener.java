@@ -1,5 +1,7 @@
 package com.cmtech.android.bledevice.hrm.model;
 
+import com.cmtech.android.bledevice.record.BleHrRecord10;
+
 import java.util.List;
 
 /**

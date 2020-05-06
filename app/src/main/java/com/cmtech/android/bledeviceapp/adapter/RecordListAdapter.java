@@ -11,13 +11,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
-import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
-import com.cmtech.android.bledevice.common.AbstractRecord;
-import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
-import com.cmtech.android.bledevice.thm.model.BleTempHumidRecord10;
+import com.cmtech.android.bledevice.record.BleEcgRecord10;
+import com.cmtech.android.bledevice.record.BleHrRecord10;
+import com.cmtech.android.bledevice.record.BleThermoRecord10;
+import com.cmtech.android.bledevice.record.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
-import com.cmtech.android.bledevice.common.IRecord;
+import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;

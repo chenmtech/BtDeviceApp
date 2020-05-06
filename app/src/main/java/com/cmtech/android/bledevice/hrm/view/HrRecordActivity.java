@@ -12,8 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.hrm.model.BleHrRecord10;
-import com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask;
+import com.cmtech.android.bledevice.record.BleHrRecord10;
+import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.HrHistogramChart;
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -24,8 +24,8 @@ import com.vise.log.ViseLog;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
-import static com.cmtech.android.bledevice.hrm.model.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
-import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
+import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 public class HrRecordActivity extends AppCompatActivity {

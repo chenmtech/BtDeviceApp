@@ -1,7 +1,7 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import com.cmtech.android.bledevice.hrm.model.BleEcgRecord10;
-import com.cmtech.android.bledevice.common.IRecord;
+import com.cmtech.android.bledevice.record.BleEcgRecord10;
+import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 

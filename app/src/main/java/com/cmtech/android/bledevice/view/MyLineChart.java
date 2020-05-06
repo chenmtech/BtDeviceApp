@@ -20,8 +20,6 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.hrm.model.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
-
 
 public class MyLineChart extends LineChart {
     private static final int DEFAULT_X_VALUE_INTERVAL = 10;

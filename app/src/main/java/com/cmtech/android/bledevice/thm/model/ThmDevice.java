@@ -7,6 +7,9 @@ import com.cmtech.android.ble.core.BleGattElement;
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledevice.record.BleTempHumidRecord10;
+import com.cmtech.android.bledevice.record.RecordFactory;
+import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
@@ -104,7 +107,7 @@ public class ThmDevice extends AbstractDevice {
     }
 
     public void save(String loc) {
-        BleTempHumidRecord10 record = new BleTempHumidRecord10(new Date().getTime(), getAddress(), AccountManager.getAccount());
+        BleTempHumidRecord10 record = (BleTempHumidRecord10) RecordFactory.create(RecordType.TH, new Date().getTime(), getAddress(), AccountManager.getAccount());
         record.setTemperature(tempHumidData.getTemp()/100.0f);
         record.setHumid(tempHumidData.getHumid()/100.0f);
         record.setHeatIndex(tempHumidData.calculateHeatIndex());

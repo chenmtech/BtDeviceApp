@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cmtech.android.bledevice.view.MyLineChart;
-import com.cmtech.android.bledevice.thermo.model.BleThermoRecord10;
+import com.cmtech.android.bledevice.record.BleThermoRecord10;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;

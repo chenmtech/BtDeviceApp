@@ -12,6 +12,10 @@ import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
+import com.cmtech.android.bledevice.record.BleEcgRecord10;
+import com.cmtech.android.bledevice.record.BleHrRecord10;
+import com.cmtech.android.bledevice.record.RecordFactory;
+import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
@@ -25,7 +29,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 
-import static com.cmtech.android.bledevice.hrm.model.RecordWebAsyncTask.RECORD_UPLOAD_CMD;
+import static com.cmtech.android.bledevice.record.RecordType.ECG;
+import static com.cmtech.android.bledevice.record.RecordType.HR;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_UPLOAD_CMD;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
@@ -153,7 +159,7 @@ public class HrmDevice extends AbstractDevice {
 
         isHrRecord = isRecord;
         if(isRecord) {
-            hrRecord = new BleHrRecord10(new Date().getTime(), getAddress(), AccountManager.getAccount());
+            hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), AccountManager.getAccount());
             if(listener != null)
                 listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
         } else {
@@ -201,7 +207,7 @@ public class HrmDevice extends AbstractDevice {
 
         isEcgRecord = isRecord;
         if(isRecord) {
-            ecgRecord = new BleEcgRecord10(new Date().getTime(), getAddress(), AccountManager.getAccount());
+            ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, new Date().getTime(), getAddress(), AccountManager.getAccount());
             ecgRecord.setSampleRate(sampleRate);
             ecgRecord.setCaliValue(caliValue);
             ecgRecord.setLeadTypeCode(leadType.getCode());
