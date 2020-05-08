@@ -63,13 +63,13 @@ public class EcgDevice extends AbstractEcgDevice {
     private static final String batteryServiceUuid = "aa90";           // 电池电量服务UUID:aa90
     private static final String batteryDataUuid = "aa91";           // 电池电量数据特征UUID:aa91
 
-    private static final UUID ecgMonitorServiceUUID = UuidUtil.stringToUUUID(ecgMonitorServiceUuid, MY_BASE_UUID);
-    private static final UUID ecgMonitorDataUUID = UuidUtil.stringToUUUID(ecgMonitorDataUuid, MY_BASE_UUID);
-    private static final UUID ecgMonitorCtrlUUID = UuidUtil.stringToUUUID(ecgMonitorCtrlUuid, MY_BASE_UUID);
-    private static final UUID ecgMonitorSampleRateUUID = UuidUtil.stringToUUUID(ecgMonitorSampleRateUuid, MY_BASE_UUID);
-    private static final UUID ecgMonitorLeadTypeUUID = UuidUtil.stringToUUUID(ecgMonitorLeadTypeUuid, MY_BASE_UUID);
-    private static final UUID batteryServiceUUID = UuidUtil.stringToUUUID(batteryServiceUuid, MY_BASE_UUID);
-    private static final UUID batteryDataUUID = UuidUtil.stringToUUUID(batteryDataUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorServiceUUID = UuidUtil.stringToUUID(ecgMonitorServiceUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorDataUUID = UuidUtil.stringToUUID(ecgMonitorDataUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorCtrlUUID = UuidUtil.stringToUUID(ecgMonitorCtrlUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorSampleRateUUID = UuidUtil.stringToUUID(ecgMonitorSampleRateUuid, MY_BASE_UUID);
+    private static final UUID ecgMonitorLeadTypeUUID = UuidUtil.stringToUUID(ecgMonitorLeadTypeUuid, MY_BASE_UUID);
+    private static final UUID batteryServiceUUID = UuidUtil.stringToUUID(batteryServiceUuid, MY_BASE_UUID);
+    private static final UUID batteryDataUUID = UuidUtil.stringToUUID(batteryDataUuid, MY_BASE_UUID);
 
     // Gatt Element常量
     private static final BleGattElement ECGMONITOR_DATA =

@@ -32,6 +32,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:replace="android:name">
+        <activity android:name=".activity.AboutUsActivity"/>
         <activity android:name=".activity.LoginActivity" />
         <activity
             android:name="com.cmtech.android.bledevice.hrm.view.HrmCfgActivity"
@@ -78,7 +79,7 @@
         <activity android:name=".activity.RecordExplorerActivity" />
         <activity android:name="com.cmtech.android.bledevice.hrm.view.HrRecordActivity" />
         <activity android:name="com.cmtech.android.bledevice.hrm.view.EcgRecordActivity" />
-        <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity"/>
+        <activity android:name="com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity" />
 
         <service
             android:name=".model.NotifyService"

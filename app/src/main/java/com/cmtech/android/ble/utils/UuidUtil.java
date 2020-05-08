@@ -38,7 +38,7 @@ public class UuidUtil {
         return (uuid == null) ? null : UUID.fromString(uuid);
     }
 
-    public static UUID stringToUUUID(String str, String baseUuid) {
+    public static UUID stringToUUID(String str, String baseUuid) {
         if(str == null) return null;
         if(str.length() == 4) {
             return shortStringToUUID(str, baseUuid);

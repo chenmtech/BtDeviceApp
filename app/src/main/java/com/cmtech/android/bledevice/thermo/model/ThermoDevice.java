@@ -35,11 +35,11 @@ public class ThermoDevice extends AbstractDevice {
     private static final String thermoIntervalUuid = "2A21"; // measurement interval UUID
     private static final String thermoIRangeUuid = "2906"; // measurement interval range UUID
 
-    private static final UUID thermoServiceUUID = UuidUtil.stringToUUUID(thermoServiceUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoTempUUID = UuidUtil.stringToUUUID(thermoTempUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoTypeUUID = UuidUtil.stringToUUUID(thermoTypeUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoIntervalUUID = UuidUtil.stringToUUUID(thermoIntervalUuid, STANDARD_BLE_UUID);
-    private static final UUID thermoIRangeUUID = UuidUtil.stringToUUUID(thermoIRangeUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoServiceUUID = UuidUtil.stringToUUID(thermoServiceUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoTempUUID = UuidUtil.stringToUUID(thermoTempUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoTypeUUID = UuidUtil.stringToUUID(thermoTypeUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoIntervalUUID = UuidUtil.stringToUUID(thermoIntervalUuid, STANDARD_BLE_UUID);
+    private static final UUID thermoIRangeUUID = UuidUtil.stringToUUID(thermoIRangeUuid, STANDARD_BLE_UUID);
 
     private static final BleGattElement THERMOTEMP =
             new BleGattElement(thermoServiceUUID, thermoTempUUID, null, "体温值");

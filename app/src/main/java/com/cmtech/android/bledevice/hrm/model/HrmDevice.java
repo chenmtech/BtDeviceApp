@@ -67,10 +67,10 @@ public class HrmDevice extends AbstractDevice {
     private static final String hrMonitorSensLocUuid = "2A38"; // 测量位置UUID
     private static final String hrMonitorCtrlPtUuid = "2A39"; // 控制点UUID
 
-    private static final UUID hrMonitorServiceUUID = UuidUtil.stringToUUUID(hrMonitorServiceUuid, STANDARD_BLE_UUID);
-    private static final UUID hrMonitorMeasUUID = UuidUtil.stringToUUUID(hrMonitorMeasUuid, STANDARD_BLE_UUID);
-    private static final UUID hrMonitorSensLocUUID = UuidUtil.stringToUUUID(hrMonitorSensLocUuid, STANDARD_BLE_UUID);
-    private static final UUID hrMonitorCtrlPtUUID = UuidUtil.stringToUUUID(hrMonitorCtrlPtUuid, STANDARD_BLE_UUID);
+    private static final UUID hrMonitorServiceUUID = UuidUtil.stringToUUID(hrMonitorServiceUuid, STANDARD_BLE_UUID);
+    private static final UUID hrMonitorMeasUUID = UuidUtil.stringToUUID(hrMonitorMeasUuid, STANDARD_BLE_UUID);
+    private static final UUID hrMonitorSensLocUUID = UuidUtil.stringToUUID(hrMonitorSensLocUuid, STANDARD_BLE_UUID);
+    private static final UUID hrMonitorCtrlPtUUID = UuidUtil.stringToUUID(hrMonitorCtrlPtUuid, STANDARD_BLE_UUID);
 
     private static final BleGattElement HRMONITORMEAS =
             new BleGattElement(hrMonitorServiceUUID, hrMonitorMeasUUID, null, "heart rate measurement");
@@ -84,8 +84,8 @@ public class HrmDevice extends AbstractDevice {
     // battery service
     private static final String battServiceUuid = "180F";
     private static final String battLevelUuid = "2A19";
-    private static final UUID battServiceUUID = UuidUtil.stringToUUUID(battServiceUuid, STANDARD_BLE_UUID);
-    private static final UUID battLevelUUID = UuidUtil.stringToUUUID(battLevelUuid, STANDARD_BLE_UUID);
+    private static final UUID battServiceUUID = UuidUtil.stringToUUID(battServiceUuid, STANDARD_BLE_UUID);
+    private static final UUID battLevelUUID = UuidUtil.stringToUUID(battLevelUuid, STANDARD_BLE_UUID);
     private static final BleGattElement BATTLEVEL = new BleGattElement(battServiceUUID, battLevelUUID, null, "电池电量百分比");
     private static final BleGattElement BATTLEVELCCC = new BleGattElement(battServiceUUID, battLevelUUID, CCC_UUID, "电池电量CCC");
 
@@ -96,12 +96,12 @@ public class HrmDevice extends AbstractDevice {
     private static final String ecgSampleRateUuid = "AA43";
     private static final String ecgLeadTypeUuid = "AA44";
     private static final String ecgLockStatusUuid = "AA45";
-    private static final UUID ecgServiceUUID = UuidUtil.stringToUUUID(ecgServiceUuid, MY_BASE_UUID);
-    private static final UUID ecgMeasUUID = UuidUtil.stringToUUUID(ecgMeasUuid, MY_BASE_UUID);
-    private static final UUID ecg1mVCaliUUID = UuidUtil.stringToUUUID(ecg1mVCaliUuid, MY_BASE_UUID);
-    private static final UUID ecgSampleRateUUID = UuidUtil.stringToUUUID(ecgSampleRateUuid, MY_BASE_UUID);
-    private static final UUID ecgLeadTypeUUID = UuidUtil.stringToUUUID(ecgLeadTypeUuid, MY_BASE_UUID);
-    private static final UUID ecgLockStatusUUID = UuidUtil.stringToUUUID(ecgLockStatusUuid, MY_BASE_UUID);
+    private static final UUID ecgServiceUUID = UuidUtil.stringToUUID(ecgServiceUuid, MY_BASE_UUID);
+    private static final UUID ecgMeasUUID = UuidUtil.stringToUUID(ecgMeasUuid, MY_BASE_UUID);
+    private static final UUID ecg1mVCaliUUID = UuidUtil.stringToUUID(ecg1mVCaliUuid, MY_BASE_UUID);
+    private static final UUID ecgSampleRateUUID = UuidUtil.stringToUUID(ecgSampleRateUuid, MY_BASE_UUID);
+    private static final UUID ecgLeadTypeUUID = UuidUtil.stringToUUID(ecgLeadTypeUuid, MY_BASE_UUID);
+    private static final UUID ecgLockStatusUUID = UuidUtil.stringToUUID(ecgLockStatusUuid, MY_BASE_UUID);
 
     private static final BleGattElement ECGMEAS = new BleGattElement(ecgServiceUUID, ecgMeasUUID, null, "ECG Data Packet");
     private static final BleGattElement ECGMEASCCC = new BleGattElement(ecgServiceUUID, ecgMeasUUID, CCC_UUID, "ECG Data Packet CCC");

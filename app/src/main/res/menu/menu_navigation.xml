@@ -20,6 +20,12 @@
             android:visible="false"/>
 
         <item
+            android:id="@+id/nav_about_us"
+            android:title="关于我们"
+            android:icon="@mipmap/ic_person_32px"
+            android:visible="true"/>
+
+        <item
             android:id="@+id/nav_exit"
             android:title="@string/exit"
             android:icon="@mipmap/ic_exit"/>

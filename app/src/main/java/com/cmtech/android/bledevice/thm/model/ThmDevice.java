@@ -40,10 +40,10 @@ public class ThmDevice extends AbstractDevice {
     private static final String tempHumidIntervalUuid   = "2a21";           // 测量间隔UUID:aa63
     private static final String tempHumidIRangeUuid     = "2906";           // 测量间隔范围UUID
 
-    private static final UUID tempHumidServiceUUID    = UuidUtil.stringToUUUID(tempHumidServiceUuid, MY_BASE_UUID);
-    private static final UUID tempHumidDataUUID       = UuidUtil.stringToUUUID(tempHumidDataUuid, MY_BASE_UUID);
-    private static final UUID tempHumidIntervalUUID   = UuidUtil.stringToUUUID(tempHumidIntervalUuid, STANDARD_BLE_UUID);
-    private static final UUID tempHumidIRangeUUID     = UuidUtil.stringToUUUID(tempHumidIRangeUuid, STANDARD_BLE_UUID);
+    private static final UUID tempHumidServiceUUID    = UuidUtil.stringToUUID(tempHumidServiceUuid, MY_BASE_UUID);
+    private static final UUID tempHumidDataUUID       = UuidUtil.stringToUUID(tempHumidDataUuid, MY_BASE_UUID);
+    private static final UUID tempHumidIntervalUUID   = UuidUtil.stringToUUID(tempHumidIntervalUuid, STANDARD_BLE_UUID);
+    private static final UUID tempHumidIRangeUUID     = UuidUtil.stringToUUID(tempHumidIRangeUuid, STANDARD_BLE_UUID);
 
     private static final BleGattElement TEMPHUMIDDATA =
             new BleGattElement(tempHumidServiceUUID, tempHumidDataUUID, null, "温湿度数据");
