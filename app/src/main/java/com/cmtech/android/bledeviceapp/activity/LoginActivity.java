@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -104,6 +106,9 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         cbGrant = findViewById(R.id.cb_privacy_grant);
+
+        TextView tvPrivacy = findViewById(R.id.tv_privacy);
+        tvPrivacy.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     @Override

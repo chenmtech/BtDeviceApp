@@ -104,25 +104,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:layout_margin="10dp"
-            android:autoLink="all"
-            android:textSize="12dp"
-            android:text="为了实现分享和推送功能，我们使用了MobTech的ShareSDK产品。请阅读Mob产品的隐私策略条款。"/>
-
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
         <CheckBox
             android:id="@+id/cb_privacy_grant"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:gravity="center_vertical"
             android:layout_marginBottom="5dp"
             android:checked="true"
             android:textSize="15dp"
-            android:text="同意上述隐私条款。"/>
+            android:text="@string/privacy_policy"/>
+
+        <TextView
+            android:id="@+id/tv_privacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="@string/privacy_policy_http"
+            android:textColor="@color/blue"/>
 
     </LinearLayout>
 
