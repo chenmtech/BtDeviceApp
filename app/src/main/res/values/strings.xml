@@ -23,6 +23,6 @@
     <string name="device_unbond">设备未绑定</string>
     <drawable name="clr_normal">@color/accent</drawable>
     <drawable name="clr_pressed">@color/red</drawable>
-    <string name="privacy_policy">已阅读并同意本软件要求的</string>
+    <string name="privacy_policy">已阅读并同意本软件的</string>
     <string name="privacy_policy_http"><a href="http://www.mob.com/about/policy">隐私条款</a></string>
 </resources>
