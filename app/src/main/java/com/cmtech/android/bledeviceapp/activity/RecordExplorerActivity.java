@@ -33,6 +33,7 @@ import com.cmtech.android.bledevice.record.BleTempHumidRecord10;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
+import com.cmtech.android.bledeviceapp.adapter.RecordTypeAdapter;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
@@ -45,6 +46,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.cmtech.android.bledevice.record.RecordType.ECG;
+import static com.cmtech.android.bledevice.record.RecordType.HR;
+import static com.cmtech.android.bledevice.record.RecordType.TH;
+import static com.cmtech.android.bledevice.record.RecordType.THERMO;
 import static com.cmtech.android.bledevice.record.RecordType.UNKNOWN;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
 
@@ -85,6 +90,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         recordSpinner = findViewById(R.id.spinner_record);
+        RecordTypeAdapter adapter = new RecordTypeAdapter(new RecordType[]{ECG, HR, THERMO, TH});
         ArrayAdapter<CharSequence> recordAdapter = ArrayAdapter.createFromResource(this,
                 R.array.record_array, android.R.layout.simple_spinner_item);
         recordSpinner.setAdapter(recordAdapter);

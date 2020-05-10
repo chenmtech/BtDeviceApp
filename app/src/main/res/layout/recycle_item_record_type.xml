@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:baselineAligned="false">
+
+    <com.cmtech.android.bledevice.view.RoundImageView
+        android:id="@+id/iv_record_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:src="@mipmap/ic_unknown_device"
+        android:contentDescription="登记的设备图片"/>
+
+    <TextView
+        android:id="@+id/tv_record_type_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:text="未知"/>
+
+</LinearLayout>
