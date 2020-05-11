@@ -7,9 +7,9 @@
     android:baselineAligned="false">
 
     <com.cmtech.android.bledevice.view.RoundImageView
-        android:id="@+id/iv_record_type"
+        android:id="@+id/iv_record_type_icon"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
         android:src="@mipmap/ic_unknown_device"
         android:contentDescription="登记的设备图片"/>
@@ -19,6 +19,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:text="未知"/>
+        android:layout_marginLeft="10dp"
+        android:text="未知"
+        android:textSize="22dp"/>
 
 </LinearLayout>

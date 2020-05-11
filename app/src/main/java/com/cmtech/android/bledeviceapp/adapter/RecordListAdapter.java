@@ -1,7 +1,6 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -10,23 +9,17 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.cmtech.android.bledevice.record.BleEcgRecord10;
-import com.cmtech.android.bledevice.record.BleHrRecord10;
-import com.cmtech.android.bledevice.record.BleThermoRecord10;
-import com.cmtech.android.bledevice.record.BleTempHumidRecord10;
-import com.cmtech.android.bledevice.record.RecordType;
-import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledevice.record.IRecord;
+import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.vise.log.ViseLog;
 import com.vise.utils.view.BitmapUtil;
 
 import java.util.List;
@@ -120,6 +113,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             drawable = BitmapUtil.bitmapToDrawable(bitmap);
         }
         drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
+        ViseLog.e(""+drawable.getIntrinsicWidth()+drawable.getIntrinsicHeight());
         holder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
         holder.tvAddress.setText(record.getDevAddress());
@@ -149,5 +143,10 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     public IRecord getSelectedRecord() {
         if(selPos == -1) return null;
         return allRecords.get(selPos);
+    }
+
+    public void setSelectedPosition(int position) {
+        if(position < allRecords.size())
+            selPos = position;
     }
 }

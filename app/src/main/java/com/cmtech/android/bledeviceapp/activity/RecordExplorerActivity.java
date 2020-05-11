@@ -13,27 +13,24 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.record.IRecord;
-import com.cmtech.android.bledevice.record.RecordFactory;
-import com.cmtech.android.bledevice.record.RecordType;
-import com.cmtech.android.bledevice.record.BleEcgRecord10;
-import com.cmtech.android.bledevice.record.BleHrRecord10;
-import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
 import com.cmtech.android.bledevice.record.AbstractRecord;
+import com.cmtech.android.bledevice.record.BleEcgRecord10;
+import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
+import com.cmtech.android.bledevice.record.IRecord;
+import com.cmtech.android.bledevice.record.RecordFactory;
+import com.cmtech.android.bledevice.record.RecordType;
+import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
-import com.cmtech.android.bledevice.record.BleTempHumidRecord10;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.RecordListAdapter;
-import com.cmtech.android.bledeviceapp.adapter.RecordTypeAdapter;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
@@ -44,7 +41,9 @@ import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
@@ -90,14 +89,22 @@ public class RecordExplorerActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         recordSpinner = findViewById(R.id.spinner_record);
-        RecordTypeAdapter adapter = new RecordTypeAdapter(new RecordType[]{ECG, HR, THERMO, TH});
-        ArrayAdapter<CharSequence> recordAdapter = ArrayAdapter.createFromResource(this,
-                R.array.record_array, android.R.layout.simple_spinner_item);
-        recordSpinner.setAdapter(recordAdapter);
+        List<Map<String, Object>> listems = new ArrayList<Map<String, Object>>();
+        final RecordType[] types = new RecordType[]{ECG, HR, THERMO, TH};
+        for (RecordType type : types) {
+            Map<String, Object> listem = new HashMap<String, Object>();
+            listem.put("icon", type.getImgId());
+            listem.put("name", type.getName()+"记录");
+            listems.add(listem);
+        }
+        SimpleAdapter simpleadapter = new SimpleAdapter(this, listems,
+                R.layout.recycle_item_record_type, new String[] { "icon", "name" },
+                new int[] {R.id.iv_record_type_icon,R.id.tv_record_type_name});
+        recordSpinner.setAdapter(simpleadapter);
         recordSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                setRecordType(RecordType.getType(position+1));
+                setRecordType(types[position]);
             }
 
             @Override
@@ -198,6 +205,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
         updateTime = new Date().getTime();
         allRecords.clear();
         updateRecords(updateTime);
+        adapter.setSelectedPosition(-1);
         updateRecordView();
     }
 
@@ -229,6 +237,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     if(allRecords.remove(record)) {
+                        adapter.setSelectedPosition(-1);
                         updateRecordView();
                     }
 
