@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:cmtech="http://schemas.android.com/apk/res-auto"
-    xmlns:toolbar="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/tb_ecg_record"
+    <com.cmtech.android.bledevice.view.RecordIntroLayout
+        android:id="@+id/layout_record_intro"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        toolbar:title="心电记录"
-        toolbar:navigationIcon="@mipmap/ic_left_arrow_32px"
-        android:theme="@style/ThemeOverlay.AppCompat.Light"/>
-
-    <!--记录简介部分-->
-    <include layout="@layout/layout_record_item"/>
+        android:layout_height="wrap_content"/>
 
     <FrameLayout
         android:layout_width="match_parent"

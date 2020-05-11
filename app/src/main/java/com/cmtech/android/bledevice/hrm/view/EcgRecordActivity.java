@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
+import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -41,11 +42,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private BleEcgRecord10 record;
 
-    private TextView tvCreateTime; // 创建时间
-    private TextView tvCreator; // 创建人
-    private TextView tvAddress; // device address
-    private ImageView ivRecordType; // record type
-    private TextView tvTimeLength; // time length
+    private RecordIntroLayout introLayout;
 
     private RollEcgRecordWaveView signalView; // signalView
     private TextView tvTotalTime; // 总时长
@@ -60,10 +57,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_ecg);
-
-        // 创建ToolBar
-        Toolbar toolbar = findViewById(R.id.tb_ecg_record);
-        setSupportActionBar(toolbar);
 
         int recordId = getIntent().getIntExtra("record_id", -1);
 
@@ -102,31 +95,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private void initUI() {
         ViseLog.e(record.toJson().toString());
 
-        ivRecordType = findViewById(R.id.iv_record_type);
-        ivRecordType.setImageResource(R.mipmap.ic_ecg_24px);
-
-        tvCreateTime = findViewById(R.id.tv_create_time);
-        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
-        tvCreateTime.setText(createTime);
-
-        tvCreator = findViewById(R.id.tv_creator);
-        tvCreator.setText(record.getCreatorName());
-
-        Drawable drawable;
-        if(TextUtils.isEmpty(AccountManager.getAccount().getLocalIcon())) {
-            drawable = ContextCompat.getDrawable(this, SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
-        } else {
-            Bitmap bitmap = BitmapUtil.getSmallBitmap(AccountManager.getAccount().getLocalIcon(), 200, 200);
-            drawable = BitmapUtil.bitmapToDrawable(bitmap);
-        }
-        drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
-        tvCreator.setCompoundDrawables(null, drawable, null, null);
-
-        tvTimeLength = findViewById(R.id.tv_desc);
-        tvTimeLength.setText(record.getDesc());
-
-        tvAddress = findViewById(R.id.tv_device_address);
-        tvAddress.setText(record.getDevAddress());
+        introLayout = findViewById(R.id.layout_record_intro);
+        introLayout.redraw(record);
 
         signalView = findViewById(R.id.scan_ecg_view);
         signalView.setListener(this);
