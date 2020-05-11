@@ -109,11 +109,10 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         if(TextUtils.isEmpty(AccountManager.getAccount().getLocalIcon())) {
             drawable = ContextCompat.getDrawable(activity, SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
         } else {
-            Bitmap bitmap = BitmapUtil.getSmallBitmap(AccountManager.getAccount().getLocalIcon(), 200, 200);
+            Bitmap bitmap = BitmapUtil.getSmallBitmap(AccountManager.getAccount().getLocalIcon(), 80, 80);
             drawable = BitmapUtil.bitmapToDrawable(bitmap);
         }
-        drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
-        ViseLog.e(""+drawable.getIntrinsicWidth()+drawable.getIntrinsicHeight());
+        drawable.setBounds(0,0,80,80);
         holder.tvCreator.setCompoundDrawables(null, drawable, null, null);
 
         holder.tvAddress.setText(record.getDevAddress());
