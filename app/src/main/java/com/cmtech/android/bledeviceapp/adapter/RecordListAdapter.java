@@ -19,7 +19,6 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.vise.log.ViseLog;
 import com.vise.utils.view.BitmapUtil;
 
 import java.util.List;
@@ -47,7 +46,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     private Drawable defaultBg; // 缺省背景
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        View fileView;
+        View view;
 
         TextView tvCreateTime; // 创建时间
         TextView tvCreator; // 创建人
@@ -57,12 +56,12 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
         ViewHolder(View itemView) {
             super(itemView);
-            fileView = itemView;
-            tvCreateTime = fileView.findViewById(R.id.tv_create_time);
-            tvCreator = fileView.findViewById(R.id.tv_creator);
-            tvDesc = fileView.findViewById(R.id.tv_desc);
-            tvAddress = fileView.findViewById(R.id.tv_device_address);
-            ivType = fileView.findViewById(R.id.iv_record_type);
+            view = itemView;
+            tvCreateTime = view.findViewById(R.id.tv_create_time);
+            tvCreator = view.findViewById(R.id.tv_creator);
+            tvDesc = view.findViewById(R.id.tv_desc);
+            tvAddress = view.findViewById(R.id.tv_device_address);
+            ivType = view.findViewById(R.id.iv_record_type);
         }
     }
 
@@ -76,9 +75,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycle_item_record, parent, false);
         final ViewHolder holder = new ViewHolder(view);
-        defaultBg = holder.fileView.getBackground();
+        defaultBg = holder.view.getBackground();
 
-        holder.fileView.setOnClickListener(new View.OnClickListener() {
+        holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int prePos = selPos;
@@ -120,9 +119,9 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.tvDesc.setText(record.getDesc());
 
         if(position == selPos) {
-            holder.fileView.setBackgroundColor(SELECT_BG_COLOR);
+            holder.view.setBackgroundColor(SELECT_BG_COLOR);
         } else {
-            holder.fileView.setBackground(defaultBg);
+            holder.view.setBackground(defaultBg);
         }
     }
 
