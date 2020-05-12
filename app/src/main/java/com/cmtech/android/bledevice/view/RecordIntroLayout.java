@@ -1,23 +1,23 @@
 package com.cmtech.android.bledevice.view;
 
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.vise.utils.view.BitmapUtil;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
@@ -34,41 +34,50 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM
  * Version:        1.0
  */
 public class RecordIntroLayout extends RelativeLayout {
+    private ImageView ivExit;
+    private TextView tvCreatorName; // 创建人名
+    private ImageView ivCreatorImage;
     private TextView tvCreateTime; // 创建时间
-    private TextView tvCreator; // 创建人
     private TextView tvAddress; // device address
-    private ImageView ivRecordType; // record type
     private TextView tvDesc; // description
+    private ImageView ivUpload; // record upload
 
     public RecordIntroLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater.from(context).inflate(R.layout.layout_record_intro, this);
 
+        ivExit = findViewById(R.id.iv_exit);
+        tvCreatorName = findViewById(R.id.tv_creator_name);
+        ivCreatorImage = findViewById(R.id.iv_creator_image);
         tvCreateTime = findViewById(R.id.tv_create_time);
-        tvCreator = findViewById(R.id.tv_creator);
         tvAddress = findViewById(R.id.tv_device_address);
-        ivRecordType = findViewById(R.id.iv_record_type);
         tvDesc = findViewById(R.id.tv_desc);
+        ivUpload = findViewById(R.id.iv_record_upload);
     }
 
-    public void redraw(IRecord record) {
+    public void redraw(IRecord record, OnClickListener uploadListener) {
+        ivExit.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((Activity)getContext()).finish();
+            }
+        });
+
+        tvCreatorName.setText(record.getCreatorName());
+        Account account = AccountManager.getAccount();
+        if(TextUtils.isEmpty(account.getLocalIcon())) {
+            // load icon by platform name
+            ivCreatorImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
+        } else {
+            Glide.with(getContext()).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivCreatorImage);
+        }
+
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         tvCreateTime.setText(createTime);
 
-        tvCreator.setText(record.getCreatorName());
-        Drawable drawable;
-        if(TextUtils.isEmpty(AccountManager.getAccount().getLocalIcon())) {
-            drawable = ContextCompat.getDrawable(getContext(), SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
-        } else {
-            Bitmap bitmap = BitmapUtil.getSmallBitmap(AccountManager.getAccount().getLocalIcon(), 200, 200);
-            drawable = BitmapUtil.bitmapToDrawable(bitmap);
-        }
-        drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
-        tvCreator.setCompoundDrawables(null, drawable, null, null);
-
         tvAddress.setText(record.getDevAddress());
-        ivRecordType.setImageResource(R.mipmap.ic_ecg_24px);
         tvDesc.setText(record.getDesc());
+        ivUpload.setOnClickListener(uploadListener);
         invalidate();
     }
 }

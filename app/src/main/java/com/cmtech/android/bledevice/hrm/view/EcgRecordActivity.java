@@ -1,19 +1,11 @@
 package com.cmtech.android.bledevice.hrm.view;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,17 +17,14 @@ import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
-import com.vise.utils.view.BitmapUtil;
 
 import org.json.JSONObject;
 import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
-import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
     private static final int INVALID_ID = -1;
@@ -96,7 +85,12 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         ViseLog.e(record.toJson().toString());
 
         introLayout = findViewById(R.id.layout_record_intro);
-        introLayout.redraw(record);
+        introLayout.redraw(record, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                upload();
+            }
+        });
 
         signalView = findViewById(R.id.scan_ecg_view);
         signalView.setListener(this);
@@ -171,27 +165,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         });
 
         signalView.startShow();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_record, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                setResult(RESULT_CANCELED, null);
-                finish();
-                break;
-
-            case R.id.ecg_upload:
-                upload();
-                break;
-        }
-        return true;
     }
 
     @Override

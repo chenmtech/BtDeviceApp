@@ -1,26 +1,17 @@
 package com.cmtech.android.bledevice.thermo.view;
 
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.view.View;
 
-import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
+import com.cmtech.android.bledevice.view.MyLineChart;
+import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
-import com.vise.utils.view.BitmapUtil;
 
 import org.litepal.LitePal;
-
-import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -36,12 +27,10 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM
  */
 public class ThermoRecordActivity extends AppCompatActivity {
     private BleThermoRecord10 record;
-    private TextView tvCreateTime; // 创建时间
-    private TextView tvCreator; // 创建人
-    private TextView tvAddress;
-    private TextView tvRecordDesc; // time length
-    private ImageView ivRecordType; // record type
-    private MyLineChart lineChart; // 心率折线图
+
+    private RecordIntroLayout introLayout;
+
+    private MyLineChart lineChart; //
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,33 +44,20 @@ public class ThermoRecordActivity extends AppCompatActivity {
             setResult(RESULT_CANCELED);
             finish();
         }
+
+        initUI();
+    }
+
+    private void initUI() {
         ViseLog.e(record);
 
-        ivRecordType = findViewById(R.id.iv_record_type);
-        ivRecordType.setImageResource(R.mipmap.ic_thermo_24px);
-
-        tvCreateTime = findViewById(R.id.tv_create_time);
-        String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
-        tvCreateTime.setText(createTime);
-
-        tvCreator = findViewById(R.id.tv_creator);
-        tvCreator.setText(record.getCreatorName());
-
-        Drawable drawable;
-        if(TextUtils.isEmpty(AccountManager.getAccount().getLocalIcon())) {
-            drawable = ContextCompat.getDrawable(this, SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
-        } else {
-            Bitmap bitmap = BitmapUtil.getSmallBitmap(AccountManager.getAccount().getLocalIcon(), 200, 200);
-            drawable = BitmapUtil.bitmapToDrawable(bitmap);
-        }
-        drawable.setBounds(0,0,drawable.getIntrinsicWidth(),drawable.getIntrinsicHeight());
-        tvCreator.setCompoundDrawables(null, drawable, null, null);
-
-        tvRecordDesc = findViewById(R.id.tv_desc);
-        tvRecordDesc.setText(record.getDesc());
-
-        tvAddress = findViewById(R.id.tv_device_address);
-        tvAddress.setText(record.getDevAddress());
+        introLayout = findViewById(R.id.layout_record_intro);
+        introLayout.redraw(record, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //upload();
+            }
+        });
 
         lineChart = findViewById(R.id.hr_line_chart);
         lineChart.setXAxisValueFormatter(2);

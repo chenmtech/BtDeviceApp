@@ -5,26 +5,42 @@
     android:layout_height="wrap_content"
     android:layout_margin="10dp">
 
-    <TextView
-        android:id="@+id/tv_creator"
+    <ImageView
+        android:id="@+id/iv_exit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_alignParentStart="true"
-        android:gravity="center_horizontal"
-        android:layout_marginStart="10dp"
-        android:maxLength="10"
-        android:text="匿名"
-        android:textAppearance="@style/PersonTextAppearance"
-        android:textSize="14sp"
-        android:drawableTop="@mipmap/ic_unknown_user"/>
+        android:layout_marginEnd="5dp"
+        android:src="@mipmap/ic_left_arrow_32px"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/tv_creator"
+        android:layout_toEndOf="@id/iv_exit"
         android:layout_centerVertical="true"
-        android:layout_marginStart="10dp"
+        android:orientation="vertical">
+        <com.cmtech.android.bledevice.view.RoundImageView
+            android:id="@+id/iv_creator_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@mipmap/ic_unknown_user"/>
+
+        <TextView
+            android:id="@+id/tv_creator_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="匿名"
+            android:textColor="@color/secondary_text"
+            android:maxLength="12"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
         android:orientation="vertical">
         <TextView
             android:id="@+id/tv_create_time"
@@ -54,10 +70,10 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/iv_record_type"
+        android:id="@+id/iv_record_upload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/ic_unknown_device"
+        android:src="@mipmap/ic_upload_32px"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"/>
 </RelativeLayout>

@@ -3,8 +3,11 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <!--记录简介部分-->
-    <include layout="@layout/layout_record_item"/>
+
+    <com.cmtech.android.bledevice.view.RecordIntroLayout
+        android:id="@+id/layout_record_intro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <include layout="@layout/layout_line_chart"
         android:layout_width="match_parent"
