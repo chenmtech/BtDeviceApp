@@ -15,7 +15,6 @@ import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
@@ -148,13 +147,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
                         }
                     });
-                    new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
-                        @Override
-                        public void onFinish(Object[] objs) {
-
-                        }
-                    }).execute(record);
-
                     etNote.setEnabled(false);
                     btnSave.setText("编辑");
                 } else {
@@ -198,22 +190,22 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                         if(result) {
                             int id = (Integer) objs[2];
                             if(id == INVALID_ID) {
-                                new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                                new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(Object[] objs) {
-                                        MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                                        Toast.makeText(EcgRecordActivity.this, (String)objs[1], Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
                             } else {
-                                new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                                new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(Object[] objs) {
-                                        MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                                        Toast.makeText(EcgRecordActivity.this, (String)objs[1], Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
                             }
                         } else {
-                            MyApplication.showMessageUsingShortToast((String)objs[1]);
+                            Toast.makeText(EcgRecordActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

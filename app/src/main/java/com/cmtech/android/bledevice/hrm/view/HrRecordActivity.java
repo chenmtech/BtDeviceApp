@@ -12,7 +12,6 @@ import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.HrHistogramChart;
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
@@ -104,15 +103,17 @@ public class HrRecordActivity extends AppCompatActivity {
                         if(result) {
                             int id = (Integer) objs[2];
                             if(id == INVALID_ID) {
-                                new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                                new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(Object[] objs) {
-                                        MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                                        Toast.makeText(HrRecordActivity.this, (String)objs[1], Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
+                            } else {
+                                Toast.makeText(HrRecordActivity.this, "记录已存在", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            MyApplication.showMessageUsingShortToast((String)objs[1]);
+                            Toast.makeText(HrRecordActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
