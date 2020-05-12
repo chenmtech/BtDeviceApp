@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.unknown;
+package com.cmtech.android.bledevice.unknowndevice;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
