@@ -6,7 +6,7 @@ import android.graphics.BitmapFactory;
 import com.cmtech.android.bledevice.ecg.record.ecgcomment.EcgNormalComment;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.BmeFileUtil;
 import com.vise.log.ViseLog;
 import com.vise.utils.file.FileUtil;
@@ -64,7 +64,7 @@ public class EcgRecordExplorer {
         this.allRecordList = LitePal.findAll(EcgRecord.class, true);
         ViseLog.e(allRecordList);
         sortRecords(recordOrder);
-        List<Account> accounts = LitePal.findAll(Account.class);
+        List<User> accounts = LitePal.findAll(User.class);
         List<EcgNormalComment> normalComments = LitePal.findAll(EcgNormalComment.class);
         ViseLog.e(accounts);
         ViseLog.e(normalComments);

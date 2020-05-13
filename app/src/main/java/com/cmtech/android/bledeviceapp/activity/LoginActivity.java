@@ -13,9 +13,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.mob.MobSDK;
@@ -24,7 +22,6 @@ import com.vise.log.ViseLog;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.LitePal;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -111,39 +108,6 @@ public class LoginActivity extends AppCompatActivity {
         tvPrivacy.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        switch (requestCode) {
-            case 1: // 华为登录返回码
-                if (resultCode == RESULT_OK) {
-                    String platId = data.getStringExtra("platId");
-                    String userName = data.getStringExtra("userName");
-                    String icon = data.getStringExtra("icon");
-                    signUpKMServer(HW_PLAT_NAME, platId);
-                    loginMainActivity(HW_PLAT_NAME, platId, userName, icon);
-                }
-                break;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void loginMainActivity(String platName, String platId, String name, String icon) {
-        Account account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(Account.class);
-        if(account == null) {
-            account = new Account();
-            account.setPlatName(platName);
-            account.setPlatId(platId);
-        }
-        account.setName(name);
-        account.setIcon(icon);
-        account.save();
-        AccountManager.setAccount(account);
-
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
     private boolean checkPrivacyGrant() {
         boolean granted = cbGrant.isChecked();
         if(granted) {
@@ -154,6 +118,21 @@ public class LoginActivity extends AppCompatActivity {
         return granted;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+            case 1: // 华为登录返回码
+                if (resultCode == RESULT_OK) {
+                    String platId = data.getStringExtra("platId");
+                    String userName = data.getStringExtra("userName");
+                    String icon = data.getStringExtra("icon");
+                    login(HW_PLAT_NAME, platId, userName, icon);
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     private void loginUsingQQorWechat(Platform plat) {
         final String platName = plat.getName();
         ShareSDK.setActivity(LoginActivity.this);
@@ -161,7 +140,7 @@ public class LoginActivity extends AppCompatActivity {
             String platId = plat.getDb().getUserId();
             String username = plat.getDb().getUserName();
             String icon = plat.getDb().getUserIcon();
-            loginMainActivity(platName, platId, username, icon);
+            login(platName, platId, username, icon);
         } else {
             //授权回调监听，监听oncomplete，onerror，oncancel三种状态
             plat.setPlatformActionListener(new PlatformActionListener() {
@@ -170,13 +149,12 @@ public class LoginActivity extends AppCompatActivity {
                     String platId = platform.getDb().getUserId();
                     String userName = platform.getDb().getUserName();
                     String icon = platform.getDb().getUserIcon();
-                    signUpKMServer(platName, platId);
-                    loginMainActivity(platName, platId, userName, icon);
+                    login(platName, platId, userName, icon);
                 }
 
                 @Override
                 public void onError(Platform platform, int i, Throwable throwable) {
-                    MyApplication.showMessageUsingShortToast("登录错误");
+                    Toast.makeText(LoginActivity.this, "登录错误。", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -196,21 +174,15 @@ public class LoginActivity extends AppCompatActivity {
 
     private void loginUsingSMS(Context context) {
         RegisterPage page = new RegisterPage();
-        //如果使用我们的ui，没有申请模板编号的情况下需传null
         page.setTempCode(null);
         page.setRegisterCallback(new EventHandler() {
             public void afterEvent(int event, int result, Object data) {
                 if (result == SMSSDK.RESULT_COMPLETE) {
-                    // 处理成功的结果
                     HashMap<String,Object> phoneMap = (HashMap<String, Object>) data;
-                    // 国家代码，如“86”
                     String country = (String) phoneMap.get("country");
-                    // 手机号码，如“13800138000”
                     String phone = (String) phoneMap.get("phone");
                     String platId = country+phone;
-
-                    signUpKMServer(SMS_PLAT_NAME, platId);
-                    loginMainActivity(SMS_PLAT_NAME, platId, phone, "");
+                    login(SMS_PLAT_NAME, platId, phone, "");
                 } else{
                     // TODO 处理错误的结果
                 }
@@ -219,14 +191,23 @@ public class LoginActivity extends AppCompatActivity {
         page.show(context);
     }
 
-    private void signUpKMServer(String platName, String platId) {
+    private void login(String platName, String platId, String name, String icon) {
+        loginKMServer(platName, platId);
+        AccountManager.login(platName, platId, name, icon);
+
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void loginKMServer(String platName, String platId) {
         KMWebService.signUporLogin(platName, platId, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        MyApplication.showMessageUsingShortToast("您的网络有问题");
+                        Toast.makeText(LoginActivity.this, "网络错误。", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -239,12 +220,6 @@ public class LoginActivity extends AppCompatActivity {
                     JSONObject json = new JSONObject(respBody);
                     int code = json.getInt("code");
                     final String errStr = json.getString("errStr");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            MyApplication.showMessageUsingShortToast(errStr);
-                        }
-                    });
                     ViseLog.e(code+errStr);
                 } catch (JSONException e) {
                     e.printStackTrace();

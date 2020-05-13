@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -49,7 +48,6 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.adapter.CtrlPanelAdapter;
-import com.cmtech.android.bledeviceapp.model.Account;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
 import com.cmtech.android.bledeviceapp.model.DeviceManager;
@@ -58,17 +56,12 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
 import com.cmtech.android.bledeviceapp.model.MainToolbarManager;
 import com.cmtech.android.bledeviceapp.model.NotifyService;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
-import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
-import com.vise.utils.file.FileUtil;
-import com.vise.utils.view.BitmapUtil;
 
-import org.jetbrains.annotations.NotNull;
 import org.litepal.LitePal;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,13 +70,9 @@ import cn.sharesdk.framework.Platform;
 import cn.sharesdk.framework.ShareSDK;
 import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 import static com.cmtech.android.ble.core.DeviceState.CLOSED;
 import static com.cmtech.android.ble.core.IDevice.INVALID_BATTERY;
-import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 import static com.cmtech.android.bledeviceapp.AppConstant.KM_STORE_URI;
 import static com.cmtech.android.bledeviceapp.AppConstant.QQ_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
@@ -115,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private FloatingActionButton fabConnect; // 切换连接状态的FAB
     private TextView tvAccountName; // 账户名称控件
     private ImageView ivAccountImage; // 头像头像控件
-    private ImageButton ibLogout;
+    private ImageButton ibChangeAccount;
     private boolean stopNotiService = false; // 是否停止通知服务
 
     private final ServiceConnection serviceConnection = new ServiceConnection() {
@@ -151,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         setContentView(R.layout.activity_main);
 
         // 确定账户已经登录
-        if(!AccountManager.isSignIn()) {
+        if(!AccountManager.isLogin()) {
             Toast.makeText(this, "account sign in fail.", Toast.LENGTH_SHORT).show();
             finish();
         }
@@ -237,8 +226,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         View headerView = navView.getHeaderView(0);
         tvAccountName = headerView.findViewById(R.id.tv_account_name);
         ivAccountImage = headerView.findViewById(R.id.iv_account_image);
-        ibLogout = headerView.findViewById(R.id.ib_logout);
-        ibLogout.setOnClickListener(new View.OnClickListener() {
+        ibChangeAccount = headerView.findViewById(R.id.ib_change_account);
+        ibChangeAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -246,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                         .setMessage("退出账户，重新登录。")
                         .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                logoutAccount();
+                                changeAccount();
                             }
                         })
                         .setNegativeButton("取消", new DialogInterface.OnClickListener() {
@@ -354,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 } else {
                     boolean logout = (data != null && data.getBooleanExtra("logout", false));
                     if(logout) { // 退出登录
-                        logoutAccount();
+                        changeAccount();
                     }
                 }
                 break;
@@ -628,14 +617,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
     }
 
-    // logout
-    private void logoutAccount() {
+    // change account
+    private void changeAccount() {
         if(DeviceManager.hasOpenedDevice()) {
             Toast.makeText(this, "请先关闭设备。", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Account account = AccountManager.getAccount();
+        User account = AccountManager.getAccount();
         if(account != null) {
             if(account.getPlatName().equals(QQ_PLAT_NAME)) {
                 Platform plat = ShareSDK.getPlatform(QQ.NAME);
@@ -644,8 +633,10 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 Platform plat = ShareSDK.getPlatform(Wechat.NAME);
                 plat.removeAccount(true);
             }
+
+            AccountManager.clearAccountLocalIcon();
+            AccountManager.logout();
         }
-        AccountManager.signOut();
 
         Intent intent = new Intent(MainActivity.this, SplashActivity.class);
         startActivity(intent);
@@ -653,7 +644,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     }
 
     private void updateNavigationHeader() {
-        Account account = AccountManager.getAccount();
+        User account = AccountManager.getAccount();
         if(account == null) {
             throw new IllegalStateException();
         }
@@ -663,47 +654,23 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         }
 
         if(TextUtils.isEmpty(account.getLocalIcon())) {
-            // load icon by platform name
             ivAccountImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
             if(!TextUtils.isEmpty(account.getIcon())) {
-                downloadIcon(account.getIcon());
+                account.downloadIcon(new User.IDownloadLocalIcon() {
+                    @Override
+                    public void onSuccess(final String localIcon) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Glide.with(MainActivity.this).load(localIcon).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+                            }
+                        });
+                    }
+                });
             }
         } else {
             Glide.with(this).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
         }
-    }
-
-    private void downloadIcon(String icon) {
-        HttpUtils.requestGet(icon, new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    if (response.body() != null) {
-                        byte[] bytes = response.body().bytes();
-                        final Bitmap bitmap = BitmapUtil.byteToBitmap(bytes);
-                        final Account account = AccountManager.getAccount();
-                        String localIcon = account.getId()+".jpg";
-                        File toFile = FileUtil.getFile(DIR_IMAGE, localIcon);
-                        BitmapUtil.saveBitmap(bitmap, toFile);
-                        String filePath = toFile.getCanonicalPath();
-                        account.setLocalIcon(filePath);
-                        account.save();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Glide.with(MainActivity.this).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
-                            }
-                        });
-                    }
-                }
-            }
-        });
-
     }
 
     // 更新MainLayout的可视性

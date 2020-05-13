@@ -15,7 +15,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 
@@ -64,7 +64,7 @@ public class RecordIntroLayout extends RelativeLayout {
         });
 
         tvCreatorName.setText(record.getCreatorName());
-        Account account = AccountManager.getAccount();
+        User account = AccountManager.getAccount();
         if(TextUtils.isEmpty(account.getLocalIcon())) {
             // load icon by platform name
             ivCreatorImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));

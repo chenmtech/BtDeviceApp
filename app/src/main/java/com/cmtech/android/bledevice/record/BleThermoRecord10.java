@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 
 import org.json.JSONObject;
 import org.litepal.LitePal;
@@ -26,13 +26,13 @@ public class BleThermoRecord10 extends AbstractRecord {
     private float highestTemp;
     private List<Float> temp;
 
-    BleThermoRecord10(long createTime, String devAddress, Account creator) {
+    BleThermoRecord10(long createTime, String devAddress, User creator) {
         super(THERMO, "1.0", createTime, devAddress, creator);
         highestTemp = 0.0f;
         temp = new ArrayList<>();
     }
 
-    static List<BleThermoRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
+    static List<BleThermoRecord10> createFromLocalDb(User creator, long fromTime, int num) {
         return LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleThermoRecord10.class);

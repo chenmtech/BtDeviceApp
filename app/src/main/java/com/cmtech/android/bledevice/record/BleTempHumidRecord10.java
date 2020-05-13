@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 
 import org.json.JSONObject;
 import org.litepal.LitePal;
@@ -27,7 +27,7 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     private float heatIndex;
     private String location;
 
-    BleTempHumidRecord10(long createTime, String devAddress, Account creator) {
+    BleTempHumidRecord10(long createTime, String devAddress, User creator) {
         super(TH, "1.0", createTime, devAddress, creator);
         temperature = 0.0f;
         humid = 0.0f;
@@ -35,7 +35,7 @@ public class BleTempHumidRecord10 extends AbstractRecord {
         location = "室内";
     }
 
-    static List<BleTempHumidRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
+    static List<BleTempHumidRecord10> createFromLocalDb(User creator, long fromTime, int num) {
         return LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleTempHumidRecord10.class);

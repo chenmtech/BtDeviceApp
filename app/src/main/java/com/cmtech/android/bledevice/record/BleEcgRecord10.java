@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 
 import org.json.JSONException;
@@ -37,7 +37,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     @Column(ignore = true)
     private int pos = 0;
 
-    BleEcgRecord10(long createTime, String devAddress, Account creator) {
+    BleEcgRecord10(long createTime, String devAddress, User creator) {
         super(ECG, "1.0", createTime, devAddress, creator);
         sampleRate = 0;
         caliValue = 0;
@@ -55,7 +55,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         try {
             String devAddress = json.getString("devAddress");
             long createTime = json.getLong("createTime");
-            Account account = AccountManager.getAccount();
+            User account = AccountManager.getAccount();
             int recordSecond = json.getInt("recordSecond");
 
             BleEcgRecord10 newRecord = new BleEcgRecord10(createTime, devAddress, account);
@@ -67,7 +67,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         return null;
     }
 
-    static List<BleEcgRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
+    static List<BleEcgRecord10> createFromLocalDb(User creator, long fromTime, int num) {
         return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleEcgRecord10.class);

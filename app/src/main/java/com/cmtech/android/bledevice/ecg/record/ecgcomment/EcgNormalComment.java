@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.ecg.record.ecgcomment;
 
 import com.cmtech.android.bledevice.ecg.enumeration.EcgCommentType;
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.DataIOUtil;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
@@ -25,15 +25,15 @@ public class EcgNormalComment extends EcgComment {
     private static final int CONTENT_CHAR_NUM = 500; // 内容字符数
 
     private int id;
-    private Account creator; // 创建人
+    private User creator; // 创建人
     private long modifyTime = -1; // 修改时间
     private String content = ""; // 内容
 
     private EcgNormalComment() {
     }
 
-    private EcgNormalComment(Account creator, long modifyTime) {
-        this.creator = (Account) creator.clone();
+    private EcgNormalComment(User creator, long modifyTime) {
+        this.creator = new User(creator);
         this.modifyTime = modifyTime;
     }
 
@@ -42,18 +42,18 @@ public class EcgNormalComment extends EcgComment {
      * @return 默认留言对象
      */
     public static EcgNormalComment create() {
-        Account creator = AccountManager.getAccount();
+        User creator = AccountManager.getAccount();
         long modifyTime = new Date().getTime();
         return new EcgNormalComment(creator, modifyTime);
     }
 
-    public Account getCreator() {
+    public User getCreator() {
         if(creator == null) {
-            List<Account> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(Account.class);
+            List<User> creators = LitePal.where("ecgnormalcomment_id = ?", String.valueOf(id)).find(User.class);
             if (!creators.isEmpty())
                 creator = creators.get(0);
             else
-                creator = new Account();
+                creator = null; //new User();
         }
         return creator;
     }
@@ -82,7 +82,7 @@ public class EcgNormalComment extends EcgComment {
      */
     @Override
     public void readFromStream(DataInput in) throws IOException{
-        getCreator().readFromStream(in); // 读创建人
+        //getCreator().readFromStream(in); // 读创建人
         modifyTime = in.readLong(); // 读修改时间
         content = DataIOUtil.readFixedString(in, CONTENT_CHAR_NUM); // 读留言内容
     }
@@ -93,7 +93,7 @@ public class EcgNormalComment extends EcgComment {
      */
     @Override
     public void writeToStream(DataOutput out) throws IOException{
-        getCreator().writeToStream(out); // 写创建人
+        //getCreator().writeToStream(out); // 写创建人
         out.writeLong(modifyTime); // 写修改时间
         DataIOUtil.writeFixedString(out, content, CONTENT_CHAR_NUM); // 写留言内容
     }
@@ -104,7 +104,7 @@ public class EcgNormalComment extends EcgComment {
      */
     @Override
     public int length() {
-        return  super.length() + getCreator().length() + MODIFY_TIME_BYTE_NUM + 2* CONTENT_CHAR_NUM;
+        return  super.length() + /*getCreator().length() +*/ MODIFY_TIME_BYTE_NUM + 2* CONTENT_CHAR_NUM;
     }
 
     @Override

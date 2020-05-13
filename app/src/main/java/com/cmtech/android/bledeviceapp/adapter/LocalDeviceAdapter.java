@@ -96,7 +96,7 @@ public class LocalDeviceAdapter extends RecyclerView.Adapter<LocalDeviceAdapter.
                         MenuItem config = menu.add(Menu.NONE, 1, 0, "修改");
                         MenuItem delete = menu.add(Menu.NONE, 2, 0, "删除");
                         config.setOnMenuItemClickListener(listener);            //响应点击事件
-                        delete.setOnMenuItemClickListener(listener);
+                        delete.setOnMenuItemClickListener(listener);            //响应点击事件
                     }
                 });
                 return false;

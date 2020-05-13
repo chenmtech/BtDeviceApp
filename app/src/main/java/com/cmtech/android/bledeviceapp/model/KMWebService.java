@@ -19,7 +19,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.KMURL;
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledeviceapp.model
  * ClassName:      KMWebService
- * Description:    java类作用描述
+ * Description:    康明网络服务
  * Author:         作者名
  * CreateDate:     2020/4/14 上午10:51
  * UpdateUser:     更新者

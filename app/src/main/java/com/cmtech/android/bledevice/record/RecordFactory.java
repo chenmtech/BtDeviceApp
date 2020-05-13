@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.vise.log.ViseLog;
 
 import org.json.JSONObject;
@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,11 +42,11 @@ public class RecordFactory {
         }
     }
 
-    public static IRecord create(RecordType type, long createTime, String devAddress, Account creator) {
+    public static IRecord create(RecordType type, long createTime, String devAddress, User creator) {
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                Constructor constructor = recordClass.getDeclaredConstructor(long.class, String.class, Account.class);
+                Constructor constructor = recordClass.getDeclaredConstructor(long.class, String.class, User.class);
                 constructor.setAccessible(true);
                 return (IRecord) constructor.newInstance(createTime, devAddress, creator);
             } catch (InstantiationException e) {
@@ -63,7 +62,7 @@ public class RecordFactory {
         return null;
     }
 
-    public static IRecord create(int typeCode, long createTime, String devAddress, Account creator) {
+    public static IRecord create(int typeCode, long createTime, String devAddress, User creator) {
         return create(RecordType.getType(typeCode), createTime, devAddress, creator);
     }
 
@@ -89,7 +88,7 @@ public class RecordFactory {
         return createFromJson(RecordType.getType(typeCode), json);
     }
 
-    public static List<IRecord> createFromLocalDb(RecordType type, Account creator, long fromTime, int num) {
+    public static List<IRecord> createFromLocalDb(RecordType type, User creator, long fromTime, int num) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
@@ -97,7 +96,7 @@ public class RecordFactory {
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                Method method = recordClass.getDeclaredMethod("createFromLocalDb", Account.class, long.class, int.class);
+                Method method = recordClass.getDeclaredMethod("createFromLocalDb", User.class, long.class, int.class);
                 method.setAccessible(true);
                 return (List<IRecord>) method.invoke(null, creator, fromTime, num);
             } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
@@ -108,7 +107,7 @@ public class RecordFactory {
         return null;
     }
 
-    public static List<IRecord> createFromLocalDb(int typeCode, Account creator, long fromTime, int num) {
+    public static List<IRecord> createFromLocalDb(int typeCode, User creator, long fromTime, int num) {
         return createFromLocalDb(RecordType.getType(typeCode), creator, fromTime, num);
     }
 }

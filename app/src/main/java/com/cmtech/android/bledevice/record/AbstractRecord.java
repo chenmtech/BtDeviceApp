@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +39,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         this.type = type;
     }
 
-    AbstractRecord(RecordType type, String ver, long createTime, String devAddress, Account creator) {
+    AbstractRecord(RecordType type, String ver, long createTime, String devAddress, User creator) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
@@ -96,14 +96,14 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         return creatorId;
     }
 
-    public void setCreator(Account creator) {
+    public void setCreator(User creator) {
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();
     }
 
     @Override
     public String getCreatorName() {
-        Account account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(Account.class);
+        User account = LitePal.where("platName = ? and platId = ?", creatorPlat, creatorId).findFirst(User.class);
         if(account == null)
             return creatorId;
         else {

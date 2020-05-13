@@ -118,7 +118,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
         DeviceManager.clear();
 
         stopForeground(true);
-        AccountManager.signOut();
+        AccountManager.logout();
 
         try {
             Thread.sleep(500);

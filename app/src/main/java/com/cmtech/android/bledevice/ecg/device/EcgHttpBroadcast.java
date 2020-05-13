@@ -3,7 +3,7 @@ package com.cmtech.android.bledevice.ecg.device;
 
 import android.util.Log;
 
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
 
@@ -61,7 +61,7 @@ public class EcgHttpBroadcast {
     private final List<Receiver> receivers; // 接收者列表
     private OnEcgHttpBroadcastListener listener; // 广播监听器
 
-    public static class Receiver extends Account {
+    public static class Receiver extends User {
         private boolean isReceiving;
 
         Receiver() {
@@ -354,7 +354,7 @@ public class EcgHttpBroadcast {
                 String name = jsonObject.getString("name");
                 String displayName = jsonObject.getString("displayName");
                 String description = jsonObject.getString("description");
-                receiver.setPlatId(huaweiId);
+                //receiver.setPlatId(huaweiId);
                 if(name.equals("null")) receiver.setName(displayName); else receiver.setName(name);
                 if(description.equals("null")) receiver.setNote(""); else receiver.setNote(description);
                 receivers.add(receiver);

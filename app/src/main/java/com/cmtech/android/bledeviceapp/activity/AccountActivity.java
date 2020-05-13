@@ -28,7 +28,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.UserUtil;
 import com.vise.utils.file.FileUtil;
@@ -50,7 +50,7 @@ public class AccountActivity extends AppCompatActivity {
     private EditText etDescription;
     private String cacheImagePath = ""; // 头像文件路径缓存
 
-    private final Account account = AccountManager.getAccount();
+    private final User account = AccountManager.getAccount();
 
     private class GetAccountFromWebTask extends AsyncTask<Void, Void, Boolean> {
         private ProgressDialog dialog;
@@ -169,7 +169,7 @@ public class AccountActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account);
 
-        if(!AccountManager.isSignIn()) finish();
+        if(!AccountManager.isLogin()) finish();
 
         // 创建ToolBar
         Toolbar toolbar = findViewById(R.id.tb_set_account_info);
@@ -210,7 +210,7 @@ public class AccountActivity extends AppCompatActivity {
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Account account = AccountManager.getAccount();
+                User account = AccountManager.getAccount();
                 account.setName(etName.getText().toString());
 
                 if(!cacheImagePath.equals(account.getIcon())) {

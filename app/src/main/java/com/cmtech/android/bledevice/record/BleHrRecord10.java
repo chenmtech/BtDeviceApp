@@ -1,6 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.Account;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
@@ -50,7 +50,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     @Column(ignore = true)
     private transient long preTime = 0;
 
-    BleHrRecord10(long createTime, String devAddress, Account creator) {
+    BleHrRecord10(long createTime, String devAddress, User creator) {
         super(HR, "1.0", createTime, devAddress, creator);
         filterHrList = new ArrayList<>();
         hrMax = INVALID_HEART_RATE;
@@ -74,7 +74,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         try {
             String devAddress = json.getString("devAddress");
             long createTime = json.getLong("createTime");
-            Account account = AccountManager.getAccount();
+            User account = AccountManager.getAccount();
             int recordSecond = json.getInt("recordSecond");
 
             BleHrRecord10 newRecord = new BleHrRecord10(createTime, devAddress, account);
@@ -86,7 +86,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
         return null;
     }
 
-    static List<BleHrRecord10> createFromLocalDb(Account creator, long fromTime, int num) {
+    static List<BleHrRecord10> createFromLocalDb(User creator, long fromTime, int num) {
         return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleHrRecord10.class);

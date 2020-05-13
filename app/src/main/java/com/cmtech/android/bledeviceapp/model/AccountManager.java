@@ -1,10 +1,7 @@
 package com.cmtech.android.bledeviceapp.model;
 
 
-import com.vise.log.ViseLog;
-
 import org.litepal.LitePal;
-
 
 /**
   *
@@ -19,27 +16,43 @@ import org.litepal.LitePal;
  */
 
 public class AccountManager {
-    private static Account account; // account
+    private static User account; // account
 
     private AccountManager() {
     }
 
-    public static Account getAccount() {
+    public static User getAccount() {
         return account;
     }
-    public static void setAccount(Account account) {
+
+    // login account
+    public static void login(String platName, String platId, String name, String icon) {
+        User account = LitePal.where("platName = ? and platId = ?", platName, platId).findFirst(User.class);
+        if(account == null) {
+            account = new User(platName, platId, name, icon);
+        } else {
+            account.setName(name);
+            account.setIcon(icon);
+        }
+        account.save();
         AccountManager.account = account;
     }
-    public static boolean isSignIn() {
-        return account != null;
-    }
-    public static void signOut() {
+
+    // logout account
+    public static void logout() {
         account = null;
     }
-    public static String getAccountPlat() {
-        return account.getPlatName();
+
+    // is a valid account login
+    public static boolean isLogin() {
+        return account != null;
     }
-    public static String getAccountPlatId() {
-        return account.getPlatId();
+
+    // clear account's local icon
+    public static void clearAccountLocalIcon() {
+        if(account != null) {
+            account.setLocalIcon("");
+            account.save();
+        }
     }
 }
