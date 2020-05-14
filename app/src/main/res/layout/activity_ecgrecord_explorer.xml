@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="@string/no_record_currently"
+            android:text="@string/no_record"
             android:textSize="18sp"
             android:visibility="visible" />
     </FrameLayout>

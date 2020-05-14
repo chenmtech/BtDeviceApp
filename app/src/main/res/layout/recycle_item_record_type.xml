@@ -3,24 +3,23 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="5dp"
+    android:layout_margin="10dp"
     android:baselineAligned="false">
 
     <com.cmtech.android.bledevice.view.RoundImageView
-        android:id="@+id/iv_record_type_icon"
+        android:id="@+id/iv_icon"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:src="@mipmap/ic_unknown_device"
-        android:contentDescription="登记的设备图片"/>
+        android:src="@mipmap/ic_unknown_device"/>
 
     <TextView
-        android:id="@+id/tv_record_type_name"
+        android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="10dp"
-        android:text="未知"
-        android:textSize="22dp"/>
+        android:layout_marginStart="10dp"
+        android:text="@string/unknown"
+        android:textSize="22sp"/>
 
 </LinearLayout>

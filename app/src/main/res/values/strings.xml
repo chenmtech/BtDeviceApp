@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">康明智联</string>
+    <string name="unknown">未知</string>
+    <string name="no_more">没有更多了</string>
+    <string name="anonymous">匿名</string>
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>
     <string name="some_devices_opened">有%d设备打开</string>
@@ -12,7 +15,7 @@
     <string name="delete">删除</string>
     <string name="share">分享</string>
     <string name="record_ecg_signal_failed">无法记录心电信号</string>
-    <string name="no_record_currently">当前无记录</string>
+    <string name="no_record">无记录</string>
     <string name="hr_limit_wrong">心率上限必须大于下限。</string>
     <string name="title_activity_hrmcfg">配置心率计</string>
     <string name="scan_failed_already_started">扫描已开始</string>

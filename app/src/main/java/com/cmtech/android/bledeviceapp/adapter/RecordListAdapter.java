@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.adapter;
 
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
@@ -12,14 +11,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
-import com.vise.utils.view.BitmapUtil;
 
 import java.util.List;
 
@@ -40,27 +41,30 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM
 
 public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.ViewHolder>{
     private static final int SELECT_BG_COLOR = ContextCompat.getColor(MyApplication.getContext(), R.color.secondary);
+    private static final int INVALID_POS = -1;
     private final RecordExplorerActivity activity;
     private final List<IRecord> allRecords;
-    private int selPos = -1;
-    private Drawable defaultBg; // 缺省背景
+    private int selPos = INVALID_POS;
+    private Drawable defaultBg; // default background
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         View view;
 
-        TextView tvCreateTime; // 创建时间
-        TextView tvCreator; // 创建人
-        TextView tvDesc; // record description
+        TextView tvCreatorName; //
+        ImageView ivCreatorImage;
+        TextView tvCreateTime; //
         TextView tvAddress;
+        TextView tvDesc; // record description
         ImageView ivType;
 
         ViewHolder(View itemView) {
             super(itemView);
             view = itemView;
+            tvCreatorName = view.findViewById(R.id.tv_creator_name);
+            ivCreatorImage = view.findViewById(R.id.iv_creator_image);
             tvCreateTime = view.findViewById(R.id.tv_create_time);
-            tvCreator = view.findViewById(R.id.tv_creator);
-            tvDesc = view.findViewById(R.id.tv_desc);
             tvAddress = view.findViewById(R.id.tv_device_address);
+            tvDesc = view.findViewById(R.id.tv_desc);
             ivType = view.findViewById(R.id.iv_record_type);
         }
     }
@@ -86,7 +90,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
                     notifyItemChanged(prePos);
                 }
                 notifyItemChanged(selPos);
-                activity.selectRecord(allRecords.get(selPos));
+                activity.openRecord(allRecords.get(selPos));
             }
         });
         return holder;
@@ -97,26 +101,23 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         IRecord record = allRecords.get(position);
         if(record == null) return;
 
-        holder.ivType.setImageResource(RecordType.getType(record.getTypeCode()).getImgId());
+        holder.tvCreatorName.setText(record.getCreatorName());
+        User account = AccountManager.getAccount();
+        if(TextUtils.isEmpty(account.getLocalIcon())) {
+            // load icon by platform name
+            holder.ivCreatorImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
+        } else {
+            Glide.with(activity).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(holder.ivCreatorImage);
+        }
 
         String createTime = DateTimeUtil.timeToShortStringWithTodayYesterday(record.getCreateTime());
         holder.tvCreateTime.setText(createTime);
 
-        holder.tvCreator.setText(record.getCreatorName());
-
-        Drawable drawable;
-        if(TextUtils.isEmpty(AccountManager.getAccount().getLocalIcon())) {
-            drawable = ContextCompat.getDrawable(activity, SUPPORT_LOGIN_PLATFORM.get(record.getCreatorPlat()));
-        } else {
-            Bitmap bitmap = BitmapUtil.getSmallBitmap(AccountManager.getAccount().getLocalIcon(), 80, 80);
-            drawable = BitmapUtil.bitmapToDrawable(bitmap);
-        }
-        drawable.setBounds(0,0,80,80);
-        holder.tvCreator.setCompoundDrawables(null, drawable, null, null);
-
         holder.tvAddress.setText(record.getDevAddress());
 
         holder.tvDesc.setText(record.getDesc());
+
+        holder.ivType.setImageResource(RecordType.getType(record.getTypeCode()).getImgId());
 
         if(position == selPos) {
             holder.view.setBackgroundColor(SELECT_BG_COLOR);
@@ -134,17 +135,12 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         notifyDataSetChanged();
     }
 
-    public void clear() {
-        allRecords.clear();
-    }
-
     public IRecord getSelectedRecord() {
-        if(selPos == -1) return null;
+        if(selPos == INVALID_POS) return null;
         return allRecords.get(selPos);
     }
 
-    public void setSelectedPosition(int position) {
-        if(position < allRecords.size())
-            selPos = position;
+    public void unselected() {
+        selPos = INVALID_POS;
     }
 }

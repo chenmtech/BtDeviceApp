@@ -35,7 +35,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
     public static final int RECORD_UPDATE_NOTE_CMD = 2;
     public static final int RECORD_QUERY_CMD = 3;
     public static final int RECORD_DELETE_CMD = 4;
-    public static final int RECORD_DOWNLOAD_INFO_CMD = 5;
+    public static final int RECORD_INFO_DOWNLOAD_CMD = 5;
     public static final int RECORD_DOWNLOAD_CMD = 6;
 
     public static final int DOWNLOAD_NUM_PER_TIME = 10;
@@ -218,7 +218,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                 break;
 
             // DOWNLOAD INFO
-            case RECORD_DOWNLOAD_INFO_CMD:
+            case RECORD_INFO_DOWNLOAD_CMD:
                 KMWebService.downloadRecordInfo(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, DOWNLOAD_NUM_PER_TIME, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {

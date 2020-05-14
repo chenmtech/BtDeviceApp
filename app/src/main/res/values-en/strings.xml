@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">KM IOT</string>
+    <string name="unknown">unknown</string>
+    <string name="no_more">no more</string>
+    <string name="anonymous">anonymous</string>
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">No Device Opened</string>
     <string name="some_devices_opened">有%d设备打开</string>
@@ -11,7 +14,7 @@
     <string name="delete">delete</string>
     <string name="share">share</string>
     <string name="record_ecg_signal_failed">The ECG signal can\'t be recorded.</string>
-    <string name="no_record_currently">No Record Currently</string>
+    <string name="no_record">No Record Currently</string>
     <string name="hr_limit_wrong">The up limit of HR must be larger than its low limit.</string>
     <string name="title_activity_hrmcfg">Configuration of HR Monitor</string>
     <string name="scan_failed_already_started">scan already started</string>
