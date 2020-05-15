@@ -17,6 +17,8 @@
     <string name="hr_too_high">心率过高</string>
     <string name="hr_too_low">心率过低</string>
     <string name="BPM">次/分钟</string>
+    <string name="hr_record">心率记录</string>
+    <string name="ecg_record">心电记录</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>

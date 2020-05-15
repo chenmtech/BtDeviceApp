@@ -25,7 +25,7 @@ import com.cmtech.android.bledeviceapp.R;
  * Version:        1.0
  */
 public class EcgRecordFragment extends Fragment {
-    public static final String TITLE = "心电记录";
+    public static final int TITLE_ID = R.string.ecg_record;
 
     ImageButton ibRecord;
     TextView tvTimeLength;

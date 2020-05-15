@@ -472,6 +472,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                 if(deviceFrag != null) deviceFrag.updateState();
                 if(fragTabManager.isFragmentSelected(device)) {
                     updateConnectFAButton(device.getState().getIcon());
+                    Toast.makeText(MainActivity.this, device.getState().getDescription(), Toast.LENGTH_SHORT).show();
                     updateCloseMenuItem(true);
                 }
             }

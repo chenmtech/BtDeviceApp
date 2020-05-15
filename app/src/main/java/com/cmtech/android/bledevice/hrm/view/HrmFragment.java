@@ -109,7 +109,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         pager = view.findViewById(R.id.hrm_control_panel_viewpager);
         TabLayout layout = view.findViewById(R.id.hrm_control_panel_tab);
         List<Fragment> fragmentList = new ArrayList<Fragment>(Arrays.asList(hrRecFrag));
-        List<String> titleList = new ArrayList<>(Arrays.asList(HrRecordFragment.TITLE));
+        String title = getResources().getString(HrRecordFragment.TITLE_ID);
+        List<String> titleList = new ArrayList<>(Arrays.asList(title));
         fragAdapter = new CtrlPanelAdapter(getChildFragmentManager(), fragmentList, titleList);
         pager.setAdapter(fragAdapter);
         pager.setOffscreenPageLimit(3);
@@ -226,7 +227,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                         pager.setCurrentItem(fragAdapter.getCount()-1);
                     } else {
                         tvEcgSwitch.setVisibility(View.VISIBLE);
-                        fragAdapter.addFragment(ecgRecFrag, EcgRecordFragment.TITLE);
+                        fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
                     }
                 }
             });

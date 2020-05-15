@@ -38,12 +38,6 @@ public class CtrlPanelAdapter extends FragmentPagerAdapter {
         return titleList.size();
     }
 
-    /**
-     * //此方法用来显示tab上的名字
-     *
-     * @param position
-     * @return
-     */
     @Override
     public CharSequence getPageTitle(int position) {
         return titleList.get(position);

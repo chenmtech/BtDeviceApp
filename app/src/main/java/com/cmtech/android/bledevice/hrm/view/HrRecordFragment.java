@@ -33,7 +33,7 @@ import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RAT
  * Version:        1.0
  */
 public class HrRecordFragment extends Fragment {
-    public static final String TITLE = "心率记录";
+    public static final int TITLE_ID = R.string.hr_record;
     private TextView tvHrAve; // average heart rate value
     private TextView tvHrMax; // max heart rate value
     private MyLineChart lineChart; // heart rate line chart
@@ -81,7 +81,7 @@ public class HrRecordFragment extends Fragment {
             tvHrAve.setText("__");
         else
             tvHrAve.setText(String.valueOf(hrAve));
-        lineChart.showShortLineChart(hrList, TITLE, Color.BLUE);
+        lineChart.showShortLineChart(hrList, getResources().getString(TITLE_ID), Color.BLUE);
     }
 
     public void updateHrRecordStatus(boolean isRecord) {
@@ -93,5 +93,7 @@ public class HrRecordFragment extends Fragment {
             ibStop.setVisibility(View.INVISIBLE);
         }
     }
+
+
 
 }

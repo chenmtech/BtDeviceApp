@@ -17,6 +17,8 @@
     <string name="hr_too_high">Your heart rate is too high</string>
     <string name="hr_too_low">Your heart rate is too low</string>
     <string name="BPM">BPM</string>
+    <string name="hr_record">HR Record</string>
+    <string name="ecg_record">ECG Record</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">No Device Opened</string>
