@@ -8,6 +8,7 @@
     <string name="invalid_image_dir">无效图像路径</string>
     <string name="invalid_device_type">无效设备类型</string>
     <string name="cfg_device_info">配置设备基本信息</string>
+    <string name="add_device_failure">添加设备失败</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>

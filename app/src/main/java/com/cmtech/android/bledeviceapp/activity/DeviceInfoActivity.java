@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -94,12 +95,12 @@ public class DeviceInfoActivity extends AppCompatActivity {
         // 设置设备图像
         ivImage = findViewById(R.id.iv_tab_image);
         cacheImagePath = deviceInfo.getIcon();
-        if("".equals(cacheImagePath)) {
+        if(TextUtils.isEmpty(cacheImagePath)) {
             int defaultImageId = type.getDefaultIcon();
             Glide.with(this).load(defaultImageId).into(ivImage);
         } else {
             // 注意不要从缓存显示图像
-            Glide.with(MyApplication.getContext()).load(cacheImagePath)
+            Glide.with(this).load(cacheImagePath)
                     .skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivImage);
         }
         ivImage.setOnClickListener(new View.OnClickListener() {
@@ -122,13 +123,13 @@ public class DeviceInfoActivity extends AppCompatActivity {
                 // 如果图像有变化
                 if(!cacheImagePath.equals(deviceInfo.getIcon())) {
                     // 把原来的图像文件删除
-                    if(!"".equals(deviceInfo.getIcon())) {
+                    if(!TextUtils.isEmpty(deviceInfo.getIcon())) {
                         File imageFile = new File(deviceInfo.getIcon());
                         imageFile.delete();
                     }
 
                     // 把当前的ImageView中图像保存，以设备地址为文件名
-                    if("".equals(cacheImagePath)) {
+                    if(TextUtils.isEmpty(cacheImagePath)) {
                         deviceInfo.setIcon("");
                     } else {
                         ivImage.setDrawingCacheEnabled(true);
@@ -186,7 +187,7 @@ public class DeviceInfoActivity extends AppCompatActivity {
                     }
                     if(!"".equals(imagePath)) {
                         cacheImagePath = imagePath;
-                        displaySelectedImage(cacheImagePath);
+                        Glide.with(MyApplication.getContext()).load(cacheImagePath).centerCrop().into(ivImage);
                     }
                 }
                 break;
@@ -241,11 +242,6 @@ public class DeviceInfoActivity extends AppCompatActivity {
             cursor.close();
         }
         return path;
-    }
-
-    // 显示选择的图像，需要做裁剪
-    private void displaySelectedImage(String imagePath) {
-        Glide.with(MyApplication.getContext()).load(imagePath).centerCrop().into(ivImage);
     }
 
     // 恢复缺省设置

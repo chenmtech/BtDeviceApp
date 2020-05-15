@@ -87,7 +87,7 @@ import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE
 
 public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceListener, TabFragManager.OnFragmentUpdatedListener {
     private static final String TAG = "MainActivity";
-    private final static int RC_REGISTER_DEVICE = 1;     // return code for registering new device
+    private final static int RC_ADD_DEVICE = 1;     // return code for registering new device
     private final static int RC_MODIFY_DEVICE_INFO = 2;       // return code for modifying device info
     private final static int RC_MODIFY_ACCOUNT_INFO = 3;     // return code for modifying account info
 
@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                         List<String> addresses = DeviceManager.getAddressList();
                         intent = new Intent(MainActivity.this, ScanActivity.class);
                         intent.putExtra("device_address_list", (Serializable) addresses);
-                        startActivityForResult(intent, RC_REGISTER_DEVICE);
+                        startActivityForResult(intent, RC_ADD_DEVICE);
                         return true;
                     case R.id.nav_query_record: // query user records
                         intent = new Intent(MainActivity.this, RecordExplorerActivity.class);
@@ -305,13 +305,25 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case RC_REGISTER_DEVICE: // 注册设备返回
+            case RC_ADD_DEVICE: // return code for add device
                 if(resultCode == RESULT_OK) {
-                    registerDevice((BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO));
+                    BleDeviceInfo info = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
+                    if(info != null) {
+                        IDevice device = DeviceManager.createNewDevice(info);
+                        if(device != null) {
+                            if(info.save()) {
+                                updateDeviceList();
+                                device.addListener(notiService);
+                            } else {
+                                Toast.makeText(MainActivity.this, R.string.add_device_failure, Toast.LENGTH_SHORT).show();
+                                DeviceManager.deleteDevice(device);
+                            }
+                        }
+                    }
                 }
                 break;
 
-            case RC_MODIFY_DEVICE_INFO: // 修改注册信息返回
+            case RC_MODIFY_DEVICE_INFO: // return code for modify device info
                 if ( resultCode == RESULT_OK) {
                     BleDeviceInfo info = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
                     IDevice device = DeviceManager.findDevice(info);
@@ -330,13 +342,11 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                             tbManager.setTitle(device.getName(), device.getAddress());
                             tbManager.setBattery(device.getBattery());
                         }
-                    } else {
-                        showMessageUsingShortToast("设备信息修改失败");
                     }
                 }
                 break;
 
-            case RC_MODIFY_ACCOUNT_INFO: // 修改用户信息返回
+            case RC_MODIFY_ACCOUNT_INFO: // return code for modify account info
                 if(resultCode == RESULT_OK) {
                     updateNavigationHeader();
                     //tbManager.setNavIcon(AccountManager.getAccount().getIcon());
@@ -347,21 +357,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                     }
                 }
                 break;
-        }
-    }
-
-    private void registerDevice(BleDeviceInfo info) {
-        if(info != null) {
-            IDevice device = DeviceManager.createNewDevice(info);
-            if(device != null) {
-                if(info.save()) {
-                    updateDeviceList();
-                    device.addListener(notiService);
-                } else {
-                    Toast.makeText(MainActivity.this, "添加设备失败", Toast.LENGTH_SHORT).show();
-                    DeviceManager.deleteDevice(device);
-                }
-            }
         }
     }
 
@@ -436,7 +431,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(DeviceManager.hasOpenedDevice()) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("退出应用");
-            builder.setMessage("有设备打开，退出将关闭这些设备。");
+            builder.setMessage("请先关闭设备。");
             builder.setPositiveButton("退出", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
