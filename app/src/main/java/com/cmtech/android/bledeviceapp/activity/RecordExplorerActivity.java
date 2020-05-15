@@ -44,7 +44,7 @@ import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.record.RecordType.TH;
 import static com.cmtech.android.bledevice.record.RecordType.THERMO;
 import static com.cmtech.android.bledevice.record.RecordType.UNKNOWN;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.DOWNLOAD_NUM_PER_TIME;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 
 /**
   *
@@ -61,6 +61,7 @@ import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.DOWNLOAD_NU
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
     private static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{ECG, HR, THERMO, TH};
+    private static final int READ_RECORD_INFO_NUM = 10;
 
     private long updateTime; // update time in record list
     private List<IRecord> allRecords = new ArrayList<>(); // all records
@@ -173,12 +174,12 @@ public class RecordExplorerActivity extends AppCompatActivity {
     private void updateRecordsFromServer(final long fromTime) {
         IRecord record = RecordFactory.create(recordType, fromTime, null, AccountManager.getAccount());
 
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_INFO_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_INFO_DOWNLOAD_CMD, READ_RECORD_INFO_NUM, true, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
-            public void onFinish(Object[] objs) {
-                if((Integer) objs[0] == 0) { // download success, save into local records
+            public void onFinish(int code, String desc, Object result) {
+                if(code == CODE_SUCCESS) { // download success, save into local records
                     try {
-                        JSONArray jsonArr = (JSONArray) objs[2];
+                        JSONArray jsonArr = (JSONArray) result;
                         for(int i = 0; i < jsonArr.length(); i++) {
                             JSONObject json = (JSONObject) jsonArr.get(i);
                             AbstractRecord newRecord = (AbstractRecord) RecordFactory.createFromJson(recordType, json);
@@ -191,7 +192,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     }
                 }
 
-                List<IRecord> records = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), fromTime, DOWNLOAD_NUM_PER_TIME);
+                List<IRecord> records = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), fromTime, READ_RECORD_INFO_NUM);
                 if(records == null || records.isEmpty()) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else  {
@@ -227,7 +228,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_DELETE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                         @Override
-                        public void onFinish(Object[] objs) {
+                        public void onFinish(int code, String desc, Object result) {
                             LitePal.delete(record.getClass(), record.getId());
                             if(allRecords.remove(record)) {
                                 recordAdapter.unselected();

@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.hrm.model;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
@@ -180,8 +181,8 @@ public class HrmDevice extends AbstractDevice {
                     isUploadHrRecord = true;
                     new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                         @Override
-                        public void onFinish(Object[] objs) {
-                            MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                        public void onFinish(int code, String desc, final Object rlt) {
+                            Toast.makeText(context, desc, Toast.LENGTH_SHORT).show();
                             isUploadHrRecord = false;
                         }
                     }).execute(hrRecord);
@@ -224,8 +225,8 @@ public class HrmDevice extends AbstractDevice {
                 isUploadEcgRecord = true;
                 new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                     @Override
-                    public void onFinish(Object[] objs) {
-                        MyApplication.showMessageUsingShortToast((Integer)objs[0]+(String)objs[1]);
+                    public void onFinish(int code, String desc, final Object rlt) {
+                        Toast.makeText(context, desc, Toast.LENGTH_SHORT).show();
                         isUploadEcgRecord = false;
                     }
                 }).execute(ecgRecord);

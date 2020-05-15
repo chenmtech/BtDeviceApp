@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.vise.log.ViseLog;
@@ -31,47 +32,51 @@ import okhttp3.Response;
  * Version:        1.0
  */
 public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
-    public static final int RECORD_UPLOAD_CMD = 1;
-    public static final int RECORD_UPDATE_NOTE_CMD = 2;
-    public static final int RECORD_QUERY_CMD = 3;
-    public static final int RECORD_DELETE_CMD = 4;
-    public static final int RECORD_INFO_DOWNLOAD_CMD = 5;
-    public static final int RECORD_DOWNLOAD_CMD = 6;
+    public static final int RECORD_UPLOAD_CMD = 1; // upload record command
+    public static final int RECORD_UPDATE_NOTE_CMD = 2; // update record note command
+    public static final int RECORD_QUERY_CMD = 3; // query record command
+    public static final int RECORD_DELETE_CMD = 4; // delete record command
+    public static final int RECORD_INFO_DOWNLOAD_CMD = 5; // download record information command
+    public static final int RECORD_DOWNLOAD_CMD = 6; // download record command
 
-    public static final int DOWNLOAD_NUM_PER_TIME = 10;
+    public static final int CODE_SUCCESS = 0; // success
+    private static final int DEFAULT_DOWNLOAD_NUM_PER_TIME = 10;
+
+    public interface RecordWebCallback {
+        void onFinish(int code, String desc, Object result);
+    }
 
     private ProgressDialog progressDialog;
     private final int cmd;
     private final boolean isShowProgress;
-
-    private boolean finish = false;
+    private final Object param;
+    private final RecordWebCallback callback;
 
     private int code;
-    private String errStr;
+    private String desc;
     private Object rlt;
-
-    public interface RecordWebCallback {
-        void onFinish(Object[] objs);
-    }
-
-    private final RecordWebCallback callback;
+    private boolean finish = false;
 
     public RecordWebAsyncTask(Context context, int cmd, RecordWebCallback callback) {
         this(context, cmd, true, callback);
     }
 
     public RecordWebAsyncTask(Context context, int cmd, boolean isShowProgress, RecordWebCallback callback) {
+        this(context, cmd, null, isShowProgress, callback);
+    }
+
+    public RecordWebAsyncTask(Context context, int cmd, Object param, boolean isShowProgress, RecordWebCallback callback) {
         this.cmd = cmd;
+        this.param = param;
 
         progressDialog = new ProgressDialog(context);
-        progressDialog.setMessage("请稍等...");
+        progressDialog.setMessage(context.getResources().getString(R.string.wait_pls));
         progressDialog.setIndeterminate(false);
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 
-        this.callback = callback;
-
         this.isShowProgress = isShowProgress;
+        this.callback = callback;
     }
 
     @Override
@@ -93,9 +98,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        errStr = "网络错误";
+                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+errStr);
+                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -106,13 +111,13 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             JSONObject json = new JSONObject(response.body().string());
                             int id = json.getInt("id");
                             ViseLog.e("find ecg record id = " + id);
-                            code = 0;
-                            errStr = "查询成功";
+                            code = CODE_SUCCESS;
+                            desc = "查询成功";
                             rlt = (Integer)id;
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            errStr = "网络错误";
+                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -127,9 +132,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        errStr = "网络错误";
+                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+errStr);
+                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -139,12 +144,12 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                         try {
                             JSONObject json = new JSONObject(respBody);
                             code = json.getInt("code");
-                            errStr = json.getString("errStr");
-                            ViseLog.e(code+errStr);
+                            desc = json.getString("errStr");
+                            ViseLog.e(code+ desc);
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            errStr = "网络错误";
+                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -159,9 +164,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        errStr = "网络错误";
+                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+errStr);
+                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -171,12 +176,12 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                         try {
                             JSONObject json = new JSONObject(respBody);
                             code = json.getInt("code");
-                            errStr = json.getString("errStr");
-                            ViseLog.e(code+errStr);
+                            desc = json.getString("errStr");
+                            ViseLog.e(code+ desc);
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            errStr = "网络错误";
+                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -191,9 +196,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        errStr = "网络错误";
+                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+errStr);
+                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -203,12 +208,12 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                         try {
                             JSONObject json = new JSONObject(respBody);
                             code = json.getInt("code");
-                            errStr = json.getString("errStr");
-                            ViseLog.e(code+errStr);
+                            desc = json.getString("errStr");
+                            ViseLog.e(code+ desc);
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            errStr = "网络错误";
+                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -219,13 +224,14 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
             // DOWNLOAD INFO
             case RECORD_INFO_DOWNLOAD_CMD:
-                KMWebService.downloadRecordInfo(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, DOWNLOAD_NUM_PER_TIME, new Callback() {
+                int downloadNum = (param == null) ? DEFAULT_DOWNLOAD_NUM_PER_TIME : (Integer)param;
+                KMWebService.downloadRecordInfo(AccountManager.getAccount().getPlatName(), AccountManager.getAccount().getPlatId(), record, downloadNum, new Callback() {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        errStr = "网络错误";
+                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+errStr);
+                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -235,13 +241,13 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                         try {
                             JSONObject json = new JSONObject(respBody);
                             code = json.getInt("code");
-                            errStr = json.getString("errStr");
+                            desc = json.getString("errStr");
                             rlt = json.get("records");
                             ViseLog.e(json.toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            errStr = "网络错误";
+                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -256,9 +262,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        errStr = "网络错误";
+                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+errStr);
+                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -269,12 +275,12 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             JSONObject json = new JSONObject(respBody);
                             ViseLog.e(json.toString());
                             code = json.getInt("code");
-                            errStr = json.getString("errStr");
+                            desc = json.getString("errStr");
                             rlt = json.get("record");
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            errStr = "网络错误";
+                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -285,7 +291,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
             default:
                 code = 1;
-                errStr = "无效命令";
+                desc = "无效命令";
                 rlt = null;
                 finish = true;
                 break;
@@ -304,7 +310,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
     @Override
     protected void onPostExecute(Void result) {
-        callback.onFinish(new Object[]{code, errStr, rlt});
+        callback.onFinish(code, desc, rlt);
         progressDialog.dismiss();
     }
 }

@@ -19,6 +19,9 @@
     <string name="BPM">次/分钟</string>
     <string name="hr_record">心率记录</string>
     <string name="ecg_record">心电记录</string>
+    <string name="open_record_failure">打开记录失败</string>
+    <string name="wait_pls">请稍等</string>
+    <string name="something_wrong">出错了</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>

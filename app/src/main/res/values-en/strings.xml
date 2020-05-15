@@ -19,6 +19,9 @@
     <string name="BPM">BPM</string>
     <string name="hr_record">HR Record</string>
     <string name="ecg_record">ECG Record</string>
+    <string name="open_record_failure">opening record failure</string>
+    <string name="wait_pls">Wait please…</string>
+    <string name="something_wrong">somethings wrong.</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">No Device Opened</string>

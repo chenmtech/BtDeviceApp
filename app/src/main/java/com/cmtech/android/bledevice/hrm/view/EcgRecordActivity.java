@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
@@ -61,9 +62,9 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         if(record.isDataEmpty()) {
             new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
-                public void onFinish(Object[] objs) {
-                    if ((Integer) objs[0] == 0) {
-                        JSONObject json = (JSONObject) objs[2];
+                public void onFinish(int code, String desc, Object result) {
+                    if (code == CODE_SUCCESS) {
+                        JSONObject json = (JSONObject) result;
 
                         if(record.setDataFromJson(json)) {
                             initUI();
@@ -182,25 +183,25 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private void upload() {
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
-            public void onFinish(final Object[] objs) {
-                final boolean result = ((Integer)objs[0] == 0);
+            public void onFinish(int code, String desc, final Object rlt) {
+                final boolean result = (code == CODE_SUCCESS);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(result) {
-                            int id = (Integer) objs[2];
+                            int id = (Integer) rlt;
                             if(id == INVALID_ID) {
                                 new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
-                                    public void onFinish(Object[] objs) {
-                                        Toast.makeText(EcgRecordActivity.this, (String)objs[1], Toast.LENGTH_SHORT).show();
+                                    public void onFinish(int code, String desc, Object result) {
+                                        Toast.makeText(EcgRecordActivity.this, desc, Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
                             } else {
                                 new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
-                                    public void onFinish(Object[] objs) {
-                                        Toast.makeText(EcgRecordActivity.this, (String)objs[1], Toast.LENGTH_SHORT).show();
+                                    public void onFinish(int code, String desc, Object result) {
+                                        Toast.makeText(EcgRecordActivity.this, desc, Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
                             }

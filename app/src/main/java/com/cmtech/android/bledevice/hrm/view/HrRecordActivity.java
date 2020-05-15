@@ -19,6 +19,7 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
 
 public class HrRecordActivity extends AppCompatActivity {
@@ -27,20 +28,21 @@ public class HrRecordActivity extends AppCompatActivity {
     private BleHrRecord10 record;
     private RecordIntroLayout introLayout;
 
-    private TextView tvMaxHr; // 最大心率
-    private TextView tvAveHr; // 平均心率
-    private MyLineChart lineChart; // 心率折线图
-    private HrHistogramChart hrHistChart; // 心率直方图
+    private TextView tvMaxHr; // max HR
+    private TextView tvAveHr; // average HR
+    private MyLineChart hrLineChart; // HR line chart
+    private HrHistogramChart hrHistChart; // HR histogram chart
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record_hr);// 创建ToolBar
+        setContentView(R.layout.activity_record_hr);
 
         int recordId = getIntent().getIntExtra("record_id", -1);
 
-        record = LitePal.where("id = ?", ""+recordId).findFirst(BleHrRecord10.class, true);
+        record = LitePal.where("id = ?", String.valueOf(recordId)).findFirst(BleHrRecord10.class, true);
         if(record == null) {
+            Toast.makeText(HrRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
             setResult(RESULT_CANCELED);
             finish();
         }
@@ -48,16 +50,16 @@ public class HrRecordActivity extends AppCompatActivity {
         if(record.isDataEmpty()) {
             new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
-                public void onFinish(Object[] objs) {
-                    if ((Integer) objs[0] == 0) {
-                        JSONObject json = (JSONObject) objs[2];
+                public void onFinish(int code, String desc, Object result) {
+                    if (code == CODE_SUCCESS) {
+                        JSONObject json = (JSONObject) result;
 
                         if(record.setDataFromJson(json)) {
                             initUI();
                             return;
                         }
                     }
-                    Toast.makeText(HrRecordActivity.this, "获取记录数据失败，无法打开记录", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HrRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
                     setResult(RESULT_CANCELED);
                     finish();
                 }
@@ -79,9 +81,9 @@ public class HrRecordActivity extends AppCompatActivity {
             }
         });
 
-        lineChart = findViewById(R.id.hr_line_chart);
-        lineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
-        lineChart.showShortLineChart(record.getFilterHrList(), "心率变化", Color.BLUE);
+        hrLineChart = findViewById(R.id.hr_line_chart);
+        hrLineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
+        hrLineChart.showShortLineChart(record.getFilterHrList(), "心率变化", Color.BLUE);
 
         hrHistChart = findViewById(R.id.chart_hr_histogram);
         tvAveHr = findViewById(R.id.tv_hr_ave_value);
@@ -95,18 +97,18 @@ public class HrRecordActivity extends AppCompatActivity {
     private void upload() {
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
-            public void onFinish(final Object[] objs) {
-                final boolean result = ((Integer)objs[0] == 0);
+            public void onFinish(int code, String desc, final Object rlt) {
+                final boolean result = (code == CODE_SUCCESS);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(result) {
-                            int id = (Integer) objs[2];
+                            int id = (Integer) rlt;
                             if(id == INVALID_ID) {
                                 new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
-                                    public void onFinish(Object[] objs) {
-                                        Toast.makeText(HrRecordActivity.this, (String)objs[1], Toast.LENGTH_SHORT).show();
+                                    public void onFinish(int code, String desc, final Object rlt) {
+                                        Toast.makeText(HrRecordActivity.this, desc, Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
                             } else {
