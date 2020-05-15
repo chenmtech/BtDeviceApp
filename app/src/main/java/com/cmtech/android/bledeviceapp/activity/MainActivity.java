@@ -78,7 +78,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.QQ_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 import static com.cmtech.android.bledeviceapp.AppConstant.WX_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
-import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_INFO;
+import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
 
 /**
  *  MainActivity: 主界面
@@ -597,7 +597,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
 
     // 修改设备注册信息 
     public void modifyDeviceInfo(final DeviceInfo deviceInfo) {
-        Intent intent = new Intent(this, RegisterActivity.class);
+        Intent intent = new Intent(this, DeviceInfoActivity.class);
         intent.putExtra(DEVICE_INFO, deviceInfo);
         startActivityForResult(intent, RC_MODIFY_DEVICE_INFO);
     }

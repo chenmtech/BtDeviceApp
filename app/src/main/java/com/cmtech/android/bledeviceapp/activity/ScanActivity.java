@@ -33,7 +33,7 @@ import java.util.List;
 import static com.cmtech.android.bledeviceapp.AppConstant.SCAN_DURATION;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingLongToast;
 import static com.cmtech.android.bledeviceapp.MyApplication.showMessageUsingShortToast;
-import static com.cmtech.android.bledeviceapp.activity.RegisterActivity.DEVICE_INFO;
+import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE_INFO;
 
 /**
   *
@@ -216,7 +216,7 @@ public class ScanActivity extends AppCompatActivity {
 
         String uuidShortString = HexUtil.encodeHexStr(uuidBytes);
         DeviceInfo registerInfo = new BleDeviceInfo(detailInfo.getAddress(), uuidShortString);
-        Intent intent = new Intent(ScanActivity.this, RegisterActivity.class);
+        Intent intent = new Intent(ScanActivity.this, DeviceInfoActivity.class);
         intent.putExtra(DEVICE_INFO, registerInfo);
         startActivityForResult(intent, 1);
     }

@@ -65,8 +65,8 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.RegisterActivity"
-            android:label="设置设备信息"
+            android:name=".activity.DeviceInfoActivity"
+            android:label= "@string/cfg_device_info"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity
             android:name="com.cmtech.android.bledevice.ecg.activity.EcgMonitorConfigureActivity"

@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -35,51 +36,56 @@ import static com.cmtech.android.ble.core.DeviceInfo.DEFAULT_ICON;
 import static com.cmtech.android.bledeviceapp.AppConstant.DIR_IMAGE;
 
 /**
- *  RegisterActivity: 注册Activity，用于设置修改BleDeviceRegisterInfo字段
+ *  DeviceInfoActivity: device info activity, used to set up the BleDeviceInfo class
  *  Created by bme on 2018/6/27.
  */
 
-public class RegisterActivity extends AppCompatActivity {
+public class DeviceInfoActivity extends AppCompatActivity {
     public static final String DEVICE_INFO = "device_info";
 
-    private BleDeviceInfo registerInfo; // 设备基本信息
-    private EditText etName; // 设备名
-    private ImageView ivImage; // 设备图像
-    private CheckBox cbIsAutoconnect; // 设备是否自动连接
+    private BleDeviceInfo deviceInfo; //
+    private TextView tvAddress;
+    private TextView tvType;
+    private EditText etName; //
+    private ImageView ivImage; //
+    private CheckBox cbIsAutoConnect; //
     private String cacheImagePath = ""; // 图像文件名缓存
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.dialog_device_register);
+        setContentView(R.layout.dialog_device_info);
 
         Intent intent = getIntent();
         if(intent != null) {
-            registerInfo = (BleDeviceInfo) intent.getSerializableExtra(DEVICE_INFO);
-            if(registerInfo == null) {
-                Toast.makeText(this, "设备信息无效", Toast.LENGTH_SHORT).show();
+            deviceInfo = (BleDeviceInfo) intent.getSerializableExtra(DEVICE_INFO);
+            if(deviceInfo == null) {
+                Toast.makeText(this, R.string.invalid_device_info, Toast.LENGTH_SHORT).show();
                 finish();
                 return;
             }
         }
         if(DIR_IMAGE == null || !DIR_IMAGE.exists()) {
-            Toast.makeText(this, "图像目录错误。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.invalid_image_dir, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
-        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuid());
+        DeviceType type = DeviceType.getFromUuid(deviceInfo.getUuid());
         if(type == null) {
-            Toast.makeText(this, "设备类型未知，无法添加。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.invalid_device_type, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        // 设置标题为设备地址
-        setTitle("设置:"+ registerInfo.getAddress());
+        tvAddress = findViewById(R.id.tv_device_address);
+        tvAddress.setText(deviceInfo.getAddress());
+
+        tvType = findViewById(R.id.tv_device_type);
+        tvType.setText(type.getDefaultName());
 
         // 设置设备昵称
         etName = findViewById(R.id.et_device_nickname);
-        String deviceName = registerInfo.getName();
+        String deviceName = deviceInfo.getName();
         if("".equals(deviceName)) {
             deviceName = type.getDefaultName();
         }
@@ -87,7 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // 设置设备图像
         ivImage = findViewById(R.id.iv_tab_image);
-        cacheImagePath = registerInfo.getIcon();
+        cacheImagePath = deviceInfo.getIcon();
         if("".equals(cacheImagePath)) {
             int defaultImageId = type.getDefaultIcon();
             Glide.with(this).load(defaultImageId).into(ivImage);
@@ -104,46 +110,46 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         // 设置设备打开后是否自动连接
-        cbIsAutoconnect = findViewById(R.id.cb_device_isautoconnect);
-        cbIsAutoconnect.setChecked(registerInfo.isAutoConnect());
+        cbIsAutoConnect = findViewById(R.id.cb_device_isautoconnect);
+        cbIsAutoConnect.setChecked(deviceInfo.isAutoConnect());
 
         Button btnOk = findViewById(R.id.btn_ok);
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                registerInfo.setName(etName.getText().toString());
+                deviceInfo.setName(etName.getText().toString());
 
                 // 如果图像有变化
-                if(!cacheImagePath.equals(registerInfo.getIcon())) {
+                if(!cacheImagePath.equals(deviceInfo.getIcon())) {
                     // 把原来的图像文件删除
-                    if(!"".equals(registerInfo.getIcon())) {
-                        File imageFile = new File(registerInfo.getIcon());
+                    if(!"".equals(deviceInfo.getIcon())) {
+                        File imageFile = new File(deviceInfo.getIcon());
                         imageFile.delete();
                     }
 
                     // 把当前的ImageView中图像保存，以设备地址为文件名
                     if("".equals(cacheImagePath)) {
-                        registerInfo.setIcon("");
+                        deviceInfo.setIcon("");
                     } else {
                         ivImage.setDrawingCacheEnabled(true);
                         Bitmap bitmap = ivImage.getDrawingCache();
-                        File toFile = FileUtil.getFile(DIR_IMAGE, registerInfo.getAddress() + ".jpg");
+                        File toFile = FileUtil.getFile(DIR_IMAGE, deviceInfo.getAddress() + ".jpg");
                         try {
                             String filePath = toFile.getCanonicalPath();
                             BitmapUtil.saveBitmap(bitmap, toFile);
                             ivImage.setDrawingCacheEnabled(false);
-                            registerInfo.setIcon(filePath);
+                            deviceInfo.setIcon(filePath);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            registerInfo.setIcon("");
+                            deviceInfo.setIcon("");
                         }
                     }
                 }
 
-                registerInfo.setAutoConnect(cbIsAutoconnect.isChecked());
+                deviceInfo.setAutoConnect(cbIsAutoConnect.isChecked());
 
                 Intent intent = new Intent();
-                intent.putExtra(DEVICE_INFO, registerInfo);
+                intent.putExtra(DEVICE_INFO, deviceInfo);
                 setResult(RESULT_OK, intent);
                 finish();
             }
@@ -244,12 +250,12 @@ public class RegisterActivity extends AppCompatActivity {
 
     // 恢复缺省设置
     private void restoreDefaultSetup() {
-        DeviceType type = DeviceType.getFromUuid(registerInfo.getUuid());
+        DeviceType type = DeviceType.getFromUuid(deviceInfo.getUuid());
         if(type != null) {
             etName.setText(type.getDefaultName());
             cacheImagePath = DEFAULT_ICON;
             Glide.with(this).load(type.getDefaultIcon()).into(ivImage);
-            cbIsAutoconnect.setChecked(DEFAULT_AUTO_CONNECT);
+            cbIsAutoConnect.setChecked(DEFAULT_AUTO_CONNECT);
         }
     }
 }
