@@ -62,7 +62,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         if(record.isDataEmpty()) {
             new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
-                public void onFinish(int code, String desc, Object result) {
+                public void onFinish(int code, Object result) {
                     if (code == CODE_SUCCESS) {
                         JSONObject json = (JSONObject) result;
 
@@ -71,7 +71,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                             return;
                         }
                     }
-                    Toast.makeText(EcgRecordActivity.this, "获取记录数据失败，无法打开记录", Toast.LENGTH_SHORT).show();
+                    String errStr = getResources().getString(R.string.open_record_failure);
+                    Toast.makeText(EcgRecordActivity.this, errStr, Toast.LENGTH_SHORT).show();
                     setResult(RESULT_CANCELED);
                     finish();
                 }
@@ -183,7 +184,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     private void upload() {
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
-            public void onFinish(int code, String desc, final Object rlt) {
+            public void onFinish(int code, final Object rlt) {
                 final boolean result = (code == CODE_SUCCESS);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -193,14 +194,18 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                             if(id == INVALID_ID) {
                                 new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
-                                    public void onFinish(int code, String desc, Object result) {
+                                    public void onFinish(int code, Object result) {
+                                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
+                                        String desc = getResources().getString(strId);
                                         Toast.makeText(EcgRecordActivity.this, desc, Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
                             } else {
                                 new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
-                                    public void onFinish(int code, String desc, Object result) {
+                                    public void onFinish(int code, Object result) {
+                                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
+                                        String desc = getResources().getString(strId);
                                         Toast.makeText(EcgRecordActivity.this, desc, Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);

@@ -219,8 +219,7 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     JSONObject json = new JSONObject(respBody);
                     int code = json.getInt("code");
-                    final String errStr = json.getString("errStr");
-                    ViseLog.e(code+errStr);
+                    ViseLog.e("登录/注册："+code);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

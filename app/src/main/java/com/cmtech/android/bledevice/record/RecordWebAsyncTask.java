@@ -43,7 +43,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
     private static final int DEFAULT_DOWNLOAD_NUM_PER_TIME = 10;
 
     public interface RecordWebCallback {
-        void onFinish(int code, String desc, Object result);
+        void onFinish(int code, Object result);
     }
 
     private ProgressDialog progressDialog;
@@ -53,7 +53,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
     private final RecordWebCallback callback;
 
     private int code;
-    private String desc;
     private Object rlt;
     private boolean finish = false;
 
@@ -98,26 +97,22 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                        if(response.body() == null) return;
+                        String respBody = response.body().string();
                         try {
-                            JSONObject json = new JSONObject(response.body().string());
+                            JSONObject json = new JSONObject(respBody);
+                            code = json.getInt("code");
                             int id = json.getInt("id");
                             ViseLog.e("find ecg record id = " + id);
-                            code = CODE_SUCCESS;
-                            desc = "查询成功";
-                            rlt = (Integer)id;
+                            rlt = id;
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -132,9 +127,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -144,12 +137,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                         try {
                             JSONObject json = new JSONObject(respBody);
                             code = json.getInt("code");
-                            desc = json.getString("errStr");
-                            ViseLog.e(code+ desc);
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -164,9 +154,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -176,12 +164,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                         try {
                             JSONObject json = new JSONObject(respBody);
                             code = json.getInt("code");
-                            desc = json.getString("errStr");
-                            ViseLog.e(code+ desc);
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -196,9 +181,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -208,12 +191,9 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                         try {
                             JSONObject json = new JSONObject(respBody);
                             code = json.getInt("code");
-                            desc = json.getString("errStr");
-                            ViseLog.e(code+ desc);
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -229,9 +209,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -241,13 +219,11 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                         try {
                             JSONObject json = new JSONObject(respBody);
                             code = json.getInt("code");
-                            desc = json.getString("errStr");
                             rlt = json.get("records");
                             ViseLog.e(json.toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -262,9 +238,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                     @Override
                     public void onFailure(@NotNull Call call, @NotNull IOException e) {
                         code = 1;
-                        desc = "网络错误";
                         rlt = null;
-                        ViseLog.e(code+ desc);
                         finish = true;
                     }
 
@@ -275,12 +249,10 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             JSONObject json = new JSONObject(respBody);
                             ViseLog.e(json.toString());
                             code = json.getInt("code");
-                            desc = json.getString("errStr");
                             rlt = json.get("record");
                         } catch (JSONException e) {
                             e.printStackTrace();
                             code = 1;
-                            desc = "网络错误";
                             rlt = null;
                         } finally {
                             finish = true;
@@ -291,7 +263,6 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
             default:
                 code = 1;
-                desc = "无效命令";
                 rlt = null;
                 finish = true;
                 break;
@@ -310,7 +281,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
 
     @Override
     protected void onPostExecute(Void result) {
-        callback.onFinish(code, desc, rlt);
+        callback.onFinish(code, rlt);
         progressDialog.dismiss();
     }
 }

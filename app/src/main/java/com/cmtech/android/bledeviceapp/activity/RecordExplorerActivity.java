@@ -176,7 +176,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_INFO_DOWNLOAD_CMD, READ_RECORD_INFO_NUM, true, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
-            public void onFinish(int code, String desc, Object result) {
+            public void onFinish(int code, Object result) {
                 if(code == CODE_SUCCESS) { // download success, save into local records
                     try {
                         JSONArray jsonArr = (JSONArray) result;
@@ -228,7 +228,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_DELETE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                         @Override
-                        public void onFinish(int code, String desc, Object result) {
+                        public void onFinish(int code, Object result) {
                             LitePal.delete(record.getClass(), record.getId());
                             if(allRecords.remove(record)) {
                                 recordAdapter.unselected();

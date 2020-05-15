@@ -18,6 +18,7 @@ import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
@@ -32,6 +33,7 @@ import java.util.UUID;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_UPLOAD_CMD;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
@@ -181,7 +183,9 @@ public class HrmDevice extends AbstractDevice {
                     isUploadHrRecord = true;
                     new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                         @Override
-                        public void onFinish(int code, String desc, final Object rlt) {
+                        public void onFinish(int code, final Object rlt) {
+                            int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
+                            String desc = context.getResources().getString(strId);
                             Toast.makeText(context, desc, Toast.LENGTH_SHORT).show();
                             isUploadHrRecord = false;
                         }
@@ -225,7 +229,9 @@ public class HrmDevice extends AbstractDevice {
                 isUploadEcgRecord = true;
                 new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                     @Override
-                    public void onFinish(int code, String desc, final Object rlt) {
+                    public void onFinish(int code, final Object rlt) {
+                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
+                        String desc = context.getResources().getString(strId);
                         Toast.makeText(context, desc, Toast.LENGTH_SHORT).show();
                         isUploadEcgRecord = false;
                     }

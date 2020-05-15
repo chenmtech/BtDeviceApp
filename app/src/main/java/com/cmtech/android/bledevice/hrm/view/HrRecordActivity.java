@@ -50,7 +50,7 @@ public class HrRecordActivity extends AppCompatActivity {
         if(record.isDataEmpty()) {
             new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
-                public void onFinish(int code, String desc, Object result) {
+                public void onFinish(int code, Object result) {
                     if (code == CODE_SUCCESS) {
                         JSONObject json = (JSONObject) result;
 
@@ -97,7 +97,7 @@ public class HrRecordActivity extends AppCompatActivity {
     private void upload() {
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
-            public void onFinish(int code, String desc, final Object rlt) {
+            public void onFinish(int code, final Object rlt) {
                 final boolean result = (code == CODE_SUCCESS);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -107,7 +107,9 @@ public class HrRecordActivity extends AppCompatActivity {
                             if(id == INVALID_ID) {
                                 new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
-                                    public void onFinish(int code, String desc, final Object rlt) {
+                                    public void onFinish(int code, final Object rlt) {
+                                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
+                                        String desc = getResources().getString(strId);
                                         Toast.makeText(HrRecordActivity.this, desc, Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
