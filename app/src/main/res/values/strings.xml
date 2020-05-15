@@ -9,6 +9,14 @@
     <string name="invalid_device_type">无效设备类型</string>
     <string name="cfg_device_info">配置设备基本信息</string>
     <string name="add_device_failure">添加设备失败</string>
+    <string name="pause_show">暂停显示</string>
+    <string name="open">开</string>
+    <string name="close">关</string>
+    <string name="ellipsis">…</string>
+    <string name="cannot_change_ecg_lock">设备未连接，无法切换心电功能。</string>
+    <string name="hr_too_high">心率过高</string>
+    <string name="hr_too_low">心率过低</string>
+    <string name="BPM">次/分钟</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>

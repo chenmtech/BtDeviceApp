@@ -10,6 +10,10 @@
     <color name="secondary_text">#757575</color>
     <color name="icons">#212121</color>
     <color name="divider">#BDBDBD</color>
+    <color name="ecg_view_background">#666</color>
+    <color name="ecg_view_grid">#f00</color>
+    <color name="ecg_view_wave">#ff0</color>
+
 
 
     <color name="white">#ffffff</color> <!-- 白色 -->

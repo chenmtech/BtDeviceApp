@@ -25,7 +25,7 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
     private static final int HR_LIMIT_LOWEST = 30;
     private static final int HR_LIMIT_HGIHEST = 200;
     private static final int HR_LIMIT_INTERVAL = 5;
-    public static final int RESULT_CHANGE_ECG_LOCK = RESULT_FIRST_USER;
+    public static final int RESULT_ECG_LOCK_CHANGED = RESULT_FIRST_USER;
     private boolean ecgLock = true;
     private HrmCfg hrCfg;
 
@@ -76,7 +76,7 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
                             public void onClick(DialogInterface dialog, int id) {
                                 Intent intent = new Intent();
                                 intent.putExtra("ecg_lock", !ecgLock);
-                                setResult(RESULT_CHANGE_ECG_LOCK, intent);
+                                setResult(RESULT_ECG_LOCK_CHANGED, intent);
                                 HrmCfgActivity.this.finish();
                             }
                         })

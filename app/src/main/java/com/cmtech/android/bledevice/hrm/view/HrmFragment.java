@@ -32,13 +32,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledevice.hrm.view.HrmCfgActivity.RESULT_CHANGE_ECG_LOCK;
+import static com.cmtech.android.bledevice.hrm.view.HrmCfgActivity.RESULT_ECG_LOCK_CHANGED;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.hrmonitor.view
- * ClassName:      HRMonitorFragment
+ * ClassName:      HrmFragment
  * Description:    heart rate monitor fragment
  * Author:         chenm
  * CreateDate:     2020-02-04 06:06
@@ -51,17 +51,17 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     private HrmDevice device; // device
 
     private ScanEcgView ecgView; // EcgView
-    private TextView tvHrEcgOff; // hr when ecg off
-    private TextView tvHrEcgOn; // hr when ecg on
+    private TextView tvHrWhenEcgOff; // hr when ecg off
+    private TextView tvHrWhenEcgOn; // hr when ecg on
     private TextView tvMessage; // message
     private TextView tvEcgSwitch;
-    private FrameLayout flEcgOff; // frame layout when ecg off
-    private FrameLayout flEcgOn; // frame layout when ecg on
+    private FrameLayout flWhenEcgOff; // frame layout when ecg off
+    private FrameLayout flWhenEcgOn; // frame layout when ecg on
 
     private ViewPager pager;
     private CtrlPanelAdapter fragAdapter;
-    private final HrRecordFragment hrRecFrag = new HrRecordFragment(); // heart rate record Fragment
     private final HrDebugFragment debugFrag = new HrDebugFragment(); // debug fragment
+    private final HrRecordFragment hrRecFrag = new HrRecordFragment(); // heart rate record Fragment
     private final EcgRecordFragment ecgRecFrag = new EcgRecordFragment(); // ecg record fragment
 
     private boolean isEcgOn = false;
@@ -84,16 +84,16 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvHrEcgOff = view.findViewById(R.id.tv_hr_ecg_off);
-        tvHrEcgOn = view.findViewById(R.id.tv_hr_ecg_on);
+        tvHrWhenEcgOff = view.findViewById(R.id.tv_hr_ecg_off);
+        tvHrWhenEcgOn = view.findViewById(R.id.tv_hr_ecg_on);
         tvMessage = view.findViewById(R.id.tv_message);
 
-        flEcgOff = view.findViewById(R.id.fl_no_ecg);
-        flEcgOff.setVisibility(View.VISIBLE);
-        flEcgOn = view.findViewById(R.id.fl_with_ecg);
-        flEcgOn.setVisibility(View.GONE);
+        flWhenEcgOff = view.findViewById(R.id.fl_ecg_off);
+        flWhenEcgOff.setVisibility(View.VISIBLE);
+        flWhenEcgOn = view.findViewById(R.id.fl_ecg_on);
+        flWhenEcgOn.setVisibility(View.GONE);
 
-        ecgView = view.findViewById(R.id.scanview_ecg);
+        ecgView = view.findViewById(R.id.ecg_view);
         ecgView.setup(device.getSampleRate(), device.getCaliValue(), DEFAULT_ZERO_LOCATION);
 
         tvEcgSwitch = view.findViewById(R.id.tv_switch_ecg);
@@ -120,7 +120,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
 
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
-        device.open(activity.getNotiService());
+        if(activity != null)
+            device.open(activity.getNotiService());
     }
 
     @Override
@@ -128,9 +129,9 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == 1) { // cfg return
-            if(resultCode == RESULT_CHANGE_ECG_LOCK) {
+            if(resultCode == RESULT_ECG_LOCK_CHANGED) {
                 if(device.getState() != DeviceState.CONNECT) {
-                    Toast.makeText(getContext(), "设备未连接，无法切换心电功能。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.cannot_change_ecg_lock, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 boolean ecgLock = data.getBooleanExtra("ecg_lock", true);
@@ -161,16 +162,16 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                     //debugFrag.updateHrMeas(hrData.toString());
 
                     int bpm = hrData.getBpm();
-                    tvHrEcgOn.setText(String.valueOf(bpm));
-                    tvHrEcgOff.setText(String.valueOf(bpm));
+                    tvHrWhenEcgOn.setText(String.valueOf(bpm));
+                    tvHrWhenEcgOff.setText(String.valueOf(bpm));
 
                     HrmCfg cfg = device.getConfig();
                     if(cfg.isWarn()) {
                         String warnStr = null;
                         if(bpm > cfg.getHrHigh())
-                            warnStr = "心率过高";
+                            warnStr = getResources().getString(R.string.hr_too_high);
                         else if(bpm < cfg.getHrLow()) {
-                            warnStr = "心率过低";
+                            warnStr = getResources().getString(R.string.hr_too_low);
                         }
                         if(warnStr != null)
                             warnUsingTTS(warnStr);
@@ -218,8 +219,8 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                     ecgView.setup(sampleRate, value1mV, zeroLocation);
                     if(ecgLock) {
                         tvEcgSwitch.setVisibility(View.GONE);
-                        flEcgOff.setVisibility(View.VISIBLE);
-                        flEcgOn.setVisibility(View.GONE);
+                        flWhenEcgOff.setVisibility(View.VISIBLE);
+                        flWhenEcgOn.setVisibility(View.GONE);
                         ecgView.stop();
                         fragAdapter.removeFragment(ecgRecFrag);
                         pager.setCurrentItem(fragAdapter.getCount()-1);
@@ -252,16 +253,16 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         if(isEcgOn == isOpen) return;
 
         if (isOpen) {
-            flEcgOff.setVisibility(View.GONE);
-            flEcgOn.setVisibility(View.VISIBLE);
+            flWhenEcgOff.setVisibility(View.GONE);
+            flWhenEcgOn.setVisibility(View.VISIBLE);
             ecgView.start();
             ecgView.initialize();
-            tvEcgSwitch.setText("关");
+            tvEcgSwitch.setText(R.string.close);
         } else {
-            flEcgOff.setVisibility(View.VISIBLE);
-            flEcgOn.setVisibility(View.GONE);
+            flWhenEcgOff.setVisibility(View.VISIBLE);
+            flWhenEcgOn.setVisibility(View.GONE);
             ecgView.stop();
-            tvEcgSwitch.setText("开");
+            tvEcgSwitch.setText(R.string.open);
         }
 
         isEcgOn = isOpen;

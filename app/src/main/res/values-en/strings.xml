@@ -9,6 +9,14 @@
     <string name="invalid_device_type">invalid device type</string>
     <string name="cfg_device_info">Configure Device Info</string>
     <string name="add_device_failure">adding device failure</string>
+    <string name="pause_show">show paused</string>
+    <string name="open">open</string>
+    <string name="close">close</string>
+    <string name="ellipsis">…</string>
+    <string name="cannot_change_ecg_lock">Can\'t switch ecg status because of disconnection</string>
+    <string name="hr_too_high">Your heart rate is too high</string>
+    <string name="hr_too_low">Your heart rate is too low</string>
+    <string name="BPM">BPM</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">No Device Opened</string>
