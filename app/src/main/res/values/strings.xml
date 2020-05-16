@@ -17,8 +17,11 @@
     <string name="hr_too_high">心率过高</string>
     <string name="hr_too_low">心率过低</string>
     <string name="BPM">次/分钟</string>
+    <string name="unknown_record">未知记录</string>
     <string name="hr_record">心率记录</string>
     <string name="ecg_record">心电记录</string>
+    <string name="thermo_record">体温记录</string>
+    <string name="th_record">温湿度记录</string>
     <string name="open_record_failure">打开记录失败</string>
     <string name="save_record_success">保存记录成功</string>
     <string name="upload_record_success">上传记录成功</string>
@@ -29,6 +32,7 @@
     <string name="login_failure">登录失败</string>
     <string name="max_hr">最大心率:</string>
     <string name="average_hr">平均心率:</string>
+    <string name="hr_histogram">运动心率直方图</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>

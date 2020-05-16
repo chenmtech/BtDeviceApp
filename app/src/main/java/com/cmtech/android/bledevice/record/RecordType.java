@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.record;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.hrm.view.HrRecordActivity;
 import com.cmtech.android.bledevice.thermo.view.ThermoRecordActivity;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 
 /**
@@ -18,19 +19,19 @@ import com.cmtech.android.bledeviceapp.R;
  * Version:        1.0
  */
 public enum RecordType {
-    UNKNOWN(0, "未知记录", 0, null),
-    ECG(1, "心电记录", R.mipmap.ic_ecg_24px, EcgRecordActivity.class),
-    HR(2, "心率记录", R.mipmap.ic_hr_24px, HrRecordActivity.class),
-    THERMO(3, "体温记录", R.mipmap.ic_thermo_24px, ThermoRecordActivity.class),
-    TH(4, "温湿度记录", R.drawable.ic_thm_default_icon, null);
+    UNKNOWN(0, R.string.unknown_record, 0, null),
+    ECG(1, R.string.ecg_record, R.mipmap.ic_ecg_24px, EcgRecordActivity.class),
+    HR(2, R.string.hr_record, R.mipmap.ic_hr_24px, HrRecordActivity.class),
+    THERMO(3, R.string.thermo_record, R.mipmap.ic_thermo_24px, ThermoRecordActivity.class),
+    TH(4, R.string.th_record, R.drawable.ic_thm_default_icon, null);
 
     private String name;
     private int code;
     private int imgId;
     private Class actClass;
 
-    RecordType(int code, String name, int imgId, Class actClass) {
-        this.name = name;
+    RecordType(int code, int nameId, int imgId, Class actClass) {
+        this.name = MyApplication.getStr(nameId);
         this.code = code;
         this.imgId = imgId;
         this.actClass = actClass;

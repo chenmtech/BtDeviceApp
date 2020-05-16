@@ -5,11 +5,11 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.record.BleHrRecord10;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
@@ -33,9 +33,21 @@ import java.util.List;
  */
 
 public class HrHistogramChart extends BarChart {
+    private static final List<Integer> BAR_COLORS = new ArrayList<>();
+    private static final int TEXT_COLOR = Color.GRAY;
+
     private BarDataSet hrBarDataSet;
     private List<BarEntry> hrBarEntries = new ArrayList<>();
     private List<String> hrBarXStrings = new ArrayList<>();
+
+    static {
+        BAR_COLORS.add(Color.GRAY);
+        BAR_COLORS.add(Color.GREEN);
+        BAR_COLORS.add(Color.BLUE);
+        BAR_COLORS.add(Color.YELLOW);
+        BAR_COLORS.add(Color.MAGENTA);
+        BAR_COLORS.add(Color.RED);
+    }
 
     public HrHistogramChart(Context context) {
         super(context);
@@ -69,7 +81,7 @@ public class HrHistogramChart extends BarChart {
     private void initialize() {
         // description
         Description description = new Description();
-        description.setText("心率统计");
+        description.setText("");
         setDescription(description);
         description.setEnabled(false);
 
@@ -87,7 +99,6 @@ public class HrHistogramChart extends BarChart {
 
         setGridBackgroundColor(Color.WHITE);
 
-        /***XY轴的设置***/
         // X Axis
         XAxis xAxis = getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -111,7 +122,7 @@ public class HrHistogramChart extends BarChart {
         legend.setForm(Legend.LegendForm.SQUARE);
         legend.setTextSize(20f);
         //显示位置
-        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
         legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
         //是否绘制在图表里面
@@ -134,30 +145,15 @@ public class HrHistogramChart extends BarChart {
         animateY(1000, Easing.Linear);
         animateX(1000, Easing.Linear);
 
-        initBarDataSet("心率直方图", Color.BLUE, Color.GRAY);
+        initBarDataSet(MyApplication.getStr(R.string.hr_histogram));
     }
 
-    /**
-     * 柱状图初始化设置 一个BarDataSet 代表一列柱状图
-     *
-     * @param barColor      柱状图颜色
-     */
-    private void initBarDataSet(String legendString, int barColor, int dataColor) {
+    private void initBarDataSet(String legendString) {
         hrBarDataSet = new BarDataSet(hrBarEntries, legendString);
 
-        List<Integer> colors = new ArrayList<>();
-        colors.add(Color.GRAY);
-        colors.add(Color.GREEN);
-        colors.add(Color.BLUE);
-        colors.add(Color.YELLOW);
-        colors.add(Color.MAGENTA);
-        colors.add(Color.RED);
-        hrBarDataSet.setColors(colors);
-        //hrBarDataSet.setFormLineWidth(1f);
-        //hrBarDataSet.setFormSize(15.f);
-        //hrBarDataSet.setDrawValues(true);
+        hrBarDataSet.setColors(BAR_COLORS);
         hrBarDataSet.setValueTextSize(12f);
-        hrBarDataSet.setValueTextColor(dataColor);
+        hrBarDataSet.setValueTextColor(TEXT_COLOR);
         hrBarDataSet.setValueFormatter(new IValueFormatter() {
             @Override
             public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
@@ -180,19 +176,19 @@ public class HrHistogramChart extends BarChart {
 
 
     private static class StringAxisValueFormatter implements IAxisValueFormatter {
-        private List<String> mStrs;
+        private List<String> values;
 
-        StringAxisValueFormatter(List<String> mStrs){
-            this.mStrs = mStrs;
+        StringAxisValueFormatter(List<String> values){
+            this.values = values;
         }
 
         @Override
         public String getFormattedValue(float value, AxisBase axisBase) {
             int index = (int) value;
-            if (index < 0 || index >= mStrs.size()) {
+            if (index < 0 || index >= values.size()) {
                 return "";
             } else {
-                return mStrs.get(index);
+                return values.get(index);
             }
         }
     }
