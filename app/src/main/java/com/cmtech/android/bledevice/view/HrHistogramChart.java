@@ -108,15 +108,15 @@ public class HrHistogramChart extends BarChart {
         rightAxis.setEnabled(false);
 
         Legend legend = getLegend();
-        legend.setForm(Legend.LegendForm.EMPTY);
+        legend.setForm(Legend.LegendForm.SQUARE);
         legend.setTextSize(20f);
         //显示位置
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
         legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
         //是否绘制在图表里面
         legend.setDrawInside(false);
-        legend.setEnabled(false);
+        legend.setEnabled(true);
 
         setTouchEnabled(false);
         setNoDataText("");

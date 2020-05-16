@@ -27,6 +27,8 @@
     <string name="operation_success">操作成功</string>
     <string name="login_success">登录成功</string>
     <string name="login_failure">登录失败</string>
+    <string name="max_hr">最大心率:</string>
+    <string name="average_hr">平均心率:</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>

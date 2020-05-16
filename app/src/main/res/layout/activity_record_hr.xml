@@ -24,7 +24,15 @@
                 android:layout_height="4dp"
                 android:background="@color/primary_dark"/>
 
-            <include layout="@layout/layout_hr_common_info"/>
+            <include layout="@layout/layout_hr_common_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/primary_dark"/>
 
             <include layout="@layout/layout_line_chart"
                 android:layout_width="match_parent"
@@ -33,7 +41,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_margin="10dp"
+                android:layout_margin="20dp"
                 android:background="@color/primary_dark"/>
 
             <include layout="@layout/layout_hr_hist_chart"

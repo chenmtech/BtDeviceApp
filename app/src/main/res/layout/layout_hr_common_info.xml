@@ -14,21 +14,21 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="最高心率："
+            android:text="@string/max_hr"
             android:textSize="12sp"/>
 
         <TextView
             android:id="@+id/tv_hr_max_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="__"
+            android:text="@string/ellipsis"
             android:textSize="25sp"
             android:textColor="@color/primary_text"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="次/分"
+            android:text="@string/BPM"
             android:textSize="12sp"/>
     </LinearLayout>
 
@@ -41,21 +41,21 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="平均心率："
+            android:text="@string/average_hr"
             android:textSize="12sp"/>
 
         <TextView
             android:id="@+id/tv_hr_ave_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="__"
+            android:text="@string/ellipsis"
             android:textSize="25sp"
             android:textColor="@color/primary_text"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="次/分"
+            android:text="@string/BPM"
             android:textSize="12sp"
             android:layout_marginEnd="10dp"/>
     </LinearLayout>
