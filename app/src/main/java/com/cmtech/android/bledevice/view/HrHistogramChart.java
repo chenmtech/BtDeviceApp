@@ -5,9 +5,11 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 
 import com.cmtech.android.bledevice.record.BleHrRecord10;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.HorizontalBarChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
@@ -31,7 +33,7 @@ import java.util.List;
  */
 
 public class HrHistogramChart extends BarChart {
-    private BarDataSet hrBarDateSet;
+    private BarDataSet hrBarDataSet;
     private List<BarEntry> hrBarEntries = new ArrayList<>();
     private List<String> hrBarXStrings = new ArrayList<>();
 
@@ -53,80 +55,86 @@ public class HrHistogramChart extends BarChart {
     // 更新
     public void update(List<BleHrRecord10.HrHistogramElement<Integer>> hrHistogram) {
         updateHrBarData(hrHistogram);
-        hrBarDateSet.setValues(hrBarEntries);
+        hrBarDataSet.setValues(hrBarEntries);
         invalidate();
     }
 
     @Override
     public void invalidate() {
-        BarData data = new BarData(hrBarDateSet);
+        BarData data = new BarData(hrBarDataSet);
         setData(data);
         super.invalidate();
     }
 
-
     private void initialize() {
-        /***图表设置***/
-        //背景颜色
-        setBackgroundColor(Color.WHITE);
-        //不显示图表网格
-        setDrawGridBackground(false);
-        //背景阴影
+        // description
+        Description description = new Description();
+        description.setText("心率统计");
+        setDescription(description);
+        description.setEnabled(false);
+
+        // bar shadow
         setDrawBarShadow(false);
-        setHighlightFullBarEnabled(false);
-        //显示边框
-        setDrawBorders(false);
-        //设置动画效果
-        animateY(1000, Easing.Linear);
-        animateX(1000, Easing.Linear);
+
+        // value above bar
+        setDrawValueAboveBar(true);
+
+        // pinch zoom
+        setPinchZoom(false);
+
+        //grid background
+        setDrawGridBackground(false);
+
+        setGridBackgroundColor(Color.WHITE);
 
         /***XY轴的设置***/
-        //X轴设置显示位置在底部
+        // X Axis
         XAxis xAxis = getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         //xAxis.setAxisMinimum(0f);
         xAxis.setGranularity(1f);
         xAxis.setDrawAxisLine(false);
+        xAxis.setDrawGridLines(false);
         xAxis.setValueFormatter(new StringAxisValueFormatter(hrBarXStrings));
 
-
         YAxis leftAxis = getAxisLeft();
-        leftAxis.setEnabled(false);
-        YAxis rightAxis = getAxisRight();
-        rightAxis.setEnabled(false);
-        //保证Y轴从0开始，不然会上移一点
         leftAxis.setAxisMinimum(0f);
-        rightAxis.setAxisMinimum(0f);
         leftAxis.setDrawAxisLine(false);
-        rightAxis.setDrawAxisLine(false);
+        leftAxis.setEnabled(false);
 
-        /***折线图例 标签 设置***/
+        YAxis rightAxis = getAxisRight();
+        rightAxis.setAxisMinimum(0f);
+        rightAxis.setDrawAxisLine(false);
+        rightAxis.setEnabled(false);
+
         Legend legend = getLegend();
-        legend.setEnabled(false);
-        legend.setForm(Legend.LegendForm.LINE);
-        legend.setTextSize(11f);
+        legend.setForm(Legend.LegendForm.EMPTY);
+        legend.setTextSize(20f);
         //显示位置
-        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
         legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
         //是否绘制在图表里面
         legend.setDrawInside(false);
-
-        Description description = new Description();
-        description.setText("心率统计");
-        description.setEnabled(false);
-        setDescription(description);
-
-        setDrawValueAboveBar(true);
+        legend.setEnabled(false);
 
         setTouchEnabled(false);
-
-        setNoDataText("暂无有效统计信息");
+        setNoDataText("");
         setNoDataTextColor(Color.GRAY);
 
-        //updateHrBarData(null);
+        setBackgroundColor(Color.WHITE);
+        setHighlightFullBarEnabled(false);
 
-        initBarDataSet("心率统计", Color.BLUE, Color.GRAY);
+        //显示边框
+        setDrawBorders(false);
+
+        setScaleMinima(0.5f, 1.0f);
+
+        //设置动画效果
+        animateY(1000, Easing.Linear);
+        animateX(1000, Easing.Linear);
+
+        initBarDataSet("心率直方图", Color.BLUE, Color.GRAY);
     }
 
     /**
@@ -135,15 +143,22 @@ public class HrHistogramChart extends BarChart {
      * @param barColor      柱状图颜色
      */
     private void initBarDataSet(String legendString, int barColor, int dataColor) {
-        hrBarDateSet = new BarDataSet(hrBarEntries, legendString);
+        hrBarDataSet = new BarDataSet(hrBarEntries, legendString);
 
-        hrBarDateSet.setColor(barColor);
-        hrBarDateSet.setFormLineWidth(1f);
-        hrBarDateSet.setFormSize(15.f);
-        hrBarDateSet.setDrawValues(true);
-        hrBarDateSet.setValueTextSize(10f);
-        hrBarDateSet.setValueTextColor(dataColor);
-        hrBarDateSet.setValueFormatter(new IValueFormatter() {
+        List<Integer> colors = new ArrayList<>();
+        colors.add(Color.GRAY);
+        colors.add(Color.GREEN);
+        colors.add(Color.BLUE);
+        colors.add(Color.YELLOW);
+        colors.add(Color.MAGENTA);
+        colors.add(Color.RED);
+        hrBarDataSet.setColors(colors);
+        //hrBarDataSet.setFormLineWidth(1f);
+        //hrBarDataSet.setFormSize(15.f);
+        //hrBarDataSet.setDrawValues(true);
+        hrBarDataSet.setValueTextSize(12f);
+        hrBarDataSet.setValueTextColor(dataColor);
+        hrBarDataSet.setValueFormatter(new IValueFormatter() {
             @Override
             public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
                 return DateTimeUtil.secToTime((int)value);//String.format(Locale.getDefault(), "%d", (int)value);
@@ -166,12 +181,9 @@ public class HrHistogramChart extends BarChart {
 
     private static class StringAxisValueFormatter implements IAxisValueFormatter {
         private List<String> mStrs;
-        /**
-             * 对字符串类型的坐标轴标记进行格式化
-             * @param strs
-             */
-        StringAxisValueFormatter(List<String> strs){
-            this.mStrs =strs;
+
+        StringAxisValueFormatter(List<String> mStrs){
+            this.mStrs = mStrs;
         }
 
         @Override

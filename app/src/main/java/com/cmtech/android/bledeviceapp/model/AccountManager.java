@@ -20,6 +20,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
@@ -78,12 +79,14 @@ public class AccountManager {
                 try {
                     JSONObject json = new JSONObject(respBody);
                     int code = json.getInt("code");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(context, R.string.login_success, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    if(code != CODE_SUCCESS) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                     ViseLog.e("login/sign up:"+code);
                 } catch (JSONException e) {
                     e.printStackTrace();
