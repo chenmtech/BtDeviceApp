@@ -77,4 +77,8 @@ public class MyApplication extends Application {
         toast.setGravity(Gravity.CENTER, 0, 0);
         toast.show();
     }
+
+    public static String getStr(int strId) {
+        return instance.getString(strId);
+    }
 }

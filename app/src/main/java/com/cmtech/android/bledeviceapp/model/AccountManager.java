@@ -1,7 +1,26 @@
 package com.cmtech.android.bledeviceapp.model;
 
 
+import android.content.Context;
+import android.widget.Toast;
+
+import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
+import com.cmtech.android.bledeviceapp.activity.LoginActivity;
+import com.vise.log.ViseLog;
+
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.LitePal;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+
+import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 
 /**
   *
@@ -36,6 +55,41 @@ public class AccountManager {
         }
         account.save();
         AccountManager.account = account;
+    }
+
+    public static void loginKMServer(final Context context) {
+        if(account == null) return;
+
+        KMWebService.signUporLogin(account.getPlatName(), account.getPlatId(), new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if(response.body() == null) return;
+                String respBody = response.body().string();
+                try {
+                    JSONObject json = new JSONObject(respBody);
+                    int code = json.getInt("code");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, R.string.login_success, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    ViseLog.e("login/sign up:"+code);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     // logout account

@@ -184,9 +184,8 @@ public class HrmDevice extends AbstractDevice {
                     new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                         @Override
                         public void onFinish(int code, final Object rlt) {
-                            int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
-                            String desc = context.getResources().getString(strId);
-                            Toast.makeText(context, desc, Toast.LENGTH_SHORT).show();
+                            int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
+                            Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
                             isUploadHrRecord = false;
                         }
                     }).execute(hrRecord);
@@ -230,9 +229,8 @@ public class HrmDevice extends AbstractDevice {
                 new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                     @Override
                     public void onFinish(int code, final Object rlt) {
-                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
-                        String desc = context.getResources().getString(strId);
-                        Toast.makeText(context, desc, Toast.LENGTH_SHORT).show();
+                        int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
+                        Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
                         isUploadEcgRecord = false;
                     }
                 }).execute(ecgRecord);

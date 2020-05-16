@@ -108,16 +108,15 @@ public class HrRecordActivity extends AppCompatActivity {
                                 new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(int code, final Object rlt) {
-                                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
-                                        String desc = getResources().getString(strId);
-                                        Toast.makeText(HrRecordActivity.this, desc, Toast.LENGTH_SHORT).show();
+                                        int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.operation_failure;
+                                        Toast.makeText(HrRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
                             } else {
                                 Toast.makeText(HrRecordActivity.this, "记录已存在", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Toast.makeText(HrRecordActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(HrRecordActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

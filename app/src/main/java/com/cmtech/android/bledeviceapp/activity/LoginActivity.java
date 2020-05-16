@@ -13,17 +13,11 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
-import com.cmtech.android.bledeviceapp.model.KMWebService;
 import com.mob.MobSDK;
-import com.vise.log.ViseLog;
 
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.HashMap;
 
 import cn.sharesdk.framework.Platform;
@@ -34,9 +28,6 @@ import cn.sharesdk.wechat.friends.Wechat;
 import cn.smssdk.EventHandler;
 import cn.smssdk.SMSSDK;
 import cn.smssdk.gui.RegisterPage;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.HW_PLAT_NAME;
 import static com.cmtech.android.bledeviceapp.AppConstant.SMS_PLAT_NAME;
@@ -154,7 +145,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Platform platform, int i, Throwable throwable) {
-                    Toast.makeText(LoginActivity.this, "登录错误。", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, MyApplication.getStr(R.string.login_failure), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -192,38 +183,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String platName, String platId, String name, String icon) {
-        loginKMServer(platName, platId);
         AccountManager.login(platName, platId, name, icon);
+        AccountManager.loginKMServer(this);
 
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
     }
 
-    private void loginKMServer(String platName, String platId) {
-        KMWebService.signUporLogin(platName, platId, new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(LoginActivity.this, "网络错误。", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if(response.body() == null) return;
-                String respBody = response.body().string();
-                try {
-                    JSONObject json = new JSONObject(respBody);
-                    int code = json.getInt("code");
-                    ViseLog.e("登录/注册："+code);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 }

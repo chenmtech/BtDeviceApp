@@ -15,6 +15,7 @@ import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
@@ -71,8 +72,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                             return;
                         }
                     }
-                    String errStr = getResources().getString(R.string.open_record_failure);
-                    Toast.makeText(EcgRecordActivity.this, errStr, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EcgRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
                     setResult(RESULT_CANCELED);
                     finish();
                 }
@@ -195,9 +195,8 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                                 new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(int code, Object result) {
-                                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
-                                        String desc = getResources().getString(strId);
-                                        Toast.makeText(EcgRecordActivity.this, desc, Toast.LENGTH_SHORT).show();
+                                        int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.operation_failure;
+                                        Toast.makeText(EcgRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
                             } else {
@@ -205,13 +204,12 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                                     @Override
                                     public void onFinish(int code, Object result) {
                                         int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
-                                        String desc = getResources().getString(strId);
-                                        Toast.makeText(EcgRecordActivity.this, desc, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(EcgRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
                             }
                         } else {
-                            Toast.makeText(EcgRecordActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EcgRecordActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
