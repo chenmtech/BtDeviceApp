@@ -35,14 +35,18 @@
     <string name="hr_histogram">心率直方图</string>
     <string name="time">时间</string>
     <string name="temperature">℃</string>
+    <string name="add_device">添加设备</string>
+    <string name="user_record">用户记录</string>
+    <string name="open_store">康明商城</string>
+    <string name="about_km">关于康明</string>
+    <string name="exit">退出</string>
+    <string name="configure">配置</string>
+    <string name="upload">上传</string>
+    <string name="scan">扫描</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>
     <string name="some_devices_opened">有%d设备打开</string>
-    <string name="scan_device">添加设备</string>
-    <string name="query_record">用户记录</string>
-    <string name="open_store">康明商城</string>
-    <string name="exit">退出</string>
     <string name="update">更新</string>
     <string name="delete">删除</string>
     <string name="share">分享</string>

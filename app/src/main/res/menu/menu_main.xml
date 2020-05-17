@@ -6,7 +6,7 @@
         android:id="@+id/toolbar_config"
         android:icon="@mipmap/ic_configure_24px"
         android:orderInCategory="1"
-        android:title="配置"
+        android:title="@string/configure"
         android:visible="false"
         app:showAsAction="ifRoom" />
 
@@ -14,7 +14,7 @@
         android:id="@+id/toolbar_close"
         android:icon="@mipmap/ic_close_32px"
         android:orderInCategory="2"
-        android:title="关闭"
+        android:title="@string/close"
         app:showAsAction="always" />
 
 </menu>

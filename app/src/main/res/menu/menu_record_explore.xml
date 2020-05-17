@@ -5,6 +5,6 @@
         android:id="@+id/delete"
         android:icon="@mipmap/ic_delete_24px"
         android:orderInCategory="0"
-        android:title="删除"
+        android:title="@string/delete"
         app:showAsAction="always" />
 </menu>

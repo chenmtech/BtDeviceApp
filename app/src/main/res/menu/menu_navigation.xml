@@ -5,12 +5,12 @@
         android:checkable="false">
         <item
             android:id="@+id/nav_add_device"
-            android:title="@string/scan_device"
+            android:title="@string/add_device"
             android:icon="@mipmap/ic_scan_device_32px"/>
 
         <item
             android:id="@+id/nav_query_record"
-            android:title="@string/query_record"
+            android:title="@string/user_record"
             android:icon="@mipmap/ic_query_record"/>
 
         <item
@@ -21,7 +21,7 @@
 
         <item
             android:id="@+id/nav_about_us"
-            android:title="关于康明"
+            android:title="@string/about_km"
             android:icon="@mipmap/ic_person_32px"
             android:visible="true"/>
 

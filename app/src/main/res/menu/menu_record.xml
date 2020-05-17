@@ -5,6 +5,6 @@
         android:id="@+id/ecg_upload"
         android:icon="@mipmap/ic_upload_32px"
         android:orderInCategory="0"
-        android:title="上传"
+        android:title="@string/upload"
         app:showAsAction="always" />
 </menu>
