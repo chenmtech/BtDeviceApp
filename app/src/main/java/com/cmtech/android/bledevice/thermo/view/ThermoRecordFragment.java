@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.cmtech.android.bledevice.view.MyLineChart;
 import com.cmtech.android.bledeviceapp.R;
@@ -44,9 +45,12 @@ public class ThermoRecordFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        lineChart = view.findViewById(R.id.hr_line_chart);
+        lineChart = view.findViewById(R.id.line_chart);
         lineChart.setXAxisValueFormatter(2);
         lineChart.showFloatLineChart(new ArrayList<Float>(), TITLE, Color.BLUE);
+
+        TextView tvYUnit = view.findViewById(R.id.line_chart_y_unit);
+        tvYUnit.setText(R.string.temperature);
 
         ibStart = view.findViewById(R.id.ib_record_start);
         ibStart.setOnClickListener(new View.OnClickListener() {

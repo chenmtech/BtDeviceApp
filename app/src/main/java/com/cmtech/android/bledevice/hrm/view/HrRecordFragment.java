@@ -52,9 +52,12 @@ public class HrRecordFragment extends Fragment {
 
         tvHrMax = view.findViewById(R.id.tv_hr_max_value);
         tvHrAve = view.findViewById(R.id.tv_hr_ave_value);
-        lineChart = view.findViewById(R.id.hr_line_chart);
+        lineChart = view.findViewById(R.id.line_chart);
         lineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
         updateHrInfo(new ArrayList<Short>(), INVALID_HEART_RATE, INVALID_HEART_RATE);
+
+        TextView tvYUnit = view.findViewById(R.id.line_chart_y_unit);
+        tvYUnit.setText(R.string.BPM);
 
         ibStart = view.findViewById(R.id.ib_record_start);
         ibStart.setOnClickListener(new View.OnClickListener() {

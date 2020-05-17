@@ -81,9 +81,12 @@ public class HrRecordActivity extends AppCompatActivity {
             }
         });
 
-        hrLineChart = findViewById(R.id.hr_line_chart);
+        hrLineChart = findViewById(R.id.line_chart);
         hrLineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
         hrLineChart.showShortLineChart(record.getFilterHrList(), "心率变化", Color.BLUE);
+
+        TextView tvYUnit = findViewById(R.id.line_chart_y_unit);
+        tvYUnit.setText(R.string.BPM);
 
         hrHistChart = findViewById(R.id.chart_hr_histogram);
         tvAveHr = findViewById(R.id.tv_hr_ave_value);

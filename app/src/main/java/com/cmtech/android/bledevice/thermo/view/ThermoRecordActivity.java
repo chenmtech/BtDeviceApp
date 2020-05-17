@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 
 import com.cmtech.android.bledevice.record.BleThermoRecord10;
 import com.cmtech.android.bledevice.view.MyLineChart;
@@ -59,8 +60,11 @@ public class ThermoRecordActivity extends AppCompatActivity {
             }
         });
 
-        lineChart = findViewById(R.id.hr_line_chart);
+        lineChart = findViewById(R.id.line_chart);
         lineChart.setXAxisValueFormatter(2);
-        lineChart.showFloatLineChart(record.getTemp(), "心率变化", Color.BLUE);
+        lineChart.showFloatLineChart(record.getTemp(), "体温变化", Color.BLUE);
+
+        TextView tvYUnit = findViewById(R.id.line_chart_y_unit);
+        tvYUnit.setText(R.string.temperature);
     }
 }

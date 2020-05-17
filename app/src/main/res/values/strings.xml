@@ -32,7 +32,9 @@
     <string name="login_failure">登录失败</string>
     <string name="max_hr">最大心率:</string>
     <string name="average_hr">平均心率:</string>
-    <string name="hr_histogram">运动心率直方图</string>
+    <string name="hr_histogram">心率直方图</string>
+    <string name="time">时间</string>
+    <string name="temperature">℃</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>

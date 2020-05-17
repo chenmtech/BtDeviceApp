@@ -32,7 +32,9 @@
     <string name="login_failure">login failure.</string>
     <string name="max_hr">Max HR:</string>
     <string name="average_hr">Ave HR:</string>
-    <string name="hr_histogram">Motion HR Histogram</string>
+    <string name="hr_histogram">HR Histogram</string>
+    <string name="time">Time</string>
+    <string name="temperature">℃</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">No Device Opened</string>

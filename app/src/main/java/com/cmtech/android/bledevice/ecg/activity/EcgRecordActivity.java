@@ -133,7 +133,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         });
 
         hrHistChart = findViewById(R.id.chart_hr_histogram);
-        hrLineChart = findViewById(R.id.hr_line_chart);
+        hrLineChart = findViewById(R.id.line_chart);
         tvAverageHr = findViewById(R.id.tv_hr_ave_value);
         tvMaxHr = findViewById(R.id.tv_hr_max_value);
 

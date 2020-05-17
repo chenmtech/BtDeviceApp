@@ -1,6 +1,7 @@
 package com.cmtech.android.bledevice.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
 
@@ -40,6 +41,9 @@ public class HrHistogramChart extends BarChart {
     private List<BarEntry> hrBarEntries = new ArrayList<>();
     private List<String> hrBarXStrings = new ArrayList<>();
 
+    private final static String DEFAULT_LEGEND_STRING = "直方图";
+    private final String legendString;
+
     static {
         BAR_COLORS.add(Color.GRAY);
         BAR_COLORS.add(Color.GREEN);
@@ -51,16 +55,30 @@ public class HrHistogramChart extends BarChart {
 
     public HrHistogramChart(Context context) {
         super(context);
+        legendString = "";
         initialize();
     }
 
     public HrHistogramChart(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        //第二个参数就是我们在attrs.xml文件中的<declare-styleable>标签
+        //即属性集合的标签，在R文件中名称为R.styleable+name
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.HrHistogramChart);
+
+        //第一个参数为属性集合里面的属性，R文件名称：R.styleable+属性集合名称+下划线+属性名称
+        //第二个参数为，如果没有设置这个属性，则设置的默认的值
+        legendString = a.getString(R.styleable.HrHistogramChart_legend_string);
+
+        //最后记得将TypedArray对象回收
+        a.recycle();
+
         initialize();
     }
 
-    public HrHistogramChart(Context context, AttributeSet attrs, int defStyle) {
+    public HrHistogramChart(Context context, AttributeSet attrs, int defStyle, String legendString) {
         super(context, attrs, defStyle);
+        this.legendString = legendString;
         initialize();
     }
 
@@ -145,10 +163,10 @@ public class HrHistogramChart extends BarChart {
         animateY(1000, Easing.Linear);
         animateX(1000, Easing.Linear);
 
-        initBarDataSet(MyApplication.getStr(R.string.hr_histogram));
+        initBarDataSet();
     }
 
-    private void initBarDataSet(String legendString) {
+    private void initBarDataSet() {
         hrBarDataSet = new BarDataSet(hrBarEntries, legendString);
 
         hrBarDataSet.setColors(BAR_COLORS);
