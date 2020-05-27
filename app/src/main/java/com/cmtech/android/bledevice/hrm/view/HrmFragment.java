@@ -250,23 +250,28 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onEcgOnStatusUpdated(boolean isOpen) {
-        if(isEcgOn == isOpen) return;
+    public void onEcgOnStatusUpdated(final boolean isOpen) {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(isEcgOn == isOpen) return;
 
-        if (isOpen) {
-            flWhenEcgOff.setVisibility(View.GONE);
-            flWhenEcgOn.setVisibility(View.VISIBLE);
-            ecgView.start();
-            ecgView.initialize();
-            tvEcgSwitch.setText(R.string.close);
-        } else {
-            flWhenEcgOff.setVisibility(View.VISIBLE);
-            flWhenEcgOn.setVisibility(View.GONE);
-            ecgView.stop();
-            tvEcgSwitch.setText(R.string.open);
-        }
+                if (isOpen) {
+                    flWhenEcgOff.setVisibility(View.GONE);
+                    flWhenEcgOn.setVisibility(View.VISIBLE);
+                    ecgView.start();
+                    ecgView.initialize();
+                    tvEcgSwitch.setText(R.string.close);
+                } else {
+                    flWhenEcgOff.setVisibility(View.VISIBLE);
+                    flWhenEcgOn.setVisibility(View.GONE);
+                    ecgView.stop();
+                    tvEcgSwitch.setText(R.string.open);
+                }
 
-        isEcgOn = isOpen;
+                isEcgOn = isOpen;
+            }
+        });
     }
 
     @Override

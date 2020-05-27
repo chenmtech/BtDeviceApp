@@ -23,7 +23,7 @@ import java.util.List;
 
 public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Formatter, NumberPicker.OnScrollListener, NumberPicker.OnValueChangeListener {
     private static final int HR_LIMIT_LOWEST = 30;
-    private static final int HR_LIMIT_HGIHEST = 200;
+    private static final int HR_LIMIT_HGIHEST = 180;
     private static final int HR_LIMIT_INTERVAL = 5;
     public static final int RESULT_ECG_LOCK_CHANGED = RESULT_FIRST_USER;
     private boolean ecgLock = true;
