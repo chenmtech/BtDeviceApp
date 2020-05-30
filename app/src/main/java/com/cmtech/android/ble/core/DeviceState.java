@@ -1,5 +1,6 @@
 package com.cmtech.android.ble.core;
 
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 
 /**
@@ -22,12 +23,12 @@ public class DeviceState {
     private static final int CONNECTING_CODE = 0x04; // connecting
     private static final int DISCONNECTING_CODE = 0x05; // disconnecting
 
-    public static final DeviceState CLOSED = new DeviceState(CLOSED_CODE, "已关闭", R.mipmap.ic_disconnect_32px);
-    public static final DeviceState CONNECT = new DeviceState(CONNECT_CODE, "已连接", R.mipmap.ic_connected_32px);
-    public static final DeviceState FAILURE = new DeviceState(FAILURE_CODE, "连接失败", R.mipmap.ic_disconnect_32px);
-    public static final DeviceState DISCONNECT = new DeviceState(DISCONNECT_CODE, "未连接", R.mipmap.ic_disconnect_32px);
-    public static final DeviceState CONNECTING = new DeviceState(CONNECTING_CODE, "连接中", R.drawable.connecting);
-    public static final DeviceState DISCONNECTING = new DeviceState(DISCONNECTING_CODE, "断开中", R.drawable.connecting);
+    public static final DeviceState CLOSED = new DeviceState(CLOSED_CODE, MyApplication.getStr(R.string.closed), R.mipmap.ic_disconnect_32px);
+    public static final DeviceState CONNECT = new DeviceState(CONNECT_CODE, MyApplication.getStr(R.string.connected), R.mipmap.ic_connected_32px);
+    public static final DeviceState FAILURE = new DeviceState(FAILURE_CODE, MyApplication.getStr(R.string.connect_failure), R.mipmap.ic_disconnect_32px);
+    public static final DeviceState DISCONNECT = new DeviceState(DISCONNECT_CODE, MyApplication.getStr(R.string.disconnected), R.mipmap.ic_disconnect_32px);
+    public static final DeviceState CONNECTING = new DeviceState(CONNECTING_CODE, MyApplication.getStr(R.string.connecting), R.drawable.connecting);
+    public static final DeviceState DISCONNECTING = new DeviceState(DISCONNECTING_CODE, MyApplication.getStr(R.string.disconnecting), R.drawable.connecting);
 
     private final int code; // code
     private String description; // state description

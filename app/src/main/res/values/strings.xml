@@ -43,6 +43,12 @@
     <string name="configure">配置</string>
     <string name="upload">上传</string>
     <string name="scan">扫描</string>
+    <string name="closed">已关闭</string>
+    <string name="connected">已连接</string>
+    <string name="connect_failure">连接失败</string>
+    <string name="disconnected">已断开</string>
+    <string name="connecting">连接中</string>
+    <string name="disconnecting">断开中</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>
