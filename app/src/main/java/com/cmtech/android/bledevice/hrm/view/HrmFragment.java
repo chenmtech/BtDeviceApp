@@ -255,12 +255,12 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
             @Override
             public void run() {
                 if(isEcgOn == isOpen) return;
-
                 if (isOpen) {
                     flWhenEcgOff.setVisibility(View.GONE);
                     flWhenEcgOn.setVisibility(View.VISIBLE);
+                    ecgView.setup(device.getSampleRate(), device.getCaliValue(), DEFAULT_ZERO_LOCATION);
                     ecgView.start();
-                    ecgView.initialize();
+                    //ecgView.initialize();
                     tvEcgSwitch.setText(R.string.close);
                 } else {
                     flWhenEcgOff.setVisibility(View.VISIBLE);

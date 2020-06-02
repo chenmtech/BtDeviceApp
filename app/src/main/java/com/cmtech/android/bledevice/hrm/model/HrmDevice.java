@@ -259,7 +259,7 @@ public class HrmDevice extends AbstractDevice {
         });
     }
 
-    public void setEcgOn(boolean isOn) {
+    public void setEcgOn(final boolean isOn) {
         if(isEcgOn == isOn) return;
 
         if(ecgLock) {
@@ -269,16 +269,29 @@ public class HrmDevice extends AbstractDevice {
         }
 
         if(isEcgRecord && !isOn) {
-            MyApplication.showMessageUsingShortToast("请先停止记录。");
+            Toast.makeText(context, "请先停止记录。", Toast.LENGTH_SHORT).show();
             if(listener != null) listener.onEcgOnStatusUpdated(true);
             return;
         }
 
-        //((BleConnector)connector).notify(ECGMEASCCC, false, null);
-
         if(isOn) {
-            if(ecgProcessor != null)
-                ecgProcessor.start();
+            ((BleConnector)connector).notify(ECGMEASCCC, false, null);
+
+            ((BleConnector)connector).write(ECGSAMPLERATE, ByteUtil.getBytes(250), new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    sampleRate = 250;
+                    if(ecgProcessor != null) {
+                        ecgProcessor.reset();
+                        ecgProcessor.start();
+                    }
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+
+                }
+            });
 
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
@@ -294,16 +307,48 @@ public class HrmDevice extends AbstractDevice {
             };
             ((BleConnector)connector).notify(ECGMEASCCC, true, notifyCallback);
         } else {
-            if(ecgProcessor != null)
-                ecgProcessor.stop();
+            ((BleConnector)connector).runInstantly(new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    if(ecgProcessor != null)
+                        ecgProcessor.stop();
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+
+                }
+            });
 
             ((BleConnector)connector).notify(ECGMEASCCC, false, null);
+
+            ((BleConnector)connector).write(ECGSAMPLERATE, ByteUtil.getBytes(125), new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    sampleRate = 125;
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+
+                }
+            });
         }
 
-        isEcgOn = isOn;
-        if(listener != null) {
-            listener.onEcgOnStatusUpdated(isEcgOn);
-        }
+        ((BleConnector)connector).runInstantly(new IBleDataCallback() {
+            @Override
+            public void onSuccess(byte[] data, BleGattElement element) {
+                isEcgOn = isOn;
+                if(listener != null) {
+                    listener.onEcgOnStatusUpdated(isEcgOn);
+                }
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+            }
+        });
+
     }
 
     @Override
@@ -417,6 +462,10 @@ public class HrmDevice extends AbstractDevice {
 
     public final int getSampleRate() {
         return sampleRate;
+    }
+
+    public final void setSampleRate(int sampleRate) {
+        this.sampleRate = sampleRate;
     }
 
     public final int getCaliValue() {
@@ -610,6 +659,7 @@ public class HrmDevice extends AbstractDevice {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 sampleRate = UnsignedUtil.getUnsignedShort(ByteUtil.getShort(data));
+                //sampleRate = 250;
             }
 
             @Override
