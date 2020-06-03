@@ -260,7 +260,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void setEcgOn(boolean isOn) {
-        if(isEcgOn == isOn) return;
+        //if(isEcgOn == isOn) return;
 
         if(ecgLock) {
             if(listener != null)
@@ -269,7 +269,7 @@ public class HrmDevice extends AbstractDevice {
         }
 
         if(isEcgRecord && !isOn) {
-            MyApplication.showMessageUsingShortToast("请先停止记录。");
+            Toast.makeText(context, "请先停止记录", Toast.LENGTH_SHORT).show();
             if(listener != null) listener.onEcgOnStatusUpdated(true);
             return;
         }
@@ -277,8 +277,6 @@ public class HrmDevice extends AbstractDevice {
         //((BleConnector)connector).notify(ECGMEASCCC, false, null);
 
         if(isOn) {
-            if(ecgProcessor != null)
-                ecgProcessor.start();
 
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
@@ -353,10 +351,14 @@ public class HrmDevice extends AbstractDevice {
                 public void onSuccess(byte[] data, BleGattElement element) {
                     if(ecgLock) {
                         if (listener != null)
-                            listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, ecgLock);
+                            listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, true);
+
+                        setEcgOn(false);
                     }
                     else {
                         initEcgService();
+
+                        setEcgOn(true);
                     }
                 }
 
@@ -381,7 +383,7 @@ public class HrmDevice extends AbstractDevice {
 
         stopSpeak();
         setEcgRecord(false);
-        setEcgOn(false);
+        //setEcgOn(false);
     }
 
     @Override
@@ -392,7 +394,7 @@ public class HrmDevice extends AbstractDevice {
 
         stopSpeak();
         setEcgRecord(false);
-        setEcgOn(false);
+        //setEcgOn(false);
     }
 
     @Override
@@ -400,7 +402,7 @@ public class HrmDevice extends AbstractDevice {
         setHRMeasure(false);
         setBatteryMeasure(false);
         setEcgRecord(false);
-        setEcgOn(false);
+        //setEcgOn(false);
         ((BleConnector)connector).runInstantly(new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
@@ -594,6 +596,8 @@ public class HrmDevice extends AbstractDevice {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
                 ecgProcessor = new EcgDataProcessor(HrmDevice.this);
+                ecgProcessor.start();
+
                 if (listener != null)
                     listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, ecgLock);
             }

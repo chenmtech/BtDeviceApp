@@ -1,11 +1,13 @@
 package com.cmtech.android.bledevice.hrm.view;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +17,10 @@ import android.widget.Toast;
 
 import com.cmtech.android.ble.core.DeviceState;
 import com.cmtech.android.bledevice.hrm.model.BleHeartRateData;
-import com.cmtech.android.bledevice.record.BleHrRecord10;
-import com.cmtech.android.bledevice.hrm.model.HrmDevice;
 import com.cmtech.android.bledevice.hrm.model.HrmCfg;
+import com.cmtech.android.bledevice.hrm.model.HrmDevice;
 import com.cmtech.android.bledevice.hrm.model.OnHrmListener;
+import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledevice.view.ScanEcgView;
 import com.cmtech.android.bledeviceapp.MyApplication;
@@ -32,7 +34,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
-import static com.cmtech.android.bledevice.hrm.view.HrmCfgActivity.RESULT_ECG_LOCK_CHANGED;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 
 /**
@@ -100,9 +101,23 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         tvEcgSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(device != null && device.getState() == DeviceState.CONNECT) {
-                    device.setEcgOn(!isEcgOn);
+                if(device.getState() != DeviceState.CONNECT) {
+                    Toast.makeText(getContext(), R.string.cannot_change_ecg_lock, Toast.LENGTH_SHORT).show();
+                    return;
                 }
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("切换工作模式")
+                        .setMessage("设备将断开重启")
+                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                device.setEcgLock(!device.isEcgLock());
+                            }
+                        })
+                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+
+                            }
+                        }).show();
             }
         });
 
@@ -130,14 +145,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         super.onActivityResult(requestCode, resultCode, data);
 
         if(requestCode == 1) { // cfg return
-            if(resultCode == RESULT_ECG_LOCK_CHANGED) {
-                if(device.getState() != DeviceState.CONNECT) {
-                    Toast.makeText(getContext(), R.string.cannot_change_ecg_lock, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                boolean ecgLock = data.getBooleanExtra("ecg_lock", true);
-                device.setEcgLock(ecgLock);
-            } else if(resultCode == RESULT_OK) {
+            if(resultCode == RESULT_OK) {
                 HrmCfg cfg = (HrmCfg) data.getSerializableExtra("hr_cfg");
                 device.updateConfig(cfg);
             }
@@ -219,15 +227,15 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                 public void run() {
                     ecgView.setup(sampleRate, value1mV, zeroLocation);
                     if(ecgLock) {
-                        tvEcgSwitch.setVisibility(View.GONE);
                         flWhenEcgOff.setVisibility(View.VISIBLE);
                         flWhenEcgOn.setVisibility(View.GONE);
                         ecgView.stop();
                         fragAdapter.removeFragment(ecgRecFrag);
                         pager.setCurrentItem(fragAdapter.getCount()-1);
+                        tvEcgSwitch.setText(R.string.ecg_switch_off);
                     } else {
-                        tvEcgSwitch.setVisibility(View.VISIBLE);
                         fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
+                        tvEcgSwitch.setText(R.string.ecg_switch_on);
                     }
                 }
             });
@@ -254,22 +262,20 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(isEcgOn == isOpen) return;
+                //if(isEcgOn == isOpen) return;
 
                 if (isOpen) {
                     flWhenEcgOff.setVisibility(View.GONE);
                     flWhenEcgOn.setVisibility(View.VISIBLE);
                     ecgView.start();
                     ecgView.initialize();
-                    tvEcgSwitch.setText(R.string.close);
                 } else {
                     flWhenEcgOff.setVisibility(View.VISIBLE);
                     flWhenEcgOn.setVisibility(View.GONE);
                     ecgView.stop();
-                    tvEcgSwitch.setText(R.string.open);
                 }
 
-                isEcgOn = isOpen;
+                //isEcgOn = isOpen;
             }
         });
     }

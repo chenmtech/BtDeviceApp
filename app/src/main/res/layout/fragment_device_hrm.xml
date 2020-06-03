@@ -89,9 +89,10 @@
             android:layout_gravity="end|top"
             android:layout_margin="5dp"
             android:drawableEnd="@mipmap/ic_ecg_32px"
-            android:text="@string/open"
-            android:textSize="20sp"
-            android:visibility="gone"/>
+            android:text="@string/ecg_switch_off"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:visibility="visible"/>
 
     </FrameLayout>
 
