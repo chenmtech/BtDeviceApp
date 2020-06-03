@@ -97,6 +97,9 @@ public class LoginActivity extends AppCompatActivity {
 
         TextView tvPrivacy = findViewById(R.id.tv_privacy);
         tvPrivacy.setMovementMethod(LinkMovementMethod.getInstance());
+
+        TextView tvAgreement = findViewById(R.id.tv_agreement);
+        tvAgreement.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
     private boolean checkPrivacyGrant() {
@@ -104,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
         if(granted) {
             MobSDK.submitPolicyGrantResult(granted, null);
         } else {
-            Toast.makeText(this, "请勾选同意隐私条款。", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "如您已同意本软件服务协议和隐私政策，请勾选。", Toast.LENGTH_SHORT).show();
         }
         return granted;
     }

@@ -4,6 +4,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/ll_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -101,6 +102,15 @@
         </LinearLayout>
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tv_pls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/ll_login"
+        android:layout_marginTop="-22dp"
+        android:layout_centerHorizontal="true"
+        android:text="请选择登录方式" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -118,13 +128,18 @@
             android:text="@string/privacy_policy"/>
 
         <TextView
+            android:id="@+id/tv_agreement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="@string/service_agreement"/>
+
+        <TextView
             android:id="@+id/tv_privacy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:text="@string/privacy_policy_http"
-            android:textColor="@color/blue"/>
-
+            android:text="@string/privacy_policy_http"/>
     </LinearLayout>
 
 </RelativeLayout>
