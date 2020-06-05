@@ -51,6 +51,8 @@ public class MyApplication extends Application {
 
         // init text-to-speech instance
         tts = SystemTTS.getInstance(getApplicationContext());
+
+        CrashHandler.getInstance().init(this);
     }
 
     public static MyApplication getInstance() {
