@@ -54,7 +54,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         ImageView ivCreatorImage;
         TextView tvCreateTime; //
         TextView tvAddress;
-        TextView tvDesc; // record description
+        TextView tvNote; // record description
         ImageView ivType;
 
         ViewHolder(View itemView) {
@@ -64,7 +64,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             ivCreatorImage = view.findViewById(R.id.iv_creator_image);
             tvCreateTime = view.findViewById(R.id.tv_create_time);
             tvAddress = view.findViewById(R.id.tv_device_address);
-            tvDesc = view.findViewById(R.id.tv_desc);
+            tvNote = view.findViewById(R.id.tv_note);
             ivType = view.findViewById(R.id.iv_record_type);
         }
     }
@@ -115,7 +115,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
         holder.tvAddress.setText(record.getDevAddress());
 
-        holder.tvDesc.setText(record.getDesc());
+        holder.tvNote.setText(record.getNote());
 
         holder.ivType.setImageResource(RecordType.getType(record.getTypeCode()).getImgId());
 

@@ -27,8 +27,8 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     private float heatIndex;
     private String location;
 
-    BleTempHumidRecord10(long createTime, String devAddress, User creator) {
-        super(TH, "1.0", createTime, devAddress, creator);
+    BleTempHumidRecord10(long createTime, String devAddress, User creator, String note) {
+        super(TH, "1.0", createTime, devAddress, creator, note);
         temperature = 0.0f;
         humid = 0.0f;
         heatIndex = 0.0f;
@@ -36,7 +36,7 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     }
 
     static List<BleTempHumidRecord10> createFromLocalDb(User creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location")
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location, note")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleTempHumidRecord10.class);
     }
@@ -45,10 +45,6 @@ public class BleTempHumidRecord10 extends AbstractRecord {
         return null;
     }
 
-    @Override
-    public String getDesc() {
-        return "地点" + location + "，温度" + temperature + "℃，湿度" + humid + "%，体感" + (int)heatIndex;
-    }
 
     @Override
     public JSONObject toJson() {

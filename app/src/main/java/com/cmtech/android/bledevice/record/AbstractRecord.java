@@ -27,6 +27,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     private String devAddress; //
     private String creatorPlat;
     private String creatorId;
+    private String note;
     @Column(ignore = true)
     private RecordType type;
 
@@ -36,10 +37,11 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         devAddress = "";
         creatorPlat = "";
         creatorId = "";
+        note = "";
         this.type = type;
     }
 
-    AbstractRecord(RecordType type, String ver, long createTime, String devAddress, User creator) {
+    AbstractRecord(RecordType type, String ver, long createTime, String devAddress, User creator, String note) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
@@ -49,6 +51,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         this.devAddress = devAddress;
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();
+        this.note = note;
     }
 
     @Override
@@ -112,6 +115,16 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
+    public String getNote() {
+        return note;
+    }
+
+    @Override
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    @Override
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         try {
@@ -120,6 +133,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
             json.put("devAddress", devAddress);
             json.put("creatorPlat", creatorPlat);
             json.put("creatorId", creatorId);
+            json.put("note", note);
             return json;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -129,7 +143,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
 
     @Override
     public String toString() {
-        return ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + getDesc();
+        return ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note;
     }
 
     @Override

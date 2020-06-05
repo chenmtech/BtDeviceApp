@@ -50,8 +50,8 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     @Column(ignore = true)
     private transient long preTime = 0;
 
-    BleHrRecord10(long createTime, String devAddress, User creator) {
-        super(HR, "1.0", createTime, devAddress, creator);
+    BleHrRecord10(long createTime, String devAddress, User creator, String note) {
+        super(HR, "1.0", createTime, devAddress, creator, note);
         filterHrList = new ArrayList<>();
         hrMax = INVALID_HEART_RATE;
         hrAve = INVALID_HEART_RATE;
@@ -76,8 +76,9 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
             long createTime = json.getLong("createTime");
             User account = AccountManager.getAccount();
             int recordSecond = json.getInt("recordSecond");
+            String note = json.getString("note");
 
-            BleHrRecord10 newRecord = new BleHrRecord10(createTime, devAddress, account);
+            BleHrRecord10 newRecord = new BleHrRecord10(createTime, devAddress, account, note);
             newRecord.setRecordSecond(recordSecond);
             return newRecord;
         } catch (JSONException e) {
@@ -87,15 +88,9 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     }
 
     static List<BleHrRecord10> createFromLocalDb(User creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleHrRecord10.class);
-    }
-
-    @Override
-    public String getDesc() {
-        int time = (getRecordSecond() <= 60) ? 1 : getRecordSecond()/60;
-        return "时长约"+time+"分钟";
     }
 
     @Override

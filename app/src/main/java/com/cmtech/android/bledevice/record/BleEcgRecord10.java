@@ -32,18 +32,16 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
     private int recordSecond; // unit: s
-    private String note; // record description
     private List<Short> ecgData; // ecg data
     @Column(ignore = true)
     private int pos = 0;
 
-    BleEcgRecord10(long createTime, String devAddress, User creator) {
-        super(ECG, "1.0", createTime, devAddress, creator);
+    BleEcgRecord10(long createTime, String devAddress, User creator, String note) {
+        super(ECG, "1.0", createTime, devAddress, creator, note);
         sampleRate = 0;
         caliValue = 0;
         leadTypeCode = 0;
         recordSecond = 0;
-        note = "";
         ecgData = new ArrayList<>();
     }
 
@@ -57,8 +55,9 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
             long createTime = json.getLong("createTime");
             User account = AccountManager.getAccount();
             int recordSecond = json.getInt("recordSecond");
+            String note = json.getString("note");
 
-            BleEcgRecord10 newRecord = new BleEcgRecord10(createTime, devAddress, account);
+            BleEcgRecord10 newRecord = new BleEcgRecord10(createTime, devAddress, account, note);
             newRecord.setRecordSecond(recordSecond);
             return newRecord;
         } catch (JSONException e) {
@@ -68,14 +67,9 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     static List<BleEcgRecord10> createFromLocalDb(User creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond")
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleEcgRecord10.class);
-    }
-
-    @Override
-    public String getDesc() {
-        return "时长约"+getRecordSecond()+"秒";
     }
 
     @Override
@@ -88,7 +82,6 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
             json.put("caliValue", caliValue);
             json.put("leadTypeCode", leadTypeCode);
             json.put("recordSecond", recordSecond);
-            json.put("note", note);
             StringBuilder builder = new StringBuilder();
             for(Short ele : ecgData) {
                 builder.append(ele).append(',');
@@ -112,7 +105,6 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
             caliValue = json.getInt("caliValue");
             leadTypeCode = json.getInt("leadTypeCode");
             recordSecond = json.getInt("recordSecond");
-            note = json.getString("note");
             String ecgDataStr = json.getString("ecgData");
             List<Short> ecgData = new ArrayList<>();
             String[] strings = ecgDataStr.split(",");
@@ -192,14 +184,6 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
         this.recordSecond = recordSecond;
     }
 
-    public String getNote() {
-        return note;
-    }
-
-    public void setNote(String note) {
-        this.note = note;
-    }
-
     public boolean process(short ecg) {
         ecgData.add(ecg);
         return true;
@@ -207,6 +191,6 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
 
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + note + "-" + ecgData;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + getNote() + "-" + ecgData;
     }
 }

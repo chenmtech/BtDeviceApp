@@ -59,7 +59,7 @@
             android:textSize="12sp"/>
 
         <TextView
-            android:id="@+id/tv_desc"
+            android:id="@+id/tv_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="未知"

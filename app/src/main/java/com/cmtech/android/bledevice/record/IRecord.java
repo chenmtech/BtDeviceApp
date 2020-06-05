@@ -23,5 +23,6 @@ public interface IRecord extends IRecordJson {
     String getCreatorPlat();
     String getCreatorId();
     String getCreatorName();
-    String getDesc();
+    String getNote();
+    void setNote(String note);
 }
