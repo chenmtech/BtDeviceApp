@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">康明智联</string>
+    <string name="welcome_word">欢迎使用康明智联</string>
     <string name="unknown">未知</string>
     <string name="no_more">没有更多了</string>
     <string name="anonymous">匿名</string>
