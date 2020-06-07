@@ -172,7 +172,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     private void updateRecordsFromServer(final long fromTime) {
-        IRecord record = RecordFactory.create(recordType, fromTime, null, AccountManager.getAccount());
+        IRecord record = RecordFactory.create(recordType, fromTime, null, AccountManager.getAccount(), "");
 
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_INFO_DOWNLOAD_CMD, READ_RECORD_INFO_NUM, true, new RecordWebAsyncTask.RecordWebCallback() {
             @Override

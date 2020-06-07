@@ -42,13 +42,13 @@ public class RecordFactory {
         }
     }
 
-    public static IRecord create(RecordType type, long createTime, String devAddress, User creator) {
+    public static IRecord create(RecordType type, long createTime, String devAddress, User creator, String note) {
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                Constructor constructor = recordClass.getDeclaredConstructor(long.class, String.class, User.class);
+                Constructor constructor = recordClass.getDeclaredConstructor(long.class, String.class, User.class, String.class);
                 constructor.setAccessible(true);
-                return (IRecord) constructor.newInstance(createTime, devAddress, creator);
+                return (IRecord) constructor.newInstance(createTime, devAddress, creator, note);
             } catch (InstantiationException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
@@ -62,8 +62,8 @@ public class RecordFactory {
         return null;
     }
 
-    public static IRecord create(int typeCode, long createTime, String devAddress, User creator) {
-        return create(RecordType.getType(typeCode), createTime, devAddress, creator);
+    public static IRecord create(int typeCode, long createTime, String devAddress, User creator, String note) {
+        return create(RecordType.getType(typeCode), createTime, devAddress, creator, note);
     }
 
     public static IRecord createFromJson(RecordType type, JSONObject json) {
