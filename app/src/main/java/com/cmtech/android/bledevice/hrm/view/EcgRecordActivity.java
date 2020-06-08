@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.hrm.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -15,7 +16,6 @@ import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledevice.view.RollEcgRecordWaveView;
 import com.cmtech.android.bledevice.view.RollWaveView;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
@@ -171,6 +171,14 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     @Override
     public void onShowStateUpdated(boolean isShow) {
         sbReplay.setEnabled(!isShow);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra("note", etNote.getText().toString());
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     @Override

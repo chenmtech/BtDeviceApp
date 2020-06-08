@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case RC_ADD_DEVICE: // return code for add device
+            case RC_ADD_DEVICE: // return for add device
                 if(resultCode == RESULT_OK) {
                     BleDeviceInfo info = (BleDeviceInfo) data.getSerializableExtra(DEVICE_INFO);
                     if(info != null) {

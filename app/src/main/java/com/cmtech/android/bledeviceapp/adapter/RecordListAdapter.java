@@ -21,6 +21,7 @@ import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.vise.log.ViseLog;
 
 import java.util.List;
 
@@ -142,5 +143,11 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
     public void unselected() {
         selPos = INVALID_POS;
+    }
+
+    public void notifySelectedItemChanged(String note) {
+        ViseLog.e("activity result");
+        allRecords.get(selPos).setNote(note);
+        notifyItemChanged(selPos);
     }
 }

@@ -163,7 +163,7 @@ public class HrmDevice extends AbstractDevice {
         isHrRecord = isRecord;
         if(isRecord) {
             hrRecord = (BleHrRecord10) RecordFactory.create(HR, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
-            if(listener != null)
+            if(listener != null && hrRecord != null)
                 listener.onHRStatisticInfoUpdated(hrRecord.getFilterHrList(), hrRecord.getHrMax(), hrRecord.getHrAve(), hrRecord.getHrHistogram());
         } else {
             if(hrRecord != null) {

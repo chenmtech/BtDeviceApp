@@ -1,9 +1,12 @@
 package com.cmtech.android.bledevice.hrm.view;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +20,7 @@ import com.vise.log.ViseLog;
 
 import org.json.JSONObject;
 import org.litepal.LitePal;
+import org.litepal.crud.callback.SaveCallback;
 
 import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
@@ -32,6 +36,9 @@ public class HrRecordActivity extends AppCompatActivity {
     private TextView tvAveHr; // average HR
     private MyLineChart hrLineChart; // HR line chart
     private HrHistogramChart hrHistChart; // HR histogram chart
+
+    private EditText etNote;
+    private Button btnSave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +76,14 @@ public class HrRecordActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra("note", etNote.getText().toString());
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
     private void initUI() {
         ViseLog.e(record);
         record.createHistogram();
@@ -95,6 +110,31 @@ public class HrRecordActivity extends AppCompatActivity {
         tvAveHr.setText(String.valueOf(record.getHrAve()));
         tvMaxHr.setText(String.valueOf(record.getHrMax()));
         hrHistChart.update(record.getHrHistogram());
+
+        etNote = findViewById(R.id.et_note);
+        etNote.setText(record.getNote());
+        etNote.setEnabled(false);
+        btnSave = findViewById(R.id.btn_save);
+        btnSave.setText("编辑");
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(etNote.isEnabled()) {
+                    record.setNote(etNote.getText().toString());
+                    record.saveAsync().listen(new SaveCallback() {
+                        @Override
+                        public void onFinish(boolean success) {
+
+                        }
+                    });
+                    etNote.setEnabled(false);
+                    btnSave.setText("编辑");
+                } else {
+                    etNote.setEnabled(true);
+                    btnSave.setText("保存");
+                }
+            }
+        });
     }
 
     private void upload() {

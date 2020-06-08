@@ -3,6 +3,7 @@ package com.cmtech.android.bledeviceapp.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -160,6 +161,17 @@ public class RecordExplorerActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 1) {
+            if(data != null) {
+                String note = data.getStringExtra("note");
+                recordAdapter.notifySelectedItemChanged(note);
+            }
+        }
+    }
+
     private void setRecordType(RecordType type) {
         if(this.recordType == type) return;
         this.recordType = type;
@@ -214,7 +226,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
             }
             if (intent != null) {
                 intent.putExtra("record_id", record.getId());
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         }
     }

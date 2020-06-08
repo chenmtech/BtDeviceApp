@@ -81,8 +81,7 @@
     <EditText
         android:id="@+id/et_note"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_height="100dp"
         android:ems="10"
         android:gravity="start|top"
         android:inputType="textMultiLine"
@@ -93,8 +92,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="编辑"/>
-
-
-
 
 </LinearLayout>

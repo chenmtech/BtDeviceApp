@@ -39,7 +39,6 @@ public class RecordIntroLayout extends RelativeLayout {
     private ImageView ivCreatorImage;
     private TextView tvCreateTime; // 创建时间
     private TextView tvAddress; // device address
-    private TextView tvNote; // note
     private ImageView ivUpload; // record upload
 
     public RecordIntroLayout(Context context, @Nullable AttributeSet attrs) {
@@ -51,7 +50,6 @@ public class RecordIntroLayout extends RelativeLayout {
         ivCreatorImage = findViewById(R.id.iv_creator_image);
         tvCreateTime = findViewById(R.id.tv_create_time);
         tvAddress = findViewById(R.id.tv_device_address);
-        tvNote = findViewById(R.id.tv_note);
         ivUpload = findViewById(R.id.iv_record_upload);
     }
 
@@ -76,7 +74,6 @@ public class RecordIntroLayout extends RelativeLayout {
         tvCreateTime.setText(createTime);
 
         tvAddress.setText(record.getDevAddress());
-        tvNote.setText(record.getNote());
         ivUpload.setOnClickListener(uploadListener);
         invalidate();
     }
