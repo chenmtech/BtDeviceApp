@@ -88,7 +88,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     }
 
     static List<BleHrRecord10> createFromLocalDb(User creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note")
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note, uploaded")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleHrRecord10.class);
     }

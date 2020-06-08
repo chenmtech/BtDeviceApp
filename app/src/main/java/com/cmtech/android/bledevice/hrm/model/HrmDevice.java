@@ -139,8 +139,8 @@ public class HrmDevice extends AbstractDevice {
 
     private Context context;
 
-    private volatile boolean isUploadEcgRecord = false;
-    private volatile boolean isUploadHrRecord = false;
+    private volatile boolean isUploadingEcgRecord = false;
+    private volatile boolean isUploadingHrRecord = false;
 
     public HrmDevice(DeviceInfo registerInfo) {
         super(registerInfo);
@@ -158,7 +158,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void setHrRecord(boolean isRecord) {
-        if(isHrRecord == isRecord || isUploadHrRecord) return;
+        if(isHrRecord == isRecord || isUploadingHrRecord) return;
 
         isHrRecord = isRecord;
         if(isRecord) {
@@ -180,13 +180,17 @@ public class HrmDevice extends AbstractDevice {
                     }
                     hrRecord.setRecordSecond(sum);
                     hrRecord.save();
-                    isUploadHrRecord = true;
+                    isUploadingHrRecord = true;
                     new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                         @Override
                         public void onFinish(int code, final Object rlt) {
                             int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
                             Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
-                            isUploadHrRecord = false;
+                            if(code == CODE_SUCCESS) {
+                                hrRecord.setUploaded(true);
+                                hrRecord.save();
+                            }
+                            isUploadingHrRecord = false;
                         }
                     }).execute(hrRecord);
                 }
@@ -199,7 +203,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void setEcgRecord(final boolean isRecord) {
-        if(isEcgRecord == isRecord || isUploadEcgRecord) return;
+        if(isEcgRecord == isRecord || isUploadingEcgRecord) return;
 
         if(isRecord && !isEcgOn) {
             MyApplication.showMessageUsingShortToast("请先打开心电功能。");
@@ -225,13 +229,17 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.setCreateTime(new Date().getTime());
                 ecgRecord.setRecordSecond(ecgRecord.getEcgData().size()/sampleRate);
                 ecgRecord.save();
-                isUploadEcgRecord = true;
+                isUploadingEcgRecord = true;
                 new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                     @Override
                     public void onFinish(int code, final Object rlt) {
                         int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
                         Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
-                        isUploadEcgRecord = false;
+                        if(code == CODE_SUCCESS) {
+                            ecgRecord.setUploaded(true);
+                            ecgRecord.save();
+                        }
+                        isUploadingEcgRecord = false;
                     }
                 }).execute(ecgRecord);
             }

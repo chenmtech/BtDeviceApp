@@ -196,6 +196,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             JSONObject json = (JSONObject) jsonArr.get(i);
                             AbstractRecord newRecord = (AbstractRecord) RecordFactory.createFromJson(recordType, json);
                             if(newRecord != null) {
+                                newRecord.setUploaded(true);
                                 newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
                             }
                         }

@@ -67,7 +67,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     static List<BleEcgRecord10> createFromLocalDb(User creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note")
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note, uploaded")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleEcgRecord10.class);
     }

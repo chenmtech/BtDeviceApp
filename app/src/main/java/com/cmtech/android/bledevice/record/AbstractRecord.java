@@ -28,6 +28,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     private String creatorPlat;
     private String creatorId;
     private String note;
+    private boolean uploaded;
     @Column(ignore = true)
     private RecordType type;
 
@@ -38,6 +39,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         creatorPlat = "";
         creatorId = "";
         note = "";
+        uploaded = false;
         this.type = type;
     }
 
@@ -52,6 +54,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();
         this.note = note;
+        uploaded = false;
     }
 
     @Override
@@ -125,6 +128,16 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
+    public boolean uploaded() {
+        return uploaded;
+    }
+
+    @Override
+    public void setUploaded(boolean uploaded) {
+        this.uploaded = uploaded;
+    }
+
+    @Override
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         try {
@@ -143,7 +156,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
 
     @Override
     public String toString() {
-        return ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note;
+        return ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "=" + uploaded;
     }
 
     @Override
