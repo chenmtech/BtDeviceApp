@@ -26,6 +26,7 @@
     <string name="open_record_failure">open record failure</string>
     <string name="save_record_success">save record success.</string>
     <string name="upload_record_success">upload record success.</string>
+    <string name="update_record_success">update record success.</string>
     <string name="wait_pls">Wait please…</string>
     <string name="operation_failure">somethings wrong.</string>
     <string name="operation_success">operation success.</string>

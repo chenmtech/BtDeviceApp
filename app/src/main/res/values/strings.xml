@@ -26,6 +26,7 @@
     <string name="open_record_failure">打开记录失败</string>
     <string name="save_record_success">保存记录成功</string>
     <string name="upload_record_success">上传记录成功</string>
+    <string name="update_record_success">更新记录成功</string>
     <string name="wait_pls">请稍等</string>
     <string name="operation_failure">出错了</string>
     <string name="operation_success">操作成功</string>

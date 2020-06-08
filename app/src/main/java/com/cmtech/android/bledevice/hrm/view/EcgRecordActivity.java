@@ -211,7 +211,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                                 new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(int code, Object result) {
-                                        int strId = (code == CODE_SUCCESS) ? R.string.operation_success : R.string.operation_failure;
+                                        int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.operation_failure;
                                         Toast.makeText(EcgRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                     }
                                 }).execute(record);
