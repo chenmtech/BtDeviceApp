@@ -22,7 +22,6 @@ import com.vise.log.ViseLog;
 
 import org.json.JSONObject;
 import org.litepal.LitePal;
-import org.litepal.crud.callback.SaveCallback;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
@@ -62,7 +61,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             record.save();
         }
 
-        if(record.isDataEmpty()) {
+        if(record.noData()) {
             new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {

@@ -17,5 +17,4 @@ import org.json.JSONObject;
 public interface IRecordJson {
     JSONObject toJson();
     boolean setDataFromJson(JSONObject json);
-    boolean isDataEmpty();
 }

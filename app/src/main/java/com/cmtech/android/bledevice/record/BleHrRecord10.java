@@ -28,7 +28,7 @@ import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RAT
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleHrRecord10 extends AbstractRecord implements Serializable {
+public class BleHrRecord10 extends CommonRecord implements Serializable {
     public static final int HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH = 10; // unit: s
     private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // char num of device address
@@ -152,7 +152,7 @@ public class BleHrRecord10 extends AbstractRecord implements Serializable {
     }
 
     @Override
-    public boolean isDataEmpty() {
+    public boolean noData() {
         return filterHrList.isEmpty();
     }
 

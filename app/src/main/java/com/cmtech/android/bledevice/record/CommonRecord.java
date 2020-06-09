@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
+import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 
 import org.json.JSONException;
@@ -20,7 +21,7 @@ import org.litepal.crud.LitePalSupport;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public abstract class AbstractRecord extends LitePalSupport implements IRecord {
+public class CommonRecord extends LitePalSupport implements IRecord {
     private int id;
     private String ver; // record version
     private long createTime; //
@@ -32,7 +33,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
     @Column(ignore = true)
     private RecordType type;
 
-    private AbstractRecord(RecordType type) {
+    private CommonRecord(RecordType type) {
         ver = "";
         createTime = 0;
         devAddress = "";
@@ -43,7 +44,7 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         this.type = type;
     }
 
-    AbstractRecord(RecordType type, String ver, long createTime, String devAddress, User creator, String note) {
+    CommonRecord(RecordType type, String ver, long createTime, String devAddress, User creator, String note) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
@@ -55,6 +56,26 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
         this.creatorId = creator.getPlatId();
         this.note = note;
         uploaded = false;
+    }
+
+    CommonRecord(RecordType type, String ver, JSONObject json) {
+        if(json == null) {
+            throw new NullPointerException("The json is null.");
+        }
+
+        this.type = type;
+        this.ver = ver;
+
+        try {
+            devAddress = json.getString("devAddress");
+            createTime = json.getLong("createTime");
+            creatorPlat = AccountManager.getAccount().getPlatName();
+            creatorId = AccountManager.getAccount().getPlatId();
+            note = json.getString("note");
+            uploaded = false;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -152,6 +173,16 @@ public abstract class AbstractRecord extends LitePalSupport implements IRecord {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public boolean setDataFromJson(JSONObject json) {
+        return false;
+    }
+
+    @Override
+    public boolean noData() {
+        return true;
     }
 
     @Override

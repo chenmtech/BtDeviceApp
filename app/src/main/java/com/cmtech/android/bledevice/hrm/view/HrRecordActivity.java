@@ -20,7 +20,6 @@ import com.vise.log.ViseLog;
 
 import org.json.JSONObject;
 import org.litepal.LitePal;
-import org.litepal.crud.callback.SaveCallback;
 
 import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
@@ -56,7 +55,7 @@ public class HrRecordActivity extends AppCompatActivity {
             finish();
         }
 
-        if(record.isDataEmpty()) {
+        if(record.noData()) {
             new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {

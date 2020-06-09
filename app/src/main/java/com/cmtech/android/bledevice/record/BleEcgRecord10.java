@@ -27,7 +27,7 @@ import static com.cmtech.android.bledevice.record.RecordType.ECG;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serializable {
+public class BleEcgRecord10 extends CommonRecord implements IEcgRecord, Serializable {
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
@@ -38,6 +38,15 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
 
     BleEcgRecord10(long createTime, String devAddress, User creator, String note) {
         super(ECG, "1.0", createTime, devAddress, creator, note);
+        sampleRate = 0;
+        caliValue = 0;
+        leadTypeCode = 0;
+        recordSecond = 0;
+        ecgData = new ArrayList<>();
+    }
+
+    BleEcgRecord10(JSONObject json) {
+        super(ECG, "1.0", json);
         sampleRate = 0;
         caliValue = 0;
         leadTypeCode = 0;
@@ -120,7 +129,7 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
     }
 
     @Override
-    public boolean isDataEmpty() {
+    public boolean noData() {
         return ecgData.isEmpty();
     }
 

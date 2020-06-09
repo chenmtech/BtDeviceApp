@@ -22,7 +22,7 @@ import static com.cmtech.android.bledevice.record.RecordType.THERMO;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleThermoRecord10 extends AbstractRecord {
+public class BleThermoRecord10 extends CommonRecord {
     private float highestTemp;
     private List<Float> temp;
 
@@ -53,7 +53,7 @@ public class BleThermoRecord10 extends AbstractRecord {
     }
 
     @Override
-    public boolean isDataEmpty() {
+    public boolean noData() {
         return true;
     }
 

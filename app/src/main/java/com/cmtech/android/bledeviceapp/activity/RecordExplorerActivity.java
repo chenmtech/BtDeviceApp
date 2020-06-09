@@ -19,7 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.record.AbstractRecord;
+import com.cmtech.android.bledevice.record.CommonRecord;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
@@ -170,7 +170,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 boolean changed = data.getBooleanExtra("changed", false);
                 if(changed) {
                     recordAdapter.notifySelectedItemChanged();
-                    final AbstractRecord record = (AbstractRecord) recordAdapter.getSelectedRecord();
+                    final CommonRecord record = (CommonRecord) recordAdapter.getSelectedRecord();
                     if(!record.uploaded()) {
                         new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                             @Override
@@ -202,13 +202,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
     private void uploadNeededRecord(RecordType type) {
         Class recordClass = RecordFactory.getRecordClass(type);
-        List<AbstractRecord> records = LitePal.where("uploaded != ?", "1").find(recordClass);
+        List<CommonRecord> records = LitePal.where("uploaded != ?", "1").find(recordClass);
 
         ViseLog.e(records);
 
         if(records != null && !records.isEmpty()) {
             ViseLog.e("upload needed record");
-            for(final AbstractRecord record : records) {
+            for(final CommonRecord record : records) {
                 new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                     @Override
                     public void onFinish(int code, final Object rlt) {
@@ -253,7 +253,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         JSONArray jsonArr = (JSONArray) result;
                         for(int i = 0; i < jsonArr.length(); i++) {
                             JSONObject json = (JSONObject) jsonArr.get(i);
-                            AbstractRecord newRecord = (AbstractRecord) RecordFactory.createFromJson(recordType, json);
+                            CommonRecord newRecord = (CommonRecord) RecordFactory.createFromJson(recordType, json);
                             if(newRecord != null) {
                                 newRecord.setUploaded(true);
                                 newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());

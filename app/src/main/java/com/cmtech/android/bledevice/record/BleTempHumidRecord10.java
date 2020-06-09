@@ -21,7 +21,7 @@ import static com.cmtech.android.bledevice.record.RecordType.TH;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleTempHumidRecord10 extends AbstractRecord {
+public class BleTempHumidRecord10 extends CommonRecord {
     private float temperature;
     private float humid;
     private float heatIndex;
@@ -57,7 +57,7 @@ public class BleTempHumidRecord10 extends AbstractRecord {
     }
 
     @Override
-    public boolean isDataEmpty() {
+    public boolean noData() {
         return true;
     }
 
