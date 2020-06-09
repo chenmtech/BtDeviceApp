@@ -191,6 +191,6 @@ public class BleEcgRecord10 extends AbstractRecord implements IEcgRecord, Serial
 
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + getNote() + "-" + ecgData;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + ecgData;
     }
 }

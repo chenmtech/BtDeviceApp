@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.support.v4.widget.ExploreByTouchHelper.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.record.RecordType.TH;
@@ -178,9 +179,64 @@ public class RecordExplorerActivity extends AppCompatActivity {
         allRecords.clear();
         recordAdapter.unselected();
         updateRecordView();
-
+        uploadNeededRecord(type);
+        // 注意两个函数同步问题
         updateTime = new Date().getTime();
         updateRecordsFromServer(updateTime);
+    }
+
+    private void uploadNeededRecord(RecordType type) {
+        Class recordClass = RecordFactory.getRecordClass(type);
+        List<AbstractRecord> records = LitePal.where("uploaded = ?", "0").find(recordClass);
+
+        ViseLog.e(records);
+
+        if(records != null && !records.isEmpty()) {
+            ViseLog.e("upload needed record");
+            for(final AbstractRecord record : records) {
+                new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                    @Override
+                    public void onFinish(int code, final Object rlt) {
+                        final boolean result = (code == CODE_SUCCESS);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(result) {
+                                    int id = (Integer) rlt;
+                                    if(id == INVALID_ID) {
+                                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                                            @Override
+                                            public void onFinish(int code, Object result) {
+                                                int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.operation_failure;
+                                                Toast.makeText(RecordExplorerActivity.this, strId, Toast.LENGTH_SHORT).show();
+                                                if(code == CODE_SUCCESS) {
+                                                    record.setUploaded(true);
+                                                    record.save();
+                                                }
+                                            }
+                                        }).execute(record);
+                                    } else {
+                                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                                            @Override
+                                            public void onFinish(int code, Object result) {
+                                                int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.operation_failure;
+                                                Toast.makeText(RecordExplorerActivity.this, strId, Toast.LENGTH_SHORT).show();
+                                                if(code == CODE_SUCCESS) {
+                                                    record.setUploaded(true);
+                                                    record.save();
+                                                }
+                                            }
+                                        }).execute(record);
+                                    }
+                                } else {
+                                    Toast.makeText(RecordExplorerActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+                }).execute(record);
+            }
+        }
     }
 
     private void updateRecordsFromServer(final long fromTime) {

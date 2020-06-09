@@ -23,7 +23,7 @@ import java.util.List;
  * Version:        1.0
  */
 public class RecordFactory {
-    private static Class<? extends IRecord> getRecordClass(RecordType type) {
+    public static Class<? extends IRecord> getRecordClass(RecordType type) {
         switch (type) {
             case ECG:
                 return BleEcgRecord10.class;

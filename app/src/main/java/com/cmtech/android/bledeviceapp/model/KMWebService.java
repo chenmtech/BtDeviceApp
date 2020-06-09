@@ -1,6 +1,5 @@
 package com.cmtech.android.bledeviceapp.model;
 
-import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledeviceapp.util.HttpUtils;
 import com.vise.log.ViseLog;
@@ -82,7 +81,7 @@ public class KMWebService {
             json.put("recordTypeCode", record.getTypeCode());
             json.put("createTime", record.getCreateTime());
             json.put("devAddress", record.getDevAddress());
-            json.put("note", ((BleEcgRecord10)record).getNote());
+            json.put("note", record.getNote());
             HttpUtils.requestPost(KMURL + "Record?", json, callback);
         } catch (JSONException e) {
             e.printStackTrace();
