@@ -23,6 +23,8 @@ import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
+import org.litepal.LitePal;
+
 import java.util.List;
 
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
@@ -145,9 +147,10 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         selPos = INVALID_POS;
     }
 
-    public void notifySelectedItemChanged(String note) {
+    public void notifySelectedItemChanged() {
         ViseLog.e("activity result");
-        allRecords.get(selPos).setNote(note);
+        IRecord record = allRecords.get(selPos);
+        allRecords.set(selPos, LitePal.find(record.getClass(), record.getId()));
         notifyItemChanged(selPos);
     }
 }

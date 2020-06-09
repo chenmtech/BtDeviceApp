@@ -40,6 +40,8 @@ public class HrRecordActivity extends AppCompatActivity {
     private EditText etNote;
     private Button btnSave;
 
+    private boolean changed = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +81,7 @@ public class HrRecordActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        intent.putExtra("note", etNote.getText().toString());
+        intent.putExtra("changed", changed);
         setResult(RESULT_OK, intent);
         finish();
     }
@@ -125,6 +127,7 @@ public class HrRecordActivity extends AppCompatActivity {
                         record.setNote(etNote.getText().toString());
                         record.setUploaded(false);
                         record.save();
+                        changed = true;
                     }
                     etNote.setEnabled(false);
                     btnSave.setText("编辑");

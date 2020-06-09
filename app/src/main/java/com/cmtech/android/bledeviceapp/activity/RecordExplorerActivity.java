@@ -167,27 +167,42 @@ public class RecordExplorerActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 1) {
             if(data != null) {
-                String note = data.getStringExtra("note");
-                recordAdapter.notifySelectedItemChanged(note);
+                boolean changed = data.getBooleanExtra("changed", false);
+                if(changed) {
+                    recordAdapter.notifySelectedItemChanged();
+                    final AbstractRecord record = (AbstractRecord) recordAdapter.getSelectedRecord();
+                    if(!record.uploaded()) {
+                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                            @Override
+                            public void onFinish(int code, Object result) {
+                                if (code == CODE_SUCCESS) {
+                                    record.setUploaded(true);
+                                    record.save();
+                                }
+                            }
+                        }).execute(record);
+                    }
+                }
             }
         }
     }
 
-    private void setRecordType(RecordType type) {
+    private void setRecordType(final RecordType type) {
         if(this.recordType == type) return;
         this.recordType = type;
         allRecords.clear();
         recordAdapter.unselected();
         updateRecordView();
-        uploadNeededRecord(type);
-        // 注意两个函数同步问题
+
         updateTime = new Date().getTime();
         updateRecordsFromServer(updateTime);
+
+        uploadNeededRecord(type);
     }
 
     private void uploadNeededRecord(RecordType type) {
         Class recordClass = RecordFactory.getRecordClass(type);
-        List<AbstractRecord> records = LitePal.where("uploaded = ?", "0").find(recordClass);
+        List<AbstractRecord> records = LitePal.where("uploaded != ?", "1").find(recordClass);
 
         ViseLog.e(records);
 
@@ -197,42 +212,30 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                     @Override
                     public void onFinish(int code, final Object rlt) {
-                        final boolean result = (code == CODE_SUCCESS);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(result) {
-                                    int id = (Integer) rlt;
-                                    if(id == INVALID_ID) {
-                                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
-                                            @Override
-                                            public void onFinish(int code, Object result) {
-                                                int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.operation_failure;
-                                                Toast.makeText(RecordExplorerActivity.this, strId, Toast.LENGTH_SHORT).show();
-                                                if(code == CODE_SUCCESS) {
-                                                    record.setUploaded(true);
-                                                    record.save();
-                                                }
-                                            }
-                                        }).execute(record);
-                                    } else {
-                                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
-                                            @Override
-                                            public void onFinish(int code, Object result) {
-                                                int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.operation_failure;
-                                                Toast.makeText(RecordExplorerActivity.this, strId, Toast.LENGTH_SHORT).show();
-                                                if(code == CODE_SUCCESS) {
-                                                    record.setUploaded(true);
-                                                    record.save();
-                                                }
-                                            }
-                                        }).execute(record);
+                        if(code == CODE_SUCCESS) {
+                            int id = (Integer) rlt;
+                            if(id == INVALID_ID) {
+                                new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                                    @Override
+                                    public void onFinish(int code, Object result) {
+                                        if(code == CODE_SUCCESS) {
+                                            record.setUploaded(true);
+                                            record.save();
+                                        }
                                     }
-                                } else {
-                                    Toast.makeText(RecordExplorerActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
-                                }
+                                }).execute(record);
+                            } else {
+                                new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                                    @Override
+                                    public void onFinish(int code, Object result) {
+                                        if(code == CODE_SUCCESS) {
+                                            record.setUploaded(true);
+                                            record.save();
+                                        }
+                                    }
+                                }).execute(record);
                             }
-                        });
+                        }
                     }
                 }).execute(record);
             }
