@@ -1,9 +1,11 @@
 package com.cmtech.android.bledeviceapp.activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.cmtech.android.ble.core.IDevice;
@@ -93,11 +95,24 @@ public abstract class DeviceFragment extends Fragment{
     // 关闭
     public void close() {
         if(device != null) {
-            device.close();
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("关闭设备")
+                    .setMessage("断开连接,关闭设备?")
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            device.close();
 
-            if(getActivity() != null) {
-                ((MainActivity) getActivity()).removeFragment(this);
-            }
+                            if(getActivity() != null) {
+                                ((MainActivity) getActivity()).removeFragment(DeviceFragment.this);
+                            }
+                        }
+                    })
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+
+                        }
+                    }).show();
+
         }
     }
 
