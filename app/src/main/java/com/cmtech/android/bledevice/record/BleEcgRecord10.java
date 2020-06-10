@@ -27,7 +27,7 @@ import static com.cmtech.android.bledevice.record.RecordType.ECG;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEcgRecord10 extends CommonRecord implements IEcgRecord, Serializable {
+public class BleEcgRecord10 extends BasicRecord implements IEcgRecord, Serializable {
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
@@ -76,7 +76,7 @@ public class BleEcgRecord10 extends CommonRecord implements IEcgRecord, Serializ
     }
 
     static List<BleEcgRecord10> createFromLocalDb(User creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note, uploaded")
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note, modified")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleEcgRecord10.class);
     }
@@ -104,7 +104,7 @@ public class BleEcgRecord10 extends CommonRecord implements IEcgRecord, Serializ
     }
 
     @Override
-    public boolean setDataFromJson(JSONObject json) {
+    public boolean parseDataFromJson(JSONObject json) {
         if(json == null) {
             throw new NullPointerException("The json is null.");
         }
@@ -129,7 +129,7 @@ public class BleEcgRecord10 extends CommonRecord implements IEcgRecord, Serializ
     }
 
     @Override
-    public boolean noData() {
+    public boolean lackData() {
         return ecgData.isEmpty();
     }
 

@@ -22,7 +22,7 @@ import static com.cmtech.android.bledevice.record.RecordType.THERMO;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleThermoRecord10 extends CommonRecord {
+public class BleThermoRecord10 extends BasicRecord {
     private float highestTemp;
     private List<Float> temp;
 
@@ -48,12 +48,12 @@ public class BleThermoRecord10 extends CommonRecord {
     }
 
     @Override
-    public boolean setDataFromJson(JSONObject json) {
+    public boolean parseDataFromJson(JSONObject json) {
         return false;
     }
 
     @Override
-    public boolean noData() {
+    public boolean lackData() {
         return true;
     }
 

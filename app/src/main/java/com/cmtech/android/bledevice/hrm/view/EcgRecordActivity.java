@@ -61,14 +61,14 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             record.save();
         }
 
-        if(record.noData()) {
+        if(record.lackData()) {
             new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == CODE_SUCCESS) {
                         JSONObject json = (JSONObject) result;
 
-                        if(record.setDataFromJson(json)) {
+                        if(record.parseDataFromJson(json)) {
                             initUI();
                             return;
                         }
@@ -146,7 +146,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     String note = etNote.getText().toString();
                     if(!record.getNote().equals(note)) {
                         record.setNote(etNote.getText().toString());
-                        record.setUploaded(false);
+                        record.setModified(true);
                         record.save();
                         changed = true;
                     }
@@ -207,7 +207,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                                         int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.operation_failure;
                                         Toast.makeText(EcgRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                         if(code == CODE_SUCCESS) {
-                                            record.setUploaded(true);
+                                            record.setModified(false);
                                             record.save();
                                         }
                                     }
@@ -219,7 +219,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                                         int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.operation_failure;
                                         Toast.makeText(EcgRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                         if(code == CODE_SUCCESS) {
-                                            record.setUploaded(true);
+                                            record.setModified(false);
                                             record.save();
                                         }
                                     }

@@ -21,7 +21,7 @@ import static com.cmtech.android.bledevice.record.RecordType.TH;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleTempHumidRecord10 extends CommonRecord {
+public class BleTempHumidRecord10 extends BasicRecord {
     private float temperature;
     private float humid;
     private float heatIndex;
@@ -52,12 +52,12 @@ public class BleTempHumidRecord10 extends CommonRecord {
     }
 
     @Override
-    public boolean setDataFromJson(JSONObject json) {
+    public boolean parseDataFromJson(JSONObject json) {
         return false;
     }
 
     @Override
-    public boolean noData() {
+    public boolean lackData() {
         return true;
     }
 

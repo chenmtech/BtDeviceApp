@@ -28,7 +28,7 @@ import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RAT
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleHrRecord10 extends CommonRecord implements Serializable {
+public class BleHrRecord10 extends BasicRecord implements Serializable {
     public static final int HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH = 10; // unit: s
     private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
     private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // char num of device address
@@ -88,7 +88,7 @@ public class BleHrRecord10 extends CommonRecord implements Serializable {
     }
 
     static List<BleHrRecord10> createFromLocalDb(User creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note, uploaded")
+        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note, modified")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
                 .order("createTime desc").limit(num).find(BleHrRecord10.class);
     }
@@ -120,7 +120,7 @@ public class BleHrRecord10 extends CommonRecord implements Serializable {
     }
 
     @Override
-    public boolean setDataFromJson(JSONObject json) {
+    public boolean parseDataFromJson(JSONObject json) {
         if(json == null) {
             throw new NullPointerException("The json is null.");
         }
@@ -152,7 +152,7 @@ public class BleHrRecord10 extends CommonRecord implements Serializable {
     }
 
     @Override
-    public boolean noData() {
+    public boolean lackData() {
         return filterHrList.isEmpty();
     }
 

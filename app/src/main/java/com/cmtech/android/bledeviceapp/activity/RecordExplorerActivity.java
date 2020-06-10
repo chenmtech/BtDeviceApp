@@ -19,7 +19,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cmtech.android.bledevice.record.CommonRecord;
+import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.IRecord;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledevice.record.RecordType;
@@ -170,13 +170,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 boolean changed = data.getBooleanExtra("changed", false);
                 if(changed) {
                     recordAdapter.notifySelectedItemChanged();
-                    final CommonRecord record = (CommonRecord) recordAdapter.getSelectedRecord();
-                    if(!record.uploaded()) {
+                    final BasicRecord record = (BasicRecord) recordAdapter.getSelectedRecord();
+                    if(!record.modified()) {
                         new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
                                 if (code == CODE_SUCCESS) {
-                                    record.setUploaded(true);
+                                    record.setModified(false);
                                     record.save();
                                 }
                             }
@@ -197,18 +197,18 @@ public class RecordExplorerActivity extends AppCompatActivity {
         updateTime = new Date().getTime();
         updateRecordsFromServer(updateTime);
 
-        uploadNeededRecord(type);
+        uploadModifiedRecord(type);
     }
 
-    private void uploadNeededRecord(RecordType type) {
+    private void uploadModifiedRecord(RecordType type) {
         Class recordClass = RecordFactory.getRecordClass(type);
-        List<CommonRecord> records = LitePal.where("uploaded != ?", "1").find(recordClass);
+        List<BasicRecord> modiRecords = LitePal.where("modified != ?", "0").find(recordClass);
 
-        ViseLog.e(records);
+        ViseLog.e(modiRecords);
 
-        if(records != null && !records.isEmpty()) {
-            ViseLog.e("upload needed record");
-            for(final CommonRecord record : records) {
+        if(modiRecords != null && !modiRecords.isEmpty()) {
+            ViseLog.e("upload modified record");
+            for(final BasicRecord record : modiRecords) {
                 new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                     @Override
                     public void onFinish(int code, final Object rlt) {
@@ -219,7 +219,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                                     @Override
                                     public void onFinish(int code, Object result) {
                                         if(code == CODE_SUCCESS) {
-                                            record.setUploaded(true);
+                                            record.setModified(false);
                                             record.save();
                                         }
                                     }
@@ -229,7 +229,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                                     @Override
                                     public void onFinish(int code, Object result) {
                                         if(code == CODE_SUCCESS) {
-                                            record.setUploaded(true);
+                                            record.setModified(false);
                                             record.save();
                                         }
                                     }
@@ -253,9 +253,9 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         JSONArray jsonArr = (JSONArray) result;
                         for(int i = 0; i < jsonArr.length(); i++) {
                             JSONObject json = (JSONObject) jsonArr.get(i);
-                            CommonRecord newRecord = (CommonRecord) RecordFactory.createFromJson(recordType, json);
+                            BasicRecord newRecord = (BasicRecord) RecordFactory.createFromJson(recordType, json);
                             if(newRecord != null) {
-                                newRecord.setUploaded(true);
+                                newRecord.setModified(false);
                                 newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
                             }
                         }

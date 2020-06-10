@@ -12,16 +12,16 @@ import org.litepal.crud.LitePalSupport;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.common
- * ClassName:      AbstractRecord
- * Description:    java类作用描述
- * Author:         作者名
+ * ClassName:      BasicRecord
+ * Description:    各种记录类的共同基本信息基类
+ * Author:         chenm
  * CreateDate:     2020/4/2 下午2:44
- * UpdateUser:     更新者
- * UpdateDate:     2020/4/2 下午2:44
+ * UpdateUser:     chenm
+ * UpdateDate:     2020/6/10 下午2:44
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class CommonRecord extends LitePalSupport implements IRecord {
+public class BasicRecord extends LitePalSupport implements IRecord {
     private int id;
     private String ver; // record version
     private long createTime; //
@@ -29,22 +29,22 @@ public class CommonRecord extends LitePalSupport implements IRecord {
     private String creatorPlat;
     private String creatorId;
     private String note;
-    private boolean uploaded;
+    private boolean modified;
     @Column(ignore = true)
     private RecordType type;
 
-    private CommonRecord(RecordType type) {
+    private BasicRecord(RecordType type) {
         ver = "";
         createTime = 0;
         devAddress = "";
         creatorPlat = "";
         creatorId = "";
         note = "";
-        uploaded = false;
+        modified = false;
         this.type = type;
     }
 
-    CommonRecord(RecordType type, String ver, long createTime, String devAddress, User creator, String note) {
+    BasicRecord(RecordType type, String ver, long createTime, String devAddress, User creator, String note) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
@@ -55,10 +55,10 @@ public class CommonRecord extends LitePalSupport implements IRecord {
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();
         this.note = note;
-        uploaded = false;
+        modified = false;
     }
 
-    CommonRecord(RecordType type, String ver, JSONObject json) {
+    BasicRecord(RecordType type, String ver, JSONObject json) {
         if(json == null) {
             throw new NullPointerException("The json is null.");
         }
@@ -67,12 +67,12 @@ public class CommonRecord extends LitePalSupport implements IRecord {
         this.ver = ver;
 
         try {
-            devAddress = json.getString("devAddress");
             createTime = json.getLong("createTime");
+            devAddress = json.getString("devAddress");
             creatorPlat = AccountManager.getAccount().getPlatName();
             creatorId = AccountManager.getAccount().getPlatId();
             note = json.getString("note");
-            uploaded = false;
+            modified = false;
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -149,13 +149,13 @@ public class CommonRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
-    public boolean uploaded() {
-        return uploaded;
+    public boolean modified() {
+        return modified;
     }
 
     @Override
-    public void setUploaded(boolean uploaded) {
-        this.uploaded = uploaded;
+    public void setModified(boolean modified) {
+        this.modified = modified;
     }
 
     @Override
@@ -176,18 +176,18 @@ public class CommonRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
-    public boolean setDataFromJson(JSONObject json) {
+    public boolean parseDataFromJson(JSONObject json) {
         return false;
     }
 
     @Override
-    public boolean noData() {
+    public boolean lackData() {
         return true;
     }
 
     @Override
     public String toString() {
-        return ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + uploaded;
+        return ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + modified;
     }
 
     @Override

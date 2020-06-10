@@ -25,7 +25,7 @@ public interface IRecord extends IRecordJson {
     String getCreatorName();
     String getNote();
     void setNote(String note);
-    boolean uploaded();
-    void setUploaded(boolean uploaded);
-    boolean noData();
+    boolean modified();
+    void setModified(boolean modified);
+    boolean lackData();
 }
