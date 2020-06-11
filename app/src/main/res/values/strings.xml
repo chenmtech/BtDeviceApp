@@ -23,6 +23,7 @@
     <string name="ecg_record">心电记录</string>
     <string name="thermo_record">体温记录</string>
     <string name="th_record">温湿度记录</string>
+    <string name="eeg_record">脑电记录</string>
     <string name="open_record_failure">打开记录失败</string>
     <string name="save_record_success">保存记录成功</string>
     <string name="upload_record_success">上传记录成功</string>

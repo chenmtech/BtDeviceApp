@@ -5,6 +5,7 @@ import android.os.Environment;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.ecg.device.EcgFactory;
 import com.cmtech.android.bledevice.ecg.webecg.WebEcgFactory;
+import com.cmtech.android.bledevice.eeg.model.EegFactory;
 import com.cmtech.android.bledevice.hrm.model.HrmFactory;
 import com.cmtech.android.bledevice.thm.model.ThmFactory;
 import com.cmtech.android.bledevice.thermo.model.ThermoFactory;
@@ -42,6 +43,7 @@ public class AppConstant {
             add(ThmFactory.THM_DEVICE_TYPE);
             add(EcgFactory.ECG_DEVICE_TYPE);
             add(WebEcgFactory.ECGWEBMONITOR_DEVICE_TYPE);
+            add(EegFactory.EEG_DEVICE_TYPE);
         }
     }; // supported device type
 
