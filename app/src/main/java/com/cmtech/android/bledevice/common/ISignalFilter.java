@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.common;
 
 /**
- * IEcgFilter: Ecg filter interface
+ * ISignalFilter: Signal filter interface
  * Created by Chenm, 2018-11-29
  */
 

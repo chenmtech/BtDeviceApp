@@ -8,8 +8,8 @@ import com.cmtech.dsp.filter.structure.StructType;
 
 /**
   *
-  * ClassName:      EcgPreFilter
-  * Description:    Ecg Pre-Filter, including a baseline drift filter and a 50Hz notch filter
+  * ClassName:      SignalPreFilter
+  * Description:    Signal Pre-Filter, including a baseline drift filter and a 50Hz notch filter
   * Author:         chenm
   * CreateDate:     2018-12-06 07:38
   * UpdateUser:     chenm
@@ -28,6 +28,8 @@ public class SignalPreFilter implements ISignalFilter {
     private IDigitalFilter dcBlocker; // a DC blocker filtering the baseline drift
     private IDigitalFilter notch; // a notch filter filtering the 50Hz noise
 
+    private boolean notchOn;
+
     public SignalPreFilter(int sampleRate) {
         this(sampleRate, DEFAULT_BASELINE_CUTOFF_FREQ, DEFAULT_NOTCH_FREQ);
     }
@@ -37,6 +39,8 @@ public class SignalPreFilter implements ISignalFilter {
         this.notchFreq = notchFreq;
 
         design(sampleRate);
+
+        notchOn = true;
     }
 
     @Override
@@ -52,7 +56,16 @@ public class SignalPreFilter implements ISignalFilter {
 
     @Override
     public double filter(double signal) {
-        return notch.filter(dcBlocker.filter(signal));
+        double result = dcBlocker.filter(signal);
+        if(notchOn) {
+            return notch.filter(result);
+        } else {
+            return result;
+        }
+    }
+
+    public void turnOnNotch(boolean notchOn) {
+        this.notchOn = notchOn;
     }
 
 }

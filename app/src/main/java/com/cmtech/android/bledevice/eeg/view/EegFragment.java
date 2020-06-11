@@ -119,12 +119,12 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
     }
 
     @Override
-    public void onEegSignalRecorded(boolean isRecord) {
+    public void onEegSignalRecordStatusChanged(boolean isRecord) {
         eegRecFrag.updateRecordStatus(isRecord);
     }
 
     @Override
-    public void onEegRecordTimeUpdated(int second) {
+    public void onEegSignalRecordTimeUpdated(int second) {
         eegRecFrag.setEcgRecordTime(second);
     }
 

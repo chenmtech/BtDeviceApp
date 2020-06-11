@@ -14,12 +14,12 @@ import java.util.concurrent.ThreadFactory;
 
 /**
   *
-  * ClassName:      EcgDataProcessor
+  * ClassName:      EegDataProcessor
   * Description:    eeg signal processor, including resolving the eeg data packet and filtering the data
   * Author:         chenm
-  * CreateDate:     2019-06-25 05:17
+  * CreateDate:     2020-06-11 05:17
   * UpdateUser:     chenm
-  * UpdateDate:     2020-03-06 05:17
+  * UpdateDate:     2020-06-11 05:17
   * UpdateRemark:   更新说明
   * Version:        1.0
  */
@@ -73,23 +73,25 @@ public class EegDataProcessor {
                 public void run() {
                     int packageNum = UnsignedUtil.getUnsignedByte(data[0]);
                     if(packageNum == nextPackNum) { // good packet
-                        int[] pack = resolveData(data, 1);
+                        int[] pack = parseAndProcessDataPacket(data, 1);
+                        if(nextPackNum == MAX_PACKET_NUM)
+                            nextPackNum = 0;
+                        else
+                            nextPackNum++;
                         ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
-                        nextPackNum = (nextPackNum == MAX_PACKET_NUM) ? 0 : nextPackNum+1;
                     } else if(nextPackNum != INVALID_PACKET_NUM){ // bad packet, force disconnect
-                        ViseLog.e("The eeg data packet is lost.");
+                        ViseLog.e("The eeg data packet is lost. Disconnect device.");
                         nextPackNum = INVALID_PACKET_NUM;
                         device.disconnect(false);
                     }
-                    // invalid packet
                 }
             });
         }
     }
 
-    private int[] resolveData(byte[] data, int begin) {
+    private int[] parseAndProcessDataPacket(byte[] data, int begin) {
         int[] pack = new int[(data.length-begin) / 3];
-        for (int j = 0, i = begin; i < data.length; i=i+3, j++) {
+        for (int i = begin, j = 0; i < data.length; i=i+3, j++) {
             pack[j] = ByteUtil.getInt(new byte[]{0x00, data[i], data[i+1], data[i+2]});
             pack[j] >>= 8;
             int fData = (int) eegFilter.filter(pack[j]);

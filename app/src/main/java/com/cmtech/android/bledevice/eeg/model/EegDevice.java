@@ -1,18 +1,5 @@
 package com.cmtech.android.bledevice.eeg.model;
 
-/**
- * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.eeg.model
- * ClassName:      EegDevice
- * Description:    java类作用描述
- * Author:         作者名
- * CreateDate:     2020/6/11 下午3:28
- * UpdateUser:     更新者
- * UpdateDate:     2020/6/11 下午3:28
- * UpdateRemark:   更新说明
- * Version:        1.0
- */
-
 import android.content.Context;
 import android.widget.Toast;
 
@@ -42,19 +29,20 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.STANDARD_BLE_UUID;
-
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.hrmonitor.model
- * ClassName:      HRMonitorDevice
- * Description:    BLE heart rate monitor device
- * Author:         chenm
- * CreateDate:     2020-02-04 06:16
- * UpdateUser:     chenm
- * UpdateDate:     2020-02-04 06:16
+ * Package:        com.cmtech.android.bledevice.eeg.model
+ * ClassName:      EegDevice
+ * Description:    脑电设备
+ * Author:         作者名
+ * CreateDate:     2020/6/11 下午3:28
+ * UpdateUser:     更新者
+ * UpdateDate:     2020/6/11 下午3:28
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
+
+
 public class EegDevice extends AbstractDevice {
     private static final int DEFAULT_CALI_1MV = 40960; // default 1mV calibration value
     private static final int DEFAULT_SAMPLE_RATE = 250; // default sample rate, unit: Hz
@@ -107,72 +95,29 @@ public class EegDevice extends AbstractDevice {
         super(registerInfo);
     }
 
+
+    public final int getSampleRate() {
+        return sampleRate;
+    }
+
+    public final int getCaliValue() {
+        return caliValue;
+    }
+
+    public boolean isEegRecord() {
+        return isEegRecord;
+    }
+
+    public void setListener(OnEegListener listener) {
+        this.listener = listener;
+    }
+
+    public void removeListener() {
+        this.listener = null;
+    }
+
     public void setContext(Context context) {
         this.context = context;
-    }
-
-    public void setEegRecord(final boolean isRecord) {
-        if(isEegRecord == isRecord || isUploadingEegRecord) return;
-
-        isEegRecord = isRecord;
-
-        if(isRecord) {
-            eegRecord = (BleEegRecord10) RecordFactory.create(EEG, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
-            eegRecord.setSampleRate(sampleRate);
-            eegRecord.setCaliValue(caliValue);
-            eegRecord.setLeadTypeCode(leadType.getCode());
-            MyApplication.showMessageUsingShortToast("记录时请保持安静。");
-        } else {
-            if(eegRecord == null) return;
-
-            eegRecord.setCreateTime(new Date().getTime());
-            eegRecord.setRecordSecond(eegRecord.getEegData().size()/sampleRate);
-            eegRecord.save();
-            isUploadingEegRecord = true;
-            new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
-                @Override
-                public void onFinish(int code, final Object rlt) {
-                    int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
-                    Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
-                    if(code == CODE_SUCCESS) {
-                        eegRecord.setModified(false);
-                        eegRecord.save();
-                    }
-                    isUploadingEegRecord = false;
-                }
-            }).execute(eegRecord);
-
-            eegRecord = null;
-        }
-
-        if(listener != null) {
-            listener.onEegSignalRecorded(isRecord);
-        }
-    }
-
-    public void setEegOn(boolean isOn) {
-        //((BleConnector)connector).notify(EEGMEASCCC, false, null);
-
-        if(isOn) {
-            IBleDataCallback notifyCallback = new IBleDataCallback() {
-                @Override
-                public void onSuccess(byte[] data, BleGattElement element) {
-                    //ViseLog.i("eeg data: " + Arrays.toString(data));
-                    eegProcessor.processData(data);
-                }
-
-                @Override
-                public void onFailure(BleException exception) {
-
-                }
-            };
-            ((BleConnector)connector).notify(EEGMEASCCC, true, notifyCallback);
-        } else {
-            if(eegProcessor != null)
-                eegProcessor.stop();
-
-            ((BleConnector)connector).notify(EEGMEASCCC, false, null);
-        }
     }
 
     @Override
@@ -197,7 +142,7 @@ public class EegDevice extends AbstractDevice {
         if(connector.containGattElements(elements)) {
             initEegService();
 
-            setEegOn(true);
+            turnOnEEG(true);
         } else {
             return false;
         }
@@ -235,30 +180,92 @@ public class EegDevice extends AbstractDevice {
         super.disconnect(forever);
     }
 
-    public final int getSampleRate() {
-        return sampleRate;
+    public void setEegRecord(final boolean isRecord) {
+        if(isEegRecord == isRecord || isUploadingEegRecord) return;
+
+        if(isRecord) {
+            eegRecord = (BleEegRecord10) RecordFactory.create(EEG, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
+            if(eegRecord != null) {
+                eegRecord.setSampleRate(sampleRate);
+                eegRecord.setCaliValue(caliValue);
+                eegRecord.setLeadTypeCode(leadType.getCode());
+                MyApplication.showMessageUsingShortToast("记录时请保持安静。");
+                isEegRecord = true;
+            }
+        } else {
+            if(eegRecord == null) return;
+
+            eegRecord.setCreateTime(new Date().getTime());
+            eegRecord.setRecordSecond(eegRecord.getDataNum()/sampleRate);
+            eegRecord.save();
+            isUploadingEegRecord = true;
+            new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                @Override
+                public void onFinish(int code, final Object rlt) {
+                    int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
+                    Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
+                    if(code == CODE_SUCCESS) {
+                        eegRecord.setModified(false);
+                        eegRecord.save();
+                    }
+                    isUploadingEegRecord = false;
+                    eegRecord = null;
+                }
+            }).execute(eegRecord);
+            isEegRecord = false;
+        }
+
+        if(listener != null) {
+            listener.onEegSignalRecordStatusChanged(isEegRecord);
+        }
     }
 
-    public final int getCaliValue() {
-        return caliValue;
+    public void showEegSignal(int eegSignal) {
+        if (listener != null) {
+            listener.onEegSignalShowed(eegSignal);
+        }
     }
 
-    public boolean isEegRecord() {
-        return isEegRecord;
+    public void recordEegSignal(int eegSignal) {
+        if(isEegRecord && eegRecord != null) {
+            eegRecord.process(eegSignal);
+            if(eegRecord.getDataNum() % sampleRate == 0 && listener != null) {
+                int second = eegRecord.getDataNum()/sampleRate;
+                listener.onEegSignalRecordTimeUpdated(second);
+            }
+        }
     }
 
-    public void setListener(OnEegListener listener) {
-        this.listener = listener;
-    }
+    public void turnOnEEG(boolean isOn) {
+        //((BleConnector)connector).notify(EEGMEASCCC, false, null);
 
-    public void removeListener() {
-        this.listener = null;
+        if(isOn) {
+            IBleDataCallback notifyCallback = new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    if(eegProcessor != null)
+                        eegProcessor.processData(data);
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+
+                }
+            };
+            ((BleConnector)connector).notify(EEGMEASCCC, true, notifyCallback);
+        } else {
+            if(eegProcessor != null)
+                eegProcessor.stop();
+
+            ((BleConnector)connector).notify(EEGMEASCCC, false, null);
+        }
     }
 
     private void setBatteryMeasure(boolean isStart) {
         if(!hasBattService) return;
 
-        //((BleConnector)connector).notify(BATTLEVELCCC, false, null);
+        ((BleConnector)connector).notify(BATTLEVELCCC, false, null);
+
         if(isStart) {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
@@ -272,8 +279,6 @@ public class EegDevice extends AbstractDevice {
                 }
             };
             ((BleConnector)connector).notify(BATTLEVELCCC, true, notifyCallback);
-        } else {
-            ((BleConnector)connector).notify(BATTLEVELCCC, false, null);
         }
     }
 
@@ -348,21 +353,5 @@ public class EegDevice extends AbstractDevice {
             public void onFailure(BleException exception) {
             }
         });
-    }
-
-    public void showEegSignal(int eegSignal) {
-        if (listener != null) {
-            listener.onEegSignalShowed(eegSignal);
-        }
-    }
-
-    public void recordEegSignal(int eegSignal) {
-        if(isEegRecord && eegRecord != null) {
-            eegRecord.process((short)eegSignal);
-            if(eegRecord.getDataNum() % sampleRate == 0 && listener != null) {
-                int second = eegRecord.getDataNum()/sampleRate;
-                listener.onEegRecordTimeUpdated(second);
-            }
-        }
     }
 }
