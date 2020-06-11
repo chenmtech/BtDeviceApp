@@ -12,33 +12,25 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
-
-        <FrameLayout
-            android:id="@+id/fl_ecg_on"
+        <com.cmtech.android.bledevice.view.ScanEegView
+            android:id="@+id/eeg_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible">
-            <com.cmtech.android.bledevice.view.ScanEcgView
-                android:id="@+id/eeg_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                cmtech:background_color="@color/ecg_view_background"
-                cmtech:grid_color="@color/ecg_view_grid"
-                cmtech:wave_color="@color/ecg_view_wave"
-                cmtech:show_gridline="true"/>
+            cmtech:background_color="@color/ecg_view_background"
+            cmtech:grid_color="@color/ecg_view_grid"
+            cmtech:wave_color="@color/ecg_view_wave"
+            cmtech:show_gridline="true"/>
 
-            <TextView
-                android:id="@+id/tv_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="2dp"
-                android:text="@string/pause_show"
-                android:textSize="20sp"
-                android:textColor="@color/primary"
-                android:visibility="gone"/>
-
-        </FrameLayout>
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="2dp"
+            android:text="@string/pause_show"
+            android:textSize="20sp"
+            android:textColor="@color/primary"
+            android:visibility="gone"/>
     </FrameLayout>
 
     <android.support.design.widget.TabLayout

@@ -15,6 +15,7 @@ import com.cmtech.android.bledevice.eeg.model.EegDevice;
 import com.cmtech.android.bledevice.eeg.model.OnEegListener;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
 import com.cmtech.android.bledevice.view.ScanEcgView;
+import com.cmtech.android.bledevice.view.ScanEegView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
@@ -41,7 +42,7 @@ import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATI
 public class EegFragment extends DeviceFragment implements OnEegListener, OnWaveViewListener {
     private EegDevice device; // device
 
-    private ScanEcgView eegView; // EegView
+    private ScanEegView eegView; // EegView
     private TextView tvMessage; // message
 
     private ViewPager pager;
