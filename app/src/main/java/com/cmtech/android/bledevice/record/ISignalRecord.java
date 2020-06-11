@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice
- * ClassName:      IEcgRecord
+ * ClassName:      ISignalRecord
  * Description:    java类作用描述
  * Author:         作者名
  * CreateDate:     2020/3/28 下午5:00
@@ -14,7 +14,7 @@ import java.io.IOException;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public interface IEcgRecord {
+public interface ISignalRecord {
     int getSampleRate();
     int getCaliValue();
     boolean isEOD();

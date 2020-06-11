@@ -23,7 +23,8 @@ public enum RecordType {
     ECG(1, R.string.ecg_record, R.mipmap.ic_ecg_24px, EcgRecordActivity.class),
     HR(2, R.string.hr_record, R.mipmap.ic_hr_24px, HrRecordActivity.class),
     THERMO(3, R.string.thermo_record, R.mipmap.ic_thermo_24px, ThermoRecordActivity.class),
-    TH(4, R.string.th_record, R.drawable.ic_thm_default_icon, null);
+    TH(4, R.string.th_record, R.drawable.ic_thm_default_icon, null),
+    EEG(5, R.string.ecg_record, R.mipmap.ic_ecg_24px, EcgRecordActivity.class);
 
     private String name;
     private int code;

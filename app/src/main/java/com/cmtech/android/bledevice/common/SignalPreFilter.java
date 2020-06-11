@@ -1,4 +1,4 @@
-package com.cmtech.android.bledevice.hrm.model;
+package com.cmtech.android.bledevice.common;
 
 import com.cmtech.dsp.filter.IDigitalFilter;
 import com.cmtech.dsp.filter.design.DCBlockDesigner;
@@ -18,7 +18,7 @@ import com.cmtech.dsp.filter.structure.StructType;
   * Version:        1.0
  */
 
-public class EcgPreFilter implements IEcgFilter {
+public class SignalPreFilter implements ISignalFilter {
     private static final double DEFAULT_BASELINE_CUTOFF_FREQ = 0.5; // default cut-off frequency of the baseline drift filter
     private static final int DEFAULT_NOTCH_FREQ = 50; // default notch central frequency
     private static final double DEFAULT_NOTCH_3DB_BANDWIDTH = 0.5; // default 3dB bandwidth of the notch filter
@@ -28,11 +28,11 @@ public class EcgPreFilter implements IEcgFilter {
     private IDigitalFilter dcBlocker; // a DC blocker filtering the baseline drift
     private IDigitalFilter notch; // a notch filter filtering the 50Hz noise
 
-    public EcgPreFilter(int sampleRate) {
+    public SignalPreFilter(int sampleRate) {
         this(sampleRate, DEFAULT_BASELINE_CUTOFF_FREQ, DEFAULT_NOTCH_FREQ);
     }
 
-    public EcgPreFilter(int sampleRate, double baselineFreq, int notchFreq) {
+    public SignalPreFilter(int sampleRate, double baselineFreq, int notchFreq) {
         this.baselineFreq = baselineFreq;
         this.notchFreq = notchFreq;
 
@@ -51,8 +51,8 @@ public class EcgPreFilter implements IEcgFilter {
     }
 
     @Override
-    public double filter(double ecgSignal) {
-        return notch.filter(dcBlocker.filter(ecgSignal));
+    public double filter(double signal) {
+        return notch.filter(dcBlocker.filter(signal));
     }
 
 }

@@ -1,8 +1,9 @@
-package com.cmtech.android.bledevice.hrm.model;
+package com.cmtech.android.bledevice.eeg.model;
 
 import com.cmtech.android.ble.utils.ExecutorUtil;
 import com.cmtech.android.bledevice.common.SignalPreFilter;
 import com.cmtech.android.bledevice.common.ISignalFilter;
+import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
 import com.vise.log.ViseLog;
 
@@ -14,7 +15,7 @@ import java.util.concurrent.ThreadFactory;
 /**
   *
   * ClassName:      EcgDataProcessor
-  * Description:    ecg signal processor, including resolving the ecg data packet and filtering the data
+  * Description:    eeg signal processor, including resolving the eeg data packet and filtering the data
   * Author:         chenm
   * CreateDate:     2019-06-25 05:17
   * UpdateUser:     chenm
@@ -23,26 +24,26 @@ import java.util.concurrent.ThreadFactory;
   * Version:        1.0
  */
 
-public class EcgDataProcessor {
+public class EegDataProcessor {
     private static final int MAX_PACKET_NUM = 255; // the max packet number
     private static final int INVALID_PACKET_NUM = -1; // invalid packet number
 
-    private final HrmDevice device;
+    private final EegDevice device;
     private int nextPackNum = INVALID_PACKET_NUM; // the next packet number wanted to received
-    private final ISignalFilter ecgFilter; // ecg filter
-    private ExecutorService procService; // ecg data process Service
+    private final ISignalFilter eegFilter; // eeg filter
+    private ExecutorService procService; // eeg data process Service
 
-    public EcgDataProcessor(HrmDevice device) {
+    public EegDataProcessor(EegDevice device) {
         if(device == null) {
             throw new NullPointerException("The device is null.");
         }
 
         this.device = device;
-        ecgFilter = new SignalPreFilter(device.getSampleRate());
+        eegFilter = new SignalPreFilter(device.getSampleRate());
     }
 
     public void reset() {
-        ecgFilter.design(device.getSampleRate());
+        eegFilter.design(device.getSampleRate());
     }
 
     public synchronized void start() {
@@ -55,12 +56,12 @@ public class EcgDataProcessor {
                 }
             });
 
-            ViseLog.e("The ecg data processor is started.");
+            ViseLog.e("The eeg data processor is started.");
         }
     }
 
     public synchronized void stop() {
-        ViseLog.e("The ecg data processor is stopped.");
+        ViseLog.e("The eeg data processor is stopped.");
 
         ExecutorUtil.shutdownNowAndAwaitTerminate(procService);
     }
@@ -76,7 +77,7 @@ public class EcgDataProcessor {
                         ViseLog.i("Packet No." + packageNum + ": " + Arrays.toString(pack));
                         nextPackNum = (nextPackNum == MAX_PACKET_NUM) ? 0 : nextPackNum+1;
                     } else if(nextPackNum != INVALID_PACKET_NUM){ // bad packet, force disconnect
-                        ViseLog.e("The ecg data packet is lost.");
+                        ViseLog.e("The eeg data packet is lost.");
                         nextPackNum = INVALID_PACKET_NUM;
                         device.disconnect(false);
                     }
@@ -87,13 +88,13 @@ public class EcgDataProcessor {
     }
 
     private int[] resolveData(byte[] data, int begin) {
-        int[] pack = new int[(data.length-begin) / 2];
-        int j = 0;
-        for (int i = begin; i < data.length; i=i+2, j++) {
-            pack[j] = (short) ((0xff & data[i]) | (0xff00 & (data[i+1] << 8)));
-            int fData = (int) ecgFilter.filter(pack[j]);
-            device.showEcgSignal(fData);
-            device.recordEcgSignal(fData);
+        int[] pack = new int[(data.length-begin) / 3];
+        for (int j = 0, i = begin; i < data.length; i=i+3, j++) {
+            pack[j] = ByteUtil.getInt(new byte[]{0x00, data[i], data[i+1], data[i+2]});
+            pack[j] >>= 8;
+            int fData = (int) eegFilter.filter(pack[j]);
+            device.showEegSignal(fData);
+            device.recordEegSignal(fData);
         }
         return pack;
     }

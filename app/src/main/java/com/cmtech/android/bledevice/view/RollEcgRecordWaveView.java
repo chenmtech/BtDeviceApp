@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 
-import com.cmtech.android.bledevice.record.IEcgRecord;
+import com.cmtech.android.bledevice.record.ISignalRecord;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import static com.vise.utils.handler.HandlerUtil.runOnUiThread;
 public class RollEcgRecordWaveView extends ColorRollWaveView {
     private static final int MIN_SHOW_INTERVAL = 30;          // 最小更新显示的时间间隔，ms，防止更新太快导致程序阻塞
 
-    private IEcgRecord ecgRecord; // 要播放的Ecg文件
+    private ISignalRecord ecgRecord; // 要播放的Ecg文件
     private boolean replaying = false; // 是否正在播放
     private int num = 0; // 当前读取的文件中的第几个数据
     private int interval = 0; // 每次更新显示的时间间隔，为采样间隔的整数倍
@@ -127,7 +127,7 @@ public class RollEcgRecordWaveView extends ColorRollWaveView {
         return true;
     }
 
-    public void setEcgRecord(IEcgRecord ecgRecord) {
+    public void setEcgRecord(ISignalRecord ecgRecord) {
         stopShow();
         this.ecgRecord = ecgRecord;
         int sampleInterval = 1000/ecgRecord.getSampleRate();

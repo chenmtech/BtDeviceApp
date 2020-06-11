@@ -1,7 +1,7 @@
 package com.cmtech.android.bledevice.record;
 
-import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
+import com.cmtech.android.bledeviceapp.model.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,12 +13,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.record.RecordType.ECG;
+import static com.cmtech.android.bledevice.record.RecordType.EEG;
 
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.hrmonitor.model
- * ClassName:      EcgRecord10
+ * ClassName:      EegRecord10
  * Description:    java类作用描述
  * Author:         作者名
  * CreateDate:     2020/3/28 上午7:11
@@ -27,34 +27,34 @@ import static com.cmtech.android.bledevice.record.RecordType.ECG;
  * UpdateRemark:   更新说明
  * Version:        1.0
  */
-public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serializable {
+public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serializable {
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
     private int recordSecond; // unit: s
-    private List<Short> ecgData; // ecg data
+    private List<Integer> eegData; // eeg data
     @Column(ignore = true)
     private int pos = 0;
 
-    BleEcgRecord10(long createTime, String devAddress, User creator, String note) {
-        super(ECG, "1.0", createTime, devAddress, creator, note);
+    BleEegRecord10(long createTime, String devAddress, User creator, String note) {
+        super(EEG, "1.0", createTime, devAddress, creator, note);
         sampleRate = 0;
         caliValue = 0;
         leadTypeCode = 0;
         recordSecond = 0;
-        ecgData = new ArrayList<>();
+        eegData = new ArrayList<>();
     }
 
-    BleEcgRecord10(JSONObject json) {
-        super(ECG, "1.0", json);
+    BleEegRecord10(JSONObject json) {
+        super(EEG, "1.0", json);
         sampleRate = 0;
         caliValue = 0;
         leadTypeCode = 0;
         recordSecond = 0;
-        ecgData = new ArrayList<>();
+        eegData = new ArrayList<>();
     }
 
-    static BleEcgRecord10 createFromJson(JSONObject json) {
+    static BleEegRecord10 createFromJson(JSONObject json) {
         if(json == null) {
             throw new NullPointerException("The json is null.");
         }
@@ -66,7 +66,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
             int recordSecond = json.getInt("recordSecond");
             String note = json.getString("note");
 
-            BleEcgRecord10 newRecord = new BleEcgRecord10(createTime, devAddress, account, note);
+            BleEegRecord10 newRecord = new BleEegRecord10(createTime, devAddress, account, note);
             newRecord.setRecordSecond(recordSecond);
             return newRecord;
         } catch (JSONException e) {
@@ -75,10 +75,10 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
         return null;
     }
 
-    static List<BleEcgRecord10> createFromLocalDb(User creator, long fromTime, int num) {
+    static List<BleEegRecord10> createFromLocalDb(User creator, long fromTime, int num) {
         return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note, modified")
                 .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
-                .order("createTime desc").limit(num).find(BleEcgRecord10.class);
+                .order("createTime desc").limit(num).find(BleEegRecord10.class);
     }
 
     @Override
@@ -92,10 +92,10 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
             json.put("leadTypeCode", leadTypeCode);
             json.put("recordSecond", recordSecond);
             StringBuilder builder = new StringBuilder();
-            for(Short ele : ecgData) {
+            for(Integer ele : eegData) {
                 builder.append(ele).append(',');
             }
-            json.put("ecgData", builder.toString());
+            json.put("eegData", builder.toString());
             return json;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -114,13 +114,13 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
             caliValue = json.getInt("caliValue");
             leadTypeCode = json.getInt("leadTypeCode");
             recordSecond = json.getInt("recordSecond");
-            String ecgDataStr = json.getString("ecgData");
-            List<Short> ecgData = new ArrayList<>();
-            String[] strings = ecgDataStr.split(",");
+            String eegDataStr = json.getString("eegData");
+            List<Integer> eegData = new ArrayList<>();
+            String[] strings = eegDataStr.split(",");
             for(String str : strings) {
-                ecgData.add(Short.parseShort(str));
+                eegData.add(Integer.parseInt(str));
             }
-            this.ecgData = ecgData;
+            this.eegData = eegData;
             return save();
         } catch (JSONException e) {
             e.printStackTrace();
@@ -130,15 +130,15 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
 
     @Override
     public boolean lackData() {
-        return ecgData.isEmpty();
+        return eegData.isEmpty();
     }
 
-    public List<Short> getEcgData() {
-        return ecgData;
+    public List<Integer> getEegData() {
+        return eegData;
     }
 
-    public void setEcgData(List<Short> ecgData) {
-        this.ecgData.addAll(ecgData);
+    public void setEegData(List<Integer> eegData) {
+        this.eegData.addAll(eegData);
     }
 
     @Override
@@ -165,7 +165,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
 
     @Override
     public boolean isEOD() {
-        return (pos >= ecgData.size());
+        return (pos >= eegData.size());
     }
 
     @Override
@@ -175,13 +175,13 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
 
     @Override
     public int readData() throws IOException {
-        if(pos >= ecgData.size()) throw new IOException();
-        return ecgData.get(pos++);
+        if(pos >= eegData.size()) throw new IOException();
+        return eegData.get(pos++);
     }
 
     @Override
     public int getDataNum() {
-        return ecgData.size();
+        return eegData.size();
     }
 
     @Override
@@ -193,13 +193,13 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
         this.recordSecond = recordSecond;
     }
 
-    public boolean process(short ecg) {
-        ecgData.add(ecg);
+    public boolean process(int eeg) {
+        eegData.add(eeg);
         return true;
     }
 
     @Override
     public String toString() {
-        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + ecgData;
+        return super.toString() + "-" + sampleRate + "-" + caliValue + "-" + leadTypeCode + "-" + recordSecond + "-" + eegData;
     }
 }
