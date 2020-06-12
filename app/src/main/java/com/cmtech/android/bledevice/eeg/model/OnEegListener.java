@@ -1,10 +1,5 @@
 package com.cmtech.android.bledevice.eeg.model;
 
-import com.cmtech.android.bledevice.hrm.model.BleHeartRateData;
-import com.cmtech.android.bledevice.record.BleHrRecord10;
-
-import java.util.List;
-
 /**
  * ProjectName:    BtDeviceApp
  * Package:        com.cmtech.android.bledevice.hrmonitor.model
@@ -23,4 +18,5 @@ public interface OnEegListener {
     void onEegSignalShowed(int eegSignal); // eeg signal showed
     void onEegSignalRecordStatusChanged(boolean isRecord); // eeg signal record status changed
     void onEegSignalRecordTimeUpdated(int second); // eeg signal record time updated
+    void onEegOnStatusUpdated(boolean isOn);
 }

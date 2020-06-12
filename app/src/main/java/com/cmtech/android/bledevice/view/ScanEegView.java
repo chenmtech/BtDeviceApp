@@ -6,7 +6,7 @@ import android.util.AttributeSet;
 public class ScanEegView extends ScanWaveView {
     public static final int PIXEL_PER_GRID = 10; // 每个栅格包含的像素个数
     public static final float SECOND_PER_GRID = 0.04f; // 横向每个栅格代表的秒数，对应于走纸速度
-    public static final float MV_PER_GRID = 0.005f; // 纵向每个栅格代表的mV，对应于灵敏度
+    public static final float MV_PER_GRID = 0.01f; // 纵向每个栅格代表的mV，对应于灵敏度
 
     public ScanEegView(Context context) {
         super(context);

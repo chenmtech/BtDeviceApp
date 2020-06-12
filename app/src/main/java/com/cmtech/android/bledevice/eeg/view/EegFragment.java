@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.cmtech.android.bledevice.eeg.model.EegDevice;
 import com.cmtech.android.bledevice.eeg.model.OnEegListener;
 import com.cmtech.android.bledevice.view.OnWaveViewListener;
-import com.cmtech.android.bledevice.view.ScanEcgView;
 import com.cmtech.android.bledevice.view.ScanEegView;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
@@ -126,6 +125,16 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
     @Override
     public void onEegSignalRecordTimeUpdated(int second) {
         eegRecFrag.setEcgRecordTime(second);
+    }
+
+    @Override
+    public void onEegOnStatusUpdated(boolean isOn) {
+        if(isOn) {
+            eegView.start();
+            eegView.initialize();
+        } else {
+            eegView.stop();
+        }
     }
 
     @Override

@@ -259,6 +259,10 @@ public class EegDevice extends AbstractDevice {
 
             ((BleConnector)connector).notify(EEGMEASCCC, false, null);
         }
+
+        if(listener != null) {
+            listener.onEegOnStatusUpdated(isOn);
+        }
     }
 
     private void setBatteryMeasure(boolean isStart) {
