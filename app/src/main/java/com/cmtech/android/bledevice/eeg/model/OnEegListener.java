@@ -18,5 +18,5 @@ public interface OnEegListener {
     void onEegSignalShowed(int eegSignal); // eeg signal showed
     void onEegSignalRecordStatusChanged(boolean isRecord); // eeg signal record status changed
     void onEegSignalRecordTimeUpdated(int second); // eeg signal record time updated
-    void onEegOnStatusUpdated(boolean isOn);
+    void onEegSignalShowStatusUpdated(boolean isShow); // eeg signal show status updated
 }

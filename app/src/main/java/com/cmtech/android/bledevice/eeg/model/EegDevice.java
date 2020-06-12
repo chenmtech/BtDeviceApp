@@ -140,9 +140,28 @@ public class EegDevice extends AbstractDevice {
 
         BleGattElement[] elements = new BleGattElement[]{EEGMEAS, EEGMEASCCC, EEG1MVCALI, EEGSAMPLERATE, EEGLEADTYPE};
         if(connector.containGattElements(elements)) {
-            initEegService();
+            readSampleRate();
+            read1mVCali();
+            readLeadType();
+            ((BleConnector)connector).runInstantly(new IBleDataCallback() {
+                @Override
+                public void onSuccess(byte[] data, BleGattElement element) {
+                    if (listener != null)
+                        listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION);
 
-            turnOnEEG(true);
+                    updateSignalShowState(true);
+
+                    eegProcessor = new EegDataProcessor(EegDevice.this);
+                    eegProcessor.start();
+                }
+
+                @Override
+                public void onFailure(BleException exception) {
+
+                }
+            });
+
+            enableEeg(true);
         } else {
             return false;
         }
@@ -151,7 +170,7 @@ public class EegDevice extends AbstractDevice {
         if(connector.containGattElements(elements)) {
             hasBattService = true;
             readBatteryLevel();
-            setBatteryMeasure(true);
+            enableBatteryMeasure(true);
         }
 
         return true;
@@ -162,6 +181,9 @@ public class EegDevice extends AbstractDevice {
         if(eegProcessor != null) {
             eegProcessor.stop();
         }
+
+        updateSignalShowState(false);
+
         setEegRecord(false);
     }
 
@@ -170,12 +192,16 @@ public class EegDevice extends AbstractDevice {
         if(eegProcessor != null) {
             eegProcessor.stop();
         }
+
+        updateSignalShowState(false);
+
         setEegRecord(false);
     }
 
     @Override
     public void disconnect(final boolean forever) {
-        setBatteryMeasure(false);
+        enableEeg(false);
+        enableBatteryMeasure(false);
         setEegRecord(false);
         super.disconnect(forever);
     }
@@ -236,10 +262,10 @@ public class EegDevice extends AbstractDevice {
         }
     }
 
-    public void turnOnEEG(boolean isOn) {
+    private void enableEeg(boolean enable) {
         //((BleConnector)connector).notify(EEGMEASCCC, false, null);
 
-        if(isOn) {
+        if(enable) {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
@@ -254,23 +280,20 @@ public class EegDevice extends AbstractDevice {
             };
             ((BleConnector)connector).notify(EEGMEASCCC, true, notifyCallback);
         } else {
+            ((BleConnector)connector).notify(EEGMEASCCC, false, null);
+
             if(eegProcessor != null)
                 eegProcessor.stop();
 
-            ((BleConnector)connector).notify(EEGMEASCCC, false, null);
-        }
-
-        if(listener != null) {
-            listener.onEegOnStatusUpdated(isOn);
         }
     }
 
-    private void setBatteryMeasure(boolean isStart) {
+    private void enableBatteryMeasure(boolean enable) {
         if(!hasBattService) return;
 
         ((BleConnector)connector).notify(BATTLEVELCCC, false, null);
 
-        if(isStart) {
+        if(enable) {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
@@ -295,27 +318,6 @@ public class EegDevice extends AbstractDevice {
 
             @Override
             public void onFailure(BleException exception) {
-            }
-        });
-    }
-
-    private void initEegService() {
-        readSampleRate();
-        read1mVCali();
-        readLeadType();
-        ((BleConnector)connector).runInstantly(new IBleDataCallback() {
-            @Override
-            public void onSuccess(byte[] data, BleGattElement element) {
-                eegProcessor = new EegDataProcessor(EegDevice.this);
-                eegProcessor.start();
-
-                if (listener != null)
-                    listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION);
-            }
-
-            @Override
-            public void onFailure(BleException exception) {
-
             }
         });
     }
@@ -357,5 +359,11 @@ public class EegDevice extends AbstractDevice {
             public void onFailure(BleException exception) {
             }
         });
+    }
+
+    private void updateSignalShowState(boolean isShow) {
+        if (listener != null) {
+            listener.onEegSignalShowStatusUpdated(isShow);
+        }
     }
 }

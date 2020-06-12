@@ -128,10 +128,10 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
     }
 
     @Override
-    public void onEegOnStatusUpdated(boolean isOn) {
-        if(isOn) {
+    public void onEegSignalShowStatusUpdated(boolean isShow) {
+        if(isShow) {
             eegView.start();
-            eegView.initialize();
+            //eegView.initialize();
         } else {
             eegView.stop();
         }
