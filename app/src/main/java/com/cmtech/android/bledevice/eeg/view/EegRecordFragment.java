@@ -49,7 +49,7 @@ public class EegRecordFragment extends Fragment {
         ibRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((HrmFragment)getParentFragment()).setEcgRecord(!isRecord);
+                ((EegFragment)getParentFragment()).setEegRecord(!isRecord);
             }
         });
 

@@ -155,4 +155,10 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
 
         eegView.stop();
     }
+
+    public void setEegRecord(boolean isRecord) {
+        if(device != null) {
+            device.setEegRecord(isRecord);
+        }
+    }
 }

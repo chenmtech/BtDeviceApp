@@ -40,7 +40,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         creatorPlat = "";
         creatorId = "";
         note = "";
-        modified = false;
+        modified = true;
         this.type = type;
     }
 
@@ -55,7 +55,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();
         this.note = note;
-        modified = false;
+        modified = true;
     }
 
     BasicRecord(RecordType type, String ver, JSONObject json) {

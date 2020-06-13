@@ -191,10 +191,10 @@ public class HrmDevice extends AbstractDevice {
                                 hrRecord.save();
                             }
                             isUploadingHrRecord = false;
+                            hrRecord = null;
                         }
                     }).execute(hrRecord);
                 }
-                hrRecord = null;
             }
         }
         if(listener != null) {
@@ -240,10 +240,10 @@ public class HrmDevice extends AbstractDevice {
                             ecgRecord.save();
                         }
                         isUploadingEcgRecord = false;
+                        ecgRecord = null;
                     }
                 }).execute(ecgRecord);
             }
-            ecgRecord = null;
         }
         if(listener != null) {
             listener.onEcgSignalRecorded(isRecord);
