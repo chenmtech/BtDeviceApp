@@ -61,7 +61,7 @@
             android:id="@+id/nav_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:theme ="@style/navigationDrawerStyle"
+            android:theme ="@style/navigationDrawerStyle"
             app:headerLayout="@layout/navigation_header"
             app:menu="@menu/menu_navigation">
         </android.support.design.widget.NavigationView>

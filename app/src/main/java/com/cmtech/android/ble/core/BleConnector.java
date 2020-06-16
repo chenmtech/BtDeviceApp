@@ -7,7 +7,6 @@ import android.content.Intent;
 import com.cmtech.android.ble.callback.IBleConnectCallback;
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.exception.BleException;
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.vise.log.ViseLog;
 
 import static com.cmtech.android.ble.core.DeviceState.CLOSED;
@@ -139,6 +138,7 @@ public class BleConnector extends AbstractConnector {
     public void connect() {
         if(BleScanner.isBleDisabled()) {
             Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
             return;
         }

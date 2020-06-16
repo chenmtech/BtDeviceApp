@@ -99,9 +99,7 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
             notifyContents.add(device.getAddress() + ": " + device.getState().getDescription());
         }
         Notification notification = createNotification(notifyContents);
-        if (notification != null) {
-            startForeground(NOTIFY_ID, notification);
-        }
+        startForeground(NOTIFY_ID, notification);
     }
 
     @Override

@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private static final String TAG = "MainActivity";
     private final static int RC_ADD_DEVICE = 1;     // return code for registering new device
     private final static int RC_MODIFY_DEVICE_INFO = 2;       // return code for modifying device info
-    private final static int RC_MODIFY_ACCOUNT_INFO = 3;     // return code for modifying account info
 
     private final static SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(MyApplication.getContext());
 
@@ -342,18 +341,6 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
                             tbManager.setTitle(device.getName(), device.getAddress());
                             tbManager.setBattery(device.getBattery());
                         }
-                    }
-                }
-                break;
-
-            case RC_MODIFY_ACCOUNT_INFO: // return code for modify account info
-                if(resultCode == RESULT_OK) {
-                    updateNavigationHeader();
-                    //tbManager.setNavIcon(AccountManager.getAccount().getIcon());
-                } else {
-                    boolean logout = (data != null && data.getBooleanExtra("logout", false));
-                    if(logout) { // 退出登录
-                        changeAccount();
                     }
                 }
                 break;
@@ -642,7 +629,8 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
     private void updateNavigationHeader() {
         User account = AccountManager.getAccount();
         if(account == null) {
-            throw new IllegalStateException();
+            //throw new IllegalStateException();
+            finish();
         }
 
         if(account.getName() != null && !"".equals(account.getName().trim())) {
