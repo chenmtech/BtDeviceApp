@@ -125,8 +125,6 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             holder.ivUpload.setVisibility(View.GONE);
         }
 
-        //holder.ivUpload.setImageResource(RecordType.getType(record.getTypeCode()).getImgId());
-
         if(position == selPos) {
             holder.view.setBackgroundColor(SELECT_BG_COLOR);
         } else {

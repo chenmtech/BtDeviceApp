@@ -20,17 +20,16 @@ import static com.cmtech.android.bledevice.record.RecordType.TH;
  * Version:        1.0
  */
 public class BleTempHumidRecord10 extends BasicRecord {
-    public static final String INIT_STR = "createTime, devAddress, creatorPlat, creatorId, temperature, humid, heatIndex, location, note, needUpload";
     private float temperature;
     private float humid;
     private float heatIndex;
     private String location;
 
-    BleTempHumidRecord10() {
+    private BleTempHumidRecord10() {
         super(TH);
     }
 
-    BleTempHumidRecord10(long createTime, String devAddress, User creator, String note) {
+    private BleTempHumidRecord10(long createTime, String devAddress, User creator, String note) {
         super(TH, "1.0", createTime, devAddress, creator, note, true);
         temperature = 0.0f;
         humid = 0.0f;
@@ -38,7 +37,7 @@ public class BleTempHumidRecord10 extends BasicRecord {
         location = "室内";
     }
 
-    BleTempHumidRecord10(JSONObject json)  throws JSONException{
+    private BleTempHumidRecord10(JSONObject json)  throws JSONException{
          super(TH, "1.0", json, false);
     }
 
@@ -48,7 +47,7 @@ public class BleTempHumidRecord10 extends BasicRecord {
     }
 
     @Override
-    public boolean parseDataFromJson(JSONObject json) {
+    public boolean setDataFromJson(JSONObject json) {
         return false;
     }
 

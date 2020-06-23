@@ -79,16 +79,9 @@ public class RecordFactory {
 
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
-            try {
-                String str = (String)recordClass.getField("INIT_STR").get(null);
-                return LitePal.select(str)
-                        .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+from)
-                        .order("createTime desc").limit(num).find(recordClass);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
-            }
+            return LitePal.select(BasicRecord.QUERY_STR)
+                    .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+from)
+                    .order("createTime desc").limit(num).find(recordClass);
         }
         return null;
     }

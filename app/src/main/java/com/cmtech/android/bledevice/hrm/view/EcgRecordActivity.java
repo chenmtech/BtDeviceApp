@@ -24,7 +24,7 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
     private static final int INVALID_ID = -1;
@@ -60,14 +60,14 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         }
 
         if(record.noData()) {
-            new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == CODE_SUCCESS) {
                         JSONObject json = (JSONObject) result;
 
                         try {
-                            if(record.parseDataFromJson(json)) {
+                            if(record.setDataFromJson(json)) {
                                 initUI();
                                 return;
                             }
@@ -193,7 +193,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void upload() {
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_QUERY, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
             public void onFinish(int code, final Object rlt) {
                 final boolean result = (code == CODE_SUCCESS);
@@ -203,10 +203,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                         if(result) {
                             int id = (Integer) rlt;
                             if(id == INVALID_ID) {
-                                new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                                new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(int code, Object result) {
-                                        int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.operation_failure;
+                                        int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.web_failure;
                                         Toast.makeText(EcgRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                         if(code == CODE_SUCCESS) {
                                             record.setNeedUpload(false);
@@ -215,10 +215,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                                     }
                                 }).execute(record);
                             } else {
-                                new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                                new RecordWebAsyncTask(EcgRecordActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(int code, Object result) {
-                                        int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.operation_failure;
+                                        int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.web_failure;
                                         Toast.makeText(EcgRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                         if(code == CODE_SUCCESS) {
                                             record.setNeedUpload(false);
@@ -228,7 +228,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                                 }).execute(record);
                             }
                         } else {
-                            Toast.makeText(EcgRecordActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EcgRecordActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

@@ -16,6 +16,6 @@ import org.json.JSONObject;
  * Version:        1.0
  */
 public interface IRecordJson {
+    boolean setDataFromJson(JSONObject json) throws JSONException;
     JSONObject toJson() throws JSONException;
-    boolean parseDataFromJson(JSONObject json) throws JSONException;
 }

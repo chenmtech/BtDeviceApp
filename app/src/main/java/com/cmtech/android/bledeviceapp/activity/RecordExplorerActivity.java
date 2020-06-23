@@ -62,7 +62,7 @@ import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCES
 public class RecordExplorerActivity extends AppCompatActivity {
     private static final String TAG = "RecordExplorerActivity";
     private static final RecordType[] SUPPORT_RECORD_TYPES = new RecordType[]{ECG, HR, THERMO, TH};
-    private static final int READ_RECORD_INFO_NUM = 10;
+    private static final int READ_RECORD_BASIC_INFO_NUM = 20;
 
     private long updateTime; // update time in record list
     private List<IRecord> allRecords = new ArrayList<>(); // all records
@@ -122,7 +122,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
 
                 if(newState == RecyclerView.SCROLL_STATE_IDLE && lastVisibleItem == recordAdapter.getItemCount()-1) {
-                    updateRecordsFromServer(updateTime);
+                    updateRecords(updateTime);
                 }
             }
 
@@ -177,13 +177,13 @@ public class RecordExplorerActivity extends AppCompatActivity {
         updateRecordView();
 
         updateTime = new Date().getTime();
-        updateRecordsFromServer(updateTime);
+        updateRecords(updateTime);
     }
 
-    private void updateRecordsFromServer(final long from) {
+    private void updateRecords(final long from) {
         IRecord record = RecordFactory.create(recordType, from, null, AccountManager.getAccount(), "");
 
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_INFO_DOWNLOAD_CMD, READ_RECORD_INFO_NUM, true, new RecordWebAsyncTask.RecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_DOWNLOAD_BASIC_INFO, READ_RECORD_BASIC_INFO_NUM, true, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
             public void onFinish(int code, Object result) {
                 if(code == CODE_SUCCESS) { // download success, save into local records
@@ -201,7 +201,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     }
                 }
 
-                List<? extends IRecord> records = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), from, READ_RECORD_INFO_NUM);
+                List<? extends IRecord> records = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), from, READ_RECORD_BASIC_INFO_NUM);
                 if(records == null || records.isEmpty()) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else  {
@@ -231,11 +231,11 @@ public class RecordExplorerActivity extends AppCompatActivity {
     public void deleteRecord(final IRecord record) {
         if(record != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("删除记录").setMessage("确定删除该记录吗？");
+            builder.setTitle("删除记录").setMessage("删除记录将无法恢复，确定删除该记录吗？");
             builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_DELETE_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+                    new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_DELETE, new RecordWebAsyncTask.RecordWebCallback() {
                         @Override
                         public void onFinish(int code, Object result) {
                             LitePal.delete(record.getClass(), record.getId());

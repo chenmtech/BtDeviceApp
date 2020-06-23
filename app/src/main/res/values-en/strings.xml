@@ -30,6 +30,7 @@
     <string name="update_record_success">update record success.</string>
     <string name="wait_pls">Wait please…</string>
     <string name="operation_failure">somethings wrong.</string>
+    <string name="web_failure">Web Failure.</string>
     <string name="operation_success">operation success.</string>
     <string name="login_success">login success.</string>
     <string name="login_failure">login failure.</string>

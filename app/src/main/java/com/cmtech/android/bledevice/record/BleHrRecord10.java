@@ -27,7 +27,6 @@ import static com.cmtech.android.bledevice.record.RecordType.HR;
  * Version:        1.0
  */
 public class BleHrRecord10 extends BasicRecord implements Serializable {
-    public static final String INIT_STR = "createTime, devAddress, creatorPlat, creatorId, recordSecond, note, needUpload";
     public static final int HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH = 10; // unit: s
     //private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
     //private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // char num of device address
@@ -49,21 +48,21 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     @Column(ignore = true)
     private transient long preTime = 0;
 
-    BleHrRecord10() {
+    private BleHrRecord10() {
         super(HR);
         hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
         initData();
         recordSecond = 0;
     }
 
-    BleHrRecord10(long createTime, String devAddress, User creator, String note) {
+    private BleHrRecord10(long createTime, String devAddress, User creator, String note) {
         super(HR, "1.0", createTime, devAddress, creator, note, true);
         hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
         initData();
         recordSecond = 0;
     }
 
-    BleHrRecord10(JSONObject json) throws JSONException{
+    private BleHrRecord10(JSONObject json) throws JSONException{
         super(HR, "1.0", json, false);
         hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
         initData();
@@ -104,7 +103,7 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     }
 
     @Override
-    public boolean parseDataFromJson(JSONObject json) throws JSONException{
+    public boolean setDataFromJson(JSONObject json) throws JSONException{
         if(json == null) {
             return false;
         }

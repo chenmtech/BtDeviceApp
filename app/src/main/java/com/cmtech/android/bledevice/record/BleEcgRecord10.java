@@ -15,8 +15,8 @@ import static com.cmtech.android.bledevice.record.RecordType.ECG;
 
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.hrmonitor.model
- * ClassName:      EcgRecord10
+ * Package:        com.cmtech.android.bledevice.record
+ * ClassName:      BleEcgRecord10
  * Description:    java类作用描述
  * Author:         作者名
  * CreateDate:     2020/3/28 上午7:11
@@ -26,28 +26,27 @@ import static com.cmtech.android.bledevice.record.RecordType.ECG;
  * Version:        1.0
  */
 public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serializable {
-    public static final String INIT_STR = "createTime, devAddress, creatorPlat, creatorId, recordSecond, note, needUpload";
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
     private int recordSecond; // unit: s
     private List<Short> ecgData; // ecg data
     @Column(ignore = true)
-    private int pos = 0;
+    private int pos = 0; // current position to the ecgData
 
-    BleEcgRecord10() {
+    private BleEcgRecord10() {
         super(ECG);
         initData();
         recordSecond = 0;
     }
 
-    BleEcgRecord10(long createTime, String devAddress, User creator, String note) {
+    private BleEcgRecord10(long createTime, String devAddress, User creator, String note) {
         super(ECG, "1.0", createTime, devAddress, creator, note, true);
         initData();
         recordSecond = 0;
     }
 
-    BleEcgRecord10(JSONObject json) throws JSONException{
+    private BleEcgRecord10(JSONObject json) throws JSONException{
         super(ECG, "1.0", json, false);
         initData();
         recordSecond = json.getInt("recordSecond");
@@ -77,7 +76,7 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
     }
 
     @Override
-    public boolean parseDataFromJson(JSONObject json) throws JSONException{
+    public boolean setDataFromJson(JSONObject json) throws JSONException{
         if(json == null) {
             return false;
         }

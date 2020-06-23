@@ -15,7 +15,7 @@ import static com.cmtech.android.bledevice.record.RecordType.EEG;
 
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.hrmonitor.model
+ * Package:        com.cmtech.android.bledevice.record
  * ClassName:      EegRecord10
  * Description:    java类作用描述
  * Author:         作者名
@@ -26,7 +26,6 @@ import static com.cmtech.android.bledevice.record.RecordType.EEG;
  * Version:        1.0
  */
 public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serializable {
-    public static final String INIT_STR = "createTime, devAddress, creatorPlat, creatorId, recordSecond, note, needUpload";
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
@@ -35,19 +34,19 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     @Column(ignore = true)
     private int pos = 0;
 
-    BleEegRecord10() {
+    private BleEegRecord10() {
         super(EEG);
         initData();
         recordSecond = 0;
     }
 
-    BleEegRecord10(long createTime, String devAddress, User creator, String note) {
+    private BleEegRecord10(long createTime, String devAddress, User creator, String note) {
         super(EEG, "1.0", createTime, devAddress, creator, note, true);
         initData();
         recordSecond = 0;
     }
 
-    BleEegRecord10(JSONObject json) throws JSONException{
+    private BleEegRecord10(JSONObject json) throws JSONException{
         super(EEG, "1.0", json, false);
         initData();
         recordSecond = json.getInt("recordSecond");
@@ -78,7 +77,7 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     }
 
     @Override
-    public boolean parseDataFromJson(JSONObject json) throws JSONException{
+    public boolean setDataFromJson(JSONObject json) throws JSONException{
         if(json == null) {
             return false;
         }

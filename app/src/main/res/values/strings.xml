@@ -30,6 +30,7 @@
     <string name="update_record_success">更新记录成功</string>
     <string name="wait_pls">请稍等</string>
     <string name="operation_failure">出错了</string>
+    <string name="web_failure">网络错误</string>
     <string name="operation_success">操作成功</string>
     <string name="login_success">登录成功</string>
     <string name="login_failure">登录失败</string>

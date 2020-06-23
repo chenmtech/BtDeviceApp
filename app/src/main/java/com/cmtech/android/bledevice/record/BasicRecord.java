@@ -11,7 +11,7 @@ import org.litepal.crud.LitePalSupport;
 
 /**
  * ProjectName:    BtDeviceApp
- * Package:        com.cmtech.android.bledevice.common
+ * Package:        com.cmtech.android.bledevice.record
  * ClassName:      BasicRecord
  * Description:    各种记录类的共同基本信息基类
  * Author:         chenm
@@ -22,6 +22,8 @@ import org.litepal.crud.LitePalSupport;
  * Version:        1.0
  */
 public class BasicRecord extends LitePalSupport implements IRecord {
+    public static final String QUERY_STR = "createTime, devAddress, creatorPlat, creatorId, note, needUpload"; // used to create from local DB
+
     private int id;
     private String ver; // record version
     private long createTime; // create time
@@ -31,7 +33,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     private String note; // note
     private boolean needUpload; // need uploaded
     @Column(ignore = true)
-    private RecordType type;
+    private RecordType type; // record type
 
     BasicRecord(RecordType type) {
         ver = "";
@@ -64,12 +66,11 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         }
         this.type = type;
         this.ver = ver;
-
-        createTime = json.getLong("createTime");
-        devAddress = json.getString("devAddress");
-        creatorPlat = AccountManager.getAccount().getPlatName();
-        creatorId = AccountManager.getAccount().getPlatId();
-        note = json.getString("note");
+        this.createTime = json.getLong("createTime");
+        this.devAddress = json.getString("devAddress");
+        this.creatorPlat = AccountManager.getAccount().getPlatName();
+        this.creatorId = AccountManager.getAccount().getPlatId();
+        this.note = json.getString("note");
         this.needUpload = needUpload;
     }
 
@@ -166,7 +167,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
-    public boolean parseDataFromJson(JSONObject json) throws JSONException {
+    public boolean setDataFromJson(JSONObject json) throws JSONException {
         return false;
     }
 
@@ -177,7 +178,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
 
     @Override
     public String toString() {
-        return type + "-" +ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + needUpload;
+        return id + "-" + type + "-" + ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + needUpload;
     }
 
     @Override

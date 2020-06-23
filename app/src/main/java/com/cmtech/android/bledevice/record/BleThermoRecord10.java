@@ -23,23 +23,22 @@ import static com.cmtech.android.bledevice.record.RecordType.THERMO;
  * Version:        1.0
  */
 public class BleThermoRecord10 extends BasicRecord {
-    public static final String INIT_STR = "createTime, devAddress, creatorPlat, creatorId, highestTemp, note, needUpload";
     private float highestTemp;
     private List<Float> temp;
 
-    BleThermoRecord10() {
+    private BleThermoRecord10() {
         super(THERMO);
         highestTemp = 0.0f;
         temp = new ArrayList<>();
     }
 
-    BleThermoRecord10(long createTime, String devAddress, User creator, String note) {
+    private BleThermoRecord10(long createTime, String devAddress, User creator, String note) {
         super(THERMO, "1.0", createTime, devAddress, creator, note, true);
         highestTemp = 0.0f;
         temp = new ArrayList<>();
     }
 
-    BleThermoRecord10(JSONObject json)  throws JSONException {
+    private BleThermoRecord10(JSONObject json)  throws JSONException {
         super(THERMO, "1.0", json, false);
     }
 
@@ -49,7 +48,7 @@ public class BleThermoRecord10 extends BasicRecord {
     }
 
     @Override
-    public boolean parseDataFromJson(JSONObject json) {
+    public boolean setDataFromJson(JSONObject json) {
         return false;
     }
 

@@ -23,7 +23,7 @@ import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_DOWNLOAD_CMD;
+import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 
 public class HrRecordActivity extends AppCompatActivity {
     private static final int INVALID_ID = -1;
@@ -54,14 +54,14 @@ public class HrRecordActivity extends AppCompatActivity {
         }
 
         if(record.noData()) {
-            new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+            new RecordWebAsyncTask(this, RECORD_CMD_DOWNLOAD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == CODE_SUCCESS) {
                         JSONObject json = (JSONObject) result;
 
                         try {
-                            if(record.parseDataFromJson(json)) {
+                            if(record.setDataFromJson(json)) {
                                 initUI();
                                 return;
                             }
@@ -137,7 +137,7 @@ public class HrRecordActivity extends AppCompatActivity {
     }
 
     private void upload() {
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, new RecordWebAsyncTask.RecordWebCallback() {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_QUERY, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
             public void onFinish(int code, final Object rlt) {
                 final boolean result = (code == CODE_SUCCESS);
@@ -147,10 +147,10 @@ public class HrRecordActivity extends AppCompatActivity {
                         if(result) {
                             int id = (Integer) rlt;
                             if(id == INVALID_ID) {
-                                new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                                new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(int code, Object result) {
-                                        int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.operation_failure;
+                                        int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.web_failure;
                                         Toast.makeText(HrRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                         if(code == CODE_SUCCESS) {
                                             record.setNeedUpload(false);
@@ -159,10 +159,10 @@ public class HrRecordActivity extends AppCompatActivity {
                                     }
                                 }).execute(record);
                             } else {
-                                new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                                new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new RecordWebAsyncTask.RecordWebCallback() {
                                     @Override
                                     public void onFinish(int code, Object result) {
-                                        int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.operation_failure;
+                                        int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.web_failure;
                                         Toast.makeText(HrRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                         if(code == CODE_SUCCESS) {
                                             record.setNeedUpload(false);
@@ -172,7 +172,7 @@ public class HrRecordActivity extends AppCompatActivity {
                                 }).execute(record);
                             }
                         } else {
-                            Toast.makeText(HrRecordActivity.this, R.string.operation_failure, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(HrRecordActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
