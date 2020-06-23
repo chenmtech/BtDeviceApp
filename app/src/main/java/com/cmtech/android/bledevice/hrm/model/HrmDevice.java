@@ -16,9 +16,7 @@ import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
-import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
@@ -33,8 +31,6 @@ import java.util.UUID;
 
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_UPLOAD_CMD;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
@@ -139,9 +135,6 @@ public class HrmDevice extends AbstractDevice {
 
     private Context context;
 
-    private volatile boolean isUploadingEcgRecord = false;
-    private volatile boolean isUploadingHrRecord = false;
-
     public HrmDevice(DeviceInfo registerInfo) {
         super(registerInfo);
         HrmCfg config = LitePal.where("address = ?", getAddress()).findFirst(HrmCfg.class);
@@ -158,7 +151,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void setHrRecord(boolean isRecord) {
-        if(isHrRecord == isRecord || isUploadingHrRecord) return;
+        if(isHrRecord == isRecord) return;
 
         isHrRecord = isRecord;
         if(isRecord) {
@@ -180,20 +173,6 @@ public class HrmDevice extends AbstractDevice {
                     }
                     hrRecord.setRecordSecond(sum);
                     hrRecord.save();
-                    isUploadingHrRecord = true;
-                    new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
-                        @Override
-                        public void onFinish(int code, final Object rlt) {
-                            int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
-                            Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
-                            if(code == CODE_SUCCESS) {
-                                hrRecord.setNeedUpload(false);
-                                hrRecord.save();
-                            }
-                            isUploadingHrRecord = false;
-                            hrRecord = null;
-                        }
-                    }).execute(hrRecord);
                 }
             }
         }
@@ -203,7 +182,7 @@ public class HrmDevice extends AbstractDevice {
     }
 
     public void setEcgRecord(final boolean isRecord) {
-        if(isEcgRecord == isRecord || isUploadingEcgRecord) return;
+        if(isEcgRecord == isRecord) return;
 
         if(isRecord && !isEcgOn) {
             MyApplication.showMessageUsingShortToast("请先打开心电功能。");
@@ -229,20 +208,6 @@ public class HrmDevice extends AbstractDevice {
                 ecgRecord.setCreateTime(new Date().getTime());
                 ecgRecord.setRecordSecond(ecgRecord.getEcgData().size()/sampleRate);
                 ecgRecord.save();
-                isUploadingEcgRecord = true;
-                new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
-                    @Override
-                    public void onFinish(int code, final Object rlt) {
-                        int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
-                        Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
-                        if(code == CODE_SUCCESS) {
-                            ecgRecord.setNeedUpload(false);
-                            ecgRecord.save();
-                        }
-                        isUploadingEcgRecord = false;
-                        ecgRecord = null;
-                    }
-                }).execute(ecgRecord);
             }
         }
         if(listener != null) {

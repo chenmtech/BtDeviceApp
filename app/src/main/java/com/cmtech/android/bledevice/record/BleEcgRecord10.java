@@ -35,6 +35,12 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
     @Column(ignore = true)
     private int pos = 0;
 
+    BleEcgRecord10() {
+        super(ECG);
+        initData();
+        recordSecond = 0;
+    }
+
     BleEcgRecord10(long createTime, String devAddress, User creator, String note) {
         super(ECG, "1.0", createTime, devAddress, creator, note, true);
         initData();

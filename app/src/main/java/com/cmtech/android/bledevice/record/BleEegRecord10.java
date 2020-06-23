@@ -35,6 +35,12 @@ public class BleEegRecord10 extends BasicRecord implements ISignalRecord, Serial
     @Column(ignore = true)
     private int pos = 0;
 
+    BleEegRecord10() {
+        super(EEG);
+        initData();
+        recordSecond = 0;
+    }
+
     BleEegRecord10(long createTime, String devAddress, User creator, String note) {
         super(EEG, "1.0", createTime, devAddress, creator, note, true);
         initData();

@@ -40,7 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static android.support.v4.widget.ExploreByTouchHelper.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.record.RecordType.TH;
@@ -196,50 +195,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
 
         updateTime = new Date().getTime();
         updateRecordsFromServer(updateTime);
-
-        uploadModifiedRecord(type);
-    }
-
-    private void uploadModifiedRecord(RecordType type) {
-        Class recordClass = RecordFactory.getRecordClass(type);
-        List<BasicRecord> modiRecords = LitePal.where("modified != ?", "0").find(recordClass);
-
-        ViseLog.e(modiRecords);
-
-        if(modiRecords != null && !modiRecords.isEmpty()) {
-            ViseLog.e("upload modified record");
-            for(final BasicRecord record : modiRecords) {
-                new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_QUERY_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
-                    @Override
-                    public void onFinish(int code, final Object rlt) {
-                        if(code == CODE_SUCCESS) {
-                            int id = (Integer) rlt;
-                            if(id == INVALID_ID) {
-                                new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPLOAD_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
-                                    @Override
-                                    public void onFinish(int code, Object result) {
-                                        if(code == CODE_SUCCESS) {
-                                            record.setNeedUpload(false);
-                                            record.save();
-                                        }
-                                    }
-                                }).execute(record);
-                            } else {
-                                new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
-                                    @Override
-                                    public void onFinish(int code, Object result) {
-                                        if(code == CODE_SUCCESS) {
-                                            record.setNeedUpload(false);
-                                            record.save();
-                                        }
-                                    }
-                                }).execute(record);
-                            }
-                        }
-                    }
-                }).execute(record);
-            }
-        }
     }
 
     private void updateRecordsFromServer(final long from) {
@@ -263,7 +218,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     }
                 }
 
-                List<IRecord> records = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), from, READ_RECORD_INFO_NUM);
+                List<? extends IRecord> records = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), from, READ_RECORD_INFO_NUM);
                 if(records == null || records.isEmpty()) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else  {

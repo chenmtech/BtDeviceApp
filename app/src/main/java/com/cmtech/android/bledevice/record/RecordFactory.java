@@ -62,9 +62,9 @@ public class RecordFactory {
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                Constructor<? extends IRecord> constructor = recordClass.getDeclaredConstructor(JSONObject.class);
+                Constructor constructor = recordClass.getDeclaredConstructor(JSONObject.class);
                 constructor.setAccessible(true);
-                return (IRecord) constructor.newInstance(json);
+                return recordClass.cast(constructor.newInstance(json));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -72,7 +72,7 @@ public class RecordFactory {
         return null;
     }
 
-    public static List<IRecord> createFromLocalDb(RecordType type, User creator, long from, int num) {
+    public static List<? extends IRecord> createFromLocalDb(RecordType type, User creator, long from, int num) {
         if(creator == null) {
             return null;
         }
@@ -81,7 +81,7 @@ public class RecordFactory {
         if(recordClass != null) {
             try {
                 String str = (String)recordClass.getField("INIT_STR").get(null);
-                return (List<IRecord>) LitePal.select(str)
+                return LitePal.select(str)
                         .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+from)
                         .order("createTime desc").limit(num).find(recordClass);
             } catch (IllegalAccessException e) {

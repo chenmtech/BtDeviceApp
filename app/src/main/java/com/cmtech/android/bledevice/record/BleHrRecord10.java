@@ -49,6 +49,13 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     @Column(ignore = true)
     private transient long preTime = 0;
 
+    BleHrRecord10() {
+        super(HR);
+        hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
+        initData();
+        recordSecond = 0;
+    }
+
     BleHrRecord10(long createTime, String devAddress, User creator, String note) {
         super(HR, "1.0", createTime, devAddress, creator, note, true);
         hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);

@@ -33,7 +33,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     @Column(ignore = true)
     private RecordType type;
 
-    private BasicRecord(RecordType type) {
+    BasicRecord(RecordType type) {
         ver = "";
         createTime = 0;
         devAddress = "";
@@ -62,7 +62,6 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         if(json == null) {
             throw new NullPointerException("The json is null.");
         }
-
         this.type = type;
         this.ver = ver;
 
@@ -178,7 +177,7 @@ public class BasicRecord extends LitePalSupport implements IRecord {
 
     @Override
     public String toString() {
-        return ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + needUpload;
+        return type + "-" +ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + needUpload;
     }
 
     @Override

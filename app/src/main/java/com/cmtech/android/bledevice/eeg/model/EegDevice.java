@@ -1,7 +1,6 @@
 package com.cmtech.android.bledevice.eeg.model;
 
 import android.content.Context;
-import android.widget.Toast;
 
 import com.cmtech.android.ble.callback.IBleDataCallback;
 import com.cmtech.android.ble.core.AbstractDevice;
@@ -12,9 +11,7 @@ import com.cmtech.android.ble.exception.BleException;
 import com.cmtech.android.ble.utils.UuidUtil;
 import com.cmtech.android.bledevice.record.BleEegRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
-import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
-import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
@@ -23,8 +20,6 @@ import java.util.Date;
 import java.util.UUID;
 
 import static com.cmtech.android.bledevice.record.RecordType.EEG;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_UPLOAD_CMD;
 import static com.cmtech.android.bledevice.view.ScanWaveView.DEFAULT_ZERO_LOCATION;
 import static com.cmtech.android.bledeviceapp.AppConstant.CCC_UUID;
 import static com.cmtech.android.bledeviceapp.AppConstant.MY_BASE_UUID;
@@ -88,8 +83,6 @@ public class EegDevice extends AbstractDevice {
     private boolean isEegRecord = false; // is recording eeg
 
     private Context context;
-
-    private volatile boolean isUploadingEegRecord = false;
 
     public EegDevice(DeviceInfo registerInfo) {
         super(registerInfo);
@@ -207,7 +200,7 @@ public class EegDevice extends AbstractDevice {
     }
 
     public void setEegRecord(final boolean isRecord) {
-        if(isEegRecord == isRecord || isUploadingEegRecord) return;
+        if(isEegRecord == isRecord) return;
 
         if(isRecord) {
             eegRecord = (BleEegRecord10) RecordFactory.create(EEG, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
@@ -224,20 +217,6 @@ public class EegDevice extends AbstractDevice {
             eegRecord.setCreateTime(new Date().getTime());
             eegRecord.setRecordSecond(eegRecord.getDataNum()/sampleRate);
             eegRecord.save();
-            isUploadingEegRecord = true;
-            new RecordWebAsyncTask(context, RECORD_UPLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
-                @Override
-                public void onFinish(int code, final Object rlt) {
-                    int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
-                    Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
-                    if(code == CODE_SUCCESS) {
-                        eegRecord.setNeedUpload(false);
-                        eegRecord.save();
-                    }
-                    isUploadingEegRecord = false;
-                    eegRecord = null;
-                }
-            }).execute(eegRecord);
             isEegRecord = false;
         }
 
