@@ -231,7 +231,7 @@ public class EegDevice extends AbstractDevice {
                     int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
                     Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
                     if(code == CODE_SUCCESS) {
-                        eegRecord.setModified(false);
+                        eegRecord.setNeedUpload(false);
                         eegRecord.save();
                     }
                     isUploadingEegRecord = false;

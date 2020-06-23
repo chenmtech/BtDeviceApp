@@ -2,8 +2,8 @@ package com.cmtech.android.bledevice.record;
 
 import com.cmtech.android.bledeviceapp.model.User;
 
+import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,23 +23,18 @@ import static com.cmtech.android.bledevice.record.RecordType.THERMO;
  * Version:        1.0
  */
 public class BleThermoRecord10 extends BasicRecord {
+    public static final String INIT_STR = "createTime, devAddress, creatorPlat, creatorId, highestTemp, note, needUpload";
     private float highestTemp;
     private List<Float> temp;
 
     BleThermoRecord10(long createTime, String devAddress, User creator, String note) {
-        super(THERMO, "1.0", createTime, devAddress, creator, note);
+        super(THERMO, "1.0", createTime, devAddress, creator, note, true);
         highestTemp = 0.0f;
         temp = new ArrayList<>();
     }
 
-    static List<BleThermoRecord10> createFromLocalDb(User creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, highestTemp, note")
-                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
-                .order("createTime desc").limit(num).find(BleThermoRecord10.class);
-    }
-
-    static BleThermoRecord10 createFromJson(JSONObject json) {
-        return null;
+    BleThermoRecord10(JSONObject json)  throws JSONException {
+        super(THERMO, "1.0", json, false);
     }
 
     @Override
@@ -53,7 +48,7 @@ public class BleThermoRecord10 extends BasicRecord {
     }
 
     @Override
-    public boolean lackData() {
+    public boolean noData() {
         return true;
     }
 

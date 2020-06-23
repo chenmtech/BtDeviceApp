@@ -1,20 +1,18 @@
 package com.cmtech.android.bledevice.record;
 
 import com.cmtech.android.bledeviceapp.model.User;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.vise.log.ViseLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RATE;
+import static com.cmtech.android.bledevice.record.RecordType.HR;
 
 /**
  * ProjectName:    BtDeviceApp
@@ -29,9 +27,10 @@ import static com.cmtech.android.bledevice.hrm.model.HrmDevice.INVALID_HEART_RAT
  * Version:        1.0
  */
 public class BleHrRecord10 extends BasicRecord implements Serializable {
+    public static final String INIT_STR = "createTime, devAddress, creatorPlat, creatorId, recordSecond, note, needUpload";
     public static final int HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH = 10; // unit: s
-    private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
-    private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // char num of device address
+    //private static final byte[] HRR = {'H', 'R', 'R'}; // indication of heart rate record
+    //private static final int DEVICE_ADDRESS_CHAR_NUM = 12; // char num of device address
 
     private List<Short> filterHrList; // list of the filtered HR
     private short hrMax;
@@ -51,108 +50,81 @@ public class BleHrRecord10 extends BasicRecord implements Serializable {
     private transient long preTime = 0;
 
     BleHrRecord10(long createTime, String devAddress, User creator, String note) {
-        super(HR, "1.0", createTime, devAddress, creator, note);
+        super(HR, "1.0", createTime, devAddress, creator, note, true);
+        hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
+        initData();
+        recordSecond = 0;
+    }
+
+    BleHrRecord10(JSONObject json) throws JSONException{
+        super(HR, "1.0", json, false);
+        hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
+        initData();
+        this.recordSecond = json.getInt("recordSecond");
+    }
+
+    private void initData() {
         filterHrList = new ArrayList<>();
         hrMax = INVALID_HEART_RATE;
         hrAve = INVALID_HEART_RATE;
         hrHist = new ArrayList<>();
-        hrMAFilter = new HrMAFilter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
         hrHistogram.add(new HrHistogramElement<>((short)0, (short)121, 0, "平静心率"));
         hrHistogram.add(new HrHistogramElement<>((short)122, (short)131, 0, "热身放松"));
         hrHistogram.add(new HrHistogramElement<>((short)132, (short)141, 0, "有氧燃脂"));
         hrHistogram.add(new HrHistogramElement<>((short)142, (short)152, 0, "有氧耐力"));
         hrHistogram.add(new HrHistogramElement<>((short)153, (short)162, 0, "无氧耐力"));
         hrHistogram.add(new HrHistogramElement<>((short)163, (short)1000, 0, "极限冲刺"));
-        recordSecond = 0;
     }
 
-    static BleHrRecord10 createFromJson(JSONObject json) {
+    @Override
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = super.toJson();
+        json.put("recordTypeCode", getTypeCode());
+        StringBuilder builder = new StringBuilder();
+        for(Short ele : filterHrList) {
+            builder.append(ele).append(',');
+        }
+        json.put("filterHrList", builder.toString());
+        json.put("hrMax", hrMax);
+        json.put("hrAve", hrAve);
+        builder = new StringBuilder();
+        for(Integer ele : hrHist) {
+            builder.append(ele).append(',');
+        }
+        json.put("hrHist", builder.toString());
+        json.put("recordSecond", recordSecond);
+        return json;
+    }
+
+    @Override
+    public boolean parseDataFromJson(JSONObject json) throws JSONException{
         if(json == null) {
-            throw new NullPointerException("The json is null.");
+            return false;
         }
 
-        try {
-            String devAddress = json.getString("devAddress");
-            long createTime = json.getLong("createTime");
-            User account = AccountManager.getAccount();
-            int recordSecond = json.getInt("recordSecond");
-            String note = json.getString("note");
-
-            BleHrRecord10 newRecord = new BleHrRecord10(createTime, devAddress, account, note);
-            newRecord.setRecordSecond(recordSecond);
-            return newRecord;
-        } catch (JSONException e) {
-            e.printStackTrace();
+        String filterHrListStr = json.getString("filterHrList");
+        List<Short> filterHrList = new ArrayList<>();
+        String[] strings = filterHrListStr.split(",");
+        for(String str : strings) {
+            filterHrList.add(Short.parseShort(str));
         }
-        return null;
-    }
-
-    static List<BleHrRecord10> createFromLocalDb(User creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note, modified")
-                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
-                .order("createTime desc").limit(num).find(BleHrRecord10.class);
-    }
-
-    @Override
-    public JSONObject toJson() {
-        JSONObject jsonObject = super.toJson();
-        if(jsonObject == null) return null;
-        try {
-            jsonObject.put("recordTypeCode", getTypeCode());
-            StringBuilder builder = new StringBuilder();
-            for(Short ele : filterHrList) {
-                builder.append(ele).append(',');
-            }
-            jsonObject.put("filterHrList", builder.toString());
-            jsonObject.put("hrMax", hrMax);
-            jsonObject.put("hrAve", hrAve);
-            builder = new StringBuilder();
-            for(Integer ele : hrHist) {
-                builder.append(ele).append(',');
-            }
-            jsonObject.put("hrHist", builder.toString());
-            jsonObject.put("recordSecond", recordSecond);
-            return jsonObject;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
+        this.filterHrList = filterHrList;
+        hrMax = (short)json.getInt("hrMax");
+        hrAve = (short)json.getInt("hrAve");
+        String hrHistStr = json.getString("hrHist");
+        List<Integer> hrHist = new ArrayList<>();
+        String[] strings1 = hrHistStr.split(",");
+        for(String str : strings1) {
+            hrHist.add(Integer.parseInt(str));
         }
+        this.hrHist = hrHist;
+        recordSecond = json.getInt("recordSecond");
+        createHistogram();
+        return save();
     }
 
     @Override
-    public boolean parseDataFromJson(JSONObject json) {
-        if(json == null) {
-            throw new NullPointerException("The json is null.");
-        }
-
-        try {
-            String filterHrListStr = json.getString("filterHrList");
-            List<Short> filterHrList = new ArrayList<>();
-            String[] strings = filterHrListStr.split(",");
-            for(String str : strings) {
-                filterHrList.add(Short.parseShort(str));
-            }
-            this.filterHrList = filterHrList;
-            hrMax = (short)json.getInt("hrMax");
-            hrAve = (short)json.getInt("hrAve");
-            String hrHistStr = json.getString("hrHist");
-            List<Integer> hrHist = new ArrayList<>();
-            String[] strings1 = hrHistStr.split(",");
-            for(String str : strings1) {
-                hrHist.add(Integer.parseInt(str));
-            }
-            this.hrHist = hrHist;
-            recordSecond = json.getInt("recordSecond");
-            createHistogram();
-            return save();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
-    public boolean lackData() {
+    public boolean noData() {
         return filterHrList.isEmpty();
     }
 

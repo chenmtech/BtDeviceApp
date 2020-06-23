@@ -1,11 +1,9 @@
 package com.cmtech.android.bledevice.record;
 
 import com.cmtech.android.bledeviceapp.model.User;
-import com.cmtech.android.bledeviceapp.model.AccountManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.litepal.LitePal;
 import org.litepal.annotation.Column;
 
 import java.io.IOException;
@@ -28,6 +26,7 @@ import static com.cmtech.android.bledevice.record.RecordType.ECG;
  * Version:        1.0
  */
 public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serializable {
+    public static final String INIT_STR = "createTime, devAddress, creatorPlat, creatorId, recordSecond, note, needUpload";
     private int sampleRate; // sample rate
     private int caliValue; // calibration value of 1mV
     private int leadTypeCode; // lead type code
@@ -37,99 +36,62 @@ public class BleEcgRecord10 extends BasicRecord implements ISignalRecord, Serial
     private int pos = 0;
 
     BleEcgRecord10(long createTime, String devAddress, User creator, String note) {
-        super(ECG, "1.0", createTime, devAddress, creator, note);
+        super(ECG, "1.0", createTime, devAddress, creator, note, true);
+        initData();
+        recordSecond = 0;
+    }
+
+    BleEcgRecord10(JSONObject json) throws JSONException{
+        super(ECG, "1.0", json, false);
+        initData();
+        recordSecond = json.getInt("recordSecond");
+    }
+
+    private void initData() {
         sampleRate = 0;
         caliValue = 0;
         leadTypeCode = 0;
-        recordSecond = 0;
         ecgData = new ArrayList<>();
-    }
-
-    BleEcgRecord10(JSONObject json) {
-        super(ECG, "1.0", json);
-        sampleRate = 0;
-        caliValue = 0;
-        leadTypeCode = 0;
-        recordSecond = 0;
-        ecgData = new ArrayList<>();
-    }
-
-    static BleEcgRecord10 createFromJson(JSONObject json) {
-        if(json == null) {
-            throw new NullPointerException("The json is null.");
-        }
-
-        try {
-            String devAddress = json.getString("devAddress");
-            long createTime = json.getLong("createTime");
-            User account = AccountManager.getAccount();
-            int recordSecond = json.getInt("recordSecond");
-            String note = json.getString("note");
-
-            BleEcgRecord10 newRecord = new BleEcgRecord10(createTime, devAddress, account, note);
-            newRecord.setRecordSecond(recordSecond);
-            return newRecord;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    static List<BleEcgRecord10> createFromLocalDb(User creator, long fromTime, int num) {
-        return LitePal.select("createTime, devAddress, creatorPlat, creatorId, recordSecond, note, modified")
-                .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+fromTime)
-                .order("createTime desc").limit(num).find(BleEcgRecord10.class);
     }
 
     @Override
-    public JSONObject toJson() {
+    public JSONObject toJson() throws JSONException{
         JSONObject json = super.toJson();
-        if(json == null) return null;
-        try {
-            json.put("recordTypeCode", getTypeCode());
-            json.put("sampleRate", sampleRate);
-            json.put("caliValue", caliValue);
-            json.put("leadTypeCode", leadTypeCode);
-            json.put("recordSecond", recordSecond);
-            StringBuilder builder = new StringBuilder();
-            for(Short ele : ecgData) {
-                builder.append(ele).append(',');
-            }
-            json.put("ecgData", builder.toString());
-            return json;
-        } catch (JSONException e) {
-            e.printStackTrace();
+        json.put("recordTypeCode", getTypeCode());
+        json.put("sampleRate", sampleRate);
+        json.put("caliValue", caliValue);
+        json.put("leadTypeCode", leadTypeCode);
+        json.put("recordSecond", recordSecond);
+        StringBuilder builder = new StringBuilder();
+        for(Short ele : ecgData) {
+            builder.append(ele).append(',');
         }
-        return null;
+        json.put("ecgData", builder.toString());
+        return json;
     }
 
     @Override
-    public boolean parseDataFromJson(JSONObject json) {
+    public boolean parseDataFromJson(JSONObject json) throws JSONException{
         if(json == null) {
-            throw new NullPointerException("The json is null.");
+            return false;
         }
 
-        try {
-            sampleRate = json.getInt("sampleRate");
-            caliValue = json.getInt("caliValue");
-            leadTypeCode = json.getInt("leadTypeCode");
-            recordSecond = json.getInt("recordSecond");
-            String ecgDataStr = json.getString("ecgData");
-            List<Short> ecgData = new ArrayList<>();
-            String[] strings = ecgDataStr.split(",");
-            for(String str : strings) {
-                ecgData.add(Short.parseShort(str));
-            }
-            this.ecgData = ecgData;
-            return save();
-        } catch (JSONException e) {
-            e.printStackTrace();
+        sampleRate = json.getInt("sampleRate");
+        caliValue = json.getInt("caliValue");
+        leadTypeCode = json.getInt("leadTypeCode");
+        recordSecond = json.getInt("recordSecond");
+        String ecgDataStr = json.getString("ecgData");
+        List<Short> ecgData = new ArrayList<>();
+        String[] strings = ecgDataStr.split(",");
+        for(String str : strings) {
+            ecgData.add(Short.parseShort(str));
         }
-        return false;
+        this.ecgData = ecgData;
+        return save();
     }
 
     @Override
-    public boolean lackData() {
+    public boolean noData() {
         return ecgData.isEmpty();
     }
 

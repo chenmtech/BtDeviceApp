@@ -187,7 +187,7 @@ public class HrmDevice extends AbstractDevice {
                             int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
                             Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
                             if(code == CODE_SUCCESS) {
-                                hrRecord.setModified(false);
+                                hrRecord.setNeedUpload(false);
                                 hrRecord.save();
                             }
                             isUploadingHrRecord = false;
@@ -236,7 +236,7 @@ public class HrmDevice extends AbstractDevice {
                         int strId = (code == CODE_SUCCESS) ? R.string.save_record_success : R.string.operation_failure;
                         Toast.makeText(context, strId, Toast.LENGTH_SHORT).show();
                         if(code == CODE_SUCCESS) {
-                            ecgRecord.setModified(false);
+                            ecgRecord.setNeedUpload(false);
                             ecgRecord.save();
                         }
                         isUploadingEcgRecord = false;

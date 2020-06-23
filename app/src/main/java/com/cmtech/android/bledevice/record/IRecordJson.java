@@ -1,5 +1,6 @@
 package com.cmtech.android.bledevice.record;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -15,6 +16,6 @@ import org.json.JSONObject;
  * Version:        1.0
  */
 public interface IRecordJson {
-    JSONObject toJson();
-    boolean parseDataFromJson(JSONObject json);
+    JSONObject toJson() throws JSONException;
+    boolean parseDataFromJson(JSONObject json) throws JSONException;
 }

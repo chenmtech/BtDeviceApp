@@ -24,12 +24,12 @@ import org.litepal.crud.LitePalSupport;
 public class BasicRecord extends LitePalSupport implements IRecord {
     private int id;
     private String ver; // record version
-    private long createTime; //
-    private String devAddress; //
-    private String creatorPlat;
-    private String creatorId;
-    private String note;
-    private boolean modified;
+    private long createTime; // create time
+    private String devAddress; // device address
+    private String creatorPlat; // creator plat name
+    private String creatorId; // creator plat ID
+    private String note; // note
+    private boolean needUpload; // need uploaded
     @Column(ignore = true)
     private RecordType type;
 
@@ -40,11 +40,11 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         creatorPlat = "";
         creatorId = "";
         note = "";
-        modified = true;
+        needUpload = true;
         this.type = type;
     }
 
-    BasicRecord(RecordType type, String ver, long createTime, String devAddress, User creator, String note) {
+    BasicRecord(RecordType type, String ver, long createTime, String devAddress, User creator, String note, boolean needUpload) {
         if(creator == null) {
             throw new NullPointerException("The creator is null.");
         }
@@ -55,10 +55,10 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         this.creatorPlat = creator.getPlatName();
         this.creatorId = creator.getPlatId();
         this.note = note;
-        modified = true;
+        this.needUpload = needUpload;
     }
 
-    BasicRecord(RecordType type, String ver, JSONObject json) {
+    BasicRecord(RecordType type, String ver, JSONObject json, boolean needUpload) throws JSONException{
         if(json == null) {
             throw new NullPointerException("The json is null.");
         }
@@ -66,16 +66,12 @@ public class BasicRecord extends LitePalSupport implements IRecord {
         this.type = type;
         this.ver = ver;
 
-        try {
-            createTime = json.getLong("createTime");
-            devAddress = json.getString("devAddress");
-            creatorPlat = AccountManager.getAccount().getPlatName();
-            creatorId = AccountManager.getAccount().getPlatId();
-            note = json.getString("note");
-            modified = false;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        createTime = json.getLong("createTime");
+        devAddress = json.getString("devAddress");
+        creatorPlat = AccountManager.getAccount().getPlatName();
+        creatorId = AccountManager.getAccount().getPlatId();
+        note = json.getString("note");
+        this.needUpload = needUpload;
     }
 
     @Override
@@ -149,45 +145,40 @@ public class BasicRecord extends LitePalSupport implements IRecord {
     }
 
     @Override
-    public boolean modified() {
-        return modified;
+    public boolean needUpload() {
+        return needUpload;
     }
 
     @Override
-    public void setModified(boolean modified) {
-        this.modified = modified;
+    public void setNeedUpload(boolean needUpload) {
+        this.needUpload = needUpload;
     }
 
     @Override
-    public JSONObject toJson() {
+    public JSONObject toJson() throws JSONException{
         JSONObject json = new JSONObject();
-        try {
-            json.put("ver", ver);
-            json.put("createTime", createTime);
-            json.put("devAddress", devAddress);
-            json.put("creatorPlat", creatorPlat);
-            json.put("creatorId", creatorId);
-            json.put("note", note);
-            return json;
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
+        json.put("ver", ver);
+        json.put("createTime", createTime);
+        json.put("devAddress", devAddress);
+        json.put("creatorPlat", creatorPlat);
+        json.put("creatorId", creatorId);
+        json.put("note", note);
+        return json;
     }
 
     @Override
-    public boolean parseDataFromJson(JSONObject json) {
+    public boolean parseDataFromJson(JSONObject json) throws JSONException {
         return false;
     }
 
     @Override
-    public boolean lackData() {
+    public boolean noData() {
         return true;
     }
 
     @Override
     public String toString() {
-        return ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + modified;
+        return ver + "-" + createTime + "-" + devAddress + "-" + creatorPlat + "-" + creatorId + "-" + note + "-" + needUpload;
     }
 
     @Override

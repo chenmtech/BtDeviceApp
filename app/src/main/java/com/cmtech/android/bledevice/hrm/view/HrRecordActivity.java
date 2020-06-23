@@ -18,6 +18,7 @@ import com.cmtech.android.bledevice.view.RecordIntroLayout;
 import com.cmtech.android.bledeviceapp.R;
 import com.vise.log.ViseLog;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
@@ -55,16 +56,20 @@ public class HrRecordActivity extends AppCompatActivity {
             finish();
         }
 
-        if(record.lackData()) {
+        if(record.noData()) {
             new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == CODE_SUCCESS) {
                         JSONObject json = (JSONObject) result;
 
-                        if(record.parseDataFromJson(json)) {
-                            initUI();
-                            return;
+                        try {
+                            if(record.parseDataFromJson(json)) {
+                                initUI();
+                                return;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     }
                     Toast.makeText(HrRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
@@ -124,7 +129,7 @@ public class HrRecordActivity extends AppCompatActivity {
                     String note = etNote.getText().toString();
                     if(!record.getNote().equals(note)) {
                         record.setNote(etNote.getText().toString());
-                        record.setModified(true);
+                        record.setNeedUpload(true);
                         record.save();
                         changed = true;
                     }
@@ -155,7 +160,7 @@ public class HrRecordActivity extends AppCompatActivity {
                                         int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.operation_failure;
                                         Toast.makeText(HrRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                         if(code == CODE_SUCCESS) {
-                                            record.setModified(false);
+                                            record.setNeedUpload(false);
                                             record.save();
                                         }
                                     }
@@ -167,7 +172,7 @@ public class HrRecordActivity extends AppCompatActivity {
                                         int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.operation_failure;
                                         Toast.makeText(HrRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                         if(code == CODE_SUCCESS) {
-                                            record.setModified(false);
+                                            record.setNeedUpload(false);
                                             record.save();
                                         }
                                     }

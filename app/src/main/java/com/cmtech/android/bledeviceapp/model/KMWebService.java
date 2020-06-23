@@ -60,8 +60,8 @@ public class KMWebService {
     }
 
     public static void uploadRecord(String platName, String platId, IRecord record, Callback callback) {
-        JSONObject json = record.toJson();
         try {
+            JSONObject json = record.toJson();
             json.put("cmd", "upload");
             json.put("platName", platName);
             json.put("platId", platId);

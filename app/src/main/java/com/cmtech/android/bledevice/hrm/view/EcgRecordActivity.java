@@ -20,6 +20,7 @@ import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
 import com.vise.log.ViseLog;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
@@ -61,16 +62,20 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
             record.save();
         }
 
-        if(record.lackData()) {
+        if(record.noData()) {
             new RecordWebAsyncTask(this, RECORD_DOWNLOAD_CMD, new RecordWebAsyncTask.RecordWebCallback() {
                 @Override
                 public void onFinish(int code, Object result) {
                     if (code == CODE_SUCCESS) {
                         JSONObject json = (JSONObject) result;
 
-                        if(record.parseDataFromJson(json)) {
-                            initUI();
-                            return;
+                        try {
+                            if(record.parseDataFromJson(json)) {
+                                initUI();
+                                return;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     }
                     Toast.makeText(EcgRecordActivity.this, R.string.open_record_failure, Toast.LENGTH_SHORT).show();
@@ -84,7 +89,11 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
     }
 
     private void initUI() {
-        ViseLog.e(record.toJson().toString());
+        try {
+            ViseLog.e(record.toJson().toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         introLayout = findViewById(R.id.layout_record_intro);
         introLayout.redraw(record, new View.OnClickListener() {
@@ -146,7 +155,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                     String note = etNote.getText().toString();
                     if(!record.getNote().equals(note)) {
                         record.setNote(etNote.getText().toString());
-                        record.setModified(true);
+                        record.setNeedUpload(true);
                         record.save();
                         changed = true;
                     }
@@ -207,7 +216,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                                         int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.operation_failure;
                                         Toast.makeText(EcgRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                         if(code == CODE_SUCCESS) {
-                                            record.setModified(false);
+                                            record.setNeedUpload(false);
                                             record.save();
                                         }
                                     }
@@ -219,7 +228,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                                         int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.operation_failure;
                                         Toast.makeText(EcgRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
                                         if(code == CODE_SUCCESS) {
-                                            record.setModified(false);
+                                            record.setNeedUpload(false);
                                             record.save();
                                         }
                                     }

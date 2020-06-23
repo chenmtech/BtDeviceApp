@@ -171,12 +171,12 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 if(changed) {
                     recordAdapter.notifySelectedItemChanged();
                     final BasicRecord record = (BasicRecord) recordAdapter.getSelectedRecord();
-                    if(!record.modified()) {
+                    if(!record.needUpload()) {
                         new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
                                 if (code == CODE_SUCCESS) {
-                                    record.setModified(false);
+                                    record.setNeedUpload(false);
                                     record.save();
                                 }
                             }
@@ -219,7 +219,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                                     @Override
                                     public void onFinish(int code, Object result) {
                                         if(code == CODE_SUCCESS) {
-                                            record.setModified(false);
+                                            record.setNeedUpload(false);
                                             record.save();
                                         }
                                     }
@@ -229,7 +229,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                                     @Override
                                     public void onFinish(int code, Object result) {
                                         if(code == CODE_SUCCESS) {
-                                            record.setModified(false);
+                                            record.setNeedUpload(false);
                                             record.save();
                                         }
                                     }
@@ -242,8 +242,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
         }
     }
 
-    private void updateRecordsFromServer(final long fromTime) {
-        IRecord record = RecordFactory.create(recordType, fromTime, null, AccountManager.getAccount(), "");
+    private void updateRecordsFromServer(final long from) {
+        IRecord record = RecordFactory.create(recordType, from, null, AccountManager.getAccount(), "");
 
         new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_INFO_DOWNLOAD_CMD, READ_RECORD_INFO_NUM, true, new RecordWebAsyncTask.RecordWebCallback() {
             @Override
@@ -255,7 +255,6 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             JSONObject json = (JSONObject) jsonArr.get(i);
                             BasicRecord newRecord = (BasicRecord) RecordFactory.createFromJson(recordType, json);
                             if(newRecord != null) {
-                                newRecord.setModified(false);
                                 newRecord.saveIfNotExist("createTime = ? and devAddress = ?", "" + newRecord.getCreateTime(), newRecord.getDevAddress());
                             }
                         }
@@ -264,7 +263,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     }
                 }
 
-                List<IRecord> records = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), fromTime, READ_RECORD_INFO_NUM);
+                List<IRecord> records = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), from, READ_RECORD_INFO_NUM);
                 if(records == null || records.isEmpty()) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else  {

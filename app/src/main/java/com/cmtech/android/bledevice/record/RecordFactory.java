@@ -1,13 +1,11 @@
 package com.cmtech.android.bledevice.record;
 
 import com.cmtech.android.bledeviceapp.model.User;
-import com.vise.log.ViseLog;
 
 import org.json.JSONObject;
+import org.litepal.LitePal;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -46,68 +44,52 @@ public class RecordFactory {
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                Constructor constructor = recordClass.getDeclaredConstructor(long.class, String.class, User.class, String.class);
+                Constructor<? extends IRecord> constructor = recordClass.getDeclaredConstructor(long.class, String.class, User.class, String.class);
                 constructor.setAccessible(true);
                 return (IRecord) constructor.newInstance(createTime, devAddress, creator, note);
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         return null;
-    }
-
-    public static IRecord create(int typeCode, long createTime, String devAddress, User creator, String note) {
-        return create(RecordType.getType(typeCode), createTime, devAddress, creator, note);
     }
 
     public static IRecord createFromJson(RecordType type, JSONObject json) {
         if(json == null) {
-            throw new NullPointerException("The json is null.");
+            return null;
         }
 
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                Method method = recordClass.getDeclaredMethod("createFromJson", JSONObject.class);
-                method.setAccessible(true);
-                return (IRecord) method.invoke(null, json);
-            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                Constructor<? extends IRecord> constructor = recordClass.getDeclaredConstructor(JSONObject.class);
+                constructor.setAccessible(true);
+                return (IRecord) constructor.newInstance(json);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         return null;
     }
 
-    public static IRecord createFromJson(int typeCode, JSONObject json) {
-        return createFromJson(RecordType.getType(typeCode), json);
-    }
-
-    public static List<IRecord> createFromLocalDb(RecordType type, User creator, long fromTime, int num) {
+    public static List<IRecord> createFromLocalDb(RecordType type, User creator, long from, int num) {
         if(creator == null) {
-            throw new NullPointerException("The creator is null.");
+            return null;
         }
 
         Class<? extends IRecord> recordClass = getRecordClass(type);
         if(recordClass != null) {
             try {
-                Method method = recordClass.getDeclaredMethod("createFromLocalDb", User.class, long.class, int.class);
-                method.setAccessible(true);
-                return (List<IRecord>) method.invoke(null, creator, fromTime, num);
-            } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                String str = (String)recordClass.getField("INIT_STR").get(null);
+                return (List<IRecord>) LitePal.select(str)
+                        .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+from)
+                        .order("createTime desc").limit(num).find(recordClass);
+            } catch (IllegalAccessException e) {
                 e.printStackTrace();
-                ViseLog.e(e.toString());
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
             }
         }
         return null;
-    }
-
-    public static List<IRecord> createFromLocalDb(int typeCode, User creator, long fromTime, int num) {
-        return createFromLocalDb(RecordType.getType(typeCode), creator, fromTime, num);
     }
 }
