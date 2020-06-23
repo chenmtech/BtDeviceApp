@@ -165,24 +165,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 1) {
-            if(data != null) {
-                boolean changed = data.getBooleanExtra("changed", false);
-                if(changed) {
-                    recordAdapter.notifySelectedItemChanged();
-                    final BasicRecord record = (BasicRecord) recordAdapter.getSelectedRecord();
-                    if(!record.needUpload()) {
-                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_UPDATE_NOTE_CMD, false, new RecordWebAsyncTask.RecordWebCallback() {
-                            @Override
-                            public void onFinish(int code, Object result) {
-                                if (code == CODE_SUCCESS) {
-                                    record.setNeedUpload(false);
-                                    record.save();
-                                }
-                            }
-                        }).execute(record);
-                    }
-                }
-            }
+            recordAdapter.notifySelectedItemChanged();
         }
     }
 

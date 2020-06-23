@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.hrm.view;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -39,8 +38,6 @@ public class HrRecordActivity extends AppCompatActivity {
 
     private EditText etNote;
     private Button btnSave;
-
-    private boolean changed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +81,6 @@ public class HrRecordActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent();
-        intent.putExtra("changed", changed);
-        setResult(RESULT_OK, intent);
         finish();
     }
 
@@ -131,7 +125,6 @@ public class HrRecordActivity extends AppCompatActivity {
                         record.setNote(etNote.getText().toString());
                         record.setNeedUpload(true);
                         record.save();
-                        changed = true;
                     }
                     etNote.setEnabled(false);
                     btnSave.setText("编辑");

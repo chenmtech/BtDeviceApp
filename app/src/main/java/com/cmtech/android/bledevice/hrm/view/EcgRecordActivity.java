@@ -1,6 +1,5 @@
 package com.cmtech.android.bledevice.hrm.view;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -42,8 +41,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     private EditText etNote;
     private Button btnSave;
-
-    private boolean changed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +154,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                         record.setNote(etNote.getText().toString());
                         record.setNeedUpload(true);
                         record.save();
-                        changed = true;
                     }
                     etNote.setEnabled(false);
                     btnSave.setText("编辑");
@@ -185,9 +181,6 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent();
-        intent.putExtra("changed", changed);
-        setResult(RESULT_OK, intent);
         finish();
     }
 

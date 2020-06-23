@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.record.IRecord;
-import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
@@ -58,7 +57,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         TextView tvCreateTime; //
         TextView tvAddress;
         TextView tvNote; // record description
-        ImageView ivType;
+        ImageView ivUpload;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -68,7 +67,7 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
             tvCreateTime = view.findViewById(R.id.tv_create_time);
             tvAddress = view.findViewById(R.id.tv_device_address);
             tvNote = view.findViewById(R.id.tv_note);
-            ivType = view.findViewById(R.id.iv_record_type);
+            ivUpload = view.findViewById(R.id.iv_need_upload);
         }
     }
 
@@ -120,7 +119,13 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
 
         holder.tvNote.setText(record.getNote());
 
-        holder.ivType.setImageResource(RecordType.getType(record.getTypeCode()).getImgId());
+        if(record.needUpload()) {
+            holder.ivUpload.setVisibility(View.VISIBLE);
+        } else {
+            holder.ivUpload.setVisibility(View.GONE);
+        }
+
+        //holder.ivUpload.setImageResource(RecordType.getType(record.getTypeCode()).getImgId());
 
         if(position == selPos) {
             holder.view.setBackgroundColor(SELECT_BG_COLOR);
