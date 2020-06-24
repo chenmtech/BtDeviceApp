@@ -226,14 +226,14 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("切换账户")
-                        .setMessage("退出账户，重新登录。")
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                builder.setTitle(R.string.logout_account)
+                        .setMessage(R.string.really_logout_account)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 changeAccount();
                             }
                         })
-                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
                             }
@@ -630,30 +630,32 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
         if(account == null) {
             //throw new IllegalStateException();
             finish();
-        }
-
-        if(account.getName() != null && !"".equals(account.getName().trim())) {
-            tvAccountName.setText(account.getName());
-        }
-
-        if(TextUtils.isEmpty(account.getLocalIcon())) {
-            ivAccountImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
-            if(!TextUtils.isEmpty(account.getIcon())) {
-                account.downloadIcon(new User.IDownloadLocalIcon() {
-                    @Override
-                    public void onSuccess(final String localIcon) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Glide.with(MainActivity.this).load(localIcon).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
-                            }
-                        });
-                    }
-                });
-            }
         } else {
-            Glide.with(this).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+            if(account.getName() != null && !"".equals(account.getName().trim())) {
+                tvAccountName.setText(account.getName());
+            }
+
+            if(TextUtils.isEmpty(account.getLocalIcon())) {
+                ivAccountImage.setImageResource(SUPPORT_LOGIN_PLATFORM.get(account.getPlatName()));
+                if(!TextUtils.isEmpty(account.getIcon())) {
+                    account.downloadIcon(new User.IDownloadLocalIcon() {
+                        @Override
+                        public void onSuccess(final String localIcon) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Glide.with(MainActivity.this).load(localIcon).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+                                }
+                            });
+                        }
+                    });
+                }
+            } else {
+                Glide.with(this).load(account.getLocalIcon()).skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(ivAccountImage);
+            }
         }
+
+
     }
 
     // 更新MainLayout的可视性

@@ -233,8 +233,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
     public void deleteRecord(final IRecord record) {
         if(record != null) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("删除记录").setMessage("删除记录将无法恢复，确定删除该记录吗？");
-            builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            builder.setTitle(R.string.delete_record).setMessage(R.string.really_wanna_delete_record);
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_DELETE, new RecordWebAsyncTask.RecordWebCallback() {
@@ -248,12 +248,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                         }
                     }).execute(record);
                 }
-            }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            }).show();
+            }).setNegativeButton(R.string.cancel, null).show();
         }
     }
 
