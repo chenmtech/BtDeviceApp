@@ -199,6 +199,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                } else {
+                    Toast.makeText(RecordExplorerActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                 }
 
                 List<? extends IRecord> records = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), from, READ_RECORD_BASIC_INFO_NUM);

@@ -52,8 +52,8 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
     private final Object param;
     private final RecordWebCallback callback;
 
-    private int code;
-    private Object rlt;
+    private int code = 1;
+    private Object rlt = null;
     private boolean finish = false;
 
     public RecordWebAsyncTask(Context context, int cmd, RecordWebCallback callback) {
@@ -268,11 +268,13 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                 break;
         }
 
-        while (!finish) {
+        int i = 0;
+        while (!finish && i++ < 10) {
             try {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                break;
             }
         }
 
