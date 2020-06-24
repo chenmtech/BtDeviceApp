@@ -20,6 +20,7 @@ import com.cmtech.android.bledeviceapp.activity.RecordExplorerActivity;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.DateTimeUtil;
+import com.cmtech.android.bledeviceapp.util.FastClickUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -86,6 +87,8 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(FastClickUtil.isFastClick()) return;
+
                 int prePos = selPos;
                 selPos = holder.getAdapterPosition();
                 if(prePos >= 0 && prePos < allRecords.size()) {

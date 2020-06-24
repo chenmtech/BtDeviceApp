@@ -58,6 +58,7 @@ import com.cmtech.android.bledeviceapp.model.NotifyService;
 import com.cmtech.android.bledeviceapp.model.TabFragManager;
 import com.cmtech.android.bledeviceapp.model.User;
 import com.cmtech.android.bledeviceapp.util.APKVersionCodeUtils;
+import com.cmtech.android.bledeviceapp.util.FastClickUtil;
 import com.vise.log.ViseLog;
 
 import org.litepal.LitePal;
@@ -249,6 +250,9 @@ public class MainActivity extends AppCompatActivity implements IDevice.OnDeviceL
             @SuppressLint("RestrictedApi")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if(FastClickUtil.isFastClick())
+                    return true;
+
                 Intent intent;
                 switch (item.getItemId()) {
                     case R.id.nav_add_device: // add device

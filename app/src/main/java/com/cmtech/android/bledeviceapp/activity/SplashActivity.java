@@ -25,7 +25,7 @@ import static com.cmtech.android.bledeviceapp.AppConstant.SPLASH_ACTIVITY_COUNT_
 /**
   *
   * ClassName:      SplashActivity
-  * Description:    登录Activity
+  * Description:    启动界面Activity
   * Author:         chenm
   * CreateDate:     2018/10/27 09:18
   * UpdateUser:     chenm

@@ -38,7 +38,7 @@ import static com.cmtech.android.bledeviceapp.activity.DeviceInfoActivity.DEVICE
 /**
   *
   * ClassName:      ScanActivity
-  * Description:    扫描Activiy
+  * Description:    扫描添加设备Activiy
   * Author:         chenm
   * CreateDate:     2018/2/28 18:07
   * UpdateUser:     chenm
