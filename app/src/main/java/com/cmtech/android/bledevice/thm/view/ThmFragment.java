@@ -17,8 +17,6 @@ import com.cmtech.android.bledevice.thm.model.ThmDevice;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.MainActivity;
 
-import java.util.Locale;
-
 
 /**
  * Created by bme on 2018/2/27.
@@ -83,7 +81,7 @@ public class ThmFragment extends DeviceFragment implements OnThmListener {
 
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
-        device.open(activity.getNotiService());
+        device.open(activity.getNotifyService());
     }
 
     @Override

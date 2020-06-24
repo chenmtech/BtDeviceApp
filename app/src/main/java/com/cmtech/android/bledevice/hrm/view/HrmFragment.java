@@ -137,7 +137,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
         if(activity != null)
-            device.open(activity.getNotiService());
+            device.open(activity.getNotifyService());
     }
 
     @Override

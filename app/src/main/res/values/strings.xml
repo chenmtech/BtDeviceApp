@@ -40,6 +40,8 @@
     <string name="time">时间</string>
     <string name="temperature">℃</string>
     <string name="add_device">添加设备</string>
+    <string name="delete_device">删除设备</string>
+    <string name="wont_delete_info_by_device">删除设备后，设备记录的信息不会被删除。</string>
     <string name="user_record">用户记录</string>
     <string name="open_store">康明商城</string>
     <string name="about_km">关于康明</string>
@@ -55,12 +57,22 @@
     <string name="disconnecting">断开中</string>
     <string name="ecg_switch_on">心电模式</string>
     <string name="ecg_switch_off">心率模式</string>
+    <string name="second">秒</string>
+    <string name="exit_app">退出应用</string>
+    <string name="pls_close_device_firstly">请先关闭设备。</string>
+    <string name="force_exit">强制退出</string>
+    <string name="minimize_app">最小化</string>
+    <string name="local_device">本地设备</string>
+    <string name="web_device">网络设备</string>
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="delete">删除</string>
+    <string name="modify">修改</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">无设备打开</string>
     <string name="some_devices_opened">有%d设备打开</string>
     <string name="update">更新</string>
-    <string name="delete">删除</string>
     <string name="share">分享</string>
     <string name="record_ecg_signal_failed">无法记录心电信号</string>
     <string name="no_record">无记录</string>

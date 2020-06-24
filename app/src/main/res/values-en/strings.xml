@@ -40,6 +40,8 @@
     <string name="time">Time</string>
     <string name="temperature">℃</string>
     <string name="add_device">Add Device</string>
+    <string name="delete_device">Delete Device</string>
+    <string name="wont_delete_info_by_device">The info recorded by this device wont be deleted.</string>
     <string name="user_record">User Record</string>
     <string name="open_store">KM Store</string>
     <string name="about_km">about KM</string>
@@ -55,12 +57,22 @@
     <string name="disconnecting">disconnecting</string>
     <string name="ecg_switch_on">ECG Mode</string>
     <string name="ecg_switch_off">HR Mode</string>
+    <string name="second">S</string>
+    <string name="exit_app">Exit KM App</string>
+    <string name="pls_close_device_firstly">Close the opened device firstly, please.</string>
+    <string name="force_exit">Force exit</string>
+    <string name="minimize_app">Minimize</string>
+    <string name="local_device">Local Devices</string>
+    <string name="web_device">Web Devices</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">delete</string>
+    <string name="modify">modify</string>
 
     <string name="welcome_text_format">欢迎使用%1$s</string>
     <string name="no_device_opened">No Device Opened</string>
     <string name="some_devices_opened">有%d设备打开</string>
     <string name="update">update</string>
-    <string name="delete">delete</string>
     <string name="share">share</string>
     <string name="record_ecg_signal_failed">The ECG signal can\'t be recorded.</string>
     <string name="no_record">No Record Currently</string>

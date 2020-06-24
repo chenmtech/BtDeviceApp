@@ -27,6 +27,7 @@ import com.cmtech.android.bledeviceapp.adapter.LocalDeviceAdapter;
  * Version:        1.0
  */
 public class LocalDevicesFragment extends Fragment {
+    public static final int TITLE_ID = R.string.local_device;
     private LocalDeviceAdapter localDeviceAdapter;
 
     @Nullable

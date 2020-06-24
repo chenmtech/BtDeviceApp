@@ -44,7 +44,7 @@ public class SplashActivity extends AppCompatActivity {
         public boolean handleMessage(Message msg) {
             if(msg.what == MSG_COUNT_DOWN) {
                 int nSecond = msg.arg1;
-                SplashActivity.this.tvSecond.setText(nSecond + "秒");
+                SplashActivity.this.tvSecond.setText(String.format("%d%s", nSecond, getString(R.string.second)));
 
                 if(nSecond == 0) {
                     Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
@@ -84,7 +84,7 @@ public class SplashActivity extends AppCompatActivity {
 
     private void initialize() {
         tvSecond = findViewById(R.id.tv_count_second);
-        tvSecond.setText(SPLASH_ACTIVITY_COUNT_DOWN_SECOND + "秒");
+        tvSecond.setText(String.format("%d%s", SPLASH_ACTIVITY_COUNT_DOWN_SECOND, getString(R.string.second)));
 
         startCountDown();
     }

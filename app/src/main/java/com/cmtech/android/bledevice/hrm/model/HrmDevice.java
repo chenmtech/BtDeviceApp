@@ -490,9 +490,7 @@ public class HrmDevice extends AbstractDevice {
 
                         if(waitSpeak) {
                             waitSpeak = false;
-                            int hundred = heartRateData.getBpm()/100;
-                            String hundredStr = (hundred > 0) ? hundred+"百" : "";
-                            String str = "当前心率:" + hundredStr + heartRateData.getBpm()%100;
+                            String str = "当前心率:" + heartRateData.getBpm();
                             MyApplication.getTTS().speak(str);
                             ViseLog.e(str);
                         }

@@ -116,7 +116,7 @@ public class EcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDevic
 
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
-        device.open(activity.getNotiService());
+        device.open(activity.getNotifyService());
     }
 
     private void initialEcgView() {

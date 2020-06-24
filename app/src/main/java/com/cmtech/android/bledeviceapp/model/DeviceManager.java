@@ -140,7 +140,7 @@ public class DeviceManager {
     }
 
     // 是否有打开的设备
-    public static boolean hasOpenedDevice() {
+    public static boolean hasDeviceOpen() {
         for(IDevice device : DEVICE_LIST) {
             if(device.getState() != CLOSED) {
                 return true;

@@ -121,7 +121,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:layout_marginBottom="5dp"
-            android:checked="true"
+            android:checked="false"
             android:textSize="15dp"
             android:text="@string/privacy_policy"/>
 
@@ -131,6 +131,12 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:text="@string/service_agreement"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="和"/>
 
         <TextView
             android:id="@+id/tv_privacy"

@@ -86,7 +86,7 @@ public class EegFragment extends DeviceFragment implements OnEegListener, OnWave
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
         if(activity != null)
-            device.open(activity.getNotiService());
+            device.open(activity.getNotifyService());
     }
 
     @Override

@@ -4,9 +4,7 @@ package com.cmtech.android.bledeviceapp.model;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
-import com.cmtech.android.bledeviceapp.activity.LoginActivity;
 import com.vise.log.ViseLog;
 
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +65,7 @@ public class AccountManager {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(context, R.string.login_failure, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, R.string.web_failure, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -106,7 +104,7 @@ public class AccountManager {
     }
 
     // clear account's local icon
-    public static void clearAccountLocalIcon() {
+    public static void clearLocalIcon() {
         if(account != null) {
             account.setLocalIcon("");
             account.save();

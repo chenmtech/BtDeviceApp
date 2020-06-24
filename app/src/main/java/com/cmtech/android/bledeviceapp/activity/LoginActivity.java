@@ -116,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         switch (requestCode) {
             case 1: // 华为登录返回码
-                if (resultCode == RESULT_OK) {
+                if (resultCode == RESULT_OK && data != null) {
                     String platId = data.getStringExtra("platId");
                     String userName = data.getStringExtra("userName");
                     String icon = data.getStringExtra("icon");
@@ -187,11 +187,11 @@ public class LoginActivity extends AppCompatActivity {
 
     private void login(String platName, String platId, String name, String icon) {
         AccountManager.login(platName, platId, name, icon);
-        AccountManager.loginKMServer(this);
-
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
+
+        AccountManager.loginKMServer(this);
     }
 
 }

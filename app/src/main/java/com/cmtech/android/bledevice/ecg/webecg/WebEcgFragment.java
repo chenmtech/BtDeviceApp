@@ -113,7 +113,7 @@ public class WebEcgFragment extends DeviceFragment implements IEcgDevice.OnEcgDe
 
         // 打开设备
         MainActivity activity = (MainActivity) getActivity();
-        device.open(activity.getNotiService());
+        device.open(activity.getNotifyService());
     }
 
     private void initEcgView() {
