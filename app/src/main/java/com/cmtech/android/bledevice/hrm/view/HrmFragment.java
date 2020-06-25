@@ -52,12 +52,12 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     private HrmDevice device; // device
 
     private ScanEcgView ecgView; // EcgView
-    private TextView tvHrWhenEcgOff; // hr when ecg off
-    private TextView tvHrWhenEcgOn; // hr when ecg on
+    private TextView tvHrInHrMode; // hr view in HR Mode
+    private TextView tvHrInEcgMode; // hr view in ECG Mode
     private TextView tvMessage; // message
-    private TextView tvEcgSwitch;
-    private FrameLayout flWhenEcgOff; // frame layout when ecg off
-    private FrameLayout flWhenEcgOn; // frame layout when ecg on
+    private TextView tvSwitchMode; // switch Mode
+    private FrameLayout flInHrMode; // frame layout in HR Mode
+    private FrameLayout flInEcgMode; // frame layout in ECG Mode
 
     private ViewPager pager;
     private CtrlPanelAdapter fragAdapter;
@@ -85,39 +85,34 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        tvHrWhenEcgOff = view.findViewById(R.id.tv_hr_ecg_off);
-        tvHrWhenEcgOn = view.findViewById(R.id.tv_hr_ecg_on);
+        tvHrInHrMode = view.findViewById(R.id.tv_hr_in_hr_mode);
+        tvHrInEcgMode = view.findViewById(R.id.tv_hr_in_ecg_mode);
         tvMessage = view.findViewById(R.id.tv_message);
 
-        flWhenEcgOff = view.findViewById(R.id.fl_ecg_off);
-        flWhenEcgOff.setVisibility(View.VISIBLE);
-        flWhenEcgOn = view.findViewById(R.id.fl_ecg_on);
-        flWhenEcgOn.setVisibility(View.GONE);
+        flInHrMode = view.findViewById(R.id.fl_in_hr_mode);
+        flInHrMode.setVisibility(View.VISIBLE);
+        flInEcgMode = view.findViewById(R.id.fl_in_ecg_mode);
+        flInEcgMode.setVisibility(View.GONE);
 
         ecgView = view.findViewById(R.id.ecg_view);
         ecgView.setup(device.getSampleRate(), device.getCaliValue(), DEFAULT_ZERO_LOCATION);
 
-        tvEcgSwitch = view.findViewById(R.id.tv_switch_ecg);
-        tvEcgSwitch.setOnClickListener(new View.OnClickListener() {
+        tvSwitchMode = view.findViewById(R.id.tv_switch_mode);
+        tvSwitchMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(device.getState() != DeviceState.CONNECT) {
-                    Toast.makeText(getContext(), R.string.cannot_change_ecg_lock, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.cannot_switch_mode, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle("切换工作模式")
-                        .setMessage("设备将断开重启")
-                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                builder.setTitle(R.string.switch_mode)
+                        .setMessage(R.string.reconnect_after_disconnect)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                device.setEcgLock(!device.isEcgLock());
+                                device.setMode(!device.inHrMode());
                             }
-                        })
-                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-
-                            }
-                        }).show();
+                        }).setNegativeButton(R.string.cancel, null).show();
             }
         });
 
@@ -157,7 +152,7 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
         HrmCfg cfg = device.getConfig();
 
         Intent intent = new Intent(getActivity(), HrmCfgActivity.class);
-        intent.putExtra("ecg_lock", device.isEcgLock());
+        intent.putExtra("ecg_lock", device.inHrMode());
         intent.putExtra("hr_cfg", cfg);
         startActivityForResult(intent, 1);
     }
@@ -171,11 +166,11 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
                     //debugFrag.updateHrMeas(hrData.toString());
 
                     int bpm = hrData.getBpm();
-                    tvHrWhenEcgOn.setText(String.valueOf(bpm));
-                    tvHrWhenEcgOff.setText(String.valueOf(bpm));
+                    tvHrInEcgMode.setText(String.valueOf(bpm));
+                    tvHrInHrMode.setText(String.valueOf(bpm));
 
                     HrmCfg cfg = device.getConfig();
-                    if(cfg.isWarn()) {
+                    if(cfg.needWarn()) {
                         String warnStr = null;
                         if(bpm > cfg.getHrHigh())
                             warnStr = getResources().getString(R.string.hr_too_high);
@@ -220,22 +215,22 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onFragmentUpdated(final int sampleRate, final int value1mV, final double zeroLocation, final boolean ecgLock) {
+    public void onFragmentUpdated(final int sampleRate, final int value1mV, final double zeroLocation, final boolean inHrMode) {
         if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     ecgView.setup(sampleRate, value1mV, zeroLocation);
-                    if(ecgLock) {
-                        flWhenEcgOff.setVisibility(View.VISIBLE);
-                        flWhenEcgOn.setVisibility(View.GONE);
+                    if(inHrMode) {
+                        flInHrMode.setVisibility(View.VISIBLE);
+                        flInEcgMode.setVisibility(View.GONE);
                         ecgView.stop();
                         fragAdapter.removeFragment(ecgRecFrag);
                         pager.setCurrentItem(fragAdapter.getCount()-1);
-                        tvEcgSwitch.setText(R.string.ecg_switch_off);
+                        tvSwitchMode.setText(R.string.ecg_switch_off);
                     } else {
                         fragAdapter.addFragment(ecgRecFrag, getResources().getString(EcgRecordFragment.TITLE_ID));
-                        tvEcgSwitch.setText(R.string.ecg_switch_on);
+                        tvSwitchMode.setText(R.string.ecg_switch_on);
                     }
                 }
             });
@@ -258,24 +253,22 @@ public class HrmFragment extends DeviceFragment implements OnHrmListener, OnWave
     }
 
     @Override
-    public void onEcgOnStatusUpdated(final boolean isOpen) {
+    public void onEcgOnStatusUpdated(final boolean ecgOn) {
+        if(getActivity() == null) return;
+
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                //if(isEcgOn == isOpen) return;
-
-                if (isOpen) {
-                    flWhenEcgOff.setVisibility(View.GONE);
-                    flWhenEcgOn.setVisibility(View.VISIBLE);
+                if (ecgOn) {
+                    flInHrMode.setVisibility(View.GONE);
+                    flInEcgMode.setVisibility(View.VISIBLE);
                     ecgView.start();
                     ecgView.initialize();
                 } else {
-                    flWhenEcgOff.setVisibility(View.VISIBLE);
-                    flWhenEcgOn.setVisibility(View.GONE);
+                    flInHrMode.setVisibility(View.VISIBLE);
+                    flInEcgMode.setVisibility(View.GONE);
                     ecgView.stop();
                 }
-
-                //isEcgOn = isOpen;
             }
         });
     }

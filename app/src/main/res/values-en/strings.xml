@@ -14,7 +14,13 @@
     <string name="open">open</string>
     <string name="close">close</string>
     <string name="ellipsis">…</string>
-    <string name="cannot_change_ecg_lock">Can\'t switch ecg status because of disconnection</string>
+    <string name="cannot_switch_mode">Can\'t switch mode because of disconnection</string>
+    <string name="switch_mode">Switch Mode</string>
+    <string name="reconnect_after_disconnect">The device will be reconnected after disconnection.</string>
+    <string name="pls_stop_record_firstly">Stop the record firstly, please.</string>
+    <string name="pls_turn_on_ecg_firstly">Turn on the ECG firstly, please.</string>
+    <string name="pls_be_quiet_when_record">Stay quietly when record.</string>
+
     <string name="hr_too_high">Your heart rate is too high</string>
     <string name="hr_too_low">Your heart rate is too low</string>
     <string name="BPM">BPM</string>

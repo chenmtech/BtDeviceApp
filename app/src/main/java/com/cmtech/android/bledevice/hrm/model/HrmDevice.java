@@ -17,6 +17,7 @@ import com.cmtech.android.bledevice.record.BleEcgRecord10;
 import com.cmtech.android.bledevice.record.BleHrRecord10;
 import com.cmtech.android.bledevice.record.RecordFactory;
 import com.cmtech.android.bledeviceapp.MyApplication;
+import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.model.AccountManager;
 import com.cmtech.android.bledeviceapp.util.ByteUtil;
 import com.cmtech.android.bledeviceapp.util.UnsignedUtil;
@@ -57,8 +58,8 @@ public class HrmDevice extends AbstractDevice {
     private static final int DEFAULT_SAMPLE_RATE = 125; // default sample rate, unit: Hz
     private static final EcgLeadType DEFAULT_LEAD_TYPE = EcgLeadType.LEAD_I; // default lead type
 
-    private static final byte ECG_LOCKED = (byte)0x00;
-    private static final byte ECG_UNLOCKED = (byte)0x01;
+    private static final byte HR_MODE = (byte)0x00;
+    private static final byte ECG_MODE = (byte)0x01;
 
     // heart rate measurement service
     private static final String hrMonitorServiceUuid = "180D"; // standart ble heart rate service UUID
@@ -85,8 +86,8 @@ public class HrmDevice extends AbstractDevice {
     private static final String battLevelUuid = "2A19";
     private static final UUID battServiceUUID = UuidUtil.stringToUUID(battServiceUuid, STANDARD_BLE_UUID);
     private static final UUID battLevelUUID = UuidUtil.stringToUUID(battLevelUuid, STANDARD_BLE_UUID);
-    private static final BleGattElement BATTLEVEL = new BleGattElement(battServiceUUID, battLevelUUID, null, "电池电量百分比");
-    private static final BleGattElement BATTLEVELCCC = new BleGattElement(battServiceUUID, battLevelUUID, CCC_UUID, "电池电量CCC");
+    private static final BleGattElement BATTLEVEL = new BleGattElement(battServiceUUID, battLevelUUID, null, "Battery Level");
+    private static final BleGattElement BATTLEVELCCC = new BleGattElement(battServiceUUID, battLevelUUID, CCC_UUID, "Battery Level CCC");
 
     // ecg service
     private static final String ecgServiceUuid = "AA40";
@@ -94,20 +95,20 @@ public class HrmDevice extends AbstractDevice {
     private static final String ecg1mVCaliUuid = "AA42";
     private static final String ecgSampleRateUuid = "AA43";
     private static final String ecgLeadTypeUuid = "AA44";
-    private static final String ecgLockStatusUuid = "AA45";
+    private static final String modeStatusUuid = "AA45";
     private static final UUID ecgServiceUUID = UuidUtil.stringToUUID(ecgServiceUuid, MY_BASE_UUID);
     private static final UUID ecgMeasUUID = UuidUtil.stringToUUID(ecgMeasUuid, MY_BASE_UUID);
     private static final UUID ecg1mVCaliUUID = UuidUtil.stringToUUID(ecg1mVCaliUuid, MY_BASE_UUID);
     private static final UUID ecgSampleRateUUID = UuidUtil.stringToUUID(ecgSampleRateUuid, MY_BASE_UUID);
     private static final UUID ecgLeadTypeUUID = UuidUtil.stringToUUID(ecgLeadTypeUuid, MY_BASE_UUID);
-    private static final UUID ecgLockStatusUUID = UuidUtil.stringToUUID(ecgLockStatusUuid, MY_BASE_UUID);
+    private static final UUID modeStatusUUID = UuidUtil.stringToUUID(modeStatusUuid, MY_BASE_UUID);
 
     private static final BleGattElement ECGMEAS = new BleGattElement(ecgServiceUUID, ecgMeasUUID, null, "ECG Data Packet");
     private static final BleGattElement ECGMEASCCC = new BleGattElement(ecgServiceUUID, ecgMeasUUID, CCC_UUID, "ECG Data Packet CCC");
     private static final BleGattElement ECG1MVCALI = new BleGattElement(ecgServiceUUID, ecg1mVCaliUUID, null, "ECG 1mV Calibration");
     private static final BleGattElement ECGSAMPLERATE = new BleGattElement(ecgServiceUUID, ecgSampleRateUUID, null, "ECG Sample Rate");
     private static final BleGattElement ECGLEADTYPE = new BleGattElement(ecgServiceUUID, ecgLeadTypeUUID, null, "ECG Lead Type");
-    private static final BleGattElement ECGLOCKSTATUS = new BleGattElement(ecgServiceUUID, ecgLockStatusUUID, null, "ECG Lock Status");
+    private static final BleGattElement MODESTATUS = new BleGattElement(ecgServiceUUID, modeStatusUUID, null, "Work Mode Status");
 
 
     private int sampleRate = DEFAULT_SAMPLE_RATE; // sample rate
@@ -115,7 +116,7 @@ public class HrmDevice extends AbstractDevice {
     private EcgLeadType leadType = DEFAULT_LEAD_TYPE; // lead type
 
     private boolean hasBattService = false; // has battery service
-    private boolean ecgLock = true; // ecg lock status
+    private boolean inHrMode = true; // work in HR Mode
     private EcgDataProcessor ecgProcessor; // ecg processor
 
     private OnHrmListener listener; // device listener
@@ -128,10 +129,10 @@ public class HrmDevice extends AbstractDevice {
     private BleEcgRecord10 ecgRecord;
     private boolean isEcgRecord = false; // is recording ecg
 
-    private boolean isEcgOn = false; // is ecg function on
+    private boolean ecgOn = false; // is ecg function on
 
     private Timer ttsTimer = new Timer();
-    private volatile boolean waitSpeak = false; // is waiting for warnning speak
+    private volatile boolean waitSpeak = false; // is waiting for warn-speaking
 
     private Context context;
 
@@ -184,8 +185,8 @@ public class HrmDevice extends AbstractDevice {
     public void setEcgRecord(final boolean isRecord) {
         if(isEcgRecord == isRecord) return;
 
-        if(isRecord && !isEcgOn) {
-            MyApplication.showMessageUsingShortToast("请先打开心电功能。");
+        if(isRecord && !ecgOn) {
+            Toast.makeText(context, R.string.pls_turn_on_ecg_firstly, Toast.LENGTH_SHORT).show();
             if(listener != null) {
                 listener.onEcgSignalRecorded(false);
             }
@@ -195,10 +196,12 @@ public class HrmDevice extends AbstractDevice {
         isEcgRecord = isRecord;
         if(isRecord) {
             ecgRecord = (BleEcgRecord10) RecordFactory.create(ECG, new Date().getTime(), getAddress(), AccountManager.getAccount(), "");
-            ecgRecord.setSampleRate(sampleRate);
-            ecgRecord.setCaliValue(caliValue);
-            ecgRecord.setLeadTypeCode(leadType.getCode());
-            MyApplication.showMessageUsingShortToast("记录时请保持安静。");
+            if(ecgRecord != null) {
+                ecgRecord.setSampleRate(sampleRate);
+                ecgRecord.setCaliValue(caliValue);
+                ecgRecord.setLeadTypeCode(leadType.getCode());
+                Toast.makeText(context, R.string.pls_be_quiet_when_record, Toast.LENGTH_SHORT).show();
+            }
         } else {
             if(ecgRecord == null) return;
 
@@ -215,15 +218,15 @@ public class HrmDevice extends AbstractDevice {
         }
     }
 
-    public void setEcgLock(final boolean ecgLock) {
-        if(this.ecgLock == ecgLock) return;
+    public void setMode(final boolean inHrMode) {
+        if(this.inHrMode == inHrMode) return;
 
-        byte data = (ecgLock) ? ECG_LOCKED : ECG_UNLOCKED;
+        byte data = (inHrMode) ? HR_MODE : ECG_MODE;
 
-        ((BleConnector) connector).write(ECGLOCKSTATUS, data, new IBleDataCallback() {
+        ((BleConnector) connector).write(MODESTATUS, data, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                HrmDevice.this.ecgLock = ecgLock;
+                HrmDevice.this.inHrMode = inHrMode;
             }
 
             @Override
@@ -232,25 +235,22 @@ public class HrmDevice extends AbstractDevice {
         });
     }
 
-    public void setEcgOn(boolean isOn) {
-        //if(isEcgOn == isOn) return;
-
-        if(ecgLock) {
+    public void setEcgOn(boolean ecgOn) {
+        if(inHrMode) {
             if(listener != null)
                 listener.onEcgOnStatusUpdated(false);
             return;
         }
 
-        if(isEcgRecord && !isOn) {
-            Toast.makeText(context, "请先停止记录", Toast.LENGTH_SHORT).show();
+        if(isEcgRecord && !ecgOn) {
+            Toast.makeText(context, R.string.pls_stop_record_firstly, Toast.LENGTH_SHORT).show();
             if(listener != null) listener.onEcgOnStatusUpdated(true);
             return;
         }
 
         //((BleConnector)connector).notify(ECGMEASCCC, false, null);
 
-        if(isOn) {
-
+        if(ecgOn) {
             IBleDataCallback notifyCallback = new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
@@ -271,9 +271,9 @@ public class HrmDevice extends AbstractDevice {
             ((BleConnector)connector).notify(ECGMEASCCC, false, null);
         }
 
-        isEcgOn = isOn;
+        this.ecgOn = ecgOn;
         if(listener != null) {
-            listener.onEcgOnStatusUpdated(isEcgOn);
+            listener.onEcgOnStatusUpdated(this.ecgOn);
         }
     }
 
@@ -316,13 +316,13 @@ public class HrmDevice extends AbstractDevice {
             setBatteryMeasure(true);
         }
 
-        elements = new BleGattElement[]{ECGMEAS, ECGMEASCCC, ECG1MVCALI, ECGSAMPLERATE, ECGLEADTYPE, ECGLOCKSTATUS};
+        elements = new BleGattElement[]{ECGMEAS, ECGMEASCCC, ECG1MVCALI, ECGSAMPLERATE, ECGLEADTYPE, MODESTATUS};
         if(connector.containGattElements(elements)) {
-            readEcgLockStatus();
+            readModeStatus();
             connector.runInstantly(new IBleDataCallback() {
                 @Override
                 public void onSuccess(byte[] data, BleGattElement element) {
-                    if(ecgLock) {
+                    if(inHrMode) {
                         if (listener != null)
                             listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, true);
 
@@ -330,7 +330,6 @@ public class HrmDevice extends AbstractDevice {
                     }
                     else {
                         initEcgService();
-
                         setEcgOn(true);
                     }
                 }
@@ -398,12 +397,12 @@ public class HrmDevice extends AbstractDevice {
         return caliValue;
     }
 
-    public final boolean isEcgLock() {
-        return ecgLock;
+    public final boolean inHrMode() {
+        return inHrMode;
     }
 
     public boolean isEcgOn() {
-        return isEcgOn;
+        return ecgOn;
     }
 
     public boolean isEcgRecord() {
@@ -490,7 +489,7 @@ public class HrmDevice extends AbstractDevice {
 
                         if(waitSpeak) {
                             waitSpeak = false;
-                            String str = "当前心率:" + heartRateData.getBpm();
+                            String str = "当前心率" + heartRateData.getBpm();
                             MyApplication.getTTS().speak(str);
                             ViseLog.e(str);
                         }
@@ -546,11 +545,11 @@ public class HrmDevice extends AbstractDevice {
         });
     }
 
-    private void readEcgLockStatus() {
-        ((BleConnector)connector).read(ECGLOCKSTATUS, new IBleDataCallback() {
+    private void readModeStatus() {
+        ((BleConnector)connector).read(MODESTATUS, new IBleDataCallback() {
             @Override
             public void onSuccess(byte[] data, BleGattElement element) {
-                ecgLock = (data[0] == ECG_LOCKED);
+                inHrMode = (data[0] == HR_MODE);
             }
 
             @Override
@@ -570,7 +569,7 @@ public class HrmDevice extends AbstractDevice {
                 ecgProcessor.start();
 
                 if (listener != null)
-                    listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, ecgLock);
+                    listener.onFragmentUpdated(sampleRate, caliValue, DEFAULT_ZERO_LOCATION, inHrMode);
             }
 
             @Override

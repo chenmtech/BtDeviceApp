@@ -110,7 +110,7 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
         npHrHigh.setValue((hrCfg.getHrHigh() - HR_LIMIT_LOWEST)/HR_LIMIT_INTERVAL);
 
         cbWarn = findViewById(R.id.cb_hr_warn);
-        cbWarn.setChecked(hrCfg.isWarn());
+        cbWarn.setChecked(hrCfg.needWarn());
 
         etSpeakPeriod = findViewById(R.id.et_speak_period);
         etSpeakPeriod.setText(String.valueOf(hrCfg.getSpeakPeriod()));
@@ -136,7 +136,7 @@ public class HrmCfgActivity extends AppCompatActivity implements NumberPicker.Fo
                 boolean isSpeak = cbSpeak.isChecked();
                 hrCfg.setHrLow(low);
                 hrCfg.setHrHigh(high);
-                hrCfg.setWarn(isWarn);
+                hrCfg.setNeedWarn(isWarn);
                 hrCfg.setSpeakPeriod(speakPeriod);
                 hrCfg.setSpeak(isSpeak);
 

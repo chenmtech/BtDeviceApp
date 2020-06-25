@@ -14,7 +14,7 @@
         android:layout_weight="1">
 
         <FrameLayout
-            android:id="@+id/fl_ecg_off"
+            android:id="@+id/fl_in_hr_mode"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/secondary"
@@ -24,7 +24,7 @@
                 android:layout_height="match_parent"
                 tools:ignore="UselessParent">
                 <TextView
-                    android:id="@+id/tv_hr_ecg_off"
+                    android:id="@+id/tv_hr_in_hr_mode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
@@ -37,7 +37,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:layout_below="@id/tv_hr_ecg_off"
+                    android:layout_below="@id/tv_hr_in_hr_mode"
                     android:text="@string/BPM"
                     android:textSize="20sp"/>
             </RelativeLayout>
@@ -45,7 +45,7 @@
         </FrameLayout>
 
         <FrameLayout
-            android:id="@+id/fl_ecg_on"
+            android:id="@+id/fl_in_ecg_mode"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone">
@@ -59,7 +59,7 @@
                 cmtech:show_gridline="true"/>
 
             <TextView
-                android:id="@+id/tv_hr_ecg_on"
+                android:id="@+id/tv_hr_in_ecg_mode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|start"
@@ -83,7 +83,7 @@
         </FrameLayout>
 
         <TextView
-            android:id="@+id/tv_switch_ecg"
+            android:id="@+id/tv_switch_mode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end|top"

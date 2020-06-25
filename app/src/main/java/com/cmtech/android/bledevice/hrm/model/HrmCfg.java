@@ -28,7 +28,7 @@ public class HrmCfg extends LitePalSupport implements Serializable {
     private String address = ""; // mac address
     private int hrLow = DEFAULT_HR_LOW_LIMIT; // hr exception low limit
     private int hrHigh = DEFAULT_HR_HIGH_LIMIT; // hr exception high limit
-    private boolean isWarn = DEFAULT_HR_WARN; // is warn when hr exception occurred
+    private boolean needWarn = DEFAULT_HR_WARN; // need warn when hr exception occurred
     private int speakPeriod = DEFAULT_HR_SPEAK_PERIOD;
     private boolean isSpeak = DEFAULT_HR_SPEAK;
 
@@ -44,11 +44,11 @@ public class HrmCfg extends LitePalSupport implements Serializable {
     public void setAddress(String address) {
         this.address = address;
     }
-    public boolean isWarn() {
-        return isWarn;
+    public boolean needWarn() {
+        return needWarn;
     }
-    public void setWarn(boolean warn) {
-        this.isWarn = warn;
+    public void setNeedWarn(boolean needWarn) {
+        this.needWarn = needWarn;
     }
     public int getHrLow() {
         return hrLow;
@@ -76,7 +76,7 @@ public class HrmCfg extends LitePalSupport implements Serializable {
     }
 
     public void copyFrom(HrmCfg config) {
-        isWarn = config.isWarn;
+        needWarn = config.needWarn;
         hrLow = config.hrLow;
         hrHigh = config.hrHigh;
         speakPeriod = config.speakPeriod;

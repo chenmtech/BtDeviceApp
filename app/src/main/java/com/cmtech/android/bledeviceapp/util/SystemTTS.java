@@ -61,12 +61,10 @@ public class SystemTTS extends UtteranceProgressListener implements TTS, TextToS
 
     public void speak(String playText) {
         if (!isSuccess) {
-            Toast.makeText(mContext, "系统不支持中文播报", Toast.LENGTH_SHORT).show();
             return;
         }
         if (textToSpeech != null) {
-            textToSpeech.speak(playText,
-                    TextToSpeech.QUEUE_ADD, null, null);
+            textToSpeech.speak(playText, TextToSpeech.QUEUE_ADD, null, null);
         }
     }
 
