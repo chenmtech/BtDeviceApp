@@ -89,12 +89,7 @@ public class HrRecordActivity extends AppCompatActivity {
         record.createHistogram();
 
         introLayout = findViewById(R.id.layout_record_intro);
-        introLayout.redraw(record, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                upload();
-            }
-        });
+        introLayout.redraw(record);
 
         hrLineChart = findViewById(R.id.line_chart);
         hrLineChart.setXAxisValueFormatter(HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH);
@@ -134,49 +129,5 @@ public class HrRecordActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private void upload() {
-        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_QUERY, new RecordWebAsyncTask.RecordWebCallback() {
-            @Override
-            public void onFinish(int code, final Object rlt) {
-                final boolean result = (code == CODE_SUCCESS);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(result) {
-                            int id = (Integer) rlt;
-                            if(id == INVALID_ID) {
-                                new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new RecordWebAsyncTask.RecordWebCallback() {
-                                    @Override
-                                    public void onFinish(int code, Object result) {
-                                        int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.web_failure;
-                                        Toast.makeText(HrRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
-                                        if(code == CODE_SUCCESS) {
-                                            record.setNeedUpload(false);
-                                            record.save();
-                                        }
-                                    }
-                                }).execute(record);
-                            } else {
-                                new RecordWebAsyncTask(HrRecordActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new RecordWebAsyncTask.RecordWebCallback() {
-                                    @Override
-                                    public void onFinish(int code, Object result) {
-                                        int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.web_failure;
-                                        Toast.makeText(HrRecordActivity.this, strId, Toast.LENGTH_SHORT).show();
-                                        if(code == CODE_SUCCESS) {
-                                            record.setNeedUpload(false);
-                                            record.save();
-                                        }
-                                    }
-                                }).execute(record);
-                            }
-                        } else {
-                            Toast.makeText(HrRecordActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-            }
-        }).execute(record);
     }
 }

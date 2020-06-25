@@ -53,12 +53,7 @@ public class ThermoRecordActivity extends AppCompatActivity {
         ViseLog.e(record);
 
         introLayout = findViewById(R.id.layout_record_intro);
-        introLayout.redraw(record, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //upload();
-            }
-        });
+        introLayout.redraw(record);
 
         lineChart = findViewById(R.id.line_chart);
         lineChart.setXAxisValueFormatter(2);

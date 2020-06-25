@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static android.support.v4.widget.ExploreByTouchHelper.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.record.RecordType.TH;
@@ -141,21 +142,11 @@ public class RecordExplorerActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_record_explore, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 setResult(RESULT_CANCELED, null);
                 finish();
-                break;
-
-            case R.id.delete:
-                deleteRecord(recordAdapter.getSelectedRecord());
                 break;
         }
         return true;
@@ -250,6 +241,47 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 }
             }).setNegativeButton(R.string.cancel, null).show();
         }
+    }
+
+    public void uploadRecord(final BasicRecord record) {
+        new RecordWebAsyncTask(this, RecordWebAsyncTask.RECORD_CMD_QUERY, new RecordWebAsyncTask.RecordWebCallback() {
+            @Override
+            public void onFinish(int code, final Object rlt) {
+                final boolean result = (code == CODE_SUCCESS);
+                if (result) {
+                    int id = (Integer) rlt;
+                    if (id == INVALID_ID) {
+                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new RecordWebAsyncTask.RecordWebCallback() {
+                            @Override
+                            public void onFinish(int code, Object result) {
+                                int strId = (code == CODE_SUCCESS) ? R.string.upload_record_success : R.string.web_failure;
+                                Toast.makeText(RecordExplorerActivity.this, strId, Toast.LENGTH_SHORT).show();
+                                if (code == CODE_SUCCESS) {
+                                    record.setNeedUpload(false);
+                                    record.save();
+                                    updateRecordView();
+                                }
+                            }
+                        }).execute(record);
+                    } else {
+                        new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new RecordWebAsyncTask.RecordWebCallback() {
+                            @Override
+                            public void onFinish(int code, Object result) {
+                                int strId = (code == CODE_SUCCESS) ? R.string.update_record_success : R.string.web_failure;
+                                Toast.makeText(RecordExplorerActivity.this, strId, Toast.LENGTH_SHORT).show();
+                                if (code == CODE_SUCCESS) {
+                                    record.setNeedUpload(false);
+                                    record.save();
+                                    updateRecordView();
+                                }
+                            }
+                        }).execute(record);
+                    }
+                } else {
+                    Toast.makeText(RecordExplorerActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).execute(record);
     }
 
     private void updateRecordView() {

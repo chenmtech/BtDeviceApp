@@ -39,7 +39,6 @@ public class RecordIntroLayout extends RelativeLayout {
     private ImageView ivCreatorImage;
     private TextView tvCreateTime; // 创建时间
     private TextView tvAddress; // device address
-    private ImageView ivUpload; // record upload
 
     public RecordIntroLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -50,10 +49,9 @@ public class RecordIntroLayout extends RelativeLayout {
         ivCreatorImage = findViewById(R.id.iv_creator_image);
         tvCreateTime = findViewById(R.id.tv_create_time);
         tvAddress = findViewById(R.id.tv_device_address);
-        ivUpload = findViewById(R.id.iv_record_upload);
     }
 
-    public void redraw(IRecord record, OnClickListener uploadListener) {
+    public void redraw(IRecord record) {
         ivExit.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,7 +72,6 @@ public class RecordIntroLayout extends RelativeLayout {
         tvCreateTime.setText(createTime);
 
         tvAddress.setText(record.getDevAddress());
-        ivUpload.setOnClickListener(uploadListener);
         invalidate();
     }
 }

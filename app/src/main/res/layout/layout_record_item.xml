@@ -72,10 +72,20 @@
     </LinearLayout>
 
     <ImageView
+        android:id="@+id/iv_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:src="@mipmap/ic_delete_24px"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"/>
+
+    <ImageView
         android:id="@+id/iv_need_upload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/ic_upload_32px"
-        android:layout_alignParentEnd="true"
+        android:layout_margin="6dp"
+        android:src="@mipmap/ic_upload_24px"
+        android:layout_toStartOf="@id/iv_delete"
         android:layout_centerVertical="true"/>
 </RelativeLayout>
