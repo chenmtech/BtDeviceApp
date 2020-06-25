@@ -28,10 +28,11 @@
                 android:id="@+id/tv_device_battery"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:layout_margin="2dp"
-                android:drawableStart="@mipmap/ic_battery_0_24px"
-                android:text="电量"
+                android:drawableTop="@mipmap/ic_battery_0_24px"
+                android:text="@string/battery"
+                android:textSize="12sp"
                 app:titleTextAppearance="@style/MainToolbarTextAppearance"/>
 
         </android.support.v7.widget.Toolbar>

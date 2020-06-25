@@ -89,7 +89,7 @@ public class MainToolbarManager {
             if(level > 3) level = 3;
             drawable.setLevel(level);
             drawable.setBounds(0,0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-            tvBattery.setCompoundDrawables(drawable, null, null, null);
+            tvBattery.setCompoundDrawables(null, drawable, null, null);
         }
     }
 
