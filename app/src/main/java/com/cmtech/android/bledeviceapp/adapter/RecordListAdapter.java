@@ -19,6 +19,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.cmtech.android.bledevice.hrm.view.EcgRecordActivity;
 import com.cmtech.android.bledevice.record.BasicRecord;
 import com.cmtech.android.bledevice.record.IRecord;
+import com.cmtech.android.bledevice.record.RecordFactory;
+import com.cmtech.android.bledevice.record.RecordType;
 import com.cmtech.android.bledevice.record.RecordWebAsyncTask;
 import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
@@ -119,7 +121,12 @@ public class RecordListAdapter extends RecyclerView.Adapter<RecordListAdapter.Vi
         holder.ivUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.uploadRecord((BasicRecord) allRecords.get(holder.getAdapterPosition()));
+                BasicRecord record = (BasicRecord) allRecords.get(holder.getAdapterPosition());
+                record = (BasicRecord) RecordFactory.createFromLocalDb(RecordType.getType(record.getTypeCode()), record.getCreateTime(), record.getDevAddress());
+                if(record == null)
+                    return;
+                allRecords.set(holder.getAdapterPosition(), record);
+                activity.uploadRecord(record);
             }
         });
         return holder;

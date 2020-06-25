@@ -10,7 +10,6 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -40,7 +39,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static android.support.v4.widget.ExploreByTouchHelper.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordType.ECG;
 import static com.cmtech.android.bledevice.record.RecordType.HR;
 import static com.cmtech.android.bledevice.record.RecordType.TH;
@@ -194,7 +192,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                     Toast.makeText(RecordExplorerActivity.this, R.string.web_failure, Toast.LENGTH_SHORT).show();
                 }
 
-                List<? extends IRecord> records = RecordFactory.createFromLocalDb(recordType, AccountManager.getAccount(), from, READ_RECORD_BASIC_INFO_NUM);
+                List<? extends IRecord> records = RecordFactory.createBasicFromLocalDb(recordType, AccountManager.getAccount(), from, READ_RECORD_BASIC_INFO_NUM);
                 if(records == null || records.isEmpty()) {
                     Toast.makeText(RecordExplorerActivity.this, R.string.no_more, Toast.LENGTH_SHORT).show();
                 } else  {
@@ -250,7 +248,8 @@ public class RecordExplorerActivity extends AppCompatActivity {
                 final boolean result = (code == CODE_SUCCESS);
                 if (result) {
                     int id = (Integer) rlt;
-                    if (id == INVALID_ID) {
+                    if (id == -1) {
+                        ViseLog.e("uploading");
                         new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPLOAD, false, new RecordWebAsyncTask.RecordWebCallback() {
                             @Override
                             public void onFinish(int code, Object result) {
@@ -264,6 +263,7 @@ public class RecordExplorerActivity extends AppCompatActivity {
                             }
                         }).execute(record);
                     } else {
+                        ViseLog.e("updating");
                         new RecordWebAsyncTask(RecordExplorerActivity.this, RecordWebAsyncTask.RECORD_CMD_UPDATE_NOTE, false, new RecordWebAsyncTask.RecordWebCallback() {
                             @Override
                             public void onFinish(int code, Object result) {

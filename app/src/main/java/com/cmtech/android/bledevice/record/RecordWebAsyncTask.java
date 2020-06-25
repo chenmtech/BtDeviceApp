@@ -108,7 +108,7 @@ public class RecordWebAsyncTask extends AsyncTask<IRecord, Void, Void> {
                             JSONObject json = new JSONObject(respBody);
                             code = json.getInt("code");
                             int id = json.getInt("id");
-                            ViseLog.e("find ecg record id = " + id);
+                            ViseLog.e("code=" + code + ", find record id = " + id);
                             rlt = id;
                         } catch (JSONException e) {
                             e.printStackTrace();

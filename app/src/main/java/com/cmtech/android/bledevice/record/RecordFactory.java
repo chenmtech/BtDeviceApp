@@ -72,7 +72,7 @@ public class RecordFactory {
         return null;
     }
 
-    public static List<? extends IRecord> createFromLocalDb(RecordType type, User creator, long from, int num) {
+    public static List<? extends IRecord> createBasicFromLocalDb(RecordType type, User creator, long from, int num) {
         if(creator == null) {
             return null;
         }
@@ -82,6 +82,14 @@ public class RecordFactory {
             return LitePal.select(BasicRecord.QUERY_STR)
                     .where("creatorPlat = ? and creatorId = ? and createTime < ?", creator.getPlatName(), creator.getPlatId(), ""+from)
                     .order("createTime desc").limit(num).find(recordClass);
+        }
+        return null;
+    }
+
+    public static IRecord createFromLocalDb(RecordType type, long createTime, String devAddress) {
+        Class<? extends IRecord> recordClass = getRecordClass(type);
+        if(recordClass != null) {
+            return LitePal.where("createTime = ? and devAddress = ?", ""+createTime, devAddress).findFirst(recordClass);
         }
         return null;
     }
