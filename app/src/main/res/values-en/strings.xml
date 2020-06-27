@@ -35,6 +35,8 @@
     <string name="record_note">Note:</string>
     <string name="null_content">  </string>
     <string name="record_time">Time</string>
+    <string name="edit">Edit</string>
+    <string name="save">Save</string>
 
     <string name="hr_too_high">Your heart rate is too high</string>
     <string name="hr_too_low">Your heart rate is too low</string>

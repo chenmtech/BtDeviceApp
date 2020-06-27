@@ -30,10 +30,12 @@
     <string name="hr_monitor_name">心率计</string>
     <string name="thermo_monitor_name">体温计</string>
     <string name="km_temp_humid_monitor_name">康明温湿度计</string>
-    <string name="km_eeg_monitor_name">康明脑电图仪</string>
+    <string name="km_eeg_monitor_name">康明脑电仪</string>
     <string name="record_note">备注:</string>
     <string name="null_content">无</string>
     <string name="record_time">记录时间</string>
+    <string name="edit">编辑</string>
+    <string name="save">保存</string>
 
 
     <string name="hr_too_high">心率过高</string>

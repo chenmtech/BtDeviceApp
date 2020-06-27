@@ -22,12 +22,11 @@ import org.json.JSONObject;
 import org.litepal.LitePal;
 
 import static com.cmtech.android.bledevice.record.BleHrRecord10.HR_MOVE_AVERAGE_FILTER_WINDOW_WIDTH;
+import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 
 public class HrRecordActivity extends AppCompatActivity {
-    private static final int INVALID_ID = -1;
-
     private BleHrRecord10 record;
     private RecordIntroLayout introLayout;
 
@@ -44,7 +43,7 @@ public class HrRecordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_hr);
 
-        int recordId = getIntent().getIntExtra("record_id", -1);
+        int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
 
         record = LitePal.where("id = ?", String.valueOf(recordId)).findFirst(BleHrRecord10.class, true);
         if(record == null) {
@@ -110,7 +109,7 @@ public class HrRecordActivity extends AppCompatActivity {
         etNote.setText(record.getNote());
         etNote.setEnabled(false);
         btnSave = findViewById(R.id.btn_save);
-        btnSave.setText("编辑");
+        btnSave.setText(R.string.edit);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -122,10 +121,10 @@ public class HrRecordActivity extends AppCompatActivity {
                         record.save();
                     }
                     etNote.setEnabled(false);
-                    btnSave.setText("编辑");
+                    btnSave.setText(R.string.edit);
                 } else {
                     etNote.setEnabled(true);
-                    btnSave.setText("保存");
+                    btnSave.setText(R.string.save);
                 }
             }
         });

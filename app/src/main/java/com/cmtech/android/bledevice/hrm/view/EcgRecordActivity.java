@@ -23,12 +23,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.litepal.LitePal;
 
+import static com.cmtech.android.bledevice.record.IRecord.INVALID_ID;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.RECORD_CMD_DOWNLOAD;
 
 public class EcgRecordActivity extends AppCompatActivity implements RollWaveView.OnRollWaveViewListener{
-    private static final int INVALID_ID = -1;
-
     private BleEcgRecord10 record;
 
     private RecordIntroLayout introLayout;
@@ -47,7 +46,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_ecg);
 
-        int recordId = getIntent().getIntExtra("record_id", -1);
+        int recordId = getIntent().getIntExtra("record_id", INVALID_ID);
 
         record = LitePal.where("id = ?", ""+recordId).findFirst(BleEcgRecord10.class);
         if(record == null) {
@@ -139,7 +138,7 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
         etNote.setText(record.getNote());
         etNote.setEnabled(false);
         btnSave = findViewById(R.id.btn_save);
-        btnSave.setText("编辑");
+        btnSave.setText(R.string.edit);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,10 +150,10 @@ public class EcgRecordActivity extends AppCompatActivity implements RollWaveView
                         record.save();
                     }
                     etNote.setEnabled(false);
-                    btnSave.setText("编辑");
+                    btnSave.setText(R.string.edit);
                 } else {
                     etNote.setEnabled(true);
-                    btnSave.setText("保存");
+                    btnSave.setText(R.string.save);
                 }
             }
         });

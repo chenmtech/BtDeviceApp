@@ -35,8 +35,6 @@ import org.litepal.LitePal;
 
 import java.util.List;
 
-import static android.support.v4.widget.ExploreByTouchHelper.INVALID_ID;
-import static com.cmtech.android.bledevice.record.RecordWebAsyncTask.CODE_SUCCESS;
 import static com.cmtech.android.bledeviceapp.AppConstant.SUPPORT_LOGIN_PLATFORM;
 
 
