@@ -23,7 +23,17 @@
     <string name="device_address">设备地址:</string>
     <string name="device_type">设备类型:</string>
     <string name="device_name">设备名称:</string>
+    <string name="device_broadcast_name">设备广播名:</string>
     <string name="device_image">设备图像:</string>
+    <string name="added">已添加</string>
+    <string name="not_added">未添加</string>
+    <string name="hr_monitor_name">心率计</string>
+    <string name="thermo_monitor_name">体温计</string>
+    <string name="km_temp_humid_monitor_name">康明温湿度计</string>
+    <string name="km_eeg_monitor_name">康明脑电图仪</string>
+    <string name="record_note">备注:</string>
+    <string name="null_content">无</string>
+    <string name="record_time">记录时间</string>
 
 
     <string name="hr_too_high">心率过高</string>
@@ -52,7 +62,7 @@
     <string name="temperature">℃</string>
     <string name="add_device">添加设备</string>
     <string name="delete_device">删除设备</string>
-    <string name="wont_delete_info_by_device">删除设备后不会丢失设备产生的记录。</string>
+    <string name="wont_delete_info_by_device">删除设备不会丢失设备记录。</string>
     <string name="user_record">用户记录</string>
     <string name="open_store">康明商城</string>
     <string name="about_km">关于康明</string>

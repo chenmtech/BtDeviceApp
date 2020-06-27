@@ -68,7 +68,7 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
                     if(!isRegistered(detailInfo)) {
                         activity.registerDevice(detailInfo);
                     } else {
-                        Toast.makeText(activity, "设备已添加。", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, R.string.added, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -95,16 +95,16 @@ public class ScanAdapter extends RecyclerView.Adapter<ScanAdapter.ViewHolder> {
         if(uuidBytes != null) {
             type = DeviceType.getFromUuid(HexUtil.encodeHexStr(uuidBytes));
         }
-        holder.type.setText((type == null) ? "未知" : type.getDefaultName());
+        holder.type.setText((type == null) ? activity.getString(R.string.unknown) : type.getDefaultName());
         holder.address.setText(detailInfo.getAddress());
         holder.name.setText(detailInfo.getName());
         boolean status = isRegistered(detailInfo);
         TextPaint paint = holder.status.getPaint();
         if(status) {
-            holder.status.setText("已添加");
+            holder.status.setText(R.string.added);
             paint.setFlags(paint.getFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
-            holder.status.setText("未添加");
+            holder.status.setText(R.string.not_added);
             paint.setFlags(paint.getFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         }
     }

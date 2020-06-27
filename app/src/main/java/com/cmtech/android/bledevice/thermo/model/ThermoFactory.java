@@ -3,6 +3,7 @@ package com.cmtech.android.bledevice.thermo.model;
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.thermo.view.ThermoFragment;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
@@ -10,7 +11,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
 
 public class ThermoFactory extends DeviceFactory {
     private static final String THERMO_UUID = "1809"; // thermometer uuid
-    private static final String THERMO_DEFAULT_NAME = "体温计";
+    private static final String THERMO_DEFAULT_NAME = MyApplication.getStr(R.string.thermo_monitor_name);
     private static final int THERMO_DEFAULT_ICON = R.drawable.ic_thermo_default_icon;
     private static final String THERMO_FACTORY = ThermoFactory.class.getName();
 

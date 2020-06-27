@@ -24,7 +24,17 @@
     <string name="device_address">Device Addr:</string>
     <string name="device_type">Device Type:</string>
     <string name="device_name">Device Name:</string>
+    <string name="device_broadcast_name">Device Broadcast Name:</string>
     <string name="device_image">Device Image:</string>
+    <string name="added">added</string>
+    <string name="not_added">not added</string>
+    <string name="hr_monitor_name">HR Monitor</string>
+    <string name="thermo_monitor_name">Thermometer</string>
+    <string name="km_temp_humid_monitor_name">KM Temp/Humid Monitor</string>
+    <string name="km_eeg_monitor_name">KM EEG Monitor</string>
+    <string name="record_note">Note:</string>
+    <string name="null_content">  </string>
+    <string name="record_time">Time</string>
 
     <string name="hr_too_high">Your heart rate is too high</string>
     <string name="hr_too_low">Your heart rate is too low</string>

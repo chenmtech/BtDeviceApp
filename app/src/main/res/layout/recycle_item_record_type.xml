@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="40dp"
     android:layout_margin="10dp"
     android:baselineAligned="false">
 
@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
+        android:layout_margin="6dp"
         android:src="@mipmap/ic_unknown_device"/>
 
     <TextView
@@ -19,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="10dp"
-        android:text="@string/unknown"
-        android:textSize="22sp"/>
+        android:text="@string/unknown_record"
+        android:textSize="18sp"/>
 
 </LinearLayout>

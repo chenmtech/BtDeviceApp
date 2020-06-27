@@ -3,8 +3,7 @@ package com.cmtech.android.bledevice.eeg.model;
 import com.cmtech.android.ble.core.DeviceInfo;
 import com.cmtech.android.ble.core.IDevice;
 import com.cmtech.android.bledevice.eeg.view.EegFragment;
-import com.cmtech.android.bledevice.hrm.model.HrmDevice;
-import com.cmtech.android.bledevice.hrm.view.HrmFragment;
+import com.cmtech.android.bledeviceapp.MyApplication;
 import com.cmtech.android.bledeviceapp.R;
 import com.cmtech.android.bledeviceapp.activity.DeviceFragment;
 import com.cmtech.android.bledeviceapp.model.DeviceFactory;
@@ -24,7 +23,7 @@ import com.cmtech.android.bledeviceapp.model.DeviceType;
  */
 public class EegFactory extends DeviceFactory {
     private static final String EEG_UUID = "AAA0"; // EEG uuid
-    private static final String EEG_DEFAULT_NAME = "脑电图"; // default eeg name
+    private static final String EEG_DEFAULT_NAME = MyApplication.getStr(R.string.km_eeg_monitor_name); // default eeg name
     private static final int EEG_DEFAULT_ICON = R.drawable.ic_eeg_default_icon;
     private static final String EEG_FACTORY = EegFactory.class.getName();
 
