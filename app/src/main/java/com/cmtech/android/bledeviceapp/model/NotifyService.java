@@ -108,6 +108,11 @@ public class NotifyService extends Service implements IDevice.OnDeviceListener {
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
+
+    @Override
     public void onDestroy() {
         ViseLog.e("NotifyService.onDestroy()");
         super.onDestroy();

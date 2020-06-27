@@ -98,7 +98,8 @@
         <service
             android:name=".model.NotifyService"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:priority = "1000"/>
 
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordActivity" />
         <activity android:name="com.cmtech.android.bledevice.ecg.activity.EcgRecordExplorerActivity" />
